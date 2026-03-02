@@ -33,6 +33,12 @@ For each application inventory:
 - Source: `lotus-performance` OpenAPI contracts
 - Generator: `lotus-performance/scripts/api_vocabulary_inventory.py`
 
+## lotus-manage Inventory
+
+- File: `lotus-manage-api-vocabulary.v1.json`
+- Source: `lotus-manage` OpenAPI contracts
+- Generator: `lotus-manage/scripts/api_vocabulary_inventory.py`
+
 ## Regeneration
 
 ```powershell
@@ -55,6 +61,15 @@ python ..\lotus-performance\scripts\api_vocabulary_inventory.py `
 Copy-Item `
   ..\lotus-performance\docs\standards\api-vocabulary\lotus-performance-api-vocabulary.v1.json `
   .\platform-contracts\api-vocabulary\lotus-performance-api-vocabulary.v1.json `
+  -Force
+```
+
+```powershell
+python ..\lotus-manage\scripts\api_vocabulary_inventory.py `
+  --output .\docs\standards\api-vocabulary\lotus-manage-api-vocabulary.v1.json
+Copy-Item `
+  ..\lotus-manage\docs\standards\api-vocabulary\lotus-manage-api-vocabulary.v1.json `
+  .\platform-contracts\api-vocabulary\lotus-manage-api-vocabulary.v1.json `
   -Force
 ```
 
