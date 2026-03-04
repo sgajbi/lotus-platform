@@ -8,6 +8,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/pre-commit.backend.template.yaml`
 - `templates/workflows/ci.backend.template.yml`
 - `templates/workflows/pr-auto-merge.template.yml`
+- `Development-Workflow-and-CI-Strategy-Standard.md`
 
 ## Usage
 
