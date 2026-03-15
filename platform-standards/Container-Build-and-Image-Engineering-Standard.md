@@ -45,7 +45,16 @@ Dockerfiles must order layers to maximize cache reuse:
 
 Do not copy the full source tree before dependency installation unless there is no viable alternative.
 
-### 5. Shared Build Pattern
+### 5. BuildKit Cache Mounts
+Python service Dockerfiles should use BuildKit cache mounts for package installation steps.
+
+Required when BuildKit is enabled:
+- `# syntax=docker/dockerfile:1.7`
+- `RUN --mount=type=cache,target=/root/.cache/pip ...`
+
+This is the minimum standard for repeated image builds in smoke, latency, performance, and recovery gates.
+
+### 6. Shared Build Pattern
 Repositories with multiple Python services must standardize Dockerfile structure across services.
 
 Required:
@@ -54,7 +63,7 @@ Required:
 - common healthcheck pattern where applicable
 - no service-local drift for install mechanics unless justified
 
-### 6. CI Build Acceleration
+### 7. CI Build Acceleration
 GitHub Actions workflows that build Docker images must enable:
 - `DOCKER_BUILDKIT=1`
 - `COMPOSE_DOCKER_CLI_BUILD=1` when docker compose builds are used
@@ -62,7 +71,7 @@ GitHub Actions workflows that build Docker images must enable:
 
 Where builds are frequent or expensive, use cache import/export rather than rebuilding cold each run.
 
-### 7. Local-Dev vs Production Split
+### 8. Local-Dev vs Production Split
 Developer convenience images and production images are different concerns.
 
 Allowed:
@@ -71,14 +80,14 @@ Allowed:
 Required:
 - production images remain optimized for reproducibility, minimal attack surface, and startup determinism
 
-### 8. Runtime Image Hygiene
+### 9. Runtime Image Hygiene
 Production images must:
 - run as non-root
 - include only required runtime files
 - avoid unnecessary package managers and build tools in final stage
 - expose only required ports
 
-### 9. Evidence and Governance
+### 10. Evidence and Governance
 Each repository must be able to point to:
 - Docker build workflow
 - `.dockerignore`
