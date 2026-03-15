@@ -26,6 +26,8 @@ Required:
 - a lock or compiled dependency artifact for reproducible builds
 - base images pinned by major/minor and preferably digest for production releases
 
+If a repository uses a shared internal library, service packages must not pin overlapping dependencies to incompatible versions that downgrade or override the shared library's declared runtime set inside the built image.
+
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
 
