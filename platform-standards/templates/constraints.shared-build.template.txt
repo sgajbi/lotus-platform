@@ -1,0 +1,6 @@
+pydantic==<shared_version>
+sqlalchemy==<shared_version>
+asyncpg==<shared_version>
+confluent-kafka==<shared_version>
+python-dotenv==<shared_version>
+tenacity==<shared_version>

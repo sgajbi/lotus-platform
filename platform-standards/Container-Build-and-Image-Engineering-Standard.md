@@ -28,6 +28,8 @@ Required:
 
 If a repository uses a shared internal library, service packages must not pin overlapping dependencies to incompatible versions that downgrade or override the shared library's declared runtime set inside the built image.
 
+If a full-repository lockfile is not yet practical, the repository must at minimum maintain an enforced shared constraints artifact for overlapping runtime dependencies used by local bootstrap, CI install, and Docker image builds.
+
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
 
