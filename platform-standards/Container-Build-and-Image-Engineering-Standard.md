@@ -33,6 +33,8 @@ If a full-repository lockfile is not yet practical, the repository must at minim
 
 At that intermediate stage, the repository must also lock the CI/dev tooling layer separately so lint/typecheck/security tool versions do not float between builds.
 
+Multi-service repositories must also converge shared framework stacks before claiming a common runtime lock. If services intentionally diverge on web/runtime foundations such as FastAPI, Uvicorn, or observability middleware, the repo does not yet have one truthful shared runtime dependency set.
+
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
 
