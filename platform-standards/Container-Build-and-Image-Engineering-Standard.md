@@ -24,18 +24,21 @@ Docker and CI builds must not resolve open-ended dependencies directly from floa
 Required:
 - pinned direct runtime dependencies
 - a lock or compiled dependency artifact for reproducible builds
+- a locked CI/dev tooling artifact for non-runtime build tools
 - base images pinned by major/minor and preferably digest for production releases
 
 If a repository uses a shared internal library, service packages must not pin overlapping dependencies to incompatible versions that downgrade or override the shared library's declared runtime set inside the built image.
 
 If a full-repository lockfile is not yet practical, the repository must at minimum maintain an enforced shared constraints artifact for overlapping runtime dependencies used by local bootstrap, CI install, and Docker image builds.
 
+At that intermediate stage, the repository must also lock the CI/dev tooling layer separately so lint/typecheck/security tool versions do not float between builds.
+
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
 
 Required split:
-- builder stage for dependency installation and wheel/build work
-- runtime stage containing only the runtime environment and required app assets
+- builder stage for dependency wheel/build work
+- runtime stage installing only built wheels and required runtime assets
 
 Do not ship compilers or build toolchains in final runtime images unless operationally required.
 
@@ -43,9 +46,9 @@ Do not ship compilers or build toolchains in final runtime images unless operati
 Dockerfiles must order layers to maximize cache reuse:
 1. base OS/runtime setup
 2. dependency metadata and lock files
-3. dependency install
-4. application source copy
-5. final runtime-only copy
+3. dependency wheel build
+4. application source copy needed for wheel packaging
+5. final runtime-only wheel install
 
 Do not copy the full source tree before dependency installation unless there is no viable alternative.
 
@@ -74,6 +77,11 @@ GitHub Actions workflows that build Docker images must enable:
 - `docker/setup-buildx-action` for Docker build jobs
 
 Where builds are frequent or expensive, use cache import/export rather than rebuilding cold each run.
+
+For compose-backed CI gates, the preferred pattern is:
+- explicit image tags in compose services
+- a prebuild step that loads images into the local Docker engine
+- BuildKit cache import/export reused across runs
 
 ### 8. Local-Dev vs Production Split
 Developer convenience images and production images are different concerns.

@@ -1,39 +1,54 @@
 # syntax=docker/dockerfile:1.7
-FROM python:3.12-slim-bookworm AS python-base
+ARG PYTHON_IMAGE=python:3.12-slim-bookworm
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
+FROM ${PYTHON_IMAGE} AS runtime-base
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_CONSTRAINT=/app/constraints/shared-build-constraints.txt \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PATH="/opt/venv/bin:$PATH"
 
-RUN useradd --create-home appuser
-RUN python -m venv /opt/venv && chown -R appuser:appuser /opt/venv
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd --create-home appuser && \
+    python -m venv /opt/venv && \
+    chown -R appuser:appuser /opt/venv
 
 WORKDIR /app
+COPY constraints/shared-build-constraints.txt /app/constraints/shared-build-constraints.txt
 
-FROM python-base AS builder
+FROM ${PYTHON_IMAGE} AS wheel-builder
 
-# Copy dependency metadata and lock artifacts first.
-COPY pyproject.toml README.md /app/
-# COPY requirements.lock /app/requirements.lock
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_CONSTRAINT=/build/constraints/shared-build-constraints.txt \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Install locked dependencies here.
-# RUN --mount=type=cache,target=/root/.cache/pip \
-#     pip install --upgrade pip && pip install -r /app/requirements.lock
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy shared libraries and service source after dependency layers.
-COPY src/libs /app/src/libs
-COPY src/services/<service_name>/pyproject.toml /app/src/services/<service_name>/pyproject.toml
-COPY src/services/<service_name>/app /app/src/services/<service_name>/app
+WORKDIR /build
+COPY constraints/shared-build-constraints.txt /build/constraints/shared-build-constraints.txt
+COPY src/libs/portfolio-common /build/src/libs/portfolio-common
+COPY src/services/<service_name>/pyproject.toml /build/src/services/<service_name>/pyproject.toml
+COPY src/services/<service_name>/app /build/src/services/<service_name>/app
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install /app/src/services/<service_name>
+    pip wheel --wheel-dir /wheels \
+    /build/src/libs/portfolio-common \
+    /build/src/services/<service_name>
 
-FROM python-base AS final
+FROM runtime-base AS final
 
-COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv
-COPY --from=builder --chown=appuser:appuser /app/src/services/<service_name>/app /app/app
-COPY --from=builder --chown=appuser:appuser /app/src/libs /app/src/libs
+COPY --from=wheel-builder /wheels /wheels
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-index --find-links=/wheels /wheels/*.whl && \
+    rm -rf /wheels && \
+    chown -R appuser:appuser /opt/venv
 
 USER appuser
 
