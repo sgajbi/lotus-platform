@@ -1,0 +1,4 @@
+ruff==<pinned_version>
+mypy==<pinned_version>
+pip-audit==<pinned_version>
+types-python-dateutil==<pinned_version>
