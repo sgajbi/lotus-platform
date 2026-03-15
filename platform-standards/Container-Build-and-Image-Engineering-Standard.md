@@ -25,7 +25,7 @@ Required:
 - pinned direct runtime dependencies
 - a lock or compiled dependency artifact for reproducible builds
 - a locked CI/dev tooling artifact for non-runtime build tools
-- base images pinned by major/minor and preferably digest for production releases
+- base images pinned by major/minor and digest for production releases
 
 If a repository uses a shared internal library, service packages must not pin overlapping dependencies to incompatible versions that downgrade or override the shared library's declared runtime set inside the built image.
 
@@ -34,6 +34,8 @@ If a full-repository lockfile is not yet practical, the repository must at minim
 At that intermediate stage, the repository must also lock the CI/dev tooling layer separately so lint/typecheck/security tool versions do not float between builds.
 
 Multi-service repositories must also converge shared framework stacks before claiming a common runtime lock. If services intentionally diverge on web/runtime foundations such as FastAPI, Uvicorn, or observability middleware, the repo does not yet have one truthful shared runtime dependency set.
+
+Once framework convergence is achieved, the repository should promote the shared constraints layer into a compiled shared runtime lock artifact and use that same artifact for local bootstrap, Docker image builds, and any build-evidence generation.
 
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
@@ -107,6 +109,14 @@ Each repository must be able to point to:
 - `.dockerignore`
 - runtime image Dockerfiles
 - documented repo-specific deviations from this standard
+
+Production-grade image builds should also emit:
+- an SBOM artifact for the locked runtime dependency set
+- a lightweight provenance manifest tying the image build to:
+  - git commit
+  - Dockerfile path and digest
+  - base image digest
+  - runtime lock artifact and digest
 
 ## Recommended Rollout Order
 1. `.dockerignore`

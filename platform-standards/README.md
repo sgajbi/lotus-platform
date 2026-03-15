@@ -20,7 +20,8 @@ This folder is the reusable standards package for backend repositories.
 1. Copy templates into service repositories.
 2. Adapt only repo-specific values (branch name, Python version, docker image tag, test paths).
 3. Keep required gate names and required `make` targets unchanged (`lint`, `typecheck`, `openapi-gate`, `test`, `ci`, `security-audit`).
-4. Run conformance validator:
+4. For mature multi-service repos, promote shared runtime constraints into a compiled shared runtime lock and feed that same lock into bootstrap, Docker builds, SBOM generation, and provenance manifests.
+5. Run conformance validator:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1
