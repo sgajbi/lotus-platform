@@ -82,7 +82,15 @@
         "observability": {
           "require_response_headers": ["x-correlation-id"],
           "required_log_patterns": ["correlation", "service", "request"]
-        }
+        },
+        "custom_checks": [
+          {
+            "id": "seeded-analytics-maturity",
+            "type": "command",
+            "command": "python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202",
+            "expected_exit_code": 0
+          }
+        ]
       }
     },
     {

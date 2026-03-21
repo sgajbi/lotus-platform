@@ -192,6 +192,12 @@ Run platform-level QA readiness automation (startup + API/log/metrics/standards 
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp
 ```
 
+Run the seeded analytics maturity invariant against `lotus-core`:
+
+```powershell
+python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202
+```
+
 Run QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
