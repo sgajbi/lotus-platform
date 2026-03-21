@@ -95,6 +95,19 @@ jobs:
 
           python @args
 
+      - name: Append workflow summary
+        if: always()
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $PWD "output/cross-app"
+          $summaryPath = Join-Path $artifactRoot "workflow-summary-${{ matrix.target }}.md"
+          python automation/render_cross_app_workflow_summary.py --target "${{ matrix.target }}" --artifact-dir $artifactRoot --output-markdown $summaryPath
+          if (Test-Path $summaryPath) {
+            Get-Content $summaryPath | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          } else {
+            "No workflow summary artifact was produced for target `${{ matrix.target }}`." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
       - name: Upload validation artifacts
         if: always()
         uses: actions/upload-artifact@v4

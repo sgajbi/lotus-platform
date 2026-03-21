@@ -96,19 +96,12 @@ jobs:
         shell: pwsh
         run: |
           $artifactRoot = Join-Path $PWD "output/cross-app"
-          $markdownMap = @{
-            "baseline" = "core-performance-baseline-validation.md"
-            "twr_benchmark" = "core-performance-twr-benchmark-validation.md"
-            "returns_series" = "core-performance-returns-series-validation.md"
-            "contribution" = "core-performance-contribution-validation.md"
-            "attribution" = "core-performance-attribution-validation.md"
-            "mwr" = "core-performance-mwr-validation.md"
-          }
-          $markdownPath = Join-Path $artifactRoot $markdownMap["${{ inputs.target }}"]
-          if (Test-Path $markdownPath) {
-            Get-Content $markdownPath | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $summaryPath = Join-Path $artifactRoot "workflow-summary-${{ inputs.target }}.md"
+          python automation/render_cross_app_workflow_summary.py --target "${{ inputs.target }}" --artifact-dir $artifactRoot --output-markdown $summaryPath
+          if (Test-Path $summaryPath) {
+            Get-Content $summaryPath | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           } else {
-            "No markdown artifact was produced for target `${{ inputs.target }}`." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            "No workflow summary artifact was produced for target `${{ inputs.target }}`." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           }
 
       - name: Upload validation artifacts
