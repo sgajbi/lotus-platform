@@ -36,11 +36,11 @@
     {
       "name": "lotus-performance",
       "pathHint": "lotus-performance",
-      "defaultServices": ["lotus-performance"],
+      "defaultServices": ["performance-analytics"],
       "rules": [
         {
           "pathPrefixes": ["src/", "app/", "requirements.txt", "Dockerfile", "pyproject.toml"],
-          "services": ["lotus-performance"]
+          "services": ["performance-analytics"]
         }
       ]
     },
