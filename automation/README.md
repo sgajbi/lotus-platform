@@ -214,6 +214,12 @@ Run the full core -> performance baseline across all engines using reused stable
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed
 ```
 
+Run the same cross-app validators from GitHub Actions on a self-hosted runner:
+
+- Workflow: `.github/workflows/core-performance-cross-app-validation.yml`
+- Recommended first mode while attribution alignment is still under investigation: `target=twr_benchmark` or `target=baseline` with `scenario_mode=skip_seed`
+- The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
+
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
 
 ```powershell

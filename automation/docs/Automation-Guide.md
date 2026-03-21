@@ -45,6 +45,23 @@ Canonical source: `lotus-platform/automation`
 | Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
 | Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
 
+## GitHub Actions
+
+Cross-app validation can now also run from GitHub Actions through:
+
+- `.github/workflows/core-performance-cross-app-validation.yml`
+
+Recommended operating model right now:
+- use a `self-hosted` runner that can already reach live `lotus-core` and `lotus-performance` URLs
+- start with `scenario_mode=skip_seed`
+- provide explicit suffixes when you want deterministic reruns on a known stable scenario
+- use `target=baseline` for the whole suite, or one validator target when you want to isolate a single engine lane
+
+Why this starts as `self-hosted`:
+- the validators depend on live cross-app services, not mocks
+- stable-mode reuse depends on already-seeded scenarios on the runner
+- fresh-seed mode is supported too, but it still exercises the upstream analytics-readiness path we are separately tracking
+
 ## Core Validation Scripts
 
 - Backend standards: `automation/Validate-Backend-Standards.ps1`

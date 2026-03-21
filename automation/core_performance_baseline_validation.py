@@ -16,6 +16,8 @@ class ValidatorSpec:
     output_json_name: str
     output_markdown_name: str
     scenario_mode: str
+    ingestion_base_url_arg: str
+    query_base_url_arg: str
 
 
 _VALIDATORS: tuple[ValidatorSpec, ...] = (
@@ -25,6 +27,8 @@ _VALIDATORS: tuple[ValidatorSpec, ...] = (
         output_json_name="core-performance-twr-benchmark-validation.json",
         output_markdown_name="core-performance-twr-benchmark-validation.md",
         scenario_mode="shared",
+        ingestion_base_url_arg="--ingestion-base-url",
+        query_base_url_arg="--control-base-url",
     ),
     ValidatorSpec(
         key="returns_series",
@@ -32,6 +36,8 @@ _VALIDATORS: tuple[ValidatorSpec, ...] = (
         output_json_name="core-performance-returns-series-validation.json",
         output_markdown_name="core-performance-returns-series-validation.md",
         scenario_mode="shared",
+        ingestion_base_url_arg="--core-ingestion-base-url",
+        query_base_url_arg="--core-query-base-url",
     ),
     ValidatorSpec(
         key="contribution",
@@ -39,6 +45,8 @@ _VALIDATORS: tuple[ValidatorSpec, ...] = (
         output_json_name="core-performance-contribution-validation.json",
         output_markdown_name="core-performance-contribution-validation.md",
         scenario_mode="shared",
+        ingestion_base_url_arg="--core-ingestion-base-url",
+        query_base_url_arg="--core-query-base-url",
     ),
     ValidatorSpec(
         key="attribution",
@@ -46,6 +54,8 @@ _VALIDATORS: tuple[ValidatorSpec, ...] = (
         output_json_name="core-performance-attribution-validation.json",
         output_markdown_name="core-performance-attribution-validation.md",
         scenario_mode="shared",
+        ingestion_base_url_arg="--core-ingestion-base-url",
+        query_base_url_arg="--core-query-base-url",
     ),
     ValidatorSpec(
         key="mwr",
@@ -53,6 +63,8 @@ _VALIDATORS: tuple[ValidatorSpec, ...] = (
         output_json_name="core-performance-mwr-validation.json",
         output_markdown_name="core-performance-mwr-validation.md",
         scenario_mode="mwr",
+        ingestion_base_url_arg="--core-ingestion-base-url",
+        query_base_url_arg="--core-query-base-url",
     ),
 )
 
@@ -103,6 +115,9 @@ def _run_validator(
     spec: ValidatorSpec,
     skip_seed: bool,
     scenario_suffix: str | None,
+    core_ingestion_base_url: str,
+    core_query_base_url: str,
+    performance_base_url: str,
 ) -> dict[str, object]:
     output_json = output_dir / spec.output_json_name
     output_markdown = output_dir / spec.output_markdown_name
@@ -113,6 +128,12 @@ def _run_validator(
         str(output_json),
         "--output-markdown",
         str(output_markdown),
+        spec.ingestion_base_url_arg,
+        core_ingestion_base_url,
+        spec.query_base_url_arg,
+        core_query_base_url,
+        "--performance-base-url",
+        performance_base_url,
     ]
     if skip_seed:
         command.append("--skip-seed")
@@ -220,6 +241,9 @@ def main() -> int:
     parser.add_argument("--skip-seed", action="store_true", help="Reuse existing seeded scenarios instead of ingesting fresh data.")
     parser.add_argument("--shared-scenario-suffix", help="Suffix for shared scenario validators (TWR, returns-series, contribution, attribution).")
     parser.add_argument("--mwr-scenario-suffix", help="Suffix for the MWR validator.")
+    parser.add_argument("--core-ingestion-base-url", default="http://127.0.0.1:8200")
+    parser.add_argument("--core-query-base-url", default="http://127.0.0.1:8202")
+    parser.add_argument("--performance-base-url", default="http://127.0.0.1:8002")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-baseline-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-baseline-validation.md")
     args = parser.parse_args()
@@ -253,6 +277,9 @@ def main() -> int:
             spec=spec,
             skip_seed=args.skip_seed,
             scenario_suffix=scenario_suffix,
+            core_ingestion_base_url=args.core_ingestion_base_url,
+            core_query_base_url=args.core_query_base_url,
+            performance_base_url=args.performance_base_url,
         )
         validator_runs.append(run)
         result_payload = run["result"]
