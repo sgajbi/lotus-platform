@@ -26,6 +26,11 @@ This map organizes the automation directory by responsibility without changing s
 - `Preflight-PR.ps1`
 - `Invoke-Platform-QA.ps1`
 
+### Cross-App Validation
+
+- `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
+- `core_performance_twr_benchmark_validation.py`
+
 ### Service Runtime Operations
 
 - `Service-Refresh.ps1`
@@ -76,3 +81,4 @@ This map organizes the automation directory by responsibility without changing s
 - `automation/docs/Automation-Guide.md`: what to run and when
 - `automation/docs/Profile-Reference.md`: profile intent
 - `automation/docs/Directory-Map.md`: this map
+- `automation/docs/Core-Performance-TWR-Benchmark-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` validation

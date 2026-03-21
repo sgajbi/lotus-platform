@@ -38,6 +38,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Backend-Standards.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
 - `automation/Validate-OpenAPI-Conformance.ps1`
 - `automation/Validate-Domain-Vocabulary.ps1`
 - `automation/Validate-Rounding-Consistency.ps1`
@@ -196,6 +197,12 @@ Run QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp
 ```
 
 Validate cross-cutting platform contract compliance:
