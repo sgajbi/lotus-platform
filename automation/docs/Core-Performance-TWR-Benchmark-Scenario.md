@@ -75,3 +75,9 @@ If the stacks are already up:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1
 ```
+
+If you need to validate against an already-seeded stable scenario while fresh-seed analytics readiness is being investigated in `lotus-core`, reuse the scenario suffix directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -SkipSeed -ScenarioSuffix 030053
+```

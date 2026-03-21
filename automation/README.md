@@ -207,6 +207,12 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark s
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp
 ```
 
+Reuse an already-seeded stable scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -SkipSeed -ScenarioSuffix 030053
+```
+
 Run the reusable cross-app `lotus-core` -> `lotus-performance` MWR scenario:
 
 ```powershell
@@ -229,6 +235,12 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` attribution scena
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp
+```
+
+Reuse an already-seeded stable attribution scenario while fresh-seed analytics readiness is under investigation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -SkipSeed -ScenarioSuffix 030053
 ```
 
 Validate cross-cutting platform contract compliance:

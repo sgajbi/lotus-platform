@@ -41,6 +41,7 @@ Canonical source: `lotus-platform/automation`
 | Seeded cross-app returns-series validation | `automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware returns-series scenario |
 | Seeded cross-app contribution validation | `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful contribution scenario |
 | Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
+| Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
 
 ## Core Validation Scripts
 

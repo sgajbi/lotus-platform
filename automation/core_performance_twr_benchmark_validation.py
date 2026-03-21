@@ -88,6 +88,10 @@ def _follow_async_result(
 
 def _build_ids() -> ScenarioIds:
     suffix = datetime.now(UTC).strftime("%H%M%S")
+    return _build_ids_for_suffix(suffix)
+
+
+def _build_ids_for_suffix(suffix: str) -> ScenarioIds:
     return ScenarioIds(
         portfolio_id=f"LIVE_REAL_{suffix}",
         benchmark_id=f"BMK_US_60_40_{suffix}",
@@ -285,7 +289,7 @@ def _seed_core_data(session: requests.Session, *, ingestion_base_url: str, ids: 
                     "index_status": "active",
                     "index_provider": "SP",
                     "index_market": "us_large_cap",
-                    "classification_labels": {"asset_class": "equity", "region": "us"},
+                    "classification_labels": {"asset_class": "Equity", "region": "US"},
                     "effective_from": "2026-01-01",
                 },
                 {
@@ -296,7 +300,7 @@ def _seed_core_data(session: requests.Session, *, ingestion_base_url: str, ids: 
                     "index_status": "active",
                     "index_provider": "Bloomberg",
                     "index_market": "us_bond",
-                    "classification_labels": {"asset_class": "fixed_income", "region": "us"},
+                    "classification_labels": {"asset_class": "Fixed Income", "region": "US"},
                     "effective_from": "2026-01-01",
                 },
             ]
@@ -587,19 +591,30 @@ def main() -> int:
     parser.add_argument("--performance-base-url", default="http://127.0.0.1:8002")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-twr-benchmark-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-twr-benchmark-validation.md")
+    parser.add_argument(
+        "--scenario-suffix",
+        help="Reuse a specific scenario suffix such as 030053 instead of generating a fresh one.",
+    )
+    parser.add_argument(
+        "--skip-seed",
+        action="store_true",
+        help="Skip ingestion and validate against an already-seeded scenario.",
+    )
     args = parser.parse_args()
 
-    ids = _build_ids()
+    ids = _build_ids_for_suffix(args.scenario_suffix) if args.scenario_suffix else _build_ids()
     session = requests.Session()
     core_defects: list[dict[str, str]] = []
 
-    _seed_core_data(session, ingestion_base_url=args.ingestion_base_url, ids=ids)
+    if not args.skip_seed:
+        _seed_core_data(session, ingestion_base_url=args.ingestion_base_url, ids=ids)
     core_summary = _query_core(session, control_base_url=args.control_base_url, ids=ids)
     performance_summary = _run_performance_validation(session, performance_base_url=args.performance_base_url, ids=ids)
 
     summary = {
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "status": "failed" if core_defects or performance_summary["defects"] else "passed",
+        "scenario_seed_mode": "reused_existing" if args.skip_seed else "fresh_seeded",
         "scenario": asdict(ids),
         "core": core_summary,
         "performance": performance_summary,
