@@ -211,6 +211,12 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` MWR scenario:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp
 ```
 
+Run the reusable cross-app `lotus-core` -> `lotus-performance` returns-series scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp
+```
+
 Validate cross-cutting platform contract compliance:
 
 ```powershell
