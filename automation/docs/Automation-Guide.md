@@ -13,6 +13,7 @@ Canonical source: `lotus-platform/automation`
 5. Need one repo preflight before push: run `Preflight-PR.ps1`.
 6. Need production-readiness QA validation: run `Invoke-Platform-QA.ps1`.
 7. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
+8. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -33,6 +34,7 @@ Canonical source: `lotus-platform/automation`
 | Platform QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up services and validate API/log/observability/standards |
 | Platform QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File defects with evidence in each repo |
 | Seeded cross-app TWR + benchmark validation | `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware portfolio scenario |
+| Seeded cross-app MWR validation | `automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful MWR scenario |
 
 ## Core Validation Scripts
 
@@ -67,6 +69,7 @@ Primary outputs are written to `lotus-platform/output/`:
 - `background-runs.json`
 - `task-runs/*`
 - `cross-app/core-performance-twr-benchmark-validation.*`
+- `cross-app/core-performance-mwr-validation.*`
 - conformance outputs (`*-conformance.*`, `*-compliance.*`, `*-validation.*`)
 
 ## Related Docs
