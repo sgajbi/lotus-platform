@@ -15,6 +15,8 @@ Canonical source: `lotus-platform/automation`
 7. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
 8. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
 9. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
+10. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
+11. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -37,6 +39,8 @@ Canonical source: `lotus-platform/automation`
 | Seeded cross-app TWR + benchmark validation | `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware portfolio scenario |
 | Seeded cross-app MWR validation | `automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful MWR scenario |
 | Seeded cross-app returns-series validation | `automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware returns-series scenario |
+| Seeded cross-app contribution validation | `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful contribution scenario |
+| Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
 
 ## Core Validation Scripts
 
@@ -73,6 +77,8 @@ Primary outputs are written to `lotus-platform/output/`:
 - `cross-app/core-performance-twr-benchmark-validation.*`
 - `cross-app/core-performance-mwr-validation.*`
 - `cross-app/core-performance-returns-series-validation.*`
+- `cross-app/core-performance-contribution-validation.*`
+- `cross-app/core-performance-attribution-validation.*`
 - conformance outputs (`*-conformance.*`, `*-compliance.*`, `*-validation.*`)
 
 ## Related Docs

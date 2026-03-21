@@ -39,6 +39,8 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1`
 - `automation/Validate-OpenAPI-Conformance.ps1`
 - `automation/Validate-Domain-Vocabulary.ps1`
 - `automation/Validate-Rounding-Consistency.ps1`
@@ -215,6 +217,18 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` returns-series sc
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` contribution scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` attribution scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp
 ```
 
 Validate cross-cutting platform contract compliance:

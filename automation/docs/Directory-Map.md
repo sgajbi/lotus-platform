@@ -31,9 +31,13 @@ This map organizes the automation directory by responsibility without changing s
 - `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
 - `Invoke-CrossApp-CorePerformance-Mwr.ps1`
 - `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`
+- `Invoke-CrossApp-CorePerformance-Contribution.ps1`
+- `Invoke-CrossApp-CorePerformance-Attribution.ps1`
 - `core_performance_twr_benchmark_validation.py`
 - `core_performance_mwr_validation.py`
 - `core_performance_returns_series_validation.py`
+- `core_performance_contribution_validation.py`
+- `core_performance_attribution_validation.py`
 
 ### Service Runtime Operations
 
@@ -88,3 +92,5 @@ This map organizes the automation directory by responsibility without changing s
 - `automation/docs/Core-Performance-TWR-Benchmark-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` validation
 - `automation/docs/Core-Performance-MWR-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` stateful MWR validation
 - `automation/docs/Core-Performance-Returns-Series-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` benchmark-aware returns-series validation
+- `automation/docs/Core-Performance-Contribution-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` stateful contribution validation
+- `automation/docs/Core-Performance-Attribution-Scenario.md`: business-readable scenario guide for the reusable `lotus-core` -> `lotus-performance` stateful attribution validation
