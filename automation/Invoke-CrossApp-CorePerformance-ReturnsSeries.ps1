@@ -2,6 +2,8 @@ param(
   [string]$CoreRepoPath = "C:/Users/Sandeep/projects/lotus-core",
   [string]$PerformanceRepoPath = "C:/Users/Sandeep/projects/lotus-performance",
   [switch]$BringUp,
+  [switch]$SkipSeed,
+  [string]$ScenarioSuffix,
   [string]$OutputJson = "output/cross-app/core-performance-returns-series-validation.json",
   [string]$OutputMarkdown = "output/cross-app/core-performance-returns-series-validation.md"
 )
@@ -26,8 +28,20 @@ if ($BringUp) {
   }
 }
 
-python automation/core_performance_returns_series_validation.py `
-  --output-json $OutputJson `
-  --output-markdown $OutputMarkdown
+$arguments = @(
+  "automation/core_performance_returns_series_validation.py",
+  "--output-json", $OutputJson,
+  "--output-markdown", $OutputMarkdown
+)
+
+if ($SkipSeed) {
+  $arguments += "--skip-seed"
+}
+
+if ($ScenarioSuffix) {
+  $arguments += @("--scenario-suffix", $ScenarioSuffix)
+}
+
+python @arguments
 
 exit $LASTEXITCODE

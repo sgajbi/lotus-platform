@@ -56,3 +56,17 @@ The validator writes:
 - `output/cross-app/core-performance-mwr-validation.md`
 
 These artifacts are intended for engineers, QA, ops users, and business stakeholders who want a readable record of what was tested and what the outcome was.
+
+## How To Run
+
+Bring up the stacks and run the scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp
+```
+
+If you need to validate against an already-seeded stable scenario while fresh-seed analytics readiness is being investigated in `lotus-core`, reuse the scenario suffix directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -SkipSeed -ScenarioSuffix <existing-mwr-suffix>
+```

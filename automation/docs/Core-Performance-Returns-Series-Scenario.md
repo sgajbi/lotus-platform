@@ -35,3 +35,17 @@ The validator writes:
 
 - `output/cross-app/core-performance-returns-series-validation.json`
 - `output/cross-app/core-performance-returns-series-validation.md`
+
+## How To Run
+
+Bring up the stacks and run the scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp
+```
+
+If you need to validate against an already-seeded stable scenario while fresh-seed analytics readiness is being investigated in `lotus-core`, reuse the scenario suffix directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -SkipSeed -ScenarioSuffix 030053
+```

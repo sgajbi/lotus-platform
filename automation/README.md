@@ -219,16 +219,34 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` MWR scenario:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp
 ```
 
+Reuse an already-seeded stable MWR scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -SkipSeed -ScenarioSuffix <existing-mwr-suffix>
+```
+
 Run the reusable cross-app `lotus-core` -> `lotus-performance` returns-series scenario:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp
 ```
 
+Reuse an already-seeded stable returns-series scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -SkipSeed -ScenarioSuffix 030053
+```
+
 Run the reusable cross-app `lotus-core` -> `lotus-performance` contribution scenario:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp
+```
+
+Reuse an already-seeded stable contribution scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -SkipSeed -ScenarioSuffix 030053
 ```
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` attribution scenario:

@@ -53,6 +53,10 @@ def _poll_post_json(
 
 def _build_ids() -> ScenarioIds:
     suffix = datetime.now(UTC).strftime("%H%M%S")
+    return _build_ids_for_suffix(suffix)
+
+
+def _build_ids_for_suffix(suffix: str) -> ScenarioIds:
     return ScenarioIds(
         portfolio_id=f"LIVE_MWR_{suffix}",
         cash_security_id=f"CASH_USD_{suffix}",
@@ -250,12 +254,15 @@ def _run_validation(
     core_ingestion_base_url: str,
     core_query_base_url: str,
     performance_base_url: str,
+    scenario_suffix: str | None,
+    skip_seed: bool,
 ) -> dict[str, Any]:
-    scenario_ids = _build_ids()
+    scenario_ids = _build_ids_for_suffix(scenario_suffix) if scenario_suffix else _build_ids()
     defects: list[dict[str, Any]] = []
 
     with requests.Session() as session:
-        _seed_core_data(session, ingestion_base_url=core_ingestion_base_url, ids=scenario_ids)
+        if not skip_seed:
+            _seed_core_data(session, ingestion_base_url=core_ingestion_base_url, ids=scenario_ids)
         portfolio_timeseries = _wait_for_core_observations(
             session,
             query_base_url=core_query_base_url,
@@ -300,6 +307,7 @@ def _run_validation(
     return {
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "status": "passed" if not defects else "failed",
+        "scenario_seed_mode": "reused_existing" if skip_seed else "fresh_seeded",
         "scenario": asdict(scenario_ids),
         "core": {
             "portfolio_timeseries_observations": len(observations),
@@ -377,12 +385,23 @@ def main() -> int:
     parser.add_argument("--performance-base-url", default="http://localhost:8002")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-mwr-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-mwr-validation.md")
+    parser.add_argument(
+        "--scenario-suffix",
+        help="Reuse a specific scenario suffix such as 030053 instead of generating a fresh one.",
+    )
+    parser.add_argument(
+        "--skip-seed",
+        action="store_true",
+        help="Skip ingestion and validate against an already-seeded scenario.",
+    )
     args = parser.parse_args()
 
     result = _run_validation(
         core_ingestion_base_url=args.core_ingestion_base_url,
         core_query_base_url=args.core_query_base_url,
         performance_base_url=args.performance_base_url,
+        scenario_suffix=args.scenario_suffix,
+        skip_seed=args.skip_seed,
     )
     _write_outputs(
         result,
