@@ -17,6 +17,7 @@ Canonical source: `lotus-platform/automation`
 9. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
 10. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
 11. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
+12. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -42,6 +43,7 @@ Canonical source: `lotus-platform/automation`
 | Seeded cross-app contribution validation | `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful contribution scenario |
 | Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
 | Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
+| Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
 
 ## Core Validation Scripts
 

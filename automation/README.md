@@ -39,6 +39,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1`
 - `automation/Validate-OpenAPI-Conformance.ps1`
@@ -205,6 +206,12 @@ Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark s
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp
+```
+
+Run the full core -> performance baseline across all engines using reused stable scenarios inferred from the latest artifacts:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed
 ```
 
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
