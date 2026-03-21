@@ -1,0 +1,106 @@
+name: Core Performance Green Lanes
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario_mode:
+        description: "Use a fresh seeded scenario or reuse an existing stable scenario on the runner."
+        type: choice
+        required: true
+        default: skip_seed
+        options:
+          - skip_seed
+          - fresh_seed
+      shared_scenario_suffix:
+        description: "Optional shared scenario suffix for TWR, returns-series, and contribution."
+        type: string
+        required: false
+      mwr_scenario_suffix:
+        description: "Optional MWR scenario suffix."
+        type: string
+        required: false
+      core_ingestion_base_url:
+        description: "lotus-core ingestion base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8200"
+      core_query_base_url:
+        description: "lotus-core query base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8202"
+      performance_base_url:
+        description: "lotus-performance base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8002"
+
+permissions:
+  contents: read
+
+jobs:
+  green-lane-validation:
+    name: Run ${{ matrix.target }} validator
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: twr_benchmark
+            uses_shared_suffix: true
+            uses_mwr_suffix: false
+          - target: returns_series
+            uses_shared_suffix: true
+            uses_mwr_suffix: false
+          - target: contribution
+            uses_shared_suffix: true
+            uses_mwr_suffix: false
+          - target: mwr
+            uses_shared_suffix: false
+            uses_mwr_suffix: true
+    steps:
+      - name: Checkout lotus-platform
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validator dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Run green-lane validation
+        shell: pwsh
+        run: |
+          $args = @(
+            "automation/core_performance_ci_entrypoint.py",
+            "--target", "${{ matrix.target }}",
+            "--scenario-mode", "${{ inputs.scenario_mode }}",
+            "--core-ingestion-base-url", "${{ inputs.core_ingestion_base_url }}",
+            "--core-query-base-url", "${{ inputs.core_query_base_url }}",
+            "--performance-base-url", "${{ inputs.performance_base_url }}"
+          )
+
+          if ("${{ matrix.uses_shared_suffix }}" -eq "true" -and "${{ inputs.shared_scenario_suffix }}") {
+            $args += @("--shared-scenario-suffix", "${{ inputs.shared_scenario_suffix }}")
+          }
+
+          if ("${{ matrix.uses_mwr_suffix }}" -eq "true" -and "${{ inputs.mwr_scenario_suffix }}") {
+            $args += @("--mwr-scenario-suffix", "${{ inputs.mwr_scenario_suffix }}")
+          }
+
+          python @args
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-app-green-lane-${{ matrix.target }}-${{ github.run_id }}
+          path: |
+            output/cross-app/*.json
+            output/cross-app/*.md
+          if-no-files-found: warn

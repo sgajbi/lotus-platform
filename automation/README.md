@@ -220,6 +220,12 @@ Run the same cross-app validators from GitHub Actions on a self-hosted runner:
 - Recommended first mode while attribution alignment is still under investigation: `target=twr_benchmark` or `target=baseline` with `scenario_mode=skip_seed`
 - The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
 
+Run only the currently stable green lanes from GitHub Actions:
+
+- Workflow: `.github/workflows/core-performance-green-lanes.yml`
+- Covers: `twr_benchmark`, `returns_series`, `contribution`, `mwr`
+- Recommended while attribution source reconciliation is still being fixed upstream
+
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
 
 ```powershell
