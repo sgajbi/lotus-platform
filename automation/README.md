@@ -38,6 +38,10 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Backend-Standards.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1`
+- `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1`
 - `automation/Validate-OpenAPI-Conformance.ps1`
 - `automation/Validate-Domain-Vocabulary.ps1`
 - `automation/Validate-Rounding-Consistency.ps1`
@@ -228,6 +232,84 @@ Run QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp
+```
+
+Run the full core -> performance baseline across all engines using reused stable scenarios inferred from the latest artifacts:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed
+```
+
+Run the same cross-app validators from GitHub Actions on a self-hosted runner:
+
+- Workflow: `.github/workflows/core-performance-cross-app-validation.yml`
+- Recommended first mode while attribution alignment is still under investigation: `target=twr_benchmark` or `target=baseline` with `scenario_mode=skip_seed`
+- The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
+
+Run only the currently stable green lanes from GitHub Actions:
+
+- Workflow: `.github/workflows/core-performance-green-lanes.yml`
+- Covers: `twr_benchmark`, `returns_series`, `contribution`, `mwr`
+- Recommended while attribution source reconciliation is still being fixed upstream
+
+Reuse an already-seeded stable scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -SkipSeed -ScenarioSuffix 030053
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` MWR scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp
+```
+
+Reuse an already-seeded stable MWR scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -SkipSeed -ScenarioSuffix <existing-mwr-suffix>
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` returns-series scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp
+```
+
+Reuse an already-seeded stable returns-series scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -SkipSeed -ScenarioSuffix 030053
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` contribution scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp
+```
+
+Reuse an already-seeded stable contribution scenario instead of ingesting a fresh one:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -SkipSeed -ScenarioSuffix 030053
+```
+
+Run the reusable cross-app `lotus-core` -> `lotus-performance` attribution scenario:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp
+```
+
+Reuse an already-seeded stable attribution scenario while fresh-seed analytics readiness is under investigation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -SkipSeed -ScenarioSuffix 030053
 ```
 
 Validate cross-cutting platform contract compliance:

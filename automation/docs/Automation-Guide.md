@@ -12,6 +12,12 @@ Canonical source: `lotus-platform/automation`
 4. Need PR lifecycle automation: run `Close-PR-Loop.ps1`.
 5. Need one repo preflight before push: run `Preflight-PR.ps1`.
 6. Need production-readiness QA validation: run `Invoke-Platform-QA.ps1`.
+7. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
+8. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
+9. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
+10. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
+11. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
+12. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -31,6 +37,35 @@ Canonical source: `lotus-platform/automation`
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |
 | Platform QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up services and validate API/log/observability/standards |
 | Platform QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File defects with evidence in each repo |
+| Seeded cross-app TWR + benchmark validation | `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware portfolio scenario |
+| Seeded cross-app MWR validation | `automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful MWR scenario |
+| Seeded cross-app returns-series validation | `automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware returns-series scenario |
+| Seeded cross-app contribution validation | `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful contribution scenario |
+| Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
+| Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
+| Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
+
+## GitHub Actions
+
+Cross-app validation can now also run from GitHub Actions through:
+
+- `.github/workflows/core-performance-cross-app-validation.yml`
+- `.github/workflows/core-performance-green-lanes.yml`
+
+Recommended operating model right now:
+- use a `self-hosted` runner that can already reach live `lotus-core` and `lotus-performance` URLs
+- start with `scenario_mode=skip_seed`
+- provide explicit suffixes when you want deterministic reruns on a known stable scenario
+- use `target=baseline` for the whole suite, or one validator target when you want to isolate a single engine lane
+
+Why this starts as `self-hosted`:
+- the validators depend on live cross-app services, not mocks
+- stable-mode reuse depends on already-seeded scenarios on the runner
+- fresh-seed mode is supported too, but it still exercises the upstream analytics-readiness path we are separately tracking
+
+Current practical split:
+- `core-performance-green-lanes.yml` is the cleaner day-to-day dashboard for the known-green engines: TWR + benchmark, returns-series, contribution, and MWR
+- `core-performance-cross-app-validation.yml` remains the full manual entrypoint when you want baseline or attribution-specific evidence
 
 ## Core Validation Scripts
 
@@ -64,6 +99,11 @@ Primary outputs are written to `lotus-platform/output/`:
 - `pr-lifecycle.*`
 - `background-runs.json`
 - `task-runs/*`
+- `cross-app/core-performance-twr-benchmark-validation.*`
+- `cross-app/core-performance-mwr-validation.*`
+- `cross-app/core-performance-returns-series-validation.*`
+- `cross-app/core-performance-contribution-validation.*`
+- `cross-app/core-performance-attribution-validation.*`
 - conformance outputs (`*-conformance.*`, `*-compliance.*`, `*-validation.*`)
 
 ## Related Docs
