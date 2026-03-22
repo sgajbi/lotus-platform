@@ -9,6 +9,7 @@ This folder contains architecture RFCs to align:
 - `lotus-report` (current `lotus-report`)
 - `lotus-workbench` (current `lotus-workbench`)
 - `lotus-platform` (current `lotus-platform`)
+- `lotus-ai` (current `lotus-ai`)
 
 Reference baseline:
 - `lotus-advise` is the primary engineering standard for automation, testing, and architecture discipline.
@@ -101,6 +102,8 @@ Reference baseline:
 - `RFC-0065-lotus-performance-to-lotus-performance-and-lotus-risk-split.md`
 - `RFC-0066-lotus-advise-to-lotus-advise-and-lotus-manage-split.md`
 - `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`
+- `RFC-0068-centralized-shared-infrastructure-ownership-and-migration.md`
+- `RFC-0069-lotus-ai-shared-ai-platform-service.md`
 - `RFC-0022-platform-target-operating-model-and-service-additions.md`
 - `RFC-0023-pas-api-product-and-governance-principles.md`
 - `RFC-0024-pas-pa-dpm-integration-and-boundary-model.md`

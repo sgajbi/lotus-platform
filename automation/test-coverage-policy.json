@@ -1,151 +1,167 @@
 {
-  "workspace_root": "C:/Users/Sandeep/projects",
-  "targets": {
-    "coverage_percent_min": 99,
-    "pyramid_percent": {
-      "unit": {
-        "min": 70,
-        "max": 85
-      },
-      "integration": {
-        "min": 15,
-        "max": 25
-      },
-      "e2e": {
-        "min": 5,
-        "max": 10
-      }
-    }
-  },
-  "services": [
-    {
-      "name": "lotus-advise",
-      "repo": "lotus-advise",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-core",
-      "repo": "lotus-core",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python scripts/coverage_gate.py"
-    },
-    {
-      "name": "lotus-gateway",
-      "repo": "lotus-gateway",
-      "buckets": {
-        "unit": [
-          "tests/unit",
-          "tests/contract"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest tests/unit tests/contract tests/integration --cov=src/app --cov-branch --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-manage",
-      "repo": "lotus-manage",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-performance",
-      "repo": "lotus-performance",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest --cov=app --cov=engine --cov=core --cov=adapters --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-report",
-      "repo": "lotus-report",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest tests --cov=src/app --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-risk",
-      "repo": "lotus-risk",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
-    },
-    {
-      "name": "lotus-workbench",
-      "repo": "lotus-workbench",
-      "buckets": {
-        "unit": [
-          "tests/unit"
-        ],
-        "integration": [
-          "tests/integration"
-        ],
-        "e2e": [
-          "tests/e2e"
-        ]
-      },
-      "coverage_command": "npm run test -- --coverage"
-    }
-  ]
+    "workspace_root":  "C:/Users/Sandeep/projects",
+    "targets":  {
+                    "coverage_percent_min":  99,
+                    "pyramid_percent":  {
+                                            "unit":  {
+                                                         "min":  70,
+                                                         "max":  85
+                                                     },
+                                            "integration":  {
+                                                                "min":  15,
+                                                                "max":  25
+                                                            },
+                                            "e2e":  {
+                                                        "min":  5,
+                                                        "max":  10
+                                                    }
+                                        }
+                },
+    "services":  [
+                     {
+                         "name":  "lotus-advise",
+                         "repo":  "lotus-advise",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-ai",
+                         "repo":  "lotus-ai",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-core",
+                         "repo":  "lotus-core",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python scripts/coverage_gate.py"
+                     },
+                     {
+                         "name":  "lotus-gateway",
+                         "repo":  "lotus-gateway",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit",
+                                                      "tests/contract"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest tests/unit tests/contract tests/integration --cov=src/app --cov-branch --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-manage",
+                         "repo":  "lotus-manage",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-performance",
+                         "repo":  "lotus-performance",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=app --cov=engine --cov=core --cov=adapters --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-report",
+                         "repo":  "lotus-report",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest tests --cov=src/app --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-risk",
+                         "repo":  "lotus-risk",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
+                     },
+                     {
+                         "name":  "lotus-workbench",
+                         "repo":  "lotus-workbench",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "npm run test -- --coverage"
+                     }
+                 ]
 }

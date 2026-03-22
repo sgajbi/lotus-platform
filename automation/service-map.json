@@ -1,125 +1,255 @@
 {
-  "repos": [
-    {
-      "name": "lotus-workbench",
-      "pathHint": "lotus-workbench",
-      "defaultServices": ["lotus-workbench"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "public/", "package.json", "package-lock.json", "next.config", "Dockerfile"],
-          "services": ["lotus-workbench"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-gateway",
-      "pathHint": "lotus-gateway",
-      "defaultServices": ["lotus-gateway"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "package.json", "package-lock.json", "Dockerfile"],
-          "services": ["lotus-gateway"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-advise",
-      "pathHint": "lotus-advise",
-      "defaultServices": ["lotus-advise"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "app/", "requirements.txt", "Dockerfile", "alembic/"],
-          "services": ["lotus-advise"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-performance",
-      "pathHint": "lotus-performance",
-      "defaultServices": ["lotus-performance"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "app/", "requirements.txt", "Dockerfile", "pyproject.toml"],
-          "services": ["lotus-performance"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-core",
-      "pathHint": "lotus-core",
-      "defaultServices": ["query_service", "ingestion_service"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/services/query_service/"],
-          "services": ["query_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/ingestion_service/"],
-          "services": ["ingestion_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/persistence_service/"],
-          "services": ["persistence_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/cost_calculator_service/"],
-          "services": ["cost_calculator_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/cashflow_calculator_service/"],
-          "services": ["cashflow_calculator_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/position_calculator_service/"],
-          "services": ["position_calculator_service"]
-        },
-        {
-          "pathPrefixes": ["src/services/position_valuation_calculator/"],
-          "services": ["position_valuation_calculator"]
-        },
-        {
-          "pathPrefixes": ["src/services/timeseries_generator_service/"],
-          "services": ["timeseries_generator_service"]
-        },
-        {
-          "pathPrefixes": ["alembic/", "src/libs/portfolio-common/"],
-          "services": ["migration-runner", "query_service", "ingestion_service"]
-        },
-        {
-          "pathPrefixes": ["src/libs/"],
-          "services": ["query_service", "ingestion_service"]
-        },
-        {
-          "pathPrefixes": ["docker-compose.yml", "Dockerfile", "demo_data/", "scripts/"],
-          "services": ["query_service", "ingestion_service", "demo_data_loader"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-risk",
-      "pathHint": "lotus-risk",
-      "defaultServices": ["lotus-risk"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "tests/", "pyproject.toml", "Dockerfile"],
-          "services": ["lotus-risk"]
-        }
-      ]
-    },
-    {
-      "name": "lotus-manage",
-      "pathHint": "lotus-manage",
-      "defaultServices": ["lotus-manage"],
-      "rules": [
-        {
-          "pathPrefixes": ["src/", "tests/", "pyproject.toml", "Dockerfile"],
-          "services": ["lotus-manage"]
-        }
-      ]
-    }
-  ]
+    "repos":  [
+                  {
+                      "name":  "lotus-workbench",
+                      "pathHint":  "lotus-workbench",
+                      "defaultServices":  [
+                                              "lotus-workbench"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "public/",
+                                                             "package.json",
+                                                             "package-lock.json",
+                                                             "next.config",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-workbench"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-gateway",
+                      "pathHint":  "lotus-gateway",
+                      "defaultServices":  [
+                                              "lotus-gateway"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "package.json",
+                                                             "package-lock.json",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-gateway"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-advise",
+                      "pathHint":  "lotus-advise",
+                      "defaultServices":  [
+                                              "lotus-advise"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "app/",
+                                                             "requirements.txt",
+                                                             "Dockerfile",
+                                                             "alembic/"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-advise"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-performance",
+                      "pathHint":  "lotus-performance",
+                      "defaultServices":  [
+                                              "lotus-performance"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "app/",
+                                                             "requirements.txt",
+                                                             "Dockerfile",
+                                                             "pyproject.toml"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-performance"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-core",
+                      "pathHint":  "lotus-core",
+                      "defaultServices":  [
+                                              "query_service",
+                                              "ingestion_service"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/query_service/"
+                                                         ],
+                                        "services":  [
+                                                         "query_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/ingestion_service/"
+                                                         ],
+                                        "services":  [
+                                                         "ingestion_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/persistence_service/"
+                                                         ],
+                                        "services":  [
+                                                         "persistence_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/cost_calculator_service/"
+                                                         ],
+                                        "services":  [
+                                                         "cost_calculator_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/cashflow_calculator_service/"
+                                                         ],
+                                        "services":  [
+                                                         "cashflow_calculator_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/position_calculator_service/"
+                                                         ],
+                                        "services":  [
+                                                         "position_calculator_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/position_valuation_calculator/"
+                                                         ],
+                                        "services":  [
+                                                         "position_valuation_calculator"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/timeseries_generator_service/"
+                                                         ],
+                                        "services":  [
+                                                         "timeseries_generator_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "alembic/",
+                                                             "src/libs/portfolio-common/"
+                                                         ],
+                                        "services":  [
+                                                         "migration-runner",
+                                                         "query_service",
+                                                         "ingestion_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/libs/"
+                                                         ],
+                                        "services":  [
+                                                         "query_service",
+                                                         "ingestion_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "docker-compose.yml",
+                                                             "Dockerfile",
+                                                             "demo_data/",
+                                                             "scripts/"
+                                                         ],
+                                        "services":  [
+                                                         "query_service",
+                                                         "ingestion_service",
+                                                         "demo_data_loader"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-risk",
+                      "pathHint":  "lotus-risk",
+                      "defaultServices":  [
+                                              "lotus-risk"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "tests/",
+                                                             "pyproject.toml",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-risk"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-manage",
+                      "pathHint":  "lotus-manage",
+                      "defaultServices":  [
+                                              "lotus-manage"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "tests/",
+                                                             "pyproject.toml",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-manage"
+                                                     ]
+                                    }
+                                ]
+                  },
+                  {
+                      "name":  "lotus-ai",
+                      "pathHint":  "lotus-ai",
+                      "defaultServices":  [
+                                              "lotus-ai"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "tests/",
+                                                             "pyproject.toml",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-ai"
+                                                     ]
+                                    }
+                                ]
+                  }
+              ]
 }
-
-
-
-
