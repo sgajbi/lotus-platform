@@ -198,6 +198,32 @@ Run the seeded analytics maturity invariant against `lotus-core`:
 python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202
 ```
 
+Run the reusable lotus-core -> lotus-performance cross-app scenario:
+
+```powershell
+python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+```
+
+This scenario suite seeds real-world funding and funded-trade stories into `lotus-core`, then validates both:
+- lotus-core analytics-input economic integrity
+- lotus-performance stateful explicit-window TWR and contribution behavior
+- cross-surface consistency between TWR, contribution, benchmark, and attribution for a shared explicit-window story
+
+Result artifacts are written to:
+- `output/core-performance-cross-app/latest.json`
+
+Run the full cross-app scenario suite:
+
+```powershell
+python automation/core_performance_cross_app_suite.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+```
+
+Suite artifact:
+- `output/core-performance-cross-app/suite-latest.json`
+
+Run these cross-app scenarios serially against the shared local stack. They seed live platform state and should not be run in parallel if you want deterministic economic assertions.
+Interpret the suite by `expectation_met_count` and each scenario's `expected_posture`, not only by raw failed-check counts. The current core-performance pack is now fully green and acts as a reusable regression suite for healthy cash-only, liquidation/re-entry, staged-flow, same-currency funded-trade, cross-currency funded-trade, single-position cross-surface consistency, multi-position cross-surface consistency, and internal-rebalance consistency stories.
+
 Run QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
