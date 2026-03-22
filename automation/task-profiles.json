@@ -40,6 +40,11 @@
           "command": "python -m pip install -e \".[dev]\""
         },
         {
+          "id": "bootstrap-ai",
+          "repo": "lotus-ai",
+          "command": "python -m pip install -e \".[dev]\""
+        },
+        {
           "id": "bootstrap-risk",
           "repo": "lotus-risk",
           "command": "python -m pip install -e \".[dev]\""
@@ -91,6 +96,11 @@
           "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
         },
         {
+          "id": "ai-check",
+          "repo": "lotus-ai",
+          "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
+        },
+        {
           "id": "risk-check",
           "repo": "lotus-risk",
           "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
@@ -135,6 +145,11 @@
           "id": "manage-docker-up",
           "repo": "lotus-manage",
           "command": "docker compose up -d --build lotus-manage"
+        },
+        {
+          "id": "ai-docker-up",
+          "repo": "lotus-ai",
+          "command": "docker compose up -d --build lotus-ai"
         },
         {
           "id": "risk-docker-up",
@@ -183,6 +198,11 @@
           "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=75"
         },
         {
+          "id": "ai-ci-local",
+          "repo": "lotus-ai",
+          "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
+        },
+        {
           "id": "risk-ci-local",
           "repo": "lotus-risk",
           "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=85 && python -m mypy --config-file mypy.ini"
@@ -226,6 +246,11 @@
         {
           "id": "manage-ci-docker",
           "repo": "lotus-manage",
+          "command": "make ci-local-docker && make ci-local-docker-down"
+        },
+        {
+          "id": "ai-ci-docker",
+          "repo": "lotus-ai",
           "command": "make ci-local-docker && make ci-local-docker-down"
         },
         {
@@ -308,6 +333,11 @@
         {
           "id": "manage-integration",
           "repo": "lotus-manage",
+          "command": "python -m pytest tests/integration -q"
+        },
+        {
+          "id": "ai-integration",
+          "repo": "lotus-ai",
           "command": "python -m pytest tests/integration -q"
         },
         {

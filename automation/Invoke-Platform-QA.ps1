@@ -125,6 +125,7 @@ function New-Recommendation {
     "standards" { return "Add a CI task invoking the corresponding lotus-platform validator and fail on non-ok status." }
     "lineage" { return "Add integration tests and documentation checks for lineage/traceability endpoints and metadata." }
     "error" { return "Add tests asserting problem-details and structured error payloads for invalid requests and exceptions." }
+    "custom" { return "Promote this custom validation into a stable QA gate and keep its evidence payload versioned." }
     default { return "Add automated regression coverage for this check in unit/integration CI gates." }
   }
 }
@@ -141,6 +142,7 @@ function New-TestGap {
     "standards" { return "Validator result is not enforced as a merge-blocking gate for this repository state." }
     "lineage" { return "Lineage/traceability checks are not currently exercised in automated regression tests." }
     "error" { return "Error-handling behavior is not fully validated against platform problem-details conventions." }
+    "custom" { return "This scenario is not yet enforced by the default platform QA matrix or CI quality gates." }
     default { return "Coverage for this behavior is missing in current automated tests." }
   }
 }
@@ -444,6 +446,26 @@ foreach ($entry in $selected) {
         if (($result.body -as [string]) -notmatch [regex]::Escape([string]$needle)) {
           Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$mcheck.id) -Type "metrics" -Expected "Metrics body contains '$needle'" -Actual "Metrics body missing '$needle'" -Evidence $result.body -Steps @("GET $($mcheck.url)")
         }
+      }
+    }
+  }
+
+  if ($entry.checks.custom_checks) {
+    foreach ($customCheck in $entry.checks.custom_checks) {
+      if ([string]$customCheck.type -ne "command") {
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$customCheck.id) -Type "custom" -Expected "Supported custom check type" -Actual "Unsupported type '$([string]$customCheck.type)'" -Evidence ($customCheck | ConvertTo-Json -Depth 5) -Steps @("Review automation/qa-matrix.json for the custom check definition.")
+        continue
+      }
+
+      $customResult = Invoke-CommandCapture -RepoPath $platformRepoPath -Command ([string]$customCheck.command)
+      $expectedExitCode = if ($null -ne $customCheck.expected_exit_code) {
+        [int]$customCheck.expected_exit_code
+      } else {
+        0
+      }
+
+      if ([int]$customResult.exitCode -ne $expectedExitCode) {
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$customCheck.id) -Type "custom" -Expected "Exit code $expectedExitCode from custom check" -Actual "Exit code $($customResult.exitCode)" -Evidence $customResult.output -Steps @("cd $platformRepoPath", ([string]$customCheck.command))
       }
     }
   }

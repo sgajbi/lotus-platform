@@ -1,0 +1,194 @@
+{
+  "scenario_id": "cash_staged_flows_explicit_window",
+  "description": "Stage external funding and a later withdrawal through a USD cash-only portfolio, then validate that lotus-core preserves a clean dated external-flow story and lotus-performance reports a zero-return explicit window across multiple flow dates.",
+  "expected_validation": {
+    "status": "pass"
+  },
+  "seed_window": {
+    "start_date": "2026-03-16",
+    "end_date": "2026-03-20"
+  },
+  "portfolio": {
+    "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+    "base_currency": "USD",
+    "open_date": "2026-03-01",
+    "risk_exposure": "Low",
+    "investment_time_horizon": "Short",
+    "portfolio_type": "Advisory",
+    "booking_center_code": "SG",
+    "client_id": "PLATFORM_QA",
+    "status": "Active"
+  },
+  "instruments": [
+    {
+      "security_id": "CASH_USD_{{SUFFIX}}",
+      "name": "US Dollar",
+      "isin": "USD_CASH_STAGE_{{SUFFIX}}",
+      "currency": "USD",
+      "product_type": "Cash"
+    }
+  ],
+  "fx_rates": [],
+  "transactions": [
+    {
+      "transaction_id": "PLATFORM_STAGE_DEP_1_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+      "instrument_id": "CASH_USD_{{SUFFIX}}",
+      "security_id": "CASH_USD_{{SUFFIX}}",
+      "transaction_date": "2026-03-16T00:00:00Z",
+      "transaction_type": "DEPOSIT",
+      "quantity": 10000,
+      "price": 1,
+      "gross_transaction_amount": 10000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_STAGE_DEP_2_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+      "instrument_id": "CASH_USD_{{SUFFIX}}",
+      "security_id": "CASH_USD_{{SUFFIX}}",
+      "transaction_date": "2026-03-18T00:00:00Z",
+      "transaction_type": "DEPOSIT",
+      "quantity": 5000,
+      "price": 1,
+      "gross_transaction_amount": 5000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_STAGE_WD_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+      "instrument_id": "CASH_USD_{{SUFFIX}}",
+      "security_id": "CASH_USD_{{SUFFIX}}",
+      "transaction_date": "2026-03-19T00:00:00Z",
+      "transaction_type": "WITHDRAWAL",
+      "quantity": 2000,
+      "price": 1,
+      "gross_transaction_amount": 2000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    }
+  ],
+  "market_prices": [
+    { "security_id": "CASH_USD_{{SUFFIX}}", "price_date": "2026-03-16", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_{{SUFFIX}}", "price_date": "2026-03-17", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_{{SUFFIX}}", "price_date": "2026-03-18", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_{{SUFFIX}}", "price_date": "2026-03-19", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_{{SUFFIX}}", "price_date": "2026-03-20", "price": "1", "currency": "USD" }
+  ],
+  "core_invariants": {
+    "expected_seeded_dates": [
+      "2026-03-16",
+      "2026-03-17",
+      "2026-03-18",
+      "2026-03-19",
+      "2026-03-20"
+    ],
+    "expected_portfolio_external_flow_by_date": {
+      "2026-03-16": "10000",
+      "2026-03-18": "5000",
+      "2026-03-19": "-2000"
+    },
+    "expected_position_external_flow_by_security_and_date": [
+      {
+        "security_id": "CASH_USD_{{SUFFIX}}",
+        "valuation_date": "2026-03-16",
+        "expected_external_flow": "10000"
+      },
+      {
+        "security_id": "CASH_USD_{{SUFFIX}}",
+        "valuation_date": "2026-03-18",
+        "expected_external_flow": "5000"
+      },
+      {
+        "security_id": "CASH_USD_{{SUFFIX}}",
+        "valuation_date": "2026-03-19",
+        "expected_external_flow": "-2000"
+      }
+    ],
+    "require_position_external_flow_sum_to_match_portfolio": true
+  },
+  "performance_requests": [
+    {
+      "request_id": "stateful_twr_explicit_window",
+      "endpoint": "/performance/twr",
+      "payload": {
+        "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+        "performance_start_date": "2026-03-16",
+        "report_start_date": "2026-03-17",
+        "report_end_date": "2026-03-20",
+        "metric_basis": "NET",
+        "analyses": [
+          {
+            "period": "EXPLICIT",
+            "frequencies": ["daily"]
+          }
+        ],
+        "input_mode": "stateful",
+        "stateful_input": {}
+      },
+      "expectations": {
+        "expected_status": 200,
+        "daily_period_labels": [
+          "2026-03-17",
+          "2026-03-18",
+          "2026-03-19",
+          "2026-03-20"
+        ],
+        "json_checks": [
+          {
+            "name": "portfolio_period_return_zero",
+            "path": "results_by_period.EXPLICIT.portfolio.summary.period_return.base",
+            "approx": 0.0,
+            "tolerance": 1e-9
+          }
+        ]
+      }
+    },
+    {
+      "request_id": "stateful_contribution_explicit_window",
+      "endpoint": "/performance/contribution",
+      "payload": {
+        "portfolio_id": "PLATFORM_CASH_STAGE_{{SUFFIX}}",
+        "report_start_date": "2026-03-17",
+        "report_end_date": "2026-03-20",
+        "analyses": [
+          {
+            "period": "EXPLICIT",
+            "frequencies": ["daily"]
+          }
+        ],
+        "input_mode": "stateful",
+        "stateful_input": {
+          "metric_basis": "NET"
+        },
+        "emit": {
+          "timeseries": true
+        }
+      },
+      "expectations": {
+        "expected_status": 200,
+        "daily_dates": [
+          "2026-03-17",
+          "2026-03-18",
+          "2026-03-19",
+          "2026-03-20"
+        ],
+        "json_checks": [
+          {
+            "name": "total_portfolio_return_zero",
+            "path": "results_by_period.EXPLICIT.total_portfolio_return",
+            "approx": 0.0,
+            "tolerance": 1e-9
+          },
+          {
+            "name": "position_flow_residual_days_zero",
+            "path": "audit.counts.position_flow_residual_days",
+            "expected": 0
+          }
+        ]
+      }
+    }
+  ]
+}

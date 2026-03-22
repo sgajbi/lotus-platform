@@ -1,0 +1,437 @@
+{
+  "scenario_id": "fund_rebalance_multi_position_consistency_explicit_window",
+  "description": "Fund a USD portfolio, buy two USD equities from cash, then rebalance capital from healthcare into technology and validate that lotus-core preserves internal-leg neutrality while lotus-performance TWR, contribution, benchmark, and attribution still tell the same explicit-window story.",
+  "expected_validation": {
+    "status": "pass"
+  },
+  "seed_window": {
+    "start_date": "2026-03-16",
+    "end_date": "2026-03-20"
+  },
+  "portfolio": {
+    "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+    "base_currency": "USD",
+    "open_date": "2026-03-01",
+    "risk_exposure": "Medium",
+    "investment_time_horizon": "Medium",
+    "portfolio_type": "Discretionary",
+    "booking_center_code": "SG",
+    "client_id": "PLATFORM_QA",
+    "status": "Active"
+  },
+  "instruments": [
+    {
+      "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+      "name": "Platform Rebalance Tech",
+      "isin": "US_REBAL_TECH_{{SUFFIX}}",
+      "currency": "USD",
+      "product_type": "Equity"
+    },
+    {
+      "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+      "name": "Platform Rebalance Health",
+      "isin": "US_REBAL_HEALTH_{{SUFFIX}}",
+      "currency": "USD",
+      "product_type": "Equity"
+    },
+    {
+      "security_id": "CASH_USD_REBAL_{{SUFFIX}}",
+      "name": "US Dollar",
+      "isin": "USD_CASH_REBAL_{{SUFFIX}}",
+      "currency": "USD",
+      "product_type": "Cash"
+    }
+  ],
+  "fx_rates": [],
+  "transactions": [
+    {
+      "transaction_id": "PLATFORM_REBAL_DEP_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "CASH_USD_REBAL_{{SUFFIX}}",
+      "security_id": "CASH_USD_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-16T00:00:00Z",
+      "transaction_type": "DEPOSIT",
+      "quantity": 20000,
+      "price": 1,
+      "gross_transaction_amount": 20000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_REBAL_BUY_TECH_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+      "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-16T00:00:00Z",
+      "transaction_type": "BUY",
+      "quantity": 100,
+      "price": 50,
+      "gross_transaction_amount": 5000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_REBAL_BUY_HEALTH_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+      "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-16T00:00:00Z",
+      "transaction_type": "BUY",
+      "quantity": 100,
+      "price": 50,
+      "gross_transaction_amount": 5000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_REBAL_SETTLE_INIT_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "CASH_USD_REBAL_{{SUFFIX}}",
+      "security_id": "CASH_USD_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-16T00:00:00Z",
+      "transaction_type": "SELL",
+      "quantity": 10000,
+      "price": 1,
+      "gross_transaction_amount": 10000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_REBAL_SELL_HEALTH_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+      "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-17T00:00:00Z",
+      "transaction_type": "SELL",
+      "quantity": 20,
+      "price": 50,
+      "gross_transaction_amount": 1000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    },
+    {
+      "transaction_id": "PLATFORM_REBAL_BUY_MORE_TECH_{{SUFFIX}}",
+      "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+      "instrument_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+      "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+      "transaction_date": "2026-03-17T00:00:00Z",
+      "transaction_type": "BUY",
+      "quantity": 20,
+      "price": 50,
+      "gross_transaction_amount": 1000,
+      "trade_currency": "USD",
+      "currency": "USD"
+    }
+  ],
+  "market_prices": [
+    { "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}", "price_date": "2026-03-16", "price": "50", "currency": "USD" },
+    { "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}", "price_date": "2026-03-17", "price": "50", "currency": "USD" },
+    { "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}", "price_date": "2026-03-18", "price": "54", "currency": "USD" },
+    { "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}", "price_date": "2026-03-19", "price": "55", "currency": "USD" },
+    { "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}", "price_date": "2026-03-20", "price": "56", "currency": "USD" },
+    { "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}", "price_date": "2026-03-16", "price": "50", "currency": "USD" },
+    { "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}", "price_date": "2026-03-17", "price": "50", "currency": "USD" },
+    { "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}", "price_date": "2026-03-18", "price": "51", "currency": "USD" },
+    { "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}", "price_date": "2026-03-19", "price": "51.5", "currency": "USD" },
+    { "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}", "price_date": "2026-03-20", "price": "52", "currency": "USD" },
+    { "security_id": "CASH_USD_REBAL_{{SUFFIX}}", "price_date": "2026-03-16", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_REBAL_{{SUFFIX}}", "price_date": "2026-03-17", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_REBAL_{{SUFFIX}}", "price_date": "2026-03-18", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_REBAL_{{SUFFIX}}", "price_date": "2026-03-19", "price": "1", "currency": "USD" },
+    { "security_id": "CASH_USD_REBAL_{{SUFFIX}}", "price_date": "2026-03-20", "price": "1", "currency": "USD" }
+  ],
+  "core_invariants": {
+    "expected_seeded_dates": [
+      "2026-03-16",
+      "2026-03-17",
+      "2026-03-18",
+      "2026-03-19",
+      "2026-03-20"
+    ],
+    "expected_portfolio_external_flow_by_date": {
+      "2026-03-16": "20000"
+    },
+    "expected_position_external_flow_by_security_and_date": [
+      {
+        "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-16",
+        "expected_external_flow": "0"
+      },
+      {
+        "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-16",
+        "expected_external_flow": "0"
+      },
+      {
+        "security_id": "CASH_USD_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-16",
+        "expected_external_flow": "20000"
+      },
+      {
+        "security_id": "SEC_USD_TECH_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-17",
+        "expected_external_flow": "0"
+      },
+      {
+        "security_id": "SEC_USD_HEALTH_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-17",
+        "expected_external_flow": "0"
+      },
+      {
+        "security_id": "CASH_USD_REBAL_{{SUFFIX}}",
+        "valuation_date": "2026-03-17",
+        "expected_external_flow": "0"
+      }
+    ],
+    "require_position_external_flow_sum_to_match_portfolio": true
+  },
+  "performance_requests": [
+    {
+      "request_id": "stateful_twr_with_benchmark_explicit_window",
+      "endpoint": "/performance/twr",
+      "payload": {
+        "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+        "performance_start_date": "2026-03-16",
+        "report_start_date": "2026-03-18",
+        "report_end_date": "2026-03-18",
+        "metric_basis": "NET",
+        "include_benchmark": true,
+        "analyses": [
+          {
+            "period": "EXPLICIT",
+            "frequencies": ["daily"]
+          }
+        ],
+        "input_mode": "stateful",
+        "stateful_input": {},
+        "benchmark": {
+          "benchmark_id": "BMK_REBAL_{{SUFFIX}}",
+          "input_mode": "stateless",
+          "return_source": "calculated",
+          "stateless_input": {
+            "benchmark_currency": "USD",
+            "component_observations": [
+              {
+                "component_id": "IDX_TECH_REBAL_{{SUFFIX}}",
+                "perf_date": "2026-03-18",
+                "weight_bop": 0.5,
+                "component_return": 0.04
+              },
+              {
+                "component_id": "IDX_HEALTH_REBAL_{{SUFFIX}}",
+                "perf_date": "2026-03-18",
+                "weight_bop": 0.5,
+                "component_return": 0.01
+              }
+            ]
+          }
+        }
+      },
+      "expectations": {
+        "expected_status": 200,
+        "daily_period_labels": [
+          "2026-03-18"
+        ],
+        "json_checks": [
+          {
+            "name": "portfolio_period_return_positive",
+            "path": "results_by_period.EXPLICIT.portfolio.summary.period_return.base",
+            "approx": 2.8,
+            "tolerance": 1e-6
+          },
+          {
+            "name": "benchmark_period_return_positive",
+            "path": "results_by_period.EXPLICIT.benchmark.summary.period_return.base",
+            "approx": 2.5,
+            "tolerance": 1e-6
+          },
+          {
+            "name": "relative_return_matches_story",
+            "path": "results_by_period.EXPLICIT.relative_performance.summary.period_return.base",
+            "approx": 0.3,
+            "tolerance": 1e-6
+          }
+        ]
+      }
+    },
+    {
+      "request_id": "stateful_contribution_explicit_window",
+      "endpoint": "/performance/contribution",
+      "payload": {
+        "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+        "report_start_date": "2026-03-18",
+        "report_end_date": "2026-03-18",
+        "analyses": [
+          {
+            "period": "EXPLICIT",
+            "frequencies": ["daily"]
+          }
+        ],
+        "input_mode": "stateful",
+        "stateful_input": {
+          "metric_basis": "NET"
+        },
+        "emit": {
+          "timeseries": true
+        }
+      },
+      "expectations": {
+        "expected_status": 200,
+        "daily_dates": [
+          "2026-03-18"
+        ],
+        "json_checks": [
+          {
+            "name": "contribution_total_matches_portfolio",
+            "path": "results_by_period.EXPLICIT.total_contribution",
+            "approx": 2.8,
+            "tolerance": 1e-6
+          },
+          {
+            "name": "position_flow_residual_days_zero",
+            "path": "audit.counts.position_flow_residual_days",
+            "expected": 0
+          }
+        ]
+      }
+    },
+    {
+      "request_id": "stateless_benchmark_explicit_window",
+      "endpoint": "/performance/benchmark",
+      "payload": {
+        "input_mode": "stateless",
+        "benchmark_id": "BMK_REBAL_{{SUFFIX}}",
+        "benchmark_start_date": "2026-03-18",
+        "report_end_date": "2026-03-18",
+        "analyses": [
+          {
+            "period": "ITD",
+            "frequencies": ["daily"]
+          }
+        ],
+        "return_source": "calculated",
+        "stateless_input": {
+          "benchmark_currency": "USD",
+          "component_observations": [
+            {
+              "component_id": "IDX_TECH_REBAL_{{SUFFIX}}",
+              "perf_date": "2026-03-18",
+              "weight_bop": 0.5,
+              "component_return": 0.04
+            },
+            {
+              "component_id": "IDX_HEALTH_REBAL_{{SUFFIX}}",
+              "perf_date": "2026-03-18",
+              "weight_bop": 0.5,
+              "component_return": 0.01
+            }
+          ]
+        }
+      },
+      "expectations": {
+        "expected_status": 200,
+        "json_checks": [
+          {
+            "name": "benchmark_total_matches_twr_benchmark",
+            "path": "results_by_period.ITD.benchmark.summary.period_return.base",
+            "approx": 2.5,
+            "tolerance": 1e-6
+          }
+        ]
+      }
+    },
+    {
+      "request_id": "stateless_attribution_explicit_window",
+      "endpoint": "/performance/attribution",
+      "payload": {
+        "portfolio_id": "PLATFORM_XAPP_REBAL_{{SUFFIX}}",
+        "mode": "by_group",
+        "group_by": [
+          "sector"
+        ],
+        "linking": "none",
+        "frequency": "daily",
+        "report_start_date": "2026-03-18",
+        "report_end_date": "2026-03-18",
+        "analyses": [
+          {
+            "period": "EXPLICIT",
+            "frequencies": ["daily"]
+          }
+        ],
+        "input_mode": "stateless",
+        "stateless_input": {
+          "portfolio_groups_data": [
+            {
+              "key": {
+                "sector": "technology"
+              },
+              "observations": [
+                {
+                  "date": "2026-03-18",
+                  "return_base": 0.04,
+                  "weight_bop": 0.6
+                }
+              ]
+            },
+            {
+              "key": {
+                "sector": "healthcare"
+              },
+              "observations": [
+                {
+                  "date": "2026-03-18",
+                  "return_base": 0.01,
+                  "weight_bop": 0.4
+                }
+              ]
+            }
+          ],
+          "benchmark_groups_data": [
+            {
+              "key": {
+                "sector": "technology"
+              },
+              "observations": [
+                {
+                  "date": "2026-03-18",
+                  "return_base": 0.04,
+                  "weight_bop": 0.5
+                }
+              ]
+            },
+            {
+              "key": {
+                "sector": "healthcare"
+              },
+              "observations": [
+                {
+                  "date": "2026-03-18",
+                  "return_base": 0.01,
+                  "weight_bop": 0.5
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expectations": {
+        "expected_status": 200,
+        "json_checks": [
+          {
+            "name": "active_return_matches_relative_story",
+            "path": "results_by_period.EXPLICIT.reconciliation.total_active_return",
+            "approx": 0.3,
+            "tolerance": 1e-6
+          },
+          {
+            "name": "effects_reconcile_to_active_return",
+            "path": "results_by_period.EXPLICIT.reconciliation.sum_of_effects",
+            "approx": 0.3,
+            "tolerance": 1e-6
+          }
+        ]
+      }
+    }
+  ]
+}
