@@ -104,6 +104,7 @@ Reference baseline:
 - `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`
 - `RFC-0068-centralized-shared-infrastructure-ownership-and-migration.md`
 - `RFC-0069-lotus-ai-shared-ai-platform-service.md`
+- `RFC-0070-gold-standard-product-experience-foundation-and-ownership-model.md`
 - `RFC-0022-platform-target-operating-model-and-service-additions.md`
 - `RFC-0023-pas-api-product-and-governance-principles.md`
 - `RFC-0024-pas-pa-dpm-integration-and-boundary-model.md`
