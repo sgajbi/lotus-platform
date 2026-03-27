@@ -39,3 +39,12 @@ def test_platform_stack_dashboard_providers_separate_platform_and_core_ownership
     assert providers["lotus-core-dashboards"]["options"]["path"] == (
         "/var/lib/grafana/dashboards/lotus-core"
     )
+
+
+def test_platform_stack_otel_collector_is_platform_owned() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    otel = compose["services"]["otel-collector"]
+    volumes = otel["volumes"]
+
+    assert "./otel-collector/config.yaml:/etc/otelcol/config.yaml:ro" in volumes
+    assert (PLATFORM_STACK_DIR / "otel-collector" / "config.yaml").exists()

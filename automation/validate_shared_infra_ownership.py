@@ -58,8 +58,11 @@ def _validate_platform_stack(platform_root: Path) -> list[dict[str, Any]]:
     dashboards_path = (
         platform_root / "platform-stack" / "grafana" / "provisioning" / "dashboards" / "dashboard.yml"
     )
+    otel_config_path = platform_root / "platform-stack" / "otel-collector" / "config.yaml"
+    readme_path = platform_root / "platform-stack" / "README.md"
 
     compose = _load_yaml(compose_path)
+    readme = _load_text(readme_path)
     services = compose["services"]
     grafana_volumes = services["grafana"]["volumes"]
 
@@ -89,6 +92,14 @@ def _validate_platform_stack(platform_root: Path) -> list[dict[str, Any]]:
     )
     results.append(
         _result(
+            "platform_stack_otel_config_owned_in_platform",
+            otel_config_path.exists(),
+            "Canonical shared OpenTelemetry collector configuration exists in lotus-platform/platform-stack.",
+            [str(otel_config_path)],
+        )
+    )
+    results.append(
+        _result(
             "platform_stack_mounts_core_dashboards_as_app_owned_content",
             (
                 "./grafana/provisioning:/etc/grafana/provisioning:ro" in grafana_volumes
@@ -98,6 +109,15 @@ def _validate_platform_stack(platform_root: Path) -> list[dict[str, Any]]:
             ),
             "Platform Grafana owns provisioning and the platform dashboard baseline while mounting lotus-core dashboard content as app-owned input.",
             [str(compose_path)],
+        )
+    )
+    results.append(
+        _result(
+            "platform_stack_readme_preserves_app_owned_bootstrap_boundary",
+            "Application repositories may still provide app-owned images and bootstrap jobs consumed by this stack." in readme
+            and "Using an app-owned migration runner or topic bootstrap job inside this compose file does not make that app the owner of shared infrastructure." in readme,
+            "platform-stack README keeps the ownership boundary explicit for app-owned migration runners and topic bootstrap jobs.",
+            [str(readme_path)],
         )
     )
 
@@ -112,11 +132,18 @@ def _validate_lotus_core(core_root: Path) -> list[dict[str, Any]]:
     readme_path = core_root / "README.md"
     grafana_guide_path = core_root / "docs" / "operations" / "Grafana-Dashboard-Guide.md"
     app_local_stack_guide_path = core_root / "docs" / "operations" / "App-Local-Stack-Guide.md"
+    grafana_datasource_path = core_root / "grafana" / "provisioning" / "datasources" / "datasource.yml"
+    grafana_dashboard_provider_path = (
+        core_root / "grafana" / "provisioning" / "dashboards" / "dashboard.yml"
+    )
 
     compose = _load_yaml(compose_path)
     readme = _load_text(readme_path)
     prometheus = _load_text(prometheus_path)
     grafana_guide = _load_text(grafana_guide_path)
+    app_local_stack_guide = _load_text(app_local_stack_guide_path)
+    grafana_datasource = _load_text(grafana_datasource_path)
+    grafana_dashboard_provider = _load_text(grafana_dashboard_provider_path)
 
     contract = compose.get("x-lotus-stack-contract", {})
     results.append(
@@ -158,6 +185,31 @@ def _validate_lotus_core(core_root: Path) -> list[dict[str, Any]]:
             and "`lotus-platform/platform-stack`" in grafana_guide,
             "lotus-core Grafana guide points to platform-stack as the canonical shared observability baseline.",
             [str(grafana_guide_path)],
+        )
+    )
+    results.append(
+        _result(
+            "lotus_core_app_local_stack_guide_preserves_kafka_and_telemetry_boundary",
+            "canonical shared Kafka broker lifecycle" in app_local_stack_guide
+            and "canonical shared telemetry collector baseline" in app_local_stack_guide,
+            "lotus-core app-local stack guide keeps Kafka and telemetry ownership explicit.",
+            [str(app_local_stack_guide_path)],
+        )
+    )
+    results.append(
+        _result(
+            "lotus_core_grafana_datasource_marked_app_local_overlay",
+            "app-local" in grafana_datasource.lower() and "platform-stack" in grafana_datasource,
+            "lotus-core Grafana datasource provisioning is explicitly marked as app-local overlay.",
+            [str(grafana_datasource_path)],
+        )
+    )
+    results.append(
+        _result(
+            "lotus_core_grafana_dashboard_provider_marked_app_local_overlay",
+            "app-local" in grafana_dashboard_provider.lower() and "platform-stack" in grafana_dashboard_provider,
+            "lotus-core Grafana dashboard provisioning is explicitly marked as app-local overlay.",
+            [str(grafana_dashboard_provider_path)],
         )
     )
     results.append(
