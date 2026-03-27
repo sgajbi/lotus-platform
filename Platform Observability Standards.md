@@ -113,4 +113,5 @@ Application boundary:
 3. Shared dashboard provisioning belongs in `lotus-platform`.
 4. App-specific dashboards may remain in the owning application repo and be mounted into the canonical platform Grafana runtime.
 5. App-level instrumentation remains owned by the application repo.
+6. App-local Prometheus configs may exist for isolated development, but they must not be presented as the canonical shared baseline.
 

@@ -2,6 +2,9 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+# Canonical shared Prometheus baseline for platform-stack.
+# This file is platform-owned and should only describe services that are
+# actually orchestrated by lotus-platform/platform-stack.
 scrape_configs:
   - job_name: "bff"
     static_configs:

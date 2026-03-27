@@ -25,6 +25,12 @@ Grafana dashboard boundary:
 2. platform-shared dashboard content may live in `lotus-platform/platform-stack/grafana/dashboards`
 3. app-specific dashboard JSON can still be mounted from the owning repository, for example `lotus-core/grafana/dashboards`
 
+Prometheus scrape boundary:
+
+1. the canonical shared scrape config lives in `lotus-platform/platform-stack/prometheus/prometheus.yml`
+2. it should only scrape services actually orchestrated by `platform-stack`
+3. app-local Prometheus configs may still exist in application repositories for isolated development, but they are not the shared platform baseline
+
 Cross-cutting governance for this stack is defined in:
 - `Platform Observability Standards.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`
