@@ -90,6 +90,12 @@ Platform metrics stack:
 Use:
 - `lotus-platform/platform-stack/docker-compose.yml`
 
+Ownership rule:
+
+- `lotus-platform/platform-stack` is the canonical shared observability and shared infrastructure baseline.
+- Application repositories may keep app-local overlays and app-specific dashboard content.
+- Application repositories must not be documented as the owner of shared Prometheus, Grafana, or telemetry bootstrap.
+
 Included observability baseline:
 - `prometheus`
 - `grafana`
@@ -99,4 +105,13 @@ Infrastructure evidence links:
 - `platform-stack/prometheus/prometheus.yml`
 - `platform-stack/docker-compose.yml`
 - `platform-stack/grafana/provisioning/datasources/datasource.yml`
+
+Application boundary:
+
+1. Shared scrape configuration belongs in `lotus-platform`.
+2. Shared datasource provisioning belongs in `lotus-platform`.
+3. Shared dashboard provisioning belongs in `lotus-platform`.
+4. App-specific dashboards may remain in the owning application repo and be mounted into the canonical platform Grafana runtime.
+5. App-level instrumentation remains owned by the application repo.
+6. App-local Prometheus configs may exist for isolated development, but they must not be presented as the canonical shared baseline.
 

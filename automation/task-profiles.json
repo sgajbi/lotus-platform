@@ -540,6 +540,11 @@
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
         },
         {
+          "id": "validate-shared-infra-ownership",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
+        },
+        {
           "id": "validate-enterprise-readiness",
           "repo": "lotus-platform",
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
@@ -615,6 +620,11 @@
           "id": "validate-vocabulary",
           "repo": "lotus-platform",
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
+        },
+        {
+          "id": "validate-shared-infra-ownership",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
         },
         {
           "id": "validate-enterprise-readiness",

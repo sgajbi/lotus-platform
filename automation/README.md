@@ -36,6 +36,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Platform-Contract.ps1`
 - `automation/Measure-Test-Pyramid.ps1`
 - `automation/Validate-Backend-Standards.ps1`
+- `automation/Validate-Shared-Infrastructure-Ownership.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
@@ -80,7 +81,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 ```
 
 `Run-Agent.ps1` now executes five checks per iteration: repo sync, PR monitor, backend standards conformance validation, OpenAPI conformance validation, and domain vocabulary conformance validation.
-It also emits machine-readable status to `output/agent-status.json`, runs metadata validation every iteration, and performs full coverage + dependency rollup every N iterations (`-FullAuditEvery`, default `5`).
+It also validates RFC-0068 shared infrastructure ownership on every iteration, emits machine-readable status to `output/agent-status.json`, runs metadata validation every iteration, and performs full coverage + dependency rollup every N iterations (`-FullAuditEvery`, default `5`).
 
 One-shot PR health (with failing check detection):
 
@@ -232,6 +233,12 @@ Run QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
+```
+
+Validate RFC-0068 shared infrastructure ownership boundaries:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1
 ```
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:

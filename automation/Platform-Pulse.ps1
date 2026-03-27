@@ -12,6 +12,7 @@ if ($IncludeConformance) {
   powershell -ExecutionPolicy Bypass -File "automation/Validate-Backend-Standards.ps1"
   powershell -ExecutionPolicy Bypass -File "automation/Validate-OpenAPI-Conformance.ps1"
   powershell -ExecutionPolicy Bypass -File "automation/Validate-Domain-Vocabulary.ps1"
+  powershell -ExecutionPolicy Bypass -File "automation/Validate-Shared-Infrastructure-Ownership.ps1"
   powershell -ExecutionPolicy Bypass -File "automation/Verify-Repo-Metadata.ps1"
 }
 

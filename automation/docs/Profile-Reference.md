@@ -6,12 +6,12 @@ Profiles are defined in `automation/task-profiles.json`.
 
 | Profile | Purpose | Typical Trigger |
 |---|---|---|
-| `platform-alignment` | Fast sync + PR health + core standards checks | Daily alignment pass |
+| `platform-alignment` | Fast sync + PR health + core standards checks + shared infra ownership guard | Daily alignment pass |
 | `qa-platform-readiness` | Runtime QA + standards/readiness validation | Pre-release readiness gate |
 | `fast-feedback` | Fast lint/type/test checks in parallel | Developer inner loop |
 | `ci-parity` | Host-based CI parity checks | Pre-PR confidence |
 | `docker-ci-parity` | Dockerized parity checks | Reduce host env drift |
-| `autonomous-foundation` | Broader governance + quality sweep | Scheduled deep audits |
+| `autonomous-foundation` | Broader governance + quality sweep, including shared infra ownership drift detection | Scheduled deep audits |
 
 ## Specialized Profiles
 

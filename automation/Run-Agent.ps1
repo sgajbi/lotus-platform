@@ -67,6 +67,7 @@ while ($true) {
   $steps += Invoke-Step -Name "backend-standards" -Action { powershell -ExecutionPolicy Bypass -File "automation/Validate-Backend-Standards.ps1" }
   $steps += Invoke-Step -Name "openapi-conformance" -Action { powershell -ExecutionPolicy Bypass -File "automation/Validate-OpenAPI-Conformance.ps1" }
   $steps += Invoke-Step -Name "domain-vocabulary" -Action { powershell -ExecutionPolicy Bypass -File "automation/Validate-Domain-Vocabulary.ps1" }
+  $steps += Invoke-Step -Name "shared-infra-ownership" -Action { powershell -ExecutionPolicy Bypass -File "automation/Validate-Shared-Infrastructure-Ownership.ps1" }
   $steps += Invoke-Step -Name "repo-metadata" -Action { powershell -ExecutionPolicy Bypass -File "automation/Verify-Repo-Metadata.ps1" }
 
   if ($runFullAudit) {

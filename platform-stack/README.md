@@ -10,6 +10,27 @@ This folder provides a centralized Docker Compose orchestration for the full PBW
 - UI (`ui`)
 - Observability baseline (`prometheus`, `grafana`, `otel-collector`)
 
+This stack is the canonical shared-infrastructure baseline for local platform bring-up.
+
+Important ownership rule:
+
+1. `lotus-platform` owns the shared infrastructure products and their baseline configuration.
+2. Application repositories may still provide app-owned images and bootstrap jobs consumed by this stack.
+3. Using an app-owned migration runner or topic bootstrap job inside this compose file does not make that app the owner of shared infrastructure.
+4. Grafana provisioning is platform-owned here, while app-specific dashboard JSON may still be mounted from the owning application repository.
+
+Grafana dashboard boundary:
+
+1. shared Grafana provisioning lives in `lotus-platform/platform-stack/grafana/provisioning`
+2. platform-shared dashboard content may live in `lotus-platform/platform-stack/grafana/dashboards`
+3. app-specific dashboard JSON can still be mounted from the owning repository, for example `lotus-core/grafana/dashboards`
+
+Prometheus scrape boundary:
+
+1. the canonical shared scrape config lives in `lotus-platform/platform-stack/prometheus/prometheus.yml`
+2. it should only scrape services actually orchestrated by `platform-stack`
+3. app-local Prometheus configs may still exist in application repositories for isolated development, but they are not the shared platform baseline
+
 Cross-cutting governance for this stack is defined in:
 - `Platform Observability Standards.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`

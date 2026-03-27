@@ -1,0 +1,13 @@
+# Codebase Review Ledger
+
+This ledger tracks evidence-backed review work in `lotus-platform`.
+
+Companion playbook:
+
+- [CODEBASE-REVIEW-PLAYBOOK.md](./CODEBASE-REVIEW-PLAYBOOK.md)
+
+## Review entries
+
+| Review ID | Date | Scope / Pattern | Status | Findings | Actions Taken | Follow-up | Evidence / Sign-off |
+|---|---|---|---|---|---|---|---|
+| PLAT-CR-001 | 2026-03-27 | RFC-0068 shared infrastructure ownership and drift detection | Hardened | Initial RFC-0068 slices correctly established ownership, Grafana provisioning, Prometheus ownership, and app-local stack classification, but the first drift guard was lighter on telemetry ownership and the Kafka/topic-bootstrap ownership boundary. `lotus-platform` also lacked a durable review record for the rollout itself. | Tightened the shared-infra ownership validator to cover OTel collector ownership, platform-stack README ownership language, app-local Kafka/telemetry boundary language, and app-local Grafana overlay ownership markers. Wired the validator into `Platform-Pulse`, `Run-Agent`, and the `platform-alignment` and `autonomous-foundation` profiles. Added lower-level tests for validator behavior, automation wiring, platform observability ownership, platform Prometheus ownership, and core app-local overlay ownership. Added this review playbook and ledger so the RFC rollout has durable evidence. | After merge, the next meaningful extension is cross-repo adoption for any other Lotus app that starts carrying app-local observability or shared-infra-like compose assets. No additional RFC-0068 slice is required for `lotus-core` and `lotus-platform` before PR. | Evidence: RFC updates and implementation checklist; `platform-stack/docker-compose.yml`; `platform-stack/prometheus/prometheus.yml`; `platform-stack/grafana/provisioning/dashboards/dashboard.yml`; `platform-stack/otel-collector/config.yaml`; `automation/validate_shared_infra_ownership.py`; `automation/Validate-Shared-Infrastructure-Ownership.ps1`; `automation/Run-Agent.ps1`; `automation/Platform-Pulse.ps1`; `automation/task-profiles.json`; `lotus-core/docker-compose.yml`; `lotus-core/docs/operations/App-Local-Stack-Guide.md`; targeted validation: `pytest tests/unit/test_shared_infra_ownership_validator.py tests/unit/test_shared_infra_ownership_automation_contract.py tests/unit/test_platform_stack_observability_contract.py tests/unit/test_platform_stack_prometheus_contract.py -q` => `9 passed`; `powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1` passed; `pytest tests/unit/test_app_local_observability_contract.py tests/unit/test_app_local_stack_contract.py -q` in `lotus-core` => `6 passed`. |
