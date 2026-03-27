@@ -17,6 +17,13 @@ Important ownership rule:
 1. `lotus-platform` owns the shared infrastructure products and their baseline configuration.
 2. Application repositories may still provide app-owned images and bootstrap jobs consumed by this stack.
 3. Using an app-owned migration runner or topic bootstrap job inside this compose file does not make that app the owner of shared infrastructure.
+4. Grafana provisioning is platform-owned here, while app-specific dashboard JSON may still be mounted from the owning application repository.
+
+Grafana dashboard boundary:
+
+1. shared Grafana provisioning lives in `lotus-platform/platform-stack/grafana/provisioning`
+2. platform-shared dashboard content may live in `lotus-platform/platform-stack/grafana/dashboards`
+3. app-specific dashboard JSON can still be mounted from the owning repository, for example `lotus-core/grafana/dashboards`
 
 Cross-cutting governance for this stack is defined in:
 - `Platform Observability Standards.md`

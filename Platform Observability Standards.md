@@ -110,6 +110,7 @@ Application boundary:
 
 1. Shared scrape configuration belongs in `lotus-platform`.
 2. Shared datasource provisioning belongs in `lotus-platform`.
-3. App-specific dashboards may remain in the owning application repo.
-4. App-level instrumentation remains owned by the application repo.
+3. Shared dashboard provisioning belongs in `lotus-platform`.
+4. App-specific dashboards may remain in the owning application repo and be mounted into the canonical platform Grafana runtime.
+5. App-level instrumentation remains owned by the application repo.
 
