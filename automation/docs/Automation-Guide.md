@@ -23,7 +23,7 @@ Canonical source: `lotus-platform/automation`
 
 | Goal | Command | Typical Use |
 |---|---|---|
-| Sync repos + PR snapshot + core conformance | `automation/Platform-Pulse.ps1 -IncludeConformance` | Before or after broad platform changes |
+| Sync repos + PR snapshot + core conformance + shared infra ownership guard | `automation/Platform-Pulse.ps1 -IncludeConformance` | Before or after broad platform changes |
 | Continuous automation heartbeat | `automation/Run-Agent.ps1` | Long-running local monitor loop |
 | One iteration of agent logic | `automation/Run-Agent.ps1 -Once` | Quick status refresh in terminal |
 | Run heavy checks in background | `automation/Start-Background-Run.ps1 -Profile <name> -MaxParallel <n>` | Offload checks while coding |
