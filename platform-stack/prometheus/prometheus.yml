@@ -7,22 +7,22 @@ scrape_configs:
     static_configs:
       - targets: ["bff:8100"]
 
-  - job_name: "pas-query"
+  - job_name: "lotus-core-query"
     static_configs:
-      - targets: ["pas-query:8001"]
+      - targets: ["lotus-core-query:8001"]
 
-  - job_name: "pas-ingestion"
+  - job_name: "lotus-core-ingestion"
     static_configs:
-      - targets: ["pas-ingestion:8000"]
+      - targets: ["lotus-core-ingestion:8000"]
 
-  - job_name: "dpm"
+  - job_name: "lotus-manage"
     static_configs:
-      - targets: ["dpm:8000"]
+      - targets: ["lotus-manage:8000"]
 
-  - job_name: "pa"
+  - job_name: "lotus-performance"
     static_configs:
-      - targets: ["pa:8000"]
+      - targets: ["lotus-performance:8000"]
 
-  - job_name: "ras"
+  - job_name: "lotus-report"
     static_configs:
-      - targets: ["ras:8300"]
+      - targets: ["lotus-report:8300"]

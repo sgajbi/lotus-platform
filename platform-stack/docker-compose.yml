@@ -44,14 +44,14 @@ services:
       start_period: 30s
     logging: *default-logging
 
-  pas-postgres:
+  lotus-core-postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${PAS_POSTGRES_DB:-portfolio_db}
-      POSTGRES_USER: ${PAS_POSTGRES_USER:-user}
-      POSTGRES_PASSWORD: ${PAS_POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
+      POSTGRES_USER: ${LOTUS_CORE_POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${LOTUS_CORE_POSTGRES_PASSWORD:-password}
     volumes:
-      - pas-postgres-data:/var/lib/postgresql/data
+      - lotus-core-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -60,14 +60,14 @@ services:
       start_period: 10s
     logging: *default-logging
 
-  dpm-postgres:
+  lotus-manage-postgres:
     image: postgres:17.6
     environment:
       POSTGRES_DB: dpm_supportability
       POSTGRES_USER: dpm
       POSTGRES_PASSWORD: dpm
     volumes:
-      - dpm-postgres-data:/var/lib/postgresql/data
+      - lotus-manage-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dpm -d dpm_supportability"]
       interval: 10s
@@ -76,9 +76,9 @@ services:
       start_period: 10s
     logging: *default-logging
 
-  pas-kafka-topic-creator:
+  lotus-core-kafka-topic-creator:
     build:
-      context: ${PAS_REPO_PATH}
+      context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/persistence_service/Dockerfile
     depends_on:
       kafka:
@@ -89,32 +89,32 @@ services:
     restart: "no"
     logging: *default-logging
 
-  pas-migration-runner:
+  lotus-core-migration-runner:
     build:
-      context: ${PAS_REPO_PATH}
+      context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/persistence_service/Dockerfile
     depends_on:
-      pas-postgres:
+      lotus-core-postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${PAS_POSTGRES_USER:-user}:${PAS_POSTGRES_PASSWORD:-password}@pas-postgres:5432/${PAS_POSTGRES_DB:-portfolio_db}
+      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
     command: ["alembic", "upgrade", "head"]
     restart: "no"
     logging: *default-logging
 
-  pas-query:
+  lotus-core-query:
     build:
-      context: ${PAS_REPO_PATH}
+      context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/query_service/Dockerfile
     depends_on:
-      pas-migration-runner:
+      lotus-core-migration-runner:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://${PAS_POSTGRES_USER:-user}:${PAS_POSTGRES_PASSWORD:-password}@pas-postgres:5432/${PAS_POSTGRES_DB:-portfolio_db}
-      OTEL_SERVICE_NAME: pas-query
+      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
+      OTEL_SERVICE_NAME: lotus-core-query
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
-      - "${PAS_QUERY_PORT:-8201}:8001"
+      - "${LOTUS_CORE_QUERY_PORT:-8201}:8001"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health/ready', timeout=5)"]
@@ -124,21 +124,21 @@ services:
       start_period: 20s
     logging: *default-logging
 
-  pas-ingestion:
+  lotus-core-ingestion:
     build:
-      context: ${PAS_REPO_PATH}
+      context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/ingestion_service/Dockerfile
     depends_on:
       kafka:
         condition: service_healthy
-      pas-kafka-topic-creator:
+      lotus-core-kafka-topic-creator:
         condition: service_completed_successfully
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
-      OTEL_SERVICE_NAME: pas-ingestion
+      OTEL_SERVICE_NAME: lotus-core-ingestion
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
-      - "${PAS_INGESTION_PORT:-8200}:8000"
+      - "${LOTUS_CORE_INGESTION_PORT:-8200}:8000"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
@@ -148,26 +148,26 @@ services:
       start_period: 25s
     logging: *default-logging
 
-  dpm:
+  lotus-manage:
     build:
-      context: ${DPM_REPO_PATH}
+      context: ${LOTUS_MANAGE_REPO_PATH}
       dockerfile: Dockerfile
     depends_on:
-      dpm-postgres:
+      lotus-manage-postgres:
         condition: service_healthy
     environment:
       ENVIRONMENT: production
       APP_PERSISTENCE_PROFILE: PRODUCTION
       DPM_SUPPORTABILITY_STORE_BACKEND: POSTGRES
-      DPM_SUPPORTABILITY_POSTGRES_DSN: postgresql://dpm:dpm@dpm-postgres:5432/dpm_supportability
+      DPM_SUPPORTABILITY_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
       PROPOSAL_STORE_BACKEND: POSTGRES
-      PROPOSAL_POSTGRES_DSN: postgresql://dpm:dpm@dpm-postgres:5432/dpm_supportability
+      PROPOSAL_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
       DPM_POLICY_PACK_CATALOG_BACKEND: POSTGRES
-      DPM_POLICY_PACK_POSTGRES_DSN: postgresql://dpm:dpm@dpm-postgres:5432/dpm_supportability
+      DPM_POLICY_PACK_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
       OTEL_SERVICE_NAME: lotus-advise
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
-      - "${DPM_PORT:-8000}:8000"
+      - "${LOTUS_MANAGE_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
       interval: 20s
@@ -176,15 +176,15 @@ services:
       start_period: 20s
     logging: *default-logging
 
-  pa:
+  lotus-performance:
     build:
-      context: ${PA_REPO_PATH}
+      context: ${LOTUS_PERFORMANCE_REPO_PATH}
       dockerfile: Dockerfile
     environment:
       OTEL_SERVICE_NAME: performance-analytics
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
-      - "${PA_PORT:-8002}:8000"
+      - "${LOTUS_PERFORMANCE_PORT:-8002}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
       interval: 20s
@@ -193,23 +193,23 @@ services:
       start_period: 25s
     logging: *default-logging
 
-  ras:
+  lotus-report:
     build:
-      context: ${RAS_REPO_PATH}
+      context: ${LOTUS_REPORT_REPO_PATH}
       dockerfile: Dockerfile
     depends_on:
-      pas-query:
+      lotus-core-query:
         condition: service_healthy
-      pa:
+      lotus-performance:
         condition: service_healthy
     environment:
-      PAS_BASE_URL: http://pas-query:8001
-      PA_BASE_URL: http://pa:8000
+      LOTUS_CORE_BASE_URL: http://lotus-core-query:8001
+      PA_BASE_URL: http://lotus-performance:8000
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-report
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
-      - "${RAS_PORT:-8300}:8300"
+      - "${LOTUS_REPORT_PORT:-8300}:8300"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8300/health/ready', timeout=5)"]
       interval: 20s
@@ -223,22 +223,22 @@ services:
       context: ${BFF_REPO_PATH}
       dockerfile: Dockerfile
     depends_on:
-      dpm:
+      lotus-manage:
         condition: service_healthy
-      pas-query:
+      lotus-core-query:
         condition: service_healthy
-      pas-ingestion:
+      lotus-core-ingestion:
         condition: service_healthy
-      pa:
+      lotus-performance:
         condition: service_healthy
-      ras:
+      lotus-report:
         condition: service_healthy
     environment:
-      DECISIONING_SERVICE_BASE_URL: http://dpm:8000
-      PORTFOLIO_DATA_PLATFORM_BASE_URL: http://pas-query:8001
-      PORTFOLIO_DATA_INGESTION_BASE_URL: http://pas-ingestion:8000
-      PERFORMANCE_ANALYTICS_BASE_URL: http://pa:8000
-      REPORTING_AGGREGATION_BASE_URL: http://ras:8300
+      DECISIONING_SERVICE_BASE_URL: http://lotus-manage:8000
+      PORTFOLIO_DATA_PLATFORM_BASE_URL: http://lotus-core-query:8001
+      PORTFOLIO_DATA_INGESTION_BASE_URL: http://lotus-core-ingestion:8000
+      PERFORMANCE_ANALYTICS_BASE_URL: http://lotus-performance:8000
+      REPORTING_AGGREGATION_BASE_URL: http://lotus-report:8300
       UPSTREAM_TIMEOUT_SECONDS: 15
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-gateway
@@ -312,7 +312,7 @@ services:
     logging: *default-logging
 
 volumes:
-  pas-postgres-data:
-  dpm-postgres-data:
+  lotus-core-postgres-data:
+  lotus-manage-postgres-data:
   grafana-data:
 
