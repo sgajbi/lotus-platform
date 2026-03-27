@@ -1,5 +1,7 @@
 # RFC-0068 Implementation Checklist
 
+- Rollout Status: Complete (2026-03-27)
+
 ## Goal
 
 Turn RFC-0068 into an explicit ownership migration with concrete file-level moves and cleanup work.
