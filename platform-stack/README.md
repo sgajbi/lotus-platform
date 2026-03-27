@@ -10,6 +10,14 @@ This folder provides a centralized Docker Compose orchestration for the full PBW
 - UI (`ui`)
 - Observability baseline (`prometheus`, `grafana`, `otel-collector`)
 
+This stack is the canonical shared-infrastructure baseline for local platform bring-up.
+
+Important ownership rule:
+
+1. `lotus-platform` owns the shared infrastructure products and their baseline configuration.
+2. Application repositories may still provide app-owned images and bootstrap jobs consumed by this stack.
+3. Using an app-owned migration runner or topic bootstrap job inside this compose file does not make that app the owner of shared infrastructure.
+
 Cross-cutting governance for this stack is defined in:
 - `Platform Observability Standards.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`
