@@ -1,0 +1,71 @@
+{
+  "contractVersion": "v1",
+  "domain": "performance_periods",
+  "description": "Platform-governed canonical business period vocabulary shared across Lotus analytics and workbench applications.",
+  "periods": [
+    {
+      "code": "MTD",
+      "label": "Month to date",
+      "semantics": "calendar_to_date",
+      "start_rule": "first_day_of_anchor_month",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "QTD",
+      "label": "Quarter to date",
+      "semantics": "calendar_to_date",
+      "start_rule": "first_day_of_anchor_quarter",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "YTD",
+      "label": "Year to date",
+      "semantics": "calendar_to_date",
+      "start_rule": "first_day_of_anchor_year",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "1Y",
+      "label": "Trailing one year",
+      "semantics": "trailing_window",
+      "start_rule": "anchor_minus_1_year_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "3Y",
+      "label": "Trailing three years",
+      "semantics": "trailing_window",
+      "start_rule": "anchor_minus_3_years_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "5Y",
+      "label": "Trailing five years",
+      "semantics": "trailing_window",
+      "start_rule": "anchor_minus_5_years_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "SI",
+      "label": "Since inception",
+      "semantics": "since_inception",
+      "start_rule": "resolved_inception_date",
+      "end_rule": "anchor_date",
+      "category": "relative"
+    },
+    {
+      "code": "EXPLICIT",
+      "label": "Explicit range",
+      "semantics": "explicit_window",
+      "start_rule": "caller_supplied_start_date",
+      "end_rule": "caller_supplied_end_date",
+      "category": "explicit"
+    }
+  ]
+}
