@@ -62,6 +62,13 @@ The explainer is intended to remove ambiguity after a failed smoke run. It reads
 - `services_unreachable`
 - `ready`
 
+The underlying smoke artifact also records a `failure_posture` per failed routed check:
+- `dns_resolution_failed`
+- `http_error`
+- `connection_refused`
+- `timeout`
+- `transport_error`
+
 For `ingress_unreachable`, the explainer now recommends `docker compose up -d dev-ingress` first, because the evidence indicates the edge itself is likely not serving requests.
 For `services_unreachable`, the explainer now emits the exact `docker compose up -d ...` command for the affected platform-stack services instead of pointing operators back to a full-stack restart.
 

@@ -97,6 +97,7 @@ powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.p
 
 If only some routed services are unhealthy, the explainer now recommends the exact `docker compose up -d ...` refresh command for those affected services.
 If the edge itself is the likely fault, it recommends `docker compose up -d dev-ingress` first.
+The smoke artifact distinguishes `dns_resolution_failed`, `http_error`, `connection_refused`, `timeout`, and `transport_error` so the explainer can classify the failure path deterministically.
 
 ## 3) Smoke Endpoints
 

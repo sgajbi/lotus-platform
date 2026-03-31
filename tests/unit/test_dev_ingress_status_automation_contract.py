@@ -31,6 +31,18 @@ def test_ingress_status_explainer_is_documented_in_operator_guides() -> None:
     assert "docker compose up -d dev-ingress" in local_runbook
     assert "docker compose up -d dev-ingress" in platform_stack_readme
 
+    for posture in (
+        "dns_resolution_failed",
+        "http_error",
+        "connection_refused",
+        "timeout",
+        "transport_error",
+    ):
+        assert posture in automation_guide
+        assert posture in automation_readme
+        assert posture in local_runbook
+        assert posture in platform_stack_readme
+
 
 def test_ingress_status_explainer_wrapper_calls_python_entrypoint() -> None:
     wrapper = (ROOT / "automation" / "Explain-Dev-Ingress-Status.ps1").read_text(encoding="utf-8")

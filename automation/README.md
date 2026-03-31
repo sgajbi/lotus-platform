@@ -257,6 +257,13 @@ Validate live canonical `*.dev.lotus` ingress reachability:
 powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
 ```
 
+The smoke artifact now records a `failure_posture` for each failed check:
+- `dns_resolution_failed`
+- `http_error`
+- `connection_refused`
+- `timeout`
+- `transport_error`
+
 Explain the current ingress rollout state and the exact next operator step:
 
 ```powershell
