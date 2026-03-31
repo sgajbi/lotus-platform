@@ -1,6 +1,6 @@
 # RFC-0071 Implementation Checklist
 
-- Rollout Status: Not started
+- Rollout Status: In progress
 - Governing RFC: `rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
 
 ## Goal
@@ -70,6 +70,19 @@ Create separate rollout sub-items only when:
 4. Add platform automation for detecting obvious localhost/port drift in app-local source and docs.
 5. Implement one central local ingress in `platform-stack` and publish the required hosts-file entries.
 
+Current posture:
+- complete:
+  - RFC and checklist exist
+  - central local ingress is implemented with Caddy in `platform-stack`
+  - hosts-file management tooling exists
+  - ingress smoke validation exists
+  - ingress status explainer exists
+  - ingress-first contracts, CLI behavior, and operator-doc coverage are under test
+- remaining:
+  - apply hosts entries on developer machines
+  - bring the local ingress model fully live machine by machine
+  - extend localhost-drift detection into more repo-specific enforcement where practical
+
 ## Phase B: Public-entry app rollout
 
 ### lotus-workbench
@@ -82,6 +95,14 @@ Create separate rollout sub-items only when:
 4. Ensure browser-visible routes and proxy behavior are validated against the canonical hostname
    model.
 
+Current posture:
+- complete:
+  - runtime base URL resolution was centralized
+  - public docs no longer treat localhost as the canonical gateway identity
+- remaining:
+  - complete any lingering localhost/port cleanup outside the public-entry seams
+  - validate all local bring-up paths against the canonical ingress model end to end
+
 ### lotus-gateway
 
 1. Update README and quickstart docs so public integration identity is the environment hostname, not
@@ -89,6 +110,13 @@ Create separate rollout sub-items only when:
 2. Keep port bindings as implementation detail only.
 3. Align public API examples with `gateway.{env}.lotus`.
 4. Ensure upstream service addressing uses env-driven or service-discovery-driven configuration.
+
+Current posture:
+- complete:
+  - public-facing docs and examples now align to canonical gateway identity
+- remaining:
+  - finish internal upstream runtime normalization
+  - validate public-entry behavior against the canonical ingress model end to end
 
 ## Phase C: Internal service normalization
 

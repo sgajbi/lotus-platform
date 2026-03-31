@@ -1,6 +1,6 @@
 # RFC-0071: Centralized Environment-Scoped Service Addressing and Ingress Governance
 
-- Status: Proposed
+- Status: In review / implementation in progress
 - Date: 2026-03-31
 - Owners: lotus-platform governance
 - Related:
@@ -318,3 +318,15 @@ infrastructure layer itself.
 Rollout tracking is maintained in:
 
 - `rfcs/RFC-0071-implementation-checklist.md`
+
+Current implementation posture on 2026-03-31:
+
+1. `lotus-platform` Phase A is materially in progress:
+   - canonical local ingress is implemented in `platform-stack`
+   - hosts-file sync, ingress smoke validation, and ingress status explanation tooling are implemented
+   - ingress-first output contracts and operator-doc contracts are covered by tests
+2. `lotus-workbench` public-entry cleanup is in progress:
+   - service resolution was centralized and public-entry documentation was aligned to canonical identities
+3. `lotus-gateway` public-entry cleanup is in progress:
+   - public-facing guidance was aligned to canonical gateway identities
+4. Internal service normalization remains largely pending across `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, and `lotus-ai`.
