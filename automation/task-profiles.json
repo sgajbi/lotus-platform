@@ -550,6 +550,11 @@
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
         },
         {
+          "id": "validate-dev-ingress-smoke",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
+        },
+        {
           "id": "validate-enterprise-readiness",
           "repo": "lotus-platform",
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
@@ -635,6 +640,11 @@
           "id": "validate-service-addressing",
           "repo": "lotus-platform",
           "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
+        },
+        {
+          "id": "validate-dev-ingress-smoke",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
         },
         {
           "id": "validate-enterprise-readiness",

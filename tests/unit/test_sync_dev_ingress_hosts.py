@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from automation.sync_dev_ingress_hosts import (
+    BLOCK_END,
+    BLOCK_START,
+    sync_dev_ingress_hosts,
+    upsert_managed_block,
+)
+
+
+def test_upsert_managed_block_appends_new_block_when_missing() -> None:
+    updated = upsert_managed_block("127.0.0.1 localhost\n", ["127.0.0.1 gateway.dev.lotus"])
+
+    assert BLOCK_START in updated
+    assert "127.0.0.1 gateway.dev.lotus" in updated
+    assert updated.endswith("\n")
+
+
+def test_upsert_managed_block_replaces_existing_managed_block() -> None:
+    existing = (
+        "127.0.0.1 localhost\n\n"
+        f"{BLOCK_START}\n"
+        "127.0.0.1 old.dev.lotus\n"
+        f"{BLOCK_END}\n"
+    )
+
+    updated = upsert_managed_block(
+        existing,
+        ["127.0.0.1 gateway.dev.lotus", "127.0.0.1 workbench.dev.lotus"],
+    )
+
+    assert "old.dev.lotus" not in updated
+    assert updated.count(BLOCK_START) == 1
+    assert updated.count(BLOCK_END) == 1
+    assert "127.0.0.1 gateway.dev.lotus" in updated
+
+
+def test_sync_dev_ingress_hosts_writes_managed_block(tmp_path: Path) -> None:
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    entries.write_text(
+        "# comment\n127.0.0.1 gateway.dev.lotus\n127.0.0.1 workbench.dev.lotus\n",
+        encoding="utf-8",
+    )
+    hosts.write_text("127.0.0.1 localhost\n", encoding="utf-8")
+
+    result = sync_dev_ingress_hosts(entries, hosts, write=True)
+
+    written = hosts.read_text(encoding="utf-8")
+    assert result == written
+    assert "127.0.0.1 gateway.dev.lotus" in written
+    assert "127.0.0.1 workbench.dev.lotus" in written
+
+
+def test_sync_dev_ingress_hosts_preview_does_not_modify_output_file(tmp_path: Path) -> None:
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    entries.write_text("127.0.0.1 gateway.dev.lotus\n", encoding="utf-8")
+    hosts.write_text("127.0.0.1 localhost\n", encoding="utf-8")
+
+    preview = sync_dev_ingress_hosts(entries, hosts, write=False)
+
+    assert "127.0.0.1 gateway.dev.lotus" in preview
+    assert hosts.read_text(encoding="utf-8") == "127.0.0.1 localhost\n"

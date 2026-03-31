@@ -38,6 +38,8 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Backend-Standards.ps1`
 - `automation/Validate-Shared-Infrastructure-Ownership.ps1`
 - `automation/Validate-Service-Addressing.ps1`
+- `automation/Validate-Dev-Ingress-Smoke.ps1`
+- `automation/Sync-Dev-Ingress-Hosts.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
@@ -246,6 +248,19 @@ Validate RFC-0071 centralized service addressing drift:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1
+```
+
+Validate live canonical `*.dev.lotus` ingress reachability:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+```
+
+Preview or apply the managed local hosts-file block for dev ingress:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:

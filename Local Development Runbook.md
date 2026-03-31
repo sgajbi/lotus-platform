@@ -39,6 +39,20 @@ Required hosts-file entries are listed in:
 
 - `platform-stack/dev-ingress/hosts.example`
 
+Preview the managed hosts-file block:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+```
+
+Apply the managed block to the Windows hosts file:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+```
+
 Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
 
 ```powershell
@@ -116,6 +130,13 @@ If you explicitly need raw host ports for debugging:
 cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
 docker compose ps
+```
+
+Run ingress-first smoke validation:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
 ```
 
 ## 4.3 Start UI

@@ -53,6 +53,20 @@ Add the local hostname mappings from:
 
 to your hosts file before first use.
 
+Platform-owned helper:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+```
+
+Apply the managed block to the Windows hosts file:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+```
+
 ## 2) Start Full Platform
 
 ```powershell
@@ -65,6 +79,13 @@ Optional direct host-port publishing for debugging only:
 ```powershell
 cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
+```
+
+Ingress-first smoke validation:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
 ```
 
 ## 3) Smoke Endpoints
