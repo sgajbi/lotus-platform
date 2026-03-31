@@ -88,6 +88,13 @@ cd C:\Users\Sandeep\projects\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
 ```
 
+Classify the current ingress rollout state and the exact next action:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+```
+
 ## 3) Smoke Endpoints
 
 Canonical service identities:

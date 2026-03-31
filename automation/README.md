@@ -39,6 +39,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Shared-Infrastructure-Ownership.ps1`
 - `automation/Validate-Service-Addressing.ps1`
 - `automation/Validate-Dev-Ingress-Smoke.ps1`
+- `automation/Explain-Dev-Ingress-Status.ps1`
 - `automation/Sync-Dev-Ingress-Hosts.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
@@ -254,6 +255,12 @@ Validate live canonical `*.dev.lotus` ingress reachability:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+```
+
+Explain the current ingress rollout state and the exact next operator step:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
 ```
 
 Preview or apply the managed local hosts-file block for dev ingress:

@@ -134,10 +134,17 @@ docker compose ps
 
 Run ingress-first smoke validation:
 
-```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
-powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
-```
+  ```powershell
+  cd C:\Users\Sandeep\projects\lotus-platform
+  powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+  ```
+
+  Explain the current ingress rollout state and the next required operator step:
+
+  ```powershell
+  cd C:\Users\Sandeep\projects\lotus-platform
+  powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+  ```
 
 ## 4.3 Start UI
 
