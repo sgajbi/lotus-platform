@@ -84,6 +84,7 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
 
     assert result["result"] == "ok"
     assert result["failed_count"] == 0
+    assert result["localhost_literal_observations"] == []
 
 
 def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> None:
@@ -132,6 +133,14 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
 
     assert result["result"] == "failed"
     assert result["failed_count"] > 0
+    assert any(
+        observation["repo"] == "lotus-workbench"
+        and (
+            "http://localhost:" in observation["matched_literals"]
+            or "http://127.0.0.1:" in observation["matched_literals"]
+        )
+        for observation in result["localhost_literal_observations"]
+    )
     failed_ids = {check["check_id"] for check in result["checks"] if not check["passed"]}
     assert "platform_runbook_drops_host_docker_internal" in failed_ids
     assert "platform_stack_owns_local_dev_ingress" in failed_ids

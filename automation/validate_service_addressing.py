@@ -20,6 +20,15 @@ class RepoConfig:
     path: Path
 
 
+LOCALHOST_LITERALS = (
+    "http://localhost:",
+    "https://localhost:",
+    "http://127.0.0.1:",
+    "https://127.0.0.1:",
+    "host.docker.internal",
+)
+
+
 def _load_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -73,6 +82,35 @@ def _extract_hosts_file_hostnames(text: str) -> set[str]:
         if len(parts) >= 2:
             hostnames.add(parts[1])
     return hostnames
+
+
+def _find_localhost_literal_observations(repo_configs: dict[str, RepoConfig]) -> list[dict[str, Any]]:
+    observations: list[dict[str, Any]] = []
+
+    candidate_paths_by_repo: dict[str, list[Path]] = {
+        repo_name: [
+            config.path / "README.md",
+            config.path / "docs" / "demo" / "README.md",
+            config.path / "Local Development Runbook.md",
+        ]
+        for repo_name, config in repo_configs.items()
+    }
+
+    for repo_name, candidate_paths in candidate_paths_by_repo.items():
+        for path in candidate_paths:
+            if not path.exists():
+                continue
+            text = _load_text(path)
+            matched_literals = [literal for literal in LOCALHOST_LITERALS if literal in text]
+            if matched_literals:
+                observations.append(
+                    {
+                        "repo": repo_name,
+                        "path": str(path),
+                        "matched_literals": matched_literals,
+                    }
+                )
+    return observations
 
 
 def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
@@ -262,11 +300,13 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     ]
 
     failures = [check for check in checks if not check["passed"]]
+    observations = _find_localhost_literal_observations(repo_configs)
     return {
         "generated_at": datetime.now().astimezone().isoformat(),
         "result": "ok" if not failures else "failed",
         "checks": checks,
         "failed_count": len(failures),
+        "localhost_literal_observations": observations,
     }
 
 
@@ -284,6 +324,13 @@ def _write_markdown(output_path: Path, payload: dict[str, Any]) -> None:
     for check in payload["checks"]:
         passed = "true" if check["passed"] else "false"
         lines.append(f"| {check['check_id']} | {passed} | {check['message']} |")
+    observations = payload.get("localhost_literal_observations", [])
+    if observations:
+        lines.extend(["", "## Localhost Literal Observations", ""])
+        for observation in observations:
+            lines.append(
+                f"- {observation['repo']}: {observation['path']} -> {', '.join(observation['matched_literals'])}"
+            )
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
