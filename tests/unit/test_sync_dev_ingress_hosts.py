@@ -40,18 +40,22 @@ def test_upsert_managed_block_replaces_existing_managed_block() -> None:
 def test_sync_dev_ingress_hosts_writes_managed_block(tmp_path: Path) -> None:
     entries = tmp_path / "hosts.example"
     hosts = tmp_path / "hosts"
+    backups = tmp_path / "backups"
     entries.write_text(
         "# comment\n127.0.0.1 gateway.dev.lotus\n127.0.0.1 workbench.dev.lotus\n",
         encoding="utf-8",
     )
     hosts.write_text("127.0.0.1 localhost\n", encoding="utf-8")
 
-    result = sync_dev_ingress_hosts(entries, hosts, write=True)
+    result = sync_dev_ingress_hosts(entries, hosts, write=True, backup_dir=backups)
 
     written = hosts.read_text(encoding="utf-8")
-    assert result == written
+    assert result["updated_text"] == written
+    assert result["changed"] is True
+    assert result["backup_path"] is not None
     assert "127.0.0.1 gateway.dev.lotus" in written
     assert "127.0.0.1 workbench.dev.lotus" in written
+    assert Path(str(result["backup_path"])).exists()
 
 
 def test_sync_dev_ingress_hosts_preview_does_not_modify_output_file(tmp_path: Path) -> None:
@@ -62,5 +66,27 @@ def test_sync_dev_ingress_hosts_preview_does_not_modify_output_file(tmp_path: Pa
 
     preview = sync_dev_ingress_hosts(entries, hosts, write=False)
 
-    assert "127.0.0.1 gateway.dev.lotus" in preview
+    assert "127.0.0.1 gateway.dev.lotus" in str(preview["updated_text"])
+    assert preview["changed"] is True
+    assert preview["backup_path"] is None
     assert hosts.read_text(encoding="utf-8") == "127.0.0.1 localhost\n"
+
+
+def test_sync_dev_ingress_hosts_skips_backup_when_content_is_already_current(tmp_path: Path) -> None:
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    backups = tmp_path / "backups"
+    current = (
+        "127.0.0.1 localhost\n\n"
+        f"{BLOCK_START}\n"
+        "127.0.0.1 gateway.dev.lotus\n"
+        f"{BLOCK_END}\n"
+    )
+    entries.write_text("127.0.0.1 gateway.dev.lotus\n", encoding="utf-8")
+    hosts.write_text(current, encoding="utf-8")
+
+    result = sync_dev_ingress_hosts(entries, hosts, write=True, backup_dir=backups)
+
+    assert result["changed"] is False
+    assert result["backup_path"] is None
+    assert not backups.exists()
