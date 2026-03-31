@@ -58,9 +58,11 @@ Use this sequence for RFC-0071 local ingress rollout:
 The explainer is intended to remove ambiguity after a failed smoke run. It reads the smoke artifact and the staged hosts preview and reduces the platform state to one operator outcome:
 - `missing_smoke_result`
 - `dns_not_configured`
+- `ingress_unreachable`
 - `services_unreachable`
 - `ready`
 
+For `ingress_unreachable`, the explainer now recommends `docker compose up -d dev-ingress` first, because the evidence indicates the edge itself is likely not serving requests.
 For `services_unreachable`, the explainer now emits the exact `docker compose up -d ...` command for the affected platform-stack services instead of pointing operators back to a full-stack restart.
 
 ## GitHub Actions

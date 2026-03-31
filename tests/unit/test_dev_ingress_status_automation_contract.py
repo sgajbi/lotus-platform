@@ -25,6 +25,12 @@ def test_ingress_status_explainer_is_documented_in_operator_guides() -> None:
     assert expected_refresh_guidance in local_runbook
     assert expected_refresh_guidance in platform_stack_readme
 
+    assert "ingress_unreachable" in automation_guide
+    assert "docker compose up -d dev-ingress" in automation_guide
+    assert "docker compose up -d dev-ingress" in automation_readme
+    assert "docker compose up -d dev-ingress" in local_runbook
+    assert "docker compose up -d dev-ingress" in platform_stack_readme
+
 
 def test_ingress_status_explainer_wrapper_calls_python_entrypoint() -> None:
     wrapper = (ROOT / "automation" / "Explain-Dev-Ingress-Status.ps1").read_text(encoding="utf-8")

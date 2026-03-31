@@ -264,6 +264,7 @@ powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.p
 ```
 
 When routed services are the problem, the explainer emits the exact `docker compose up -d ...` command for the affected `platform-stack` services.
+When the ingress edge itself is the likely fault, it recommends `docker compose up -d dev-ingress` first.
 
 Preview or apply the managed local hosts-file block for dev ingress:
 
