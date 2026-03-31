@@ -49,11 +49,6 @@ def _extract_staged_hostnames(text: str | None) -> list[str]:
     return hostnames
 
 
-def _service_identity_from_check_id(check_id: str) -> str:
-    normalized = check_id.removesuffix("_dns").removesuffix("_dev_ingress")
-    return normalized.replace("_", "-")
-
-
 def explain_dev_ingress_status(
     smoke_payload: dict[str, Any] | None,
     staged_hosts_text: str | None,
@@ -122,7 +117,7 @@ def explain_dev_ingress_status(
     if failed_http_checks:
         affected_services = sorted(
             {
-                _service_identity_from_check_id(str(check["check_id"]))
+                str(check.get("service_identity") or str(check["check_id"]).removesuffix("_dns").removesuffix("_dev_ingress").replace("_", "-"))
                 for check in failed_http_checks
             }
         )

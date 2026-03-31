@@ -19,12 +19,14 @@ DEFAULT_OUTPUT_MD = ROOT / "output" / "dev-ingress-smoke.md"
 @dataclass(frozen=True)
 class EndpointCheck:
     check_id: str
+    service_identity: str
     url: str
     expected_status: int = 200
 
 
 def _result(
     check_id: str,
+    service_identity: str,
     passed: bool,
     message: str,
     evidence: list[str],
@@ -32,6 +34,7 @@ def _result(
 ) -> dict[str, Any]:
     return {
         "check_id": check_id,
+        "service_identity": service_identity,
         "passed": passed,
         "message": message,
         "evidence": evidence,
@@ -60,13 +63,13 @@ def _resolve_host(hostname: str) -> tuple[bool, str]:
 
 def build_dev_ingress_checks() -> list[EndpointCheck]:
     return [
-        EndpointCheck("workbench_dev_ingress", "http://workbench.dev.lotus/"),
-        EndpointCheck("gateway_dev_ingress", "http://gateway.dev.lotus/health/ready"),
-        EndpointCheck("manage_dev_ingress", "http://manage.dev.lotus/health/ready"),
-        EndpointCheck("performance_dev_ingress", "http://performance.dev.lotus/health/ready"),
-        EndpointCheck("report_dev_ingress", "http://report.dev.lotus/health/ready"),
-        EndpointCheck("core_query_dev_ingress", "http://core-query.dev.lotus/health/ready"),
-        EndpointCheck("core_ingestion_dev_ingress", "http://core-ingestion.dev.lotus/health/ready"),
+        EndpointCheck("workbench_dev_ingress", "workbench", "http://workbench.dev.lotus/"),
+        EndpointCheck("gateway_dev_ingress", "gateway", "http://gateway.dev.lotus/health/ready"),
+        EndpointCheck("manage_dev_ingress", "manage", "http://manage.dev.lotus/health/ready"),
+        EndpointCheck("performance_dev_ingress", "performance", "http://performance.dev.lotus/health/ready"),
+        EndpointCheck("report_dev_ingress", "report", "http://report.dev.lotus/health/ready"),
+        EndpointCheck("core_query_dev_ingress", "core-query", "http://core-query.dev.lotus/health/ready"),
+        EndpointCheck("core_ingestion_dev_ingress", "core-ingestion", "http://core-ingestion.dev.lotus/health/ready"),
     ]
 
 
@@ -80,6 +83,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
             checks.append(
                 _result(
                     f"{endpoint.check_id}_dns",
+                    endpoint.service_identity,
                     False,
                     f"Hostname {hostname} does not resolve locally.",
                     [resolution],
@@ -88,6 +92,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
             checks.append(
                 _result(
                     endpoint.check_id,
+                    endpoint.service_identity,
                     False,
                     f"Canonical dev ingress endpoint {endpoint.url} is not reachable because hostname resolution failed.",
                     [resolution],
@@ -98,6 +103,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
         checks.append(
             _result(
                 f"{endpoint.check_id}_dns",
+                endpoint.service_identity,
                 True,
                 f"Hostname {hostname} resolves locally.",
                 [resolution],
@@ -108,6 +114,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
         checks.append(
             _result(
                 endpoint.check_id,
+                endpoint.service_identity,
                 ok and status == endpoint.expected_status,
                 (
                     f"Canonical dev ingress endpoint {endpoint.url} returned {status}."
@@ -142,7 +149,7 @@ def _write_markdown(output_path: Path, payload: dict[str, Any]) -> None:
     for check in payload["checks"]:
         passed = "true" if check["passed"] else "false"
         status = "" if check["status"] is None else str(check["status"])
-        lines.append(f"| {check['check_id']} | {passed} | {status} | {check['message']} |")
+        lines.append(f"| {check['check_id']} ({check['service_identity']}) | {passed} | {status} | {check['message']} |")
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

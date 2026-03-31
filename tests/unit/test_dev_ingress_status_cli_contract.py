@@ -22,8 +22,8 @@ def test_explain_dev_ingress_status_cli_writes_dns_not_configured_artifacts(tmp_
                 "result": "failed",
                 "failed_count": 2,
                 "checks": [
-                    {"check_id": "gateway_dev_ingress_dns", "passed": False},
-                    {"check_id": "gateway_dev_ingress", "passed": False},
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": False},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False},
                 ],
             }
         ),
@@ -109,10 +109,10 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
                 "result": "failed",
                 "failed_count": 2,
                 "checks": [
-                    {"check_id": "gateway_dev_ingress_dns", "passed": True},
-                    {"check_id": "gateway_dev_ingress", "passed": False, "status": 502},
-                    {"check_id": "core_query_dev_ingress_dns", "passed": True},
-                    {"check_id": "core_query_dev_ingress", "passed": False, "status": 503},
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502},
+                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True},
+                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503},
                 ],
             }
         ),

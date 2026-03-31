@@ -19,8 +19,8 @@ def test_explain_dev_ingress_status_points_to_staged_hosts_when_dns_is_missing()
             "result": "failed",
             "failed_count": 2,
             "checks": [
-                {"check_id": "gateway_dev_ingress_dns", "passed": False},
-                {"check_id": "gateway_dev_ingress", "passed": False},
+                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": False},
+                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False},
             ],
         },
         staged_hosts_text=(
@@ -40,16 +40,16 @@ def test_explain_dev_ingress_status_points_to_staged_hosts_when_dns_is_missing()
 def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_http_fails() -> None:
     payload = explain_dev_ingress_status(
         smoke_payload={
-            "result": "failed",
-            "failed_count": 2,
-            "checks": [
-                {"check_id": "gateway_dev_ingress_dns", "passed": True},
-                {"check_id": "gateway_dev_ingress", "passed": False, "status": 502},
-                {"check_id": "core_query_dev_ingress_dns", "passed": True},
-                {"check_id": "core_query_dev_ingress", "passed": False, "status": 503},
-            ],
-        },
-        staged_hosts_text=None,
+                "result": "failed",
+                "failed_count": 2,
+                "checks": [
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502},
+                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True},
+                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503},
+                ],
+            },
+            staged_hosts_text=None,
     )
 
     assert payload["status"] == "services_unreachable"
