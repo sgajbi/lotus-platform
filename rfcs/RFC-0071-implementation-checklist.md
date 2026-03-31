@@ -46,8 +46,8 @@ Create separate rollout sub-items only when:
 | `lotus-platform` | Governance and platform runtime owner | N/A | RFC, validator, and docs in place; local ingress now owned in platform-stack | Own hostname rules, local proxy standard, validation automation, and rollout tracker | In progress | Local ingress implemented with Caddy; hosts-file rollout still required on developer machines |
 | `lotus-workbench` | Frontend workspace | Public | Runtime base URL resolution centralized; docs no longer treat localhost as canonical | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | In progress | Highest-priority app because browser and BFF paths are user-visible |
 | `lotus-gateway` | Experience API / BFF | Public | Public docs now use canonical gateway identity | Public gateway exposed via canonical environment hostname; docs and config updated | In progress | Runtime upstream normalization remains for later internal-service phases |
-| `lotus-core` | Canonical data platform | Internal | Local docs and examples still port-centric for some integration paths | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | Not started | Query/control splits stay internal unless platform consumers truly need separate identities |
-| `lotus-performance` | Performance analytics | Internal | README examples are port-centric | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | Not started | Depends on gateway/internal runtime alignment |
+| `lotus-core` | Canonical data platform | Internal | README examples now use canonical core ingress identities; broader docs/config audit still pending | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | In progress | Query/control splits stay internal unless platform consumers truly need separate identities |
+| `lotus-performance` | Performance analytics | Internal | README setup and cross-app guidance now use canonical performance/core identities; broader docs/config audit still pending | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | In progress | Depends on gateway/internal runtime alignment |
 | `lotus-risk` | Risk analytics | Internal | Quickstart is port-based | Internal discovery or env-driven base URLs only | Not started | Review after performance because both are analytics services |
 | `lotus-advise` | Advisory lifecycle | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Advisory-side workflow repo |
 | `lotus-manage` | Discretionary lifecycle | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Management-side workflow repo |
@@ -126,11 +126,27 @@ Current posture:
 2. Replace canonical integration examples with env-driven or discovery-driven service identities.
 3. Keep local app-local ports only as runtime implementation detail.
 
+Current posture:
+- complete:
+  - README examples no longer present localhost ports as the canonical query/ingestion integration contract
+  - README now uses `core-query.dev.lotus` and `core-ingestion.dev.lotus` for cross-app and operator-facing examples
+- remaining:
+  - audit detailed feature and operations docs that still use direct host-port examples
+  - normalize runtime/config guidance where cross-app addressing is still port-centric
+
 ### lotus-performance
 
 1. Audit config, README, and integration docs for direct cross-app host:port assumptions.
 2. Replace canonical integration examples with env-driven or discovery-driven service identities.
 3. Align first-use and gateway integration guidance to the central addressing model.
+
+Current posture:
+- complete:
+  - README setup and compose guidance no longer present localhost or `host.docker.internal` as the canonical operator contract
+  - README now uses `performance.dev.lotus` and `core-query.dev.lotus` for local RFC-0071 guidance
+- remaining:
+  - audit deeper docs and service-reference pages that still carry legacy host-port examples
+  - normalize config defaults and examples beyond the README surface
 
 ### lotus-risk
 
