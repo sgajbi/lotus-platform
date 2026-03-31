@@ -538,6 +538,10 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/task-runs/*.out.log`
 - `output/task-runs/*.err.log`
 - `output/background-runs.json`
+- `output/dev-ingress-smoke.json`
+- `output/dev-ingress-smoke.md`
+- `output/dev-ingress-status.json`
+- `output/dev-ingress-status.md`
 - `output/test-coverage-summary.json`
 - `output/test-coverage-summary.md`
 - `output/dependency-vulnerability-rollup.json`
