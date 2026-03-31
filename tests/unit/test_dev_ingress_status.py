@@ -53,8 +53,9 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
     )
 
     assert payload["status"] == "services_unreachable"
-    assert "core-query, gateway" in payload["next_steps"][0]
+    assert "docker compose up -d lotus-core-query bff" in payload["next_steps"][0]
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
+    assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
     assert payload["evidence"]["failing_http_statuses"] == [502, 503]
 
 

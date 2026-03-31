@@ -142,4 +142,5 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
 
     assert payload["status"] == "services_unreachable"
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
-    assert "core-query, gateway" in markdown
+    assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
+    assert "docker compose up -d lotus-core-query bff" in markdown

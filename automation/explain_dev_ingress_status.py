@@ -14,6 +14,15 @@ DEFAULT_OUTPUT_JSON = ROOT / "output" / "dev-ingress-status.json"
 DEFAULT_OUTPUT_MD = ROOT / "output" / "dev-ingress-status.md"
 BLOCK_START = "# >>> lotus-platform dev ingress >>>"
 BLOCK_END = "# <<< lotus-platform dev ingress <<<"
+COMPOSE_SERVICE_BY_IDENTITY = {
+    "workbench": "ui",
+    "gateway": "bff",
+    "manage": "lotus-manage",
+    "performance": "lotus-performance",
+    "report": "lotus-report",
+    "core-query": "lotus-core-query",
+    "core-ingestion": "lotus-core-ingestion",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:
@@ -121,17 +130,34 @@ def explain_dev_ingress_status(
                 for check in failed_http_checks
             }
         )
+        affected_compose_services = [
+            COMPOSE_SERVICE_BY_IDENTITY[service]
+            for service in affected_services
+            if service in COMPOSE_SERVICE_BY_IDENTITY
+        ]
+        next_steps = []
+        if affected_compose_services:
+            next_steps.append(
+                "Run `docker compose up -d "
+                + " ".join(affected_compose_services)
+                + "` from `lotus-platform/platform-stack`."
+            )
+        else:
+            next_steps.append(
+                f"Bring up or refresh the affected services through the ingress-first compose flow: {', '.join(affected_services)}."
+            )
+        next_steps.append(
+            "Re-run `powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1` after the stack is up."
+        )
         return {
             "generated_at": datetime.now().astimezone().isoformat(),
             "status": "services_unreachable",
             "summary": "Canonical dev ingress hostnames resolve, but one or more routed services are not healthy.",
-            "next_steps": [
-                f"Bring up or refresh the affected services through the ingress-first compose flow: {', '.join(affected_services)}.",
-                "Re-run `powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1` after the stack is up.",
-            ],
+            "next_steps": next_steps,
             "evidence": {
                 "failed_http_check_ids": [check["check_id"] for check in failed_http_checks],
                 "affected_services": affected_services,
+                "affected_compose_services": affected_compose_services,
                 "failing_http_statuses": [check.get("status") for check in failed_http_checks if check.get("status") is not None],
                 "staged_hosts_present": staged_hosts_present,
             },
