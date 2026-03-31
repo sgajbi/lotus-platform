@@ -18,6 +18,7 @@ Canonical source: `lotus-platform/automation`
 10. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
 11. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
 12. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
+13. Need to classify the current RFC-0071 local ingress rollout state: run `Explain-Dev-Ingress-Status.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -44,6 +45,21 @@ Canonical source: `lotus-platform/automation`
 | Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
 | Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
 | Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
+| Explain local dev ingress rollout state | `automation/Explain-Dev-Ingress-Status.ps1` | Determine whether DNS is missing, staged hosts need to be applied, or services are unhealthy |
+
+## Dev Ingress Operator Loop
+
+Use this sequence for RFC-0071 local ingress rollout:
+
+1. Preview or apply the managed hosts block with `automation/Sync-Dev-Ingress-Hosts.ps1`.
+2. Run `automation/Validate-Dev-Ingress-Smoke.ps1` to generate live ingress evidence.
+3. Run `automation/Explain-Dev-Ingress-Status.ps1` to classify the current state and the exact next step.
+
+The explainer is intended to remove ambiguity after a failed smoke run. It reads the smoke artifact and the staged hosts preview and reduces the platform state to one operator outcome:
+- `missing_smoke_result`
+- `dns_not_configured`
+- `services_unreachable`
+- `ready`
 
 ## GitHub Actions
 
