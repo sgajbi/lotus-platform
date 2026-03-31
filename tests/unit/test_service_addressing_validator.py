@@ -18,11 +18,23 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
 
     _write_text(
         platform / "Local Development Runbook.md",
-        "gateway.dev.lotus\nworkbench.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\n",
+        "gateway.dev.lotus\nworkbench.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\ncore-query.dev.lotus\ncore-ingestion.dev.lotus\n",
     )
     _write_text(
         platform / "platform-stack" / "README.md",
-        "gateway.dev.lotus\nworkbench.dev.lotus\n",
+        "gateway.dev.lotus\nworkbench.dev.lotus\ncore-query.dev.lotus\ncore-ingestion.dev.lotus\n",
+    )
+    _write_text(
+        platform / "platform-stack" / "docker-compose.yml",
+        "services:\n  dev-ingress:\n    volumes:\n      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro\n",
+    )
+    _write_text(
+        platform / "platform-stack" / "dev-ingress" / "Caddyfile",
+        "workbench.dev.lotus\ngateway.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\nreport.dev.lotus\ncore-query.dev.lotus\ncore-ingestion.dev.lotus\n",
+    )
+    _write_text(
+        platform / "platform-stack" / "dev-ingress" / "hosts.example",
+        "127.0.0.1 workbench.dev.lotus\n127.0.0.1 gateway.dev.lotus\n127.0.0.1 core-query.dev.lotus\n127.0.0.1 core-ingestion.dev.lotus\n",
     )
     _write_text(workbench / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
@@ -68,6 +80,9 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
         "http://localhost:3000\nhttp://host.docker.internal:8100\n",
     )
     _write_text(platform / "platform-stack" / "README.md", "http://localhost:8100\n")
+    _write_text(platform / "platform-stack" / "docker-compose.yml", "services: {}\n")
+    _write_text(platform / "platform-stack" / "dev-ingress" / "Caddyfile", "localhost\n")
+    _write_text(platform / "platform-stack" / "dev-ingress" / "hosts.example", "127.0.0.1 localhost\n")
     _write_text(workbench / "README.md", "http://127.0.0.1:3000\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "http://127.0.0.1:3000\n")
     _write_text(gateway / "README.md", "http://127.0.0.1:8100\n")
@@ -102,4 +117,5 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     assert result["failed_count"] > 0
     failed_ids = {check["check_id"] for check in result["checks"] if not check["passed"]}
     assert "platform_runbook_drops_host_docker_internal" in failed_ids
+    assert "platform_stack_owns_local_dev_ingress" in failed_ids
     assert "workbench_runtime_no_longer_embeds_localhost_gateway_fallbacks" in failed_ids

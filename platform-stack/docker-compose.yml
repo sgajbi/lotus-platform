@@ -7,6 +7,33 @@ x-default-logging: &default-logging
     max-file: "5"
 
 services:
+  dev-ingress:
+    image: caddy:2.8.4
+    depends_on:
+      ui:
+        condition: service_healthy
+      bff:
+        condition: service_healthy
+      lotus-manage:
+        condition: service_healthy
+      lotus-core-query:
+        condition: service_healthy
+      lotus-core-ingestion:
+        condition: service_healthy
+      lotus-performance:
+        condition: service_healthy
+      lotus-report:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+      grafana:
+        condition: service_started
+    ports:
+      - "${DEV_INGRESS_HTTP_PORT:-80}:80"
+    volumes:
+      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro
+    logging: *default-logging
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -274,9 +301,6 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.47.2
-    depends_on:
-      bff:
-        condition: service_healthy
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command: ["--config.file=/etc/prometheus/prometheus.yml"]

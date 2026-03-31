@@ -1,0 +1,40 @@
+{
+  auto_https off
+  admin off
+}
+
+workbench.dev.lotus {
+  reverse_proxy ui:3000
+}
+
+gateway.dev.lotus {
+  reverse_proxy bff:8100
+}
+
+manage.dev.lotus {
+  reverse_proxy lotus-manage:8000
+}
+
+performance.dev.lotus {
+  reverse_proxy lotus-performance:8000
+}
+
+report.dev.lotus {
+  reverse_proxy lotus-report:8300
+}
+
+core-query.dev.lotus {
+  reverse_proxy lotus-core-query:8001
+}
+
+core-ingestion.dev.lotus {
+  reverse_proxy lotus-core-ingestion:8000
+}
+
+prometheus.dev.lotus {
+  reverse_proxy prometheus:9090
+}
+
+grafana.dev.lotus {
+  reverse_proxy grafana:3000
+}

@@ -43,9 +43,9 @@ Create separate rollout sub-items only when:
 
 | App | Role | Exposure class | Current state | Target state | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `lotus-platform` | Governance and platform runtime owner | N/A | No RFC/tracker yet for service addressing | Own hostname rules, local proxy standard, validation automation, and rollout tracker | In progress | This RFC and checklist establish ownership |
-| `lotus-workbench` | Frontend workspace | Public | README and runtime defaults still reference direct host:port BFF targets | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | Not started | Highest-priority app because browser and BFF paths are user-visible |
-| `lotus-gateway` | Experience API / BFF | Public | README and local examples still present direct ports as primary integration addresses | Public gateway exposed via canonical environment hostname; docs and config updated | Not started | Must align with workbench first |
+| `lotus-platform` | Governance and platform runtime owner | N/A | RFC, validator, and docs in place; local ingress now owned in platform-stack | Own hostname rules, local proxy standard, validation automation, and rollout tracker | In progress | Local ingress implemented with Caddy; hosts-file rollout still required on developer machines |
+| `lotus-workbench` | Frontend workspace | Public | Runtime base URL resolution centralized; docs no longer treat localhost as canonical | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | In progress | Highest-priority app because browser and BFF paths are user-visible |
+| `lotus-gateway` | Experience API / BFF | Public | Public docs now use canonical gateway identity | Public gateway exposed via canonical environment hostname; docs and config updated | In progress | Runtime upstream normalization remains for later internal-service phases |
 | `lotus-core` | Canonical data platform | Internal | Local docs and examples still port-centric for some integration paths | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | Not started | Query/control splits stay internal unless platform consumers truly need separate identities |
 | `lotus-performance` | Performance analytics | Internal | README examples are port-centric | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | Not started | Depends on gateway/internal runtime alignment |
 | `lotus-risk` | Risk analytics | Internal | Quickstart is port-based | Internal discovery or env-driven base URLs only | Not started | Review after performance because both are analytics services |
@@ -68,6 +68,7 @@ Create separate rollout sub-items only when:
    - internal-only service discovery model
    - local dev hostname mapping model
 4. Add platform automation for detecting obvious localhost/port drift in app-local source and docs.
+5. Implement one central local ingress in `platform-stack` and publish the required hosts-file entries.
 
 ## Phase B: Public-entry app rollout
 

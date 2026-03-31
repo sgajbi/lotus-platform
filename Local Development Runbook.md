@@ -28,10 +28,15 @@ Canonical service identities for local `dev`:
 - Manage: `http://manage.dev.lotus`
 - Performance: `http://performance.dev.lotus`
 - Report: `http://report.dev.lotus`
-- Core: `http://core.dev.lotus`
+- Core query: `http://core-query.dev.lotus`
+- Core ingestion: `http://core-ingestion.dev.lotus`
 
 Ports remain an internal platform-stack implementation detail. Operator and application-facing
 configuration should use the environment-scoped hostnames above.
+
+Required hosts-file entries are listed in:
+
+- `platform-stack/dev-ingress/hosts.example`
 
 Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
 
@@ -45,7 +50,8 @@ docker compose ps
 Key endpoints:
 - Workbench: `http://workbench.dev.lotus`
 - Gateway: `http://gateway.dev.lotus`
-- Core: `http://core.dev.lotus`
+- Core query: `http://core-query.dev.lotus`
+- Core ingestion: `http://core-ingestion.dev.lotus`
 - Manage: `http://manage.dev.lotus`
 - Performance: `http://performance.dev.lotus`
 - Report: `http://report.dev.lotus`
@@ -55,7 +61,8 @@ Key endpoints:
 ## 2. Service Identities and Dependencies
 
 - lotus-manage API: `http://manage.dev.lotus`
-- lotus-core API: `http://core.dev.lotus`
+- lotus-core query API: `http://core-query.dev.lotus`
+- lotus-core ingestion API: `http://core-ingestion.dev.lotus`
 - lotus-performance API: `http://performance.dev.lotus`
 - lotus-report API: `http://report.dev.lotus`
 - lotus-gateway API: `http://gateway.dev.lotus`
@@ -93,8 +100,8 @@ docker compose ps
 ```bash
 cd /c/Users/sande/dev/lotus-gateway
 export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
-export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core.dev.lotus"
-export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core.dev.lotus"
+export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core-ingestion.dev.lotus"
+export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core-query.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
@@ -172,9 +179,9 @@ cd /c/Users/sande/dev/lotus-advise && docker compose down -v
 - lotus-gateway cannot reach lotus-manage
   - Check `DECISIONING_SERVICE_BASE_URL=http://manage.dev.lotus`.
 - lotus-gateway cannot reach lotus-core ingestion
-  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://core.dev.lotus`.
+  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://core-ingestion.dev.lotus`.
 - lotus-gateway cannot reach lotus-core query
-  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://core.dev.lotus`.
+  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://core-query.dev.lotus`.
 - UI cannot reach lotus-gateway
   - Check `BFF_BASE_URL=http://gateway.dev.lotus`.
 - Port conflict on `3000/8100/8000/5432`

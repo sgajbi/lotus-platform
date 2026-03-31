@@ -58,6 +58,9 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
 
     platform_runbook = platform_root / "Local Development Runbook.md"
     platform_stack_readme = platform_root / "platform-stack" / "README.md"
+    dev_ingress_caddyfile = platform_root / "platform-stack" / "dev-ingress" / "Caddyfile"
+    dev_ingress_hosts = platform_root / "platform-stack" / "dev-ingress" / "hosts.example"
+    platform_compose = platform_root / "platform-stack" / "docker-compose.yml"
     workbench_readme = workbench_root / "README.md"
     workbench_demo = workbench_root / "docs" / "demo" / "README.md"
     gateway_readme = gateway_root / "README.md"
@@ -72,6 +75,9 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
 
     runbook_text = _load_text(platform_runbook)
     platform_stack_text = _load_text(platform_stack_readme)
+    dev_ingress_caddyfile_text = _load_text(dev_ingress_caddyfile)
+    dev_ingress_hosts_text = _load_text(dev_ingress_hosts)
+    platform_compose_text = _load_text(platform_compose)
     workbench_readme_text = _load_text(workbench_readme)
     workbench_demo_text = _load_text(workbench_demo)
     gateway_readme_text = _load_text(gateway_readme)
@@ -87,6 +93,8 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
                     "workbench.dev.lotus",
                     "manage.dev.lotus",
                     "performance.dev.lotus",
+                    "core-query.dev.lotus",
+                    "core-ingestion.dev.lotus",
                 ],
             ),
             "Local Development Runbook defines canonical environment-scoped service identities for the Phase A local stack.",
@@ -100,9 +108,41 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
         ),
         _result(
             "platform_stack_readme_advertises_canonical_hostnames",
-            _contains_all(platform_stack_text, ["gateway.dev.lotus", "workbench.dev.lotus"]),
+            _contains_all(
+                platform_stack_text,
+                ["gateway.dev.lotus", "workbench.dev.lotus", "core-query.dev.lotus", "core-ingestion.dev.lotus"],
+            ),
             "platform-stack README advertises canonical service hostnames instead of raw ports as the primary operator contract.",
             [str(platform_stack_readme)],
+        ),
+        _result(
+            "platform_stack_owns_local_dev_ingress",
+            _contains_all(platform_compose_text, ["dev-ingress:", "./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro"]),
+            "platform-stack owns a central local ingress service for environment-scoped dev hostnames.",
+            [str(platform_compose)],
+        ),
+        _result(
+            "platform_stack_dev_ingress_routes_canonical_hostnames",
+            _contains_all(
+                dev_ingress_caddyfile_text,
+                [
+                    "workbench.dev.lotus",
+                    "gateway.dev.lotus",
+                    "manage.dev.lotus",
+                    "performance.dev.lotus",
+                    "report.dev.lotus",
+                    "core-query.dev.lotus",
+                    "core-ingestion.dev.lotus",
+                ],
+            ),
+            "platform-stack ingress routes the canonical local dev hostnames to the correct services.",
+            [str(dev_ingress_caddyfile)],
+        ),
+        _result(
+            "platform_stack_dev_ingress_hosts_example_exists",
+            _contains_all(dev_ingress_hosts_text, ["workbench.dev.lotus", "gateway.dev.lotus", "core-query.dev.lotus", "core-ingestion.dev.lotus"]),
+            "platform-stack publishes the required local hosts-file mappings for the dev ingress.",
+            [str(dev_ingress_hosts)],
         ),
         _result(
             "workbench_docs_advertise_gateway_service_identity",

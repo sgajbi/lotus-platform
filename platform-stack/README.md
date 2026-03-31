@@ -12,6 +12,9 @@ This folder provides a centralized Docker Compose orchestration for the full PBW
 
 This stack is the canonical shared-infrastructure baseline for local platform bring-up.
 
+It now includes a central local ingress that exposes stable environment-scoped hostnames for the
+developer-facing surfaces and directly used API products.
+
 Important ownership rule:
 
 1. `lotus-platform` owns the shared infrastructure products and their baseline configuration.
@@ -44,6 +47,12 @@ cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 Copy-Item .env.example .env
 ```
 
+Add the local hostname mappings from:
+
+- `platform-stack/dev-ingress/hosts.example`
+
+to your hosts file before first use.
+
 ## 2) Start Full Platform
 
 ```powershell
@@ -58,7 +67,8 @@ Canonical service identities:
 - Workbench: `http://workbench.dev.lotus`
 - Gateway readiness: `http://gateway.dev.lotus/health/ready`
 - Manage readiness: `http://manage.dev.lotus/health/ready`
-- Core readiness: `http://core.dev.lotus/health/ready`
+- Core query readiness: `http://core-query.dev.lotus/health/ready`
+- Core ingestion readiness: `http://core-ingestion.dev.lotus/health/ready`
 - Performance readiness: `http://performance.dev.lotus/health/ready`
 - Report readiness: `http://report.dev.lotus/health/ready`
 - Prometheus: `http://prometheus.dev.lotus`
