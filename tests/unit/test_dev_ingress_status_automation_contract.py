@@ -19,6 +19,12 @@ def test_ingress_status_explainer_is_documented_in_operator_guides() -> None:
     assert expected_snippet in local_runbook
     assert expected_snippet in platform_stack_readme
 
+    expected_refresh_guidance = "docker compose up -d"
+    assert expected_refresh_guidance in automation_guide
+    assert expected_refresh_guidance in automation_readme
+    assert expected_refresh_guidance in local_runbook
+    assert expected_refresh_guidance in platform_stack_readme
+
 
 def test_ingress_status_explainer_wrapper_calls_python_entrypoint() -> None:
     wrapper = (ROOT / "automation" / "Explain-Dev-Ingress-Status.ps1").read_text(encoding="utf-8")

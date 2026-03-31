@@ -45,7 +45,7 @@ Canonical source: `lotus-platform/automation`
 | Seeded cross-app attribution validation | `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful attribution scenario |
 | Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
 | Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
-| Explain local dev ingress rollout state | `automation/Explain-Dev-Ingress-Status.ps1` | Determine whether DNS is missing, staged hosts need to be applied, or services are unhealthy |
+| Explain local dev ingress rollout state | `automation/Explain-Dev-Ingress-Status.ps1` | Determine whether DNS is missing, staged hosts need to be applied, or services are unhealthy, and emit the exact compose refresh command when service routing is the problem |
 
 ## Dev Ingress Operator Loop
 
@@ -60,6 +60,8 @@ The explainer is intended to remove ambiguity after a failed smoke run. It reads
 - `dns_not_configured`
 - `services_unreachable`
 - `ready`
+
+For `services_unreachable`, the explainer now emits the exact `docker compose up -d ...` command for the affected platform-stack services instead of pointing operators back to a full-stack restart.
 
 ## GitHub Actions
 

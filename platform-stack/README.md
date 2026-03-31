@@ -95,6 +95,8 @@ cd C:\Users\Sandeep\projects\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
 ```
 
+If only some routed services are unhealthy, the explainer now recommends the exact `docker compose up -d ...` refresh command for those affected services.
+
 ## 3) Smoke Endpoints
 
 Canonical service identities:

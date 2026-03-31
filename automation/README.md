@@ -263,6 +263,8 @@ Explain the current ingress rollout state and the exact next operator step:
 powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
 ```
 
+When routed services are the problem, the explainer emits the exact `docker compose up -d ...` command for the affected `platform-stack` services.
+
 Preview or apply the managed local hosts-file block for dev ingress:
 
 ```powershell

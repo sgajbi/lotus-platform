@@ -146,6 +146,8 @@ Run ingress-first smoke validation:
   powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
   ```
 
+  When only routed services are unhealthy, this command now tells you the exact `docker compose up -d ...` refresh command to run for the affected services.
+
 ## 4.3 Start UI
 
 ```bash
