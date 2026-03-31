@@ -32,7 +32,8 @@ Canonical service identities for local `dev`:
 - Core ingestion: `http://core-ingestion.dev.lotus`
 
 Ports remain an internal platform-stack implementation detail. Operator and application-facing
-configuration should use the environment-scoped hostnames above.
+configuration should use the environment-scoped hostnames above. Direct host-port publishing is a
+debug-only override, not the default contract.
 
 Required hosts-file entries are listed in:
 
@@ -67,6 +68,9 @@ Key endpoints:
 - lotus-report API: `http://report.dev.lotus`
 - lotus-gateway API: `http://gateway.dev.lotus`
 - UI: `http://workbench.dev.lotus`
+
+Legacy direct host ports are available only through `platform-stack/docker-compose.host-ports.yml`
+when a debugging workflow genuinely requires them.
 
 Dependency chain:
 - UI -> lotus-gateway
@@ -103,6 +107,14 @@ export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
 export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core-ingestion.dev.lotus"
 export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core-query.dev.lotus"
 docker compose up -d --build
+docker compose ps
+```
+
+If you explicitly need raw host ports for debugging:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
 docker compose ps
 ```
 

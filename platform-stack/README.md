@@ -60,6 +60,13 @@ cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 docker compose up -d --build
 ```
 
+Optional direct host-port publishing for debugging only:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
+```
+
 ## 3) Smoke Endpoints
 
 Canonical service identities:
@@ -76,6 +83,9 @@ Canonical service identities:
 
 The underlying container port mappings are implementation detail. Operators and application repos
 should use the environment-scoped service hostnames above as the stable contract.
+
+If you need legacy direct host ports for debugging, use `docker-compose.host-ports.yml`. The base
+stack is ingress-first by design.
 
 ## 4) Logs
 

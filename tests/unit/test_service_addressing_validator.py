@@ -29,6 +29,10 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
         "services:\n  dev-ingress:\n    volumes:\n      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro\n",
     )
     _write_text(
+        platform / "platform-stack" / "docker-compose.host-ports.yml",
+        '${LOTUS_MANAGE_PORT:-8000}:8000\n${LOTUS_CORE_INGESTION_PORT:-8200}:8000\n${LOTUS_CORE_QUERY_PORT:-8201}:8001\n${LOTUS_PERFORMANCE_PORT:-8002}:8000\n${LOTUS_REPORT_PORT:-8300}:8300\n${BFF_PORT:-8100}:8100\n${UI_PORT:-3000}:3000\n${PROMETHEUS_PORT:-9190}:9090\n${GRAFANA_PORT:-3300}:3000\n',
+    )
+    _write_text(
         platform / "platform-stack" / "dev-ingress" / "Caddyfile",
         "workbench.dev.lotus\ngateway.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\nreport.dev.lotus\ncore-query.dev.lotus\ncore-ingestion.dev.lotus\n",
     )
@@ -81,6 +85,7 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     )
     _write_text(platform / "platform-stack" / "README.md", "http://localhost:8100\n")
     _write_text(platform / "platform-stack" / "docker-compose.yml", "services: {}\n")
+    _write_text(platform / "platform-stack" / "docker-compose.host-ports.yml", "services: {}\n")
     _write_text(platform / "platform-stack" / "dev-ingress" / "Caddyfile", "localhost\n")
     _write_text(platform / "platform-stack" / "dev-ingress" / "hosts.example", "127.0.0.1 localhost\n")
     _write_text(workbench / "README.md", "http://127.0.0.1:3000\n")
@@ -118,4 +123,5 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     failed_ids = {check["check_id"] for check in result["checks"] if not check["passed"]}
     assert "platform_runbook_drops_host_docker_internal" in failed_ids
     assert "platform_stack_owns_local_dev_ingress" in failed_ids
+    assert "platform_stack_debug_override_preserves_direct_host_ports" in failed_ids
     assert "workbench_runtime_no_longer_embeds_localhost_gateway_fallbacks" in failed_ids

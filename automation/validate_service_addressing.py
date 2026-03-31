@@ -61,6 +61,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_caddyfile = platform_root / "platform-stack" / "dev-ingress" / "Caddyfile"
     dev_ingress_hosts = platform_root / "platform-stack" / "dev-ingress" / "hosts.example"
     platform_compose = platform_root / "platform-stack" / "docker-compose.yml"
+    host_ports_compose = platform_root / "platform-stack" / "docker-compose.host-ports.yml"
     workbench_readme = workbench_root / "README.md"
     workbench_demo = workbench_root / "docs" / "demo" / "README.md"
     gateway_readme = gateway_root / "README.md"
@@ -78,6 +79,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_caddyfile_text = _load_text(dev_ingress_caddyfile)
     dev_ingress_hosts_text = _load_text(dev_ingress_hosts)
     platform_compose_text = _load_text(platform_compose)
+    host_ports_compose_text = _load_text(host_ports_compose)
     workbench_readme_text = _load_text(workbench_readme)
     workbench_demo_text = _load_text(workbench_demo)
     gateway_readme_text = _load_text(gateway_readme)
@@ -120,6 +122,44 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
             _contains_all(platform_compose_text, ["dev-ingress:", "./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro"]),
             "platform-stack owns a central local ingress service for environment-scoped dev hostnames.",
             [str(platform_compose)],
+        ),
+        _result(
+            "platform_stack_base_compose_is_ingress_first",
+            _contains_none(
+                platform_compose_text,
+                [
+                    '${LOTUS_MANAGE_PORT:-8000}:8000',
+                    '${LOTUS_CORE_INGESTION_PORT:-8200}:8000',
+                    '${LOTUS_CORE_QUERY_PORT:-8201}:8001',
+                    '${LOTUS_PERFORMANCE_PORT:-8002}:8000',
+                    '${LOTUS_REPORT_PORT:-8300}:8300',
+                    '${BFF_PORT:-8100}:8100',
+                    '${UI_PORT:-3000}:3000',
+                    '${PROMETHEUS_PORT:-9190}:9090',
+                    '${GRAFANA_PORT:-3300}:3000',
+                ],
+            ),
+            "Base platform-stack compose is ingress-first and does not publish legacy direct host ports by default.",
+            [str(platform_compose)],
+        ),
+        _result(
+            "platform_stack_debug_override_preserves_direct_host_ports",
+            _contains_all(
+                host_ports_compose_text,
+                [
+                    '${LOTUS_MANAGE_PORT:-8000}:8000',
+                    '${LOTUS_CORE_INGESTION_PORT:-8200}:8000',
+                    '${LOTUS_CORE_QUERY_PORT:-8201}:8001',
+                    '${LOTUS_PERFORMANCE_PORT:-8002}:8000',
+                    '${LOTUS_REPORT_PORT:-8300}:8300',
+                    '${BFF_PORT:-8100}:8100',
+                    '${UI_PORT:-3000}:3000',
+                    '${PROMETHEUS_PORT:-9190}:9090',
+                    '${GRAFANA_PORT:-3300}:3000',
+                ],
+            ),
+            "platform-stack keeps a separate debug-only override for legacy direct host-port publishing.",
+            [str(host_ports_compose)],
         ),
         _result(
             "platform_stack_dev_ingress_routes_canonical_hostnames",
