@@ -144,6 +144,7 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
     assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
+    assert "docker compose logs --tail=200 lotus-core-query bff" in markdown
     assert "docker compose up -d lotus-core-query bff" in markdown
 
 
@@ -193,3 +194,51 @@ def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path
     assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
     assert payload["evidence"]["likely_ingress_failure"] is True
     assert "docker compose up -d dev-ingress" in markdown
+
+
+def test_explain_dev_ingress_status_cli_uses_logs_first_for_timeout_failures(tmp_path: Path) -> None:
+    smoke_path = tmp_path / "dev-ingress-smoke.json"
+    output_json = tmp_path / "dev-ingress-status.json"
+    output_markdown = tmp_path / "dev-ingress-status.md"
+
+    smoke_path.write_text(
+        json.dumps(
+            {
+                "result": "failed",
+                "failed_count": 2,
+                "checks": [
+                    {"check_id": "performance_dev_ingress_dns", "service_identity": "performance", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "performance_dev_ingress", "service_identity": "performance", "passed": False, "status": None, "failure_posture": "timeout"},
+                    {"check_id": "report_dev_ingress_dns", "service_identity": "report", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "report_dev_ingress", "service_identity": "report", "passed": False, "status": None, "failure_posture": "timeout"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--smoke-json-path",
+            str(smoke_path),
+            "--output-json",
+            str(output_json),
+            "--output-markdown",
+            str(output_markdown),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    payload = json.loads(output_json.read_text(encoding="utf-8"))
+    markdown = output_markdown.read_text(encoding="utf-8")
+
+    assert payload["status"] == "services_unreachable"
+    assert payload["evidence"]["failing_http_postures"] == ["timeout", "timeout"]
+    assert "docker compose logs --tail=200 lotus-performance lotus-report" in markdown
+    assert "docker compose up -d lotus-performance lotus-report" in markdown

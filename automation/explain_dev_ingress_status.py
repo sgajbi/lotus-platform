@@ -23,6 +23,7 @@ COMPOSE_SERVICE_BY_IDENTITY = {
     "core-query": "lotus-core-query",
     "core-ingestion": "lotus-core-ingestion",
 }
+EDGE_REQUIRED_SERVICE_IDENTITIES = {"workbench", "gateway"}
 
 
 def _all_expected_service_identities(smoke_payload: dict[str, Any]) -> set[str]:
@@ -68,6 +69,14 @@ def _extract_staged_hostnames(text: str | None) -> list[str]:
 
 def _failure_postures(checks: list[dict[str, Any]]) -> list[str]:
     return [str(check.get("failure_posture", "")) for check in checks]
+
+
+def _compose_service_command(services: list[str]) -> str:
+    return "docker compose up -d " + " ".join(services)
+
+
+def _compose_logs_command(services: list[str]) -> str:
+    return "docker compose logs --tail=200 " + " ".join(services)
 
 
 def explain_dev_ingress_status(
@@ -151,6 +160,7 @@ def explain_dev_ingress_status(
         failure_postures = _failure_postures(failed_http_checks)
         likely_ingress_failure = (
             bool(all_expected_services)
+            and EDGE_REQUIRED_SERVICE_IDENTITIES.issubset(all_expected_services)
             and set(affected_services) == all_expected_services
             and all(posture in {"connection_refused", "timeout", "transport_error"} for posture in failure_postures)
         )
@@ -160,14 +170,26 @@ def explain_dev_ingress_status(
                 "Run `docker compose up -d dev-ingress` from `lotus-platform/platform-stack`."
             )
             next_steps.append(
-                "If the edge still fails, then refresh the routed services with `docker compose up -d "
-                + " ".join(affected_compose_services)
+                "If the edge still fails, then refresh the routed services with `"
+                + _compose_service_command(affected_compose_services)
                 + "`."
             )
         elif affected_compose_services:
+            if "timeout" in failure_postures:
+                next_steps.append(
+                    "Inspect `"
+                    + _compose_logs_command(affected_compose_services)
+                    + "` from `lotus-platform/platform-stack` for saturation or blocked upstream calls."
+                )
+            elif all(posture == "http_error" for posture in failure_postures):
+                next_steps.append(
+                    "Inspect `"
+                    + _compose_logs_command(affected_compose_services)
+                    + "` from `lotus-platform/platform-stack` for upstream or readiness errors."
+                )
             next_steps.append(
-                "Run `docker compose up -d "
-                + " ".join(affected_compose_services)
+                "Run `"
+                + _compose_service_command(affected_compose_services)
                 + "` from `lotus-platform/platform-stack`."
             )
         else:

@@ -53,7 +53,8 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
     )
 
     assert payload["status"] == "services_unreachable"
-    assert "docker compose up -d lotus-core-query bff" in payload["next_steps"][0]
+    assert "docker compose logs --tail=200 lotus-core-query bff" in payload["next_steps"][0]
+    assert "docker compose up -d lotus-core-query bff" in payload["next_steps"][1]
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
     assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
@@ -80,6 +81,27 @@ def test_explain_dev_ingress_status_points_to_dev_ingress_when_all_routes_fail_w
     assert "docker compose up -d dev-ingress" in payload["next_steps"][0]
     assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
     assert payload["evidence"]["likely_ingress_failure"] is True
+
+
+def test_explain_dev_ingress_status_points_to_logs_first_for_timeout_failures() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+            "result": "failed",
+            "failed_count": 2,
+            "checks": [
+                {"check_id": "performance_dev_ingress_dns", "service_identity": "performance", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "performance_dev_ingress", "service_identity": "performance", "passed": False, "status": None, "failure_posture": "timeout"},
+                {"check_id": "report_dev_ingress_dns", "service_identity": "report", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "report_dev_ingress", "service_identity": "report", "passed": False, "status": None, "failure_posture": "timeout"},
+            ],
+        },
+        staged_hosts_text=None,
+    )
+
+    assert payload["status"] == "services_unreachable"
+    assert "docker compose logs --tail=200 lotus-performance lotus-report" in payload["next_steps"][0]
+    assert "docker compose up -d lotus-performance lotus-report" in payload["next_steps"][1]
+    assert payload["evidence"]["failing_http_postures"] == ["timeout", "timeout"]
 
 
 def test_explain_dev_ingress_status_requests_smoke_run_when_artifact_is_missing() -> None:
