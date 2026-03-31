@@ -57,6 +57,27 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
     assert payload["evidence"]["failing_http_statuses"] == [502, 503]
+    assert payload["evidence"]["likely_ingress_failure"] is False
+
+
+def test_explain_dev_ingress_status_points_to_dev_ingress_when_all_routes_fail_without_http_status() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+            "result": "failed",
+            "failed_count": 4,
+            "checks": [
+                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
+                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"]},
+                {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True},
+                {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"]},
+            ],
+        },
+        staged_hosts_text=None,
+    )
+
+    assert payload["status"] == "ingress_unreachable"
+    assert "docker compose up -d dev-ingress" in payload["next_steps"][0]
+    assert payload["evidence"]["likely_ingress_failure"] is True
 
 
 def test_explain_dev_ingress_status_requests_smoke_run_when_artifact_is_missing() -> None:

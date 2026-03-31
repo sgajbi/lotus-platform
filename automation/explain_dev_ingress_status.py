@@ -25,6 +25,14 @@ COMPOSE_SERVICE_BY_IDENTITY = {
 }
 
 
+def _all_expected_service_identities(smoke_payload: dict[str, Any]) -> set[str]:
+    return {
+        str(check.get("service_identity"))
+        for check in smoke_payload.get("checks", [])
+        if check.get("service_identity")
+    }
+
+
 def _load_json(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -130,13 +138,29 @@ def explain_dev_ingress_status(
                 for check in failed_http_checks
             }
         )
+        all_expected_services = _all_expected_service_identities(smoke_payload)
         affected_compose_services = [
             COMPOSE_SERVICE_BY_IDENTITY[service]
             for service in affected_services
             if service in COMPOSE_SERVICE_BY_IDENTITY
         ]
+        all_http_fail_without_status = all(check.get("status") is None for check in failed_http_checks)
+        likely_ingress_failure = (
+            bool(all_expected_services)
+            and set(affected_services) == all_expected_services
+            and all_http_fail_without_status
+        )
         next_steps = []
-        if affected_compose_services:
+        if likely_ingress_failure:
+            next_steps.append(
+                "Run `docker compose up -d dev-ingress` from `lotus-platform/platform-stack`."
+            )
+            next_steps.append(
+                "If the edge still fails, then refresh the routed services with `docker compose up -d "
+                + " ".join(affected_compose_services)
+                + "`."
+            )
+        elif affected_compose_services:
             next_steps.append(
                 "Run `docker compose up -d "
                 + " ".join(affected_compose_services)
@@ -151,14 +175,20 @@ def explain_dev_ingress_status(
         )
         return {
             "generated_at": datetime.now().astimezone().isoformat(),
-            "status": "services_unreachable",
-            "summary": "Canonical dev ingress hostnames resolve, but one or more routed services are not healthy.",
+            "status": "ingress_unreachable" if likely_ingress_failure else "services_unreachable",
+            "summary": (
+                "Canonical dev ingress hostnames resolve, but the ingress edge itself is likely not serving requests."
+                if likely_ingress_failure
+                else "Canonical dev ingress hostnames resolve, but one or more routed services are not healthy."
+            ),
             "next_steps": next_steps,
             "evidence": {
                 "failed_http_check_ids": [check["check_id"] for check in failed_http_checks],
                 "affected_services": affected_services,
+                "all_expected_services": sorted(all_expected_services),
                 "affected_compose_services": affected_compose_services,
                 "failing_http_statuses": [check.get("status") for check in failed_http_checks if check.get("status") is not None],
+                "likely_ingress_failure": likely_ingress_failure,
                 "staged_hosts_present": staged_hosts_present,
             },
         }

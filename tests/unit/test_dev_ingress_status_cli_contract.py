@@ -144,3 +144,50 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
     assert "docker compose up -d lotus-core-query bff" in markdown
+
+
+def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path: Path) -> None:
+    smoke_path = tmp_path / "dev-ingress-smoke.json"
+    output_json = tmp_path / "dev-ingress-status.json"
+    output_markdown = tmp_path / "dev-ingress-status.md"
+
+    smoke_path.write_text(
+        json.dumps(
+            {
+                "result": "failed",
+                "failed_count": 4,
+                "checks": [
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"]},
+                    {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True},
+                    {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"]},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--smoke-json-path",
+            str(smoke_path),
+            "--output-json",
+            str(output_json),
+            "--output-markdown",
+            str(output_markdown),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    payload = json.loads(output_json.read_text(encoding="utf-8"))
+    markdown = output_markdown.read_text(encoding="utf-8")
+
+    assert payload["status"] == "ingress_unreachable"
+    assert payload["evidence"]["likely_ingress_failure"] is True
+    assert "docker compose up -d dev-ingress" in markdown
