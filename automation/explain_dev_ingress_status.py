@@ -49,6 +49,11 @@ def _extract_staged_hostnames(text: str | None) -> list[str]:
     return hostnames
 
 
+def _service_identity_from_check_id(check_id: str) -> str:
+    normalized = check_id.removesuffix("_dns").removesuffix("_dev_ingress")
+    return normalized.replace("_", "-")
+
+
 def explain_dev_ingress_status(
     smoke_payload: dict[str, Any] | None,
     staged_hosts_text: str | None,
@@ -115,16 +120,23 @@ def explain_dev_ingress_status(
         }
 
     if failed_http_checks:
+        affected_services = sorted(
+            {
+                _service_identity_from_check_id(str(check["check_id"]))
+                for check in failed_http_checks
+            }
+        )
         return {
             "generated_at": datetime.now().astimezone().isoformat(),
             "status": "services_unreachable",
             "summary": "Canonical dev ingress hostnames resolve, but one or more routed services are not healthy.",
             "next_steps": [
-                "Bring up or refresh the local platform stack through the ingress-first compose flow.",
+                f"Bring up or refresh the affected services through the ingress-first compose flow: {', '.join(affected_services)}.",
                 "Re-run `powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1` after the stack is up.",
             ],
             "evidence": {
                 "failed_http_check_ids": [check["check_id"] for check in failed_http_checks],
+                "affected_services": affected_services,
                 "failing_http_statuses": [check.get("status") for check in failed_http_checks if check.get("status") is not None],
                 "staged_hosts_present": staged_hosts_present,
             },

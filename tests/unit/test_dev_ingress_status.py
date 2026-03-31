@@ -41,18 +41,21 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
     payload = explain_dev_ingress_status(
         smoke_payload={
             "result": "failed",
-            "failed_count": 1,
+            "failed_count": 2,
             "checks": [
                 {"check_id": "gateway_dev_ingress_dns", "passed": True},
                 {"check_id": "gateway_dev_ingress", "passed": False, "status": 502},
+                {"check_id": "core_query_dev_ingress_dns", "passed": True},
+                {"check_id": "core_query_dev_ingress", "passed": False, "status": 503},
             ],
         },
         staged_hosts_text=None,
     )
 
     assert payload["status"] == "services_unreachable"
-    assert "Bring up or refresh the local platform stack" in payload["next_steps"][0]
-    assert payload["evidence"]["failing_http_statuses"] == [502]
+    assert "core-query, gateway" in payload["next_steps"][0]
+    assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
+    assert payload["evidence"]["failing_http_statuses"] == [502, 503]
 
 
 def test_explain_dev_ingress_status_requests_smoke_run_when_artifact_is_missing() -> None:
