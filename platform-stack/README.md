@@ -53,15 +53,19 @@ docker compose up -d --build
 
 ## 3) Smoke Endpoints
 
-- UI: `http://localhost:3000`
-- lotus-gateway readiness: `http://localhost:8100/health/ready`
-- lotus-manage readiness: `http://localhost:8000/health/ready`
-- lotus-core ingestion ready: `http://localhost:8200/health/ready`
-- lotus-core query ready: `http://localhost:8201/health/ready`
-- lotus-performance readiness: `http://localhost:8002/health/ready`
-- lotus-report readiness: `http://localhost:8300/health/ready`
-- Prometheus: `http://localhost:9190`
-- Grafana: `http://localhost:3300` (admin/admin)
+Canonical service identities:
+
+- Workbench: `http://workbench.dev.lotus`
+- Gateway readiness: `http://gateway.dev.lotus/health/ready`
+- Manage readiness: `http://manage.dev.lotus/health/ready`
+- Core readiness: `http://core.dev.lotus/health/ready`
+- Performance readiness: `http://performance.dev.lotus/health/ready`
+- Report readiness: `http://report.dev.lotus/health/ready`
+- Prometheus: `http://prometheus.dev.lotus`
+- Grafana: `http://grafana.dev.lotus` (admin/admin)
+
+The underlying container port mappings are implementation detail. Operators and application repos
+should use the environment-scoped service hostnames above as the stable contract.
 
 ## 4) Logs
 

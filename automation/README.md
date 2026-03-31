@@ -37,6 +37,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Measure-Test-Pyramid.ps1`
 - `automation/Validate-Backend-Standards.ps1`
 - `automation/Validate-Shared-Infrastructure-Ownership.ps1`
+- `automation/Validate-Service-Addressing.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
@@ -239,6 +240,12 @@ Validate RFC-0068 shared infrastructure ownership boundaries:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1
+```
+
+Validate RFC-0071 centralized service addressing drift:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1
 ```
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:

@@ -21,6 +21,18 @@ Expected:
 Canonical centralized orchestration now lives in:
 - `lotus-platform/platform-stack/docker-compose.yml`
 
+Canonical service identities for local `dev`:
+
+- Workbench: `http://workbench.dev.lotus`
+- Gateway: `http://gateway.dev.lotus`
+- Manage: `http://manage.dev.lotus`
+- Performance: `http://performance.dev.lotus`
+- Report: `http://report.dev.lotus`
+- Core: `http://core.dev.lotus`
+
+Ports remain an internal platform-stack implementation detail. Operator and application-facing
+configuration should use the environment-scoped hostnames above.
+
 Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
 
 ```powershell
@@ -31,32 +43,28 @@ docker compose ps
 ```
 
 Key endpoints:
-- UI: `http://localhost:3000`
-- lotus-gateway: `http://localhost:8100`
-- lotus-core Ingestion: `http://localhost:8200`
-- lotus-core Query: `http://localhost:8201`
-- lotus-manage: `http://localhost:8000`
-- lotus-performance: `http://localhost:8002`
-- lotus-report: `http://localhost:8300`
-- Prometheus: `http://localhost:9190`
-- Grafana: `http://localhost:3300`
+- Workbench: `http://workbench.dev.lotus`
+- Gateway: `http://gateway.dev.lotus`
+- Core: `http://core.dev.lotus`
+- Manage: `http://manage.dev.lotus`
+- Performance: `http://performance.dev.lotus`
+- Report: `http://report.dev.lotus`
+- Prometheus: `http://prometheus.dev.lotus`
+- Grafana: `http://grafana.dev.lotus`
 
-## 2. Ports and Dependencies
+## 2. Service Identities and Dependencies
 
-- lotus-manage API: `http://localhost:8000`
-- lotus-core Ingestion API: `http://localhost:8200`
-- lotus-core Query API: `http://localhost:8201`
-- lotus-performance API: `http://localhost:8002`
-- lotus-report API: `http://localhost:8300`
-- Postgres (for lotus-manage): `localhost:5432`
-- lotus-gateway API: `http://localhost:8100`
-- UI: `http://localhost:3000`
+- lotus-manage API: `http://manage.dev.lotus`
+- lotus-core API: `http://core.dev.lotus`
+- lotus-performance API: `http://performance.dev.lotus`
+- lotus-report API: `http://report.dev.lotus`
+- lotus-gateway API: `http://gateway.dev.lotus`
+- UI: `http://workbench.dev.lotus`
 
 Dependency chain:
 - UI -> lotus-gateway
 - lotus-gateway -> lotus-manage
-- lotus-gateway -> lotus-core Ingestion (for portfolio creation)
-- lotus-gateway -> lotus-core Query (for governed selectors)
+- lotus-gateway -> lotus-core API surfaces
 - lotus-gateway/UI -> lotus-report (reporting and aggregation views)
 - lotus-manage -> Postgres (via its compose file)
 
@@ -84,9 +92,9 @@ docker compose ps
 
 ```bash
 cd /c/Users/sande/dev/lotus-gateway
-export DECISIONING_SERVICE_BASE_URL="http://host.docker.internal:8000"
-export PORTFOLIO_DATA_INGESTION_BASE_URL="http://host.docker.internal:8200"
-export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://host.docker.internal:8201"
+export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
+export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core.dev.lotus"
+export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
@@ -95,7 +103,7 @@ docker compose ps
 
 ```bash
 cd /c/Users/sande/dev/lotus-workbench
-export BFF_BASE_URL="http://host.docker.internal:8100"
+export BFF_BASE_URL="http://gateway.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
@@ -103,9 +111,9 @@ docker compose ps
 ## 5. Smoke Checks
 
 ```bash
-curl -sSf http://127.0.0.1:8000/docs >/dev/null && echo "dpm ok"
-curl -sSf http://127.0.0.1:8100/health >/dev/null && echo "bff ok"
-curl -sSf http://127.0.0.1:3000 >/dev/null && echo "ui ok"
+curl -sSf http://manage.dev.lotus/docs >/dev/null && echo "manage ok"
+curl -sSf http://gateway.dev.lotus/health >/dev/null && echo "gateway ok"
+curl -sSf http://workbench.dev.lotus >/dev/null && echo "workbench ok"
 ```
 
 Manual UI checks:
@@ -162,13 +170,13 @@ cd /c/Users/sande/dev/lotus-advise && docker compose down -v
 - `Cannot connect to Docker daemon`
   - Docker Desktop/Engine is not running.
 - lotus-gateway cannot reach lotus-manage
-  - Check `DECISIONING_SERVICE_BASE_URL=http://host.docker.internal:8000`.
+  - Check `DECISIONING_SERVICE_BASE_URL=http://manage.dev.lotus`.
 - lotus-gateway cannot reach lotus-core ingestion
-  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://host.docker.internal:8200`.
+  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://core.dev.lotus`.
 - lotus-gateway cannot reach lotus-core query
-  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://host.docker.internal:8201`.
+  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://core.dev.lotus`.
 - UI cannot reach lotus-gateway
-  - Check `BFF_BASE_URL=http://host.docker.internal:8100`.
+  - Check `BFF_BASE_URL=http://gateway.dev.lotus`.
 - Port conflict on `3000/8100/8000/5432`
   - Stop conflicting process/container and rerun `docker compose up -d --build`.
 - lotus-performance conflict with lotus-manage on `8000`
