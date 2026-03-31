@@ -54,6 +54,7 @@ def test_validate_dev_ingress_smoke_cli_returns_zero_and_writes_service_identiti
         "core-query",
         "core-ingestion",
     }
+    assert {check["failure_posture"] for check in payload["checks"]} == {"healthy"}
     assert "gateway_dev_ingress (gateway)" in markdown
 
 
@@ -96,7 +97,10 @@ def test_validate_dev_ingress_smoke_cli_returns_one_for_dns_failure(tmp_path: Pa
 
     assert payload["result"] == "failed"
     assert any(
-        check["check_id"] == "gateway_dev_ingress_dns" and check["service_identity"] == "gateway"
+        check["check_id"] == "gateway_dev_ingress_dns"
+        and check["service_identity"] == "gateway"
+        and check["failure_posture"] == "dns_resolution_failed"
         for check in payload["checks"]
     )
     assert "gateway_dev_ingress_dns (gateway)" in markdown
+    assert "| Check | Passed | Status | Posture | Message |" in markdown

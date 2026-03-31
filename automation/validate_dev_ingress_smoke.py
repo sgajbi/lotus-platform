@@ -30,6 +30,7 @@ def _result(
     passed: bool,
     message: str,
     evidence: list[str],
+    failure_posture: str,
     status: int | None = None,
 ) -> dict[str, Any]:
     return {
@@ -38,8 +39,21 @@ def _result(
         "passed": passed,
         "message": message,
         "evidence": evidence,
+        "failure_posture": failure_posture,
         "status": status,
     }
+
+
+def _infer_failure_posture(status: int | None, error: str) -> str:
+    if status is not None:
+        return "http_error"
+
+    lowered = error.lower()
+    if "timed out" in lowered or "timeout" in lowered:
+        return "timeout"
+    if "connection refused" in lowered or "actively refused" in lowered:
+        return "connection_refused"
+    return "transport_error"
 
 
 def _probe(url: str, timeout_seconds: int) -> tuple[bool, int | None, str]:
@@ -87,6 +101,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
                     False,
                     f"Hostname {hostname} does not resolve locally.",
                     [resolution],
+                    "dns_resolution_failed",
                 )
             )
             checks.append(
@@ -96,6 +111,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
                     False,
                     f"Canonical dev ingress endpoint {endpoint.url} is not reachable because hostname resolution failed.",
                     [resolution],
+                    "dns_resolution_failed",
                 )
             )
             continue
@@ -107,6 +123,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
                 True,
                 f"Hostname {hostname} resolves locally.",
                 [resolution],
+                "healthy",
             )
         )
 
@@ -122,6 +139,7 @@ def validate_dev_ingress_smoke(timeout_seconds: int = 10) -> dict[str, Any]:
                     else f"Canonical dev ingress endpoint {endpoint.url} did not return the expected status."
                 ),
                 [error or endpoint.url],
+                "healthy" if ok and status == endpoint.expected_status else _infer_failure_posture(status, error),
                 status=status,
             )
         )
@@ -143,13 +161,13 @@ def _write_markdown(output_path: Path, payload: dict[str, Any]) -> None:
         f"- Result: {payload['result']}",
         f"- Failed checks: {payload['failed_count']}",
         "",
-        "| Check | Passed | Status | Message |",
-        "|---|---|---|---|",
+        "| Check | Passed | Status | Posture | Message |",
+        "|---|---|---|---|---|",
     ]
     for check in payload["checks"]:
         passed = "true" if check["passed"] else "false"
         status = "" if check["status"] is None else str(check["status"])
-        lines.append(f"| {check['check_id']} ({check['service_identity']}) | {passed} | {status} | {check['message']} |")
+        lines.append(f"| {check['check_id']} ({check['service_identity']}) | {passed} | {status} | {check['failure_posture']} | {check['message']} |")
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

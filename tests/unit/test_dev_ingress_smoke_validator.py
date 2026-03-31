@@ -13,6 +13,7 @@ def test_validate_dev_ingress_smoke_accepts_resolved_reachable_endpoints(monkeyp
     assert result["result"] == "ok"
     assert result["failed_count"] == 0
     assert len(result["checks"]) == 14
+    assert {check["failure_posture"] for check in result["checks"]} == {"healthy"}
     assert {check["service_identity"] for check in result["checks"]} == {
         "workbench",
         "gateway",
@@ -45,6 +46,14 @@ def test_validate_dev_ingress_smoke_flags_dns_and_http_failures(monkeypatch) -> 
     assert "workbench_dev_ingress_dns" in failed_ids
     assert "workbench_dev_ingress" in failed_ids
     assert "gateway_dev_ingress" in failed_ids
+    postures = {
+        check["check_id"]: check["failure_posture"]
+        for check in result["checks"]
+        if not check["passed"]
+    }
+    assert postures["workbench_dev_ingress_dns"] == "dns_resolution_failed"
+    assert postures["workbench_dev_ingress"] == "dns_resolution_failed"
+    assert postures["gateway_dev_ingress"] == "http_error"
     failing_services = {
         check["service_identity"]
         for check in result["checks"]
