@@ -150,6 +150,7 @@ Run ingress-first smoke validation:
   When the edge itself is likely down, it tells you to run `docker compose up -d dev-ingress` first.
   The smoke artifact posture vocabulary is:
   `dns_resolution_failed`, `http_error`, `connection_refused`, `timeout`, `transport_error`.
+  For `http_error` and `timeout`, it now tells you to inspect `docker compose logs --tail=200 ...` for the affected services before refresh.
 
 ## 4.3 Start UI
 

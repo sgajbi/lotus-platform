@@ -272,6 +272,7 @@ powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.p
 
 When routed services are the problem, the explainer emits the exact `docker compose up -d ...` command for the affected `platform-stack` services.
 When the ingress edge itself is the likely fault, it recommends `docker compose up -d dev-ingress` first.
+For `http_error` and `timeout` postures, it now recommends targeted `docker compose logs --tail=200 ...` inspection before the refresh command so the likely failure mode is visible first.
 
 Preview or apply the managed local hosts-file block for dev ingress:
 

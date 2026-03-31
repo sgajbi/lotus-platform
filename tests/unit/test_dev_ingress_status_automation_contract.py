@@ -30,6 +30,10 @@ def test_ingress_status_explainer_is_documented_in_operator_guides() -> None:
     assert "docker compose up -d dev-ingress" in automation_readme
     assert "docker compose up -d dev-ingress" in local_runbook
     assert "docker compose up -d dev-ingress" in platform_stack_readme
+    assert "docker compose logs --tail=200" in automation_guide
+    assert "docker compose logs --tail=200" in automation_readme
+    assert "docker compose logs --tail=200" in local_runbook
+    assert "docker compose logs --tail=200" in platform_stack_readme
 
     for posture in (
         "dns_resolution_failed",
