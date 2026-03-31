@@ -79,6 +79,18 @@ def _compose_logs_command(services: list[str]) -> str:
     return "docker compose logs --tail=200 " + " ".join(services)
 
 
+def _format_evidence_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, list):
+        if not value:
+            return "(none)"
+        return ", ".join(str(item) for item in value)
+    if value is None:
+        return "(none)"
+    return str(value)
+
+
 def explain_dev_ingress_status(
     smoke_payload: dict[str, Any] | None,
     staged_hosts_text: str | None,
@@ -253,7 +265,8 @@ def _write_markdown(output_path: Path, payload: dict[str, Any]) -> None:
     if evidence:
         lines.extend(["", "## Evidence", ""])
         for key, value in evidence.items():
-            lines.append(f"- {key}: {value}")
+            label = key.replace("_", " ").capitalize()
+            lines.append(f"- {label}: {_format_evidence_value(value)}")
 
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

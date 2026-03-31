@@ -62,6 +62,7 @@ def test_explain_dev_ingress_status_cli_writes_dns_not_configured_artifacts(tmp_
     assert payload["status"] == "dns_not_configured"
     assert payload["evidence"]["staged_hostnames"] == ["gateway.dev.lotus"]
     assert "Apply the staged hosts block" in markdown
+    assert "Staged hostnames: gateway.dev.lotus" in markdown
 
 
 def test_explain_dev_ingress_status_cli_returns_zero_when_ready(tmp_path: Path) -> None:
@@ -146,6 +147,8 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
     assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
     assert "docker compose logs --tail=200 lotus-core-query bff" in markdown
     assert "docker compose up -d lotus-core-query bff" in markdown
+    assert "Affected compose services: lotus-core-query, bff" in markdown
+    assert "Failing http postures: http_error, http_error" in markdown
 
 
 def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path: Path) -> None:
@@ -194,6 +197,7 @@ def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path
     assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
     assert payload["evidence"]["likely_ingress_failure"] is True
     assert "docker compose up -d dev-ingress" in markdown
+    assert "Likely ingress failure: true" in markdown
 
 
 def test_explain_dev_ingress_status_cli_uses_logs_first_for_timeout_failures(tmp_path: Path) -> None:
@@ -242,3 +246,4 @@ def test_explain_dev_ingress_status_cli_uses_logs_first_for_timeout_failures(tmp
     assert payload["evidence"]["failing_http_postures"] == ["timeout", "timeout"]
     assert "docker compose logs --tail=200 lotus-performance lotus-report" in markdown
     assert "docker compose up -d lotus-performance lotus-report" in markdown
+    assert "Failing http postures: timeout, timeout" in markdown
