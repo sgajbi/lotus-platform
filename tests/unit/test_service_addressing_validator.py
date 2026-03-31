@@ -34,11 +34,23 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
     )
     _write_text(
         platform / "platform-stack" / "dev-ingress" / "Caddyfile",
-        "workbench.dev.lotus\ngateway.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\nreport.dev.lotus\ncore-query.dev.lotus\ncore-ingestion.dev.lotus\n",
+        "workbench.dev.lotus {\n reverse_proxy ui:3000\n}\n"
+        "gateway.dev.lotus {\n reverse_proxy bff:8100\n}\n"
+        "manage.dev.lotus {\n reverse_proxy lotus-manage:8000\n}\n"
+        "performance.dev.lotus {\n reverse_proxy lotus-performance:8000\n}\n"
+        "report.dev.lotus {\n reverse_proxy lotus-report:8300\n}\n"
+        "core-query.dev.lotus {\n reverse_proxy lotus-core-query:8001\n}\n"
+        "core-ingestion.dev.lotus {\n reverse_proxy lotus-core-ingestion:8000\n}\n",
     )
     _write_text(
         platform / "platform-stack" / "dev-ingress" / "hosts.example",
-        "127.0.0.1 workbench.dev.lotus\n127.0.0.1 gateway.dev.lotus\n127.0.0.1 core-query.dev.lotus\n127.0.0.1 core-ingestion.dev.lotus\n",
+        "127.0.0.1 workbench.dev.lotus\n"
+        "127.0.0.1 gateway.dev.lotus\n"
+        "127.0.0.1 manage.dev.lotus\n"
+        "127.0.0.1 performance.dev.lotus\n"
+        "127.0.0.1 report.dev.lotus\n"
+        "127.0.0.1 core-query.dev.lotus\n"
+        "127.0.0.1 core-ingestion.dev.lotus\n",
     )
     _write_text(workbench / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
@@ -86,8 +98,8 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     _write_text(platform / "platform-stack" / "README.md", "http://localhost:8100\n")
     _write_text(platform / "platform-stack" / "docker-compose.yml", "services: {}\n")
     _write_text(platform / "platform-stack" / "docker-compose.host-ports.yml", "services: {}\n")
-    _write_text(platform / "platform-stack" / "dev-ingress" / "Caddyfile", "localhost\n")
-    _write_text(platform / "platform-stack" / "dev-ingress" / "hosts.example", "127.0.0.1 localhost\n")
+    _write_text(platform / "platform-stack" / "dev-ingress" / "Caddyfile", "gateway.dev.lotus {\n reverse_proxy bff:8100\n}\n")
+    _write_text(platform / "platform-stack" / "dev-ingress" / "hosts.example", "127.0.0.1 workbench.dev.lotus\n")
     _write_text(workbench / "README.md", "http://127.0.0.1:3000\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "http://127.0.0.1:3000\n")
     _write_text(gateway / "README.md", "http://127.0.0.1:8100\n")
@@ -124,4 +136,5 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     assert "platform_runbook_drops_host_docker_internal" in failed_ids
     assert "platform_stack_owns_local_dev_ingress" in failed_ids
     assert "platform_stack_debug_override_preserves_direct_host_ports" in failed_ids
+    assert "platform_stack_dev_ingress_hostnames_are_aligned" in failed_ids
     assert "workbench_runtime_no_longer_embeds_localhost_gateway_fallbacks" in failed_ids

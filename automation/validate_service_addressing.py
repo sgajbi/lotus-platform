@@ -50,6 +50,31 @@ def _contains_none(text: str, forbidden: list[str]) -> bool:
     return all(item not in text for item in forbidden)
 
 
+def _extract_caddy_hostnames(text: str) -> set[str]:
+    hostnames: set[str] = set()
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or line.startswith("{") or line.startswith("}"):
+            continue
+        if line.endswith("{"):
+            hostname = line[:-1].strip()
+            if "." in hostname:
+                hostnames.add(hostname)
+    return hostnames
+
+
+def _extract_hosts_file_hostnames(text: str) -> set[str]:
+    hostnames: set[str] = set()
+    for raw_line in text.splitlines():
+        line = raw_line.replace("\ufeff", "").strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            hostnames.add(parts[1])
+    return hostnames
+
+
 def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     repo_configs = _load_repo_configs(repos_path)
     platform_root = repo_configs["lotus-platform"].path
@@ -78,6 +103,8 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     platform_stack_text = _load_text(platform_stack_readme)
     dev_ingress_caddyfile_text = _load_text(dev_ingress_caddyfile)
     dev_ingress_hosts_text = _load_text(dev_ingress_hosts)
+    dev_ingress_caddy_hostnames = _extract_caddy_hostnames(dev_ingress_caddyfile_text)
+    dev_ingress_hosts_hostnames = _extract_hosts_file_hostnames(dev_ingress_hosts_text)
     platform_compose_text = _load_text(platform_compose)
     host_ports_compose_text = _load_text(host_ports_compose)
     workbench_readme_text = _load_text(workbench_readme)
@@ -183,6 +210,17 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
             _contains_all(dev_ingress_hosts_text, ["workbench.dev.lotus", "gateway.dev.lotus", "core-query.dev.lotus", "core-ingestion.dev.lotus"]),
             "platform-stack publishes the required local hosts-file mappings for the dev ingress.",
             [str(dev_ingress_hosts)],
+        ),
+        _result(
+            "platform_stack_dev_ingress_hostnames_are_aligned",
+            dev_ingress_caddy_hostnames == dev_ingress_hosts_hostnames,
+            "platform-stack ingress router hostnames and hosts.example entries stay exactly aligned.",
+            [
+                str(dev_ingress_caddyfile),
+                str(dev_ingress_hosts),
+                f"caddy={sorted(dev_ingress_caddy_hostnames)}",
+                f"hosts={sorted(dev_ingress_hosts_hostnames)}",
+            ],
         ),
         _result(
             "workbench_docs_advertise_gateway_service_identity",
