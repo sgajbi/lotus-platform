@@ -110,6 +110,7 @@ This bible is enforced and refined by existing platform RFCs, including:
 - `rfcs/RFC-0043-pas-core-snapshot-provenance-and-governance-contract.md`
 - `rfcs/RFC-0044-platform-capability-policy-visibility-in-bff-and-ui.md`
 - `rfcs/RFC-0045-pas-policy-diagnostics-orchestration-in-bff-and-ui.md`
+- `rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
 
 ## 8. Decision Rule
 
