@@ -34,13 +34,13 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
     )
     _write_text(
         platform / "platform-stack" / "dev-ingress" / "Caddyfile",
-        "workbench.dev.lotus {\n reverse_proxy ui:3000\n}\n"
-        "gateway.dev.lotus {\n reverse_proxy bff:8100\n}\n"
-        "manage.dev.lotus {\n reverse_proxy lotus-manage:8000\n}\n"
-        "performance.dev.lotus {\n reverse_proxy lotus-performance:8000\n}\n"
-        "report.dev.lotus {\n reverse_proxy lotus-report:8300\n}\n"
-        "core-query.dev.lotus {\n reverse_proxy lotus-core-query:8001\n}\n"
-        "core-ingestion.dev.lotus {\n reverse_proxy lotus-core-ingestion:8000\n}\n",
+        "http://workbench.dev.lotus {\n reverse_proxy ui:3000\n}\n"
+        "http://gateway.dev.lotus {\n reverse_proxy bff:8100\n}\n"
+        "http://manage.dev.lotus {\n reverse_proxy lotus-manage:8000\n}\n"
+        "http://performance.dev.lotus {\n reverse_proxy lotus-performance:8000\n}\n"
+        "http://report.dev.lotus {\n reverse_proxy lotus-report:8300\n}\n"
+        "http://core-query.dev.lotus {\n reverse_proxy lotus-core-query:8001\n}\n"
+        "http://core-ingestion.dev.lotus {\n reverse_proxy lotus-core-ingestion:8000\n}\n",
     )
     _write_text(
         platform / "platform-stack" / "dev-ingress" / "hosts.example",

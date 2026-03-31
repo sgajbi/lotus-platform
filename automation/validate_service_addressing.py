@@ -67,6 +67,7 @@ def _extract_caddy_hostnames(text: str) -> set[str]:
             continue
         if line.endswith("{"):
             hostname = line[:-1].strip()
+            hostname = hostname.removeprefix("http://").removeprefix("https://")
             if "." in hostname:
                 hostnames.add(hostname)
     return hostnames
