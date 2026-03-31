@@ -43,10 +43,10 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
                 "result": "failed",
                 "failed_count": 2,
                 "checks": [
-                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
-                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502},
-                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True},
-                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503},
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502, "failure_posture": "http_error"},
+                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503, "failure_posture": "http_error"},
                 ],
             },
             staged_hosts_text=None,
@@ -56,6 +56,7 @@ def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_h
     assert "docker compose up -d lotus-core-query bff" in payload["next_steps"][0]
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
+    assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
     assert payload["evidence"]["failing_http_statuses"] == [502, 503]
     assert payload["evidence"]["likely_ingress_failure"] is False
 
@@ -66,10 +67,10 @@ def test_explain_dev_ingress_status_points_to_dev_ingress_when_all_routes_fail_w
             "result": "failed",
             "failed_count": 4,
             "checks": [
-                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
-                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"]},
-                {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True},
-                {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"]},
+                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
+                {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
             ],
         },
         staged_hosts_text=None,
@@ -77,6 +78,7 @@ def test_explain_dev_ingress_status_points_to_dev_ingress_when_all_routes_fail_w
 
     assert payload["status"] == "ingress_unreachable"
     assert "docker compose up -d dev-ingress" in payload["next_steps"][0]
+    assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
     assert payload["evidence"]["likely_ingress_failure"] is True
 
 

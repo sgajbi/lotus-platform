@@ -109,10 +109,10 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
                 "result": "failed",
                 "failed_count": 2,
                 "checks": [
-                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
-                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502},
-                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True},
-                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503},
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502, "failure_posture": "http_error"},
+                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503, "failure_posture": "http_error"},
                 ],
             }
         ),
@@ -143,6 +143,7 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
     assert payload["status"] == "services_unreachable"
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
     assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
+    assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
     assert "docker compose up -d lotus-core-query bff" in markdown
 
 
@@ -157,10 +158,10 @@ def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path
                 "result": "failed",
                 "failed_count": 4,
                 "checks": [
-                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True},
-                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"]},
-                    {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True},
-                    {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"]},
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
+                    {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
                 ],
             }
         ),
@@ -189,5 +190,6 @@ def test_explain_dev_ingress_status_cli_identifies_ingress_edge_failure(tmp_path
     markdown = output_markdown.read_text(encoding="utf-8")
 
     assert payload["status"] == "ingress_unreachable"
+    assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
     assert payload["evidence"]["likely_ingress_failure"] is True
     assert "docker compose up -d dev-ingress" in markdown

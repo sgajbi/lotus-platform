@@ -66,6 +66,10 @@ def _extract_staged_hostnames(text: str | None) -> list[str]:
     return hostnames
 
 
+def _failure_postures(checks: list[dict[str, Any]]) -> list[str]:
+    return [str(check.get("failure_posture", "")) for check in checks]
+
+
 def explain_dev_ingress_status(
     smoke_payload: dict[str, Any] | None,
     staged_hosts_text: str | None,
@@ -144,11 +148,11 @@ def explain_dev_ingress_status(
             for service in affected_services
             if service in COMPOSE_SERVICE_BY_IDENTITY
         ]
-        all_http_fail_without_status = all(check.get("status") is None for check in failed_http_checks)
+        failure_postures = _failure_postures(failed_http_checks)
         likely_ingress_failure = (
             bool(all_expected_services)
             and set(affected_services) == all_expected_services
-            and all_http_fail_without_status
+            and all(posture in {"connection_refused", "timeout", "transport_error"} for posture in failure_postures)
         )
         next_steps = []
         if likely_ingress_failure:
@@ -187,6 +191,7 @@ def explain_dev_ingress_status(
                 "affected_services": affected_services,
                 "all_expected_services": sorted(all_expected_services),
                 "affected_compose_services": affected_compose_services,
+                "failing_http_postures": failure_postures,
                 "failing_http_statuses": [check.get("status") for check in failed_http_checks if check.get("status") is not None],
                 "likely_ingress_failure": likely_ingress_failure,
                 "staged_hosts_present": staged_hosts_present,
