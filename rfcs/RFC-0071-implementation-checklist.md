@@ -28,6 +28,17 @@ Examples:
 Local development must use the same `dev` hostnames, resolved locally through hosts-file or local
 DNS mapping and one central local proxy.
 
+### Identity rule
+
+Each tracker row represents an app-owned consumed product or API surface, not every internal
+microservice in that app by default.
+
+Create separate rollout sub-items only when:
+
+1. an app intentionally exposes multiple distinct public or cross-app API products,
+2. those products have materially different contracts, ownership, auth, or lifecycle,
+3. the split is a platform boundary, not an internal implementation seam.
+
 ## Cross-app rollout tracker
 
 | App | Role | Exposure class | Current state | Target state | Status | Notes |
@@ -35,7 +46,7 @@ DNS mapping and one central local proxy.
 | `lotus-platform` | Governance and platform runtime owner | N/A | No RFC/tracker yet for service addressing | Own hostname rules, local proxy standard, validation automation, and rollout tracker | In progress | This RFC and checklist establish ownership |
 | `lotus-workbench` | Frontend workspace | Public | README and runtime defaults still reference direct host:port BFF targets | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | Not started | Highest-priority app because browser and BFF paths are user-visible |
 | `lotus-gateway` | Experience API / BFF | Public | README and local examples still present direct ports as primary integration addresses | Public gateway exposed via canonical environment hostname; docs and config updated | Not started | Must align with workbench first |
-| `lotus-core` | Canonical data platform | Internal | Local docs and examples still port-centric for some integration paths | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | Not started | Internal exposure only unless explicitly approved |
+| `lotus-core` | Canonical data platform | Internal | Local docs and examples still port-centric for some integration paths | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | Not started | Query/control splits stay internal unless platform consumers truly need separate identities |
 | `lotus-performance` | Performance analytics | Internal | README examples are port-centric | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | Not started | Depends on gateway/internal runtime alignment |
 | `lotus-risk` | Risk analytics | Internal | Quickstart is port-based | Internal discovery or env-driven base URLs only | Not started | Review after performance because both are analytics services |
 | `lotus-advise` | Advisory lifecycle | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Advisory-side workflow repo |

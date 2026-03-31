@@ -46,7 +46,23 @@ This creates avoidable risk:
 Lotus will adopt centralized, environment-scoped service addressing with one shared ingress /
 reverse-proxy tier per environment.
 
-### Canonical public naming pattern
+### Naming decision rule
+
+Public and cross-app service identities must represent the consumed product or API surface, not the
+internal microservice split behind that surface, unless there is a real contract reason to expose
+multiple identities.
+
+Default rule:
+
+1. one consumed product or API surface gets one stable public or cross-app identity,
+2. internal query/control/worker splits remain implementation detail,
+3. separate public identities are allowed only when contracts, ownership, auth, consumer group, or
+   lifecycle are materially different.
+
+This means a repository or domain may internally run multiple services without forcing those
+implementation seams into canonical public naming.
+
+### Recommended canonical hostname pattern
 
 Every environment must expose stable service identities using:
 
@@ -63,6 +79,38 @@ Examples:
 
 For local development, the same `dev` hostnames must be used, resolved locally through hosts-file or
 local DNS mapping and terminated by a local central proxy.
+
+### Why this pattern is recommended
+
+`{service}.{environment}.lotus` is the recommended default because it preserves the right
+operational properties for a multi-app platform:
+
+1. service or API identity is explicit in the hostname,
+2. environment is explicit and easy to reason about,
+3. ingress, TLS, observability, ownership, and support workflows map cleanly to the same service
+   identity,
+4. browser-facing apps and API products can use the same naming policy without coupling everything
+   to one shared path host.
+
+### Allowed alternatives
+
+This RFC governs the addressing model and ownership rules more than one literal hostname shape.
+
+Alternative hostname conventions are acceptable only if they preserve the same properties:
+
+1. stable service identity,
+2. explicit environment identity,
+3. central ingress ownership,
+4. no leakage of internal microservice topology by default.
+
+Examples of acceptable alternatives in principle:
+
+1. `https://{environment}.{service}.lotus`
+2. `https://{environment}-{service}.lotus`
+
+Path-only environment models such as one shared hostname with service and environment hidden in
+paths are not the preferred default for Lotus because they weaken service identity, operational
+clarity, and long-term separation of browser-facing products and API products.
 
 ### Ownership rule
 
@@ -143,6 +191,9 @@ The current Lotus application estate in scope for this rollout is:
 6. Browser code must not carry direct knowledge of internal backend port mappings.
 7. Backend services must prefer stable internal discovery identities over public hostnames when
    calling one another.
+8. Canonical service identities must describe consumed product/API boundaries, not internal runtime
+   topology, unless multiple identities are justified by materially distinct contracts or operating
+   concerns.
 
 ## Required implementation model
 
