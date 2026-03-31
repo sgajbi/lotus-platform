@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENTRIES_PATH = ROOT / "platform-stack" / "dev-ingress" / "hosts.example"
 DEFAULT_OUTPUT_PATH = Path(r"C:\Windows\System32\drivers\etc\hosts")
+DEFAULT_STAGED_OUTPUT_PATH = ROOT / "output" / "hosts-preview" / "hosts.merged"
 BLOCK_START = "# >>> lotus-platform dev ingress >>>"
 BLOCK_END = "# <<< lotus-platform dev ingress <<<"
 
@@ -54,6 +55,7 @@ def sync_dev_ingress_hosts(
     output_path: Path,
     write: bool,
     backup_dir: Path | None = None,
+    staged_output_path: Path | None = None,
 ) -> dict[str, str | bool | None]:
     entries = _normalize_entries(entries_path.read_text(encoding="utf-8"))
     existing_text = output_path.read_text(encoding="utf-8").replace("\ufeff", "") if output_path.exists() else ""
@@ -62,16 +64,30 @@ def sync_dev_ingress_hosts(
     backup_path: Path | None = None
 
     if write and changed:
-        if output_path.exists() and backup_dir is not None:
-            backup_dir.mkdir(parents=True, exist_ok=True)
-            backup_path = build_backup_path(output_path, backup_dir)
-            backup_path.write_text(existing_text, encoding="utf-8")
-        output_path.write_text(updated_text, encoding="utf-8")
+        try:
+            if output_path.exists() and backup_dir is not None:
+                backup_dir.mkdir(parents=True, exist_ok=True)
+                backup_path = build_backup_path(output_path, backup_dir)
+                backup_path.write_text(existing_text, encoding="utf-8")
+            output_path.write_text(updated_text, encoding="utf-8")
+        except PermissionError:
+            if staged_output_path is not None:
+                staged_output_path.parent.mkdir(parents=True, exist_ok=True)
+                staged_output_path.write_text(updated_text, encoding="utf-8")
+            return {
+                "updated_text": updated_text,
+                "changed": changed,
+                "backup_path": None if backup_path is None else str(backup_path),
+                "staged_output_path": None if staged_output_path is None else str(staged_output_path),
+                "permission_denied": True,
+            }
 
     return {
         "updated_text": updated_text,
         "changed": changed,
         "backup_path": None if backup_path is None else str(backup_path),
+        "staged_output_path": None,
+        "permission_denied": False,
     }
 
 
@@ -80,6 +96,7 @@ def main() -> int:
     parser.add_argument("--entries-path", type=Path, default=DEFAULT_ENTRIES_PATH)
     parser.add_argument("--output-path", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--backup-dir", type=Path, default=ROOT / "output" / "hosts-backups")
+    parser.add_argument("--staged-output-path", type=Path, default=DEFAULT_STAGED_OUTPUT_PATH)
     parser.add_argument("--write", action="store_true")
     args = parser.parse_args()
 
@@ -88,9 +105,15 @@ def main() -> int:
         output_path=args.output_path,
         write=args.write,
         backup_dir=args.backup_dir,
+        staged_output_path=args.staged_output_path,
     )
 
     if args.write:
+        if result["permission_denied"]:
+            print(f"Permission denied {args.output_path}")
+            if result["staged_output_path"]:
+                print(f"Staged {result['staged_output_path']}")
+            return 1
         if result["changed"]:
             print(f"Updated {args.output_path}")
             if result["backup_path"]:

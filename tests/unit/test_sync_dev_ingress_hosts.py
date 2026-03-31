@@ -90,3 +90,35 @@ def test_sync_dev_ingress_hosts_skips_backup_when_content_is_already_current(tmp
     assert result["changed"] is False
     assert result["backup_path"] is None
     assert not backups.exists()
+
+
+def test_sync_dev_ingress_hosts_stages_output_when_write_is_denied(tmp_path: Path) -> None:
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    staged = tmp_path / "preview" / "hosts.merged"
+    entries.write_text("127.0.0.1 gateway.dev.lotus\n", encoding="utf-8")
+    hosts.write_text("127.0.0.1 localhost\n", encoding="utf-8")
+
+    original_write_text = Path.write_text
+
+    def fake_write_text(path: Path, data: str, encoding: str = "utf-8", **kwargs):
+        if path == hosts:
+            raise PermissionError("denied")
+        return original_write_text(path, data, encoding=encoding, **kwargs)
+
+    Path.write_text = fake_write_text  # type: ignore[method-assign]
+    try:
+        result = sync_dev_ingress_hosts(
+            entries,
+            hosts,
+            write=True,
+            backup_dir=tmp_path / "backups",
+            staged_output_path=staged,
+        )
+    finally:
+        Path.write_text = original_write_text  # type: ignore[method-assign]
+
+    assert result["permission_denied"] is True
+    assert result["staged_output_path"] == str(staged)
+    assert staged.exists()
+    assert "127.0.0.1 gateway.dev.lotus" in staged.read_text(encoding="utf-8")
