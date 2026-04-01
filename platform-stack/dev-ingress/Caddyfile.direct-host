@@ -19,6 +19,10 @@ http://core-query.dev.lotus {
   reverse_proxy host.docker.internal:8201
 }
 
+http://core-control.dev.lotus {
+  reverse_proxy host.docker.internal:8202
+}
+
 http://core-ingestion.dev.lotus {
   reverse_proxy host.docker.internal:8200
 }

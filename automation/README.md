@@ -204,13 +204,13 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -Brin
 Run the seeded analytics maturity invariant against `lotus-core`:
 
 ```powershell
-python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202
+python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus
 ```
 
 Run the reusable lotus-core -> lotus-performance cross-app scenario:
 
 ```powershell
-python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus --performance-url http://performance.dev.lotus
 ```
 
 This scenario suite seeds real-world funding and funded-trade stories into `lotus-core`, then validates both:
@@ -224,7 +224,7 @@ Result artifacts are written to:
 Run the full cross-app scenario suite:
 
 ```powershell
-python automation/core_performance_cross_app_suite.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+python automation/core_performance_cross_app_suite.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus --performance-url http://performance.dev.lotus
 ```
 
 Suite artifact:
@@ -280,6 +280,18 @@ Preview or apply the managed local hosts-file block for dev ingress:
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
+
+Operational rule for RFC-0071 local ingress:
+
+1. keep `platform-stack/dev-ingress/hosts.example` as the source of truth for required hostnames
+2. use `Sync-Dev-Ingress-Hosts.ps1` to preview or apply that block
+3. bring up ingress
+4. validate with `Validate-Dev-Ingress-Smoke.ps1`
+5. classify with `Explain-Dev-Ingress-Status.ps1`
+
+Do not debug app-level routing before this operator loop is green. A browser failure on
+`workbench.dev.lotus` or `gateway.dev.lotus` is often just missing hosts-file mappings or a dead
+ingress edge, not an application defect.
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:
 

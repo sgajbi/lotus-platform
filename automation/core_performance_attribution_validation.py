@@ -477,9 +477,9 @@ def _write_outputs(result: dict[str, object], *, output_json: Path, output_markd
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--core-ingestion-base-url", default="http://localhost:8200")
-    parser.add_argument("--core-query-base-url", default="http://localhost:8202")
-    parser.add_argument("--performance-base-url", default="http://localhost:8002")
+    parser.add_argument("--core-ingestion-base-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--core-query-base-url", default="http://core-control.dev.lotus")
+    parser.add_argument("--performance-base-url", default="http://performance.dev.lotus")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-attribution-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-attribution-validation.md")
     parser.add_argument(

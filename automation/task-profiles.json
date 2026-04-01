@@ -272,22 +272,22 @@
         {
           "id": "pas-query-health",
           "repo": "lotus-core",
-          "command": "curl -sSf http://127.0.0.1:8201/health/ready"
+          "command": "curl -sSf http://core-query.dev.lotus/health/ready"
         },
         {
           "id": "pas-ingestion-health",
           "repo": "lotus-core",
-          "command": "curl -sSf http://127.0.0.1:8200/health/ready"
+          "command": "curl -sSf http://core-ingestion.dev.lotus/health/ready"
         },
         {
           "id": "bff-health",
           "repo": "lotus-gateway",
-          "command": "curl -sSf http://127.0.0.1:8100/health"
+          "command": "curl -sSf http://gateway.dev.lotus/health"
         },
         {
           "id": "ui-health",
           "repo": "lotus-workbench",
-          "command": "curl -sSf http://127.0.0.1:3000"
+          "command": "curl -sSf http://workbench.dev.lotus"
         }
       ]
     },

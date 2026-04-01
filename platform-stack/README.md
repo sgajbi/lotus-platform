@@ -53,6 +53,12 @@ Add the local hostname mappings from:
 
 to your hosts file before first use.
 
+Setup rule:
+
+- canonical `*.dev.lotus` names are local-only and must resolve through the Windows hosts file
+- `platform-stack/dev-ingress/hosts.example` is the platform-owned DNS mapping source of truth
+- `platform-stack/.env` is the platform-owned source of truth for which local repositories the stack mounts and builds
+
 Platform-owned helper:
 
 ```powershell
@@ -66,6 +72,24 @@ Apply the managed block to the Windows hosts file:
 cd C:\Users\Sandeep\projects\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
+
+If the hosts apply is run without elevation, use the staged file at:
+
+- `output/hosts-preview/hosts.merged`
+
+### Required .env variables
+
+At minimum, set these paths in `platform-stack/.env`:
+
+- `LOTUS_CORE_REPO_PATH`
+- `LOTUS_PERFORMANCE_REPO_PATH`
+- `LOTUS_REPORT_REPO_PATH`
+- `LOTUS_MANAGE_REPO_PATH`
+- `BFF_REPO_PATH`
+- `UI_REPO_PATH`
+
+Without those values, the compose stack can start `dev-ingress` but the mounted application
+services will not build or run correctly.
 
 ## 2) Start Full Platform
 
@@ -100,6 +124,15 @@ If the edge itself is the likely fault, it recommends `docker compose up -d dev-
 The smoke artifact distinguishes `dns_resolution_failed`, `http_error`, `connection_refused`, `timeout`, and `transport_error` so the explainer can classify the failure path deterministically.
 For `http_error` and `timeout`, the first suggested operator action is now `docker compose logs --tail=200 ...` on the affected services before refresh.
 
+Recommended bring-up order:
+
+1. apply the managed hosts block
+2. populate `platform-stack/.env`
+3. run `docker compose up -d --build`
+4. run `Validate-Dev-Ingress-Smoke.ps1`
+5. run `Explain-Dev-Ingress-Status.ps1`
+6. only then begin app-level debugging through `*.dev.lotus`
+
 ## 3) Smoke Endpoints
 
 Canonical service identities:
@@ -108,6 +141,7 @@ Canonical service identities:
 - Gateway readiness: `http://gateway.dev.lotus/health/ready`
 - Manage readiness: `http://manage.dev.lotus/health/ready`
 - Core query readiness: `http://core-query.dev.lotus/health/ready`
+- Core control-plane readiness: `http://core-control.dev.lotus/health/ready`
 - Core ingestion readiness: `http://core-ingestion.dev.lotus/health/ready`
 - Performance readiness: `http://performance.dev.lotus/health/ready`
 - Report readiness: `http://report.dev.lotus/health/ready`
@@ -119,6 +153,16 @@ should use the environment-scoped service hostnames above as the stable contract
 
 If you need legacy direct host ports for debugging, use `docker-compose.host-ports.yml`. The base
 stack is ingress-first by design.
+
+## 3.1 Direct-host fallback
+
+If you are not using full `platform-stack` but still need canonical local URLs, use:
+
+- `platform-stack/dev-ingress/Caddyfile.direct-host`
+
+This fallback proxies canonical hostnames to direct local service ports such as `3000`, `8111`,
+`8201`, and `8002`. It is intended for mixed standalone bring-up and should not run alongside the
+full ingress-first stack on the same host port.
 
 ## 4) Logs
 

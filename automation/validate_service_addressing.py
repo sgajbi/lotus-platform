@@ -119,6 +119,8 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     platform_root = repo_configs["lotus-platform"].path
     workbench_root = repo_configs["lotus-workbench"].path
     gateway_root = repo_configs["lotus-gateway"].path
+    risk_root = repo_configs["lotus-risk"].path
+    report_root = repo_configs["lotus-report"].path
 
     platform_runbook = platform_root / "Local Development Runbook.md"
     platform_stack_readme = platform_root / "platform-stack" / "README.md"
@@ -137,6 +139,12 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
         workbench_root / "src" / "apps" / "performance" / "performance-analytics-page.tsx"
     )
     workbench_bff_route = workbench_root / "src" / "app" / "api" / "bff" / "[...path]" / "route.ts"
+    risk_core_client = risk_root / "src" / "app" / "integrations" / "lotus_core_client.py"
+    risk_performance_client = (
+        risk_root / "src" / "app" / "integrations" / "lotus_performance_client.py"
+    )
+    report_config = report_root / "src" / "app" / "config.py"
+    report_readme = report_root / "README.md"
 
     runbook_text = _load_text(platform_runbook)
     platform_stack_text = _load_text(platform_stack_readme)
@@ -150,6 +158,10 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     workbench_demo_text = _load_text(workbench_demo)
     gateway_readme_text = _load_text(gateway_readme)
     gateway_demo_text = _load_text(gateway_demo)
+    risk_core_client_text = _load_text(risk_core_client)
+    risk_performance_client_text = _load_text(risk_performance_client)
+    report_config_text = _load_text(report_config)
+    report_readme_text = _load_text(report_readme)
 
     checks = [
         _result(
@@ -162,6 +174,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
                     "manage.dev.lotus",
                     "performance.dev.lotus",
                     "core-query.dev.lotus",
+                    "core-control.dev.lotus",
                     "core-ingestion.dev.lotus",
                 ],
             ),
@@ -178,7 +191,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
             "platform_stack_readme_advertises_canonical_hostnames",
             _contains_all(
                 platform_stack_text,
-                ["gateway.dev.lotus", "workbench.dev.lotus", "core-query.dev.lotus", "core-ingestion.dev.lotus"],
+                ["gateway.dev.lotus", "workbench.dev.lotus", "core-query.dev.lotus", "core-control.dev.lotus", "core-ingestion.dev.lotus"],
             ),
             "platform-stack README advertises canonical service hostnames instead of raw ports as the primary operator contract.",
             [str(platform_stack_readme)],
@@ -238,6 +251,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
                     "performance.dev.lotus",
                     "report.dev.lotus",
                     "core-query.dev.lotus",
+                    "core-control.dev.lotus",
                     "core-ingestion.dev.lotus",
                 ],
             ),
@@ -246,7 +260,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
         ),
         _result(
             "platform_stack_dev_ingress_hosts_example_exists",
-            _contains_all(dev_ingress_hosts_text, ["workbench.dev.lotus", "gateway.dev.lotus", "core-query.dev.lotus", "core-ingestion.dev.lotus"]),
+            _contains_all(dev_ingress_hosts_text, ["workbench.dev.lotus", "gateway.dev.lotus", "core-query.dev.lotus", "core-control.dev.lotus", "core-ingestion.dev.lotus"]),
             "platform-stack publishes the required local hosts-file mappings for the dev ingress.",
             [str(dev_ingress_hosts)],
         ),
@@ -275,6 +289,42 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
             _contains_all(gateway_readme_text + "\n" + gateway_demo_text, ["gateway.dev.lotus"]),
             "lotus-gateway docs point operators to the gateway service identity rather than raw localhost port mappings.",
             [str(gateway_readme), str(gateway_demo)],
+        ),
+        _result(
+            "risk_runtime_defaults_use_canonical_upstream_service_identities",
+            _contains_all(
+                risk_core_client_text + "\n" + risk_performance_client_text,
+                ["http://core-query.dev.lotus", "http://performance.dev.lotus"],
+            )
+            and _contains_none(
+                risk_core_client_text + "\n" + risk_performance_client_text,
+                ["http://localhost:8000", "http://localhost:8002"],
+            ),
+            "lotus-risk runtime defaults use canonical core/performance service identities instead of localhost fallbacks.",
+            [str(risk_core_client), str(risk_performance_client)],
+        ),
+        _result(
+            "report_runtime_defaults_use_canonical_upstream_service_identities",
+            _contains_all(
+                report_config_text,
+                [
+                    "http://core-query.dev.lotus",
+                    "http://performance.dev.lotus",
+                    "http://risk.dev.lotus",
+                ],
+            )
+            and _contains_none(
+                report_config_text,
+                ["http://localhost:8201", "http://localhost:8002", "http://localhost:8130"],
+            ),
+            "lotus-report runtime defaults use canonical upstream service identities instead of localhost fallbacks.",
+            [str(report_config)],
+        ),
+        _result(
+            "report_docs_advertise_report_service_identity",
+            _contains_all(report_readme_text, ["report.dev.lotus", "core-query.dev.lotus", "performance.dev.lotus", "risk.dev.lotus"]),
+            "lotus-report docs point operators to canonical report/core/performance/risk service identities.",
+            [str(report_readme)],
         ),
         _result(
             "workbench_runtime_no_longer_embeds_localhost_gateway_fallbacks",

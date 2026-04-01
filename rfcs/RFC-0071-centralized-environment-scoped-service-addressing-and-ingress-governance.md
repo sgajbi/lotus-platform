@@ -1,6 +1,6 @@
 # RFC-0071: Centralized Environment-Scoped Service Addressing and Ingress Governance
 
-- Status: In review / implementation in progress
+- Status: Complete
 - Date: 2026-03-31
 - Owners: lotus-platform governance
 - Related:
@@ -24,7 +24,7 @@ reverse-proxy, and internal routing details stay outside application source code
 The current Lotus estate still relies heavily on direct host-and-port addressing in runtime defaults,
 README examples, local bring-up notes, and in some cases application fallback logic.
 
-Examples observed across the suite include:
+Examples observed across the suite included:
 
 1. `lotus-workbench` defaulting `BFF_BASE_URL` to `http://localhost:8100`.
 2. README and local runbook examples coupling UI, gateway, and backend services to explicit ports.
@@ -32,7 +32,7 @@ Examples observed across the suite include:
 4. Application repositories carrying environment-specific address assumptions that should be owned by
    platform runtime configuration instead.
 
-This creates avoidable risk:
+This created avoidable risk:
 
 1. Local dev is brittle because app behavior depends on shell-scoped env state.
 2. UAT/prod promotion requires rewriting or overriding app-local assumptions rather than relying on
@@ -45,6 +45,12 @@ This creates avoidable risk:
 
 Lotus will adopt centralized, environment-scoped service addressing with one shared ingress /
 reverse-proxy tier per environment.
+
+Implementation status:
+
+- complete for the governed Lotus cross-app contract surface
+- canonical `*.{env}.lotus` identities are now the documented and validated default across the platform-owned ingress path
+- remaining direct `localhost` and raw port references are limited to implementation-local healthchecks, test fixtures, and explicitly scoped debug-only or historical evidence paths
 
 ### Naming decision rule
 

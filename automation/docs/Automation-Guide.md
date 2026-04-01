@@ -73,6 +73,19 @@ For `ingress_unreachable`, the explainer now recommends `docker compose up -d de
 For `services_unreachable`, the explainer now emits the exact `docker compose up -d ...` command for the affected platform-stack services instead of pointing operators back to a full-stack restart.
 For `http_error` and `timeout` postures inside `services_unreachable`, the explainer now recommends targeted `docker compose logs --tail=200 ...` inspection before the refresh command.
 
+Prerequisites for this loop:
+
+1. `platform-stack/.env` is populated with the correct local repo paths
+2. `platform-stack/dev-ingress/hosts.example` has been previewed or applied through `Sync-Dev-Ingress-Hosts.ps1`
+3. some ingress path is actually listening on port `80`
+   - full `platform-stack` uses `platform-stack/dev-ingress/Caddyfile`
+   - mixed standalone bring-up may use `platform-stack/dev-ingress/Caddyfile.direct-host`
+
+Operator rule:
+
+- treat hostname/DNS and ingress as platform setup concerns first
+- do not open app defects for `*.dev.lotus` failures until the ingress operator loop has ruled out `dns_not_configured` and `ingress_unreachable`
+
 ## GitHub Actions
 
 Cross-app validation can now also run from GitHub Actions through:

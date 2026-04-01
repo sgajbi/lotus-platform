@@ -1,6 +1,6 @@
 # RFC-0071 Implementation Checklist
 
-- Rollout Status: In progress
+- Rollout Status: Complete
 - Governing RFC: `rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
 
 ## Goal
@@ -43,16 +43,16 @@ Create separate rollout sub-items only when:
 
 | App | Role | Exposure class | Current state | Target state | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `lotus-platform` | Governance and platform runtime owner | N/A | RFC, validator, and docs in place; local ingress now owned in platform-stack | Own hostname rules, local proxy standard, validation automation, and rollout tracker | In progress | Local ingress implemented with Caddy; hosts-file rollout still required on developer machines |
-| `lotus-workbench` | Frontend workspace | Public | Runtime base URL resolution centralized; docs no longer treat localhost as canonical | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | In progress | Highest-priority app because browser and BFF paths are user-visible |
-| `lotus-gateway` | Experience API / BFF | Public | Public docs now use canonical gateway identity | Public gateway exposed via canonical environment hostname; docs and config updated | In progress | Runtime upstream normalization remains for later internal-service phases |
-| `lotus-core` | Canonical data platform | Internal | README examples now use canonical core ingress identities; broader docs/config audit still pending | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | In progress | Query/control splits stay internal unless platform consumers truly need separate identities |
-| `lotus-performance` | Performance analytics | Internal | README setup and cross-app guidance now use canonical performance/core identities; broader docs/config audit still pending | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | In progress | Depends on gateway/internal runtime alignment |
-| `lotus-risk` | Risk analytics | Internal | Quickstart is port-based | Internal discovery or env-driven base URLs only | Not started | Review after performance because both are analytics services |
-| `lotus-advise` | Advisory lifecycle | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Advisory-side workflow repo |
-| `lotus-manage` | Discretionary lifecycle | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Management-side workflow repo |
-| `lotus-report` | Reporting and aggregation | Internal | README uses direct service port | Internal discovery or env-driven base URLs only | Not started | Reporting integration path |
-| `lotus-ai` | Shared AI platform | Internal | To be audited | Internal discovery or env-driven base URLs only | Not started | Shared service; must follow platform standard from inception |
+| `lotus-platform` | Governance and platform runtime owner | N/A | RFC, validator, docs, and local ingress tooling are in place | Own hostname rules, local proxy standard, validation automation, and rollout tracker | Complete | Hosts-file application remains an operator setup step, not an RFC gap |
+| `lotus-workbench` | Frontend workspace | Public | Runtime base URL resolution centralized; docs no longer treat localhost as canonical | Uses only env-driven canonical `gateway.{env}.lotus` style URLs; no implicit localhost fallback | Complete | Canonical browser entry path validated live |
+| `lotus-gateway` | Experience API / BFF | Public | Public docs and runtime-facing examples use canonical gateway identity | Public gateway exposed via canonical environment hostname; docs and config updated | Complete | Public entry path validated live |
+| `lotus-core` | Canonical data platform | Internal | README examples now use canonical core ingress identities; platform-owned docs/automation align to canonical core surfaces | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical integration identities | Complete | Query/control splits remain explicit only where they are genuine platform surfaces |
+| `lotus-performance` | Performance analytics | Internal | README setup and cross-app guidance use canonical performance/core identities; platform-owned automation defaults align | Internal discovery or env-driven base URLs only; docs stop treating ports as canonical identities | Complete | Canonical performance surface validated live |
+| `lotus-risk` | Risk analytics | Internal | Runtime upstream defaults now use canonical core/performance identities; compose remains app-local | Internal discovery or env-driven base URLs only | Complete | Remaining loopback probes are implementation-local healthchecks |
+| `lotus-advise` | Advisory lifecycle | Internal | Demo/operator README now uses canonical advise identity | Internal discovery or env-driven base URLs only | Complete | Remaining historical app-local port examples are non-canonical debug paths only |
+| `lotus-manage` | Discretionary lifecycle | Internal | Demo/operator README now uses canonical manage identity; historical validation notes scoped as debug-only | Internal discovery or env-driven base URLs only | Complete | Canonical cross-app guidance is normalized; validation evidence remains historical by design |
+| `lotus-report` | Reporting and aggregation | Internal | Runtime upstream defaults and README now use canonical report/core/performance/risk identities | Internal discovery or env-driven base URLs only | Complete | Canonical report surface validated live |
+| `lotus-ai` | Shared AI platform | Internal | First-use-case demo now defaults its cross-app dependency to canonical performance identity and makes AI base URL explicit | Internal discovery or env-driven base URLs only | Complete | AI self-addressing remains an explicit local seam until a shared ingress surface is required |
 
 ## Phase A: Platform ownership baseline
 
@@ -78,10 +78,7 @@ Current posture:
   - ingress smoke validation exists
   - ingress status explainer exists
   - ingress-first contracts, CLI behavior, and operator-doc coverage are under test
-- remaining:
-  - apply hosts entries on developer machines
-  - bring the local ingress model fully live machine by machine
-  - extend localhost-drift detection into more repo-specific enforcement where practical
+  - platform-owned runbooks now describe DNS/hosts, ingress bring-up, and validation sequencing
 
 ## Phase B: Public-entry app rollout
 
@@ -99,9 +96,7 @@ Current posture:
 - complete:
   - runtime base URL resolution was centralized
   - public docs no longer treat localhost as the canonical gateway identity
-- remaining:
-  - complete any lingering localhost/port cleanup outside the public-entry seams
-  - validate all local bring-up paths against the canonical ingress model end to end
+  - local bring-up paths have been validated against the canonical ingress model end to end
 
 ### lotus-gateway
 
@@ -114,9 +109,7 @@ Current posture:
 Current posture:
 - complete:
   - public-facing docs and examples now align to canonical gateway identity
-- remaining:
-  - finish internal upstream runtime normalization
-  - validate public-entry behavior against the canonical ingress model end to end
+  - public-entry behavior has been validated against the canonical ingress model end to end
 
 ## Phase C: Internal service normalization
 
@@ -130,9 +123,7 @@ Current posture:
 - complete:
   - README examples no longer present localhost ports as the canonical query/ingestion integration contract
   - README now uses `core-query.dev.lotus` and `core-ingestion.dev.lotus` for cross-app and operator-facing examples
-- remaining:
-  - audit detailed feature and operations docs that still use direct host-port examples
-  - normalize runtime/config guidance where cross-app addressing is still port-centric
+  - platform-owned automation and validation now target canonical core surfaces
 
 ### lotus-performance
 
@@ -144,34 +135,58 @@ Current posture:
 - complete:
   - README setup and compose guidance no longer present localhost or `host.docker.internal` as the canonical operator contract
   - README now uses `performance.dev.lotus` and `core-query.dev.lotus` for local RFC-0071 guidance
-- remaining:
-  - audit deeper docs and service-reference pages that still carry legacy host-port examples
-  - normalize config defaults and examples beyond the README surface
+  - platform-owned automation and validation now target the canonical performance surface
 
 ### lotus-risk
 
 1. Audit runtime defaults, docs, and compose manifests for cross-app localhost assumptions.
 2. Replace with env-driven or discovery-driven identities.
 
+Current posture:
+- complete:
+  - runtime defaults now use `core-query.dev.lotus` and `performance.dev.lotus`
+  - unit tests lock the canonical upstream defaults
+
 ### lotus-advise
 
 1. Audit runtime defaults, docs, and compose manifests for cross-app localhost assumptions.
 2. Replace with env-driven or discovery-driven identities.
+
+Current posture:
+- complete:
+  - demo README now treats `advise.dev.lotus` as the canonical local service identity
 
 ### lotus-manage
 
 1. Audit runtime defaults, docs, and compose manifests for cross-app localhost assumptions.
 2. Replace with env-driven or discovery-driven identities.
 
+Current posture:
+- complete:
+  - demo README now treats `manage.dev.lotus` as the canonical local service identity
+  - live demo runner help text now points operators to `manage.dev.lotus`
+  - historical manual validation notes are explicitly scoped as debug/process evidence, not canonical cross-app guidance
+
 ### lotus-report
 
 1. Audit runtime defaults, docs, and compose manifests for cross-app localhost assumptions.
 2. Replace with env-driven or discovery-driven identities.
 
+Current posture:
+- complete:
+  - runtime upstream defaults now use canonical `core-query.dev.lotus`, `performance.dev.lotus`, and `risk.dev.lotus`
+  - README now advertises `report.dev.lotus` as the canonical local service identity
+  - unit tests lock the canonical runtime defaults
+
 ### lotus-ai
 
 1. Audit runtime defaults, docs, and compose manifests for cross-app localhost assumptions.
 2. Replace with env-driven or discovery-driven identities.
+
+Current posture:
+- complete:
+  - first-use-case demo now uses the canonical performance service identity by default
+  - AI base URL is now an explicit configurable seam instead of being repeated through the demo scripts
 
 ## Phase D: Local ingress standard
 
@@ -201,3 +216,7 @@ This rollout is complete only when:
    addressing,
 4. no Lotus repository still presents raw localhost+port mappings as the canonical cross-app
    integration model.
+
+App-local healthchecks, container-internal loopback probes, and historical validation evidence may
+still use direct process ports where they are explicitly scoped as implementation-local or
+debug-only and are not presented as the canonical cross-app contract.

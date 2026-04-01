@@ -4,6 +4,7 @@
 127.0.0.1 performance.dev.lotus
 127.0.0.1 report.dev.lotus
 127.0.0.1 core-query.dev.lotus
+127.0.0.1 core-control.dev.lotus
 127.0.0.1 core-ingestion.dev.lotus
 127.0.0.1 prometheus.dev.lotus
 127.0.0.1 grafana.dev.lotus

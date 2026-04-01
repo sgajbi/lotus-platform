@@ -65,6 +65,7 @@ def test_platform_stack_dev_ingress_routes_expected_hostnames() -> None:
         "performance.dev.lotus",
         "report.dev.lotus",
         "core-query.dev.lotus",
+        "core-control.dev.lotus",
         "core-ingestion.dev.lotus",
         "prometheus.dev.lotus",
         "grafana.dev.lotus",
@@ -78,4 +79,5 @@ def test_platform_stack_hosts_example_lists_required_entries() -> None:
     assert "127.0.0.1 workbench.dev.lotus" in hosts_example
     assert "127.0.0.1 gateway.dev.lotus" in hosts_example
     assert "127.0.0.1 core-query.dev.lotus" in hosts_example
+    assert "127.0.0.1 core-control.dev.lotus" in hosts_example
     assert "127.0.0.1 core-ingestion.dev.lotus" in hosts_example
