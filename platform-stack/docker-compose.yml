@@ -7,6 +7,33 @@ x-default-logging: &default-logging
     max-file: "5"
 
 services:
+  dev-ingress:
+    image: caddy:2.8.4
+    depends_on:
+      ui:
+        condition: service_healthy
+      bff:
+        condition: service_healthy
+      lotus-manage:
+        condition: service_healthy
+      lotus-core-query:
+        condition: service_healthy
+      lotus-core-ingestion:
+        condition: service_healthy
+      lotus-performance:
+        condition: service_healthy
+      lotus-report:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+      grafana:
+        condition: service_started
+    ports:
+      - "${DEV_INGRESS_HTTP_PORT:-80}:80"
+    volumes:
+      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro
+    logging: *default-logging
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -113,8 +140,6 @@ services:
       DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
       OTEL_SERVICE_NAME: lotus-core-query
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${LOTUS_CORE_QUERY_PORT:-8201}:8001"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health/ready', timeout=5)"]
@@ -137,8 +162,6 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9093
       OTEL_SERVICE_NAME: lotus-core-ingestion
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${LOTUS_CORE_INGESTION_PORT:-8200}:8000"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
@@ -166,8 +189,6 @@ services:
       DPM_POLICY_PACK_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
       OTEL_SERVICE_NAME: lotus-advise
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${LOTUS_MANAGE_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
       interval: 20s
@@ -183,8 +204,6 @@ services:
     environment:
       OTEL_SERVICE_NAME: performance-analytics
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${LOTUS_PERFORMANCE_PORT:-8002}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
       interval: 20s
@@ -208,8 +227,6 @@ services:
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-report
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${LOTUS_REPORT_PORT:-8300}:8300"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8300/health/ready', timeout=5)"]
       interval: 20s
@@ -243,8 +260,6 @@ services:
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-gateway
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    ports:
-      - "${BFF_PORT:-8100}:8100"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/health/ready', timeout=5)"]
       interval: 20s
@@ -262,8 +277,6 @@ services:
         condition: service_healthy
     environment:
       BFF_BASE_URL: http://bff:8100
-    ports:
-      - "${UI_PORT:-3000}:3000"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3000"]
       interval: 20s
@@ -274,14 +287,9 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.47.2
-    depends_on:
-      bff:
-        condition: service_healthy
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command: ["--config.file=/etc/prometheus/prometheus.yml"]
-    ports:
-      - "${PROMETHEUS_PORT:-9190}:9090"
     logging: *default-logging
 
   grafana:
@@ -294,8 +302,6 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
-    ports:
-      - "${GRAFANA_PORT:-3300}:3000"
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro

@@ -1,0 +1,28 @@
+{
+  auto_https off
+  admin off
+}
+
+http://workbench.dev.lotus {
+  reverse_proxy host.docker.internal:3000
+}
+
+http://gateway.dev.lotus {
+  reverse_proxy host.docker.internal:8111
+}
+
+http://performance.dev.lotus {
+  reverse_proxy host.docker.internal:8002
+}
+
+http://core-query.dev.lotus {
+  reverse_proxy host.docker.internal:8201
+}
+
+http://core-control.dev.lotus {
+  reverse_proxy host.docker.internal:8202
+}
+
+http://core-ingestion.dev.lotus {
+  reverse_proxy host.docker.internal:8200
+}

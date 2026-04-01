@@ -37,6 +37,10 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Measure-Test-Pyramid.ps1`
 - `automation/Validate-Backend-Standards.ps1`
 - `automation/Validate-Shared-Infrastructure-Ownership.ps1`
+- `automation/Validate-Service-Addressing.ps1`
+- `automation/Validate-Dev-Ingress-Smoke.ps1`
+- `automation/Explain-Dev-Ingress-Status.ps1`
+- `automation/Sync-Dev-Ingress-Hosts.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
@@ -200,13 +204,13 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -Brin
 Run the seeded analytics maturity invariant against `lotus-core`:
 
 ```powershell
-python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202
+python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus
 ```
 
 Run the reusable lotus-core -> lotus-performance cross-app scenario:
 
 ```powershell
-python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus --performance-url http://performance.dev.lotus
 ```
 
 This scenario suite seeds real-world funding and funded-trade stories into `lotus-core`, then validates both:
@@ -220,7 +224,7 @@ Result artifacts are written to:
 Run the full cross-app scenario suite:
 
 ```powershell
-python automation/core_performance_cross_app_suite.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+python automation/core_performance_cross_app_suite.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus --performance-url http://performance.dev.lotus
 ```
 
 Suite artifact:
@@ -240,6 +244,54 @@ Validate RFC-0068 shared infrastructure ownership boundaries:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1
 ```
+
+Validate RFC-0071 centralized service addressing drift:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1
+```
+
+Validate live canonical `*.dev.lotus` ingress reachability:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+```
+
+The smoke artifact now records a `failure_posture` for each failed check:
+- `dns_resolution_failed`
+- `http_error`
+- `connection_refused`
+- `timeout`
+- `transport_error`
+
+Explain the current ingress rollout state and the exact next operator step:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+```
+
+When routed services are the problem, the explainer emits the exact `docker compose up -d ...` command for the affected `platform-stack` services.
+When the ingress edge itself is the likely fault, it recommends `docker compose up -d dev-ingress` first.
+For `http_error` and `timeout` postures, it now recommends targeted `docker compose logs --tail=200 ...` inspection before the refresh command so the likely failure mode is visible first.
+
+Preview or apply the managed local hosts-file block for dev ingress:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+```
+
+Operational rule for RFC-0071 local ingress:
+
+1. keep `platform-stack/dev-ingress/hosts.example` as the source of truth for required hostnames
+2. use `Sync-Dev-Ingress-Hosts.ps1` to preview or apply that block
+3. bring up ingress
+4. validate with `Validate-Dev-Ingress-Smoke.ps1`
+5. classify with `Explain-Dev-Ingress-Status.ps1`
+
+Do not debug app-level routing before this operator loop is green. A browser failure on
+`workbench.dev.lotus` or `gateway.dev.lotus` is often just missing hosts-file mappings or a dead
+ingress edge, not an application defect.
 
 Run the reusable cross-app `lotus-core` -> `lotus-performance` TWR + benchmark scenario:
 
@@ -507,6 +559,10 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/task-runs/*.out.log`
 - `output/task-runs/*.err.log`
 - `output/background-runs.json`
+- `output/dev-ingress-smoke.json`
+- `output/dev-ingress-smoke.md`
+- `output/dev-ingress-status.json`
+- `output/dev-ingress-status.md`
 - `output/test-coverage-summary.json`
 - `output/test-coverage-summary.md`
 - `output/dependency-vulnerability-rollup.json`

@@ -44,7 +44,7 @@ Together these scenarios model:
 Run:
 
 ```powershell
-python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202 --performance-url http://127.0.0.1:8002
+python automation/core_performance_cross_app_validation.py --scenario automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus --performance-url http://performance.dev.lotus
 ```
 
 The runner:

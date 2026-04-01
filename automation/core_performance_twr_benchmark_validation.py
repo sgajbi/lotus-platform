@@ -586,9 +586,9 @@ def _write_summary_markdown(summary: dict[str, Any], output_markdown_path: Path)
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ingestion-base-url", default="http://127.0.0.1:8200")
-    parser.add_argument("--control-base-url", default="http://127.0.0.1:8202")
-    parser.add_argument("--performance-base-url", default="http://127.0.0.1:8002")
+    parser.add_argument("--ingestion-base-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--control-base-url", default="http://core-control.dev.lotus")
+    parser.add_argument("--performance-base-url", default="http://performance.dev.lotus")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-twr-benchmark-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-twr-benchmark-validation.md")
     parser.add_argument(

@@ -21,42 +21,155 @@ Expected:
 Canonical centralized orchestration now lives in:
 - `lotus-platform/platform-stack/docker-compose.yml`
 
-Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
+Canonical service identities for local `dev`:
+
+- Workbench: `http://workbench.dev.lotus`
+- Gateway: `http://gateway.dev.lotus`
+- Manage: `http://manage.dev.lotus`
+- Performance: `http://performance.dev.lotus`
+- Report: `http://report.dev.lotus`
+- Core query: `http://core-query.dev.lotus`
+- Core control-plane: `http://core-control.dev.lotus`
+- Core ingestion: `http://core-ingestion.dev.lotus`
+
+Ports remain an internal platform-stack implementation detail. Operator and application-facing
+configuration should use the environment-scoped hostnames above. Direct host-port publishing is a
+debug-only override, not the default contract.
+
+Required hosts-file entries are listed in:
+
+- `platform-stack/dev-ingress/hosts.example`
+
+DNS / hostname setup rule:
+
+- local `*.dev.lotus` names are resolved through the Windows hosts file, not public DNS
+- `platform-stack/dev-ingress/hosts.example` is the source of truth for the required mappings
+- all browser, operator, and cross-app examples in this runbook assume those hostnames resolve locally before the stack is started
+
+Preview the managed hosts-file block:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+```
+
+Apply the managed block to the Windows hosts file:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+```
+
+If the apply step is not run from an elevated shell, the tool writes a staged file instead:
+
+- `output/hosts-preview/hosts.merged`
+
+Use that staged file only as an admin handoff artifact. Do not copy partial entries manually.
+
+### 1.1.1 platform-stack .env setup
+
+Before first bring-up, copy `.env.example` and set the repo paths to the local Lotus clones that
+this machine should orchestrate:
 
 ```powershell
 cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 Copy-Item .env.example .env
+```
+
+Minimum required path variables:
+
+- `LOTUS_CORE_REPO_PATH`
+- `LOTUS_PERFORMANCE_REPO_PATH`
+- `LOTUS_REPORT_REPO_PATH`
+- `LOTUS_MANAGE_REPO_PATH`
+- `BFF_REPO_PATH`
+- `UI_REPO_PATH`
+
+Example local values:
+
+- `LOTUS_CORE_REPO_PATH=C:\Users\Sandeep\projects\lotus-core`
+- `LOTUS_PERFORMANCE_REPO_PATH=C:\Users\Sandeep\projects\lotus-performance`
+- `LOTUS_REPORT_REPO_PATH=C:\Users\Sandeep\projects\lotus-report`
+- `LOTUS_MANAGE_REPO_PATH=C:\Users\Sandeep\projects\lotus-manage`
+- `BFF_REPO_PATH=C:\Users\Sandeep\projects\lotus-gateway`
+- `UI_REPO_PATH=C:\Users\Sandeep\projects\lotus-workbench`
+
+### 1.1.2 Bring up ingress-first platform-stack
+
+Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 docker compose up -d --build
 docker compose ps
 ```
 
 Key endpoints:
-- UI: `http://localhost:3000`
-- lotus-gateway: `http://localhost:8100`
-- lotus-core Ingestion: `http://localhost:8200`
-- lotus-core Query: `http://localhost:8201`
-- lotus-manage: `http://localhost:8000`
-- lotus-performance: `http://localhost:8002`
-- lotus-report: `http://localhost:8300`
-- Prometheus: `http://localhost:9190`
-- Grafana: `http://localhost:3300`
+- Workbench: `http://workbench.dev.lotus`
+- Gateway: `http://gateway.dev.lotus`
+- Core query: `http://core-query.dev.lotus`
+- Core ingestion: `http://core-ingestion.dev.lotus`
+- Manage: `http://manage.dev.lotus`
+- Performance: `http://performance.dev.lotus`
+- Report: `http://report.dev.lotus`
+- Prometheus: `http://prometheus.dev.lotus`
+- Grafana: `http://grafana.dev.lotus`
 
-## 2. Ports and Dependencies
+### 1.1.3 Verify DNS and ingress before app debugging
 
-- lotus-manage API: `http://localhost:8000`
-- lotus-core Ingestion API: `http://localhost:8200`
-- lotus-core Query API: `http://localhost:8201`
-- lotus-performance API: `http://localhost:8002`
-- lotus-report API: `http://localhost:8300`
-- Postgres (for lotus-manage): `localhost:5432`
-- lotus-gateway API: `http://localhost:8100`
-- UI: `http://localhost:3000`
+Run this operator loop in order:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+```
+
+Interpretation:
+
+- `dns_not_configured`
+  - hosts-file mappings are missing or not yet applied
+- `ingress_unreachable`
+  - `dev-ingress` is not serving; bring up `dev-ingress` first
+- `services_unreachable`
+  - edge routing is working; refresh only the named downstream services
+- `ready`
+  - canonical hostnames are live and routing correctly
+
+### 1.1.4 Direct-host ingress fallback for mixed local bring-up
+
+Use this only when you are not running full `platform-stack`, for example when:
+
+- `lotus-core` is running from its own repo compose
+- `lotus-performance` is running from its own repo compose
+- `lotus-gateway` and `lotus-workbench` are running as direct local processes
+
+In that case, start a minimal ingress that proxies the canonical hostnames to the direct local
+ports using:
+
+- `platform-stack/dev-ingress/Caddyfile.direct-host`
+
+This is the supported fallback when you need canonical `*.dev.lotus` URLs without handing full app
+ownership to `platform-stack`.
+
+## 2. Service Identities and Dependencies
+
+- lotus-manage API: `http://manage.dev.lotus`
+- lotus-core query API: `http://core-query.dev.lotus`
+- lotus-core control-plane API: `http://core-control.dev.lotus`
+- lotus-core ingestion API: `http://core-ingestion.dev.lotus`
+- lotus-performance API: `http://performance.dev.lotus`
+- lotus-report API: `http://report.dev.lotus`
+- lotus-gateway API: `http://gateway.dev.lotus`
+- UI: `http://workbench.dev.lotus`
+
+Legacy direct host ports are available only through `platform-stack/docker-compose.host-ports.yml`
+when a debugging workflow genuinely requires them.
 
 Dependency chain:
 - UI -> lotus-gateway
 - lotus-gateway -> lotus-manage
-- lotus-gateway -> lotus-core Ingestion (for portfolio creation)
-- lotus-gateway -> lotus-core Query (for governed selectors)
+- lotus-gateway -> lotus-core API surfaces
 - lotus-gateway/UI -> lotus-report (reporting and aggregation views)
 - lotus-manage -> Postgres (via its compose file)
 
@@ -84,18 +197,51 @@ docker compose ps
 
 ```bash
 cd /c/Users/sande/dev/lotus-gateway
-export DECISIONING_SERVICE_BASE_URL="http://host.docker.internal:8000"
-export PORTFOLIO_DATA_INGESTION_BASE_URL="http://host.docker.internal:8200"
-export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://host.docker.internal:8201"
+export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
+export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core-ingestion.dev.lotus"
+export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core-query.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
+
+If you explicitly need raw host ports for debugging:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
+docker compose ps
+```
+
+Run ingress-first smoke validation:
+
+  ```powershell
+  cd C:\Users\Sandeep\projects\lotus-platform
+  powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+  ```
+
+  Explain the current ingress rollout state and the next required operator step:
+
+  ```powershell
+  cd C:\Users\Sandeep\projects\lotus-platform
+  powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+  ```
+
+  When only routed services are unhealthy, this command now tells you the exact `docker compose up -d ...` refresh command to run for the affected services.
+  When the edge itself is likely down, it tells you to run `docker compose up -d dev-ingress` first.
+  The smoke artifact posture vocabulary is:
+  `dns_resolution_failed`, `http_error`, `connection_refused`, `timeout`, `transport_error`.
+  For `http_error` and `timeout`, it now tells you to inspect `docker compose logs --tail=200 ...` for the affected services before refresh.
+
+Important:
+
+- if you are using full `platform-stack`, do not also run a separate direct-host ingress on port `80`
+- if you are using mixed standalone services, do not expect `workbench.dev.lotus` or `gateway.dev.lotus` to work until some ingress layer is listening on port `80`
 
 ## 4.3 Start UI
 
 ```bash
 cd /c/Users/sande/dev/lotus-workbench
-export BFF_BASE_URL="http://host.docker.internal:8100"
+export BFF_BASE_URL="http://gateway.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
@@ -103,15 +249,15 @@ docker compose ps
 ## 5. Smoke Checks
 
 ```bash
-curl -sSf http://127.0.0.1:8000/docs >/dev/null && echo "dpm ok"
-curl -sSf http://127.0.0.1:8100/health >/dev/null && echo "bff ok"
-curl -sSf http://127.0.0.1:3000 >/dev/null && echo "ui ok"
+curl -sSf http://manage.dev.lotus/docs >/dev/null && echo "manage ok"
+curl -sSf http://gateway.dev.lotus/health >/dev/null && echo "gateway ok"
+curl -sSf http://workbench.dev.lotus >/dev/null && echo "workbench ok"
 ```
 
 Manual UI checks:
-- `http://localhost:3000/suite`
+- `http://workbench.dev.lotus/suite`
   - verify role selector (`Advisor`, `Risk`, `Compliance`) filters priorities and playbook content
-- `http://localhost:3000/pas/intake`
+- `http://workbench.dev.lotus/pas/intake`
   - verify operation selector is available (`Create Portfolio`, `Add Positions`, `Add Transactions`, `Add Instruments`, `Add Market Data`)
   - verify portfolio/instrument/currency fields provide lookup suggestions from lotus-core query via lotus-gateway
   - verify non-portfolio operations allow list row add/remove and submit successfully
@@ -119,11 +265,11 @@ Manual UI checks:
   - verify no button/text overlap at narrow widths (mobile/tablet), and horizontal scroll appears for wide tables/toggles
   - submit each operation and verify success message with relevant published counts
   - upload CSV package and verify parser validation + success queue message
-- `http://localhost:3000/pa/analytics`
-- `http://localhost:3000/proposals/simulate`
-- `http://localhost:3000/proposals`
-- `http://localhost:3000/workbench` (verify route resolves to a live portfolio workbench when lookup data exists)
-- open any proposal from `http://localhost:3000/proposals` and verify detail view renders version + lineage sections
+- `http://workbench.dev.lotus/pa/analytics`
+- `http://workbench.dev.lotus/proposals/simulate`
+- `http://workbench.dev.lotus/proposals`
+- `http://workbench.dev.lotus/workbench` (verify route resolves to a live portfolio workbench when lookup data exists)
+- open any proposal from `http://workbench.dev.lotus/proposals` and verify detail view renders version + lineage sections
 
 ## 6. Logs and Debugging
 
@@ -162,13 +308,13 @@ cd /c/Users/sande/dev/lotus-advise && docker compose down -v
 - `Cannot connect to Docker daemon`
   - Docker Desktop/Engine is not running.
 - lotus-gateway cannot reach lotus-manage
-  - Check `DECISIONING_SERVICE_BASE_URL=http://host.docker.internal:8000`.
+  - Check `DECISIONING_SERVICE_BASE_URL=http://manage.dev.lotus`.
 - lotus-gateway cannot reach lotus-core ingestion
-  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://host.docker.internal:8200`.
+  - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://core-ingestion.dev.lotus`.
 - lotus-gateway cannot reach lotus-core query
-  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://host.docker.internal:8201`.
+  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://core-query.dev.lotus`.
 - UI cannot reach lotus-gateway
-  - Check `BFF_BASE_URL=http://host.docker.internal:8100`.
+  - Check `BFF_BASE_URL=http://gateway.dev.lotus`.
 - Port conflict on `3000/8100/8000/5432`
   - Stop conflicting process/container and rerun `docker compose up -d --build`.
 - lotus-performance conflict with lotus-manage on `8000`
@@ -184,12 +330,12 @@ cd /c/Users/sande/dev/lotus-advise && docker compose down -v
 
 lotus-core now uses dedicated host ports and can run in parallel with lotus-manage/lotus-gateway/UI.
 
-lotus-core host ports:
-- Ingestion API: `http://localhost:8200`
-- Query API: `http://localhost:8201`
+lotus-core canonical local identities:
+- Ingestion API: `http://core-ingestion.dev.lotus`
+- Query API: `http://core-query.dev.lotus`
 - Postgres: `localhost:55432`
-- Prometheus: `http://localhost:9190`
-- Grafana: `http://localhost:3300`
+- Prometheus: `http://prometheus.dev.lotus`
+- Grafana: `http://grafana.dev.lotus`
 
 ### 10.1 Pull Latest
 
@@ -218,17 +364,17 @@ docker compose logs --tail=200 demo_data_loader
 ### 10.3 Health + API Smoke
 
 ```bash
-curl -sSf http://127.0.0.1:8200/health/ready >/dev/null && echo "pas-ingestion ok"
-curl -sSf http://127.0.0.1:8201/health/ready >/dev/null && echo "pas-query ok"
-curl -sSf http://127.0.0.1:8201/docs >/dev/null && echo "pas-swagger ok"
-curl -sSf http://127.0.0.1:8300/health >/dev/null && echo "ras ok"
+curl -sSf http://core-ingestion.dev.lotus/health/ready >/dev/null && echo "pas-ingestion ok"
+curl -sSf http://core-query.dev.lotus/health/ready >/dev/null && echo "pas-query ok"
+curl -sSf http://core-query.dev.lotus/docs >/dev/null && echo "pas-swagger ok"
+curl -sSf http://report.dev.lotus/health >/dev/null && echo "ras ok"
 ```
 
 Support/lineage API smoke:
 
 ```bash
-curl -s "http://127.0.0.1:8201/support/portfolios/PORT001/overview"
-curl -s "http://127.0.0.1:8201/lineage/portfolios/PORT001/securities/SEC001"
+curl -s "http://core-query.dev.lotus/support/portfolios/PORT001/overview"
+curl -s "http://core-query.dev.lotus/lineage/portfolios/PORT001/securities/SEC001"
 ```
 
 ### 10.4 Stop lotus-core
@@ -304,7 +450,7 @@ Expected output:
 ### 11.4 Manual API Smoke
 
 ```bash
-curl -s "http://127.0.0.1:8100/api/v1/platform/capabilities?consumerSystem=lotus-gateway&tenantId=default"
+curl -s "http://gateway.dev.lotus/api/v1/platform/capabilities?consumerSystem=lotus-gateway&tenantId=default"
 ```
 
 Response should include:
@@ -352,7 +498,7 @@ make ci-local-docker-down
 
 ```bash
 make docker-up
-curl -sSf http://127.0.0.1:8002/docs >/dev/null && echo "performance analytics ok"
+curl -sSf http://performance.dev.lotus/docs >/dev/null && echo "performance analytics ok"
 make docker-down
 ```
 

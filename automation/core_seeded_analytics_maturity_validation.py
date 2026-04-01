@@ -333,9 +333,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Validate lotus-core seeded analytics maturity through platform-level API flows."
     )
-    parser.add_argument("--ingestion-url", default="http://127.0.0.1:8200")
-    parser.add_argument("--query-url", default="http://127.0.0.1:8201")
-    parser.add_argument("--query-control-plane-url", default="http://127.0.0.1:8202")
+    parser.add_argument("--ingestion-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--query-url", default="http://core-query.dev.lotus")
+    parser.add_argument("--query-control-plane-url", default="http://core-control.dev.lotus")
     parser.add_argument("--timeout-seconds", type=int, default=240)
     parser.add_argument("--poll-interval-seconds", type=float, default=2.0)
     args = parser.parse_args()

@@ -1,0 +1,111 @@
+from __future__ import annotations
+
+from automation.explain_dev_ingress_status import explain_dev_ingress_status
+
+
+def test_explain_dev_ingress_status_marks_runtime_ready_when_smoke_passes() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={"result": "ok", "checks": [], "failed_count": 0},
+        staged_hosts_text="# >>> lotus-platform dev ingress >>>\n127.0.0.1 gateway.dev.lotus\n# <<< lotus-platform dev ingress <<<\n",
+    )
+
+    assert payload["status"] == "ready"
+    assert "canonical local entrypoints" in payload["next_steps"][0]
+
+
+def test_explain_dev_ingress_status_points_to_staged_hosts_when_dns_is_missing() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+            "result": "failed",
+            "failed_count": 2,
+            "checks": [
+                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": False},
+                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False},
+            ],
+        },
+        staged_hosts_text=(
+            "127.0.0.1 localhost\n"
+            "# >>> lotus-platform dev ingress >>>\n"
+            "127.0.0.1 gateway.dev.lotus\n"
+            "# <<< lotus-platform dev ingress <<<\n"
+        ),
+    )
+
+    assert payload["status"] == "dns_not_configured"
+    assert "output/hosts-preview/hosts.merged" in payload["next_steps"][0]
+    assert payload["evidence"]["staged_hosts_present"] is True
+    assert payload["evidence"]["staged_hostnames"] == ["gateway.dev.lotus"]
+
+
+def test_explain_dev_ingress_status_points_to_services_when_dns_is_healthy_but_http_fails() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+                "result": "failed",
+                "failed_count": 2,
+                "checks": [
+                    {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": 502, "failure_posture": "http_error"},
+                    {"check_id": "core_query_dev_ingress_dns", "service_identity": "core-query", "passed": True, "failure_posture": "healthy"},
+                    {"check_id": "core_query_dev_ingress", "service_identity": "core-query", "passed": False, "status": 503, "failure_posture": "http_error"},
+                ],
+            },
+            staged_hosts_text=None,
+    )
+
+    assert payload["status"] == "services_unreachable"
+    assert "docker compose logs --tail=200 lotus-core-query bff" in payload["next_steps"][0]
+    assert "docker compose up -d lotus-core-query bff" in payload["next_steps"][1]
+    assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
+    assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
+    assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
+    assert payload["evidence"]["failing_http_statuses"] == [502, 503]
+    assert payload["evidence"]["likely_ingress_failure"] is False
+
+
+def test_explain_dev_ingress_status_points_to_dev_ingress_when_all_routes_fail_without_http_status() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+            "result": "failed",
+            "failed_count": 4,
+            "checks": [
+                {"check_id": "gateway_dev_ingress_dns", "service_identity": "gateway", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "gateway_dev_ingress", "service_identity": "gateway", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
+                {"check_id": "workbench_dev_ingress_dns", "service_identity": "workbench", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "workbench_dev_ingress", "service_identity": "workbench", "passed": False, "status": None, "evidence": ["connection refused"], "failure_posture": "connection_refused"},
+            ],
+        },
+        staged_hosts_text=None,
+    )
+
+    assert payload["status"] == "ingress_unreachable"
+    assert "docker compose up -d dev-ingress" in payload["next_steps"][0]
+    assert payload["evidence"]["failing_http_postures"] == ["connection_refused", "connection_refused"]
+    assert payload["evidence"]["likely_ingress_failure"] is True
+
+
+def test_explain_dev_ingress_status_points_to_logs_first_for_timeout_failures() -> None:
+    payload = explain_dev_ingress_status(
+        smoke_payload={
+            "result": "failed",
+            "failed_count": 2,
+            "checks": [
+                {"check_id": "performance_dev_ingress_dns", "service_identity": "performance", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "performance_dev_ingress", "service_identity": "performance", "passed": False, "status": None, "failure_posture": "timeout"},
+                {"check_id": "report_dev_ingress_dns", "service_identity": "report", "passed": True, "failure_posture": "healthy"},
+                {"check_id": "report_dev_ingress", "service_identity": "report", "passed": False, "status": None, "failure_posture": "timeout"},
+            ],
+        },
+        staged_hosts_text=None,
+    )
+
+    assert payload["status"] == "services_unreachable"
+    assert "docker compose logs --tail=200 lotus-performance lotus-report" in payload["next_steps"][0]
+    assert "docker compose up -d lotus-performance lotus-report" in payload["next_steps"][1]
+    assert payload["evidence"]["failing_http_postures"] == ["timeout", "timeout"]
+
+
+def test_explain_dev_ingress_status_requests_smoke_run_when_artifact_is_missing() -> None:
+    payload = explain_dev_ingress_status(smoke_payload=None, staged_hosts_text=None)
+
+    assert payload["status"] == "missing_smoke_result"
+    assert "Validate-Dev-Ingress-Smoke.ps1" in payload["next_steps"][0]

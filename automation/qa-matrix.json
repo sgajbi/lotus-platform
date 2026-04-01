@@ -9,11 +9,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8100/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8100/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://gateway.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://gateway.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8100/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://gateway.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -30,11 +30,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8000/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8000/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://advise.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://advise.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8000/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://advise.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -51,11 +51,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8002/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8002/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://performance.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://performance.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8002/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://performance.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -72,12 +72,12 @@
       },
       "checks": {
         "api": [
-          { "id": "ingestion-health", "method": "GET", "url": "http://127.0.0.1:8200/health/ready", "expected_status": 200, "must_contain": ["ready"] },
-          { "id": "query-health", "method": "GET", "url": "http://127.0.0.1:8201/health/ready", "expected_status": 200, "must_contain": ["ready"] },
-          { "id": "query-docs", "method": "GET", "url": "http://127.0.0.1:8201/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "ingestion-health", "method": "GET", "url": "http://core-ingestion.dev.lotus/health/ready", "expected_status": 200, "must_contain": ["ready"] },
+          { "id": "query-health", "method": "GET", "url": "http://core-query.dev.lotus/health/ready", "expected_status": 200, "must_contain": ["ready"] },
+          { "id": "query-docs", "method": "GET", "url": "http://core-query.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "query-metrics", "url": "http://127.0.0.1:8201/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "query-metrics", "url": "http://core-query.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -87,7 +87,7 @@
           {
             "id": "seeded-analytics-maturity",
             "type": "command",
-            "command": "python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://127.0.0.1:8200 --query-control-plane-url http://127.0.0.1:8202",
+            "command": "python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus",
             "expected_exit_code": 0
           }
         ]
@@ -102,11 +102,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8300/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8300/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://report.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://report.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8300/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://report.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -123,11 +123,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8130/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8130/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://risk.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://risk.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8130/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://risk.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],
@@ -144,11 +144,11 @@
       },
       "checks": {
         "api": [
-          { "id": "health", "method": "GET", "url": "http://127.0.0.1:8000/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://127.0.0.1:8000/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+          { "id": "health", "method": "GET", "url": "http://manage.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://manage.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
         ],
         "monitoring": [
-          { "id": "metrics", "url": "http://127.0.0.1:8000/metrics", "expected_status": 200, "must_contain": ["http"] }
+          { "id": "metrics", "url": "http://manage.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
         ],
         "observability": {
           "require_response_headers": ["x-correlation-id"],

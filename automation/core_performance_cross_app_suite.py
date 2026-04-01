@@ -97,9 +97,9 @@ def main() -> int:
         "--scenarios-dir",
         default="automation/scenarios/core-performance",
     )
-    parser.add_argument("--ingestion-url", default="http://127.0.0.1:8200")
-    parser.add_argument("--query-control-plane-url", default="http://127.0.0.1:8202")
-    parser.add_argument("--performance-url", default="http://127.0.0.1:8002")
+    parser.add_argument("--ingestion-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--query-control-plane-url", default="http://core-control.dev.lotus")
+    parser.add_argument("--performance-url", default="http://performance.dev.lotus")
     parser.add_argument("--timeout-seconds", type=int, default=420)
     parser.add_argument("--poll-interval-seconds", type=float, default=2.0)
     parser.add_argument("--scenario-max-attempts", type=int, default=2)

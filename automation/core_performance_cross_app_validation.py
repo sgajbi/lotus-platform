@@ -615,9 +615,9 @@ def main() -> int:
         "--scenario",
         default="automation/scenarios/core-performance/fund_buy_foreign_stock_explicit_window.json",
     )
-    parser.add_argument("--ingestion-url", default="http://127.0.0.1:8200")
-    parser.add_argument("--query-control-plane-url", default="http://127.0.0.1:8202")
-    parser.add_argument("--performance-url", default="http://127.0.0.1:8002")
+    parser.add_argument("--ingestion-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--query-control-plane-url", default="http://core-control.dev.lotus")
+    parser.add_argument("--performance-url", default="http://performance.dev.lotus")
     parser.add_argument("--timeout-seconds", type=int, default=240)
     parser.add_argument("--poll-interval-seconds", type=float, default=2.0)
     parser.add_argument(

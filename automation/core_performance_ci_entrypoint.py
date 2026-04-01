@@ -92,9 +92,9 @@ def main() -> int:
     )
     parser.add_argument("--shared-scenario-suffix")
     parser.add_argument("--mwr-scenario-suffix")
-    parser.add_argument("--core-ingestion-base-url", default="http://127.0.0.1:8200")
-    parser.add_argument("--core-query-base-url", default="http://127.0.0.1:8202")
-    parser.add_argument("--performance-base-url", default="http://127.0.0.1:8002")
+    parser.add_argument("--core-ingestion-base-url", default="http://core-ingestion.dev.lotus")
+    parser.add_argument("--core-query-base-url", default="http://core-control.dev.lotus")
+    parser.add_argument("--performance-base-url", default="http://performance.dev.lotus")
     parser.add_argument("--output-dir", default="output/cross-app")
     args = parser.parse_args()
 
