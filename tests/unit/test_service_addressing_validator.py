@@ -28,7 +28,17 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
     )
     _write_text(
         platform / "platform-stack" / "docker-compose.yml",
-        "services:\n  dev-ingress:\n    volumes:\n      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro\n",
+        "services:\n"
+        "  dev-ingress:\n"
+        "    volumes:\n"
+        "      - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro\n"
+        "  lotus-core-control:\n"
+        "    build:\n"
+        "      dockerfile: ./src/services/query_control_plane_service/Dockerfile\n"
+        "  bff:\n"
+        "    environment:\n"
+        "      PORTFOLIO_DATA_QUERY_BASE_URL: http://lotus-core-query:8001\n"
+        "      PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL: http://lotus-core-control:8002\n",
     )
     _write_text(
         platform / "platform-stack" / "docker-compose.host-ports.yml",
@@ -42,7 +52,7 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
         "http://performance.dev.lotus {\n reverse_proxy lotus-performance:8000\n}\n"
         "http://report.dev.lotus {\n reverse_proxy lotus-report:8300\n}\n"
         "http://core-query.dev.lotus {\n reverse_proxy lotus-core-query:8001\n}\n"
-        "http://core-control.dev.lotus {\n reverse_proxy query_control_plane_service:8002\n}\n"
+        "http://core-control.dev.lotus {\n reverse_proxy lotus-core-control:8002\n}\n"
         "http://core-ingestion.dev.lotus {\n reverse_proxy lotus-core-ingestion:8000\n}\n",
     )
     _write_text(
@@ -187,6 +197,7 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     failed_ids = {check["check_id"] for check in result["checks"] if not check["passed"]}
     assert "platform_runbook_drops_host_docker_internal" in failed_ids
     assert "platform_stack_owns_local_dev_ingress" in failed_ids
+    assert "platform_stack_wires_core_control_plane_service" in failed_ids
     assert "platform_stack_debug_override_preserves_direct_host_ports" in failed_ids
     assert "platform_stack_dev_ingress_hostnames_are_aligned" in failed_ids
     assert "risk_runtime_defaults_use_canonical_upstream_service_identities" in failed_ids

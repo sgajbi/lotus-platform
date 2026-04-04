@@ -259,6 +259,21 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
             [str(dev_ingress_caddyfile)],
         ),
         _result(
+            "platform_stack_wires_core_control_plane_service",
+            _contains_all(
+                platform_compose_text,
+                [
+                    "lotus-core-control:",
+                    "query_control_plane_service/Dockerfile",
+                    "PORTFOLIO_DATA_QUERY_BASE_URL: http://lotus-core-query:8001",
+                    "PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL: http://lotus-core-control:8002",
+                ],
+            )
+            and "reverse_proxy lotus-core-control:8002" in dev_ingress_caddyfile_text,
+            "platform-stack composes and routes lotus-core control-plane through the dedicated core-control service identity.",
+            [str(platform_compose), str(dev_ingress_caddyfile)],
+        ),
+        _result(
             "platform_stack_dev_ingress_hosts_example_exists",
             _contains_all(dev_ingress_hosts_text, ["workbench.dev.lotus", "gateway.dev.lotus", "core-query.dev.lotus", "core-control.dev.lotus", "core-ingestion.dev.lotus"]),
             "platform-stack publishes the required local hosts-file mappings for the dev ingress.",

@@ -83,6 +83,7 @@ def build_dev_ingress_checks() -> list[EndpointCheck]:
         EndpointCheck("performance_dev_ingress", "performance", "http://performance.dev.lotus/health/ready"),
         EndpointCheck("report_dev_ingress", "report", "http://report.dev.lotus/health/ready"),
         EndpointCheck("core_query_dev_ingress", "core-query", "http://core-query.dev.lotus/health/ready"),
+        EndpointCheck("core_control_dev_ingress", "core-control", "http://core-control.dev.lotus/health/ready"),
         EndpointCheck("core_ingestion_dev_ingress", "core-ingestion", "http://core-ingestion.dev.lotus/health/ready"),
     ]
 
