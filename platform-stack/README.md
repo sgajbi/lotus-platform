@@ -2,7 +2,7 @@
 
 This folder provides a centralized Docker Compose orchestration for the full PBWM platform:
 
-- lotus-core (`lotus-core-ingestion`, `lotus-core-query`) + lotus-core dependencies (`zookeeper`, `kafka`, `lotus-core-kafka-topic-creator`, `lotus-core-postgres`, `lotus-core-migration-runner`)
+- lotus-core (`lotus-core-ingestion`, `lotus-core-query`, `lotus-core-control`) + lotus-core dependencies (`zookeeper`, `kafka`, `lotus-core-kafka-topic-creator`, `lotus-core-postgres`, `lotus-core-migration-runner`)
 - lotus-manage (`lotus-manage`, `lotus-manage-postgres`)
 - lotus-performance (`lotus-performance`)
 - lotus-report (`lotus-report`)
@@ -173,7 +173,7 @@ docker compose logs -f --tail=200
 Service-level logs:
 
 ```powershell
-docker compose logs -f --tail=200 bff lotus-core-query lotus-core-ingestion lotus-performance lotus-manage lotus-report
+docker compose logs -f --tail=200 bff lotus-core-query lotus-core-control lotus-core-ingestion lotus-performance lotus-manage lotus-report
 ```
 
 ## 5) Stop

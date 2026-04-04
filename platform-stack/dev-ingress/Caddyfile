@@ -28,7 +28,7 @@ http://core-query.dev.lotus {
 }
 
 http://core-control.dev.lotus {
-  reverse_proxy query_control_plane_service:8002
+  reverse_proxy lotus-core-control:8002
 }
 
 http://core-ingestion.dev.lotus {

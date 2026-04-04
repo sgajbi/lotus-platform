@@ -12,7 +12,7 @@ def test_validate_dev_ingress_smoke_accepts_resolved_reachable_endpoints(monkeyp
 
     assert result["result"] == "ok"
     assert result["failed_count"] == 0
-    assert len(result["checks"]) == 14
+    assert len(result["checks"]) == 16
     assert {check["failure_posture"] for check in result["checks"]} == {"healthy"}
     assert {check["service_identity"] for check in result["checks"]} == {
         "workbench",
@@ -21,6 +21,7 @@ def test_validate_dev_ingress_smoke_accepts_resolved_reachable_endpoints(monkeyp
         "performance",
         "report",
         "core-query",
+        "core-control",
         "core-ingestion",
     }
 

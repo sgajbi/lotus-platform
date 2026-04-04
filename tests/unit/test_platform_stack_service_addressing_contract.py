@@ -28,6 +28,7 @@ def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports(
 
     for service_name in (
         "lotus-core-query",
+        "lotus-core-control",
         "lotus-core-ingestion",
         "lotus-manage",
         "lotus-performance",
@@ -38,6 +39,29 @@ def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports(
         "grafana",
     ):
         assert "ports" not in compose["services"][service_name]
+
+
+def test_platform_stack_wires_dedicated_core_control_plane_service() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    control_plane = compose["services"]["lotus-core-control"]
+    gateway = compose["services"]["bff"]
+
+    assert (
+        control_plane["build"]["dockerfile"]
+        == "./src/services/query_control_plane_service/Dockerfile"
+    )
+    assert (
+        control_plane["environment"]["OTEL_SERVICE_NAME"]
+        == "lotus-core-control"
+    )
+    assert (
+        gateway["environment"]["PORTFOLIO_DATA_QUERY_BASE_URL"]
+        == "http://lotus-core-query:8001"
+    )
+    assert (
+        gateway["environment"]["PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL"]
+        == "http://lotus-core-control:8002"
+    )
 
 
 def test_platform_stack_debug_override_preserves_optional_direct_host_ports() -> None:
@@ -71,6 +95,8 @@ def test_platform_stack_dev_ingress_routes_expected_hostnames() -> None:
         "grafana.dev.lotus",
     ):
         assert hostname in caddyfile
+
+    assert "reverse_proxy lotus-core-control:8002" in caddyfile
 
 
 def test_platform_stack_hosts_example_lists_required_entries() -> None:

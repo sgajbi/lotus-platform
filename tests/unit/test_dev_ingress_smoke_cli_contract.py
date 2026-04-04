@@ -52,6 +52,7 @@ def test_validate_dev_ingress_smoke_cli_returns_zero_and_writes_service_identiti
         "performance",
         "report",
         "core-query",
+        "core-control",
         "core-ingestion",
     }
     assert {check["failure_posture"] for check in payload["checks"]} == {"healthy"}

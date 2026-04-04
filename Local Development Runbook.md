@@ -199,7 +199,8 @@ docker compose ps
 cd /c/Users/sande/dev/lotus-gateway
 export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
 export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core-ingestion.dev.lotus"
-export PORTFOLIO_DATA_PLATFORM_BASE_URL="http://core-query.dev.lotus"
+export PORTFOLIO_DATA_QUERY_BASE_URL="http://core-query.dev.lotus"
+export PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL="http://core-control.dev.lotus"
 docker compose up -d --build
 docker compose ps
 ```
@@ -312,7 +313,9 @@ cd /c/Users/sande/dev/lotus-advise && docker compose down -v
 - lotus-gateway cannot reach lotus-core ingestion
   - Check `PORTFOLIO_DATA_INGESTION_BASE_URL=http://core-ingestion.dev.lotus`.
 - lotus-gateway cannot reach lotus-core query
-  - Check `PORTFOLIO_DATA_PLATFORM_BASE_URL=http://core-query.dev.lotus`.
+  - Check `PORTFOLIO_DATA_QUERY_BASE_URL=http://core-query.dev.lotus`.
+- lotus-gateway cannot reach lotus-core control-plane
+  - Check `PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL=http://core-control.dev.lotus`.
 - UI cannot reach lotus-gateway
   - Check `BFF_BASE_URL=http://gateway.dev.lotus`.
 - Port conflict on `3000/8100/8000/5432`
@@ -333,6 +336,7 @@ lotus-core now uses dedicated host ports and can run in parallel with lotus-mana
 lotus-core canonical local identities:
 - Ingestion API: `http://core-ingestion.dev.lotus`
 - Query API: `http://core-query.dev.lotus`
+- Control-plane API: `http://core-control.dev.lotus`
 - Postgres: `localhost:55432`
 - Prometheus: `http://prometheus.dev.lotus`
 - Grafana: `http://grafana.dev.lotus`
@@ -366,6 +370,7 @@ docker compose logs --tail=200 demo_data_loader
 ```bash
 curl -sSf http://core-ingestion.dev.lotus/health/ready >/dev/null && echo "pas-ingestion ok"
 curl -sSf http://core-query.dev.lotus/health/ready >/dev/null && echo "pas-query ok"
+curl -sSf http://core-control.dev.lotus/health/ready >/dev/null && echo "pas-control ok"
 curl -sSf http://core-query.dev.lotus/docs >/dev/null && echo "pas-swagger ok"
 curl -sSf http://report.dev.lotus/health >/dev/null && echo "ras ok"
 ```
@@ -373,8 +378,8 @@ curl -sSf http://report.dev.lotus/health >/dev/null && echo "ras ok"
 Support/lineage API smoke:
 
 ```bash
-curl -s "http://core-query.dev.lotus/support/portfolios/PORT001/overview"
-curl -s "http://core-query.dev.lotus/lineage/portfolios/PORT001/securities/SEC001"
+curl -s "http://core-control.dev.lotus/support/portfolios/PORT001/overview"
+curl -s "http://core-control.dev.lotus/lineage/portfolios/PORT001/securities/SEC001"
 ```
 
 ### 10.4 Stop lotus-core
