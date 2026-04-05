@@ -174,3 +174,9 @@ This architecture pattern is achieved when:
 3. `lotus-risk` and `lotus-advise` can trace their simulation-driven behavior to compatible `lotus-core` lineage,
 4. parity evidence exists for the advisory cutover,
 5. docs, capabilities, and operational readiness language across repos reflect the same ownership model.
+
+## Follow-On RFC
+
+The detailed remaining work to reach the full gold-standard architecture is defined in:
+
+- [RFC-canonical-simulation-authority-golden-standard-completion.md](C:/Users/Sandeep/projects/lotus-platform/docs/architecture/RFC-canonical-simulation-authority-golden-standard-completion.md)
