@@ -25,6 +25,7 @@ Canonical service identities for local `dev`:
 
 - Workbench: `http://workbench.dev.lotus`
 - Gateway: `http://gateway.dev.lotus`
+- AI: `http://ai.dev.lotus`
 - Manage: `http://manage.dev.lotus`
 - Performance: `http://performance.dev.lotus`
 - Report: `http://report.dev.lotus`
@@ -107,6 +108,7 @@ docker compose ps
 Key endpoints:
 - Workbench: `http://workbench.dev.lotus`
 - Gateway: `http://gateway.dev.lotus`
+- AI: `http://ai.dev.lotus`
 - Core query: `http://core-query.dev.lotus`
 - Core ingestion: `http://core-ingestion.dev.lotus`
 - Manage: `http://manage.dev.lotus`
@@ -159,6 +161,7 @@ ownership to `platform-stack`.
 - lotus-core control-plane API: `http://core-control.dev.lotus`
 - lotus-core ingestion API: `http://core-ingestion.dev.lotus`
 - lotus-performance API: `http://performance.dev.lotus`
+- lotus-ai API: `http://ai.dev.lotus`
 - lotus-report API: `http://report.dev.lotus`
 - lotus-gateway API: `http://gateway.dev.lotus`
 - UI: `http://workbench.dev.lotus`
@@ -170,6 +173,7 @@ Dependency chain:
 - UI -> lotus-gateway
 - lotus-gateway -> lotus-manage
 - lotus-gateway -> lotus-core API surfaces
+- lotus-gateway -> lotus-ai
 - lotus-gateway/UI -> lotus-report (reporting and aggregation views)
 - lotus-manage -> Postgres (via its compose file)
 
@@ -252,7 +256,19 @@ docker compose ps
 ```bash
 curl -sSf http://manage.dev.lotus/docs >/dev/null && echo "manage ok"
 curl -sSf http://gateway.dev.lotus/health >/dev/null && echo "gateway ok"
+curl -sSf http://ai.dev.lotus/health/ready >/dev/null && echo "ai ok"
 curl -sSf http://workbench.dev.lotus >/dev/null && echo "workbench ok"
+```
+
+Advisor Brief local-model note:
+- `ai.dev.lotus` is routed by `platform-stack/dev-ingress/Caddyfile` to the local `lotus-ai`
+  process on host port `8140`.
+- if `Gateway` falls back to deterministic advisor-brief output while `lotus-ai` is healthy on
+  `127.0.0.1:8140`, re-run the managed hosts sync so `ai.dev.lotus` resolves locally:
+
+```powershell
+cd C:\Users\Sandeep\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
 Manual UI checks:
