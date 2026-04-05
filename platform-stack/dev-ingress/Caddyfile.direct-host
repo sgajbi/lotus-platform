@@ -26,3 +26,7 @@ http://core-control.dev.lotus {
 http://core-ingestion.dev.lotus {
   reverse_proxy host.docker.internal:8200
 }
+
+http://ai.dev.lotus {
+  reverse_proxy host.docker.internal:8140
+}

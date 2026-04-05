@@ -35,6 +35,10 @@ http://core-ingestion.dev.lotus {
   reverse_proxy lotus-core-ingestion:8000
 }
 
+http://ai.dev.lotus {
+  reverse_proxy host.docker.internal:8140
+}
+
 http://prometheus.dev.lotus {
   reverse_proxy prometheus:9090
 }
