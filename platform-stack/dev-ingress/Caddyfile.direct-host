@@ -30,3 +30,11 @@ http://core-ingestion.dev.lotus {
 http://ai.dev.lotus {
   reverse_proxy host.docker.internal:8140
 }
+
+http://advise.dev.lotus {
+  reverse_proxy host.docker.internal:8000
+}
+
+http://risk.dev.lotus {
+  reverse_proxy host.docker.internal:8130
+}

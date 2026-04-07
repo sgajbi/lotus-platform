@@ -117,6 +117,7 @@ def _find_localhost_literal_observations(repo_configs: dict[str, RepoConfig]) ->
 def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     repo_configs = _load_repo_configs(repos_path)
     platform_root = repo_configs["lotus-platform"].path
+    advise_root = repo_configs["lotus-advise"].path
     workbench_root = repo_configs["lotus-workbench"].path
     gateway_root = repo_configs["lotus-gateway"].path
     risk_root = repo_configs["lotus-risk"].path
@@ -128,6 +129,8 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_hosts = platform_root / "platform-stack" / "dev-ingress" / "hosts.example"
     platform_compose = platform_root / "platform-stack" / "docker-compose.yml"
     host_ports_compose = platform_root / "platform-stack" / "docker-compose.host-ports.yml"
+    advise_readme = advise_root / "README.md"
+    advise_compose = advise_root / "docker-compose.yml"
     workbench_readme = workbench_root / "README.md"
     workbench_demo = workbench_root / "docs" / "demo" / "README.md"
     gateway_readme = gateway_root / "README.md"
@@ -154,6 +157,8 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_hosts_hostnames = _extract_hosts_file_hostnames(dev_ingress_hosts_text)
     platform_compose_text = _load_text(platform_compose)
     host_ports_compose_text = _load_text(host_ports_compose)
+    advise_readme_text = _load_text(advise_readme)
+    advise_compose_text = _load_text(advise_compose)
     workbench_readme_text = _load_text(workbench_readme)
     workbench_demo_text = _load_text(workbench_demo)
     gateway_readme_text = _load_text(gateway_readme)
@@ -289,6 +294,52 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
                 f"caddy={sorted(dev_ingress_caddy_hostnames)}",
                 f"hosts={sorted(dev_ingress_hosts_hostnames)}",
             ],
+        ),
+        _result(
+            "advise_runtime_defaults_use_canonical_upstream_service_identities",
+            _contains_all(
+                advise_compose_text,
+                [
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://core-control.dev.lotus}",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://core-query.dev.lotus}",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://risk.dev.lotus}",
+                    '"core-control.dev.lotus:host-gateway"',
+                    '"core-query.dev.lotus:host-gateway"',
+                    '"risk.dev.lotus:host-gateway"',
+                ],
+            )
+            and _contains_none(
+                advise_compose_text,
+                [
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://localhost:",
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://127.0.0.1:",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://localhost:",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://127.0.0.1:",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://localhost:",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://127.0.0.1:",
+                ],
+            ),
+            "lotus-advise local Docker runtime uses canonical core/risk hostnames instead of localhost fallbacks.",
+            [str(advise_compose)],
+        ),
+        _result(
+            "advise_local_docker_does_not_publish_internal_postgres_port",
+            '"5432:5432"' not in advise_compose_text,
+            "lotus-advise local Docker compose does not publish the internal Postgres port onto the host, avoiding port conflicts with local databases.",
+            [str(advise_compose)],
+        ),
+        _result(
+            "advise_docs_advertise_canonical_service_identities",
+            _contains_all(
+                advise_readme_text,
+                [
+                    "http://core-control.dev.lotus",
+                    "http://core-query.dev.lotus",
+                    "http://risk.dev.lotus",
+                ],
+            ),
+            "lotus-advise docs point operators to canonical core and risk service identities.",
+            [str(advise_readme)],
         ),
         _result(
             "workbench_docs_advertise_gateway_service_identity",
