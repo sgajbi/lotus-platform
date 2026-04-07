@@ -14,6 +14,8 @@ def _write_text(path: Path, content: str) -> None:
 def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path) -> None:
     platform = tmp_path / "lotus-platform"
     advise = tmp_path / "lotus-advise"
+    ai = tmp_path / "lotus-ai"
+    manage = tmp_path / "lotus-manage"
     workbench = tmp_path / "lotus-workbench"
     gateway = tmp_path / "lotus-gateway"
     risk = tmp_path / "lotus-risk"
@@ -86,6 +88,40 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
         "  postgres:\n"
         "    image: postgres:17.6\n",
     )
+    _write_text(
+        ai / "README.md",
+        "PostgreSQL stays internal to the Compose network on `postgres:5432`\n"
+        "Redis stays internal to the Compose network on `redis:6379`\n",
+    )
+    _write_text(
+        ai / "docker-compose.yml",
+        "services:\n"
+        "  postgres:\n"
+        "    image: postgres:16-alpine\n"
+        "  redis:\n"
+        "    image: redis:7-alpine\n"
+        "  lotus-ai:\n"
+        '    ports:\n      - "8140:8140"\n',
+    )
+    _write_text(
+        manage / "README.md",
+        "does not publish the internal PostgreSQL port by default\n"
+        "`postgres:5432` remains internal to the Compose network\n",
+    )
+    _write_text(
+        manage / "docker-compose.yml",
+        "services:\n"
+        "  lotus-manage:\n"
+        '    ports:\n      - "8000:8000"\n'
+        "  postgres:\n"
+        "    image: postgres:17.6\n",
+    )
+    _write_text(
+        manage / "docker-compose.ci-local.yml",
+        "services:\n"
+        "  postgres:\n"
+        "    image: postgres:17.6\n",
+    )
     _write_text(workbench / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "gateway.dev.lotus\nworkbench.dev.lotus\n")
     _write_text(gateway / "README.md", "gateway.dev.lotus\n")
@@ -126,6 +162,8 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
             [
                 {"name": "lotus-platform", "path": str(platform)},
                 {"name": "lotus-advise", "path": str(advise)},
+                {"name": "lotus-ai", "path": str(ai)},
+                {"name": "lotus-manage", "path": str(manage)},
                 {"name": "lotus-workbench", "path": str(workbench)},
                 {"name": "lotus-gateway", "path": str(gateway)},
                 {"name": "lotus-risk", "path": str(risk)},
@@ -145,6 +183,8 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
 def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> None:
     platform = tmp_path / "lotus-platform"
     advise = tmp_path / "lotus-advise"
+    ai = tmp_path / "lotus-ai"
+    manage = tmp_path / "lotus-manage"
     workbench = tmp_path / "lotus-workbench"
     gateway = tmp_path / "lotus-gateway"
     risk = tmp_path / "lotus-risk"
@@ -170,6 +210,28 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
         "  postgres:\n"
         "    ports:\n"
         '      - "5432:5432"\n',
+    )
+    _write_text(ai / "README.md", "docker local ai runtime\n")
+    _write_text(
+        ai / "docker-compose.yml",
+        "services:\n"
+        "  postgres:\n"
+        '    ports:\n      - "5432:5432"\n'
+        "  redis:\n"
+        '    ports:\n      - "6379:6379"\n',
+    )
+    _write_text(manage / "README.md", "manage local runtime\n")
+    _write_text(
+        manage / "docker-compose.yml",
+        "services:\n"
+        "  postgres:\n"
+        '    ports:\n      - "5432:5432"\n',
+    )
+    _write_text(
+        manage / "docker-compose.ci-local.yml",
+        "services:\n"
+        "  postgres:\n"
+        '    ports:\n      - "5432:5432"\n',
     )
     _write_text(workbench / "README.md", "http://127.0.0.1:3000\n")
     _write_text(workbench / "docs" / "demo" / "README.md", "http://127.0.0.1:3000\n")
@@ -208,6 +270,8 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
             [
                 {"name": "lotus-platform", "path": str(platform)},
                 {"name": "lotus-advise", "path": str(advise)},
+                {"name": "lotus-ai", "path": str(ai)},
+                {"name": "lotus-manage", "path": str(manage)},
                 {"name": "lotus-workbench", "path": str(workbench)},
                 {"name": "lotus-gateway", "path": str(gateway)},
                 {"name": "lotus-risk", "path": str(risk)},
@@ -238,6 +302,10 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     assert "advise_runtime_defaults_use_canonical_upstream_service_identities" in failed_ids
     assert "advise_local_docker_does_not_publish_internal_postgres_port" in failed_ids
     assert "advise_docs_advertise_canonical_service_identities" in failed_ids
+    assert "manage_local_docker_does_not_publish_internal_postgres_port" in failed_ids
+    assert "manage_docs_describe_internal_postgres_network_only" in failed_ids
+    assert "ai_local_docker_does_not_publish_internal_postgres_or_redis_ports" in failed_ids
+    assert "ai_docs_describe_internal_infra_network_only" in failed_ids
     assert "risk_runtime_defaults_use_canonical_upstream_service_identities" in failed_ids
     assert "report_runtime_defaults_use_canonical_upstream_service_identities" in failed_ids
     assert "report_docs_advertise_report_service_identity" in failed_ids
