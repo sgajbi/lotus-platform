@@ -117,6 +117,9 @@ def _find_localhost_literal_observations(repo_configs: dict[str, RepoConfig]) ->
 def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     repo_configs = _load_repo_configs(repos_path)
     platform_root = repo_configs["lotus-platform"].path
+    advise_root = repo_configs["lotus-advise"].path
+    ai_root = repo_configs["lotus-ai"].path
+    manage_root = repo_configs["lotus-manage"].path
     workbench_root = repo_configs["lotus-workbench"].path
     gateway_root = repo_configs["lotus-gateway"].path
     risk_root = repo_configs["lotus-risk"].path
@@ -128,6 +131,13 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_hosts = platform_root / "platform-stack" / "dev-ingress" / "hosts.example"
     platform_compose = platform_root / "platform-stack" / "docker-compose.yml"
     host_ports_compose = platform_root / "platform-stack" / "docker-compose.host-ports.yml"
+    advise_readme = advise_root / "README.md"
+    advise_compose = advise_root / "docker-compose.yml"
+    ai_readme = ai_root / "README.md"
+    ai_compose = ai_root / "docker-compose.yml"
+    manage_readme = manage_root / "README.md"
+    manage_compose = manage_root / "docker-compose.yml"
+    manage_ci_local_compose = manage_root / "docker-compose.ci-local.yml"
     workbench_readme = workbench_root / "README.md"
     workbench_demo = workbench_root / "docs" / "demo" / "README.md"
     gateway_readme = gateway_root / "README.md"
@@ -154,6 +164,13 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     dev_ingress_hosts_hostnames = _extract_hosts_file_hostnames(dev_ingress_hosts_text)
     platform_compose_text = _load_text(platform_compose)
     host_ports_compose_text = _load_text(host_ports_compose)
+    advise_readme_text = _load_text(advise_readme)
+    advise_compose_text = _load_text(advise_compose)
+    ai_readme_text = _load_text(ai_readme)
+    ai_compose_text = _load_text(ai_compose)
+    manage_readme_text = _load_text(manage_readme)
+    manage_compose_text = _load_text(manage_compose)
+    manage_ci_local_compose_text = _load_text(manage_ci_local_compose)
     workbench_readme_text = _load_text(workbench_readme)
     workbench_demo_text = _load_text(workbench_demo)
     gateway_readme_text = _load_text(gateway_readme)
@@ -289,6 +306,89 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
                 f"caddy={sorted(dev_ingress_caddy_hostnames)}",
                 f"hosts={sorted(dev_ingress_hosts_hostnames)}",
             ],
+        ),
+        _result(
+            "advise_runtime_defaults_use_canonical_upstream_service_identities",
+            _contains_all(
+                advise_compose_text,
+                [
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://core-control.dev.lotus}",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://core-query.dev.lotus}",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://risk.dev.lotus}",
+                    '"core-control.dev.lotus:host-gateway"',
+                    '"core-query.dev.lotus:host-gateway"',
+                    '"risk.dev.lotus:host-gateway"',
+                ],
+            )
+            and _contains_none(
+                advise_compose_text,
+                [
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://localhost:",
+                    "LOTUS_CORE_BASE_URL=${LOTUS_CORE_BASE_URL:-http://127.0.0.1:",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://localhost:",
+                    "LOTUS_CORE_QUERY_BASE_URL=${LOTUS_CORE_QUERY_BASE_URL:-http://127.0.0.1:",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://localhost:",
+                    "LOTUS_RISK_BASE_URL=${LOTUS_RISK_BASE_URL:-http://127.0.0.1:",
+                ],
+            ),
+            "lotus-advise local Docker runtime uses canonical core/risk hostnames instead of localhost fallbacks.",
+            [str(advise_compose)],
+        ),
+        _result(
+            "advise_local_docker_does_not_publish_internal_postgres_port",
+            '"5432:5432"' not in advise_compose_text,
+            "lotus-advise local Docker compose does not publish the internal Postgres port onto the host, avoiding port conflicts with local databases.",
+            [str(advise_compose)],
+        ),
+        _result(
+            "advise_docs_advertise_canonical_service_identities",
+            _contains_all(
+                advise_readme_text,
+                [
+                    "http://core-control.dev.lotus",
+                    "http://core-query.dev.lotus",
+                    "http://risk.dev.lotus",
+                ],
+            ),
+            "lotus-advise docs point operators to canonical core and risk service identities.",
+            [str(advise_readme)],
+        ),
+        _result(
+            "manage_local_docker_does_not_publish_internal_postgres_port",
+            '"5432:5432"' not in manage_compose_text
+            and '"5432:5432"' not in manage_ci_local_compose_text,
+            "lotus-manage local and CI Docker compose files do not publish the internal Postgres port onto the host.",
+            [str(manage_compose), str(manage_ci_local_compose)],
+        ),
+        _result(
+            "manage_docs_describe_internal_postgres_network_only",
+            _contains_all(
+                manage_readme_text,
+                [
+                    "does not publish the internal PostgreSQL port by default",
+                    "`postgres:5432` remains internal to the Compose network",
+                ],
+            ),
+            "lotus-manage docs describe the local Docker Postgres as an internal-only dependency.",
+            [str(manage_readme)],
+        ),
+        _result(
+            "ai_local_docker_does_not_publish_internal_postgres_or_redis_ports",
+            '"5432:5432"' not in ai_compose_text and '"6379:6379"' not in ai_compose_text,
+            "lotus-ai local Docker compose does not publish the internal Postgres or Redis ports onto the host.",
+            [str(ai_compose)],
+        ),
+        _result(
+            "ai_docs_describe_internal_infra_network_only",
+            _contains_all(
+                ai_readme_text,
+                [
+                    "PostgreSQL stays internal to the Compose network on `postgres:5432`",
+                    "Redis stays internal to the Compose network on `redis:6379`",
+                ],
+            ),
+            "lotus-ai docs describe the local Docker database and queue as internal-only dependencies.",
+            [str(ai_readme)],
         ),
         _result(
             "workbench_docs_advertise_gateway_service_identity",
