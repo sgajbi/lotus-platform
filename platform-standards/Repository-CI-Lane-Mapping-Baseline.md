@@ -1,0 +1,55 @@
+# Repository CI Lane Mapping Baseline
+
+- Status: Active Baseline
+- Governing RFC: `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+
+## Purpose
+
+Provide the initial repository-to-lane mapping so teams can interpret current workflow files against the RFC-0072 lane model without waiting for the deeper gap-audit slice.
+
+This document is not the full rollout gap inventory.
+It is the baseline map that makes the current CI shape legible.
+
+## Canonical Lane Model
+
+1. `Remote Feature Lane`
+2. `Pull Request Merge Gate`
+3. `Main Releasability Gate`
+4. `Platform End-to-End Validation Lane`
+
+## Baseline Mapping
+
+| Repository | Profile | Current workflow files | Lane interpretation baseline | Notes |
+| --- | --- | --- | --- | --- |
+| `lotus-workbench` | UI Product | `.github/workflows/ci.yml`, `.github/workflows/pr-auto-merge.yml` | `ci.yml` currently serves both PR Merge Gate and Main Releasability Gate; a dedicated Feature Lane is not yet split out | Browser smoke and Docker parity already exist |
+| `lotus-gateway` | Experience API | `.github/workflows/ci.yml`, `.github/workflows/pr-auto-merge.yml` | `ci.yml` currently serves both PR Merge Gate and Main Releasability Gate; workflow-dispatch live validation acts as an early system-validation seam | Upstream live validation exists but is not yet the formal platform lane |
+| `lotus-manage` | Domain API | `.github/workflows/ci.yml`, `.github/workflows/pr-auto-merge.yml` | `ci.yml` currently serves both PR Merge Gate and Main Releasability Gate | Strong governance gates already exist |
+| `lotus-report` | Domain API | `.github/workflows/ci.yml`, `.github/workflows/pr-auto-merge.yml` | `ci.yml` currently serves both PR Merge Gate and Main Releasability Gate | Coverage and Docker validation already exist |
+| `lotus-platform` | Platform Governance / Automation | `.github/workflows/api-vocabulary-governance.yml`, `.github/workflows/core-performance-green-lanes.yml`, `.github/workflows/core-performance-cross-app-validation.yml` | Existing workflows are platform validation and governance workflows, not yet the full RFC-0072 lane split | RFC-0072 rollout will make this more explicit |
+
+## Immediate Interpretation Rules
+
+1. Repositories with one `ci.yml` plus `pr-auto-merge.yml` are considered partially aligned, not fully converged.
+2. Current `ci.yml` files often blend PR and main responsibilities; that is acceptable for the baseline map but not the final target state.
+3. Workflow-dispatch or scheduled cross-app validators belong to the `Platform End-to-End Validation Lane`, even if not yet named that way.
+4. The existence of a workflow file alone does not prove conformance; only the lane baseline is established here.
+
+## Branch-Protection Baseline
+
+Every repository must converge toward:
+
+1. protected `main`,
+2. required PR checks,
+3. PR-only merge flow,
+4. no direct push to `main` except governed emergency handling,
+5. auto-merge only after required checks are green.
+
+## Scaffold Baseline
+
+Current scaffold source of truth for backend repositories:
+
+1. `automation/New-Lotus-Service.ps1`
+2. `platform-standards/templates/workflows/ci.backend.template.yml`
+3. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+
+This baseline will be expanded in later slices so all new Lotus apps inherit the full RFC-0072 lane model by default.

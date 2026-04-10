@@ -13,6 +13,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/workflows/ci.backend.template.yml`
 - `templates/workflows/pr-auto-merge.template.yml`
 - `Development-Workflow-and-CI-Strategy-Standard.md`
+- `Repository-CI-Lane-Mapping-Baseline.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
 
 ## Usage
@@ -28,6 +29,11 @@ powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.p
 ```
 
 Automation command guide: `automation/docs/Automation-Guide.md`.
+
+Authoritative cross-repository CI governance:
+
+1. `../Continuous Integration, Validation, and Release Governance Standard.md`
+2. `../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 
 ## One-Command Lotus Service Scaffold
 
@@ -47,6 +53,11 @@ This generates a production-grade backend baseline with:
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)
 - automation registration in `automation/repos.json` and `automation/service-map.json`
+
+RFC-0072 note:
+
+1. the current scaffold is the backend source of truth for baseline CI and governance assets,
+2. later RFC-0072 slices will expand it so newly scaffolded Lotus apps inherit the full lane model by default.
 
 Use `-SkipAutomationRegistration` only for temporary local experiments.
 
