@@ -32,6 +32,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     container_build_standard = (
         ROOT / "platform-standards" / "Container-Build-and-Image-Engineering-Standard.md"
     ).read_text(encoding="utf-8")
+    platform_validation_coverage_standard = (
+        ROOT / "platform-standards" / "Platform-End-to-End-Validation-Coverage-Standard.md"
+    ).read_text(encoding="utf-8")
     release_evidence_standard = (
         ROOT / "platform-standards" / "Release-Evidence-and-SBOM-Foundation-Standard.md"
     ).read_text(encoding="utf-8")
@@ -67,6 +70,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5B | Workflow security and permissions baseline | Complete" in checklist
     assert "Slice 5C | Release evidence and SBOM scaffold baseline | Complete" in checklist
     assert "Slice 5D | Container build and image baseline enforcement | Complete" in checklist
+    assert "Slice 4E | Platform validation coverage manifest and contract | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -120,6 +124,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "BuildKit Cache Mounts" in container_build_standard
     assert "docker/setup-buildx-action" in container_build_standard
     assert "run as non-root" in container_build_standard
+    assert "core-performance-baseline" in platform_validation_coverage_standard
+    assert "core-performance-green-lanes" in platform_validation_coverage_standard
+    assert "platform-validation-profiles.json" in platform_validation_coverage_standard
 
     assert "feature-lane.backend.template.yml" in scaffold_script
     assert "pr-merge-gate.backend.template.yml" in scaffold_script
@@ -146,6 +153,7 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme
     assert "Release-Evidence-and-SBOM-Foundation-Standard.md" in standards_readme
+    assert "Platform-End-to-End-Validation-Coverage-Standard.md" in standards_readme
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
     assert "Repository-CI-Convergence-Gap-Audit.md" in standards_readme
 
@@ -199,6 +207,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "python -m pytest tests/unit -q" in repo_checks
     assert "python automation/validate_workflow_security.py" in repo_checks
     assert "python automation/validate_container_build_baseline.py" in repo_checks
+    assert "python automation/validate_platform_validation_coverage.py" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
@@ -215,6 +224,7 @@ def test_platform_validation_lane_workflow_and_shared_entrypoint_exist() -> None
     assert "core-performance-baseline" in platform_validation
     assert "Invoke-PlatformValidationLane.ps1" in platform_validation
     assert 'ValidateSet("core-performance-baseline", "core-performance-green-lanes")' in validation_entrypoint
+    assert "platform-validation-profiles.json" in validation_entrypoint
     assert "core_performance_ci_entrypoint.py" in validation_entrypoint
     assert "render_cross_app_workflow_summary.py" in validation_entrypoint
 

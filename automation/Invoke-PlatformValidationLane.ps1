@@ -17,42 +17,15 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $artifactRoot = Join-Path $repoRoot "output/cross-app"
+$profileManifestPath = Join-Path $PSScriptRoot "platform-validation-profiles.json"
+$profileManifest = Get-Content -Raw $profileManifestPath | ConvertFrom-Json -AsHashtable
 
-$validationRuns = switch ($ValidationProfile) {
-    "core-performance-baseline" {
-        @(
-            @{
-                Target = "baseline"
-                UsesSharedSuffix = $true
-                UsesMwrSuffix = $true
-            }
-        )
-    }
-    "core-performance-green-lanes" {
-        @(
-            @{
-                Target = "twr_benchmark"
-                UsesSharedSuffix = $true
-                UsesMwrSuffix = $false
-            },
-            @{
-                Target = "returns_series"
-                UsesSharedSuffix = $true
-                UsesMwrSuffix = $false
-            },
-            @{
-                Target = "contribution"
-                UsesSharedSuffix = $true
-                UsesMwrSuffix = $false
-            },
-            @{
-                Target = "mwr"
-                UsesSharedSuffix = $false
-                UsesMwrSuffix = $true
-            }
-        )
-    }
+$selectedProfile = $profileManifest.profiles | Where-Object { $_.name -eq $ValidationProfile } | Select-Object -First 1
+if (-not $selectedProfile) {
+    throw "Unsupported validation profile '$ValidationProfile'."
 }
+
+$validationRuns = @($selectedProfile.targets)
 
 Push-Location $repoRoot
 try {
@@ -62,7 +35,7 @@ try {
     }
 
     foreach ($validationRun in $validationRuns) {
-        $target = $validationRun.Target
+        $target = $validationRun.name
         $args = @(
             "automation/core_performance_ci_entrypoint.py",
             "--target", $target,
@@ -72,11 +45,11 @@ try {
             "--performance-base-url", $PerformanceBaseUrl
         )
 
-        if ($validationRun.UsesSharedSuffix -and $SharedScenarioSuffix) {
+        if ($validationRun.uses_shared_suffix -and $SharedScenarioSuffix) {
             $args += @("--shared-scenario-suffix", $SharedScenarioSuffix)
         }
 
-        if ($validationRun.UsesMwrSuffix -and $MwrScenarioSuffix) {
+        if ($validationRun.uses_mwr_suffix -and $MwrScenarioSuffix) {
             $args += @("--mwr-scenario-suffix", $MwrScenarioSuffix)
         }
 

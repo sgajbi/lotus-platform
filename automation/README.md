@@ -504,6 +504,12 @@ Validate container build and image baseline posture across backend scaffold temp
 python automation/validate_container_build_baseline.py
 ```
 
+Validate platform end-to-end coverage profiles against the workflow and entrypoint contract:
+
+```powershell
+python automation/validate_platform_validation_coverage.py
+```
+
 Validate current repository governance drift against the platform policy:
 
 ```powershell

@@ -1,0 +1,60 @@
+{
+  "profiles": [
+    {
+      "name": "core-performance-baseline",
+      "description": "Full cross-app core to performance baseline with shared and MWR scenario reuse support.",
+      "targets": [
+        {
+          "name": "baseline",
+          "uses_shared_suffix": true,
+          "uses_mwr_suffix": true
+        }
+      ],
+      "required_artifacts": [
+        "core-performance-baseline-validation.json",
+        "core-performance-baseline-validation.md",
+        "workflow-summary-baseline.md"
+      ]
+    },
+    {
+      "name": "core-performance-green-lanes",
+      "description": "Targeted green-lane validations for TWR, returns-series, contribution, and MWR paths.",
+      "targets": [
+        {
+          "name": "twr_benchmark",
+          "uses_shared_suffix": true,
+          "uses_mwr_suffix": false
+        },
+        {
+          "name": "returns_series",
+          "uses_shared_suffix": true,
+          "uses_mwr_suffix": false
+        },
+        {
+          "name": "contribution",
+          "uses_shared_suffix": true,
+          "uses_mwr_suffix": false
+        },
+        {
+          "name": "mwr",
+          "uses_shared_suffix": false,
+          "uses_mwr_suffix": true
+        }
+      ],
+      "required_artifacts": [
+        "core-performance-twr-benchmark-validation.json",
+        "core-performance-twr-benchmark-validation.md",
+        "core-performance-returns-series-validation.json",
+        "core-performance-returns-series-validation.md",
+        "core-performance-contribution-validation.json",
+        "core-performance-contribution-validation.md",
+        "core-performance-mwr-validation.json",
+        "core-performance-mwr-validation.md",
+        "workflow-summary-twr_benchmark.md",
+        "workflow-summary-returns_series.md",
+        "workflow-summary-contribution.md",
+        "workflow-summary-mwr.md"
+      ]
+    }
+  ]
+}

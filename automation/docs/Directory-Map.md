@@ -78,6 +78,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_repository_hygiene.py`
 - `validate_workflow_security.py`
 - `validate_container_build_baseline.py`
+- `validate_platform_validation_coverage.py`
 - `New-Lotus-Service.ps1`
 - `Cleanup-Legacy-Workspace.ps1`
 
@@ -88,6 +89,7 @@ This map organizes the automation directory by responsibility without changing s
 - `qa-matrix.json`: runtime QA startup/API/log/monitoring checks per service
 - `service-map.json`: service refresh mapping
 - `repository-governance-policy.json`
+- `platform-validation-profiles.json`
 - `test-coverage-policy.json`
 
 ## Documentation Set

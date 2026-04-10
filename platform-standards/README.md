@@ -20,6 +20,7 @@ This folder is the reusable standards package for backend repositories.
 - `Repository-Hygiene-and-Dependency-Model-Standard.md`
 - `Workflow-Security-and-Permissions-Standard.md`
 - `Release-Evidence-and-SBOM-Foundation-Standard.md`
+- `Platform-End-to-End-Validation-Coverage-Standard.md`
 - `Repository-CI-Lane-Mapping-Baseline.md`
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
