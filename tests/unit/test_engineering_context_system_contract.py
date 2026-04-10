@@ -13,6 +13,7 @@ def test_rfc_0073_slice_one_central_context_artifacts_exist_and_cross_link() -> 
         encoding="utf-8"
     )
     checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    context_index = (CONTEXT_DIR / "README.md").read_text(encoding="utf-8")
     quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
     engineering = (CONTEXT_DIR / "LOTUS-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
     reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
@@ -23,6 +24,12 @@ def test_rfc_0073_slice_one_central_context_artifacts_exist_and_cross_link() -> 
     assert "human-maintained memory" in rfc
     assert "platform engineering ledger" in rfc
     assert "recent architectural decisions digest" in rfc
+
+    assert "RFC-0073" in context_index
+    assert "./LOTUS-QUICKSTART-CONTEXT.md" in context_index
+    assert "./LOTUS-ENGINEERING-CONTEXT.md" in context_index
+    assert "./CONTEXT-REFERENCE-MAP.md" in context_index
+    assert "./lotus-context-manifest.json" in context_index
 
     assert "./LOTUS-ENGINEERING-CONTEXT.md" in quickstart
     assert "./CONTEXT-REFERENCE-MAP.md" in quickstart
@@ -61,6 +68,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "context/CONTEXT-REFERENCE-MAP.md",
     ]
 
+    assert manifest["context_documents"]["index"] == "context/README.md"
     assert manifest["context_documents"]["quickstart"] == "context/LOTUS-QUICKSTART-CONTEXT.md"
     assert manifest["context_documents"]["engineering_context"] == "context/LOTUS-ENGINEERING-CONTEXT.md"
     assert manifest["context_documents"]["reference_map"] == "context/CONTEXT-REFERENCE-MAP.md"
@@ -69,6 +77,14 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         manifest["context_documents"]["recent_architectural_decisions_digest"]
         == "context/recent-architectural-decisions-digest.md"
     )
+
+    assert manifest["maintenance"]["central_owner_repository"] == "lotus-platform"
+    assert manifest["maintenance"]["repository_local_context_pattern"] == "REPOSITORY-ENGINEERING-CONTEXT.md"
+    assert "canonical commands or validation flow changes" in manifest["maintenance"]["update_triggers"]
+
+    assert manifest["task_routes"]["frontend"][0] == "context/LOTUS-QUICKSTART-CONTEXT.md"
+    assert "REPOSITORY-ENGINEERING-CONTEXT.md" in manifest["task_routes"]["backend"]
+    assert "context/lotus-context-manifest.json" in manifest["task_routes"]["platform_validation"]
 
     repositories = {entry["repository"] for entry in manifest["applications"]}
     assert repositories == {

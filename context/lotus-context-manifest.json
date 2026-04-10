@@ -10,11 +10,48 @@
     "context/CONTEXT-REFERENCE-MAP.md"
   ],
   "context_documents": {
+    "index": "context/README.md",
     "quickstart": "context/LOTUS-QUICKSTART-CONTEXT.md",
     "engineering_context": "context/LOTUS-ENGINEERING-CONTEXT.md",
     "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
     "platform_engineering_ledger": "context/platform-engineering-ledger.md",
     "recent_architectural_decisions_digest": "context/recent-architectural-decisions-digest.md"
+  },
+  "maintenance": {
+    "central_owner_repository": "lotus-platform",
+    "central_owner_scope": "platform-wide engineering context",
+    "repository_local_context_pattern": "REPOSITORY-ENGINEERING-CONTEXT.md",
+    "update_triggers": [
+      "platform architecture changes",
+      "repository responsibility changes",
+      "canonical commands or validation flow changes",
+      "repeatable patterns promoted into durable guidance",
+      "ecosystem inventory or authority model changes"
+    ]
+  },
+  "task_routes": {
+    "frontend": [
+      "context/LOTUS-QUICKSTART-CONTEXT.md",
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md"
+    ],
+    "backend": [
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md"
+    ],
+    "platform_validation": [
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md",
+      "context/lotus-context-manifest.json"
+    ],
+    "standards_and_rfc": [
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md",
+      "context/platform-engineering-ledger.md",
+      "context/recent-architectural-decisions-digest.md"
+    ]
   },
   "applications": [
     {
