@@ -1,40 +1,48 @@
 {
-  auto_https off
-  admin off
+	auto_https off
+	admin off
 }
 
 http://workbench.dev.lotus {
-  reverse_proxy host.docker.internal:3000
+	reverse_proxy host.docker.internal:3000
 }
 
 http://gateway.dev.lotus {
-  reverse_proxy host.docker.internal:8111
+	reverse_proxy host.docker.internal:8111
 }
 
 http://performance.dev.lotus {
-  reverse_proxy host.docker.internal:8002
+	reverse_proxy host.docker.internal:8002
 }
 
 http://core-query.dev.lotus {
-  reverse_proxy host.docker.internal:8201
+	reverse_proxy host.docker.internal:8201
 }
 
 http://core-control.dev.lotus {
-  reverse_proxy host.docker.internal:8202
+	reverse_proxy host.docker.internal:8202
 }
 
 http://core-ingestion.dev.lotus {
-  reverse_proxy host.docker.internal:8200
+	reverse_proxy host.docker.internal:8200
 }
 
 http://ai.dev.lotus {
-  reverse_proxy host.docker.internal:8140
+	reverse_proxy host.docker.internal:8140
 }
 
 http://advise.dev.lotus {
-  reverse_proxy host.docker.internal:8000
+	reverse_proxy host.docker.internal:8000
+}
+
+http://manage.dev.lotus {
+	reverse_proxy host.docker.internal:8001
 }
 
 http://risk.dev.lotus {
-  reverse_proxy host.docker.internal:8130
+	reverse_proxy host.docker.internal:8130
+}
+
+http://report.dev.lotus {
+	reverse_proxy host.docker.internal:8300
 }
