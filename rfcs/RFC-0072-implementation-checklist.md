@@ -30,6 +30,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 4D | Repository governance rollout and validation | Complete | Repository governance policy has been applied across governed Lotus repos and live validation now reports zero drift |
 | Slice 5 | Advanced enterprise controls | In Progress | Advanced controls are now moving from policy-only language into platform-owned enforceable foundations |
 | Slice 5A | Repository hygiene and dependency-model baseline | Complete | Backend scaffold now emits platform-owned `.gitignore` and `.dockerignore` templates, automation metadata uses repository-native commands, and scaffold output is validated against a hygiene baseline |
+| Slice 5B | Workflow security and permissions baseline | Complete | Platform-owned workflow security policy now validates least-privilege permissions, restricts `pull_request_target`, and runs as part of platform repo checks |
 
 ## Slice 1 Completion Evidence
 

@@ -13,6 +13,7 @@ try {
     python -m pip install pytest requests PyYAML
 
     python -m pytest tests/unit -q
+    python automation/validate_workflow_security.py
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
         & (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")

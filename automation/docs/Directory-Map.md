@@ -76,6 +76,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Enforce-Repository-Governance.ps1`
 - `validate_repository_governance.py`
 - `validate_repository_hygiene.py`
+- `validate_workflow_security.py`
 - `New-Lotus-Service.ps1`
 - `Cleanup-Legacy-Workspace.ps1`
 

@@ -492,6 +492,12 @@ Validate repository hygiene and dependency authority for a scaffolded or existin
 python automation/validate_repository_hygiene.py --repo-root C:/Users/Sandeep/projects/lotus-manage
 ```
 
+Validate workflow security and permissions posture across platform workflows and templates:
+
+```powershell
+python automation/validate_workflow_security.py
+```
+
 Validate current repository governance drift against the platform policy:
 
 ```powershell
@@ -582,6 +588,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/repository-governance-validation.md`
 - `output/repository-hygiene-validation.json`
 - `output/repository-hygiene-validation.md`
+- `output/workflow-security-validation.json`
+- `output/workflow-security-validation.md`
 - `output/openapi-conformance-summary.json`
 - `output/openapi-conformance-summary.md`
 - `output/domain-vocabulary-conformance.json`

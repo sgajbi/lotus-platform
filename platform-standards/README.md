@@ -18,6 +18,7 @@ This folder is the reusable standards package for backend repositories.
 - `Development-Workflow-and-CI-Strategy-Standard.md`
 - `Backend-CI-Lane-Template-Contract.md`
 - `Repository-Hygiene-and-Dependency-Model-Standard.md`
+- `Workflow-Security-and-Permissions-Standard.md`
 - `Repository-CI-Lane-Mapping-Baseline.md`
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
