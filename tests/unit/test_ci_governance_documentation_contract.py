@@ -47,12 +47,16 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete" in checklist
     assert "Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete" in checklist
     assert "Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete" in checklist
+    assert "Slice 4A | Platform repo lane foundation | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
     assert "lotus-workbench" in mapping
     assert "lotus-gateway" in mapping
     assert "lotus-platform" in mapping
+    assert ".github/workflows/feature-lane.yml" in mapping
+    assert ".github/workflows/pr-merge-gate.yml" in mapping
+    assert ".github/workflows/main-releasability.yml" in mapping
     assert "feature-lane.backend.template.yml" in mapping
     assert "pr-merge-gate.backend.template.yml" in mapping
     assert "main-releasability.backend.template.yml" in mapping
@@ -76,6 +80,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Application and service repositories covered by RFC-0072 have now converged to explicit lane workflows." in gap_audit
     assert "Platform validation exists but is not yet normalized" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
+    assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, and `main-releasability.yml` now exist alongside platform-specific governance and cross-app workflows" in gap_audit
     assert "platform-end-to-end-validation.yml" in gap_audit
     assert "Strong explicit lane split while retaining heavy gates for load, latency, Docker smoke, coverage, and institutional sign-off evidence" in gap_audit
 
@@ -131,6 +136,28 @@ def test_backend_lane_templates_exist_and_define_explicit_lane_names() -> None:
     assert "pr-merge-gate-workflow" in standards_validator
     assert "main-releasability-workflow" in standards_validator
     assert "explicit-lane-workflows" in standards_validator
+
+
+def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
+    feature_lane = (ROOT / ".github" / "workflows" / "feature-lane.yml").read_text(encoding="utf-8")
+    pr_merge_gate = (ROOT / ".github" / "workflows" / "pr-merge-gate.yml").read_text(encoding="utf-8")
+    main_releasability = (ROOT / ".github" / "workflows" / "main-releasability.yml").read_text(
+        encoding="utf-8"
+    )
+    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+
+    assert "name: Remote Feature Lane" in feature_lane
+    assert "Feature Lane / Platform Repo Contracts" in feature_lane
+
+    assert "name: Pull Request Merge Gate" in pr_merge_gate
+    assert "PR Merge Gate / Platform Repo Contracts" in pr_merge_gate
+
+    assert "name: Main Releasability Gate" in main_releasability
+    assert "Main Releasability / Platform Repo Contracts" in main_releasability
+
+    assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
+    assert "python -m pytest tests/unit -q" in repo_checks
+    assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
 def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
