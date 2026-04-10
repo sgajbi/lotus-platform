@@ -37,6 +37,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 5E | Companion dependency lock scaffold baseline | Complete | Backend scaffold now emits companion runtime and CI tooling lock artifacts by default, and repository hygiene validation enforces their presence |
 | Slice 5F | Platform automation runtime isolation baseline | Complete | Platform repo checks and validation lane now use a repo-owned locked Python tooling environment instead of mutating ambient user site-packages |
 | Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete | Backend scaffold now emits platform-owned `.editorconfig` and `.gitattributes` templates by default, and repository hygiene validation enforces deterministic text normalization rules |
+| Slice 5H | Workflow action runtime baseline | Complete | Platform-owned workflows and backend templates now enforce a modern GitHub Actions baseline for core actions, and platform repo checks fail on stale action majors |
 
 ## Slice 1 Completion Evidence
 

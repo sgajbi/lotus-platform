@@ -77,6 +77,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_repository_governance.py`
 - `validate_repository_hygiene.py`
 - `validate_workflow_security.py`
+- `validate_workflow_action_runtime.py`
 - `validate_container_build_baseline.py`
 - `validate_platform_validation_coverage.py`
 - `Resolve-PlatformAutomationPython.ps1`

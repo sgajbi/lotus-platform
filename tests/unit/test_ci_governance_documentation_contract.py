@@ -29,6 +29,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     workflow_security_standard = (
         ROOT / "platform-standards" / "Workflow-Security-and-Permissions-Standard.md"
     ).read_text(encoding="utf-8")
+    workflow_action_runtime_standard = (
+        ROOT / "platform-standards" / "Workflow-Action-Runtime-and-Version-Baseline.md"
+    ).read_text(encoding="utf-8")
     container_build_standard = (
         ROOT / "platform-standards" / "Container-Build-and-Image-Engineering-Standard.md"
     ).read_text(encoding="utf-8")
@@ -74,6 +77,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5E | Companion dependency lock scaffold baseline | Complete" in checklist
     assert "Slice 5F | Platform automation runtime isolation baseline | Complete" in checklist
     assert "Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete" in checklist
+    assert "Slice 5H | Workflow action runtime baseline | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -125,6 +129,10 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "pull_request_target" in workflow_security_standard
     assert "write-capable workflows" in workflow_security_standard
     assert "least-privilege" in workflow_security_standard
+    assert "actions/checkout" in workflow_action_runtime_standard
+    assert "actions/setup-python" in workflow_action_runtime_standard
+    assert "actions/setup-node" in workflow_action_runtime_standard
+    assert "actions/upload-artifact" in workflow_action_runtime_standard
     assert "Dependency SBOM Baseline" in release_evidence_standard
     assert "release-evidence.json" in release_evidence_standard
     assert "main-releasability-release-evidence" in release_evidence_standard
@@ -165,6 +173,7 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "requirements.shared-runtime.lock.template.txt" in standards_readme
     assert "requirements.ci-tooling.lock.template.txt" in standards_readme
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme
+    assert "Workflow-Action-Runtime-and-Version-Baseline.md" in standards_readme
     assert "Release-Evidence-and-SBOM-Foundation-Standard.md" in standards_readme
     assert "Platform-End-to-End-Validation-Coverage-Standard.md" in standards_readme
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
@@ -220,6 +229,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
     assert "& $toolingPython -m pytest tests/unit -q" in repo_checks
     assert "& $toolingPython automation/validate_workflow_security.py" in repo_checks
+    assert "& $toolingPython automation/validate_workflow_action_runtime.py" in repo_checks
     assert "& $toolingPython automation/validate_container_build_baseline.py" in repo_checks
     assert "& $toolingPython automation/validate_platform_validation_coverage.py" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
@@ -250,6 +260,9 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     governance_validator = (ROOT / "automation" / "validate_repository_governance.py").read_text(encoding="utf-8")
     hygiene_validator = (ROOT / "automation" / "validate_repository_hygiene.py").read_text(encoding="utf-8")
     workflow_validator = (ROOT / "automation" / "validate_workflow_security.py").read_text(encoding="utf-8")
+    workflow_action_validator = (ROOT / "automation" / "validate_workflow_action_runtime.py").read_text(
+        encoding="utf-8"
+    )
 
     assert '"name":  "lotus-manage"' in policy
     assert '"name":  "lotus-report"' in policy
@@ -300,3 +313,5 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "REQUIRED_GITIGNORE_PATTERNS" in hygiene_validator
     assert "ALLOWLIST" in workflow_validator
     assert "pull_request_target" in workflow_validator
+    assert "ACTION_MAJOR_BASELINE" in workflow_action_validator
+    assert "actions/setup-node" in workflow_action_validator

@@ -13,6 +13,7 @@ try {
 
     & $toolingPython -m pytest tests/unit -q
     & $toolingPython automation/validate_workflow_security.py
+    & $toolingPython automation/validate_workflow_action_runtime.py
     & $toolingPython automation/validate_container_build_baseline.py
     & $toolingPython automation/validate_platform_validation_coverage.py
 

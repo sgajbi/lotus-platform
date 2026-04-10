@@ -498,6 +498,12 @@ Validate workflow security and permissions posture across platform workflows and
 python automation/validate_workflow_security.py
 ```
 
+Validate GitHub Actions version/runtime posture across platform workflows and templates:
+
+```powershell
+python automation/validate_workflow_action_runtime.py
+```
+
 Validate container build and image baseline posture across backend scaffold templates:
 
 ```powershell
@@ -608,6 +614,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/repository-hygiene-validation.md`
 - `output/workflow-security-validation.json`
 - `output/workflow-security-validation.md`
+- `output/workflow-action-runtime-validation.json`
+- `output/workflow-action-runtime-validation.md`
 - `output/openapi-conformance-summary.json`
 - `output/openapi-conformance-summary.md`
 - `output/domain-vocabulary-conformance.json`
