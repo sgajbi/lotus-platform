@@ -498,6 +498,16 @@ Render the human-readable ecosystem registries from the governed context manifes
 python automation/render_context_registries.py
 ```
 
+Validate the full RFC-0073 engineering context system contract:
+
+```powershell
+python automation/validate_engineering_context_system.py
+```
+
+Artifacts:
+- `output/engineering-context-system-validation.json`
+- `output/engineering-context-system-validation.md`
+
 Validate workflow security and permissions posture across platform workflows and templates:
 
 ```powershell

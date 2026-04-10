@@ -11,7 +11,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 - `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
 - `Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete`
 - `Slice 4 | Reference map and task-routing hardening | Complete`
-- `Slice 5 | Drift control and validation foundation | Pending`
+- `Slice 5 | Drift control and validation foundation | Complete`
 - `Slice 6 | Skills, automation, and procedural memory alignment | Pending`
 
 ## Slice Notes
@@ -85,3 +85,13 @@ Implemented:
 3. cross-link hardening in the quickstart, engineering context, context README, and reference map,
 4. manifest enrichment so standards and active-RFC registries carry richer current-state truth,
 5. documentation-contract coverage proving the routing docs, generated registries, and manifest stay aligned.
+
+### Slice 5 | Drift control and validation foundation
+
+Implemented:
+
+1. `automation/validate_engineering_context_system.py` as the platform-owned validator for the RFC-0073 context contract,
+2. `tests/unit/test_engineering_context_validator.py` for direct validator coverage,
+3. feature-lane enforcement in `automation/Invoke-PlatformRepoChecks.ps1`,
+4. `Sync-AgentOperatingContract.ps1 -CheckOnly` integration so deployed `AGENTS.md` drift is visible in the operational repo gate,
+5. automation documentation updates so the context validator is discoverable and repeatable.

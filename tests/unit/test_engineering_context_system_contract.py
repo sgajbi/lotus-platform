@@ -291,3 +291,21 @@ def test_rfc_0073_slice_four_task_routing_and_registries_are_hardened() -> None:
 
     rendered = registry_renderer.render_registry_document(manifest)
     assert registries == rendered
+
+
+def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo_checks() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
+    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+    validator = (ROOT / "automation" / "validate_engineering_context_system.py").read_text(encoding="utf-8")
+
+    assert "Slice 5 | Drift control and validation foundation | Complete" in checklist
+    assert "python automation/validate_engineering_context_system.py" in automation_readme
+    assert "output/engineering-context-system-validation.json" in automation_readme
+    assert "output/engineering-context-system-validation.md" in automation_readme
+    assert "validate_engineering_context_system.py" in directory_map
+    assert "& $toolingPython automation/validate_engineering_context_system.py" in repo_checks
+    assert 'Sync-AgentOperatingContract.ps1") -CheckOnly' in repo_checks
+    assert "ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json" in validator
+    assert "all application context statuses must be `implemented`" in validator
