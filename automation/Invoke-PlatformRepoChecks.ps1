@@ -15,7 +15,7 @@ try {
     python -m pytest tests/unit -q
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
-        powershell -ExecutionPolicy Bypass -File automation\Validate-Backend-Standards.ps1
+        & (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")
     }
 }
 finally {
