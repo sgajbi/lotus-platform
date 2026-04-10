@@ -6,7 +6,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 
 - `Slice 1 | Central context architecture | Complete`
 - `Slice 2 | AGENTS.md modernization | Complete`
-- `Slice 3 | Repository-local context rollout | Pending`
+- `Slice 3 | Repository-local context rollout | Complete`
 - `Slice 3A | Repository-local context contract and platform pilot | Complete`
 - `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
 - `Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete`

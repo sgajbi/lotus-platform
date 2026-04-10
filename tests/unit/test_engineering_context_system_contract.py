@@ -212,6 +212,7 @@ def test_rfc_0073_slice_three_c_wave_two_rollout_is_recorded_in_manifest() -> No
     checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
     manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
 
+    assert "Slice 3 | Repository-local context rollout | Complete" in checklist
     assert (
         "Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete"
         in checklist
