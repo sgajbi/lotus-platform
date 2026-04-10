@@ -10,6 +10,7 @@ Use the files in this order:
 2. [LOTUS-ENGINEERING-CONTEXT.md](./LOTUS-ENGINEERING-CONTEXT.md)
 3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. [CONTEXT-REFERENCE-MAP.md](./CONTEXT-REFERENCE-MAP.md)
+5. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md) for the governed short-form agent contract
 
 ## Central Ownership
 
@@ -29,9 +30,13 @@ Do not duplicate full platform policy prose into repository-local docs unless lo
    Curated routing layer for standards, RFCs, runbooks, and repo docs.
 4. [lotus-context-manifest.json](./lotus-context-manifest.json)
    Machine-readable ecosystem map and registry layer.
-5. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
+5. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
+   Source-of-truth content for the deployed global `AGENTS.md`.
+6. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)
+   Required section contract for repository-local engineering context documents.
+7. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
    Human-maintained engineering memory for recurring platform lessons.
-6. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
+8. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
    High-signal summary of current architectural reality.
 
 ## Maintenance Rules
@@ -45,3 +50,5 @@ Update this directory when:
 5. the ecosystem inventory or authority model changes.
 
 If a change is repository-local only, update the repository-local context document instead.
+
+Use `automation/Sync-AgentOperatingContract.ps1` to synchronize the deployed global `AGENTS.md` from the governed source contract.

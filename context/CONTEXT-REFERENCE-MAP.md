@@ -107,7 +107,7 @@ Read:
 
 These will become the implementation truth for each repo:
 
-1. `lotus-platform/REPOSITORY-ENGINEERING-CONTEXT.md`
+1. [lotus-platform/REPOSITORY-ENGINEERING-CONTEXT.md](../REPOSITORY-ENGINEERING-CONTEXT.md)
 2. `lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`
 3. `lotus-gateway/REPOSITORY-ENGINEERING-CONTEXT.md`
 4. `lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`
@@ -119,3 +119,5 @@ These will become the implementation truth for each repo:
 10. `lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md`
 
 Slice 1 defines the central system. Repository-local rollout happens in later RFC-0073 slices.
+
+Use [Repository Engineering Context Contract](./Repository-Engineering-Context-Contract.md) and [the template](./templates/REPOSITORY-ENGINEERING-CONTEXT.template.md) when rolling out the remaining repo-local documents.

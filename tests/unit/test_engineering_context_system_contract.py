@@ -69,6 +69,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     ]
 
     assert manifest["context_documents"]["index"] == "context/README.md"
+    assert manifest["context_documents"]["agents_operating_contract_source"] == "context/AGENTS-OPERATING-CONTRACT.md"
     assert manifest["context_documents"]["quickstart"] == "context/LOTUS-QUICKSTART-CONTEXT.md"
     assert manifest["context_documents"]["engineering_context"] == "context/LOTUS-ENGINEERING-CONTEXT.md"
     assert manifest["context_documents"]["reference_map"] == "context/CONTEXT-REFERENCE-MAP.md"
@@ -121,3 +122,70 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
 
     active_rfcs = {entry["id"] for entry in manifest["active_rfc_registry"]}
     assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073"}
+
+
+def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    context_index = (CONTEXT_DIR / "README.md").read_text(encoding="utf-8")
+    agents_contract = (CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md").read_text(encoding="utf-8")
+    sync_script = (ROOT / "automation" / "Sync-AgentOperatingContract.ps1").read_text(encoding="utf-8")
+
+    assert "Slice 2 | AGENTS.md modernization | Complete" in checklist
+    assert "AGENTS-OPERATING-CONTRACT.md" in context_index
+
+    assert "Mandatory Reading Order" in agents_contract
+    assert "Mandatory Operating Rules" in agents_contract
+    assert "Context Maintenance Rule" in agents_contract
+    assert "Skills, Automation, And Async Execution" in agents_contract
+    assert "LOTUS-QUICKSTART-CONTEXT.md" in agents_contract
+    assert "LOTUS-ENGINEERING-CONTEXT.md" in agents_contract
+    assert "CONTEXT-REFERENCE-MAP.md" in agents_contract
+    assert "REPOSITORY-ENGINEERING-CONTEXT.md" in agents_contract
+    assert "deployed `AGENTS.md`" in agents_contract
+    assert "Sync-AgentOperatingContract.ps1" in agents_contract
+    assert '[switch]$CheckOnly' in sync_script
+    assert "Normalize-ContractContent" in sync_script
+    assert "[System.IO.File]::WriteAllText" in sync_script
+    assert "Target AGENTS file is not synchronized with the governed source." in sync_script
+
+
+def test_rfc_0073_slice_three_a_repository_context_contract_and_platform_pilot_exist() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    contract = (CONTEXT_DIR / "Repository-Engineering-Context-Contract.md").read_text(encoding="utf-8")
+    template = (CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md").read_text(
+        encoding="utf-8"
+    )
+    platform_repo_context = (ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+
+    assert "Slice 3A | Repository-local context contract and platform pilot | Complete" in checklist
+    assert "Repository Engineering Context Contract" in reference_map
+    assert "REPOSITORY-ENGINEERING-CONTEXT.template.md" in reference_map
+
+    for heading in (
+        "Repository Role",
+        "Business And Domain Responsibility",
+        "Current-State Summary",
+        "Architecture And Module Map",
+        "Runtime And Integration Boundaries",
+        "Repo-Native Commands",
+        "Validation And CI Expectations",
+        "Standards And RFCs That Govern This Repository",
+        "Known Constraints And Implementation Notes",
+        "Cross-Links",
+    ):
+        assert heading in contract
+        assert f"## {heading}" in template
+        assert f"## {heading}" in platform_repo_context
+
+    assert "./context/LOTUS-QUICKSTART-CONTEXT.md" in platform_repo_context
+    assert "./context/LOTUS-ENGINEERING-CONTEXT.md" in platform_repo_context
+    assert "./context/CONTEXT-REFERENCE-MAP.md" in platform_repo_context
+    assert (
+        manifest["context_documents"]["repository_engineering_context_contract"]
+        == "context/Repository-Engineering-Context-Contract.md"
+    )
+    statuses = {entry["repository"]: entry["status"] for entry in manifest["applications"]}
+    assert statuses["lotus-platform"] == "implemented"
+    assert statuses["lotus-workbench"] == "planned"
