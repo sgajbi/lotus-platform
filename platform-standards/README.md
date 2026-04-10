@@ -14,6 +14,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/workflows/pr-auto-merge.template.yml`
 - `Development-Workflow-and-CI-Strategy-Standard.md`
 - `Repository-CI-Lane-Mapping-Baseline.md`
+- `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
 
 ## Usage

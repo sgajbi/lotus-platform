@@ -13,7 +13,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | --- | --- | --- | --- |
 | Slice 1 | Governance and documentation foundation | Complete | RFC, standard, implementation checklist, lane mapping baseline, and branch-protection expectations are documented in `lotus-platform` |
 | Slice 1A | Scaffold baseline definition | Complete | Current scaffold source of truth is identified in `lotus-platform`; future scaffold convergence remains a later implementation slice |
-| Slice 2 | Repository workflow classification and gap audit | Pending | Requires explicit per-repo current-state vs target-state gap inventory |
+| Slice 2 | Repository workflow classification and gap audit | Complete | Current-state versus target-state gap inventory now exists across the Lotus estate |
 | Slice 3 | Standardized workflow convergence | Pending | Repo workflow updates and branch-protection convergence not started in this checklist |
 | Slice 3A | Skill and developer-process alignment | Complete | Codex skills for backend delivery, frontend delivery, and pre-merge flow align to RFC-0072 |
 | Slice 3B | Scaffold and template convergence | Pending | Existing backend scaffold assets are identified; broader scaffold coverage is a follow-on slice |
@@ -78,6 +78,43 @@ Current posture:
 1. backend scaffolding already has a standards entry point,
 2. RFC-0072 now makes lane and security expectations explicit,
 3. future slices must extend this source of truth so new apps inherit the full lane model by default.
+
+## Slice 2 Completion Evidence
+
+### Gap-audit artifact
+
+1. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+### Slice 2 acceptance posture
+
+#### 1. One platform-owned rollout document exists
+
+- Complete
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+#### 2. Each repository has explicit target lanes and required checks
+
+- Complete at current-state versus target-state audit level
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+2. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+#### 3. Missing enterprise and security checks are enumerated
+
+- Complete at audit level
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+Note:
+
+1. Missing controls are now enumerated, but not yet implemented. That belongs to later slices.
 
 ## Deviation Posture
 
