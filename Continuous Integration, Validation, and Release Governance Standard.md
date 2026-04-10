@@ -41,6 +41,13 @@ Must include, as applicable:
 
 Must not be the only release-trust signal.
 
+Green means:
+
+1. install succeeds,
+2. static quality is green,
+3. fast tests are green,
+4. no changed-scope governance check is red.
+
 ### 1.2 Pull Request Merge Gate
 
 Purpose:
@@ -60,6 +67,12 @@ Must include, as applicable:
 7. local parity or equivalent repo-native parity run,
 8. browser smoke for UI repositories.
 
+Green means:
+
+1. all required PR checks pass,
+2. required governance and security checks pass,
+3. validation evidence in the PR is truthful and current.
+
 ### 1.3 Main Releasability Gate
 
 Purpose:
@@ -73,6 +86,12 @@ Must include, as applicable:
 2. release artifact generation,
 3. retained evidence outputs,
 4. failure treated as a mainline incident.
+
+Green means:
+
+1. `main` is releasable without exception,
+2. retained evidence artifacts are generated,
+3. there is no silent regression from the PR gate.
 
 ### 1.4 Platform End-to-End Validation Lane
 
@@ -92,6 +111,14 @@ Must include, as applicable:
 6. browser validation for screens, sub-screens, and panels,
 7. evidence artifact generation.
 
+Green means:
+
+1. canonical addressing resolves,
+2. required services are healthy,
+3. required seed data exists,
+4. required screens, sub-screens, and panels render populated data,
+5. comparison checks pass where gateway and upstream comparison is expected.
+
 ## 2. Repository-Native Command Policy
 
 Each repository must expose repository-native commands for:
@@ -106,6 +133,34 @@ Each repository must expose repository-native commands for:
 8. local parity or equivalent CI parity.
 
 CI workflows must call repository-native commands rather than re-implement repository logic in workflow YAML wherever practical.
+
+## 2.2 Scaffold-by-Default Policy
+
+All newly scaffolded Lotus repositories and applications must include, by default:
+
+1. Feature Lane workflow,
+2. Pull Request Merge Gate workflow,
+3. Main Releasability Gate workflow,
+4. repository-native quality commands,
+5. baseline security and dependency checks,
+6. baseline local-quality documentation,
+7. baseline branch-protection expectations in documented form.
+
+If a new application cannot yet support the full target gate set, the scaffold must still include:
+
+1. explicit placeholders,
+2. documented deviations,
+3. owners,
+4. adoption TODOs.
+
+## 2.1 Non-Negotiable Rules
+
+1. Fast lanes must stay fast and deterministic.
+2. Heavy or flaky checks must not be hidden inside nominally fast lanes.
+3. Required checks may not be bypassed by convention.
+4. Flaky required checks are defects and require remediation or explicit governed demotion.
+5. UI repositories are not green if browser validation is red even when APIs are green.
+6. Platform validation is not green if canonical ingress, DNS, or seeded-data assumptions are broken.
 
 ## 3. Canonical Check Vocabulary
 
@@ -152,6 +207,22 @@ Merge strategy:
 2. squash merges are repository-specific preference,
 3. this standard does not require squash-by-default.
 
+## 4.1 Deviation Policy
+
+Allowed deviations must be:
+
+1. explicit,
+2. time-bounded,
+3. owned,
+4. platform-visible.
+
+Every deviation must record:
+
+1. owner,
+2. rationale,
+3. expiry or review date,
+4. remediation path.
+
 ## 5. Enterprise Security Baseline
 
 Mandatory current baseline:
@@ -171,6 +242,15 @@ Progressive rollout baseline:
 4. artifact provenance and signing where platform maturity allows,
 5. policy checks for privileged workflow changes.
 
+## 5.1 Security Ownership Expectations
+
+Each repository must be able to answer:
+
+1. which security checks are blocking in PR,
+2. which are advisory but tracked,
+3. who owns remediation for failures,
+4. where exceptions are documented.
+
 ## 6. Artifact Retention and Audit Evidence
 
 CI and validation lanes must retain useful artifacts where applicable:
@@ -183,6 +263,13 @@ CI and validation lanes must retain useful artifacts where applicable:
 6. logs required for root-cause analysis.
 
 Artifacts should be machine-readable when practical.
+
+Minimum retained evidence by lane:
+
+1. Feature Lane: workflow logs
+2. PR Merge Gate: workflow logs, coverage/test artifacts where applicable
+3. Main Releasability Gate: release-grade workflow record and build evidence
+4. Platform End-to-End Validation Lane: summary JSON, screenshots/browser artifacts, endpoint comparison evidence where applicable
 
 ## 7. Platform End-to-End Validation Standard
 
@@ -273,6 +360,16 @@ Each repository must document:
 1. the cross-repository CI standard,
 2. the canonical local runtime and validation runbook,
 3. the rollout checklist and conformance status.
+
+## 9.1 Skill Alignment Requirement
+
+Codex-operable Lotus skills used for:
+
+1. backend delivery,
+2. frontend delivery,
+3. pre-merge PR discipline
+
+must align with this standard and with `RFC-0072` so the expected process is reusable rather than prompt-local.
 
 ## 10. Definition of Done
 

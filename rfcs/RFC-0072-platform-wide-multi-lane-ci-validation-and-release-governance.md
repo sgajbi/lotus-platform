@@ -87,6 +87,7 @@ This creates risk:
 5. Make canonical end-to-end validation part of the governed platform release and demo-readiness story.
 6. Reduce workflow drift by documenting a shared naming, ownership, and check taxonomy.
 7. Keep the developer experience efficient by separating fast feedback from heavy system validation.
+8. Ensure every newly scaffolded Lotus application receives the approved CI lane model and baseline governance by default.
 
 ## Non-Goals
 
@@ -96,9 +97,36 @@ This creates risk:
 4. Defining production deployment orchestration in this RFC.
 5. Replacing domain-specific quality requirements already governed by repo RFCs.
 
+## Why This RFC Is Needed Now
+
+Lotus has already crossed the point where repository-local quality is not enough.
+
+The platform now depends on:
+
+1. `lotus-workbench` consuming `lotus-gateway`,
+2. `lotus-gateway` brokering multiple domain authorities,
+3. canonical ingress and environment-scoped service identity,
+4. seeded demo and front-office validation flows,
+5. platform-owned standards and automation as release-critical infrastructure.
+
+At that stage, an informal or partially documented CI philosophy is a platform risk.
+
+Without this RFC:
+
+1. different repositories will continue to define incompatible meanings of "green",
+2. platform validation will remain useful but not mandatory,
+3. feature-branch speed and PR rigor will continue to be tuned ad hoc,
+4. security and enterprise controls will remain unevenly enforced,
+5. release and demo readiness will still depend too much on operator memory.
+
 ## Decision
 
 Lotus will adopt a four-lane CI and validation model.
+
+This model is mandatory for both:
+
+1. existing repositories through phased convergence,
+2. newly scaffolded repositories and applications by default at creation time.
 
 ### Lane 1: Remote Feature Lane
 
@@ -124,6 +152,13 @@ Required controls by default:
 5. Fast unit tests
 6. Fast contract or schema governance checks
 7. Changed-scope smoke checks where relevant
+
+Definition of green:
+
+1. the repository installs cleanly,
+2. static quality is green,
+3. fast tests are green,
+4. no blocking governance check in the changed scope is red.
 
 Must not be relied on for:
 
@@ -159,6 +194,13 @@ Required controls by default:
 9. local-CI parity or equivalent repo-native parity target,
 10. UI browser smoke for UI repositories.
 
+Definition of green:
+
+1. all required PR checks pass,
+2. no required security, contract, or coverage gate is red,
+3. the PR description includes accurate validation evidence,
+4. no known flaky required check is being ignored or bypassed.
+
 ### Lane 3: Main Releasability Gate
 
 Purpose:
@@ -181,6 +223,12 @@ Required controls by default:
 4. publish OpenAPI and vocabulary artifacts where applicable,
 5. publish workflow summaries and validation outputs where produced,
 6. fail loudly if `main` is no longer releasable.
+
+Definition of green:
+
+1. `main` passes the releasability gate without manual exception,
+2. release artifacts and evidence are produced successfully,
+3. there is no regression from the branch-protected PR contract.
 
 ### Lane 4: Platform End-to-End Validation Lane
 
@@ -210,6 +258,15 @@ Required controls by default:
 7. cross-app payload validation where gateway is expected to faithfully represent upstream domain truth,
 8. screenshot and summary artifact generation.
 
+Definition of green:
+
+1. canonical DNS or hosts resolution is correct,
+2. required services are healthy,
+3. required seed data is present,
+4. major screens, sub-screens, and panels render populated states,
+5. gateway-facing and upstream-facing checks agree where comparison is expected,
+6. evidence artifacts are published.
+
 ## Required Check Taxonomy
 
 The following names are the canonical check vocabulary for Lotus CI:
@@ -232,6 +289,59 @@ The following names are the canonical check vocabulary for Lotus CI:
 16. `Canonical End-to-End Validation`
 
 Repositories may add domain-specific checks, but they must not rename these canonical categories arbitrarily.
+
+## Scaffolding-by-Default Requirement
+
+The Lotus scaffolding baseline must include this CI model by default.
+
+This means any new Lotus application scaffold created after RFC approval must start with:
+
+1. a Feature Lane workflow,
+2. a Pull Request Merge Gate workflow,
+3. a Main Releasability Gate workflow,
+4. repository-native quality commands wired into those workflows,
+5. baseline security and dependency checks,
+6. Docker build validation where containerized runtime is expected,
+7. documentation that explains the local quality command and lane mapping.
+
+### Source of truth
+
+`lotus-platform` must own the scaffold templates, examples, or generation assets that make this possible.
+
+That source of truth must cover:
+
+1. workflow templates,
+2. repository command conventions,
+3. baseline branch-protection expectations,
+4. baseline README and runbook language,
+5. standard check naming.
+
+### Non-negotiable scaffolding rule
+
+No new Lotus repository or application should be introduced with:
+
+1. missing CI lanes,
+2. ad hoc workflow naming,
+3. no security baseline,
+4. no documented local quality command,
+5. no path to main-branch releasability evidence.
+
+If a new app cannot yet support the full target model, it must still be scaffolded with:
+
+1. the required lane placeholders,
+2. explicit TODO markers,
+3. tracked deviations and owners,
+4. a documented adoption plan.
+
+## Non-Negotiable Operating Rules
+
+1. CI lane purpose must remain explicit. Fast lanes must stay fast; heavy lanes must stay purposeful.
+2. Repository-native commands are the source of truth for local and CI execution.
+3. A repository is not considered "green" if required checks are only passing locally but not in GitHub.
+4. A platform surface is not considered "green" if APIs pass but canonical UI validation fails.
+5. No required check may be bypassed through documentation-only approval or operator convention.
+6. Flaky checks are governance defects. They must be stabilized, demoted from required status with explicit approval, or replaced.
+7. Platform validation evidence must be reproducible, not narrative-only.
 
 ## Enterprise and Banking-Grade Mandatory Controls
 
@@ -275,6 +385,35 @@ Minimum required controls:
 2. CI must call repository-native commands rather than duplicate ad hoc shell logic,
 3. failure artifacts must be retained for diagnosis,
 4. runbooks must be current and match the implemented workflow.
+
+## Ownership Model
+
+### `lotus-platform`
+
+Owns:
+
+1. lane policy,
+2. canonical check vocabulary,
+3. standards documentation,
+4. implementation checklist and conformance reporting,
+5. canonical end-to-end validation orchestration.
+
+### Individual application repositories
+
+Own:
+
+1. repository-native local quality commands,
+2. workflow implementation aligned to the lane policy,
+3. repository-specific contract, security, and coverage gates,
+4. remediation of failing checks in their own scope.
+
+### `lotus-gateway` and `lotus-workbench`
+
+Carry additional responsibility for:
+
+1. product-surface validation,
+2. browser and experience-contract validation,
+3. upstream-comparison evidence where UI-facing aggregation is involved.
 
 ## Repository Classifications
 
@@ -372,6 +511,28 @@ Merge strategy:
 3. rebase merge is optional,
 4. the platform standard does not require squash-by-default.
 
+## Exception and Deviation Governance
+
+Allowed deviations are limited to:
+
+1. temporary repository-specific constraints,
+2. staged rollout where a required control is not yet implemented,
+3. explicitly approved demotion of a flaky or non-actionable check.
+
+Every deviation must have:
+
+1. an owning repository,
+2. a written rationale,
+3. an expiry or review date,
+4. a replacement or remediation plan,
+5. a platform-visible tracking record.
+
+Acceptable vehicles:
+
+1. ADR in the owning repository,
+2. implementation checklist status in `lotus-platform`,
+3. follow-on RFC where the deviation is cross-cutting.
+
 ## Artifact and Evidence Policy
 
 Required retained artifacts where applicable:
@@ -384,6 +545,40 @@ Required retained artifacts where applicable:
 6. screenshots for canonical platform validation.
 
 Evidence outputs must be machine-readable where practical.
+
+## Required Evidence by Lane
+
+### Remote Feature Lane
+
+Required evidence:
+
+1. workflow logs,
+2. failing test or lint output when red.
+
+### Pull Request Merge Gate
+
+Required evidence:
+
+1. check run history,
+2. PR validation summary,
+3. retained test and coverage artifacts where applicable.
+
+### Main Releasability Gate
+
+Required evidence:
+
+1. release-grade workflow record,
+2. retained coverage or contract artifacts,
+3. build artifact or container build record where applicable.
+
+### Platform End-to-End Validation Lane
+
+Required evidence:
+
+1. canonical validation summary JSON,
+2. canonical validation summary markdown where practical,
+3. screenshots or browser artifacts,
+4. endpoint comparison evidence where upstream comparison is required.
 
 ## Documentation and Developer Process Standard
 
@@ -416,6 +611,19 @@ Acceptance criteria:
 2. repositories can map their current workflows to the lane model,
 3. branch-protection expectations are documented.
 
+### Slice 1A: Scaffold baseline definition
+
+Outcome:
+
+1. the platform defines what a compliant newly scaffolded Lotus app must contain,
+2. future repositories can inherit CI and governance defaults without reinvention.
+
+Acceptance criteria:
+
+1. the RFC and standard explicitly define scaffolding requirements,
+2. `lotus-platform` identifies the template or scaffold source of truth,
+3. future implementation work includes updating the scaffold assets.
+
 ### Slice 2: Repository workflow classification and gap audit
 
 Outcome:
@@ -443,6 +651,33 @@ Acceptance criteria:
 1. every in-scope repo has explicit Feature Lane, PR Merge Gate, and Main Releasability Gate workflows,
 2. repo-native command parity is enforced,
 3. required checks are configured in branch protection.
+
+### Slice 3A: Skill and developer-process alignment
+
+Outcome:
+
+1. Codex-operable skills reflect the lane model,
+2. backend, frontend, and PR workflows are aligned to the platform standard,
+3. future implementation work inherits the policy by default.
+
+Acceptance criteria:
+
+1. reusable skills exist or are updated for backend delivery, frontend delivery, and PR pre-merge flow,
+2. those skills reference the platform standard and RFC,
+3. the skills direct agents toward the required lane-specific validation behavior.
+
+### Slice 3B: Scaffold and template convergence
+
+Outcome:
+
+1. scaffold assets produce compliant repositories by default,
+2. future app creation no longer starts below platform quality expectations.
+
+Acceptance criteria:
+
+1. shared scaffold templates or generation assets exist,
+2. generated repositories include the required lane model and baseline docs,
+3. new-app bootstrap no longer requires manual CI invention.
 
 ### Slice 4: Platform end-to-end lane hardening
 
@@ -526,6 +761,7 @@ This RFC is complete when:
 4. branch protection and required checks reflect the documented merge-governance rules,
 5. platform-level canonical end-to-end validation is formalized as a governed lane,
 6. enterprise and security controls are incorporated into the baseline and phased roadmap.
+7. deviation handling and evidence requirements are explicit and enforceable.
 
 ## Approval Requested
 
