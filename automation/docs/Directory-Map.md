@@ -78,6 +78,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_repository_hygiene.py`
 - `render_context_registries.py`
 - `validate_engineering_context_system.py`
+- `validate_lotus_skill_alignment.py`
 - `validate_workflow_security.py`
 - `validate_workflow_action_runtime.py`
 - `validate_container_build_baseline.py`

@@ -18,6 +18,7 @@
     "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
     "task_routing_guide": "context/TASK-ROUTING-GUIDE.md",
     "ecosystem_registries": "context/ECOSYSTEM-REGISTRIES.md",
+    "procedural_memory_index": "context/PROCEDURAL-MEMORY-INDEX.md",
     "platform_engineering_ledger": "context/platform-engineering-ledger.md",
     "recent_architectural_decisions_digest": "context/recent-architectural-decisions-digest.md"
   },
@@ -56,6 +57,12 @@
       "context/platform-engineering-ledger.md",
       "context/recent-architectural-decisions-digest.md"
     ]
+  },
+  "procedural_memory": {
+    "change_playbooks": "context/playbooks/CHANGE-PLAYBOOKS.md",
+    "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
+    "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
+    "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md"
   },
   "applications": [
     {

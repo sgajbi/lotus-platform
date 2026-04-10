@@ -33,6 +33,11 @@ def validate_engineering_context_system() -> list[str]:
         "reference map": CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md",
         "task routing guide": CONTEXT_DIR / "TASK-ROUTING-GUIDE.md",
         "ecosystem registries": CONTEXT_DIR / "ECOSYSTEM-REGISTRIES.md",
+        "procedural memory index": CONTEXT_DIR / "PROCEDURAL-MEMORY-INDEX.md",
+        "change playbooks": CONTEXT_DIR / "playbooks" / "CHANGE-PLAYBOOKS.md",
+        "pr loop playbook": CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md",
+        "validation playbook": CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md",
+        "fix-forward patterns": CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md",
         "manifest": CONTEXT_DIR / "lotus-context-manifest.json",
         "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
@@ -56,6 +61,11 @@ def validate_engineering_context_system() -> list[str]:
     reference_map = _read_text(required_files["reference map"])
     task_routing_guide = _read_text(required_files["task routing guide"])
     ecosystem_registries = _read_text(required_files["ecosystem registries"])
+    procedural_memory_index = _read_text(required_files["procedural memory index"])
+    change_playbooks = _read_text(required_files["change playbooks"])
+    pr_loop_playbook = _read_text(required_files["pr loop playbook"])
+    validation_playbook = _read_text(required_files["validation playbook"])
+    fix_forward_patterns = _read_text(required_files["fix-forward patterns"])
     agents_contract = _read_text(required_files["agents contract"])
     repo_context_contract = _read_text(required_files["repository context contract"])
     repo_context_template = _read_text(required_files["repository context template"])
@@ -72,6 +82,7 @@ def validate_engineering_context_system() -> list[str]:
         "./CONTEXT-REFERENCE-MAP.md",
         "./TASK-ROUTING-GUIDE.md",
         "./ECOSYSTEM-REGISTRIES.md",
+        "./PROCEDURAL-MEMORY-INDEX.md",
     ):
         if link_target not in context_index:
             errors.append(f"context/README.md: missing link to `{link_target}`")
@@ -86,6 +97,8 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guide cross-link")
     if "./ECOSYSTEM-REGISTRIES.md" not in engineering:
         errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing ecosystem registries cross-link")
+    if "./PROCEDURAL-MEMORY-INDEX.md" not in engineering:
+        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing procedural memory index cross-link")
 
     if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
         errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
@@ -102,6 +115,37 @@ def validate_engineering_context_system() -> list[str]:
         if heading not in task_routing_guide:
             errors.append(f"TASK-ROUTING-GUIDE.md: missing heading `{heading}`")
 
+    if "Change Playbooks" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Change Playbooks reference")
+    if "PR Loop Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing PR Loop Playbook reference")
+    if "Validation Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Validation Playbook reference")
+    if "Fix-Forward Patterns" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
+
+    for text, label in (
+        ("Backend API And Domain-Service Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Frontend And Product-Surface Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Cross-Repository Integration Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("RFC-Driven Slice Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Working Sequence", "PR-LOOP-PLAYBOOK.md"),
+        ("GitHub-Backed Heavy Execution Rule", "PR-LOOP-PLAYBOOK.md"),
+        ("Validation Layers", "VALIDATION-PLAYBOOK.md"),
+        ("Platform End-To-End Proof", "VALIDATION-PLAYBOOK.md"),
+        ("Stale Expectation Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Validator Overreach Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Local-Only Assumption Pattern", "FIX-FORWARD-PATTERNS.md"),
+    ):
+        target_doc = {
+            "CHANGE-PLAYBOOKS.md": change_playbooks,
+            "PR-LOOP-PLAYBOOK.md": pr_loop_playbook,
+            "VALIDATION-PLAYBOOK.md": validation_playbook,
+            "FIX-FORWARD-PATTERNS.md": fix_forward_patterns,
+        }[label]
+        if text not in target_doc:
+            errors.append(f"{label}: missing required content `{text}`")
+
     for heading in (
         "Mandatory Reading Order",
         "Mandatory Operating Rules",
@@ -110,6 +154,8 @@ def validate_engineering_context_system() -> list[str]:
     ):
         if heading not in agents_contract:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
+    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
 
     if "Context Maintenance Rule" not in repo_context_contract:
         errors.append("Repository-Engineering-Context-Contract.md: missing Context Maintenance Rule")
@@ -126,10 +172,21 @@ def validate_engineering_context_system() -> list[str]:
         "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
         "task_routing_guide": "context/TASK-ROUTING-GUIDE.md",
         "ecosystem_registries": "context/ECOSYSTEM-REGISTRIES.md",
+        "procedural_memory_index": "context/PROCEDURAL-MEMORY-INDEX.md",
         "agents_operating_contract_source": "context/AGENTS-OPERATING-CONTRACT.md",
     }.items():
         if context_documents.get(key) != expected_path:
             errors.append(f"lotus-context-manifest.json: context_documents.{key} must equal `{expected_path}`")
+
+    procedural_memory = manifest.get("procedural_memory", {})
+    for key, expected_path in {
+        "change_playbooks": "context/playbooks/CHANGE-PLAYBOOKS.md",
+        "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
+        "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
+    }.items():
+        if procedural_memory.get(key) != expected_path:
+            errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
 
     applications = manifest.get("applications", [])
     if len(applications) != 10:

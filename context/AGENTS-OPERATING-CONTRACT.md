@@ -15,6 +15,7 @@ Before doing substantial work, load context in this order:
 3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 4. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
 5. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
+6. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` when the task is primarily about how work should be executed
 
 Use the smallest correct working set. Do not load broad context blindly if the task is narrow.
 
@@ -87,9 +88,10 @@ Central context system:
 1. `C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-QUICKSTART-CONTEXT.md`
 2. `C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-ENGINEERING-CONTEXT.md`
 3. `C:\Users\Sandeep\projects\lotus-platform\context\CONTEXT-REFERENCE-MAP.md`
-4. `C:\Users\Sandeep\projects\lotus-platform\context\lotus-context-manifest.json`
-5. `C:\Users\Sandeep\projects\lotus-platform\context\platform-engineering-ledger.md`
-6. `C:\Users\Sandeep\projects\lotus-platform\context\recent-architectural-decisions-digest.md`
+4. `C:\Users\Sandeep\projects\lotus-platform\context\PROCEDURAL-MEMORY-INDEX.md`
+5. `C:\Users\Sandeep\projects\lotus-platform\context\lotus-context-manifest.json`
+6. `C:\Users\Sandeep\projects\lotus-platform\context\platform-engineering-ledger.md`
+7. `C:\Users\Sandeep\projects\lotus-platform\context\recent-architectural-decisions-digest.md`
 
 Repository-local context:
 

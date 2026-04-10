@@ -508,6 +508,16 @@ Artifacts:
 - `output/engineering-context-system-validation.json`
 - `output/engineering-context-system-validation.md`
 
+Validate Lotus skill alignment against the governed context system:
+
+```powershell
+python automation/validate_lotus_skill_alignment.py
+```
+
+Artifacts:
+- `output/lotus-skill-alignment-validation.json`
+- `output/lotus-skill-alignment-validation.md`
+
 Validate workflow security and permissions posture across platform workflows and templates:
 
 ```powershell

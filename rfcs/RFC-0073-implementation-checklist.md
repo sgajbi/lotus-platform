@@ -12,7 +12,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 - `Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete`
 - `Slice 4 | Reference map and task-routing hardening | Complete`
 - `Slice 5 | Drift control and validation foundation | Complete`
-- `Slice 6 | Skills, automation, and procedural memory alignment | Pending`
+- `Slice 6 | Skills, automation, and procedural memory alignment | Complete`
 
 ## Slice Notes
 
@@ -95,3 +95,18 @@ Implemented:
 3. feature-lane enforcement in `automation/Invoke-PlatformRepoChecks.ps1`,
 4. `Sync-AgentOperatingContract.ps1 -CheckOnly` integration so deployed `AGENTS.md` drift is visible in the operational repo gate,
 5. automation documentation updates so the context validator is discoverable and repeatable.
+
+### Slice 6 | Skills, automation, and procedural memory alignment
+
+Implemented:
+
+1. `context/PROCEDURAL-MEMORY-INDEX.md` as the entrypoint for governed playbooks,
+2. governed playbooks for:
+   - `context/playbooks/CHANGE-PLAYBOOKS.md`
+   - `context/playbooks/PR-LOOP-PLAYBOOK.md`
+   - `context/playbooks/VALIDATION-PLAYBOOK.md`
+   - `context/playbooks/FIX-FORWARD-PATTERNS.md`
+3. central context and reference-map updates so the procedural-memory layer is discoverable,
+4. manifest enrichment so procedural memory is machine-readable and owned in the central context system,
+5. local Lotus skill updates to align backend, frontend, PR, and validation workflows to the governed context system and playbooks,
+6. validator and contract-test coverage so procedural memory stays linked and governed.

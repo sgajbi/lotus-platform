@@ -266,6 +266,19 @@ Use the manifest for:
 4. dependency and authority lookups,
 5. context-path discovery.
 
+## Procedural Memory
+
+The governed procedural-memory layer lives in:
+
+1. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md)
+
+Use it when you need durable guidance for:
+
+1. change execution,
+2. PR loops and async monitoring,
+3. validation depth selection,
+4. fix-forward response patterns.
+
 ## Related References
 
 Use the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to find:

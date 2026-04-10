@@ -52,6 +52,19 @@ The registry companion currently exposes:
 3. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
    Canonical architecture and delivery rules that explain why the task-routing paths exist.
 
+## Procedural Memory
+
+1. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md)
+   Navigation layer for governed operating playbooks.
+2. [Change Playbooks](./playbooks/CHANGE-PLAYBOOKS.md)
+   Task-type delivery sequences.
+3. [PR Loop Playbook](./playbooks/PR-LOOP-PLAYBOOK.md)
+   Push, GitHub monitoring, merge, and cleanup guidance.
+4. [Validation Playbook](./playbooks/VALIDATION-PLAYBOOK.md)
+   Validation depth and evidence selection.
+5. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)
+   Repeatable response patterns for CI and runtime failures.
+
 ## Platform Standards
 
 Key standards to use frequently:

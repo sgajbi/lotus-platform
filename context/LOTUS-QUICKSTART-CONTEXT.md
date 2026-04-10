@@ -7,7 +7,8 @@ Read this file first, then continue to:
 1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
 2. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
 3. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
-4. the repository-local `REPOSITORY-ENGINEERING-CONTEXT.md` for the repository you are changing
+4. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when the task is mainly about execution method
+5. the repository-local `REPOSITORY-ENGINEERING-CONTEXT.md` for the repository you are changing
 
 ## What Lotus Is
 
@@ -125,11 +126,16 @@ The human-readable registry companion lives in:
 
 1. [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md)
 
+The governed procedural-memory layer lives in:
+
+1. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md)
+
 ## Next Read
 
 Continue in this order:
 
 1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
 2. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
-3. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries
+3. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when execution guidance matters
+4. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
+5. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries

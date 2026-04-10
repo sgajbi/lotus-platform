@@ -34,13 +34,15 @@ Do not duplicate full platform policy prose into repository-local docs unless lo
    Task-first routing guide for loading the smallest correct working set.
 6. [ECOSYSTEM-REGISTRIES.md](./ECOSYSTEM-REGISTRIES.md)
    Human-readable registry view generated from the manifest.
-7. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
+7. [PROCEDURAL-MEMORY-INDEX.md](./PROCEDURAL-MEMORY-INDEX.md)
+   Governed playbooks for change execution, PR loops, validation, and fix-forward patterns.
+8. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
    Source-of-truth content for the deployed global `AGENTS.md`.
-8. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)
+9. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)
    Required section contract for repository-local engineering context documents.
-9. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
+10. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
    Human-maintained engineering memory for recurring platform lessons.
-10. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
+11. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
    High-signal summary of current architectural reality.
 
 ## Maintenance Rules

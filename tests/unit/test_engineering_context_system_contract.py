@@ -165,6 +165,9 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "Sync-AgentOperatingContract.ps1" in agents_contract
     assert '[switch]$CheckOnly' in sync_script
     assert "Normalize-ContractContent" in sync_script
+    assert "Resolve-DefaultTargetPath" in sync_script
+    assert 'if ($env:GITHUB_ACTIONS -eq "true")' in sync_script
+    assert "Agent operating contract check skipped because deployed AGENTS target is not present on this GitHub runner" in sync_script
     assert "[System.IO.File]::WriteAllText" in sync_script
     assert "Target AGENTS file is not synchronized with the governed source." in sync_script
 
@@ -261,6 +264,7 @@ def test_rfc_0073_slice_four_task_routing_and_registries_are_hardened() -> None:
     assert "Slice 4 | Reference map and task-routing hardening | Complete" in checklist
     assert "./TASK-ROUTING-GUIDE.md" in context_index
     assert "./ECOSYSTEM-REGISTRIES.md" in context_index
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in context_index
 
     assert "./TASK-ROUTING-GUIDE.md" in quickstart
     assert "./ECOSYSTEM-REGISTRIES.md" in quickstart
@@ -268,6 +272,7 @@ def test_rfc_0073_slice_four_task_routing_and_registries_are_hardened() -> None:
     assert "## Task Routing Guidance" in engineering
     assert "./TASK-ROUTING-GUIDE.md" in engineering
     assert "./ECOSYSTEM-REGISTRIES.md" in engineering
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in engineering
 
     assert "./TASK-ROUTING-GUIDE.md" in reference_map
     assert "./ECOSYSTEM-REGISTRIES.md" in reference_map
@@ -309,3 +314,52 @@ def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo
     assert 'Sync-AgentOperatingContract.ps1") -CheckOnly' in repo_checks
     assert "ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json" in validator
     assert "all application context statuses must be `implemented`" in validator
+
+
+def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    context_index = (CONTEXT_DIR / "README.md").read_text(encoding="utf-8")
+    quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
+    engineering = (CONTEXT_DIR / "LOTUS-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    agents_contract = (CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md").read_text(encoding="utf-8")
+    automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
+    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+    procedural_memory_index = (CONTEXT_DIR / "PROCEDURAL-MEMORY-INDEX.md").read_text(encoding="utf-8")
+    change_playbooks = (CONTEXT_DIR / "playbooks" / "CHANGE-PLAYBOOKS.md").read_text(encoding="utf-8")
+    pr_loop_playbook = (CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md").read_text(encoding="utf-8")
+    validation_playbook = (CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md").read_text(encoding="utf-8")
+    fix_forward_patterns = (CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+
+    assert "Slice 6 | Skills, automation, and procedural memory alignment | Complete" in checklist
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in context_index
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in quickstart
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in engineering
+    assert "./PROCEDURAL-MEMORY-INDEX.md" in reference_map
+
+    assert "Change Playbooks" in procedural_memory_index
+    assert "PR Loop Playbook" in procedural_memory_index
+    assert "Validation Playbook" in procedural_memory_index
+    assert "Fix-Forward Patterns" in procedural_memory_index
+
+    assert "Backend API And Domain-Service Change Playbook" in change_playbooks
+    assert "Frontend And Product-Surface Change Playbook" in change_playbooks
+    assert "Cross-Repository Integration Change Playbook" in change_playbooks
+    assert "RFC-Driven Slice Playbook" in change_playbooks
+    assert "GitHub-Backed Heavy Execution Rule" in pr_loop_playbook
+    assert "Platform End-To-End Proof" in validation_playbook
+    assert "Local-Only Assumption Pattern" in fix_forward_patterns
+    assert "Fix-Forward Patterns" in reference_map
+    assert "PROCEDURAL-MEMORY-INDEX.md" in agents_contract
+    assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
+    assert "output/lotus-skill-alignment-validation.json" in automation_readme
+    assert "validate_lotus_skill_alignment.py" in directory_map
+    assert "& $toolingPython automation/validate_lotus_skill_alignment.py" in repo_checks
+
+    assert manifest["context_documents"]["procedural_memory_index"] == "context/PROCEDURAL-MEMORY-INDEX.md"
+    assert manifest["procedural_memory"]["change_playbooks"] == "context/playbooks/CHANGE-PLAYBOOKS.md"
+    assert manifest["procedural_memory"]["pr_loop_playbook"] == "context/playbooks/PR-LOOP-PLAYBOOK.md"
+    assert manifest["procedural_memory"]["validation_playbook"] == "context/playbooks/VALIDATION-PLAYBOOK.md"
+    assert manifest["procedural_memory"]["fix_forward_patterns"] == "context/playbooks/FIX-FORWARD-PATTERNS.md"
