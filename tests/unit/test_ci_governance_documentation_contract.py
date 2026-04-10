@@ -43,6 +43,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete" in checklist
     assert "Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete" in checklist
     assert "Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete" in checklist
+    assert "Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "lotus-workbench" in mapping
@@ -68,7 +69,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
 
     assert "P0" in gap_audit
     assert "P1" in gap_audit
-    assert "Dedicated Feature Lane is mostly missing" in gap_audit
+    assert "Dedicated Feature Lane is still missing in a few legacy repos" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
     assert "platform-end-to-end-validation.yml" in gap_audit
 
@@ -142,4 +143,6 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "PR Merge Gate / Playwright Smoke" in policy
     assert '"name":  "lotus-performance"' in policy
     assert '"name":  "lotus-risk"' in policy
+    assert '"name":  "lotus-ai"' in policy
     assert "PR Merge Gate / Test Pyramid Gate" in policy
+    assert "PR Merge Gate / Runtime Mode Smoke" in policy
