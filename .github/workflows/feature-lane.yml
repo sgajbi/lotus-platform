@@ -27,4 +27,4 @@ jobs:
       - name: Run platform feature-lane checks
         shell: pwsh
         run: |
-          powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
+          & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane feature

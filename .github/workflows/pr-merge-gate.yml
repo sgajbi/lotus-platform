@@ -31,4 +31,4 @@ jobs:
       - name: Run platform PR-merge checks
         shell: pwsh
         run: |
-          powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge
+          & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge

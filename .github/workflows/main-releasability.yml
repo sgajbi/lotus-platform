@@ -27,4 +27,4 @@ jobs:
       - name: Run platform main-releasability checks
         shell: pwsh
         run: |
-          powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability
+          & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability
