@@ -42,6 +42,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3B | Scaffold and template convergence | Complete" in checklist
     assert "Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete" in checklist
     assert "Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete" in checklist
+    assert "Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "lotus-workbench" in mapping
@@ -139,3 +140,6 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "PR Merge Gate / CI Local Docker Parity" in policy
     assert "PR Merge Gate / Lint Typecheck Coverage Build" in policy
     assert "PR Merge Gate / Playwright Smoke" in policy
+    assert '"name":  "lotus-performance"' in policy
+    assert '"name":  "lotus-risk"' in policy
+    assert "PR Merge Gate / Test Pyramid Gate" in policy

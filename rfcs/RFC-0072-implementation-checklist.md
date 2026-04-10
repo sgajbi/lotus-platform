@@ -14,11 +14,12 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 1 | Governance and documentation foundation | Complete | RFC, standard, implementation checklist, lane mapping baseline, and branch-protection expectations are documented in `lotus-platform` |
 | Slice 1A | Scaffold baseline definition | Complete | Current scaffold source of truth is identified in `lotus-platform`; future scaffold convergence remains a later implementation slice |
 | Slice 2 | Repository workflow classification and gap audit | Complete | Current-state versus target-state gap inventory now exists across the Lotus estate |
-| Slice 3 | Standardized workflow convergence | Pending | Existing-repo workflow updates and branch-protection convergence remain a later rollout step |
+| Slice 3 | Standardized workflow convergence | In Progress | Existing-repo workflow updates are underway; branch-protection convergence remains after repository rollout waves complete |
 | Slice 3A | Skill and developer-process alignment | Complete | Codex skills for backend delivery, frontend delivery, and pre-merge flow align to RFC-0072 |
 | Slice 3B | Scaffold and template convergence | Complete | Backend scaffold now emits explicit feature, PR merge, and main releasability workflows by default |
 | Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows, with governance policy updated accordingly |
 | Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows; `lotus-gateway` also exposes an explicitly named platform validation lane |
+| Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows; repo-native `make ci` contracts were tightened to be security-truthful and deterministic |
 | Slice 4 | Platform end-to-end lane hardening | Pending | Canonical platform runtime validation exists, but RFC-0072 governance rollout is not yet completed |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
@@ -242,6 +243,63 @@ Evidence:
 1. `automation/backend-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-gateway` and `lotus-workbench`
+
+- Complete
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+2. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+## Slice 3E Completion Evidence
+
+### Repo rollout artifacts
+
+1. `lotus-performance/.github/workflows/feature-lane.yml`
+2. `lotus-performance/.github/workflows/pr-merge-gate.yml`
+3. `lotus-performance/.github/workflows/main-releasability.yml`
+4. `lotus-performance/Makefile`
+5. `lotus-performance/scripts/dependency_health_check.py`
+6. `lotus-risk/.github/workflows/feature-lane.yml`
+7. `lotus-risk/.github/workflows/pr-merge-gate.yml`
+8. `lotus-risk/.github/workflows/main-releasability.yml`
+9. `lotus-risk/Makefile`
+10. `lotus-risk/scripts/dependency_health_check.py`
+11. `automation/backend-governance-policy.json`
+12. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+13. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+### Slice 3E acceptance posture
+
+#### 1. Analytics-domain repos are converged to explicit lane workflows
+
+- Complete
+
+Evidence:
+
+1. `lotus-performance`
+2. `lotus-risk`
+
+#### 2. Repo-native PR-grade commands now include truthful dependency and security validation
+
+- Complete
+
+Evidence:
+
+1. `lotus-performance/Makefile`
+2. `lotus-performance/scripts/dependency_health_check.py`
+3. `lotus-risk/Makefile`
+4. `lotus-risk/scripts/dependency_health_check.py`
+
+#### 3. Platform governance defaults reflect the new PR Merge Gate check names for analytics-domain repos
+
+- Complete
+
+Evidence:
+
+1. `automation/backend-governance-policy.json`
+
+#### 4. Rollout documentation reflects the current converged posture for `lotus-performance` and `lotus-risk`
 
 - Complete
 
