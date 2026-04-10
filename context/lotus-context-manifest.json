@@ -1,0 +1,297 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "human-maintained",
+  "last_reviewed_on": "2026-04-11",
+  "reading_order": [
+    "AGENTS.md",
+    "context/LOTUS-QUICKSTART-CONTEXT.md",
+    "context/LOTUS-ENGINEERING-CONTEXT.md",
+    "REPOSITORY-ENGINEERING-CONTEXT.md",
+    "context/CONTEXT-REFERENCE-MAP.md"
+  ],
+  "context_documents": {
+    "quickstart": "context/LOTUS-QUICKSTART-CONTEXT.md",
+    "engineering_context": "context/LOTUS-ENGINEERING-CONTEXT.md",
+    "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
+    "platform_engineering_ledger": "context/platform-engineering-ledger.md",
+    "recent_architectural_decisions_digest": "context/recent-architectural-decisions-digest.md"
+  },
+  "applications": [
+    {
+      "repository": "lotus-platform",
+      "category": "platform-governance",
+      "business_role": "Shared standards, automation, ingress, validation, and governance owner",
+      "primary_runtime": "python-and-powershell-tooling",
+      "canonical_commands": {
+        "repo_checks": "powershell -ExecutionPolicy Bypass -File automation\\Invoke-PlatformRepoChecks.ps1 -Lane feature",
+        "validation_lane": "powershell -ExecutionPolicy Bypass -File automation\\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-workbench",
+        "lotus-gateway",
+        "lotus-core",
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-report",
+        "lotus-ai"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-workbench",
+      "category": "product-ui",
+      "business_role": "Primary product UI for portfolio, performance, risk, advisory, and evidence workflows",
+      "primary_runtime": "node-react-nextjs",
+      "canonical_commands": {
+        "quality": "make check",
+        "browser_smoke": "make test-e2e"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "downstream_dependencies": [],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-gateway",
+      "category": "experience-api",
+      "business_role": "Unified client contract and composition layer for Lotus product experiences",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci-local-docker"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [
+        "lotus-core",
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-report",
+        "lotus-ai"
+      ],
+      "downstream_dependencies": [
+        "lotus-workbench"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-core",
+      "category": "domain-service",
+      "business_role": "Authoritative portfolio, booking, account, and transaction service",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-gateway",
+        "lotus-manage",
+        "lotus-report"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-performance",
+      "category": "domain-service",
+      "business_role": "Authoritative performance analytics and review service",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-risk",
+      "category": "domain-service",
+      "business_role": "Authoritative risk analytics service for drawdown, attribution, concentration, and rolling risk",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-advise",
+      "category": "domain-service",
+      "business_role": "Advisory workflow and recommendation service",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [
+        "lotus-core"
+      ],
+      "downstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-manage",
+      "category": "domain-service",
+      "business_role": "Portfolio-management and operational workflow service",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci-local"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [
+        "lotus-core"
+      ],
+      "downstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-report",
+      "category": "domain-service",
+      "business_role": "Reporting and document-generation service",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [
+        "lotus-core",
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "downstream_dependencies": [
+        "lotus-gateway"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
+      "repository": "lotus-ai",
+      "category": "shared-capability-service",
+      "business_role": "Shared AI capability service for governed AI-backed flows",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-gateway",
+        "lotus-workbench"
+      ],
+      "requires_platform_end_to_end_validation": true
+    }
+  ],
+  "domain_authority_map": [
+    {
+      "domain": "portfolio-management-and-transactions",
+      "authoritative_repository": "lotus-core",
+      "composition_layers": [
+        "lotus-gateway",
+        "lotus-manage",
+        "lotus-report"
+      ]
+    },
+    {
+      "domain": "performance-analytics",
+      "authoritative_repository": "lotus-performance",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    },
+    {
+      "domain": "risk-analytics",
+      "authoritative_repository": "lotus-risk",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    },
+    {
+      "domain": "advisory-workflows",
+      "authoritative_repository": "lotus-advise",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    },
+    {
+      "domain": "management-and-operations",
+      "authoritative_repository": "lotus-manage",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    },
+    {
+      "domain": "reporting-and-document-generation",
+      "authoritative_repository": "lotus-report",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    },
+    {
+      "domain": "ai-capabilities",
+      "authoritative_repository": "lotus-ai",
+      "composition_layers": [
+        "lotus-gateway"
+      ]
+    }
+  ],
+  "standards_registry": [
+    {
+      "name": "Continuous Integration, Validation, and Release Governance Standard",
+      "path": "Continuous Integration, Validation, and Release Governance Standard.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Testing Pyramid and Coverage Standard",
+      "path": "Testing Pyramid and Coverage Standard.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Dependency Hygiene and Security Standard",
+      "path": "Dependency Hygiene and Security Standard.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Platform Observability Standards",
+      "path": "Platform Observability Standards.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Domain Vocabulary Glossary",
+      "path": "Domain Vocabulary Glossary.md",
+      "scope": "platform-wide"
+    }
+  ],
+  "active_rfc_registry": [
+    {
+      "id": "RFC-0071",
+      "title": "Centralized environment-scoped service addressing and ingress governance",
+      "status": "active"
+    },
+    {
+      "id": "RFC-0072",
+      "title": "Platform-wide multi-lane CI, validation, and release governance",
+      "status": "active"
+    },
+    {
+      "id": "RFC-0073",
+      "title": "Lotus ecosystem engineering context and agent guidance system",
+      "status": "active"
+    }
+  ]
+}
