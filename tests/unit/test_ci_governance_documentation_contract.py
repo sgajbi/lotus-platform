@@ -73,6 +73,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 4E | Platform validation coverage manifest and contract | Complete" in checklist
     assert "Slice 5E | Companion dependency lock scaffold baseline | Complete" in checklist
     assert "Slice 5F | Platform automation runtime isolation baseline | Complete" in checklist
+    assert "Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -114,6 +115,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Main Releasability / Validate Docker Build" in template_contract
 
     assert "Repository-Native Command Policy" in hygiene_standard
+    assert ".editorconfig" in hygiene_standard
+    assert ".gitattributes" in hygiene_standard
     assert ".gitignore" in hygiene_standard
     assert ".dockerignore" in hygiene_standard
     assert "pyproject.toml" in hygiene_standard
@@ -157,6 +160,8 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md" in standards_readme
     assert "Backend-CI-Lane-Template-Contract.md" in standards_readme
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
+    assert ".editorconfig.backend.template" in standards_readme
+    assert ".gitattributes.backend.template" in standards_readme
     assert "requirements.shared-runtime.lock.template.txt" in standards_readme
     assert "requirements.ci-tooling.lock.template.txt" in standards_readme
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme

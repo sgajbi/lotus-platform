@@ -5,6 +5,8 @@ This folder is the reusable standards package for backend repositories.
 ## Contents
 
 - `templates/Makefile.backend.template`
+- `templates/.editorconfig.backend.template`
+- `templates/.gitattributes.backend.template`
 - `templates/.gitignore.backend.template`
 - `templates/.dockerignore.backend.template`
 - `templates/Dockerfile.python-service.template`
@@ -58,7 +60,7 @@ This generates a production-grade backend baseline with:
 
 - explicit feature, PR merge, and main releasability workflows
 - merge-commit auto-merge workflow
-- scaffolded `.gitignore` and `.dockerignore` from platform templates
+- scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
 - FastAPI app with health/readiness and metrics
 - OpenAPI gate script

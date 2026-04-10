@@ -27,6 +27,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
+    assert ".editorconfig" in hygiene_standard
+    assert ".gitattributes" in hygiene_standard
     assert ".gitignore" in hygiene_standard
     assert ".dockerignore" in hygiene_standard
     assert "pyproject.toml" in hygiene_standard
@@ -34,6 +36,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "requirements/ci-tooling.lock.txt" in hygiene_standard
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
+    assert 'Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template")' in scaffold_script
+    assert 'Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")' in scaffold_script
@@ -91,7 +95,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
+    assert result["editorconfig_exists"] is True
+    assert result["gitattributes_exists"] is True
     assert result["shared_runtime_lock_exists"] is True
     assert result["ci_tooling_lock_exists"] is True
+    assert result["editorconfig_missing_patterns"] == []
+    assert result["gitattributes_missing_patterns"] == []
     assert result["gitignore_missing_patterns"] == []
     assert result["dockerignore_missing_patterns"] == []

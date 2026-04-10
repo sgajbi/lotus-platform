@@ -20,6 +20,18 @@ REQUIRED_GITIGNORE_PATTERNS = (
     ".env.*",
 )
 
+REQUIRED_EDITORCONFIG_PATTERNS = (
+    "root = true",
+    "charset = utf-8",
+    "end_of_line = lf",
+    "insert_final_newline = true",
+)
+
+REQUIRED_GITATTRIBUTES_PATTERNS = (
+    "* text=auto eol=lf",
+    "*.png binary",
+)
+
 REQUIRED_DOCKERIGNORE_PATTERNS = (
     ".git",
     ".venv",
@@ -55,12 +67,16 @@ def determine_dependency_authority(repo_root: Path) -> str:
 
 
 def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
+    editorconfig = repo_root / ".editorconfig"
+    gitattributes = repo_root / ".gitattributes"
     gitignore = repo_root / ".gitignore"
     dockerignore = repo_root / ".dockerignore"
     readme = repo_root / "README.md"
     shared_runtime_lock = repo_root / "requirements" / "shared-runtime.lock.txt"
     ci_tooling_lock = repo_root / "requirements" / "ci-tooling.lock.txt"
 
+    editorconfig_content = _read_text_if_exists(editorconfig)
+    gitattributes_content = _read_text_if_exists(gitattributes)
     gitignore_content = _read_text_if_exists(gitignore)
     dockerignore_content = _read_text_if_exists(dockerignore)
     readme_content = _read_text_if_exists(readme)
@@ -68,24 +84,34 @@ def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
 
     result = {
         "repo_root": str(repo_root),
+        "editorconfig_exists": editorconfig.exists(),
+        "gitattributes_exists": gitattributes.exists(),
         "gitignore_exists": gitignore.exists(),
         "dockerignore_exists": dockerignore.exists(),
         "readme_exists": readme.exists(),
         "dependency_authority": dependency_authority,
         "shared_runtime_lock_exists": shared_runtime_lock.exists(),
         "ci_tooling_lock_exists": ci_tooling_lock.exists(),
+        "editorconfig_missing_patterns": _missing_patterns(editorconfig_content, REQUIRED_EDITORCONFIG_PATTERNS),
+        "gitattributes_missing_patterns": _missing_patterns(
+            gitattributes_content, REQUIRED_GITATTRIBUTES_PATTERNS
+        ),
         "gitignore_missing_patterns": _missing_patterns(gitignore_content, REQUIRED_GITIGNORE_PATTERNS),
         "dockerignore_missing_patterns": _missing_patterns(dockerignore_content, REQUIRED_DOCKERIGNORE_PATTERNS),
         "readme_has_make_check": "make check" in readme_content,
         "readme_has_make_ci": "make ci" in readme_content,
     }
     result["ok"] = (
-        result["gitignore_exists"]
+        result["editorconfig_exists"]
+        and result["gitattributes_exists"]
+        and result["gitignore_exists"]
         and result["dockerignore_exists"]
         and result["readme_exists"]
         and result["dependency_authority"] == "pyproject"
         and result["shared_runtime_lock_exists"]
         and result["ci_tooling_lock_exists"]
+        and not result["editorconfig_missing_patterns"]
+        and not result["gitattributes_missing_patterns"]
         and not result["gitignore_missing_patterns"]
         and not result["dockerignore_missing_patterns"]
         and result["readme_has_make_check"]
@@ -104,6 +130,8 @@ def build_markdown_report(result: dict[str, object]) -> str:
         "",
         "| Check | Result |",
         "| --- | --- |",
+        f"| `.editorconfig` present | `{result['editorconfig_exists']}` |",
+        f"| `.gitattributes` present | `{result['gitattributes_exists']}` |",
         f"| `.gitignore` present | `{result['gitignore_exists']}` |",
         f"| `.dockerignore` present | `{result['dockerignore_exists']}` |",
         f"| `README.md` present | `{result['readme_exists']}` |",
@@ -111,6 +139,8 @@ def build_markdown_report(result: dict[str, object]) -> str:
         f"| `requirements/ci-tooling.lock.txt` present | `{result['ci_tooling_lock_exists']}` |",
         f"| `README.md` includes `make check` | `{result['readme_has_make_check']}` |",
         f"| `README.md` includes `make ci` | `{result['readme_has_make_ci']}` |",
+        f"| `.editorconfig` missing patterns | `{', '.join(result['editorconfig_missing_patterns']) or '-'}` |",
+        f"| `.gitattributes` missing patterns | `{', '.join(result['gitattributes_missing_patterns']) or '-'}` |",
         f"| `.gitignore` missing patterns | `{', '.join(result['gitignore_missing_patterns']) or '-'}` |",
         f"| `.dockerignore` missing patterns | `{', '.join(result['dockerignore_missing_patterns']) or '-'}` |",
     ]

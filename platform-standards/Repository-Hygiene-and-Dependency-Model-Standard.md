@@ -21,11 +21,39 @@ Applies to:
 
 Every Lotus backend repository must have:
 
-1. `.gitignore`
-2. `.dockerignore` when Docker build validation or container runtime is part of the repo contract
-3. one explicit dependency authority
-4. companion dependency lock artifacts under `requirements/`
-5. a repository-native quality command documented in `README.md`
+1. `.editorconfig`
+2. `.gitattributes`
+3. `.gitignore`
+4. `.dockerignore` when Docker build validation or container runtime is part of the repo contract
+5. one explicit dependency authority
+6. companion dependency lock artifacts under `requirements/`
+7. a repository-native quality command documented in `README.md`
+
+## `.editorconfig` Baseline
+
+Backend `.editorconfig` must define at least:
+
+1. `root = true`
+2. `charset = utf-8`
+3. `end_of_line = lf`
+4. `insert_final_newline = true`
+5. language-aware indentation expectations
+
+Platform-owned scaffold source of truth:
+
+1. `platform-standards/templates/.editorconfig.backend.template`
+
+## `.gitattributes` Baseline
+
+Backend `.gitattributes` must define at least:
+
+1. a repository-wide text normalization rule
+2. deterministic LF checkout for text content
+3. binary handling for common image and archive artifacts
+
+Platform-owned scaffold source of truth:
+
+1. `platform-standards/templates/.gitattributes.backend.template`
 
 ## `.gitignore` Baseline
 
@@ -118,10 +146,12 @@ These deviations are not allowed for newly scaffolded repositories.
 
 This standard is satisfied for scaffolded backend repos when:
 
-1. the scaffold emits `.gitignore` from the platform template,
-2. the scaffold emits `.dockerignore` from the platform template,
-3. the scaffolded repository uses `pyproject.toml` as the dependency authority,
-4. the scaffold emits `requirements/shared-runtime.lock.txt`,
-5. the scaffold emits `requirements/ci-tooling.lock.txt`,
-6. automation metadata points to `make check` and `make ci`,
-7. an automated contract test proves the generated repository matches this baseline.
+1. the scaffold emits `.editorconfig` from the platform template,
+2. the scaffold emits `.gitattributes` from the platform template,
+3. the scaffold emits `.gitignore` from the platform template,
+4. the scaffold emits `.dockerignore` from the platform template,
+5. the scaffolded repository uses `pyproject.toml` as the dependency authority,
+6. the scaffold emits `requirements/shared-runtime.lock.txt`,
+7. the scaffold emits `requirements/ci-tooling.lock.txt`,
+8. automation metadata points to `make check` and `make ci`,
+9. an automated contract test proves the generated repository matches this baseline.
