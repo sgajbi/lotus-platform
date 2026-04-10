@@ -50,6 +50,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 4A | Platform repo lane foundation | Complete" in checklist
     assert "Slice 4B | Platform validation lane normalization | Complete" in checklist
     assert "Slice 4C | Repository governance policy normalization | Complete" in checklist
+    assert "Slice 4D | Repository governance rollout and validation | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -182,6 +183,7 @@ def test_platform_validation_lane_workflow_and_shared_entrypoint_exist() -> None
 def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     policy = (ROOT / "automation" / "repository-governance-policy.json").read_text(encoding="utf-8")
     governance_enforcer = (ROOT / "automation" / "Enforce-Repository-Governance.ps1").read_text(encoding="utf-8")
+    governance_validator = (ROOT / "automation" / "validate_repository_governance.py").read_text(encoding="utf-8")
 
     assert '"name":  "lotus-manage"' in policy
     assert '"name":  "lotus-report"' in policy
@@ -224,3 +226,7 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "required_conversation_resolution = $true" in governance_enforcer
     assert "required_approving_review_count = 1" in governance_enforcer
     assert "Repository Governance Enforcement" in governance_enforcer
+    assert "repository-governance-validation" in (ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8")
+    assert "def fetch_repository_governance" in governance_validator
+    assert "allow_auto_merge" in governance_validator
+    assert "required_conversation_resolution" in governance_validator

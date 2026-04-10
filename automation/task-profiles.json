@@ -462,6 +462,17 @@
       ]
     },
     {
+      "name": "repository-governance-validation",
+      "description": "Validate GitHub branch protection and auto-merge posture against the Lotus repository governance policy",
+      "tasks": [
+        {
+          "id": "validate-repository-governance",
+          "repo": "lotus-platform",
+          "command": "python automation/validate_repository_governance.py"
+        }
+      ]
+    },
+    {
       "name": "durability-consistency-baseline",
       "description": "Validate cross-repo durability and consistency policy conformance baseline",
       "tasks": [

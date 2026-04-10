@@ -486,6 +486,12 @@ Enforce repository governance policy (branch protection + auto-merge + review re
 powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
 ```
 
+Validate current repository governance drift against the platform policy:
+
+```powershell
+python automation/validate_repository_governance.py
+```
+
 Scaffold a new standards-compliant Lotus backend and auto-register it in automation:
 
 ```powershell
@@ -564,6 +570,10 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/dependency-vulnerability-rollup.md`
 - `output/backend-standards-conformance.json`
 - `output/backend-standards-conformance.md`
+- `output/repository-governance-enforcement.json`
+- `output/repository-governance-enforcement.md`
+- `output/repository-governance-validation.json`
+- `output/repository-governance-validation.md`
 - `output/openapi-conformance-summary.json`
 - `output/openapi-conformance-summary.md`
 - `output/domain-vocabulary-conformance.json`
@@ -623,6 +633,7 @@ When scaffolding a new service with `New-Lotus-Service.ps1`, automation registra
 - `automation/repos.json`
 - `automation/service-map.json`
 - `automation/repository-governance-policy.json`
+- `automation/validate_repository_governance.py`
 - `automation/test-coverage-policy.json`
 
 This ensures new services inherit CI/CD, governance, and quality baselines without manual wiring.

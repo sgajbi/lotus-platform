@@ -27,6 +27,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 4A | Platform repo lane foundation | Complete | `lotus-platform` now exposes explicit feature, PR merge, and main releasability workflows backed by a shared repo-check entrypoint |
 | Slice 4B | Platform validation lane normalization | Complete | `lotus-platform` now exposes one explicit `platform-end-to-end-validation.yml` workflow backed by a shared validation-lane entrypoint and scheduled green-lane execution |
 | Slice 4C | Repository governance policy normalization | Complete | Platform governance artifacts are now repository-scoped, include `lotus-platform`, and align branch-protection payloads with RFC-0072 review and merge policy |
+| Slice 4D | Repository governance rollout and validation | Complete | Repository governance policy has been applied across governed Lotus repos and live validation now reports zero drift |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
 ## Slice 1 Completion Evidence

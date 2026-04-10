@@ -29,6 +29,7 @@ Profiles are defined in `automation/task-profiles.json`.
 - `rfc-conformance-baseline`: RFC inventory + backlog
 - `pr-lifecycle`: PR monitor/auto-merge/cleanup loop task
 - `enforce-repository-governance`: branch protection + governance application
+- `platform-alignment`: includes repository-governance drift validation indirectly through the shared standards sweep
 
 ## Choosing Max Parallel
 
