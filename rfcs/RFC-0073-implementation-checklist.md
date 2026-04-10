@@ -9,6 +9,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 - `Slice 3 | Repository-local context rollout | Pending`
 - `Slice 3A | Repository-local context contract and platform pilot | Complete`
 - `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
+- `Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete`
 - `Slice 4 | Reference map and task-routing hardening | Pending`
 - `Slice 5 | Drift control and validation foundation | Pending`
 - `Slice 6 | Skills, automation, and procedural memory alignment | Pending`
@@ -61,3 +62,16 @@ Implemented:
 3. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-gateway`,
 4. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-core`,
 5. manifest rollout-status updates for the wave-1 repositories.
+
+### Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`)
+
+Implemented:
+
+1. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-performance`,
+2. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-risk`,
+3. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-advise`,
+4. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-manage`,
+5. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-report`,
+6. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-ai`,
+7. README cross-links added for the wave-2 repositories,
+8. manifest rollout-status updates for the remaining repositories.

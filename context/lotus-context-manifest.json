@@ -149,7 +149,7 @@
         "quality": "make ci"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [],
       "downstream_dependencies": [
         "lotus-gateway"
@@ -165,7 +165,7 @@
         "quality": "make ci"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [],
       "downstream_dependencies": [
         "lotus-gateway"
@@ -181,7 +181,7 @@
         "quality": "make ci"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [
         "lotus-core"
       ],
@@ -199,7 +199,7 @@
         "quality": "make ci-local"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [
         "lotus-core"
       ],
@@ -217,7 +217,7 @@
         "quality": "make ci"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [
         "lotus-core",
         "lotus-performance",
@@ -237,7 +237,7 @@
         "quality": "make ci"
       },
       "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
-      "status": "planned",
+      "status": "implemented",
       "upstream_dependencies": [],
       "downstream_dependencies": [
         "lotus-gateway",

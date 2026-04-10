@@ -205,4 +205,22 @@ def test_rfc_0073_slice_three_b_wave_one_rollout_is_recorded_in_manifest() -> No
     assert statuses["lotus-workbench"] == "implemented"
     assert statuses["lotus-gateway"] == "implemented"
     assert statuses["lotus-core"] == "implemented"
-    assert statuses["lotus-performance"] == "planned"
+    assert statuses["lotus-performance"] == "implemented"
+
+
+def test_rfc_0073_slice_three_c_wave_two_rollout_is_recorded_in_manifest() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+
+    assert (
+        "Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete"
+        in checklist
+    )
+
+    statuses = {entry["repository"]: entry["status"] for entry in manifest["applications"]}
+    assert statuses["lotus-performance"] == "implemented"
+    assert statuses["lotus-risk"] == "implemented"
+    assert statuses["lotus-advise"] == "implemented"
+    assert statuses["lotus-manage"] == "implemented"
+    assert statuses["lotus-report"] == "implemented"
+    assert statuses["lotus-ai"] == "implemented"
