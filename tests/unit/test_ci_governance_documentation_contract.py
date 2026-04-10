@@ -45,8 +45,10 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete" in checklist
     assert "Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete" in checklist
     assert "Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete" in checklist
+    assert "Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
+    assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
     assert "lotus-workbench" in mapping
     assert "lotus-gateway" in mapping
     assert "lotus-platform" in mapping
@@ -70,9 +72,10 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
 
     assert "P0" in gap_audit
     assert "P1" in gap_audit
-    assert "Dedicated Feature Lane is still missing in a few legacy repos" in gap_audit
+    assert "Platform validation exists but is not yet normalized" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
     assert "platform-end-to-end-validation.yml" in gap_audit
+    assert "Strong explicit lane split while retaining heavy gates for load, latency, Docker smoke, coverage, and institutional sign-off evidence" in gap_audit
 
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract
@@ -146,6 +149,19 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert '"name":  "lotus-risk"' in policy
     assert '"name":  "lotus-ai"' in policy
     assert '"name":  "lotus-advise"' in policy
+    assert "PR Merge Gate / Lint Typecheck Contracts Security" in policy
+    assert "PR Merge Gate / Tests (unit-db)" in policy
+    assert "PR Merge Gate / Tests (ops-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-buy-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-sell-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-dividend-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-interest-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-fx-contract)" in policy
+    assert "PR Merge Gate / Tests (transaction-portfolio-flow-bundle-contract)" in policy
+    assert "PR Merge Gate / E2E Smoke" in policy
+    assert "PR Merge Gate / Docker Smoke Contract" in policy
+    assert "PR Merge Gate / Latency Gate" in policy
+    assert "PR Merge Gate / Performance Load Gate (Fast)" in policy
     assert "PR Merge Gate / Test Pyramid Gate" in policy
     assert "PR Merge Gate / Runtime Mode Smoke" in policy
     assert "PR Merge Gate / Postgres Migration Smoke" in policy

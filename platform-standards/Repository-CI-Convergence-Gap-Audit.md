@@ -33,7 +33,7 @@ Every repository should converge toward:
 | --- | --- | --- | --- | --- | --- |
 | `lotus-workbench` | UI Product | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong explicit lane split, browser smoke, Docker parity, build coverage, and a hardened Playwright smoke startup contract | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-gateway` | Experience API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, `platform-end-to-end-validation.yml`, and `pr-auto-merge.yml` now exist | Strong contract, integration, coverage, Docker, local parity, and explicitly named live upstream validation | Branch-protection rollout must be applied from platform governance; remaining rollout work is now in other repos rather than gateway workflow structure | P1 |
-| `lotus-core` | Domain API | One large `ci.yml` covers PR, `main`, merge-group, scheduled, and manual heavy checks; `pr-auto-merge.yml` exists | Strongest maturity in heavy gates, load gates, latency, docker smoke, and institutional sign-off evidence | Workflow is overloaded; Feature, PR, Main, and heavy system lanes are not explicitly separated; lane naming is not aligned to RFC-0072 | P0 |
+| `lotus-core` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong explicit lane split while retaining heavy gates for load, latency, Docker smoke, coverage, and institutional sign-off evidence; repo-native `make ci` and `make ci-main` now map cleanly to PR-grade versus release-grade validation | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-performance` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, explicit lane split, coverage, Docker, and repo-native PR parity via a tightened `make ci` contract | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-risk` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, explicit lane split, test-pyramid enforcement, coverage, Docker, and project-scoped dependency security auditing | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-advise` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, `nightly-postgres-full.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, explicit lane split, nightly Postgres posture, project-scoped dependency health, Docker validation, and Postgres-backed runtime smoke under explicit lane naming | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
@@ -44,20 +44,7 @@ Every repository should converge toward:
 
 ## Cross-Repository Gap Themes
 
-### 1. PR and `main` are usually blended
-
-Most Lotus repos currently use one main CI workflow for both:
-
-1. PR Merge Gate
-2. Main Releasability Gate
-
-That is workable but below the RFC target model.
-
-### 2. Dedicated Feature Lane is still missing in a few legacy repos
-
-Several repos are now converged, but legacy repositories still need a clearly named, intentionally fast Feature Lane.
-
-### 3. Platform validation exists but is not yet normalized
+### 1. Platform validation exists but is not yet normalized
 
 There is already meaningful platform-grade validation in:
 
@@ -67,7 +54,7 @@ There is already meaningful platform-grade validation in:
 
 But it is not yet named and governed consistently as the `Platform End-to-End Validation Lane`.
 
-### 4. Workflow names still drift
+### 2. Workflow names still drift
 
 Repositories are using:
 
@@ -79,7 +66,7 @@ Repositories are using:
 
 These are understandable, but they do not yet make the RFC-0072 lane intent obvious.
 
-### 5. Scaffold coverage is backend-first, not platform-wide
+### 3. Scaffold coverage is backend-first, not platform-wide
 
 `automation/New-Lotus-Service.ps1` and the backend templates give a strong baseline for backend services, but the full lane model is not yet scaffolded by default for:
 
@@ -93,20 +80,18 @@ These are understandable, but they do not yet make the RFC-0072 lane intent obvi
 
 1. `lotus-platform`
    - define its own explicit lane structure and rollout reporting
-2. `lotus-core`
-   - decompose the overloaded workflow into explicit lanes without losing current strong evidence quality
 
 ### P1
 
-1. `lotus-performance`
-2. `lotus-risk`
+1. platform participation follow-through for converged product and service repos
+2. branch-protection rollout from governance policy
 3. `lotus-ai` platform-governance follow-through
 
 Primary work:
 
-1. split explicit Feature Lane from PR/Main blend,
-2. document Main Releasability Gate explicitly,
-3. align workflow naming and required-check language.
+1. keep platform validation centralized where system truth matters,
+2. align workflow naming and required-check language,
+3. apply branch-protection defaults consistently across repos.
 
 ## Convergence Rules for Later Slices
 

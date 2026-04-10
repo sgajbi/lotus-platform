@@ -34,12 +34,24 @@
                       "name":  "lotus-core",
                       "default_branch":  "main",
                       "required_checks":  [
-                                              "Workflow Lint",
-                                              "Lint, Typecheck, Unit Tests",
-                                              "Tests (unit)",
-                                              "Tests (integration-lite)",
-                                              "Coverage Gate (Combined)",
-                                              "Validate Docker Build"
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Contracts Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (unit-db)",
+                                              "PR Merge Gate / Tests (integration-lite)",
+                                              "PR Merge Gate / Tests (ops-contract)",
+                                              "PR Merge Gate / Tests (transaction-buy-contract)",
+                                              "PR Merge Gate / Tests (transaction-sell-contract)",
+                                              "PR Merge Gate / Tests (transaction-dividend-contract)",
+                                              "PR Merge Gate / Tests (transaction-interest-contract)",
+                                              "PR Merge Gate / Tests (transaction-fx-contract)",
+                                              "PR Merge Gate / Tests (transaction-portfolio-flow-bundle-contract)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / E2E Smoke",
+                                              "PR Merge Gate / Docker Smoke Contract",
+                                              "PR Merge Gate / Latency Gate",
+                                              "PR Merge Gate / Performance Load Gate (Fast)",
+                                              "PR Merge Gate / Validate Docker Build"
                                           ]
                   },
                   {
