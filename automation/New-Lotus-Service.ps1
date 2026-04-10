@@ -42,6 +42,8 @@ foreach ($dir in $dirs) {
 }
 
 Copy-Item (Join-Path $templateRoot "Makefile.backend.template") (Join-Path $target "Makefile") -Force
+Copy-Item (Join-Path $templateRoot ".gitignore.backend.template") (Join-Path $target ".gitignore") -Force
+Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template") (Join-Path $target ".dockerignore") -Force
 Copy-Item (Join-Path $templateRoot "pre-commit.backend.template.yaml") (Join-Path $target ".pre-commit-config.yaml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/feature-lane.backend.template.yml") (Join-Path $target ".github/workflows/feature-lane.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/pr-merge-gate.backend.template.yml") (Join-Path $target ".github/workflows/pr-merge-gate.yml") -Force
@@ -360,6 +362,7 @@ $readme = @(
   "make lint",
   "make typecheck",
   "make openapi-gate",
+  "make check",
   "make ci",
   '```',
   "",
@@ -393,16 +396,6 @@ $readme = @(
 Set-Content -Path (Join-Path $target "README.md") -Value $readme
 
 Set-Content -Path (Join-Path $target "docs/rfcs/README.md") -Value "# RFC Index`n"
-Set-Content -Path (Join-Path $target ".gitignore") -Value @"
-.venv/
-__pycache__/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage*
-dist/
-build/
-"@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
 APP_ENV=local
 LOG_LEVEL=INFO
@@ -463,8 +456,8 @@ if (-not $SkipAutomationRegistration) {
         github = "$GithubOrg/$repoName"
         path = $repoPathNormalized
         default_branch = "main"
-        preflight_fast_command = "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
-        preflight_full_command = "python -m ruff check . && python -m ruff format --check . && python scripts/dependency_health_check.py --requirements requirements.txt && python -m pip check && COVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report= && COVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report= && COVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
+        preflight_fast_command = "make check"
+        preflight_full_command = "make ci"
       }
       $repos | ConvertTo-Json -Depth 8 | Set-Content $reposPath
       Write-Host "Updated automation/repos.json with $repoName"

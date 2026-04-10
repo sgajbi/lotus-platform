@@ -5,6 +5,7 @@ This folder is the reusable standards package for backend repositories.
 ## Contents
 
 - `templates/Makefile.backend.template`
+- `templates/.gitignore.backend.template`
 - `templates/.dockerignore.backend.template`
 - `templates/Dockerfile.python-service.template`
 - `templates/constraints.shared-build.template.txt`
@@ -16,6 +17,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/workflows/pr-auto-merge.template.yml`
 - `Development-Workflow-and-CI-Strategy-Standard.md`
 - `Backend-CI-Lane-Template-Contract.md`
+- `Repository-Hygiene-and-Dependency-Model-Standard.md`
 - `Repository-CI-Lane-Mapping-Baseline.md`
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
@@ -52,6 +54,7 @@ This generates a production-grade backend baseline with:
 
 - explicit feature, PR merge, and main releasability workflows
 - merge-commit auto-merge workflow
+- scaffolded `.gitignore` and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
 - FastAPI app with health/readiness and metrics
 - OpenAPI gate script

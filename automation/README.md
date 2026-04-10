@@ -486,6 +486,12 @@ Enforce repository governance policy (branch protection + auto-merge + review re
 powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
 ```
 
+Validate repository hygiene and dependency authority for a scaffolded or existing backend repo:
+
+```powershell
+python automation/validate_repository_hygiene.py --repo-root C:/Users/Sandeep/projects/lotus-manage
+```
+
 Validate current repository governance drift against the platform policy:
 
 ```powershell
@@ -574,6 +580,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/repository-governance-enforcement.md`
 - `output/repository-governance-validation.json`
 - `output/repository-governance-validation.md`
+- `output/repository-hygiene-validation.json`
+- `output/repository-hygiene-validation.md`
 - `output/openapi-conformance-summary.json`
 - `output/openapi-conformance-summary.md`
 - `output/domain-vocabulary-conformance.json`
