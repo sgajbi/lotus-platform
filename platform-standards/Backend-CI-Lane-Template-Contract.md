@@ -68,6 +68,16 @@ Required job names:
 6. `Main Releasability / Coverage Gate (Combined)`
 7. `Main Releasability / Validate Docker Build`
 
+Required retained artifacts:
+
+1. `main-releasability-coverage-data`
+2. `main-releasability-release-evidence`
+
+The `main-releasability-release-evidence` artifact must contain:
+
+1. `sbom.cdx.json`
+2. `release-evidence.json`
+
 ## Branch-Protection Default
 
 New backend services must register the PR Merge Gate job names in `automation/repository-governance-policy.json`.

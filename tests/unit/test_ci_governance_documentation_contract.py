@@ -29,6 +29,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     workflow_security_standard = (
         ROOT / "platform-standards" / "Workflow-Security-and-Permissions-Standard.md"
     ).read_text(encoding="utf-8")
+    release_evidence_standard = (
+        ROOT / "platform-standards" / "Release-Evidence-and-SBOM-Foundation-Standard.md"
+    ).read_text(encoding="utf-8")
     scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
     auto_merge_template = (
         ROOT / "platform-standards" / "templates" / "workflows" / "pr-auto-merge.template.yml"
@@ -59,6 +62,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 4D | Repository governance rollout and validation | Complete" in checklist
     assert "Slice 5A | Repository hygiene and dependency-model baseline | Complete" in checklist
     assert "Slice 5B | Workflow security and permissions baseline | Complete" in checklist
+    assert "Slice 5C | Release evidence and SBOM scaffold baseline | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -106,6 +110,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "pull_request_target" in workflow_security_standard
     assert "write-capable workflows" in workflow_security_standard
     assert "least-privilege" in workflow_security_standard
+    assert "Dependency SBOM Baseline" in release_evidence_standard
+    assert "release-evidence.json" in release_evidence_standard
+    assert "main-releasability-release-evidence" in release_evidence_standard
 
     assert "feature-lane.backend.template.yml" in scaffold_script
     assert "pr-merge-gate.backend.template.yml" in scaffold_script
@@ -131,6 +138,7 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Backend-CI-Lane-Template-Contract.md" in standards_readme
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme
+    assert "Release-Evidence-and-SBOM-Foundation-Standard.md" in standards_readme
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
     assert "Repository-CI-Convergence-Gap-Audit.md" in standards_readme
 
