@@ -34,6 +34,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 5B | Workflow security and permissions baseline | Complete | Platform-owned workflow security policy now validates least-privilege permissions, restricts `pull_request_target`, and runs as part of platform repo checks |
 | Slice 5C | Release evidence and SBOM scaffold baseline | Complete | Newly scaffolded backend main releasability workflows now emit retained SBOM and release metadata artifacts by default through the shared template contract |
 | Slice 5D | Container build and image baseline enforcement | Complete | Platform repo checks now enforce backend scaffold Docker contracts for `.dockerignore`, multi-stage non-root Dockerfiles, and BuildKit/buildx-enabled Docker validation workflows |
+| Slice 5E | Companion dependency lock scaffold baseline | Complete | Backend scaffold now emits companion runtime and CI tooling lock artifacts by default, and repository hygiene validation enforces their presence |
 
 ## Slice 1 Completion Evidence
 

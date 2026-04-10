@@ -26,6 +26,7 @@ if ((Test-Path $target) -and -not $Force) {
 
 $dirs = @(
   ".github/workflows",
+  "requirements",
   "src/app",
   "src/app/contracts",
   "src/app/middleware",
@@ -44,6 +45,8 @@ foreach ($dir in $dirs) {
 Copy-Item (Join-Path $templateRoot "Makefile.backend.template") (Join-Path $target "Makefile") -Force
 Copy-Item (Join-Path $templateRoot ".gitignore.backend.template") (Join-Path $target ".gitignore") -Force
 Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template") (Join-Path $target ".dockerignore") -Force
+Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt") (Join-Path $target "requirements/shared-runtime.lock.txt") -Force
+Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt") (Join-Path $target "requirements/ci-tooling.lock.txt") -Force
 Copy-Item (Join-Path $templateRoot "pre-commit.backend.template.yaml") (Join-Path $target ".pre-commit-config.yaml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/feature-lane.backend.template.yml") (Join-Path $target ".github/workflows/feature-lane.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/pr-merge-gate.backend.template.yml") (Join-Path $target ".github/workflows/pr-merge-gate.yml") -Force
@@ -59,6 +62,28 @@ $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=
 $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"
 Set-Content $makefilePath $makefile
 
+$runtimeDependencies = [ordered]@{
+  "fastapi" = "0.133.0"
+  "uvicorn" = "0.41.0"
+  "pydantic" = "2.12.0"
+  "pydantic-settings" = "2.13.0"
+  "prometheus-fastapi-instrumentator" = "7.1.0"
+}
+
+$developmentDependencies = [ordered]@{
+  "ruff" = "0.15.0"
+  "mypy" = "1.19.0"
+  "pytest" = "9.0.0"
+  "pytest-asyncio" = "1.2.0"
+  "pytest-cov" = "7.0.0"
+  "httpx" = "0.28.0"
+  "coverage" = "7.13.0"
+  "pip-audit" = "2.10.0"
+}
+
+$runtimeDependencyLines = $runtimeDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
+$developmentDependencyLines = $developmentDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
+
 $pyproject = @"
 [build-system]
 requires = ["setuptools>=70", "wheel"]
@@ -71,23 +96,12 @@ description = "$Description"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.133.0",
-  "uvicorn>=0.41.0",
-  "pydantic>=2.12.0",
-  "pydantic-settings>=2.13.0",
-  "prometheus-fastapi-instrumentator>=7.1.0"
+$(($runtimeDependencyLines -join "`n"))
 ]
 
 [project.optional-dependencies]
 dev = [
-  "ruff>=0.15.0",
-  "mypy>=1.19.0",
-  "pytest>=9.0.0",
-  "pytest-asyncio>=1.2.0",
-  "pytest-cov>=7.0.0",
-  "httpx>=0.28.0",
-  "coverage>=7.13.0",
-  "pip-audit>=2.10.0"
+$(($developmentDependencyLines -join "`n"))
 ]
 
 [tool.ruff]
@@ -99,6 +113,12 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 "@
 Set-Content -Path (Join-Path $target "pyproject.toml") -Value $pyproject
+
+$sharedRuntimeLock = ($runtimeDependencies.GetEnumerator() | ForEach-Object { "$($_.Key)==$($_.Value)" }) -join "`n"
+Set-Content -Path (Join-Path $target "requirements/shared-runtime.lock.txt") -Value $sharedRuntimeLock
+
+$ciToolingLock = ($developmentDependencies.GetEnumerator() | ForEach-Object { "$($_.Key)==$($_.Value)" }) -join "`n"
+Set-Content -Path (Join-Path $target "requirements/ci-tooling.lock.txt") -Value $ciToolingLock
 
 $mypy = @"
 [mypy]

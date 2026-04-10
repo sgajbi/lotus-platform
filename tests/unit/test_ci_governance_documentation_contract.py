@@ -115,6 +115,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert ".gitignore" in hygiene_standard
     assert ".dockerignore" in hygiene_standard
     assert "pyproject.toml" in hygiene_standard
+    assert "requirements/shared-runtime.lock.txt" in hygiene_standard
+    assert "requirements/ci-tooling.lock.txt" in hygiene_standard
     assert "pull_request_target" in workflow_security_standard
     assert "write-capable workflows" in workflow_security_standard
     assert "least-privilege" in workflow_security_standard
@@ -133,6 +135,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "main-releasability.backend.template.yml" in scaffold_script
     assert ".gitignore.backend.template" in scaffold_script
     assert ".dockerignore.backend.template" in scaffold_script
+    assert "requirements.shared-runtime.lock.template.txt" in scaffold_script
+    assert "requirements.ci-tooling.lock.template.txt" in scaffold_script
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
     assert "ci.backend.template.yml" not in scaffold_script
@@ -151,6 +155,8 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md" in standards_readme
     assert "Backend-CI-Lane-Template-Contract.md" in standards_readme
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
+    assert "requirements.shared-runtime.lock.template.txt" in standards_readme
+    assert "requirements.ci-tooling.lock.template.txt" in standards_readme
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme
     assert "Release-Evidence-and-SBOM-Foundation-Standard.md" in standards_readme
     assert "Platform-End-to-End-Validation-Coverage-Standard.md" in standards_readme

@@ -30,10 +30,14 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert ".gitignore" in hygiene_standard
     assert ".dockerignore" in hygiene_standard
     assert "pyproject.toml" in hygiene_standard
+    assert "requirements/shared-runtime.lock.txt" in hygiene_standard
+    assert "requirements/ci-tooling.lock.txt" in hygiene_standard
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")' in scaffold_script
+    assert 'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")' in scaffold_script
+    assert 'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")' in scaffold_script
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
 
 
@@ -87,5 +91,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
+    assert result["shared_runtime_lock_exists"] is True
+    assert result["ci_tooling_lock_exists"] is True
     assert result["gitignore_missing_patterns"] == []
     assert result["dockerignore_missing_patterns"] == []

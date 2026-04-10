@@ -9,6 +9,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/.dockerignore.backend.template`
 - `templates/Dockerfile.python-service.template`
 - `templates/constraints.shared-build.template.txt`
+- `templates/requirements.shared-runtime.lock.template.txt`
 - `templates/requirements.ci-tooling.lock.template.txt`
 - `templates/pre-commit.backend.template.yaml`
 - `templates/workflows/feature-lane.backend.template.yml`

@@ -24,7 +24,8 @@ Every Lotus backend repository must have:
 1. `.gitignore`
 2. `.dockerignore` when Docker build validation or container runtime is part of the repo contract
 3. one explicit dependency authority
-4. a repository-native quality command documented in `README.md`
+4. companion dependency lock artifacts under `requirements/`
+5. a repository-native quality command documented in `README.md`
 
 ## `.gitignore` Baseline
 
@@ -73,6 +74,13 @@ Allowed primary models:
 
 New Lotus backend repositories must use `pyproject.toml` as the primary dependency authority by default.
 
+They must also emit the companion lock artifacts below:
+
+1. `requirements/shared-runtime.lock.txt`
+2. `requirements/ci-tooling.lock.txt`
+
+These files are companion evidence and install-control artifacts, not a second primary dependency authority.
+
 ### Existing-repo convergence rule
 
 Existing repositories may remain on a `requirements.txt`-based model while converging, but they must not accumulate undocumented hybrid drift.
@@ -113,5 +121,7 @@ This standard is satisfied for scaffolded backend repos when:
 1. the scaffold emits `.gitignore` from the platform template,
 2. the scaffold emits `.dockerignore` from the platform template,
 3. the scaffolded repository uses `pyproject.toml` as the dependency authority,
-4. automation metadata points to `make check` and `make ci`,
-5. an automated contract test proves the generated repository matches this baseline.
+4. the scaffold emits `requirements/shared-runtime.lock.txt`,
+5. the scaffold emits `requirements/ci-tooling.lock.txt`,
+6. automation metadata points to `make check` and `make ci`,
+7. an automated contract test proves the generated repository matches this baseline.

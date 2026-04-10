@@ -58,6 +58,8 @@ def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
     gitignore = repo_root / ".gitignore"
     dockerignore = repo_root / ".dockerignore"
     readme = repo_root / "README.md"
+    shared_runtime_lock = repo_root / "requirements" / "shared-runtime.lock.txt"
+    ci_tooling_lock = repo_root / "requirements" / "ci-tooling.lock.txt"
 
     gitignore_content = _read_text_if_exists(gitignore)
     dockerignore_content = _read_text_if_exists(dockerignore)
@@ -70,6 +72,8 @@ def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
         "dockerignore_exists": dockerignore.exists(),
         "readme_exists": readme.exists(),
         "dependency_authority": dependency_authority,
+        "shared_runtime_lock_exists": shared_runtime_lock.exists(),
+        "ci_tooling_lock_exists": ci_tooling_lock.exists(),
         "gitignore_missing_patterns": _missing_patterns(gitignore_content, REQUIRED_GITIGNORE_PATTERNS),
         "dockerignore_missing_patterns": _missing_patterns(dockerignore_content, REQUIRED_DOCKERIGNORE_PATTERNS),
         "readme_has_make_check": "make check" in readme_content,
@@ -80,6 +84,8 @@ def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
         and result["dockerignore_exists"]
         and result["readme_exists"]
         and result["dependency_authority"] == "pyproject"
+        and result["shared_runtime_lock_exists"]
+        and result["ci_tooling_lock_exists"]
         and not result["gitignore_missing_patterns"]
         and not result["dockerignore_missing_patterns"]
         and result["readme_has_make_check"]
@@ -101,6 +107,8 @@ def build_markdown_report(result: dict[str, object]) -> str:
         f"| `.gitignore` present | `{result['gitignore_exists']}` |",
         f"| `.dockerignore` present | `{result['dockerignore_exists']}` |",
         f"| `README.md` present | `{result['readme_exists']}` |",
+        f"| `requirements/shared-runtime.lock.txt` present | `{result['shared_runtime_lock_exists']}` |",
+        f"| `requirements/ci-tooling.lock.txt` present | `{result['ci_tooling_lock_exists']}` |",
         f"| `README.md` includes `make check` | `{result['readme_has_make_check']}` |",
         f"| `README.md` includes `make ci` | `{result['readme_has_make_ci']}` |",
         f"| `.gitignore` missing patterns | `{', '.join(result['gitignore_missing_patterns']) or '-'}` |",
