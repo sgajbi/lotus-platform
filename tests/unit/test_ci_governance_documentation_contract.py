@@ -40,6 +40,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 1 | Governance and documentation foundation | Complete" in checklist
     assert "Slice 2 | Repository workflow classification and gap audit | Complete" in checklist
     assert "Slice 3B | Scaffold and template convergence | Complete" in checklist
+    assert "Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "lotus-workbench" in mapping
@@ -66,6 +67,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "P0" in gap_audit
     assert "P1" in gap_audit
     assert "Dedicated Feature Lane is mostly missing" in gap_audit
+    assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
 
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract
@@ -119,3 +121,13 @@ def test_backend_lane_templates_exist_and_define_explicit_lane_names() -> None:
     assert "pr-merge-gate-workflow" in standards_validator
     assert "main-releasability-workflow" in standards_validator
     assert "explicit-lane-workflows" in standards_validator
+
+
+def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
+    policy = (ROOT / "automation" / "backend-governance-policy.json").read_text(encoding="utf-8")
+
+    assert '"name":  "lotus-manage"' in policy
+    assert '"name":  "lotus-report"' in policy
+    assert "PR Merge Gate / Workflow Lint" in policy
+    assert "PR Merge Gate / Lint Typecheck Security" in policy
+    assert "PR Merge Gate / Coverage Gate (Combined)" in policy

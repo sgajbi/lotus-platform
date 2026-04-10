@@ -55,13 +55,13 @@
                       "name":  "lotus-manage",
                       "default_branch":  "main",
                       "required_checks":  [
-                                              "Workflow Lint",
-                                              "Lint Typecheck Security",
-                                              "Tests (unit)",
-                                              "Tests (integration)",
-                                              "Tests (e2e)",
-                                              "Coverage Gate (Combined)",
-                                              "Validate Docker Build"
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
                                           ]
                   },
                   {
@@ -82,13 +82,13 @@
                       "name":  "lotus-report",
                       "default_branch":  "main",
                       "required_checks":  [
-                                              "Workflow Lint",
-                                              "Lint Typecheck Security",
-                                              "Tests (unit)",
-                                              "Tests (integration)",
-                                              "Tests (e2e)",
-                                              "Coverage Gate (Combined)",
-                                              "Validate Docker Build"
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
                                           ]
                   },
                   {

@@ -17,6 +17,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 3 | Standardized workflow convergence | Pending | Existing-repo workflow updates and branch-protection convergence remain a later rollout step |
 | Slice 3A | Skill and developer-process alignment | Complete | Codex skills for backend delivery, frontend delivery, and pre-merge flow align to RFC-0072 |
 | Slice 3B | Scaffold and template convergence | Complete | Backend scaffold now emits explicit feature, PR merge, and main releasability workflows by default |
+| Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows, with governance policy updated accordingly |
 | Slice 4 | Platform end-to-end lane hardening | Pending | Canonical platform runtime validation exists, but RFC-0072 governance rollout is not yet completed |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
@@ -155,6 +156,47 @@ Evidence:
 Evidence:
 
 1. `automation/Validate-Backend-Standards.ps1`
+
+## Slice 3C Completion Evidence
+
+### Repo rollout artifacts
+
+1. `lotus-manage/.github/workflows/feature-lane.yml`
+2. `lotus-manage/.github/workflows/pr-merge-gate.yml`
+3. `lotus-manage/.github/workflows/main-releasability.yml`
+4. `lotus-report/.github/workflows/feature-lane.yml`
+5. `lotus-report/.github/workflows/pr-merge-gate.yml`
+6. `lotus-report/.github/workflows/main-releasability.yml`
+7. `automation/backend-governance-policy.json`
+8. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+### Slice 3C acceptance posture
+
+#### 1. The first scaffold-compatible backend repos are converged to explicit lane workflows
+
+- Complete
+
+Evidence:
+
+1. `lotus-manage`
+2. `lotus-report`
+
+#### 2. Platform governance defaults reflect the new PR Merge Gate check names
+
+- Complete
+
+Evidence:
+
+1. `automation/backend-governance-policy.json`
+
+#### 3. Rollout documentation reflects implemented convergence rather than only target-state gaps
+
+- Complete
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+2. `rfcs/RFC-0072-implementation-checklist.md`
 
 ## Deviation Posture
 

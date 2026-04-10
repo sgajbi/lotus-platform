@@ -37,8 +37,8 @@ Every repository should converge toward:
 | `lotus-performance` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Strong governance gates, test pyramid gate, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
 | `lotus-risk` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Governance gates, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
 | `lotus-advise` | Domain API | Single `ci.yml` covers PR and `main`; nightly full workflow exists; `pr-auto-merge.yml` exists | Stronger than baseline on dependency freshness, Postgres smoke, production-profile gates, nightly posture | No explicit Feature Lane separation; Main Releasability Gate not separated from PR gate; nightly workflow not yet classified under platform taxonomy | P1 |
-| `lotus-manage` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Strong governance gates, typecheck-tests-critical, split test suites, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
-| `lotus-report` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Strong governance gates, split test suites, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
+| `lotus-manage` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, typecheck-tests-critical, split test suites, coverage, Docker; explicit lane naming now aligned | Platform End-to-End Validation Lane participation still needs to be documented and wired; branch-protection rollout must be applied from platform governance | P1 |
+| `lotus-report` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, split test suites, coverage, Docker; explicit lane naming now aligned | Platform End-to-End Validation Lane participation still needs to be documented and wired; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-ai` | Shared Capability Service | `backend-service-pipeline.yml` and `ci.yml`; broad push trigger already captures feature-branch events; `pr-auto-merge.yml` exists | Best current approximation of a feature-branch lane because push is not restricted to `main`; includes runtime-mode smoke and capability-specific governance gates | Lane naming still not aligned; PR and Main gates still blended in one workflow; platform E2E participation via gateway is not yet formalized | P1 |
 | `lotus-platform` | Platform Governance / Automation | Platform-specific governance and cross-app workflows exist, but no explicit RFC-0072 lane suite yet | Owns cross-app validation and governance automation; strong ingress and validation foundation | Needs explicit lane-oriented workflow strategy for its own repo; needs cross-repo rollout reporting as first-class artifact; needs platform validation lane naming convergence | P0 |
 
@@ -103,9 +103,7 @@ These are understandable, but they do not yet make the RFC-0072 lane intent obvi
 3. `lotus-performance`
 4. `lotus-risk`
 5. `lotus-advise`
-6. `lotus-manage`
-7. `lotus-report`
-8. `lotus-ai`
+6. `lotus-ai`
 
 Primary work:
 
