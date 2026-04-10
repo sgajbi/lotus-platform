@@ -41,6 +41,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 2 | Repository workflow classification and gap audit | Complete" in checklist
     assert "Slice 3B | Scaffold and template convergence | Complete" in checklist
     assert "Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete" in checklist
+    assert "Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "lotus-workbench" in mapping
@@ -68,6 +69,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "P1" in gap_audit
     assert "Dedicated Feature Lane is mostly missing" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
+    assert "platform-end-to-end-validation.yml" in gap_audit
 
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract
@@ -128,6 +130,12 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
 
     assert '"name":  "lotus-manage"' in policy
     assert '"name":  "lotus-report"' in policy
+    assert '"name":  "lotus-gateway"' in policy
+    assert '"name":  "lotus-workbench"' in policy
     assert "PR Merge Gate / Workflow Lint" in policy
     assert "PR Merge Gate / Lint Typecheck Security" in policy
     assert "PR Merge Gate / Coverage Gate (Combined)" in policy
+    assert "PR Merge Gate / Lint Typecheck Unit" in policy
+    assert "PR Merge Gate / CI Local Docker Parity" in policy
+    assert "PR Merge Gate / Lint Typecheck Coverage Build" in policy
+    assert "PR Merge Gate / Playwright Smoke" in policy

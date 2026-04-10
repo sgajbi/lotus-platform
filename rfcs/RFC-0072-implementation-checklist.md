@@ -18,6 +18,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 3A | Skill and developer-process alignment | Complete | Codex skills for backend delivery, frontend delivery, and pre-merge flow align to RFC-0072 |
 | Slice 3B | Scaffold and template convergence | Complete | Backend scaffold now emits explicit feature, PR merge, and main releasability workflows by default |
 | Slice 3C | Backend rollout wave 1 (`lotus-manage`, `lotus-report`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows, with governance policy updated accordingly |
+| Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows; `lotus-gateway` also exposes an explicitly named platform validation lane |
 | Slice 4 | Platform end-to-end lane hardening | Pending | Canonical platform runtime validation exists, but RFC-0072 governance rollout is not yet completed |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
@@ -197,6 +198,57 @@ Evidence:
 
 1. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 2. `rfcs/RFC-0072-implementation-checklist.md`
+
+## Slice 3D Completion Evidence
+
+### Repo rollout artifacts
+
+1. `lotus-gateway/.github/workflows/feature-lane.yml`
+2. `lotus-gateway/.github/workflows/pr-merge-gate.yml`
+3. `lotus-gateway/.github/workflows/main-releasability.yml`
+4. `lotus-gateway/.github/workflows/platform-end-to-end-validation.yml`
+5. `lotus-workbench/.github/workflows/feature-lane.yml`
+6. `lotus-workbench/.github/workflows/pr-merge-gate.yml`
+7. `lotus-workbench/.github/workflows/main-releasability.yml`
+8. `automation/backend-governance-policy.json`
+9. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+10. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+### Slice 3D acceptance posture
+
+#### 1. Experience-layer repos are converged to explicit lane workflows
+
+- Complete
+
+Evidence:
+
+1. `lotus-gateway`
+2. `lotus-workbench`
+
+#### 2. Gateway platform-validation participation is explicitly named and retained
+
+- Complete
+
+Evidence:
+
+1. `lotus-gateway/.github/workflows/platform-end-to-end-validation.yml`
+
+#### 3. Platform governance defaults reflect the new PR Merge Gate check names for experience-layer repos
+
+- Complete
+
+Evidence:
+
+1. `automation/backend-governance-policy.json`
+
+#### 4. Rollout documentation reflects the current converged posture for `lotus-gateway` and `lotus-workbench`
+
+- Complete
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+2. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
 ## Deviation Posture
 

@@ -31,8 +31,8 @@ Every repository should converge toward:
 
 | Repository | Profile | Current workflow posture | Current strengths | Main gaps to target state | Priority |
 | --- | --- | --- | --- | --- | --- |
-| `lotus-workbench` | UI Product | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Strong PR/main gate, browser smoke, Docker parity, build coverage | No explicit dedicated Feature Lane; Main Releasability Gate not separated from PR gate; platform E2E dependency not yet expressed in repo docs/workflow naming | P1 |
-| `lotus-gateway` | Experience API | Single `ci.yml` covers PR and `main`; `workflow_dispatch` live upstream check exists; `pr-auto-merge.yml` exists | Strong contract, integration, coverage, Docker, and local parity gates; live upstream validation exists | No explicit dedicated Feature Lane; Main Releasability Gate not separated; live upstream workflow is not yet named as part of platform validation taxonomy | P1 |
+| `lotus-workbench` | UI Product | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong explicit lane split, browser smoke, Docker parity, build coverage, and a hardened Playwright smoke startup contract | Platform End-to-End Validation Lane participation still remains platform-owned rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
+| `lotus-gateway` | Experience API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, `platform-end-to-end-validation.yml`, and `pr-auto-merge.yml` now exist | Strong contract, integration, coverage, Docker, local parity, and explicitly named live upstream validation | Branch-protection rollout must be applied from platform governance; remaining rollout work is now in other repos rather than gateway workflow structure | P1 |
 | `lotus-core` | Domain API | One large `ci.yml` covers PR, `main`, merge-group, scheduled, and manual heavy checks; `pr-auto-merge.yml` exists | Strongest maturity in heavy gates, load gates, latency, docker smoke, and institutional sign-off evidence | Workflow is overloaded; Feature, PR, Main, and heavy system lanes are not explicitly separated; lane naming is not aligned to RFC-0072 | P0 |
 | `lotus-performance` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Strong governance gates, test pyramid gate, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
 | `lotus-risk` | Domain API | Single `ci.yml` covers PR and `main`; `pr-auto-merge.yml` exists | Governance gates, coverage, Docker | No explicit dedicated Feature Lane; Main Releasability Gate not separated; no explicit platform validation participation documented | P1 |
@@ -98,12 +98,10 @@ These are understandable, but they do not yet make the RFC-0072 lane intent obvi
 
 ### P1
 
-1. `lotus-workbench`
-2. `lotus-gateway`
-3. `lotus-performance`
-4. `lotus-risk`
-5. `lotus-advise`
-6. `lotus-ai`
+1. `lotus-performance`
+2. `lotus-risk`
+3. `lotus-advise`
+4. `lotus-ai`
 
 Primary work:
 
