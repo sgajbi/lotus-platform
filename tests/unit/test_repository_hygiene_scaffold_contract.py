@@ -1,12 +1,22 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _powershell_executable() -> str:
+    if sys.platform.startswith("win"):
+        return "powershell"
+    candidate = shutil.which("pwsh") or shutil.which("powershell")
+    if candidate is None:
+        raise AssertionError("PowerShell executable not available for scaffold contract test")
+    return candidate
 
 
 def test_repository_hygiene_standard_and_templates_exist() -> None:
@@ -38,7 +48,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
 
     subprocess.run(
         [
-            "powershell",
+            _powershell_executable(),
             "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
