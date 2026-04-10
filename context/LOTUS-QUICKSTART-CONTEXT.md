@@ -6,7 +6,8 @@ Read this file first, then continue to:
 
 1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
 2. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
-3. the repository-local `REPOSITORY-ENGINEERING-CONTEXT.md` for the repository you are changing
+3. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
+4. the repository-local `REPOSITORY-ENGINEERING-CONTEXT.md` for the repository you are changing
 
 ## What Lotus Is
 
@@ -94,13 +95,13 @@ A Lotus change is not complete unless it is:
 Use the smallest correct working set:
 
 1. UI or product-surface work
-   Read the engineering context, then `lotus-workbench` repo context, then relevant gateway and platform validation references.
+   Read the engineering context, then the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), then `lotus-workbench` repo context, then relevant gateway and platform validation references.
 2. Backend API or domain-service work
-   Read the engineering context, then the owning repo context, then relevant standards and contract governance docs.
+   Read the engineering context, then the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), then the owning repo context, then relevant standards and contract governance docs.
 3. Cross-app integration or validation work
-   Read the engineering context, the reference map, and the platform validation/runbook material first.
+   Read the engineering context, the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), the reference map, and the platform validation/runbook material first.
 4. RFC, standards, or governance work
-   Read the engineering context, the reference map, and the relevant RFC or standard set.
+   Read the engineering context, the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), the reference map, and the relevant RFC or standard set.
 
 ## Human-Maintained Memory
 
@@ -120,10 +121,15 @@ The machine-readable context layer lives in:
 
 Use it when you need deterministic ecosystem inventory, repository roles, or canonical context paths.
 
+The human-readable registry companion lives in:
+
+1. [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md)
+
 ## Next Read
 
 Continue in this order:
 
 1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
-3. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries
+2. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
+3. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
+4. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries

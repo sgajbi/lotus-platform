@@ -76,6 +76,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Enforce-Repository-Governance.ps1`
 - `validate_repository_governance.py`
 - `validate_repository_hygiene.py`
+- `render_context_registries.py`
 - `validate_workflow_security.py`
 - `validate_workflow_action_runtime.py`
 - `validate_container_build_baseline.py`

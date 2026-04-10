@@ -6,7 +6,8 @@ Start with:
 
 1. [Lotus Quickstart Context](./LOTUS-QUICKSTART-CONTEXT.md)
 2. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-3. [lotus-context-manifest.json](./lotus-context-manifest.json)
+3. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
+4. [lotus-context-manifest.json](./lotus-context-manifest.json)
 
 ## Central Memory Layer
 
@@ -23,6 +24,8 @@ Start with:
 
 1. [lotus-context-manifest.json](./lotus-context-manifest.json)
    Machine-readable ecosystem inventory and doc routing layer.
+2. [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md)
+   Human-readable registry view derived from the manifest.
 
 The manifest currently carries:
 
@@ -32,6 +35,22 @@ The manifest currently carries:
 4. active RFC registry,
 5. canonical reading order,
 6. context document path map.
+
+The registry companion currently exposes:
+
+1. application registry,
+2. domain authority map,
+3. standards registry,
+4. active RFC registry.
+
+## Task Routing
+
+1. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
+   Primary task-first routing for frontend, backend, cross-app validation, and governance work.
+2. [Lotus Quickstart Context](./LOTUS-QUICKSTART-CONTEXT.md)
+   Fast orientation and high-signal working posture.
+3. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
+   Canonical architecture and delivery rules that explain why the task-routing paths exist.
 
 ## Platform Standards
 
@@ -64,38 +83,42 @@ Read:
 
 1. the quickstart context,
 2. the engineering context,
-3. the `lotus-workbench` repository context once it exists,
-4. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
-5. the platform validation references when end-to-end proof is required.
+3. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
+4. the `lotus-workbench` repository context,
+5. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
+6. the platform validation references when end-to-end proof is required.
 
 ### For backend API or domain-service work
 
 Read:
 
 1. the engineering context,
-2. the owning repo context once it exists,
-3. RFC-0067 and related vocabulary or contract standards,
-4. RFC-0072 for CI and validation expectations.
+2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
+3. the owning repo context,
+4. RFC-0067 and related vocabulary or contract standards,
+5. RFC-0072 for CI and validation expectations.
 
 ### For cross-app runtime and validation work
 
 Read:
 
 1. the engineering context,
-2. RFC-0071,
-3. RFC-0072,
-4. the local development and ingress runbooks,
-5. the manifest to identify participating services and canonical paths.
+2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
+3. RFC-0071,
+4. RFC-0072,
+5. the local development and ingress runbooks,
+6. the manifest and [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) to identify participating services and canonical paths.
 
 ### For platform standards and governance work
 
 Read:
 
 1. the engineering context,
-2. RFC-0072,
-3. RFC-0073,
-4. the relevant standard documents under `platform-standards/`,
-5. the platform engineering ledger and recent architectural decisions digest.
+2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
+3. RFC-0072,
+4. RFC-0073,
+5. the relevant standard documents under `platform-standards/`,
+6. the platform engineering ledger and recent architectural decisions digest.
 
 ## Runbooks And Operations
 
@@ -105,7 +128,7 @@ Read:
 
 ## Repository-Local Context Documents
 
-These will become the implementation truth for each repo:
+These are now the implementation-truth entrypoints for each repo:
 
 1. [lotus-platform/REPOSITORY-ENGINEERING-CONTEXT.md](../REPOSITORY-ENGINEERING-CONTEXT.md)
 2. `lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`
@@ -118,6 +141,4 @@ These will become the implementation truth for each repo:
 9. `lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md`
 10. `lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md`
 
-Slice 1 defines the central system. Repository-local rollout happens in later RFC-0073 slices.
-
-Use [Repository Engineering Context Contract](./Repository-Engineering-Context-Contract.md) and [the template](./templates/REPOSITORY-ENGINEERING-CONTEXT.template.md) when rolling out the remaining repo-local documents.
+Use [Repository Engineering Context Contract](./Repository-Engineering-Context-Contract.md) and [the template](./templates/REPOSITORY-ENGINEERING-CONTEXT.template.md) when updating or extending the repo-local context set.

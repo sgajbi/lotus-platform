@@ -16,6 +16,8 @@
     "quickstart": "context/LOTUS-QUICKSTART-CONTEXT.md",
     "engineering_context": "context/LOTUS-ENGINEERING-CONTEXT.md",
     "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
+    "task_routing_guide": "context/TASK-ROUTING-GUIDE.md",
+    "ecosystem_registries": "context/ECOSYSTEM-REGISTRIES.md",
     "platform_engineering_ledger": "context/platform-engineering-ledger.md",
     "recent_architectural_decisions_digest": "context/recent-architectural-decisions-digest.md"
   },
@@ -321,8 +323,23 @@
       "scope": "platform-wide"
     },
     {
+      "name": "Enterprise Readiness Standard",
+      "path": "Enterprise Readiness Standard.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Scalability and Availability Standard",
+      "path": "Scalability and Availability Standard.md",
+      "scope": "platform-wide"
+    },
+    {
       "name": "Domain Vocabulary Glossary",
       "path": "Domain Vocabulary Glossary.md",
+      "scope": "platform-wide"
+    },
+    {
+      "name": "Platform Integration Architecture Bible",
+      "path": "Platform Integration Architecture Bible.md",
       "scope": "platform-wide"
     }
   ],
@@ -330,17 +347,20 @@
     {
       "id": "RFC-0071",
       "title": "Centralized environment-scoped service addressing and ingress governance",
-      "status": "active"
+      "status": "active",
+      "implementation_posture": "implemented and governed"
     },
     {
       "id": "RFC-0072",
       "title": "Platform-wide multi-lane CI, validation, and release governance",
-      "status": "active"
+      "status": "active",
+      "implementation_posture": "partially implemented and temporarily paused while RFC-0073 is in progress"
     },
     {
       "id": "RFC-0073",
       "title": "Lotus ecosystem engineering context and agent guidance system",
-      "status": "active"
+      "status": "active",
+      "implementation_posture": "in progress"
     }
   ]
 }

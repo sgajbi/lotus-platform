@@ -275,3 +275,19 @@ Use the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to find:
 3. runbooks,
 4. domain references,
 5. repository-local context documents.
+
+## Task Routing Guidance
+
+Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when you want the smallest correct reading path for:
+
+1. frontend and product-surface work,
+2. backend API and domain-service work,
+3. cross-app integration and platform validation work,
+4. standards, RFC, and governance work.
+
+Use [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when you need a human-readable view of:
+
+1. application roles and categories,
+2. domain authority ownership,
+3. standards currently in force,
+4. active RFCs that still materially govern the ecosystem.

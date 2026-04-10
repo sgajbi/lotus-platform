@@ -10,7 +10,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 - `Slice 3A | Repository-local context contract and platform pilot | Complete`
 - `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
 - `Slice 3C | Repository-local context rollout wave 2 (`lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`) | Complete`
-- `Slice 4 | Reference map and task-routing hardening | Pending`
+- `Slice 4 | Reference map and task-routing hardening | Complete`
 - `Slice 5 | Drift control and validation foundation | Pending`
 - `Slice 6 | Skills, automation, and procedural memory alignment | Pending`
 
@@ -75,3 +75,13 @@ Implemented:
 6. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-ai`,
 7. README cross-links added for the wave-2 repositories,
 8. manifest rollout-status updates for the remaining repositories.
+
+### Slice 4 | Reference map and task-routing hardening
+
+Implemented:
+
+1. `context/TASK-ROUTING-GUIDE.md` as the task-first routing layer for frontend, backend, cross-app validation, and governance work,
+2. `context/ECOSYSTEM-REGISTRIES.md` as the human-readable registry view generated from the governed manifest,
+3. cross-link hardening in the quickstart, engineering context, context README, and reference map,
+4. manifest enrichment so standards and active-RFC registries carry richer current-state truth,
+5. documentation-contract coverage proving the routing docs, generated registries, and manifest stay aligned.

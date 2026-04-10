@@ -492,6 +492,12 @@ Validate repository hygiene and dependency authority for a scaffolded or existin
 python automation/validate_repository_hygiene.py --repo-root C:/Users/Sandeep/projects/lotus-manage
 ```
 
+Render the human-readable ecosystem registries from the governed context manifest:
+
+```powershell
+python automation/render_context_registries.py
+```
+
 Validate workflow security and permissions posture across platform workflows and templates:
 
 ```powershell

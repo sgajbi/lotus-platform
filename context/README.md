@@ -30,13 +30,17 @@ Do not duplicate full platform policy prose into repository-local docs unless lo
    Curated routing layer for standards, RFCs, runbooks, and repo docs.
 4. [lotus-context-manifest.json](./lotus-context-manifest.json)
    Machine-readable ecosystem map and registry layer.
-5. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
+5. [TASK-ROUTING-GUIDE.md](./TASK-ROUTING-GUIDE.md)
+   Task-first routing guide for loading the smallest correct working set.
+6. [ECOSYSTEM-REGISTRIES.md](./ECOSYSTEM-REGISTRIES.md)
+   Human-readable registry view generated from the manifest.
+7. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
    Source-of-truth content for the deployed global `AGENTS.md`.
-6. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)
+8. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)
    Required section contract for repository-local engineering context documents.
-7. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
+9. [platform-engineering-ledger.md](./platform-engineering-ledger.md)
    Human-maintained engineering memory for recurring platform lessons.
-8. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
+10. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
    High-signal summary of current architectural reality.
 
 ## Maintenance Rules

@@ -1,11 +1,22 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTEXT_DIR = ROOT / "context"
+REGISTRY_RENDERER_PATH = ROOT / "automation" / "render_context_registries.py"
+
+
+def _load_registry_renderer():
+    spec = importlib.util.spec_from_file_location("render_context_registries", REGISTRY_RENDERER_PATH)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_rfc_0073_slice_one_central_context_artifacts_exist_and_cross_link() -> None:
@@ -73,6 +84,8 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert manifest["context_documents"]["quickstart"] == "context/LOTUS-QUICKSTART-CONTEXT.md"
     assert manifest["context_documents"]["engineering_context"] == "context/LOTUS-ENGINEERING-CONTEXT.md"
     assert manifest["context_documents"]["reference_map"] == "context/CONTEXT-REFERENCE-MAP.md"
+    assert manifest["context_documents"]["task_routing_guide"] == "context/TASK-ROUTING-GUIDE.md"
+    assert manifest["context_documents"]["ecosystem_registries"] == "context/ECOSYSTEM-REGISTRIES.md"
     assert manifest["context_documents"]["platform_engineering_ledger"] == "context/platform-engineering-ledger.md"
     assert (
         manifest["context_documents"]["recent_architectural_decisions_digest"]
@@ -118,10 +131,17 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     standard_names = {entry["name"] for entry in manifest["standards_registry"]}
     assert "Continuous Integration, Validation, and Release Governance Standard" in standard_names
     assert "Testing Pyramid and Coverage Standard" in standard_names
+    assert "Enterprise Readiness Standard" in standard_names
+    assert "Scalability and Availability Standard" in standard_names
     assert "Domain Vocabulary Glossary" in standard_names
+    assert "Platform Integration Architecture Bible" in standard_names
 
     active_rfcs = {entry["id"] for entry in manifest["active_rfc_registry"]}
     assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073"}
+    implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
+    assert implementation_postures["RFC-0071"] == "implemented and governed"
+    assert "temporarily paused" in implementation_postures["RFC-0072"]
+    assert implementation_postures["RFC-0073"] == "in progress"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -225,3 +245,49 @@ def test_rfc_0073_slice_three_c_wave_two_rollout_is_recorded_in_manifest() -> No
     assert statuses["lotus-manage"] == "implemented"
     assert statuses["lotus-report"] == "implemented"
     assert statuses["lotus-ai"] == "implemented"
+
+
+def test_rfc_0073_slice_four_task_routing_and_registries_are_hardened() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    context_index = (CONTEXT_DIR / "README.md").read_text(encoding="utf-8")
+    quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
+    engineering = (CONTEXT_DIR / "LOTUS-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    registries = (CONTEXT_DIR / "ECOSYSTEM-REGISTRIES.md").read_text(encoding="utf-8")
+    task_routing_guide = (CONTEXT_DIR / "TASK-ROUTING-GUIDE.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+    registry_renderer = _load_registry_renderer()
+
+    assert "Slice 4 | Reference map and task-routing hardening | Complete" in checklist
+    assert "./TASK-ROUTING-GUIDE.md" in context_index
+    assert "./ECOSYSTEM-REGISTRIES.md" in context_index
+
+    assert "./TASK-ROUTING-GUIDE.md" in quickstart
+    assert "./ECOSYSTEM-REGISTRIES.md" in quickstart
+
+    assert "## Task Routing Guidance" in engineering
+    assert "./TASK-ROUTING-GUIDE.md" in engineering
+    assert "./ECOSYSTEM-REGISTRIES.md" in engineering
+
+    assert "./TASK-ROUTING-GUIDE.md" in reference_map
+    assert "./ECOSYSTEM-REGISTRIES.md" in reference_map
+    assert "These are now the implementation-truth entrypoints for each repo:" in reference_map
+    assert "once it exists" not in reference_map
+    assert "will become the implementation truth" not in reference_map
+
+    for heading in (
+        "## Frontend And Product-Surface Work",
+        "## Backend API And Domain-Service Work",
+        "## Cross-App Integration And Platform Validation Work",
+        "## Standards, RFC, And Governance Work",
+        "## Async Execution And Heavy Validation Routing",
+    ):
+        assert heading in task_routing_guide
+
+    assert "## Application Registry" in registries
+    assert "## Domain Authority Map" in registries
+    assert "## Standards Registry" in registries
+    assert "## Active RFC Registry" in registries
+
+    rendered = registry_renderer.render_registry_document(manifest)
+    assert registries == rendered
