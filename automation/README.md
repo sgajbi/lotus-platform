@@ -480,10 +480,10 @@ Generate dependency vulnerability rollup across backend services:
 powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1
 ```
 
-Enforce backend governance policy (branch protection + auto-merge + no review requirement):
+Enforce repository governance policy (branch protection + auto-merge + review requirements):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Enforce-Backend-Governance.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
 ```
 
 Scaffold a new standards-compliant Lotus backend and auto-register it in automation:
@@ -502,7 +502,7 @@ Profiles currently defined in `automation/task-profiles.json`:
 - `migration-quality`
 - `coverage-pyramid-baseline`
 - `backend-standards-conformance`
-- `enforce-backend-governance`
+- `enforce-repository-governance`
 - `openapi-conformance-baseline`
 - `domain-vocabulary-conformance`
 - `lotus-naming-conformance`
@@ -622,7 +622,7 @@ Automation scope derives from `automation/repos.json` for all `lotus-*` repos (e
 When scaffolding a new service with `New-Lotus-Service.ps1`, automation registration updates by default:
 - `automation/repos.json`
 - `automation/service-map.json`
-- `automation/backend-governance-policy.json`
+- `automation/repository-governance-policy.json`
 - `automation/test-coverage-policy.json`
 
 This ensures new services inherit CI/CD, governance, and quality baselines without manual wiring.

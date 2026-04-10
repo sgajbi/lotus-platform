@@ -28,7 +28,7 @@ Profiles are defined in `automation/task-profiles.json`.
 - `change-test-impact`: detects source changes without test updates across repos
 - `rfc-conformance-baseline`: RFC inventory + backlog
 - `pr-lifecycle`: PR monitor/auto-merge/cleanup loop task
-- `enforce-backend-governance`: branch protection + governance application
+- `enforce-repository-governance`: branch protection + governance application
 
 ## Choosing Max Parallel
 

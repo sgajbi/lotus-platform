@@ -70,7 +70,7 @@ Required job names:
 
 ## Branch-Protection Default
 
-New backend services must register the PR Merge Gate job names in `automation/backend-governance-policy.json`.
+New backend services must register the PR Merge Gate job names in `automation/repository-governance-policy.json`.
 
 Feature-lane and main-releasability jobs must not be configured as required PR checks.
 

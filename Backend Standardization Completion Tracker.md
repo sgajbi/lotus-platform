@@ -43,7 +43,7 @@ powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.p
 powershell -ExecutionPolicy Bypass -File automation/Measure-Test-Pyramid.ps1 -RunCoverage
 powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1
 powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1
-powershell -ExecutionPolicy Bypass -File automation/Enforce-Backend-Governance.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
 powershell -ExecutionPolicy Bypass -File automation/Validate-Durability-Consistency.ps1
 ```
 

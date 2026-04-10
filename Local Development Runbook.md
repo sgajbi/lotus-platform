@@ -648,7 +648,7 @@ Profiles are defined in `automation/task-profiles.json` and currently include:
 - `migration-quality`
 - `coverage-pyramid-baseline`
 - `backend-standards-conformance`
-- `enforce-backend-governance`
+- `enforce-repository-governance`
 - `openapi-conformance-baseline`
 - `domain-vocabulary-conformance`
 - `repo-metadata-validation`

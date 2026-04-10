@@ -49,6 +49,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete" in checklist
     assert "Slice 4A | Platform repo lane foundation | Complete" in checklist
     assert "Slice 4B | Platform validation lane normalization | Complete" in checklist
+    assert "Slice 4C | Repository governance policy normalization | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -179,7 +180,8 @@ def test_platform_validation_lane_workflow_and_shared_entrypoint_exist() -> None
 
 
 def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
-    policy = (ROOT / "automation" / "backend-governance-policy.json").read_text(encoding="utf-8")
+    policy = (ROOT / "automation" / "repository-governance-policy.json").read_text(encoding="utf-8")
+    governance_enforcer = (ROOT / "automation" / "Enforce-Repository-Governance.ps1").read_text(encoding="utf-8")
 
     assert '"name":  "lotus-manage"' in policy
     assert '"name":  "lotus-report"' in policy
@@ -196,6 +198,7 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert '"name":  "lotus-risk"' in policy
     assert '"name":  "lotus-ai"' in policy
     assert '"name":  "lotus-advise"' in policy
+    assert '"name":  "lotus-platform"' in policy
     assert "PR Merge Gate / Lint Typecheck Contracts Security" in policy
     assert "PR Merge Gate / Tests (unit-db)" in policy
     assert "PR Merge Gate / Tests (ops-contract)" in policy
@@ -214,3 +217,10 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "PR Merge Gate / Postgres Migration Smoke" in policy
     assert "PR Merge Gate / Production Profile Startup Smoke" in policy
     assert "PR Merge Gate / Production Profile Guardrail Negatives" in policy
+    assert "PR Merge Gate / Platform Repo Contracts" in policy
+    assert "Cross-App Vocabulary Gate" in policy
+    assert "automation/repository-governance-policy.json" in governance_enforcer
+    assert "required_linear_history = $false" in governance_enforcer
+    assert "required_conversation_resolution = $true" in governance_enforcer
+    assert "required_approving_review_count = 1" in governance_enforcer
+    assert "Repository Governance Enforcement" in governance_enforcer

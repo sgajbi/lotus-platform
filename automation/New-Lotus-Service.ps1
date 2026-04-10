@@ -450,7 +450,7 @@ Set-Content -Path (Join-Path $target "docs/runbooks/service-operations.md") -Val
 if (-not $SkipAutomationRegistration) {
   $reposPath = Join-Path $repoRoot "automation/repos.json"
   $serviceMapPath = Join-Path $repoRoot "automation/service-map.json"
-  $governancePolicyPath = Join-Path $repoRoot "automation/backend-governance-policy.json"
+  $governancePolicyPath = Join-Path $repoRoot "automation/repository-governance-policy.json"
   $coveragePolicyPath = Join-Path $repoRoot "automation/test-coverage-policy.json"
   $repoPathNormalized = $target.Replace("\", "/")
   $repoName = $ServiceName
@@ -507,7 +507,7 @@ if (-not $SkipAutomationRegistration) {
       }
       $policy.repos = @($policy.repos | Sort-Object name)
       $policy | ConvertTo-Json -Depth 8 | Set-Content $governancePolicyPath
-      Write-Host "Updated automation/backend-governance-policy.json with $repoName"
+      Write-Host "Updated automation/repository-governance-policy.json with $repoName"
     }
   }
 

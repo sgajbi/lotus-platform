@@ -73,7 +73,7 @@ This map organizes the automation directory by responsibility without changing s
 
 ### Governance and Scaffolding
 
-- `Enforce-Backend-Governance.ps1`
+- `Enforce-Repository-Governance.ps1`
 - `New-Lotus-Service.ps1`
 - `Cleanup-Legacy-Workspace.ps1`
 
@@ -83,7 +83,7 @@ This map organizes the automation directory by responsibility without changing s
 - `task-profiles.json`: profile-to-task mapping
 - `qa-matrix.json`: runtime QA startup/API/log/monitoring checks per service
 - `service-map.json`: service refresh mapping
-- `backend-governance-policy.json`
+- `repository-governance-policy.json`
 - `test-coverage-policy.json`
 
 ## Documentation Set

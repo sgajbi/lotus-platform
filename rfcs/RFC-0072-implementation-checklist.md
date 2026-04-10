@@ -26,6 +26,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 4 | Platform end-to-end lane hardening | In Progress | `lotus-platform` repo-lane foundation is complete; the platform validation lane is now being normalized under one explicit end-to-end workflow |
 | Slice 4A | Platform repo lane foundation | Complete | `lotus-platform` now exposes explicit feature, PR merge, and main releasability workflows backed by a shared repo-check entrypoint |
 | Slice 4B | Platform validation lane normalization | Complete | `lotus-platform` now exposes one explicit `platform-end-to-end-validation.yml` workflow backed by a shared validation-lane entrypoint and scheduled green-lane execution |
+| Slice 4C | Repository governance policy normalization | Complete | Platform governance artifacts are now repository-scoped, include `lotus-platform`, and align branch-protection payloads with RFC-0072 review and merge policy |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
 ## Slice 1 Completion Evidence
@@ -174,7 +175,7 @@ Evidence:
 4. `lotus-report/.github/workflows/feature-lane.yml`
 5. `lotus-report/.github/workflows/pr-merge-gate.yml`
 6. `lotus-report/.github/workflows/main-releasability.yml`
-7. `automation/backend-governance-policy.json`
+7. `automation/repository-governance-policy.json`
 8. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
 ### Slice 3C acceptance posture
@@ -194,7 +195,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 3. Rollout documentation reflects implemented convergence rather than only target-state gaps
 
@@ -216,7 +217,7 @@ Evidence:
 5. `lotus-workbench/.github/workflows/feature-lane.yml`
 6. `lotus-workbench/.github/workflows/pr-merge-gate.yml`
 7. `lotus-workbench/.github/workflows/main-releasability.yml`
-8. `automation/backend-governance-policy.json`
+8. `automation/repository-governance-policy.json`
 9. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 10. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
@@ -245,7 +246,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-gateway` and `lotus-workbench`
 
@@ -270,7 +271,7 @@ Evidence:
 8. `lotus-risk/.github/workflows/main-releasability.yml`
 9. `lotus-risk/Makefile`
 10. `lotus-risk/scripts/dependency_health_check.py`
-11. `automation/backend-governance-policy.json`
+11. `automation/repository-governance-policy.json`
 12. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 13. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
@@ -302,7 +303,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-performance` and `lotus-risk`
 
@@ -322,7 +323,7 @@ Evidence:
 3. `lotus-ai/.github/workflows/main-releasability.yml`
 4. `lotus-ai/Makefile`
 5. `lotus-ai/scripts/dependency_health_check.py`
-6. `automation/backend-governance-policy.json`
+6. `automation/repository-governance-policy.json`
 7. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 8. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
@@ -351,7 +352,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-ai`
 
@@ -372,7 +373,7 @@ Evidence:
 4. `lotus-advise/Makefile`
 5. `lotus-advise/scripts/dependency_health_check.py`
 6. `lotus-advise/scripts/run_runtime_smoke_checks.py`
-7. `automation/backend-governance-policy.json`
+7. `automation/repository-governance-policy.json`
 8. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 9. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
@@ -402,7 +403,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-advise`
 
@@ -423,7 +424,7 @@ Evidence:
 4. `lotus-core/Makefile`
 5. `lotus-core/scripts/dependency_health_check.py`
 6. `lotus-core/scripts/performance_load_gate.py`
-7. `automation/backend-governance-policy.json`
+7. `automation/repository-governance-policy.json`
 8. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 9. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
@@ -453,7 +454,7 @@ Evidence:
 
 Evidence:
 
-1. `automation/backend-governance-policy.json`
+1. `automation/repository-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-core`
 
