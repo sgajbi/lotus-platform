@@ -21,6 +21,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows; `lotus-gateway` also exposes an explicitly named platform validation lane |
 | Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete | Both repos now use explicit feature, PR merge, and main releasability workflows; repo-native `make ci` contracts were tightened to be security-truthful and deterministic |
 | Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete | `lotus-ai` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, security audit, runtime-mode smoke, coverage, and Docker validation |
+| Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete | `lotus-advise` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, coverage, Docker validation, and Postgres-backed runtime smoke checks |
 | Slice 4 | Platform end-to-end lane hardening | Pending | Canonical platform runtime validation exists, but RFC-0072 governance rollout is not yet completed |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
@@ -350,6 +351,57 @@ Evidence:
 1. `automation/backend-governance-policy.json`
 
 #### 4. Rollout documentation reflects the current converged posture for `lotus-ai`
+
+- Complete
+
+Evidence:
+
+1. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+2. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+## Slice 3G Completion Evidence
+
+### Repo rollout artifacts
+
+1. `lotus-advise/.github/workflows/feature-lane.yml`
+2. `lotus-advise/.github/workflows/pr-merge-gate.yml`
+3. `lotus-advise/.github/workflows/main-releasability.yml`
+4. `lotus-advise/Makefile`
+5. `lotus-advise/scripts/dependency_health_check.py`
+6. `lotus-advise/scripts/run_runtime_smoke_checks.py`
+7. `automation/backend-governance-policy.json`
+8. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
+9. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
+
+### Slice 3G acceptance posture
+
+#### 1. Advisory-domain repos are converged to explicit lane workflows
+
+- Complete for the current in-scope repo
+
+Evidence:
+
+1. `lotus-advise`
+
+#### 2. Repo-native PR-grade commands include truthful dependency, Docker, and Postgres-backed runtime validation
+
+- Complete
+
+Evidence:
+
+1. `lotus-advise/Makefile`
+2. `lotus-advise/scripts/dependency_health_check.py`
+3. `lotus-advise/scripts/run_runtime_smoke_checks.py`
+
+#### 3. Platform governance defaults reflect the new PR Merge Gate check names for `lotus-advise`
+
+- Complete
+
+Evidence:
+
+1. `automation/backend-governance-policy.json`
+
+#### 4. Rollout documentation reflects the current converged posture for `lotus-advise`
 
 - Complete
 

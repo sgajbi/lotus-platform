@@ -44,6 +44,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3D | Experience-layer rollout wave (`lotus-gateway`, `lotus-workbench`) | Complete" in checklist
     assert "Slice 3E | Analytics-domain rollout wave (`lotus-performance`, `lotus-risk`) | Complete" in checklist
     assert "Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete" in checklist
+    assert "Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "lotus-workbench" in mapping
@@ -144,5 +145,9 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert '"name":  "lotus-performance"' in policy
     assert '"name":  "lotus-risk"' in policy
     assert '"name":  "lotus-ai"' in policy
+    assert '"name":  "lotus-advise"' in policy
     assert "PR Merge Gate / Test Pyramid Gate" in policy
     assert "PR Merge Gate / Runtime Mode Smoke" in policy
+    assert "PR Merge Gate / Postgres Migration Smoke" in policy
+    assert "PR Merge Gate / Production Profile Startup Smoke" in policy
+    assert "PR Merge Gate / Production Profile Guardrail Negatives" in policy
