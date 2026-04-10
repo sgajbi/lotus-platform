@@ -50,7 +50,7 @@ The remaining convergence work is concentrated in:
 | `lotus-manage` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, typecheck-tests-critical, split test suites, coverage, Docker; explicit lane naming now aligned | Platform End-to-End Validation Lane participation still needs to be documented and wired; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-report` | Domain API | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong governance gates, split test suites, coverage, Docker; explicit lane naming now aligned | Platform End-to-End Validation Lane participation still needs to be documented and wired; branch-protection rollout must be applied from platform governance | P1 |
 | `lotus-ai` | Shared Capability Service | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist | Strong capability-specific governance gates, runtime-mode smoke, project-scoped dependency health, coverage, and Docker validation under explicit lane naming | Platform End-to-End Validation Lane participation still remains gateway-mediated rather than repo-local; branch-protection rollout must be applied from platform governance | P1 |
-| `lotus-platform` | Platform Governance / Automation | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, and `main-releasability.yml` now exist alongside platform-specific governance and cross-app workflows | Owns cross-app validation and governance automation; strong ingress and validation foundation; platform repo now has explicit local lane entrypoints | Needs platform validation lane naming convergence, branch-protection rollout enforcement, and stronger main-lane artifact/release evidence for the platform repo itself | P0 |
+| `lotus-platform` | Platform Governance / Automation | Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `platform-end-to-end-validation.yml` now exist | Owns cross-app validation and governance automation; strong ingress and validation foundation; platform repo now has explicit repo lanes and an explicit platform validation lane | Needs branch-protection rollout enforcement and broader cross-surface validation expansion beyond the normalized core-performance validation lane | P0 |
 
 ## Cross-Repository Gap Themes
 
@@ -62,7 +62,7 @@ There is already meaningful platform-grade validation in:
 2. `lotus-gateway`
 3. `lotus-workbench`
 
-But it is not yet named and governed consistently as the `Platform End-to-End Validation Lane`.
+That naming gap is now closed in `lotus-platform`, but broader cross-surface expansion still remains for later platform validation slices.
 
 ### 2. Workflow names still drift
 

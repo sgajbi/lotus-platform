@@ -48,6 +48,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete" in checklist
     assert "Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete" in checklist
     assert "Slice 4A | Platform repo lane foundation | Complete" in checklist
+    assert "Slice 4B | Platform validation lane normalization | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -80,7 +81,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Application and service repositories covered by RFC-0072 have now converged to explicit lane workflows." in gap_audit
     assert "Platform validation exists but is not yet normalized" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
-    assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, and `main-releasability.yml` now exist alongside platform-specific governance and cross-app workflows" in gap_audit
+    assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `platform-end-to-end-validation.yml` now exist" in gap_audit
     assert "platform-end-to-end-validation.yml" in gap_audit
     assert "Strong explicit lane split while retaining heavy gates for load, latency, Docker smoke, coverage, and institutional sign-off evidence" in gap_audit
 
@@ -158,6 +159,23 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "python -m pytest tests/unit -q" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
+
+
+def test_platform_validation_lane_workflow_and_shared_entrypoint_exist() -> None:
+    platform_validation = (ROOT / ".github" / "workflows" / "platform-end-to-end-validation.yml").read_text(
+        encoding="utf-8"
+    )
+    validation_entrypoint = (ROOT / "automation" / "Invoke-PlatformValidationLane.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "name: Platform End-to-End Validation" in platform_validation
+    assert "core-performance-green-lanes" in platform_validation
+    assert "core-performance-baseline" in platform_validation
+    assert "Invoke-PlatformValidationLane.ps1" in platform_validation
+    assert 'ValidateSet("core-performance-baseline", "core-performance-green-lanes")' in validation_entrypoint
+    assert "core_performance_ci_entrypoint.py" in validation_entrypoint
+    assert "render_cross_app_workflow_summary.py" in validation_entrypoint
 
 
 def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:

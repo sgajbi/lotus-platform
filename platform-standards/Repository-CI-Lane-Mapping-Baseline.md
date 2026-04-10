@@ -30,13 +30,13 @@ It is the baseline map that makes the current CI shape legible.
 | `lotus-manage` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Strong governance gates are retained under explicit lane naming |
 | `lotus-report` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Coverage and Docker validation are retained under explicit lane naming |
 | `lotus-ai` | Shared Capability Service | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Capability-specific governance, runtime-mode smoke, and project-scoped dependency health are retained under explicit lane naming |
-| `lotus-platform` | Platform Governance / Automation | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/api-vocabulary-governance.yml`, `.github/workflows/core-performance-green-lanes.yml`, `.github/workflows/core-performance-cross-app-validation.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate now exist for the platform repo; platform validation workflows remain specialized and will be normalized further in later slices | Platform end-to-end validation naming and governance still require convergence |
+| `lotus-platform` | Platform Governance / Automation | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/platform-end-to-end-validation.yml`, `.github/workflows/api-vocabulary-governance.yml` | Explicit Feature Lane, PR Merge Gate, Main Releasability Gate, and Platform End-to-End Validation workflows now exist for the platform repo | Platform validation is now explicitly named; deeper cross-surface coverage expansion remains later Slice 4 work |
 
 ## Immediate Interpretation Rules
 
 1. Repositories with one `ci.yml` plus `pr-auto-merge.yml` are considered partially aligned, not fully converged.
 2. Current `ci.yml` files often blend PR and main responsibilities; that is acceptable for the baseline map but not the final target state.
-3. Workflow-dispatch or scheduled cross-app validators belong to the `Platform End-to-End Validation Lane`, even if not yet named that way.
+3. Workflow-dispatch or scheduled cross-app validators belong to the `Platform End-to-End Validation Lane` and should be exposed under explicit lane naming rather than specialized one-off workflow names.
 4. The existence of a workflow file alone does not prove conformance; only the lane baseline is established here.
 
 ## Branch-Protection Baseline

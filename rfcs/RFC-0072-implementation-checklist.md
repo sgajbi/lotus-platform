@@ -23,8 +23,9 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete | `lotus-ai` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, security audit, runtime-mode smoke, coverage, and Docker validation |
 | Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete | `lotus-advise` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, coverage, Docker validation, and Postgres-backed runtime smoke checks |
 | Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete | `lotus-core` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` and `make ci-main` now separate PR-grade versus release-grade validation while preserving strong load, latency, Docker, and institutional sign-off evidence |
-| Slice 4 | Platform end-to-end lane hardening | In Progress | `lotus-platform` repo-lane foundation is being made explicit before the platform validation lane is normalized end to end |
+| Slice 4 | Platform end-to-end lane hardening | In Progress | `lotus-platform` repo-lane foundation is complete; the platform validation lane is now being normalized under one explicit end-to-end workflow |
 | Slice 4A | Platform repo lane foundation | Complete | `lotus-platform` now exposes explicit feature, PR merge, and main releasability workflows backed by a shared repo-check entrypoint |
+| Slice 4B | Platform validation lane normalization | Complete | `lotus-platform` now exposes one explicit `platform-end-to-end-validation.yml` workflow backed by a shared validation-lane entrypoint and scheduled green-lane execution |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
 ## Slice 1 Completion Evidence

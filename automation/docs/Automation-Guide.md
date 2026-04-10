@@ -88,10 +88,9 @@ Operator rule:
 
 ## GitHub Actions
 
-Cross-app validation can now also run from GitHub Actions through:
+Platform end-to-end validation can now also run from GitHub Actions through:
 
-- `.github/workflows/core-performance-cross-app-validation.yml`
-- `.github/workflows/core-performance-green-lanes.yml`
+- `.github/workflows/platform-end-to-end-validation.yml`
 
 Recommended operating model right now:
 - use a `self-hosted` runner that can already reach live `lotus-core` and `lotus-performance` URLs
@@ -104,9 +103,9 @@ Why this starts as `self-hosted`:
 - stable-mode reuse depends on already-seeded scenarios on the runner
 - fresh-seed mode is supported too, but it still exercises the upstream analytics-readiness path we are separately tracking
 
-Current practical split:
-- `core-performance-green-lanes.yml` is the cleaner day-to-day dashboard for the known-green engines: TWR + benchmark, returns-series, contribution, and MWR
-- `core-performance-cross-app-validation.yml` remains the full manual entrypoint when you want baseline or attribution-specific evidence
+Current practical split inside the explicit lane:
+- `validation_profile=core-performance-green-lanes` is the cleaner day-to-day path for the known-green engines: TWR + benchmark, returns-series, contribution, and MWR
+- `validation_profile=core-performance-baseline` is the deeper manual entrypoint when you want baseline evidence, including attribution posture
 
 ## Core Validation Scripts
 
