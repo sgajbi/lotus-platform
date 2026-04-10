@@ -8,6 +8,7 @@ This checklist tracks delivery of RFC-0073, `Lotus Ecosystem Engineering Context
 - `Slice 2 | AGENTS.md modernization | Complete`
 - `Slice 3 | Repository-local context rollout | Pending`
 - `Slice 3A | Repository-local context contract and platform pilot | Complete`
+- `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
 - `Slice 4 | Reference map and task-routing hardening | Pending`
 - `Slice 5 | Drift control and validation foundation | Pending`
 - `Slice 6 | Skills, automation, and procedural memory alignment | Pending`
@@ -50,3 +51,13 @@ Implemented:
 3. `lotus-platform/REPOSITORY-ENGINEERING-CONTEXT.md` as the pilot implementation,
 4. manifest and reference-map updates to show rollout state,
 5. contract-test coverage for the template and pilot document.
+
+### Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`)
+
+Implemented:
+
+1. maintenance-rule hardening in the repository-context contract and template,
+2. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-workbench`,
+3. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-gateway`,
+4. `REPOSITORY-ENGINEERING-CONTEXT.md` in `lotus-core`,
+5. manifest rollout-status updates for the wave-1 repositories.

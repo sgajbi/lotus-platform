@@ -54,6 +54,16 @@ Call out:
 2. non-obvious local patterns,
 3. pitfalls an agent should know before changing the repository.
 
+## Context Maintenance Rule
+
+Update this document when:
+
+1. repository ownership changes,
+2. repo-native commands or CI gates change,
+3. runtime or integration boundaries change,
+4. dominant local implementation patterns change,
+5. current-state rollout or product posture materially changes.
+
 ## Cross-Links
 
 Link back to:

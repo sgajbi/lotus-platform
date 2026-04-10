@@ -108,6 +108,16 @@ Most relevant current governance:
 3. Avoid duplicating platform-wide policy across many files; prefer one central source of truth plus contract tests.
 4. Use GitHub for the expensive validation matrix when practical, and use targeted local proof for faster fix-forward work.
 
+## Context Maintenance Rule
+
+Update this document when:
+
+1. platform-owned repository responsibilities change,
+2. repo-native commands or lane entrypoints change,
+3. validation or ingress automation changes materially,
+4. the repository's current RFC rollout posture changes,
+5. dominant local patterns or key directories change.
+
 ## Cross-Links
 
 1. [Lotus Quickstart Context](./context/LOTUS-QUICKSTART-CONTEXT.md)

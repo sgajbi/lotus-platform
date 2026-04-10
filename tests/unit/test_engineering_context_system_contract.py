@@ -173,6 +173,7 @@ def test_rfc_0073_slice_three_a_repository_context_contract_and_platform_pilot_e
         "Validation And CI Expectations",
         "Standards And RFCs That Govern This Repository",
         "Known Constraints And Implementation Notes",
+        "Context Maintenance Rule",
         "Cross-Links",
     ):
         assert heading in contract
@@ -188,4 +189,20 @@ def test_rfc_0073_slice_three_a_repository_context_contract_and_platform_pilot_e
     )
     statuses = {entry["repository"]: entry["status"] for entry in manifest["applications"]}
     assert statuses["lotus-platform"] == "implemented"
-    assert statuses["lotus-workbench"] == "planned"
+    assert statuses["lotus-workbench"] == "implemented"
+
+
+def test_rfc_0073_slice_three_b_wave_one_rollout_is_recorded_in_manifest() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+
+    assert (
+        "Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete"
+        in checklist
+    )
+
+    statuses = {entry["repository"]: entry["status"] for entry in manifest["applications"]}
+    assert statuses["lotus-workbench"] == "implemented"
+    assert statuses["lotus-gateway"] == "implemented"
+    assert statuses["lotus-core"] == "implemented"
+    assert statuses["lotus-performance"] == "planned"

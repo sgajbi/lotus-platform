@@ -26,7 +26,8 @@ Each `REPOSITORY-ENGINEERING-CONTEXT.md` must include:
 7. `Validation And CI Expectations`
 8. `Standards And RFCs That Govern This Repository`
 9. `Known Constraints And Implementation Notes`
-10. `Cross-Links`
+10. `Context Maintenance Rule`
+11. `Cross-Links`
 
 ## Cross-Link Requirements
 
@@ -45,3 +46,15 @@ Repository-local documents should:
 3. describe established local patterns and real commands,
 4. avoid restating broad platform policy unless local interpretation is needed,
 5. be updated when repository behavior, ownership, commands, or dominant patterns change.
+
+## Maintenance Rule
+
+Each repository-local document must state when it should be updated.
+
+At minimum, it must require updates when:
+
+1. repository responsibilities change,
+2. commands or validation flow change,
+3. runtime boundaries or major integrations change,
+4. dominant implementation patterns change,
+5. current-state rollout posture materially changes.
