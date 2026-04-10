@@ -27,6 +27,16 @@ Every repository should converge toward:
 5. documented branch-protection expectations,
 6. repository-native command parity with CI.
 
+## Current Rollout Posture
+
+Application and service repositories covered by RFC-0072 have now converged to explicit lane workflows.
+
+The remaining convergence work is concentrated in:
+
+1. `lotus-platform` adopting its own explicit lane structure,
+2. branch-protection and required-check enforcement being applied consistently from platform governance,
+3. platform end-to-end validation lane hardening and advanced enterprise controls.
+
 ## Current-State Gap Matrix
 
 | Repository | Profile | Current workflow posture | Current strengths | Main gaps to target state | Priority |
