@@ -38,9 +38,18 @@ This RFC proposes a platform-owned context architecture with:
 5. one repository-local engineering context document per Lotus repository,
 6. one revised `AGENTS.md` operating contract that cross-links the governed context set.
 
-The goal is not to create more documentation for its own sake. The goal is to reduce onboarding time, improve agent output quality, reduce repeated explanation, and make Lotus engineering expectations durable, explicit, and reusable.
+The goal is not to create more documentation for its own sake. The goal is to reduce onboarding time, improve agent output quality, reduce repeated explanation, improve effective context-window use, and make Lotus engineering expectations durable, explicit, and reusable.
 
 This RFC treats context as platform infrastructure.
+
+This RFC is specifically intended to improve:
+
+1. Codex ramp-up speed,
+2. durable engineering memory across sessions,
+3. context-window efficiency and signal density,
+4. outcome quality and domain correctness,
+5. self-maintaining guidance and pattern promotion,
+6. effective use of async execution, automation, and agent-loop workflows.
 
 ## Problem
 
@@ -79,6 +88,8 @@ For a banking-grade platform, this is not acceptable. Context quality is part of
 7. Make `AGENTS.md` a strong operational entrypoint rather than an overloaded knowledge dump.
 8. Support both human engineers and coding agents with the same context architecture.
 9. Introduce a machine-readable context layer that can support tooling, automation, and future validation.
+10. Optimize context loading so high-value information is available quickly without wasting token budget on duplicated or low-signal prose.
+11. Ensure skills, automation, manifests, and docs reinforce one another rather than drifting independently.
 
 ## Non-Goals
 
@@ -87,6 +98,7 @@ For a banking-grade platform, this is not acceptable. Context quality is part of
 3. Making `AGENTS.md` the full knowledge base for the platform.
 4. Implementing context-drift automation in the same slice as this approval RFC.
 5. Treating undocumented tribal knowledge as acceptable once the system exists.
+6. Depending on chat-window memory as if it were durable platform memory.
 
 ## Why This RFC Is Needed Now
 
@@ -114,10 +126,26 @@ Without this RFC:
 2. important expectations will remain implicit,
 3. repo-local documentation will drift from platform reality,
 4. reusable patterns will continue to be discovered repeatedly instead of codified once.
+5. agent context-window usage will remain inefficient because the reading order and information hierarchy are not deliberately designed.
+
+## Design Principles
+
+The context system must be designed for agent effectiveness, not only human readability.
+
+Required principles:
+
+1. summary first, depth on demand,
+2. platform truth centrally, repo truth locally,
+3. low duplication and high signal density,
+4. machine-readable structure where tooling value is real,
+5. stable entrypoints over sprawling documentation sprawl,
+6. reusable patterns promoted into durable guidance,
+7. context loading that is intentional and token-efficient,
+8. executable truth through automation and validators where possible.
 
 ## Decision
 
-Lotus will adopt a layered, platform-owned engineering context system with central and repository-local documents, plus a machine-readable manifest.
+Lotus will adopt a layered, platform-owned engineering context system with central and repository-local documents, a machine-readable manifest, and explicit alignment to platform skills and automation.
 
 ### Required context layers
 
@@ -130,6 +158,27 @@ The approved target state is:
 5. `lotus-context-manifest.json` as the machine-readable ecosystem map,
 6. `REPOSITORY-ENGINEERING-CONTEXT.md` in each Lotus repository as the repository-local truth.
 
+### Context hierarchy and mandatory reading order
+
+The approved loading order is:
+
+1. `AGENTS.md`
+2. `LOTUS-QUICKSTART-CONTEXT.md`
+3. `LOTUS-ENGINEERING-CONTEXT.md`
+4. `REPOSITORY-ENGINEERING-CONTEXT.md`
+5. the specific linked standards, RFCs, runbooks, and local documents needed for the task
+
+This ordering is mandatory because it minimizes wasted context loading while still giving the agent enough truth to act correctly.
+
+### Context optimization rule
+
+The context system must be structured so that:
+
+1. a new agent can obtain a correct working model in minutes,
+2. deeper reading happens only when task scope requires it,
+3. no critical platform truth is trapped in a file too large to be used effectively,
+4. central and local documents do not duplicate the same policy prose unnecessarily.
+
 ### Core rule
 
 Platform-wide truth lives centrally in `lotus-platform`.
@@ -137,6 +186,20 @@ Platform-wide truth lives centrally in `lotus-platform`.
 Repository-specific truth lives in the owning repository.
 
 The system must make this distinction explicit and durable.
+
+### Durable memory rule
+
+Lotus does not treat prior chat context as durable memory.
+
+Durable memory must live in governed artifacts such as:
+
+1. standards,
+2. RFCs,
+3. context documents,
+4. runbooks,
+5. skills,
+6. manifests,
+7. validators and scaffold assets where executable truth is required.
 
 ## Target State Structure
 
@@ -200,6 +263,15 @@ Role:
 4. lightweight context cache for deterministic tooling.
 
 This is a strategic asset. It allows platform tooling and future agents to reason over the estate without scraping prose first.
+
+It is also the preferred structured cache layer for:
+
+1. repository inventory,
+2. role classification,
+3. canonical command discovery,
+4. validation ownership,
+5. cross-repository dependency mapping,
+6. doc-path routing.
 
 ### 6. `REPOSITORY-ENGINEERING-CONTEXT.md`
 
@@ -289,7 +361,217 @@ Accepted because it gives:
 5. one local truth document per repository,
 6. lower duplication,
 7. lower drift risk,
-8. better long-term maintainability.
+8. better long-term maintainability,
+9. better context-window discipline,
+10. better alignment between docs, skills, and automation.
+
+## Context Window, Memory, and Cache Strategy
+
+This RFC explicitly governs how Lotus should improve agent effectiveness beyond raw markdown documentation.
+
+### Context-window strategy
+
+The context system must avoid loading every document for every task.
+
+Required model:
+
+1. quickstart for first orientation,
+2. central engineering context for shared truth,
+3. repository-local context for implementation truth,
+4. linked standards only when needed,
+5. manifest-first lookup when structured data is enough.
+
+### Memory strategy
+
+Lotus memory should be layered:
+
+1. standards and RFCs for durable policy,
+2. context documents for operational understanding,
+3. manifests for structured lookup,
+4. skills for repeatable workflows,
+5. automation and validators for executable truth.
+
+No critical operating knowledge should exist only in:
+
+1. one engineer’s recollection,
+2. one previous chat,
+3. one undocumented branch,
+4. one local-only file outside governed context.
+
+### Cache strategy
+
+The machine-readable manifest is the primary structured cache.
+
+Future platform automation may add derived cache artifacts, but they must remain:
+
+1. generated from source-of-truth context,
+2. reproducible,
+3. clearly identified as derived rather than authored truth.
+
+## Memory Architecture
+
+Lotus should treat context as a layered memory system rather than one flat set of markdown files.
+
+The target-state memory model has three classes:
+
+1. human-maintained memory,
+2. structured reusable context,
+3. procedural memory.
+
+### Human-maintained memory
+
+Human-maintained memory captures judgment-heavy, curated context that should not be inferred ad hoc in every new session.
+
+Required artifacts:
+
+1. `LOTUS-ENGINEERING-CONTEXT.md`
+2. `LOTUS-QUICKSTART-CONTEXT.md`
+3. `platform-engineering-ledger.md`
+4. `recent-architectural-decisions-digest.md`
+5. repository-local current-state summaries through `REPOSITORY-ENGINEERING-CONTEXT.md`
+
+#### Platform engineering ledger
+
+The platform engineering ledger should capture:
+
+1. important cross-repo fixes,
+2. repeated quality failures and their resolved patterns,
+3. notable architectural cleanups,
+4. major standards migrations,
+5. high-value lessons that should affect future work.
+
+This is the curated “what keeps mattering in practice” memory for the ecosystem.
+
+#### Recent architectural decisions digest
+
+The architectural decisions digest should provide:
+
+1. a concise summary of recent decisions that materially affect implementation,
+2. why those decisions were made,
+3. what changed in practice,
+4. what an agent should assume now.
+
+This prevents a new session from having to diff large RFC sets to understand what matters today.
+
+#### Current-state repo summaries
+
+Each repository-local context document should include a current-state summary that tells a new agent:
+
+1. what the repo currently owns,
+2. what is implemented versus deferred,
+3. what dominant patterns are in force,
+4. what local realities matter right now.
+
+### Structured reusable context
+
+Structured reusable context is the machine-readable or registry-like layer that helps agents and automation route quickly without re-reading large prose documents.
+
+Required artifacts:
+
+1. `lotus-context-manifest.json`
+2. app registry
+3. domain authority map
+4. standards registry
+5. active RFC registry
+
+#### App registry
+
+The app registry should capture:
+
+1. each Lotus repository and service,
+2. business role,
+3. runtime category,
+4. key commands,
+5. owning local context document,
+6. major dependencies and interfaces.
+
+#### Domain authority map
+
+The domain authority map should capture:
+
+1. which service is authoritative for which business domain,
+2. where gateway aggregation exists,
+3. which UI surfaces depend on which upstream authorities,
+4. where cross-app validation is required.
+
+This is critical for preventing superficial fixes and wrong-layer changes.
+
+#### Standards registry
+
+The standards registry should provide one index of:
+
+1. active platform standards,
+2. which repositories they apply to,
+3. whether they are mandatory or phased,
+4. where the source-of-truth document lives.
+
+#### Active RFC registry
+
+The active RFC registry should provide:
+
+1. RFC identifier,
+2. title,
+3. status,
+4. owning repo or platform scope,
+5. current implementation posture,
+6. whether follow-on implementation is still active.
+
+This is more operational than the raw RFC folder listing and should help agents prioritize current truth.
+
+### Procedural memory
+
+Procedural memory captures how work is actually executed correctly in Lotus.
+
+Required artifacts:
+
+1. change playbooks,
+2. PR loop playbooks,
+3. validation playbooks,
+4. fix-forward patterns.
+
+#### Change playbooks
+
+Change playbooks should describe how to approach common work types such as:
+
+1. backend API change,
+2. frontend feature change,
+3. cross-repo integration change,
+4. platform runtime change,
+5. RFC-driven slice execution.
+
+#### PR loop playbooks
+
+PR loop playbooks should describe:
+
+1. branch preparation,
+2. local validation strategy,
+3. when to lean on GitHub for full expensive execution,
+4. how to monitor checks asynchronously,
+5. merge and cleanup hygiene.
+
+#### Validation playbooks
+
+Validation playbooks should describe:
+
+1. stack bring-up,
+2. canonical ingress and DNS validation,
+3. seeded-data validation,
+4. UI screen and panel validation,
+5. cross-app payload comparison,
+6. repo-specific validation sequences.
+
+#### Fix-forward patterns
+
+Fix-forward patterns should capture repeatable responses to common realities such as:
+
+1. stale CI expectations,
+2. validator overreach,
+3. platform runtime drift,
+4. schema or vocabulary drift,
+5. flaky checks,
+6. local-versus-GitHub parity issues.
+
+This is the practical operational memory that reduces repeated debugging cost across sessions.
 
 ## Content Ownership Rules
 
@@ -529,13 +811,15 @@ Outcome:
 
 1. the central context document set exists,
 2. naming, placement, and ownership are standardized,
-3. the machine-readable manifest exists.
+3. the machine-readable manifest exists,
+4. the human-maintained memory layer is defined.
 
 Acceptance criteria:
 
 1. `lotus-platform/context/` contains the approved central context files,
 2. the central context documents cross-link correctly,
-3. the manifest has an initial full ecosystem inventory.
+3. the manifest has an initial full ecosystem inventory,
+4. the central system defines the platform engineering ledger and recent architectural decisions digest.
 
 ### Slice 2: `AGENTS.md` modernization
 
@@ -556,13 +840,15 @@ Acceptance criteria:
 Outcome:
 
 1. every Lotus repository contains a standardized repository-local engineering context document,
-2. repo-local truth is explicit and discoverable.
+2. repo-local truth is explicit and discoverable,
+3. current-state repo summaries become available across the estate.
 
 Acceptance criteria:
 
 1. all in-scope repositories have `REPOSITORY-ENGINEERING-CONTEXT.md`,
 2. each repo-local document links to the central context system,
-3. each repo-local document includes repo-native commands and local architecture context.
+3. each repo-local document includes repo-native commands and local architecture context,
+4. each repo-local document contains a current-state summary and local ownership posture.
 
 ### Slice 4: Reference map and task-routing hardening
 
@@ -574,7 +860,8 @@ Outcome:
 Acceptance criteria:
 
 1. the reference map routes agents to the right standards, RFCs, and repo docs,
-2. the quickstart and engineering context docs include task-routing guidance.
+2. the quickstart and engineering context docs include task-routing guidance,
+3. structured registries for apps, standards, domain authority, and active RFCs are available and linked.
 
 ### Slice 5: Drift control and validation foundation
 
@@ -587,6 +874,20 @@ Acceptance criteria:
 
 1. platform validation includes at least basic checks for context-system presence and cross-link correctness,
 2. maintenance rules are enforced through platform-owned governance or documentation contract tests.
+
+### Slice 6: Skills, automation, and procedural memory alignment
+
+Outcome:
+
+1. platform-owned skills align with the context system,
+2. procedural memory is documented as playbooks instead of repeatedly improvised,
+3. async execution, agent-loop usage, and fix-forward patterns become durable operating guidance.
+
+Acceptance criteria:
+
+1. relevant Lotus skills reference the context system and no longer fork policy prose unnecessarily,
+2. change playbooks, PR loop playbooks, validation playbooks, and fix-forward patterns exist in governed form,
+3. central context documents explain when to prefer async automation and GitHub-backed heavy execution over repeated heavyweight local reruns.
 
 ## Risks and Trade-Offs
 
