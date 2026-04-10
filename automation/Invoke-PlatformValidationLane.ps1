@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $artifactRoot = Join-Path $repoRoot "output/cross-app"
 $profileManifestPath = Join-Path $PSScriptRoot "platform-validation-profiles.json"
-$profileManifest = Get-Content -Raw $profileManifestPath | ConvertFrom-Json -AsHashtable
+$profileManifest = Get-Content -Raw $profileManifestPath | ConvertFrom-Json
 
 $selectedProfile = $profileManifest.profiles | Where-Object { $_.name -eq $ValidationProfile } | Select-Object -First 1
 if (-not $selectedProfile) {
@@ -29,10 +29,7 @@ $validationRuns = @($selectedProfile.targets)
 
 Push-Location $repoRoot
 try {
-    if (-not $DryRun) {
-        python -m pip install --upgrade pip
-        python -m pip install requests
-    }
+    $toolingPython = & (Join-Path $PSScriptRoot "Resolve-PlatformAutomationPython.ps1")
 
     foreach ($validationRun in $validationRuns) {
         $target = $validationRun.name
@@ -54,13 +51,13 @@ try {
         }
 
         if ($DryRun) {
-            Write-Host ("DRY RUN [{0}] python {1}" -f $ValidationProfile, ($args -join " "))
+            Write-Host ("DRY RUN [{0}] {1} {2}" -f $ValidationProfile, $toolingPython, ($args -join " "))
             continue
         }
 
-        python @args
+        & $toolingPython @args
         $summaryPath = Join-Path $artifactRoot ("workflow-summary-{0}.md" -f $target)
-        python automation/render_cross_app_workflow_summary.py --target $target --artifact-dir $artifactRoot --output-markdown $summaryPath
+        & $toolingPython automation/render_cross_app_workflow_summary.py --target $target --artifact-dir $artifactRoot --output-markdown $summaryPath
     }
 }
 finally {

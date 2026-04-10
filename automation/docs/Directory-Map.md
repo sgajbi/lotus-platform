@@ -79,6 +79,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_workflow_security.py`
 - `validate_container_build_baseline.py`
 - `validate_platform_validation_coverage.py`
+- `Resolve-PlatformAutomationPython.ps1`
 - `New-Lotus-Service.ps1`
 - `Cleanup-Legacy-Workspace.ps1`
 

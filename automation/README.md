@@ -510,6 +510,12 @@ Validate platform end-to-end coverage profiles against the workflow and entrypoi
 python automation/validate_platform_validation_coverage.py
 ```
 
+Bootstrap the isolated platform automation Python runtime:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Resolve-PlatformAutomationPython.ps1
+```
+
 Validate current repository governance drift against the platform policy:
 
 ```powershell

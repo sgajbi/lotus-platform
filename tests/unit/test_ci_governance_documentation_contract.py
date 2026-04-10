@@ -71,6 +71,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5C | Release evidence and SBOM scaffold baseline | Complete" in checklist
     assert "Slice 5D | Container build and image baseline enforcement | Complete" in checklist
     assert "Slice 4E | Platform validation coverage manifest and contract | Complete" in checklist
+    assert "Slice 5E | Companion dependency lock scaffold baseline | Complete" in checklist
+    assert "Slice 5F | Platform automation runtime isolation baseline | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -210,10 +212,11 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "Main Releasability / Platform Repo Contracts" in main_releasability
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
-    assert "python -m pytest tests/unit -q" in repo_checks
-    assert "python automation/validate_workflow_security.py" in repo_checks
-    assert "python automation/validate_container_build_baseline.py" in repo_checks
-    assert "python automation/validate_platform_validation_coverage.py" in repo_checks
+    assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
+    assert "& $toolingPython -m pytest tests/unit -q" in repo_checks
+    assert "& $toolingPython automation/validate_workflow_security.py" in repo_checks
+    assert "& $toolingPython automation/validate_container_build_baseline.py" in repo_checks
+    assert "& $toolingPython automation/validate_platform_validation_coverage.py" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
@@ -231,6 +234,7 @@ def test_platform_validation_lane_workflow_and_shared_entrypoint_exist() -> None
     assert "Invoke-PlatformValidationLane.ps1" in platform_validation
     assert 'ValidateSet("core-performance-baseline", "core-performance-green-lanes")' in validation_entrypoint
     assert "platform-validation-profiles.json" in validation_entrypoint
+    assert "Resolve-PlatformAutomationPython.ps1" in validation_entrypoint
     assert "core_performance_ci_entrypoint.py" in validation_entrypoint
     assert "render_cross_app_workflow_summary.py" in validation_entrypoint
 

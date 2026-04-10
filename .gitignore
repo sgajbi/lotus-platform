@@ -5,4 +5,5 @@ output/agent-status.md
 output/background-runs.json
 output/task-runs/
 output/
+.venv-platform-automation/
 
