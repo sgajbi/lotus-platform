@@ -8,27 +8,32 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $venvRoot = Join-Path $repoRoot $VenvPath
 $requirementsFile = Join-Path $repoRoot $RequirementsPath
 
-$windowsPython = Join-Path $venvRoot "Scripts/python.exe"
-$posixPython = Join-Path $venvRoot "bin/python"
-$pythonExecutable = $null
+function Resolve-VenvPythonExecutable {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$VirtualEnvironmentRoot
+    )
 
-if (Test-Path $windowsPython) {
-    $pythonExecutable = $windowsPython
-}
-elseif (Test-Path $posixPython) {
-    $pythonExecutable = $posixPython
+    foreach ($candidatePath in @(
+        (Join-Path $VirtualEnvironmentRoot "Scripts/python.exe"),
+        (Join-Path $VirtualEnvironmentRoot "Scripts/python"),
+        (Join-Path $VirtualEnvironmentRoot "bin/python"),
+        (Join-Path $VirtualEnvironmentRoot "bin/python3")
+    )) {
+        if (Test-Path $candidatePath) {
+            return $candidatePath
+        }
+    }
+
+    return $null
 }
 
-if (-not (Test-Path $pythonExecutable)) {
+$pythonExecutable = Resolve-VenvPythonExecutable -VirtualEnvironmentRoot $venvRoot
+
+if (-not $pythonExecutable) {
     python -m venv $venvRoot
-
-    if (Test-Path $windowsPython) {
-        $pythonExecutable = $windowsPython
-    }
-    elseif (Test-Path $posixPython) {
-        $pythonExecutable = $posixPython
-    }
-    else {
+    $pythonExecutable = Resolve-VenvPythonExecutable -VirtualEnvironmentRoot $venvRoot
+    if (-not $pythonExecutable) {
         throw "Unable to resolve the platform automation Python executable from '$venvRoot'."
     }
 }
