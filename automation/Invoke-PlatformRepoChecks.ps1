@@ -10,7 +10,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try {
     python -m pip install --upgrade pip
-    python -m pip install pytest requests
+    python -m pip install pytest requests PyYAML
 
     python -m pytest tests/unit -q
 
