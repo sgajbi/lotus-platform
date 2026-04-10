@@ -10,7 +10,8 @@ Use the files in this order:
 2. [LOTUS-ENGINEERING-CONTEXT.md](./LOTUS-ENGINEERING-CONTEXT.md)
 3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. [CONTEXT-REFERENCE-MAP.md](./CONTEXT-REFERENCE-MAP.md)
-5. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md) for the governed short-form agent contract
+5. [PROCEDURAL-MEMORY-INDEX.md](./PROCEDURAL-MEMORY-INDEX.md) when the task is primarily about execution method
+6. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md) for the governed short-form agent contract
 
 ## Central Ownership
 

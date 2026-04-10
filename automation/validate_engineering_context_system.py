@@ -70,11 +70,18 @@ def validate_engineering_context_system() -> list[str]:
     repo_context_contract = _read_text(required_files["repository context contract"])
     repo_context_template = _read_text(required_files["repository context template"])
     platform_repo_context = _read_text(required_files["platform repo context"])
+    rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
     checklist = _read_text(required_files["rfc checklist"])
     manifest = json.loads(_read_text(required_files["manifest"]))
 
+    if "- Status: Implemented" not in rfc:
+        errors.append("RFC-0073 must be marked Implemented once all slices are complete")
     if "Slice 5 | Drift control and validation foundation | Complete" not in checklist:
         errors.append("RFC-0073 checklist: Slice 5 must be marked complete")
+    if "Slice 6 | Skills, automation, and procedural memory alignment | Complete" not in checklist:
+        errors.append("RFC-0073 checklist: Slice 6 must be marked complete")
+    if "Implementation posture: `Complete`" not in checklist:
+        errors.append("RFC-0073 checklist must record complete implementation posture")
 
     for link_target in (
         "./LOTUS-QUICKSTART-CONTEXT.md",
@@ -215,7 +222,7 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
     if "temporarily paused" not in str(rfc_postures.get("RFC-0072", "")):
         errors.append("lotus-context-manifest.json: RFC-0072 implementation posture must record temporary pause")
-    if rfc_postures.get("RFC-0073") != "in progress":
+    if rfc_postures.get("RFC-0073") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
 
     registry_renderer = _load_registry_renderer()

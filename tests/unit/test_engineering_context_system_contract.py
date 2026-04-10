@@ -31,6 +31,7 @@ def test_rfc_0073_slice_one_central_context_artifacts_exist_and_cross_link() -> 
     ledger = (CONTEXT_DIR / "platform-engineering-ledger.md").read_text(encoding="utf-8")
     digest = (CONTEXT_DIR / "recent-architectural-decisions-digest.md").read_text(encoding="utf-8")
 
+    assert "- Status: Implemented" in rfc
     assert "Slice 1 | Central context architecture | Complete" in checklist
     assert "human-maintained memory" in rfc
     assert "platform engineering ledger" in rfc
@@ -141,7 +142,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
     assert "temporarily paused" in implementation_postures["RFC-0072"]
-    assert implementation_postures["RFC-0073"] == "in progress"
+    assert implementation_postures["RFC-0073"] == "implemented and governed"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -317,6 +318,9 @@ def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo
 
 
 def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
+    rfc = (ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md").read_text(
+        encoding="utf-8"
+    )
     checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
     context_index = (CONTEXT_DIR / "README.md").read_text(encoding="utf-8")
     quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
@@ -333,6 +337,8 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     fix_forward_patterns = (CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md").read_text(encoding="utf-8")
     manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
 
+    assert "- Status: Implemented" in rfc
+    assert "Implementation posture: `Complete`" in checklist
     assert "Slice 6 | Skills, automation, and procedural memory alignment | Complete" in checklist
     assert "./PROCEDURAL-MEMORY-INDEX.md" in context_index
     assert "./PROCEDURAL-MEMORY-INDEX.md" in quickstart
