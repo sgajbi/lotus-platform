@@ -498,6 +498,12 @@ Validate workflow security and permissions posture across platform workflows and
 python automation/validate_workflow_security.py
 ```
 
+Validate container build and image baseline posture across backend scaffold templates:
+
+```powershell
+python automation/validate_container_build_baseline.py
+```
+
 Validate current repository governance drift against the platform policy:
 
 ```powershell

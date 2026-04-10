@@ -14,6 +14,7 @@ try {
 
     python -m pytest tests/unit -q
     python automation/validate_workflow_security.py
+    python automation/validate_container_build_baseline.py
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
         & (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")

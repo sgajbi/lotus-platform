@@ -117,8 +117,12 @@ jobs:
     name: Main Releasability / Validate Docker Build
     needs: [coverage-gate]
     runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: "1"
+      COMPOSE_DOCKER_CLI_BUILD: "1"
     steps:
       - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}

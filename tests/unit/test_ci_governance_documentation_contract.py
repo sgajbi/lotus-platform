@@ -29,6 +29,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     workflow_security_standard = (
         ROOT / "platform-standards" / "Workflow-Security-and-Permissions-Standard.md"
     ).read_text(encoding="utf-8")
+    container_build_standard = (
+        ROOT / "platform-standards" / "Container-Build-and-Image-Engineering-Standard.md"
+    ).read_text(encoding="utf-8")
     release_evidence_standard = (
         ROOT / "platform-standards" / "Release-Evidence-and-SBOM-Foundation-Standard.md"
     ).read_text(encoding="utf-8")
@@ -63,6 +66,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5A | Repository hygiene and dependency-model baseline | Complete" in checklist
     assert "Slice 5B | Workflow security and permissions baseline | Complete" in checklist
     assert "Slice 5C | Release evidence and SBOM scaffold baseline | Complete" in checklist
+    assert "Slice 5D | Container build and image baseline enforcement | Complete" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -113,6 +117,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Dependency SBOM Baseline" in release_evidence_standard
     assert "release-evidence.json" in release_evidence_standard
     assert "main-releasability-release-evidence" in release_evidence_standard
+    assert "BuildKit Cache Mounts" in container_build_standard
+    assert "docker/setup-buildx-action" in container_build_standard
+    assert "run as non-root" in container_build_standard
 
     assert "feature-lane.backend.template.yml" in scaffold_script
     assert "pr-merge-gate.backend.template.yml" in scaffold_script
@@ -191,6 +198,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "python -m pytest tests/unit -q" in repo_checks
     assert "python automation/validate_workflow_security.py" in repo_checks
+    assert "python automation/validate_container_build_baseline.py" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
