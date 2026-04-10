@@ -23,13 +23,13 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 3F | Shared capability rollout wave (`lotus-ai`) | Complete | `lotus-ai` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, security audit, runtime-mode smoke, coverage, and Docker validation |
 | Slice 3G | Advisory-domain rollout wave (`lotus-advise`) | Complete | `lotus-advise` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` now includes project-scoped dependency health, coverage, Docker validation, and Postgres-backed runtime smoke checks |
 | Slice 3H | Core-domain rollout wave (`lotus-core`) | Complete | `lotus-core` now uses explicit feature, PR merge, and main releasability workflows; repo-native `make ci` and `make ci-main` now separate PR-grade versus release-grade validation while preserving strong load, latency, Docker, and institutional sign-off evidence |
-| Slice 4 | Platform end-to-end lane hardening | In Progress | `lotus-platform` repo-lane foundation is complete; the platform validation lane is now being normalized under one explicit end-to-end workflow |
+| Slice 4 | Platform end-to-end lane hardening | Complete | Platform repo lanes, validation lane normalization, repository governance rollout, and manifest-driven validation coverage are implemented |
 | Slice 4A | Platform repo lane foundation | Complete | `lotus-platform` now exposes explicit feature, PR merge, and main releasability workflows backed by a shared repo-check entrypoint |
 | Slice 4B | Platform validation lane normalization | Complete | `lotus-platform` now exposes one explicit `platform-end-to-end-validation.yml` workflow backed by a shared validation-lane entrypoint and scheduled green-lane execution |
 | Slice 4C | Repository governance policy normalization | Complete | Platform governance artifacts are now repository-scoped, include `lotus-platform`, and align branch-protection payloads with RFC-0072 review and merge policy |
 | Slice 4D | Repository governance rollout and validation | Complete | Repository governance policy has been applied across governed Lotus repos and live validation now reports zero drift |
 | Slice 4E | Platform validation coverage manifest and contract | Complete | Platform end-to-end validation profiles are now manifest-driven, validator-enforced, and explicitly tied to required coverage artifacts |
-| Slice 5 | Advanced enterprise controls | In Progress | Advanced controls are now moving from policy-only language into platform-owned enforceable foundations |
+| Slice 5 | Advanced enterprise controls | Complete | Advanced controls now have platform-owned enforceable foundations for hygiene, workflow security, release evidence, containers, lock artifacts, runtime isolation, text normalization, and action runtime baselines |
 | Slice 5A | Repository hygiene and dependency-model baseline | Complete | Backend scaffold now emits platform-owned `.gitignore` and `.dockerignore` templates, automation metadata uses repository-native commands, and scaffold output is validated against a hygiene baseline |
 | Slice 5B | Workflow security and permissions baseline | Complete | Platform-owned workflow security policy now validates least-privilege permissions, restricts `pull_request_target`, and runs as part of platform repo checks |
 | Slice 5C | Release evidence and SBOM scaffold baseline | Complete | Newly scaffolded backend main releasability workflows now emit retained SBOM and release metadata artifacts by default through the shared template contract |
@@ -38,6 +38,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 5F | Platform automation runtime isolation baseline | Complete | Platform repo checks and validation lane now use a repo-owned locked Python tooling environment instead of mutating ambient user site-packages |
 | Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete | Backend scaffold now emits platform-owned `.editorconfig` and `.gitattributes` templates by default, and repository hygiene validation enforces deterministic text normalization rules |
 | Slice 5H | Workflow action runtime baseline | Complete | Platform-owned workflows and backend templates now enforce a modern GitHub Actions baseline for core actions, and platform repo checks fail on stale action majors |
+| Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete | RFC-0072 rollout documents now distinguish implemented governance controls from the remaining merge/closeout work and stale gap language is guarded by contract tests |
 
 ## Slice 1 Completion Evidence
 
@@ -479,9 +480,8 @@ Evidence:
 
 There are no Slice 1 implementation deviations.
 
-Known future work is intentional rollout scope, not deviation:
+Known remaining work is implementation closeout, not technical rollout deviation:
 
-1. per-repo lane-gap audit,
-2. branch-protection convergence across all repos,
-3. scaffold/template convergence beyond the current backend baseline,
-4. advanced enterprise security controls such as SBOM and image scanning.
+1. merging the already-raised repo convergence PRs after required checks remain green,
+2. deleting merged feature branches and returning each repository to `main`,
+3. refreshing this checklist and the RFC status once the rollout PRs are merged.

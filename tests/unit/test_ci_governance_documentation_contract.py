@@ -78,6 +78,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5F | Platform automation runtime isolation baseline | Complete" in checklist
     assert "Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete" in checklist
     assert "Slice 5H | Workflow action runtime baseline | Complete" in checklist
+    assert "Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete" in checklist
+    assert "Known remaining work is implementation closeout, not technical rollout deviation" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
@@ -108,11 +110,14 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "P0" in gap_audit
     assert "P1" in gap_audit
     assert "Application and service repositories covered by RFC-0072 have now converged to explicit lane workflows." in gap_audit
-    assert "Platform validation exists but is not yet normalized" in gap_audit
+    assert "Platform validation is normalized and must keep expanding with product coverage" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `pr-auto-merge.yml` now exist" in gap_audit
     assert "Explicit `feature-lane.yml`, `pr-merge-gate.yml`, `main-releasability.yml`, and `platform-end-to-end-validation.yml` now exist" in gap_audit
     assert "platform-end-to-end-validation.yml" in gap_audit
     assert "Strong explicit lane split while retaining heavy gates for load, latency, Docker smoke, coverage, and institutional sign-off evidence" in gap_audit
+    assert "branch protection is governed through `repository-governance-policy.json`" in gap_audit
+    assert "branch-protection rollout must be applied" not in gap_audit
+    assert "Workflow names still drift" not in gap_audit
 
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract

@@ -30,7 +30,7 @@ It is the baseline map that makes the current CI shape legible.
 | `lotus-manage` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Strong governance gates are retained under explicit lane naming |
 | `lotus-report` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Coverage and Docker validation are retained under explicit lane naming |
 | `lotus-ai` | Shared Capability Service | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml` | Explicit Feature Lane, PR Merge Gate, and Main Releasability Gate are now in place | Capability-specific governance, runtime-mode smoke, and project-scoped dependency health are retained under explicit lane naming |
-| `lotus-platform` | Platform Governance / Automation | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/platform-end-to-end-validation.yml`, `.github/workflows/api-vocabulary-governance.yml` | Explicit Feature Lane, PR Merge Gate, Main Releasability Gate, and Platform End-to-End Validation workflows now exist for the platform repo | Platform validation is now explicitly named; deeper cross-surface coverage expansion remains later Slice 4 work |
+| `lotus-platform` | Platform Governance / Automation | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/platform-end-to-end-validation.yml`, `.github/workflows/api-vocabulary-governance.yml` | Explicit Feature Lane, PR Merge Gate, Main Releasability Gate, and Platform End-to-End Validation workflows now exist for the platform repo | Platform validation is explicitly named, manifest-driven, and governed; cross-surface coverage should expand as new product surfaces become canonical |
 
 ## Immediate Interpretation Rules
 
@@ -60,4 +60,4 @@ Current scaffold source of truth for backend repositories:
 5. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
 
 This scaffold baseline now emits the full backend lane model by default.
-Repository rollout convergence remains a later slice.
+Repository rollout convergence is complete for the current in-scope backend service estate.
