@@ -26,6 +26,10 @@ $requiredCiPatterns = @(
     "pytest|make test|make check",
     "coverage report|cov-fail-under|fail-under|make test-coverage|make coverage-gate"
 )
+$featureLaneNames = @("feature-lane.yml", "feature-lane.yaml")
+$prMergeGateNames = @("pr-merge-gate.yml", "pr-merge-gate.yaml")
+$mainReleasabilityNames = @("main-releasability.yml", "main-releasability.yaml")
+$legacyCiNames = @("ci.yml", "ci.yaml", "backend-ci.yml", "pipeline.yml")
 
 function Get-MakeTargets {
     param([string]$MakefilePath)
@@ -78,7 +82,11 @@ foreach ($repo in $repos) {
             make_targets_ok = $false
             mypy_config = $false
             pre_commit = $false
-            ci_workflow = $false
+            feature_lane_workflow = $false
+            pr_merge_gate_workflow = $false
+            main_releasability_workflow = $false
+            legacy_ci_workflow = $false
+            lane_workflow_mode = "missing"
             pr_auto_merge_workflow = $false
             ci_gates_ok = $false
             status = "missing-repo"
@@ -97,16 +105,31 @@ foreach ($repo in $repos) {
     $hasDataModelOwnershipDoc = Test-Path (Join-Path $repoPath "docs/standards/data-model-ownership.md")
 
     $workflowDir = Join-Path $repoPath ".github/workflows"
+    $featureLaneWorkflow = $null
+    $prMergeGateWorkflow = $null
+    $mainReleasabilityWorkflow = $null
     $ciWorkflow = $null
     $prAutoMergeWorkflow = $null
     $ciGatesOk = $false
+    $laneWorkflowMode = "missing"
 
     if (Test-Path $workflowDir) {
-        $ciWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names @("ci.yml", "ci.yaml", "backend-ci.yml", "pipeline.yml")
+        $featureLaneWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names $featureLaneNames
+        $prMergeGateWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names $prMergeGateNames
+        $mainReleasabilityWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names $mainReleasabilityNames
+        $ciWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names $legacyCiNames
         $prAutoMergeWorkflow = Find-WorkflowFile -WorkflowDir $workflowDir -Names @("pr-auto-merge.yml", "pr-auto-merge.yaml")
 
-        if ($ciWorkflow) {
-            $ciContent = (Get-Content -Raw $ciWorkflow)
+        if ($featureLaneWorkflow -and $prMergeGateWorkflow -and $mainReleasabilityWorkflow) {
+            $laneWorkflowMode = "explicit"
+        }
+        elseif ($ciWorkflow) {
+            $laneWorkflowMode = "legacy"
+        }
+
+        $gatingWorkflow = if ($prMergeGateWorkflow) { $prMergeGateWorkflow } else { $ciWorkflow }
+        if ($gatingWorkflow) {
+            $ciContent = (Get-Content -Raw $gatingWorkflow)
             $hits = 0
             foreach ($pattern in $requiredCiPatterns) {
                 $options = $pattern -split '\|'
@@ -122,7 +145,14 @@ foreach ($repo in $repos) {
     if (-not $hasPreCommit) { $missing.Add(".pre-commit-config.yaml") }
     if (-not $hasMigrationContractDoc) { $missing.Add("docs/standards/migration-contract.md") }
     if (-not $hasDataModelOwnershipDoc) { $missing.Add("docs/standards/data-model-ownership.md") }
-    if (-not $ciWorkflow) { $missing.Add("ci-workflow") }
+    if ($laneWorkflowMode -eq "missing") {
+        $missing.Add("feature-lane-workflow")
+        $missing.Add("pr-merge-gate-workflow")
+        $missing.Add("main-releasability-workflow")
+    }
+    elseif ($laneWorkflowMode -eq "legacy") {
+        $missing.Add("explicit-lane-workflows")
+    }
     if (-not $prAutoMergeWorkflow) { $missing.Add("pr-auto-merge-workflow") }
     if (-not $ciGatesOk) { $missing.Add("ci-required-gates") }
 
@@ -138,7 +168,11 @@ foreach ($repo in $repos) {
         pre_commit = $hasPreCommit
         migration_contract_doc = $hasMigrationContractDoc
         data_model_ownership_doc = $hasDataModelOwnershipDoc
-        ci_workflow = [bool]$ciWorkflow
+        feature_lane_workflow = [bool]$featureLaneWorkflow
+        pr_merge_gate_workflow = [bool]$prMergeGateWorkflow
+        main_releasability_workflow = [bool]$mainReleasabilityWorkflow
+        legacy_ci_workflow = [bool]$ciWorkflow
+        lane_workflow_mode = $laneWorkflowMode
         pr_auto_merge_workflow = [bool]$prAutoMergeWorkflow
         ci_gates_ok = $ciGatesOk
         status = $status
@@ -165,11 +199,11 @@ $lines += ""
 $lines += "- Generated: $($summary.generated_at)"
 $lines += "- Scope: $($backendRepos -join ', ')"
 $lines += ""
-$lines += "| Repo | Status | Make Targets | Mypy | Pre-commit | Migration Contract Doc | Data Model Doc | CI Workflow | PR Auto Merge | CI Gates | Missing |"
-$lines += "|---|---|---|---|---|---|---|---|---|---|---|"
+$lines += "| Repo | Status | Make Targets | Mypy | Pre-commit | Migration Contract Doc | Data Model Doc | Feature Lane | PR Merge Gate | Main Releasability | Legacy CI | Lane Mode | PR Auto Merge | CI Gates | Missing |"
+$lines += "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"
 foreach ($row in $results) {
     $missingText = if ($row.missing.Count -eq 0) { "-" } else { ($row.missing -join "; ") }
-    $lines += "| $($row.repo) | $($row.status) | $($row.make_targets_ok) | $($row.mypy_config) | $($row.pre_commit) | $($row.migration_contract_doc) | $($row.data_model_ownership_doc) | $($row.ci_workflow) | $($row.pr_auto_merge_workflow) | $($row.ci_gates_ok) | $missingText |"
+    $lines += "| $($row.repo) | $($row.status) | $($row.make_targets_ok) | $($row.mypy_config) | $($row.pre_commit) | $($row.migration_contract_doc) | $($row.data_model_ownership_doc) | $($row.feature_lane_workflow) | $($row.pr_merge_gate_workflow) | $($row.main_releasability_workflow) | $($row.legacy_ci_workflow) | $($row.lane_workflow_mode) | $($row.pr_auto_merge_workflow) | $($row.ci_gates_ok) | $missingText |"
 }
 
 Set-Content -Path $OutputMarkdownPath -Value ($lines -join "`n")

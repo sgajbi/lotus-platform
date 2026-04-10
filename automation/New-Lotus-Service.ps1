@@ -43,7 +43,9 @@ foreach ($dir in $dirs) {
 
 Copy-Item (Join-Path $templateRoot "Makefile.backend.template") (Join-Path $target "Makefile") -Force
 Copy-Item (Join-Path $templateRoot "pre-commit.backend.template.yaml") (Join-Path $target ".pre-commit-config.yaml") -Force
-Copy-Item (Join-Path $templateRoot "workflows/ci.backend.template.yml") (Join-Path $target ".github/workflows/ci.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/feature-lane.backend.template.yml") (Join-Path $target ".github/workflows/feature-lane.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/pr-merge-gate.backend.template.yml") (Join-Path $target ".github/workflows/pr-merge-gate.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/main-releasability.backend.template.yml") (Join-Path $target ".github/workflows/main-releasability.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/pr-auto-merge.template.yml") (Join-Path $target ".github/workflows/pr-auto-merge.yml") -Force
 
 $makefilePath = Join-Path $target "Makefile"
@@ -494,13 +496,13 @@ if (-not $SkipAutomationRegistration) {
         name = $repoName
         default_branch = "main"
         required_checks = @(
-          "Workflow Lint",
-          "Lint Typecheck Security",
-          "Tests (unit)",
-          "Tests (integration)",
-          "Tests (e2e)",
-          "Coverage Gate (Combined)",
-          "Validate Docker Build"
+          "PR Merge Gate / Workflow Lint",
+          "PR Merge Gate / Lint Typecheck Security",
+          "PR Merge Gate / Tests (unit)",
+          "PR Merge Gate / Tests (integration)",
+          "PR Merge Gate / Tests (e2e)",
+          "PR Merge Gate / Coverage Gate (Combined)",
+          "PR Merge Gate / Validate Docker Build"
         )
       }
       $policy.repos = @($policy.repos | Sort-Object name)

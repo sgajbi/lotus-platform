@@ -49,7 +49,10 @@ Every repository must converge toward:
 Current scaffold source of truth for backend repositories:
 
 1. `automation/New-Lotus-Service.ps1`
-2. `platform-standards/templates/workflows/ci.backend.template.yml`
-3. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+2. `platform-standards/templates/workflows/feature-lane.backend.template.yml`
+3. `platform-standards/templates/workflows/pr-merge-gate.backend.template.yml`
+4. `platform-standards/templates/workflows/main-releasability.backend.template.yml`
+5. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
 
-This baseline will be expanded in later slices so all new Lotus apps inherit the full RFC-0072 lane model by default.
+This scaffold baseline now emits the full backend lane model by default.
+Repository rollout convergence remains a later slice.

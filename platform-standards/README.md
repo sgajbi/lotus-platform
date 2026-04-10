@@ -10,9 +10,12 @@ This folder is the reusable standards package for backend repositories.
 - `templates/constraints.shared-build.template.txt`
 - `templates/requirements.ci-tooling.lock.template.txt`
 - `templates/pre-commit.backend.template.yaml`
-- `templates/workflows/ci.backend.template.yml`
+- `templates/workflows/feature-lane.backend.template.yml`
+- `templates/workflows/pr-merge-gate.backend.template.yml`
+- `templates/workflows/main-releasability.backend.template.yml`
 - `templates/workflows/pr-auto-merge.template.yml`
 - `Development-Workflow-and-CI-Strategy-Standard.md`
+- `Backend-CI-Lane-Template-Contract.md`
 - `Repository-CI-Lane-Mapping-Baseline.md`
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
@@ -47,7 +50,8 @@ powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
 
 This generates a production-grade backend baseline with:
 
-- CI and auto-merge workflows
+- explicit feature, PR merge, and main releasability workflows
+- merge-commit auto-merge workflow
 - Makefile + lint/typecheck/test/coverage/security gates
 - FastAPI app with health/readiness and metrics
 - OpenAPI gate script
@@ -57,8 +61,9 @@ This generates a production-grade backend baseline with:
 
 RFC-0072 note:
 
-1. the current scaffold is the backend source of truth for baseline CI and governance assets,
-2. later RFC-0072 slices will expand it so newly scaffolded Lotus apps inherit the full lane model by default.
+1. the backend scaffold now emits the explicit lane model by default,
+2. existing repos still need their own convergence rollout,
+3. the template contract is defined in `Backend-CI-Lane-Template-Contract.md`.
 
 Use `-SkipAutomationRegistration` only for temporary local experiments.
 

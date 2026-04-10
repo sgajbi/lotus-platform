@@ -14,9 +14,9 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 1 | Governance and documentation foundation | Complete | RFC, standard, implementation checklist, lane mapping baseline, and branch-protection expectations are documented in `lotus-platform` |
 | Slice 1A | Scaffold baseline definition | Complete | Current scaffold source of truth is identified in `lotus-platform`; future scaffold convergence remains a later implementation slice |
 | Slice 2 | Repository workflow classification and gap audit | Complete | Current-state versus target-state gap inventory now exists across the Lotus estate |
-| Slice 3 | Standardized workflow convergence | Pending | Repo workflow updates and branch-protection convergence not started in this checklist |
+| Slice 3 | Standardized workflow convergence | Pending | Existing-repo workflow updates and branch-protection convergence remain a later rollout step |
 | Slice 3A | Skill and developer-process alignment | Complete | Codex skills for backend delivery, frontend delivery, and pre-merge flow align to RFC-0072 |
-| Slice 3B | Scaffold and template convergence | Pending | Existing backend scaffold assets are identified; broader scaffold coverage is a follow-on slice |
+| Slice 3B | Scaffold and template convergence | Complete | Backend scaffold now emits explicit feature, PR merge, and main releasability workflows by default |
 | Slice 4 | Platform end-to-end lane hardening | Pending | Canonical platform runtime validation exists, but RFC-0072 governance rollout is not yet completed |
 | Slice 5 | Advanced enterprise controls | Pending | Security and release-hardening additions remain phased future work |
 
@@ -68,16 +68,18 @@ Evidence:
 Current platform-owned scaffold and template assets:
 
 1. `automation/New-Lotus-Service.ps1`
-2. `platform-standards/templates/workflows/ci.backend.template.yml`
-3. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
-4. `platform-standards/templates/Makefile.backend.template`
-5. `platform-standards/README.md`
+2. `platform-standards/templates/workflows/feature-lane.backend.template.yml`
+3. `platform-standards/templates/workflows/pr-merge-gate.backend.template.yml`
+4. `platform-standards/templates/workflows/main-releasability.backend.template.yml`
+5. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+6. `platform-standards/templates/Makefile.backend.template`
+7. `platform-standards/README.md`
 
 Current posture:
 
-1. backend scaffolding already has a standards entry point,
-2. RFC-0072 now makes lane and security expectations explicit,
-3. future slices must extend this source of truth so new apps inherit the full lane model by default.
+1. backend scaffolding now emits explicit Feature Lane, PR Merge Gate, and Main Releasability workflows by default,
+2. RFC-0072 lane and security expectations are now embedded in the backend workflow source of truth,
+3. existing repositories still require explicit rollout convergence.
 
 ## Slice 2 Completion Evidence
 
@@ -115,6 +117,44 @@ Evidence:
 Note:
 
 1. Missing controls are now enumerated, but not yet implemented. That belongs to later slices.
+
+## Slice 3B Completion Evidence
+
+### Template-contract artifacts
+
+1. `platform-standards/Backend-CI-Lane-Template-Contract.md`
+2. `platform-standards/templates/workflows/feature-lane.backend.template.yml`
+3. `platform-standards/templates/workflows/pr-merge-gate.backend.template.yml`
+4. `platform-standards/templates/workflows/main-releasability.backend.template.yml`
+5. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+
+### Slice 3B acceptance posture
+
+#### 1. New backend services receive explicit lane workflows by default
+
+- Complete
+
+Evidence:
+
+1. `automation/New-Lotus-Service.ps1`
+2. `platform-standards/Backend-CI-Lane-Template-Contract.md`
+
+#### 2. Branch-protection defaults target PR Merge Gate checks, not blended checks
+
+- Complete for new scaffold registrations
+
+Evidence:
+
+1. `automation/New-Lotus-Service.ps1`
+2. `platform-standards/Backend-CI-Lane-Template-Contract.md`
+
+#### 3. Platform validation can distinguish explicit lane workflows from legacy CI
+
+- Complete
+
+Evidence:
+
+1. `automation/Validate-Backend-Standards.ps1`
 
 ## Deviation Posture
 
