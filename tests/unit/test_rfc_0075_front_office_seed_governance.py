@@ -17,13 +17,14 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 5 Complete" in rfc
+    assert "Status: Approved - Slice 6 Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
     assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
     assert "`RFC-0075-slice-3-core-seed-data-evidence.md`" in rfc
     assert "`RFC-0075-slice-4-derived-state-readiness-evidence.md`" in rfc
     assert "`RFC-0075-slice-5-performance-risk-calculation-evidence.md`" in rfc
-    assert "- Status: Slice 5 complete" in checklist
+    assert "`RFC-0075-slice-6-panel-classification-evidence.md`" in rfc
+    assert "- Status: Slice 6 complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -43,6 +44,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Validate contribution detail rows.",
         "- [x] Validate attribution detail rows or governed fallback.",
         "- [x] Validate risk row/window/contributor counts.",
+        "- [x] Tighten workbench panel checks to fail on unsupported blank panels.",
+        "- [x] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.",
     ):
         assert required_item in checklist
 
@@ -139,6 +142,27 @@ def test_rfc_0075_slice_five_calculation_evidence_is_governed_and_traceable() ->
         '"attributionContributorCount": 7',
         "fallback_available=true",
         "Longer rolling windows are emitted but may be warm-up only",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0075_slice_six_panel_classification_evidence_is_governed_and_traceable() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0075-slice-6-panel-classification-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0075 Slice 6 Panel Classification Evidence",
+        "panelClassifications",
+        "supported panel is recorded as blank",
+        '"panel": "performance.summary"',
+        '"panel": "performance.analysis.attribution"',
+        '"state": "partial"',
+        '"panel": "performance.evidence"',
+        '"state": "unavailable"',
+        '"panel": "risk.historical_attribution"',
+        "fallbackAvailable=true",
+        "UI must render a truthful unavailable/degraded state",
     ):
         assert required_item in evidence
 

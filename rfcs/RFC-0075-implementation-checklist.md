@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 5 complete
+- Status: Slice 6 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -82,14 +82,14 @@
 
 ## Slice 6: Gateway and Workbench Panels
 
-- [ ] Validate gateway mappings for performance details.
-- [ ] Validate gateway mappings for risk details.
-- [ ] Validate advisor brief mappings.
-- [ ] Validate manage/report partial behavior or DSN-backed readiness.
-- [ ] Tighten workbench panel checks to fail on unsupported blank panels.
-- [ ] Ensure all UI states are truthful: ready, loading, empty, partial, error.
-- [ ] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.
-- [ ] Block demo-ready screenshot capture when required panels fail validation.
+- [x] Validate gateway mappings for performance details.
+- [x] Validate gateway mappings for risk details.
+- [x] Validate advisor brief mappings.
+- [x] Validate manage/report partial behavior or DSN-backed readiness.
+- [x] Tighten workbench panel checks to fail on unsupported blank panels.
+- [x] Ensure all UI states are truthful: ready, loading, empty, partial, error.
+- [x] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.
+- [x] Block demo-ready screenshot capture when required panels fail validation.
 
 ## Slice 7: Screenshot Automation
 
