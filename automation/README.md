@@ -46,6 +46,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Sync-Dev-Ingress-Hosts.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
+- `automation/Invoke-Canonical-FrontOffice-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1`
@@ -226,7 +227,58 @@ Summarize recent failures only:
 powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 3
 ```
 
-Run platform-level QA readiness automation (startup + API/log/metrics/standards checks):
+Run governed canonical front-office QA readiness automation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+```
+
+This delegates to the governed `lotus-workbench` runtime and validation flow, uses the seeded front-office portfolio `PB_SG_GLOBAL_BAL_001`, and writes wrapper evidence to:
+
+- `output/front-office-qa/latest.json`
+- `output/front-office-qa/latest.md`
+
+Write a demo screenshot pack to a caller-provided directory while also producing platform evidence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
+  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+```
+
+The screenshot directory receives `live-validation-summary.json`, `SHOT-INDEX.md`, and stable
+Workbench product-surface captures only after canonical endpoint, calculation, and panel validation
+passes.
+
+Clean stale Lotus Docker containers and volumes before the governed bring-up:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages
+```
+
+Run full explicit Lotus cleanup, including matching local Lotus images, without starting the stack:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
+```
+
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts before cleanup, after cleanup, and after the run.
+
+For a clean demo rebuild from stale local state:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning
+```
+
+Troubleshoot failures by category:
+
+1. hostname failures: run `automation/Sync-Dev-Ingress-Hosts.ps1 -Apply` from an elevated shell,
+2. readiness failures: inspect the failing canonical service health endpoint in `latest.json`,
+3. seed failures: rerun the `lotus-core` front-office seed verifier for `PB_SG_GLOBAL_BAL_001`,
+4. calculation failures: inspect `calculationChecks` in `live-validation-summary.json`,
+5. blank or degraded panel failures: inspect `panelClassifications` before taking screenshots,
+6. screenshot failures: verify the caller-provided `-ScreenshotDirectory` exists and is writable.
+
+Run backend/runtime QA readiness automation (startup + API/log/metrics/standards checks):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp
@@ -264,7 +316,7 @@ Suite artifact:
 Run these cross-app scenarios serially against the shared local stack. They seed live platform state and should not be run in parallel if you want deterministic economic assertions.
 Interpret the suite by `expectation_met_count` and each scenario's `expected_posture`, not only by raw failed-check counts. The current core-performance pack is now fully green and acts as a reusable regression suite for healthy cash-only, liquidation/re-entry, staged-flow, same-currency funded-trade, cross-currency funded-trade, single-position cross-surface consistency, multi-position cross-surface consistency, and internal-rebalance consistency stories.
 
-Run QA and auto-create GitHub issues for each detected defect:
+Run backend/runtime QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
@@ -701,6 +753,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/qa/*/qa-summary.md`
 - `output/qa/*/qa-issues.json`
 - `output/qa/*/evidence/*.md`
+- `output/front-office-qa/latest.json`
+- `output/front-office-qa/latest.md`
 - `output/lotus-naming-conformance.json`
 - `output/lotus-naming-conformance.md`
 - `output/preflight/*.json`

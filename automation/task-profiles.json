@@ -604,12 +604,12 @@
     },
     {
       "name": "qa-platform-readiness",
-      "description": "Bring up services and run platform-level QA validation with standards conformance checks",
+      "description": "Bring up the governed canonical front-office runtime and validate populated product surfaces end-to-end",
       "tasks": [
         {
           "id": "qa-platform-readiness",
           "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp"
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp"
         }
       ]
     },

@@ -1,0 +1,130 @@
+# RFC-0075 Implementation Checklist
+
+- RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
+- Status: Complete
+- Last updated: 2026-04-11
+
+## Approval Gate
+
+- [x] RFC reviewed by platform owner.
+- [x] RFC approved for Slice 1 implementation.
+- [x] Canonical portfolio ID confirmed as `PB_SG_GLOBAL_BAL_001`.
+- [x] Canonical benchmark ID confirmed as `BMK_PB_GLOBAL_BALANCED_60_40`.
+- [x] Fixed demo as-of date policy recorded.
+- [x] Proposed demo as-of date `2026-04-10` recorded for final confirmation during implementation.
+- [x] Supported versus intentionally partial panel categories recorded.
+- [x] Docker cleanup scope recorded as explicit clean mode.
+- [x] Optional service DSN policy recorded as a Slice 2 decision item.
+- [x] Diagnostic screenshot policy confirmed.
+
+## Slice 1: Baseline Diagnostics
+
+- [x] Capture current backend endpoint status.
+- [x] Capture current workbench panel status.
+- [x] Record stale Docker and stale data failure modes.
+- [x] Record calculation failures separately from UI mapping failures.
+- [x] Identify owning repository for each failure.
+- [x] Record `PORT_SMOKE_%` pollution status.
+- [x] Record canonical portfolio analytics reference date status.
+- [x] Record gateway/workbench mapping gaps separately from upstream calculation gaps.
+- [x] Record manage/advisory/report/AI partial states.
+
+## Slice 2: Docker, Ingress, and Startup
+
+- [x] Standardize clean Docker teardown.
+- [x] Remove stale volume ambiguity.
+- [x] Remove stale local Lotus image ambiguity when full clean mode is selected.
+- [x] Ensure canonical ingress routes only to the active stack.
+- [x] Validate DSN and environment setup for all participating services.
+- [x] Update governed startup runbook.
+- [x] Add or update tests for startup automation where practical.
+- [x] Emit a run summary with cleanup scope and service startup evidence.
+
+## Slice 3: Core Seed Data
+
+- [x] Rebuild canonical transaction economics.
+- [x] Ensure no nonsensical negative economics unless explicitly documented.
+- [x] Validate buy, sell, income, fee, withdrawal, and cash-leg sign conventions.
+- [x] Validate deterministic transaction, source record, and economic event IDs.
+- [x] Ensure market prices cover every instrument through the ready date.
+- [x] Ensure FX rates cover every required currency pair through the ready date.
+- [x] Ensure benchmark definition, composition, return series, and assignment are complete.
+- [x] Ensure risk-free series covers performance and risk windows.
+- [x] Remove timestamped smoke portfolio pollution.
+- [x] Add unit tests for seed completeness and cleanup.
+- [x] Add tests for portfolio economic sanity and date coverage.
+
+## Slice 4: Derived State Readiness
+
+- [x] Validate positions and valued positions.
+- [x] Validate transaction and cash account counts.
+- [x] Validate position timeseries reaches ready date.
+- [x] Validate portfolio timeseries reaches ready date.
+- [x] Validate analytics reference `performance_end_date` is current.
+- [x] Add actionable diagnostics for stuck async processing.
+- [x] Add focused tests for readiness checks.
+- [x] Persist readiness evidence in a machine-readable run summary.
+
+## Slice 5: Performance and Risk Calculations
+
+- [x] Validate performance workspace summary.
+- [x] Validate contribution detail rows.
+- [x] Validate attribution detail rows or governed fallback.
+- [x] Validate benchmark-relative return behavior.
+- [x] Validate performance numeric sanity ranges.
+- [x] Validate risk snapshot.
+- [x] Validate drawdown.
+- [x] Validate concentration.
+- [x] Validate rolling risk.
+- [x] Validate historical risk attribution.
+- [x] Validate risk row/window/contributor counts.
+- [x] Add meaningful tests for calculation and contract gaps found.
+
+## Slice 6: Gateway and Workbench Panels
+
+- [x] Validate gateway mappings for performance details.
+- [x] Validate gateway mappings for risk details.
+- [x] Validate advisor brief mappings.
+- [x] Validate manage/report partial behavior or DSN-backed readiness.
+- [x] Tighten workbench panel checks to fail on unsupported blank panels.
+- [x] Ensure all UI states are truthful: ready, loading, empty, partial, error.
+- [x] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.
+- [x] Block demo-ready screenshot capture when required panels fail validation.
+
+## Slice 7: Screenshot Automation
+
+- [x] Capture portfolio summary screenshot.
+- [x] Capture performance summary screenshot.
+- [x] Capture performance analysis screenshot.
+- [x] Capture advisor brief screenshot.
+- [x] Capture risk screenshot.
+- [x] Capture evidence screenshot if contract-supported or truthfully degraded.
+- [x] Store screenshots in caller-provided output directory.
+- [x] Write machine-readable run summary.
+- [x] Prefix pre-validation screenshots with `diagnostic-`.
+- [x] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.
+
+## Slice 8: Documentation and Agent Context
+
+- [x] Update platform runbook.
+- [x] Update onboarding docs.
+- [x] Update agent context with governed demo path.
+- [x] Remove stale scripts and stale references.
+- [x] Update skills if a reusable pattern emerges.
+- [x] Confirm repo-local engineering context references the governed path where relevant.
+- [x] Document the exact first command for clean demo bring-up after implementation.
+- [x] Document how to troubleshoot each validation failure category.
+
+## Final Acceptance
+
+- [x] Clean Docker start from zero state succeeds.
+- [x] Canonical seed is deterministic.
+- [x] Backend endpoint validation passes.
+- [x] Workbench panel validation passes.
+- [x] Screenshots are populated and clean.
+- [x] No `PORT_SMOKE_%` portfolio pollution remains.
+- [x] All changed repositories have meaningful tests.
+- [x] CI evidence is truthful.
+- [x] PRs are raised with small meaningful commits.
+- [x] Machine-readable validation summary is produced.
+- [x] Remaining partial/unavailable panels have explicit ownership and rationale.

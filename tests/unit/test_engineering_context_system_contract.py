@@ -61,10 +61,12 @@ def test_rfc_0073_slice_one_central_context_artifacts_exist_and_cross_link() -> 
     assert "Repository-Local Context Documents" in reference_map
 
     assert "canonical local runtime must be treated as a governed operator flow" in ledger.lower()
+    assert "front-office product proof must route through the governed workbench runtime" in ledger.lower()
     assert "ci should use github for heavy execution" in ledger.lower()
     assert "rfc-0071" in digest.lower()
     assert "rfc-0072" in digest.lower()
     assert "documentation and memory posture" in digest.lower()
+    assert "front-office local runtime routing" in digest.lower()
 
 
 def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_registries() -> None:
@@ -159,12 +161,16 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "Mandatory Operating Rules" in agents_contract
     assert "Context Maintenance Rule" in agents_contract
     assert "Skills, Automation, And Async Execution" in agents_contract
+    assert "Front-Office Runtime Routing Rule" in agents_contract
     assert "LOTUS-QUICKSTART-CONTEXT.md" in agents_contract
     assert "LOTUS-ENGINEERING-CONTEXT.md" in agents_contract
     assert "CONTEXT-REFERENCE-MAP.md" in agents_contract
     assert "REPOSITORY-ENGINEERING-CONTEXT.md" in agents_contract
     assert "deployed `AGENTS.md`" in agents_contract
     assert "Sync-AgentOperatingContract.ps1" in agents_contract
+    assert "canonical-front-office-local-runtime.md" in agents_contract
+    assert "npm run live:stack:up" in agents_contract
+    assert "PB_SG_GLOBAL_BAL_001" in agents_contract
     assert '[switch]$CheckOnly' in sync_script
     assert "Normalize-ContractContent" in sync_script
     assert "Resolve-DefaultTargetPath" in sync_script
@@ -389,6 +395,7 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
         "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
         "../../Local%20Development%20Runbook.md",
+        "../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "../../context/LOTUS-QUICKSTART-CONTEXT.md",
         "../../context/CONTEXT-REFERENCE-MAP.md",
         "../../context/AGENTS-OPERATING-CONTRACT.md",
@@ -408,6 +415,7 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "## Codex Agent Context And Skills",
         "## GitHub And CI Posture",
         "## Ingress And Canonical Endpoints",
+        "## Canonical Front-Office Runtime",
         "## DSN And Environment Posture",
         "## Validation Depth",
         "## Fresh Machine Readiness Checklist",
@@ -424,8 +432,19 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "http://gateway.dev.lotus",
         "gh pr checks <pr-number> --watch=false",
         "powershell -ExecutionPolicy Bypass -File automation\\Sync-Dev-Ingress-Hosts.ps1 -Apply",
+        "Canonical Front-Office Local Runtime",
+        "npm run live:stack:up",
+        "PB_SG_GLOBAL_BAL_001",
+        "primary front-office demo bring-up path",
+        "RFC-0074 is implemented and governed.",
     ):
         assert required_phrase in onboarding
+
+    for stale_phrase in (
+        "At Slice 5, this guide is the onboarding entrypoint",
+        "Later RFC-0074 slices will add",
+    ):
+        assert stale_phrase not in onboarding
 
 
 def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
@@ -463,6 +482,7 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
         "### Tier 3: Deep Context",
         "## Skill Selection",
         "## Validation Lane Selection",
+        "## Front-Office Runtime Routing",
         "## Async GitHub Monitoring",
         "## Context Maintenance Rule",
         "## Anti-Patterns",
@@ -482,6 +502,9 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
         "RFC-0074 is implemented and governed.",
         "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
         "platform-owned Lotus skills under `lotus-platform/codex/skills`",
+        "canonical-front-office-local-runtime.md",
+        "PB_SG_GLOBAL_BAL_001",
+        "lotus-platform/platform-stack",
     ):
         assert required_phrase in ramp_up
 
@@ -626,8 +649,11 @@ def test_rfc_0074_slice_six_validation_drift_controls_are_governed() -> None:
 
     for required in (
         "LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance",
+        "LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance",
+        "LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains",
         "LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail",
         "LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains",
+        "LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing",
         "missing required bootstrap behavior",
         "Validate-LotusDeveloperEnvironment.ps1",
         "Bootstrap-LotusDeveloperEnvironment.ps1",

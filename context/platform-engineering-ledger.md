@@ -28,6 +28,19 @@ Implication:
 
 Future runtime or demo work should use canonical automation and validation instead of hand-built service startup sequences.
 
+### 2026-04-11 | Front-office product proof must route through the governed workbench runtime
+
+The ecosystem already has a governed front-office runtime under `lotus-workbench` for:
+
+1. seeded `PB_SG_GLOBAL_BAL_001` data,
+2. canonical `*.dev.lotus` product routing,
+3. populated Workbench surface validation,
+4. demo and screenshot evidence capture.
+
+Implication:
+
+Future agent and operator guidance must route front-office bring-up, panel validation, and screenshot work to the governed `lotus-workbench` runtime instead of improvising from `lotus-platform/platform-stack`.
+
 ### 2026-04-11 | CI should use GitHub for heavy execution, not repeated expensive local reruns
 
 RFC-0072 rollout work demonstrated that productivity improves when:

@@ -114,6 +114,15 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing ecosystem registries cross-link")
     if "./PROCEDURAL-MEMORY-INDEX.md" not in engineering:
         errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing procedural memory index cross-link")
+    for text in (
+        "## Front-Office Runtime Governance",
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in engineering:
+            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing front-office runtime guidance `{text}`")
 
     if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
         errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
@@ -166,11 +175,21 @@ def validate_engineering_context_system() -> list[str]:
         "Mandatory Operating Rules",
         "Context Maintenance Rule",
         "Skills, Automation, And Async Execution",
+        "Front-Office Runtime Routing Rule",
     ):
         if heading not in agents_contract:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
     if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    for text in (
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "npm run live:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agents_contract:
+            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
 
     for text in (
         "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
@@ -178,9 +197,23 @@ def validate_engineering_context_system() -> list[str]:
         "unknown local Codex skills are preserved",
         "output/developer-environment-readiness.json",
         "output/developer-environment-readiness.md",
+        "Canonical Front-Office Local Runtime",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+        "RFC-0074 is implemented and governed.",
     ):
         if text not in developer_onboarding:
             errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
+    if "primary front-office demo bring-up path" not in developer_onboarding:
+        errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
+    for stale_text in (
+        "At Slice 5, this guide is the onboarding entrypoint",
+        "Later RFC-0074 slices will add",
+    ):
+        if stale_text in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
 
     if "Do not start with Tier 3 by default." not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
@@ -197,6 +230,15 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
     if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
+    for text in (
+        "## Front-Office Runtime Routing",
+        "canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
 
     for text, label, content in (
         ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
