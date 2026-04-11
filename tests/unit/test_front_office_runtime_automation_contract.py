@@ -20,7 +20,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Stop-LotusFrontOfficeCanonical.ps1" in wrapper
     assert "PB_SG_GLOBAL_BAL_001" in wrapper
     assert "output/front-office-qa" in wrapper
-    assert "output\\playwright\\live-canonical\\live-validation-summary.json" in wrapper
+    assert "[string]$ScreenshotDirectory" in wrapper
+    assert "screenshot_directory" in wrapper
+    assert "output\\playwright\\live-canonical" in wrapper
+    assert "live-validation-summary.json" in wrapper
     assert "[switch]$Clean" in wrapper
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RemoveImages" in wrapper
@@ -30,6 +33,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "docker_before" in wrapper
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
+    assert "Screenshot directory" in wrapper
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
     assert "validation did not produce a live summary" in wrapper
     assert "validation summary is stale" in wrapper

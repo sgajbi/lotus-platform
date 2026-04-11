@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 6 complete
+- Status: Slice 7 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -93,16 +93,16 @@
 
 ## Slice 7: Screenshot Automation
 
-- [ ] Capture portfolio summary screenshot.
-- [ ] Capture performance summary screenshot.
-- [ ] Capture performance analysis screenshot.
-- [ ] Capture advisor brief screenshot.
-- [ ] Capture risk screenshot.
-- [ ] Capture evidence screenshot if contract-supported or truthfully degraded.
-- [ ] Store screenshots in caller-provided output directory.
-- [ ] Write machine-readable run summary.
-- [ ] Prefix pre-validation screenshots with `diagnostic-`.
-- [ ] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.
+- [x] Capture portfolio summary screenshot.
+- [x] Capture performance summary screenshot.
+- [x] Capture performance analysis screenshot.
+- [x] Capture advisor brief screenshot.
+- [x] Capture risk screenshot.
+- [x] Capture evidence screenshot if contract-supported or truthfully degraded.
+- [x] Store screenshots in caller-provided output directory.
+- [x] Write machine-readable run summary.
+- [x] Prefix pre-validation screenshots with `diagnostic-`.
+- [x] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.
 
 ## Slice 8: Documentation and Agent Context
 

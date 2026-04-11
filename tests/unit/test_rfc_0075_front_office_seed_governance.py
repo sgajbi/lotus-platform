@@ -17,14 +17,15 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 6 Complete" in rfc
+    assert "Status: Approved - Slice 7 Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
     assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
     assert "`RFC-0075-slice-3-core-seed-data-evidence.md`" in rfc
     assert "`RFC-0075-slice-4-derived-state-readiness-evidence.md`" in rfc
     assert "`RFC-0075-slice-5-performance-risk-calculation-evidence.md`" in rfc
     assert "`RFC-0075-slice-6-panel-classification-evidence.md`" in rfc
-    assert "- Status: Slice 6 complete" in checklist
+    assert "`RFC-0075-slice-7-demo-screenshot-evidence.md`" in rfc
+    assert "- Status: Slice 7 complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -46,6 +47,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Validate risk row/window/contributor counts.",
         "- [x] Tighten workbench panel checks to fail on unsupported blank panels.",
         "- [x] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.",
+        "- [x] Store screenshots in caller-provided output directory.",
+        "- [x] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.",
     ):
         assert required_item in checklist
 
@@ -163,6 +166,29 @@ def test_rfc_0075_slice_six_panel_classification_evidence_is_governed_and_tracea
         '"panel": "risk.historical_attribution"',
         "fallbackAvailable=true",
         "UI must render a truthful unavailable/degraded state",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0075_slice_seven_demo_screenshot_evidence_is_governed_and_traceable() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0075-slice-7-demo-screenshot-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0075 Slice 7 Demo Screenshot Evidence",
+        "C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots",
+        "live-validation-summary.json",
+        "SHOT-INDEX.md",
+        "portfolio-summary-live.png",
+        "portfolio-detailed-live.png",
+        "performance-summary-live.png",
+        "performance-analysis-live.png",
+        "performance-advisor-brief-live.png",
+        "performance-risk-live.png",
+        "performance-evidence-live.png",
+        "truthfully_degraded",
+        "canonical-front-office-qa-20260411-190254.json",
     ):
         assert required_item in evidence
 

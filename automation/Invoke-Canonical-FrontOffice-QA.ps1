@@ -4,6 +4,7 @@ param(
   [string]$PortfolioId = "PB_SG_GLOBAL_BAL_001",
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
   [string]$OutputDirectory = "output/front-office-qa",
+  [string]$ScreenshotDirectory = "",
   [switch]$BringUp,
   [switch]$Clean,
   [switch]$BuildImages,
@@ -27,7 +28,15 @@ if (-not (Test-Path $WorkbenchRepoPath)) {
 $startScript = Join-Path $WorkbenchRepoPath "scripts\live\Start-LotusFrontOfficeCanonical.ps1"
 $validateScript = Join-Path $WorkbenchRepoPath "scripts\live\Validate-LotusFrontOfficeCanonical.ps1"
 $stopScript = Join-Path $WorkbenchRepoPath "scripts\live\Stop-LotusFrontOfficeCanonical.ps1"
-$liveSummaryPath = Join-Path $WorkbenchRepoPath "output\playwright\live-canonical\live-validation-summary.json"
+$defaultScreenshotDirectory = Join-Path $WorkbenchRepoPath "output\playwright\live-canonical"
+if ([string]::IsNullOrWhiteSpace($ScreenshotDirectory)) {
+  $resolvedScreenshotDirectory = $defaultScreenshotDirectory
+} elseif ([System.IO.Path]::IsPathRooted($ScreenshotDirectory)) {
+  $resolvedScreenshotDirectory = $ScreenshotDirectory
+} else {
+  $resolvedScreenshotDirectory = Join-Path $platformRoot $ScreenshotDirectory
+}
+$liveSummaryPath = Join-Path $resolvedScreenshotDirectory "live-validation-summary.json"
 
 foreach ($requiredPath in @($startScript, $validateScript, $stopScript)) {
   if (-not (Test-Path $requiredPath)) {
@@ -147,6 +156,7 @@ $summary = [ordered]@{
   benchmark_code = $BenchmarkCode
   governed_runbook = (Join-Path $WorkbenchRepoPath "docs\operations\canonical-front-office-local-runtime.md")
   governed_live_summary = $liveSummaryPath
+  screenshot_directory = $resolvedScreenshotDirectory
   docker_before = Get-LotusDockerArtifacts
   docker_after_clean = $null
   docker_after = $null
@@ -160,6 +170,12 @@ $commonArguments = @{
   ProjectsRoot = $ProjectsRoot
   PortfolioId = $PortfolioId
   BenchmarkCode = $BenchmarkCode
+  ScreenshotDirectory = $resolvedScreenshotDirectory
+}
+$validationArguments = @{
+  PortfolioId = $PortfolioId
+  BenchmarkCode = $BenchmarkCode
+  ScreenshotDirectory = $resolvedScreenshotDirectory
 }
 
 try {
@@ -186,7 +202,7 @@ try {
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
   } elseif (-not $Clean) {
-    Invoke-CanonicalRuntimeStep -StepName "validate" -ScriptPath $validateScript -Arguments $commonArguments
+    Invoke-CanonicalRuntimeStep -StepName "validate" -ScriptPath $validateScript -Arguments $validationArguments
     $summary.steps += "validate"
   }
 
@@ -239,6 +255,7 @@ $markdown += "- Benchmark: $BenchmarkCode"
 $markdown += "- Workbench repo: $WorkbenchRepoPath"
 $markdown += "- Governed runbook: $($summary.governed_runbook)"
 $markdown += "- Live summary: $liveSummaryPath"
+$markdown += "- Screenshot directory: $resolvedScreenshotDirectory"
 $markdown += ""
 $markdown += "## Steps"
 $markdown += ""
@@ -266,7 +283,11 @@ if ($summary.screenshots.Count -gt 0) {
   $markdown += "## Screenshots"
   $markdown += ""
   foreach ($screenshot in @($summary.screenshots)) {
-    $markdown += "- $screenshot"
+    if ($screenshot.path) {
+      $markdown += "- $($screenshot.name) - $($screenshot.panel) - $($screenshot.path)"
+    } else {
+      $markdown += "- $screenshot"
+    }
   }
 }
 if ($summary.error) {
