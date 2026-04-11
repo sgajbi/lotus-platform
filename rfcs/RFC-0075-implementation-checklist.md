@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 2 complete
+- Status: Slice 3 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -42,17 +42,17 @@
 
 ## Slice 3: Core Seed Data
 
-- [ ] Rebuild canonical transaction economics.
-- [ ] Ensure no nonsensical negative economics unless explicitly documented.
-- [ ] Validate buy, sell, income, fee, withdrawal, and cash-leg sign conventions.
-- [ ] Validate deterministic transaction, source record, and economic event IDs.
-- [ ] Ensure market prices cover every instrument through the ready date.
-- [ ] Ensure FX rates cover every required currency pair through the ready date.
-- [ ] Ensure benchmark definition, composition, return series, and assignment are complete.
-- [ ] Ensure risk-free series covers performance and risk windows.
-- [ ] Remove timestamped smoke portfolio pollution.
-- [ ] Add unit tests for seed completeness and cleanup.
-- [ ] Add tests for portfolio economic sanity and date coverage.
+- [x] Rebuild canonical transaction economics.
+- [x] Ensure no nonsensical negative economics unless explicitly documented.
+- [x] Validate buy, sell, income, fee, withdrawal, and cash-leg sign conventions.
+- [x] Validate deterministic transaction, source record, and economic event IDs.
+- [x] Ensure market prices cover every instrument through the ready date.
+- [x] Ensure FX rates cover every required currency pair through the ready date.
+- [x] Ensure benchmark definition, composition, return series, and assignment are complete.
+- [x] Ensure risk-free series covers performance and risk windows.
+- [x] Remove timestamped smoke portfolio pollution.
+- [x] Add unit tests for seed completeness and cleanup.
+- [x] Add tests for portfolio economic sanity and date coverage.
 
 ## Slice 4: Derived State Readiness
 
