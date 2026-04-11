@@ -13,6 +13,7 @@ This guide is governed by:
 5. [Context Reference Map](../../context/CONTEXT-REFERENCE-MAP.md)
 6. [Procedural Memory Index](../../context/PROCEDURAL-MEMORY-INDEX.md)
 7. [AGENTS Operating Contract](../../context/AGENTS-OPERATING-CONTRACT.md)
+8. [Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md)
 
 ## Purpose
 
@@ -57,6 +58,7 @@ Before editing files, the agent should identify:
 7. GitHub checks or PRs to monitor asynchronously,
 8. whether durable context or repository-local documentation may need an update.
 9. whether the task is actually a front-office runtime or UI-proof task that must use the governed `lotus-workbench` live runtime path.
+10. whether the task should be routed through `LOTUS-SKILL-ROUTING-MAP.md` before loading broader skills.
 
 If any of these are unclear, inspect the repository and context map before implementing.
 
@@ -130,6 +132,7 @@ Common Lotus skill routes:
 
 | Task | Skill Or Workflow |
 | --- | --- |
+| canonical populated Workbench runtime, demo screenshots, panel validation | `lotus-front-office-runtime` |
 | backend implementation or review | `lotus-backend-delivery-governance` |
 | frontend implementation or review | `lotus-frontend-delivery-governance` |
 | PR merge or pre-merge checks | `lotus-pr-premerge-gate` |
@@ -139,6 +142,10 @@ Common Lotus skill routes:
 | async automation monitoring | `async-task-runner` or `platform-pulse-monitor` |
 
 If no skill fits, use the repository context, task routing guide, and procedural playbooks before inventing a new process.
+
+When multiple skills seem to fit, resolve the overlap through
+[Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md) instead of guessing from
+descriptions alone.
 
 ## Validation Lane Selection
 
@@ -182,6 +189,9 @@ Use the RFC-0077 panel registry when the task changes a governed Workbench scree
 panel classification, screenshot ownership, or support-state posture.
 
 Do not default to `lotus-platform/platform-stack` as the primary front-office product bring-up path. That path owns shared infrastructure assets and ingress support, but the governed populated product-surface flow lives in `lotus-workbench`.
+
+Treat `lotus-front-office-runtime` as the primary skill route for these tasks. Use broader frontend,
+QA, or PR skills only as supporting guidance once the runtime path is selected.
 
 Demo-ready screenshots are valid only after canonical endpoint, calculation, and panel validation passes. Keep diagnostic captures separate with a `diagnostic-` prefix.
 

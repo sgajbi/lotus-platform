@@ -17,6 +17,10 @@ Use:
 2. `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` for PR progression and merge hygiene,
 3. `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when failures recur.
 
+If the lifecycle task is specifically about canonical front-office populated-panel proof or demo
+screenshots, compose this skill with `lotus-front-office-runtime` instead of relying on generic QA
+validation alone.
+
 Run this lifecycle:
 1. Bring up application and run API/observability/platform checks.
 2. Raise or reuse detailed defects in the target repository.
@@ -24,6 +28,13 @@ Run this lifecycle:
 4. Monitor PR merge status.
 5. Revalidate post-merge and update/close issues based on evidence.
 6. Repeat until no blocking findings remain.
+
+Async rule:
+
+1. use truthful local proof first,
+2. let GitHub run heavy PR checks where possible,
+3. continue implementation or analysis while checks run,
+4. return to fix-forward work only when a real failure log exists.
 
 ## Core Commands
 

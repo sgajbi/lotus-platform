@@ -537,6 +537,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
         "lotus-backend-delivery-governance",
         "lotus-codebase-review-ledger",
         "lotus-frontend-delivery-governance",
+        "lotus-front-office-runtime",
         "lotus-methodology-doc-v3",
         "lotus-pr-premerge-gate",
         "lotus-qa-platform-validator",

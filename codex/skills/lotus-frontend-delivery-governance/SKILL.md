@@ -18,6 +18,10 @@ Apply it in line with:
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing, `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` for proof selection, and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when GitHub or runtime evidence surfaces a real defect.
 
+If the task is specifically about the governed canonical front-office runtime, populated Workbench
+panels, or screenshot proof for `PB_SG_GLOBAL_BAL_001`, use `lotus-front-office-runtime` as the
+primary routing skill and treat this skill as secondary delivery governance.
+
 ## Context-First Rule
 
 Before substantive frontend work:
@@ -57,6 +61,9 @@ Before changing UI:
    - partial
    - ready
    - error
+6. For governed Workbench panel or screenshot-proof surfaces, follow the RFC-0076 canonical
+   contract and RFC-0077 panel registry rather than page-local assumptions.
+7. Screenshots alone are not proof for governed front-office surfaces.
 
 ## Validation Thinking
 
@@ -76,6 +83,11 @@ Map validation to the platform lanes:
 4. Platform End-to-End Validation:
    - required when the change affects canonical screens, sub-screens, panels, seeded demo flows, ingress assumptions, or gateway-backed product behavior
 
+For those canonical runtime tasks, the governed source of truth is:
+
+1. `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`
+2. `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1`
+
 ## Frontend Gold-Standard Checklist
 
 1. The screen is backed by supported backend functionality.
@@ -84,6 +96,7 @@ Map validation to the platform lanes:
 4. Screenshot or artifact evidence exists when visually important behavior changed.
 5. Copy, state handling, and layout do not drift from the shared system without explicit reason.
 6. PR evidence names the real commands and the real routes or panels validated.
+7. Panel support posture is truthful and matches the governed registry state.
 
 ## Cross-Repo Rule
 

@@ -5,7 +5,12 @@ description: Intelligent Lotus platform QA validator for service bring-up, API p
 
 # Lotus QA Platform Validator
 
-Use `lotus-platform/automation/Invoke-Platform-QA.ps1` as the source of truth for platform-level readiness validation.
+Use `lotus-platform/automation/Invoke-Platform-QA.ps1` as the source of truth for platform-level
+readiness validation.
+
+Do not use this skill as the primary route when the goal is governed front-office populated-panel
+proof, canonical Workbench screenshots, or `PB_SG_GLOBAL_BAL_001` demo evidence. Route those tasks
+to `lotus-front-office-runtime`.
 
 Before substantial QA or validation work, read:
 
@@ -17,6 +22,22 @@ Use:
 
 1. `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` to choose validation depth,
 2. `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when a run exposes a real failure pattern.
+
+## Routing Boundary
+
+Use this skill for:
+
+1. backend or infrastructure QA,
+2. service health, API probing, observability, and standards checks,
+3. issue-quality evidence for platform defects.
+
+Use `lotus-front-office-runtime` instead for:
+
+1. populated Workbench product-surface validation,
+2. canonical screenshot packs,
+3. `lotus-risk-module-shots`,
+4. `PB_SG_GLOBAL_BAL_001`,
+5. screenshot-plus-machine-readable front-office evidence.
 
 ## Workflow
 
@@ -31,17 +52,22 @@ if (-not (Test-Path $platform)) { throw "lotus-platform repo not found at $platf
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Platform-QA.ps1 -Repo lotus-risk -BringUp -CreateIssues
 ```
 
-3. Use dry-run for pipeline verification:
+3. Run governed front-office QA only when the task is explicitly a front-office runtime proof task:
+```powershell
+powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+```
+
+4. Use dry-run for pipeline verification:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Platform-QA.ps1 -Repo lotus-risk -DryRun -CreateIssues
 ```
 
-4. Read run artifacts:
+5. Read run artifacts:
 - `output/qa/<run-id>/qa-summary.md`
 - `output/qa/<run-id>/qa-summary.json`
 - `output/qa/<run-id>/qa-issues.json`
 
-5. Report:
+6. Report:
 - findings by severity and check id
 - created issue URLs
 - evidence file paths
@@ -61,6 +87,13 @@ Monitor:
 Get-Content output\qa\latest-run.txt
 Get-Content (Get-Content output\qa\latest-run.txt | ForEach-Object { "output/qa/$_/qa-summary.md" })
 ```
+
+If GitHub can run the heavier merge-gate matrix more efficiently:
+
+1. push after truthful local proof,
+2. let GitHub execute the heavy lanes,
+3. continue useful implementation work,
+4. return only when a real failure log exists.
 
 ## Standards Coverage
 

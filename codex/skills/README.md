@@ -49,8 +49,13 @@ When a Lotus skill changes:
 5. keep merge strategy guidance aligned to Lotus repository policy,
 6. update tests that validate the governed skill inventory.
 
-## Current Boundary
+## Runtime Boundary
 
-RFC-0074 Slice 4 establishes the source inventory.
+The platform-owned source of truth for Lotus skills is this directory.
 
-Skill synchronization automation is not implemented in this slice. It belongs to a later RFC-0074 bootstrap automation slice.
+The local Codex profile is synchronized from here through governed bootstrap automation:
+
+1. `automation/Bootstrap-LotusDeveloperEnvironment.ps1`
+2. `automation/Validate-LotusDeveloperEnvironment.ps1`
+
+Local sync must preserve unknown non-Lotus skills.
