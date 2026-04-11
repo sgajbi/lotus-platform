@@ -36,9 +36,11 @@
 
 ## Slice 3: Derived-State Readiness Enforcement
 
-- [ ] Enforce governed readiness semantics against the canonical contract.
-- [ ] Surface contract-aware stale state diagnostics.
-- [ ] Add tests proving readiness drift is caught before UI validation.
+- [x] Enforce governed readiness semantics against the canonical contract.
+- [x] Surface contract-aware stale state diagnostics.
+- [x] Add tests proving readiness drift is caught before UI validation.
+- [x] Add slice evidence documenting the readiness-diagnostics implementation.
+- [x] Review slice output for simplification opportunities before moving on.
 
 ## Slice 4: Cross-App Contract Adoption
 

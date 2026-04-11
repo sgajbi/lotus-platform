@@ -24,6 +24,9 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
     slice_two_evidence = (
         ROOT / "rfcs" / "RFC-0076-slice-2-core-contract-enforcement-evidence.md"
     ).read_text(encoding="utf-8")
+    slice_three_evidence = (
+        ROOT / "rfcs" / "RFC-0076-slice-3-derived-state-readiness-evidence.md"
+    ).read_text(encoding="utf-8")
     contract_readme = (ROOT / "context" / "contracts" / "README.md").read_text(encoding="utf-8")
 
     assert "## Decision" in rfc
@@ -44,6 +47,10 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "- [x] Enforce required coverage and deterministic economics in code.",
         "- [x] Add focused tests for economic invariants and stale coverage failure modes.",
         "- [x] Add slice evidence documenting the `lotus-core` adoption path.",
+        "- [x] Enforce governed readiness semantics against the canonical contract.",
+        "- [x] Surface contract-aware stale state diagnostics.",
+        "- [x] Add tests proving readiness drift is caught before UI validation.",
+        "- [x] Add slice evidence documenting the readiness-diagnostics implementation.",
     ):
         assert required_item in checklist
 
@@ -65,6 +72,16 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "20 passed in 0.55s",
     ):
         assert required_item in slice_two_evidence
+
+    for required_item in (
+        "# RFC-0076 Slice 3 Derived-State Readiness Evidence",
+        "/support/portfolios/{portfolio_id}/readiness",
+        "/support/portfolios/{portfolio_id}/overview",
+        "/support/portfolios/{portfolio_id}/aggregation-jobs",
+        "23 passed in 0.70s",
+        "source-owned readiness semantics",
+    ):
+        assert required_item in slice_three_evidence
 
     for required_item in (
         "# Context Contracts",
