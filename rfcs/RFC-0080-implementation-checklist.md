@@ -48,10 +48,10 @@
 
 ## Slice 5: Validation of Agent Routing Behavior
 
-- [ ] Prove that a new agent can select the governed runtime path with minimal ambiguity.
-- [ ] Prove that async GitHub behavior is reflected in the updated skills.
-- [ ] Prove that stale startup or screenshot-only behaviors are no longer encouraged.
-- [ ] Add or update contract guards where they materially improve reliability.
+- [x] Prove that a new agent can select the governed runtime path with minimal ambiguity.
+- [x] Prove that async GitHub behavior is reflected in the updated skills.
+- [x] Prove that stale startup or screenshot-only behaviors are no longer encouraged.
+- [x] Add or update contract guards where they materially improve reliability.
 
 ## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
