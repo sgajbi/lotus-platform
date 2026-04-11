@@ -513,6 +513,11 @@
           "id": "close-pr-loop",
           "repo": "lotus-platform",
           "command": "powershell -ExecutionPolicy Bypass -File automation/Close-PR-Loop.ps1"
+        },
+        {
+          "id": "prune-merged-remote-branches",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -AllLotusRepos"
         }
       ]
     },
