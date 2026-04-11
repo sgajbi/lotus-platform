@@ -17,9 +17,10 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 1 Complete" in rfc
+    assert "Status: Approved - Slice 2 Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
-    assert "- Status: Slice 1 complete" in checklist
+    assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
+    assert "- Status: Slice 2 complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -27,6 +28,9 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Canonical benchmark ID confirmed as `BMK_PB_GLOBAL_BALANCED_60_40`.",
         "- [x] Record `PORT_SMOKE_%` pollution status.",
         "- [x] Record gateway/workbench mapping gaps separately from upstream calculation gaps.",
+        "- [x] Standardize clean Docker teardown.",
+        "- [x] Remove stale local Lotus image ambiguity when full clean mode is selected.",
+        "- [x] Emit a run summary with cleanup scope and service startup evidence.",
     ):
         assert required_item in checklist
 
@@ -42,6 +46,28 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "Slice 2 may start after this baseline is accepted.",
     ):
         assert required_item in baseline
+
+
+def test_rfc_0075_slice_two_startup_evidence_is_governed_and_traceable() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0075-slice-2-docker-ingress-startup-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0075 Slice 2 Docker, Ingress, and Startup Evidence",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning",
+        "Containers after clean: 0",
+        "generatedAt: 2026-04-11T09:59:13.987Z",
+        "workbench.dev.lotus",
+        "gateway.dev.lotus",
+        "lotus-manage integration capabilities",
+        "lotus-report integration capabilities",
+        "Validate-LotusFrontOfficeCanonical.ps1",
+        "allowed Node browser-validation failures to appear as a successful PowerShell script run",
+        "Evidence support remains degraded by current contract posture",
+    ):
+        assert required_item in evidence
 
 
 def test_rfc_0075_keeps_front_office_demo_from_becoming_ui_only_fixture() -> None:

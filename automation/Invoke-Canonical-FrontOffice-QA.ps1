@@ -131,6 +131,7 @@ $summaryJsonPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa
 $summaryMarkdownPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.md"
 $latestJsonPath = Join-Path $resolvedOutputDirectory "latest.json"
 $latestMarkdownPath = Join-Path $resolvedOutputDirectory "latest.md"
+$runStartedAt = Get-Date
 
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
@@ -189,7 +190,14 @@ try {
     $summary.steps += "validate"
   }
 
-  if (($summary.steps -contains "bring-up" -or $summary.steps -contains "validate") -and (Test-Path $liveSummaryPath)) {
+  if ($summary.steps -contains "bring-up" -or $summary.steps -contains "validate") {
+    if (-not (Test-Path $liveSummaryPath)) {
+      throw "Canonical Workbench validation did not produce a live summary: $liveSummaryPath"
+    }
+    $liveSummaryFile = Get-Item $liveSummaryPath
+    if ($liveSummaryFile.LastWriteTime -lt $runStartedAt) {
+      throw "Canonical Workbench validation summary is stale: $liveSummaryPath was last written at $($liveSummaryFile.LastWriteTime.ToString('yyyy-MM-ddTHH:mm:ssK'))."
+    }
     $liveSummary = Get-Content -Raw $liveSummaryPath | ConvertFrom-Json
     $summary.screenshots = @($liveSummary.screenshots)
     $summary.live_validation_summary = $liveSummary

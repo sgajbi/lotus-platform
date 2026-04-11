@@ -31,6 +31,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
+    assert "validation did not produce a live summary" in wrapper
+    assert "validation summary is stale" in wrapper
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}

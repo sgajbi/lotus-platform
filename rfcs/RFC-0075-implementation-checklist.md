@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 1 complete
+- Status: Slice 2 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -31,14 +31,14 @@
 
 ## Slice 2: Docker, Ingress, and Startup
 
-- [ ] Standardize clean Docker teardown.
-- [ ] Remove stale volume ambiguity.
-- [ ] Remove stale local Lotus image ambiguity when full clean mode is selected.
-- [ ] Ensure canonical ingress routes only to the active stack.
-- [ ] Validate DSN and environment setup for all participating services.
-- [ ] Update governed startup runbook.
-- [ ] Add or update tests for startup automation where practical.
-- [ ] Emit a run summary with cleanup scope and service startup evidence.
+- [x] Standardize clean Docker teardown.
+- [x] Remove stale volume ambiguity.
+- [x] Remove stale local Lotus image ambiguity when full clean mode is selected.
+- [x] Ensure canonical ingress routes only to the active stack.
+- [x] Validate DSN and environment setup for all participating services.
+- [x] Update governed startup runbook.
+- [x] Add or update tests for startup automation where practical.
+- [x] Emit a run summary with cleanup scope and service startup evidence.
 
 ## Slice 3: Core Seed Data
 
