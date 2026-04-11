@@ -184,7 +184,18 @@ def validate_engineering_context_system() -> list[str]:
 
     if "Do not start with Tier 3 by default." not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
-    if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up:
+    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
+    for stale_text in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        if stale_text in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
+    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
+    if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
 
     for text, label, content in (

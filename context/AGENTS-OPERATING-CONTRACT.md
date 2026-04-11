@@ -85,13 +85,15 @@ If both changed:
 
 Central context system:
 
-1. `C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-QUICKSTART-CONTEXT.md`
-2. `C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-ENGINEERING-CONTEXT.md`
-3. `C:\Users\Sandeep\projects\lotus-platform\context\CONTEXT-REFERENCE-MAP.md`
-4. `C:\Users\Sandeep\projects\lotus-platform\context\PROCEDURAL-MEMORY-INDEX.md`
-5. `C:\Users\Sandeep\projects\lotus-platform\context\lotus-context-manifest.json`
-6. `C:\Users\Sandeep\projects\lotus-platform\context\platform-engineering-ledger.md`
-7. `C:\Users\Sandeep\projects\lotus-platform\context\recent-architectural-decisions-digest.md`
+1. `<lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md`
+2. `<lotus-platform>/context/LOTUS-ENGINEERING-CONTEXT.md`
+3. `<lotus-platform>/context/CONTEXT-REFERENCE-MAP.md`
+4. `<lotus-platform>/context/PROCEDURAL-MEMORY-INDEX.md`
+5. `<lotus-platform>/context/lotus-context-manifest.json`
+6. `<lotus-platform>/context/platform-engineering-ledger.md`
+7. `<lotus-platform>/context/recent-architectural-decisions-digest.md`
+8. `<lotus-platform>/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
+9. `<lotus-platform>/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
 
 Repository-local context:
 

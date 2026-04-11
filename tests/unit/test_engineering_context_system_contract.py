@@ -472,16 +472,25 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
 
     for required_phrase in (
         "Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md",
-        "Read C:\\Users\\Sandeep\\projects\\lotus-platform\\context\\LOTUS-QUICKSTART-CONTEXT.md",
+        "Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md",
         "Do not start with Tier 3 by default.",
         "lotus-backend-delivery-governance",
         "lotus-frontend-delivery-governance",
         "lotus-pr-premerge-gate",
         "gh pr checks <pr-number> --watch=false",
         "Do not update durable context for transient CI state unless it becomes a repeatable pattern.",
-        "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`",
+        "RFC-0074 is implemented and governed.",
+        "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
+        "platform-owned Lotus skills under `lotus-platform/codex/skills`",
     ):
         assert required_phrase in ramp_up
+
+    for stale_phrase in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        assert stale_phrase not in ramp_up
 
 
 def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
@@ -618,6 +627,7 @@ def test_rfc_0074_slice_six_validation_drift_controls_are_governed() -> None:
     for required in (
         "LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance",
         "LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail",
+        "LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains",
         "missing required bootstrap behavior",
         "Validate-LotusDeveloperEnvironment.ps1",
         "Bootstrap-LotusDeveloperEnvironment.ps1",

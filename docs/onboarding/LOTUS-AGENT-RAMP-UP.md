@@ -38,10 +38,10 @@ Use this path-agnostic prompt on a new machine:
 Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md, then <lotus-platform>/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
 ```
 
-Use this local prompt when the Lotus workspace is under `C:\Users\Sandeep\projects`:
+Use this workspace-root prompt when the Lotus workspace path is known:
 
 ```text
-Read C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-QUICKSTART-CONTEXT.md, then C:\Users\Sandeep\projects\lotus-platform\context\CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, then <workspace-root>/lotus-platform/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
 ```
 
 ## First-Turn Checklist
@@ -206,12 +206,15 @@ Avoid:
 
 ## Current RFC-0074 Boundary
 
-At Slice 3, this guide defines agent ramp-up and first prompt behavior.
+RFC-0074 is implemented and governed.
 
-Later RFC-0074 slices will add:
+Current bootstrap support includes:
 
-1. bootstrap and validation automation,
-2. onboarding drift controls,
-3. repository-local cross-links.
+1. platform-owned Lotus skills under `lotus-platform/codex/skills`,
+2. read-only developer-environment inspection through `automation/Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast`,
+3. governed Lotus skill and `AGENTS.md` synchronization through `automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast`,
+4. redacted readiness reports at `output/developer-environment-readiness.json` and `output/developer-environment-readiness.md`,
+5. drift controls through `automation/validate_engineering_context_system.py` and `tests/unit/test_developer_environment_bootstrap.py`,
+6. repository-local context links back to the central onboarding and agent ramp-up guides.
 
-Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`, but automated skill sync and bootstrap readiness scripts are not implemented yet. Until those later slices are complete, do not assume automated platform-owned skill sync or bootstrap readiness scripts exist.
+Do not duplicate this guide into repository-local context documents. Keep local repository context focused on repo-specific commands, boundaries, and constraints, and link back here for agent ramp-up behavior.
