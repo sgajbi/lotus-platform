@@ -183,12 +183,31 @@ cd C:\Users\<user>\projects\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1 -CheckOnly
 ```
 
-To synchronize after reviewing the change:
+To synchronize only `AGENTS.md` after reviewing the change:
 
 ```powershell
 cd C:\Users\<user>\projects\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1
 ```
+
+To inspect developer-environment readiness without mutating local files:
+
+```powershell
+cd C:\Users\<user>\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
+```
+
+To bootstrap governed Lotus Codex skills and `AGENTS.md` into the local Codex profile:
+
+```powershell
+cd C:\Users\<user>\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast
+```
+
+The bootstrap script synchronizes only governed Lotus artifacts from `lotus-platform`; unknown local Codex skills are preserved. It writes redacted readiness evidence to:
+
+1. `output/developer-environment-readiness.json`
+2. `output/developer-environment-readiness.md`
 
 Do not overwrite local Codex guidance blindly. If a local file has intentional machine-specific content, preserve it or move durable guidance into the governed platform source first.
 
@@ -310,12 +329,14 @@ Use this checklist after a new clone or pull.
 
 ## Current RFC-0074 Boundary
 
-At Slice 2, this guide is the onboarding entrypoint.
+At Slice 5, this guide is the onboarding entrypoint and platform-owned bootstrap automation exists.
 
-Later RFC-0074 slices will add:
+Current automation supports:
 
-1. bootstrap and validation automation,
-2. onboarding drift controls,
-3. repository-local cross-links.
+1. inspect mode for read-only readiness checks,
+2. sync mode for governed Lotus skill and `AGENTS.md` synchronization,
+3. validate mode for explicit readiness gating,
+4. fast, extended, and platform validation profiles,
+5. redacted JSON and Markdown readiness reports.
 
-Platform-owned skill artifacts now exist, but skill synchronization automation is not implemented yet. Until that later slice is complete, do not assume bootstrap scripts or automated platform-owned skill sync exist.
+Later RFC-0074 slices will add onboarding drift controls and repository-local cross-links.

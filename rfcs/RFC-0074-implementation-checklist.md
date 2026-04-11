@@ -2,7 +2,7 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 4 complete`
+Implementation posture: `Approved | Slice 5 complete`
 
 ## Slice Status
 
@@ -10,7 +10,7 @@ Implementation posture: `Approved | Slice 4 complete`
 - `Slice 2 | Developer onboarding guide | Complete`
 - `Slice 3 | Agent ramp-up guide and first-prompt standard | Complete`
 - `Slice 4 | Skill distribution and synchronization design | Complete`
-- `Slice 5 | Bootstrap and validation automation | Pending`
+- `Slice 5 | Bootstrap and validation automation | Complete`
 - `Slice 6 | Validation coverage and drift control | Pending`
 - `Slice 7 | Repository-local cross-link rollout | Pending`
 
@@ -86,16 +86,24 @@ Current source of truth:
 
 ### Slice 5 | Bootstrap and validation automation
 
-Planned:
+Implemented:
 
-1. create `automation/Bootstrap-LotusDeveloperEnvironment.ps1`,
-2. create `automation/Validate-LotusDeveloperEnvironment.ps1`,
-3. support inspect, sync, and validate modes,
-4. support fast, extended, and explicit platform validation profiles,
-5. validate prerequisites and local readiness without printing secrets,
-6. emit `output/developer-environment-readiness.json` and `.md`,
-7. apply stable statuses and exit semantics,
-8. keep heavy stack and E2E validation opt-in.
+1. created `automation/Bootstrap-LotusDeveloperEnvironment.ps1`,
+2. created `automation/Validate-LotusDeveloperEnvironment.ps1`,
+3. added inspect, sync, and validate modes,
+4. added fast, extended, and explicit platform validation profiles,
+5. validate GitHub auth, Docker posture, Python, Node, repository presence, context docs, skill sync, `AGENTS.md` sync, ingress, and DSN posture,
+6. emit redacted `output/developer-environment-readiness.json` and `.md` reports,
+7. apply stable statuses and validate-mode exit semantics,
+8. keep heavy stack and E2E validation opt-in,
+9. documented the scripts in onboarding and automation references,
+10. added contract-test coverage for the automation entrypoints and safety semantics.
+
+Current source of truth:
+
+1. run `automation/Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast` for read-only readiness checks.
+2. run `automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast` to sync governed Lotus Codex skills and `AGENTS.md`.
+3. Slice 6 is the next permitted implementation slice.
 
 ### Slice 6 | Validation coverage and drift control
 

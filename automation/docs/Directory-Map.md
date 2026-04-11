@@ -43,6 +43,8 @@ This map organizes the automation directory by responsibility without changing s
 
 - `Service-Refresh.ps1`
 - `Bootstrap-Repo-Env.ps1`
+- `Bootstrap-LotusDeveloperEnvironment.ps1`
+- `Validate-LotusDeveloperEnvironment.ps1`
 - `Sync-Dev-Ingress-Hosts.ps1`
 - `Validate-Dev-Ingress-Smoke.ps1`
 - `Explain-Dev-Ingress-Status.ps1`

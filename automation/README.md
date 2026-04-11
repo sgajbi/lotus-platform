@@ -34,6 +34,8 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Check-Background-Runs.ps1`
 - `automation/Summarize-Task-Failures.ps1`
 - `automation/Bootstrap-Repo-Env.ps1`
+- `automation/Bootstrap-LotusDeveloperEnvironment.ps1`
+- `automation/Validate-LotusDeveloperEnvironment.ps1`
 - `automation/Validate-Platform-Contract.ps1`
 - `automation/Measure-Test-Pyramid.ps1`
 - `automation/Validate-Backend-Standards.ps1`
@@ -66,6 +68,19 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/qa-matrix.json`
 
 ## Quick Start
+
+Developer environment readiness:
+
+```powershell
+# Read-only inspect; writes output/developer-environment-readiness.json and .md
+powershell -ExecutionPolicy Bypass -File automation/Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
+
+# Sync governed Lotus Codex skills and AGENTS.md, preserving unknown local skills
+powershell -ExecutionPolicy Bypass -File automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast
+
+# Explicit readiness gate; heavy platform runtime checks require the extended or platform profile
+powershell -ExecutionPolicy Bypass -File automation/Validate-LotusDeveloperEnvironment.ps1 -Mode Validate -Profile extended
+```
 
 One-shot pulse:
 

@@ -143,7 +143,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert implementation_postures["RFC-0071"] == "implemented and governed"
     assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
-    assert implementation_postures["RFC-0074"] == "approved; Slice 1 complete"
+    assert implementation_postures["RFC-0074"] == "approved; Slice 5 complete"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -419,7 +419,7 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "Onboarding should not silently start Docker stacks",
         "Do not overwrite local Codex guidance blindly",
         "Do not run full local CI reflexively",
-        "Platform-owned skill artifacts now exist, but skill synchronization automation is not implemented yet.",
+        "platform-owned bootstrap automation exists",
         "http://workbench.dev.lotus",
         "http://gateway.dev.lotus",
         "gh pr checks <pr-number> --watch=false",
@@ -494,7 +494,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
     manifest = json.loads((skills_root / "lotus-skill-manifest.json").read_text(encoding="utf-8"))
     readme = (skills_root / "README.md").read_text(encoding="utf-8")
 
-    assert "Implementation posture: `Approved | Slice 4 complete`" in checklist
+    assert "Implementation posture: `Approved | Slice 5 complete`" in checklist
     assert "Slice 4 | Skill distribution and synchronization design | Complete" in checklist
     assert "codex/skills/lotus-skill-manifest.json" in checklist
     assert "../../codex/skills/README.md" in developer_onboarding
@@ -541,3 +541,63 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
             assert "C:\\Users\\Sandeep" not in text
             assert "C:/Users/Sandeep" not in text
             assert "--squash --delete-branch" not in text
+
+
+def test_rfc_0074_slice_five_bootstrap_automation_is_governed_and_safe() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+    automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
+    validate_script = (ROOT / "automation" / "Validate-LotusDeveloperEnvironment.ps1").read_text(
+        encoding="utf-8"
+    )
+    bootstrap_script = (ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Implementation posture: `Approved | Slice 5 complete`" in checklist
+    assert "Slice 5 | Bootstrap and validation automation | Complete" in checklist
+
+    assert "automation/Bootstrap-LotusDeveloperEnvironment.ps1" in checklist
+    assert "automation/Validate-LotusDeveloperEnvironment.ps1" in checklist
+    assert "output/developer-environment-readiness.json" in checklist
+    assert ".md` reports" in checklist
+    assert "Slice 6 is the next permitted implementation slice" in checklist
+
+    assert "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast" in onboarding
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" in onboarding
+    assert "unknown local Codex skills are preserved" in onboarding
+    assert "skill synchronization automation is not implemented yet" not in onboarding
+
+    assert "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast" in automation_readme
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" in automation_readme
+    assert "Validate-LotusDeveloperEnvironment.ps1" in directory_map
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1" in directory_map
+
+    for required in (
+        '[ValidateSet("Inspect", "Sync", "Validate")]',
+        '[ValidateSet("fast", "extended", "platform")]',
+        "Test-GitHubAuth",
+        "Test-DockerPosture",
+        "Test-RepositoryPresence",
+        "Test-ContextDocs",
+        "Test-SkillSync",
+        "Test-AgentsSync",
+        "Test-IngressPosture",
+        "Test-DsnPosture",
+        "Redact-Value",
+        "unknown local skills are preserved",
+        "developer-environment-readiness.json",
+        "developer-environment-readiness.md",
+        "NoExitOnBlocked",
+        "Refusing to synchronize skill outside the requested Codex skills target root.",
+        "Refusing to synchronize a skill onto its governed source directory.",
+        "exit 1",
+    ):
+        assert required in validate_script
+
+    assert '"-Mode", "Sync"' in bootstrap_script
+    assert "ValidateAfterSync" in bootstrap_script
+    assert "Validate-LotusDeveloperEnvironment.ps1" in bootstrap_script
