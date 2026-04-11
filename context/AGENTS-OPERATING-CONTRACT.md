@@ -72,10 +72,13 @@ use the governed `lotus-workbench` runtime and validation flow first:
 2. `npm run live:stack:up`
 3. `npm run live:validate`
 4. `npm run live:stack:down`
+5. `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when the task needs platform-owned validation evidence and a caller-directed demo screenshot pack
 
 Use `PB_SG_GLOBAL_BAL_001` as the governed seeded front-office portfolio unless the task explicitly requires another dataset.
 
 Do not treat `lotus-platform/platform-stack` as the canonical front-office product bring-up path. It owns shared ingress and infrastructure support, not the full governed product-surface flow.
+
+Do not capture or share demo-ready screenshots before canonical API, calculation, and panel validation pass. If a pre-validation capture is necessary for diagnosis, label it with a `diagnostic-` prefix and keep it separate from demo evidence.
 
 ## Context Maintenance Rule
 

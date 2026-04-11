@@ -156,6 +156,17 @@ Use `npm run live:stack:down` for teardown.
 
 Do not improvise a separate product-surface bring-up from `lotus-platform/platform-stack` when this governed runtime already covers seeded data, canonical endpoints, and populated UI validation.
 
+When a demo screenshot pack and platform-owned validation summary are required, run from `lotus-platform`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
+  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+```
+
+The screenshot pack is valid only after canonical endpoint, calculation, and panel validation passes.
+Pre-validation screenshots must be labelled as diagnostic artifacts and kept separate from demo-ready
+evidence.
+
 ### Optional Or Task-Specific
 
 These should be reported when relevant but should not block normal onboarding.

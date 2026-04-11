@@ -238,6 +238,17 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 - `output/front-office-qa/latest.json`
 - `output/front-office-qa/latest.md`
 
+Write a demo screenshot pack to a caller-provided directory while also producing platform evidence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
+  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+```
+
+The screenshot directory receives `live-validation-summary.json`, `SHOT-INDEX.md`, and stable
+Workbench product-surface captures only after canonical endpoint, calculation, and panel validation
+passes.
+
 Clean stale Lotus Docker containers and volumes before the governed bring-up:
 
 ```powershell
@@ -251,6 +262,21 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 ```
 
 `-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts before cleanup, after cleanup, and after the run.
+
+For a clean demo rebuild from stale local state:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning
+```
+
+Troubleshoot failures by category:
+
+1. hostname failures: run `automation/Sync-Dev-Ingress-Hosts.ps1 -Apply` from an elevated shell,
+2. readiness failures: inspect the failing canonical service health endpoint in `latest.json`,
+3. seed failures: rerun the `lotus-core` front-office seed verifier for `PB_SG_GLOBAL_BAL_001`,
+4. calculation failures: inspect `calculationChecks` in `live-validation-summary.json`,
+5. blank or degraded panel failures: inspect `panelClassifications` before taking screenshots,
+6. screenshot failures: verify the caller-provided `-ScreenshotDirectory` exists and is writable.
 
 Run backend/runtime QA readiness automation (startup + API/log/metrics/standards checks):
 

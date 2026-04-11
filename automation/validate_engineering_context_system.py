@@ -118,6 +118,7 @@ def validate_engineering_context_system() -> list[str]:
         "## Front-Office Runtime Governance",
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in engineering:
@@ -184,6 +185,7 @@ def validate_engineering_context_system() -> list[str]:
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "npm run live:stack:up",
         "npm run live:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in agents_contract:
@@ -197,6 +199,8 @@ def validate_engineering_context_system() -> list[str]:
         "output/developer-environment-readiness.md",
         "Canonical Front-Office Local Runtime",
         "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "ScreenshotDirectory",
         "PB_SG_GLOBAL_BAL_001",
         "RFC-0074 is implemented and governed.",
     ):
@@ -230,6 +234,7 @@ def validate_engineering_context_system() -> list[str]:
         "## Front-Office Runtime Routing",
         "canonical-front-office-local-runtime.md",
         "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in agent_ramp_up:

@@ -17,7 +17,7 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 7 Complete" in rfc
+    assert "Status: Approved - Slice 8 Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
     assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
     assert "`RFC-0075-slice-3-core-seed-data-evidence.md`" in rfc
@@ -25,7 +25,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
     assert "`RFC-0075-slice-5-performance-risk-calculation-evidence.md`" in rfc
     assert "`RFC-0075-slice-6-panel-classification-evidence.md`" in rfc
     assert "`RFC-0075-slice-7-demo-screenshot-evidence.md`" in rfc
-    assert "- Status: Slice 7 complete" in checklist
+    assert "`RFC-0075-slice-8-context-and-runbook-evidence.md`" in rfc
+    assert "- Status: Slice 8 complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -49,6 +50,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Classify each panel as supported, intentionally empty, partial, unavailable, or out of scope.",
         "- [x] Store screenshots in caller-provided output directory.",
         "- [x] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.",
+        "- [x] Update agent context with governed demo path.",
+        "- [x] Document how to troubleshoot each validation failure category.",
     ):
         assert required_item in checklist
 
@@ -189,6 +192,27 @@ def test_rfc_0075_slice_seven_demo_screenshot_evidence_is_governed_and_traceable
         "performance-evidence-live.png",
         "truthfully_degraded",
         "canonical-front-office-qa-20260411-190254.json",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0075_slice_eight_context_and_runbook_evidence_is_governed_and_traceable() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0075-slice-8-context-and-runbook-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0075 Slice 8 Context and Runbook Evidence",
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>",
+        "diagnostic-",
+        "context/LOTUS-ENGINEERING-CONTEXT.md",
+        "context/AGENTS-OPERATING-CONTRACT.md",
+        "C:\\Users\\Sandeep\\.codex\\AGENTS.md",
+        "Engineering context system validation passed.",
+        "10 passed",
+        "calculationChecks",
+        "panelClassifications",
     ):
         assert required_item in evidence
 

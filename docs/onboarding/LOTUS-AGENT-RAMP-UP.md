@@ -170,10 +170,13 @@ route to the governed `lotus-workbench` runtime first:
 2. `npm run live:stack:up`
 3. `npm run live:validate`
 4. `npm run live:stack:down`
+5. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` from `lotus-platform` when the task requires a platform-owned run summary and caller-directed screenshot pack.
 
 Use `PB_SG_GLOBAL_BAL_001` unless the task explicitly requires another portfolio.
 
 Do not default to `lotus-platform/platform-stack` as the primary front-office product bring-up path. That path owns shared infrastructure assets and ingress support, but the governed populated product-surface flow lives in `lotus-workbench`.
+
+Demo-ready screenshots are valid only after canonical endpoint, calculation, and panel validation passes. Keep diagnostic captures separate with a `diagnostic-` prefix.
 
 ## Async GitHub Monitoring
 

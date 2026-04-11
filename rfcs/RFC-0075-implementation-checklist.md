@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 7 complete
+- Status: Slice 8 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -106,14 +106,14 @@
 
 ## Slice 8: Documentation and Agent Context
 
-- [ ] Update platform runbook.
-- [ ] Update onboarding docs.
-- [ ] Update agent context with governed demo path.
-- [ ] Remove stale scripts and stale references.
-- [ ] Update skills if a reusable pattern emerges.
-- [ ] Confirm repo-local engineering context references the governed path where relevant.
-- [ ] Document the exact first command for clean demo bring-up after implementation.
-- [ ] Document how to troubleshoot each validation failure category.
+- [x] Update platform runbook.
+- [x] Update onboarding docs.
+- [x] Update agent context with governed demo path.
+- [x] Remove stale scripts and stale references.
+- [x] Update skills if a reusable pattern emerges.
+- [x] Confirm repo-local engineering context references the governed path where relevant.
+- [x] Document the exact first command for clean demo bring-up after implementation.
+- [x] Document how to troubleshoot each validation failure category.
 
 ## Final Acceptance
 

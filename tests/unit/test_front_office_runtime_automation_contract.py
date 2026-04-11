@@ -46,9 +46,14 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     )
 
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_readme
+    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 `" in automation_readme
+    assert "-ScreenshotDirectory C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots" in automation_readme
+    assert "calculationChecks" in automation_readme
+    assert "panelClassifications" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
+    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
     assert "Docker cleanup scope" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
