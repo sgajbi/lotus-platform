@@ -114,3 +114,17 @@ def test_rfc_0078_slice_4_browser_evidence_records_route_and_screenshot_boundary
         "browser assertions remain panel-specific",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0078_slice_5_panel_governance_evidence_records_registry_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-5-panel-governance-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/panel-governance.mjs",
+        "unsupported blank panel detection",
+        "inline registry-enforcement helpers were removed from the monolithic validator",
+        "existing RFC-0077 contract",
+    ):
+        assert required_item in evidence

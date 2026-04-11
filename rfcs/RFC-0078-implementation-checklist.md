@@ -48,10 +48,11 @@
 
 ## Slice 5: Registry-Driven Panel Classification
 
-- [ ] Move panel classification and supportability alignment into dedicated modules.
-- [ ] Keep registry ownership, required states, and follow-up RFC checks enforced.
-- [ ] Add focused tests for unsupported blank panels and owner/state drift.
-- [ ] Remove stale classification logic from the monolithic validator.
+- [x] Move panel classification and supportability alignment into dedicated modules.
+- [x] Keep registry ownership, required states, and follow-up RFC checks enforced.
+- [x] Add focused tests for unsupported blank panels and owner/state drift.
+- [x] Remove stale classification logic from the monolithic validator.
+- [x] Review slice output for simplification opportunities before moving on.
 
 ## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
