@@ -220,10 +220,12 @@ def validate_engineering_context_system() -> list[str]:
     rfc_postures = {entry.get("id"): entry.get("implementation_posture") for entry in active_rfcs if isinstance(entry, dict)}
     if rfc_postures.get("RFC-0071") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
-    if "temporarily paused" not in str(rfc_postures.get("RFC-0072", "")):
-        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture must record temporary pause")
+    if "partially implemented" not in str(rfc_postures.get("RFC-0072", "")):
+        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture drifted")
     if rfc_postures.get("RFC-0073") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
+    if rfc_postures.get("RFC-0074") != "proposed for approval":
+        errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
 
     registry_renderer = _load_registry_renderer()
     rendered_registries = registry_renderer.render_registry_document(manifest)

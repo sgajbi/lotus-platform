@@ -110,6 +110,7 @@ Reference baseline:
 - `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
 - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 - `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`
+- `RFC-0074-repeatable-developer-and-agent-bootstrap-system.md`
 - `RFC-0022-platform-target-operating-model-and-service-additions.md`
 - `RFC-0023-pas-api-product-and-governance-principles.md`
 - `RFC-0024-pas-pa-dpm-integration-and-boundary-model.md`

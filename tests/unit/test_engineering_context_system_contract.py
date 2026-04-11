@@ -138,11 +138,12 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "Platform Integration Architecture Bible" in standard_names
 
     active_rfcs = {entry["id"] for entry in manifest["active_rfc_registry"]}
-    assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073"}
+    assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073", "RFC-0074"}
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
-    assert "temporarily paused" in implementation_postures["RFC-0072"]
+    assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
+    assert implementation_postures["RFC-0074"] == "proposed for approval"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:

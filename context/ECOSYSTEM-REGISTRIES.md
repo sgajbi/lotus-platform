@@ -49,5 +49,6 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | RFC | Status | Implementation Posture | Title |
 | --- | --- | --- | --- |
 | `RFC-0071` | `active` | implemented and governed | Centralized environment-scoped service addressing and ingress governance |
-| `RFC-0072` | `active` | partially implemented and temporarily paused while RFC-0073 is in progress | Platform-wide multi-lane CI, validation, and release governance |
+| `RFC-0072` | `active` | partially implemented; continuation resumes after current fix-forward and RFC-0074 proposal work | Platform-wide multi-lane CI, validation, and release governance |
 | `RFC-0073` | `active` | implemented and governed | Lotus ecosystem engineering context and agent guidance system |
+| `RFC-0074` | `draft` | proposed for approval | Repeatable developer and agent bootstrap system |

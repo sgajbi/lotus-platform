@@ -361,13 +361,19 @@
       "id": "RFC-0072",
       "title": "Platform-wide multi-lane CI, validation, and release governance",
       "status": "active",
-      "implementation_posture": "partially implemented and temporarily paused while RFC-0073 is in progress"
+      "implementation_posture": "partially implemented; continuation resumes after current fix-forward and RFC-0074 proposal work"
     },
     {
       "id": "RFC-0073",
       "title": "Lotus ecosystem engineering context and agent guidance system",
       "status": "active",
       "implementation_posture": "implemented and governed"
+    },
+    {
+      "id": "RFC-0074",
+      "title": "Repeatable developer and agent bootstrap system",
+      "status": "draft",
+      "implementation_posture": "proposed for approval"
     }
   ]
 }
