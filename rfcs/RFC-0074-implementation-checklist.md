@@ -2,12 +2,12 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 1 complete`
+Implementation posture: `Approved | Slice 2 complete`
 
 ## Slice Status
 
 - `Slice 1 | Onboarding RFC approval and documentation skeleton | Complete`
-- `Slice 2 | Developer onboarding guide | Pending`
+- `Slice 2 | Developer onboarding guide | Complete`
 - `Slice 3 | Agent ramp-up guide and first-prompt standard | Pending`
 - `Slice 4 | Skill distribution and synchronization design | Pending`
 - `Slice 5 | Bootstrap and validation automation | Pending`
@@ -34,13 +34,20 @@ Current source of truth:
 
 ### Slice 2 | Developer onboarding guide
 
-Planned:
+Implemented:
 
-1. create `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`,
-2. cover prerequisites, repository layout, GitHub auth, Docker, ingress, DSN posture, skill sync, and validation depth,
-3. classify prerequisites as required, required for full-stack validation, or optional,
-4. separate fast local development from demo/full-stack validation,
-5. link to RFC-0071, RFC-0072, RFC-0073, local development runbook, and central context docs.
+1. created `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`,
+2. covered prerequisites, repository layout, GitHub auth, Docker, ingress, DSN posture, skill sync, and validation depth,
+3. classified prerequisites as required, required for full-stack validation, or optional,
+4. separated fast local development from demo/full-stack validation,
+5. linked to RFC-0071, RFC-0072, RFC-0073, RFC-0074, local development runbook, and central context docs,
+6. linked the onboarding guide from the central context reference map,
+7. added contract-test coverage for the Slice 2 onboarding guide.
+
+Current source of truth:
+
+1. the developer onboarding entrypoint is `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`.
+2. Slice 3 is the next permitted implementation slice.
 
 ### Slice 3 | Agent ramp-up guide and first-prompt standard
 

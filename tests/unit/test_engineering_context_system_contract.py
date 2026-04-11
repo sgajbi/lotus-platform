@@ -370,3 +370,60 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert manifest["procedural_memory"]["pr_loop_playbook"] == "context/playbooks/PR-LOOP-PLAYBOOK.md"
     assert manifest["procedural_memory"]["validation_playbook"] == "context/playbooks/VALIDATION-PLAYBOOK.md"
     assert manifest["procedural_memory"]["fix_forward_patterns"] == "context/playbooks/FIX-FORWARD-PATTERNS.md"
+
+
+def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Implementation posture: `Approved | Slice 2 complete`" in checklist
+    assert "Slice 2 | Developer onboarding guide | Complete" in checklist
+    assert "docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in checklist
+    assert "../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in reference_map
+
+    for required_link in (
+        "../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md",
+        "../../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md",
+        "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
+        "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
+        "../../Local%20Development%20Runbook.md",
+        "../../context/LOTUS-QUICKSTART-CONTEXT.md",
+        "../../context/CONTEXT-REFERENCE-MAP.md",
+        "../../context/AGENTS-OPERATING-CONTRACT.md",
+        "../../context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "../../context/playbooks/VALIDATION-PLAYBOOK.md",
+        "../../context/playbooks/FIX-FORWARD-PATTERNS.md",
+    ):
+        assert required_link in onboarding
+
+    for heading in (
+        "## Expected Workspace Layout",
+        "## First Pull Sequence",
+        "## Prerequisite Classification",
+        "### Required For Normal Development",
+        "### Required For Full-Stack Validation",
+        "### Optional Or Task-Specific",
+        "## Codex Agent Context And Skills",
+        "## GitHub And CI Posture",
+        "## Ingress And Canonical Endpoints",
+        "## DSN And Environment Posture",
+        "## Validation Depth",
+        "## Fresh Machine Readiness Checklist",
+        "## Current RFC-0074 Boundary",
+    ):
+        assert heading in onboarding
+
+    for required_phrase in (
+        "Onboarding should not silently start Docker stacks",
+        "Do not overwrite local Codex guidance blindly",
+        "Do not run full local CI reflexively",
+        "Until those slices are complete, do not assume bootstrap scripts or platform-owned skill sync exist.",
+        "http://workbench.dev.lotus",
+        "http://gateway.dev.lotus",
+        "gh pr checks <pr-number> --watch=false",
+        "powershell -ExecutionPolicy Bypass -File automation\\Sync-Dev-Ingress-Hosts.ps1 -Apply",
+    ):
+        assert required_phrase in onboarding
