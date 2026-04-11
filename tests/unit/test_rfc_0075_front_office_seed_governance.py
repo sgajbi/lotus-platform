@@ -17,7 +17,7 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 8 Complete" in rfc
+    assert "Status: Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
     assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
     assert "`RFC-0075-slice-3-core-seed-data-evidence.md`" in rfc
@@ -26,7 +26,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
     assert "`RFC-0075-slice-6-panel-classification-evidence.md`" in rfc
     assert "`RFC-0075-slice-7-demo-screenshot-evidence.md`" in rfc
     assert "`RFC-0075-slice-8-context-and-runbook-evidence.md`" in rfc
-    assert "- Status: Slice 8 complete" in checklist
+    assert "`RFC-0075-final-acceptance-evidence.md`" in rfc
+    assert "- Status: Complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -52,6 +53,8 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Record route, panel, portfolio ID, benchmark ID, and as-of date for each screenshot.",
         "- [x] Update agent context with governed demo path.",
         "- [x] Document how to troubleshoot each validation failure category.",
+        "- [x] PRs are raised with small meaningful commits.",
+        "- [x] Remaining partial/unavailable panels have explicit ownership and rationale.",
     ):
         assert required_item in checklist
 
@@ -213,6 +216,28 @@ def test_rfc_0075_slice_eight_context_and_runbook_evidence_is_governed_and_trace
         "10 passed",
         "calculationChecks",
         "panelClassifications",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0075_final_acceptance_evidence_is_governed_and_traceable() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0075-final-acceptance-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "# RFC-0075 Final Acceptance Evidence",
+        "https://github.com/sgajbi/lotus-platform/pull/129",
+        "https://github.com/sgajbi/lotus-workbench/pull/79",
+        "https://github.com/sgajbi/lotus-core/pull/302",
+        "Configuration access guard passed.",
+        "Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001.",
+        "C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots",
+        "PR Merge Gate / E2E Smoke: pass",
+        "PR Merge Gate / Playwright Smoke: pass",
+        "Cross-App Vocabulary Gate: pass",
+        "typed settings boundary",
+        "truthfully_degraded",
     ):
         assert required_item in evidence
 

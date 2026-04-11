@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 8 complete
+- Status: Complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -117,14 +117,14 @@
 
 ## Final Acceptance
 
-- [ ] Clean Docker start from zero state succeeds.
-- [ ] Canonical seed is deterministic.
-- [ ] Backend endpoint validation passes.
-- [ ] Workbench panel validation passes.
-- [ ] Screenshots are populated and clean.
-- [ ] No `PORT_SMOKE_%` portfolio pollution remains.
-- [ ] All changed repositories have meaningful tests.
-- [ ] CI evidence is truthful.
-- [ ] PRs are raised with small meaningful commits.
-- [ ] Machine-readable validation summary is produced.
-- [ ] Remaining partial/unavailable panels have explicit ownership and rationale.
+- [x] Clean Docker start from zero state succeeds.
+- [x] Canonical seed is deterministic.
+- [x] Backend endpoint validation passes.
+- [x] Workbench panel validation passes.
+- [x] Screenshots are populated and clean.
+- [x] No `PORT_SMOKE_%` portfolio pollution remains.
+- [x] All changed repositories have meaningful tests.
+- [x] CI evidence is truthful.
+- [x] PRs are raised with small meaningful commits.
+- [x] Machine-readable validation summary is produced.
+- [x] Remaining partial/unavailable panels have explicit ownership and rationale.
