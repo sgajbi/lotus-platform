@@ -1,0 +1,144 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_rfc_0078_is_implementation_grade_and_includes_final_slice() -> None:
+    rfc = (
+        ROOT / "rfcs" / "RFC-0078-modular-front-office-validation-framework.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0078: Modular Front-Office Validation Framework",
+        "## Decision",
+        "## Scope",
+        "## Operator Stability Rule",
+        "## Proposed Architecture",
+        "contract-metadata.mjs",
+        "panel-classification.mjs",
+        "evidence-summary-writer.mjs",
+        "## Ownership and Boundary Rules",
+        "### Slice 1: Extract Core Validation Types and Result Models",
+        "### Slice 5: Registry-Driven Panel Classification",
+        "### Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene",
+        "## Skills, Context, and Documentation Implications",
+        "## Approval Request",
+        "RFC-0076",
+        "RFC-0077",
+    ):
+        assert required_item in rfc
+
+
+def test_rfc_0078_preserves_operator_stability_and_dead_code_removal_posture() -> None:
+    rfc = (
+        ROOT / "rfcs" / "RFC-0078-modular-front-office-validation-framework.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "npm run live:stack:up",
+        "npm run live:validate",
+        "npm run live:stack:down",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "Dead code should be removed",
+        "remove obsolete helpers and dead code",
+        "fail the slice if extraction only relocates complexity",
+    ):
+        assert required_item in rfc
+
+
+def test_rfc_0078_checklist_and_slice_1_evidence_exist() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0078-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-1-contract-layer-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "## Slice 1: Extract Core Validation Types and Result Models",
+        "## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene",
+        "Dead code introduced by extraction work is removed, not relocated.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/args.mjs",
+        "lotus-workbench/scripts/live/validation/contract-metadata.mjs",
+        "lotus-workbench/scripts/live/validation/evidence-summary-writer.mjs",
+        "duplicated bootstrap helpers were removed from the monolithic validator",
+        "no skill changes were made in this slice",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0078_slice_2_probe_evidence_records_dead_code_removal_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-2-probe-layer-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/probes.mjs",
+        "`checkDns`, `fetchJson`, and `fetchText` no longer exist in the monolithic validator",
+        "gateway payload assertions remain in the validator because they are business checks",
+        "no skill changes were made in this slice",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0078_slice_3_calculation_evidence_records_business_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-3-calculation-sanity-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/calculation-sanity.mjs",
+        "contribution-total reconciliation",
+        "panel-classification registration remains callback-driven",
+        "the calculation module remains business-specific",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0078_slice_4_browser_evidence_records_route_and_screenshot_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-4-browser-workflow-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/browser-workflows.mjs",
+        "screenshot evidence still records registry-owned names, routes, absolute paths, and as-of dates",
+        "inline screenshot and route-resolution helpers were removed from the monolithic validator",
+        "browser assertions remain panel-specific",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0078_slice_5_panel_governance_evidence_records_registry_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-5-panel-governance-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/panel-governance.mjs",
+        "unsupported blank panel detection",
+        "inline registry-enforcement helpers were removed from the monolithic validator",
+        "existing RFC-0077 contract",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0078_slice_6_records_conscious_no_skill_change_and_branch_hygiene_rule() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0078-slice-6-docs-context-skill-hygiene-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "scripts/live/validation/",
+        "no skill updates were required for RFC-0078",
+        "Branch hygiene is intentionally deferred until PRs merge.",
+        "monolithic script",
+    ):
+        assert required_item in evidence
