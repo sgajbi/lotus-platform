@@ -86,3 +86,17 @@ def test_rfc_0078_slice_2_probe_evidence_records_dead_code_removal_boundary() ->
         "no skill changes were made in this slice",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0078_slice_3_calculation_evidence_records_business_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-3-calculation-sanity-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/calculation-sanity.mjs",
+        "contribution-total reconciliation",
+        "panel-classification registration remains callback-driven",
+        "the calculation module remains business-specific",
+    ):
+        assert required_item in evidence

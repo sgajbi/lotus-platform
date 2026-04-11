@@ -32,10 +32,11 @@
 
 ## Slice 3: Extract Calculation Sanity Modules
 
-- [ ] Split performance and risk calculation sanity checks into dedicated modules.
-- [ ] Keep reconciliation and range assertions explicit and readable.
-- [ ] Add focused tests for meaningful failure modes, not just happy paths.
-- [ ] Remove dead code or overlapping helpers revealed by the extraction.
+- [x] Split performance and risk calculation sanity checks into dedicated modules.
+- [x] Keep reconciliation and range assertions explicit and readable.
+- [x] Add focused tests for meaningful failure modes, not just happy paths.
+- [x] Remove dead code or overlapping helpers revealed by the extraction.
+- [x] Review slice output for simplification opportunities before moving on.
 
 ## Slice 4: Extract Browser Workflow and Screenshot Capture
 
