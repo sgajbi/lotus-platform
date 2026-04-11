@@ -95,7 +95,25 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert len({panel["panel_id"] for panel in panels}) == len(panels)
 
     panel_by_id = {panel["panel_id"]: panel for panel in panels}
-    assert panel_by_id["performance.evidence"]["required_support_state"] == "partial"
+    expected_gateway_endpoints = {
+        "portfolio.summary": "/api/v1/workbench/{portfolio_id}/overview",
+        "portfolio.detailed": "/api/v1/workbench/{portfolio_id}/overview",
+        "performance.summary": "/api/v1/workbench/{portfolio_id}/performance/summary",
+        "performance.analysis.contribution": "/api/v1/workbench/{portfolio_id}/performance/details",
+        "performance.analysis.attribution": "/api/v1/workbench/{portfolio_id}/performance/details",
+        "performance.advisor_brief": "/api/v1/workbench/{portfolio_id}/performance/advisor-brief",
+        "performance.risk.snapshot": "/api/v1/workbench/{portfolio_id}/risk/summary",
+        "performance.risk.drawdown": "/api/v1/workbench/{portfolio_id}/risk/drawdown",
+        "performance.risk.concentration": "/api/v1/workbench/{portfolio_id}/risk/concentration",
+        "performance.risk.rolling": "/api/v1/workbench/{portfolio_id}/risk/rolling",
+        "performance.risk.historical_attribution": "/api/v1/workbench/{portfolio_id}/risk/attribution",
+        "performance.evidence": None,
+    }
+
+    for panel_id, expected_endpoint in expected_gateway_endpoints.items():
+        assert panel_by_id[panel_id]["gateway_endpoint"] == expected_endpoint
+
+    assert panel_by_id["performance.evidence"]["required_support_state"] == "unavailable"
     assert panel_by_id["performance.evidence"]["owner_follow_up_rfc"] == "RFC-0079"
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"

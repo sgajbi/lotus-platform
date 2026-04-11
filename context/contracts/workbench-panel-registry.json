@@ -369,7 +369,7 @@
       "owning_service": "lotus-gateway",
       "gateway_endpoint": null,
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "partial",
+      "required_support_state": "unavailable",
       "allowed_states": ["partial", "unavailable", "loading", "error"],
       "validation_rules": {
         "partial": [
