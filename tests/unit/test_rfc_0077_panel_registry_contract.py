@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _load_json(relative_path: str) -> dict:
+    return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
 
 def test_rfc_0077_is_implementation_grade_and_includes_final_slice() -> None:
@@ -57,3 +62,43 @@ def test_rfc_0077_defines_minimum_panel_inventory_and_governed_acceptance_rules(
         "new governed panel work requires registry updates",
     ):
         assert required_item in rfc
+
+
+def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None:
+    readme = (ROOT / "context" / "contracts" / "README.md").read_text(encoding="utf-8")
+    checklist = (ROOT / "rfcs" / "RFC-0077-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (ROOT / "rfcs" / "RFC-0077-slice-1-registry-spec-evidence.md").read_text(
+        encoding="utf-8"
+    )
+    schema = _load_json("context/contracts/workbench-panel-registry.schema.json")
+    registry = _load_json("context/contracts/workbench-panel-registry.json")
+
+    assert "workbench-panel-registry.schema.json" in readme
+    assert "workbench-panel-registry.json" in readme
+    assert "- [x] Add `context/contracts/workbench-panel-registry.schema.json`." in checklist
+    assert "- [x] Add `context/contracts/workbench-panel-registry.json`." in checklist
+    assert "performance.evidence" in evidence
+    assert "supported_blank" in evidence
+
+    assert schema["properties"]["contract_id"]["const"] == "workbench-panel-registry"
+    assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0077"
+
+    assert registry["contract_id"] == "workbench-panel-registry"
+    assert registry["contract_version"] == "1.0.0"
+    assert registry["governed_by_rfc"] == "RFC-0077"
+    assert registry["canonical_data_contract"] == "canonical-front-office-demo-data-contract"
+
+    panels = registry["panels"]
+    assert len(panels) >= 12
+    assert len({panel["panel_id"] for panel in panels}) == len(panels)
+
+    panel_by_id = {panel["panel_id"]: panel for panel in panels}
+    assert panel_by_id["performance.evidence"]["required_support_state"] == "partial"
+    assert panel_by_id["performance.evidence"]["owner_follow_up_rfc"] == "RFC-0079"
+    assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
+        "performance-risk-live.png"
+    )
+    assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "partial"
+    assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]
