@@ -124,3 +124,5 @@ Update this document when:
 2. [Lotus Engineering Context](./context/LOTUS-ENGINEERING-CONTEXT.md)
 3. [Context Reference Map](./context/CONTEXT-REFERENCE-MAP.md)
 4. [Repository Engineering Context Contract](./context/Repository-Engineering-Context-Contract.md)
+5. [Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+6. [Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)

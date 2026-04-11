@@ -2,7 +2,7 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 6 complete`
+Implementation posture: `Complete`
 
 ## Slice Status
 
@@ -12,7 +12,7 @@ Implementation posture: `Approved | Slice 6 complete`
 - `Slice 4 | Skill distribution and synchronization design | Complete`
 - `Slice 5 | Bootstrap and validation automation | Complete`
 - `Slice 6 | Validation coverage and drift control | Complete`
-- `Slice 7 | Repository-local cross-link rollout | Pending`
+- `Slice 7 | Repository-local cross-link rollout | Complete`
 
 ## Slice Notes
 
@@ -123,8 +123,18 @@ Current source of truth:
 
 ### Slice 7 | Repository-local cross-link rollout
 
-Planned:
+Implemented:
 
-1. update repository-local context documents to link to the central onboarding guide,
-2. keep repo-local docs focused on local implementation truth,
-3. avoid duplicating the central onboarding procedure across repositories.
+1. updated repository-local context documents to link to the central onboarding guide,
+2. added agent ramp-up cross-links beside developer onboarding,
+3. kept repo-local docs focused on repository implementation truth and avoided duplicating the central onboarding procedure,
+4. replaced machine-specific platform context and RFC references with sibling-relative `../lotus-platform/...` links in application repositories,
+5. added platform-side contract coverage for RFC-0074 implemented posture and central repository onboarding links.
+
+Final source of truth:
+
+1. RFC-0074 is implemented and governed.
+2. developer onboarding lives at `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`.
+3. agent ramp-up lives at `docs/onboarding/LOTUS-AGENT-RAMP-UP.md`.
+4. governed Lotus skills live at `codex/skills/`.
+5. bootstrap validation emits `output/developer-environment-readiness.json` and `output/developer-environment-readiness.md`.

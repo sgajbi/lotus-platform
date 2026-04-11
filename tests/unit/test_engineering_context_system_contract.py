@@ -143,7 +143,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert implementation_postures["RFC-0071"] == "implemented and governed"
     assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
-    assert implementation_postures["RFC-0074"] == "approved; Slice 6 complete"
+    assert implementation_postures["RFC-0074"] == "implemented and governed"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -494,7 +494,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
     manifest = json.loads((skills_root / "lotus-skill-manifest.json").read_text(encoding="utf-8"))
     readme = (skills_root / "README.md").read_text(encoding="utf-8")
 
-    assert "Implementation posture: `Approved | Slice 6 complete`" in checklist
+    assert "Implementation posture: `Complete`" in checklist
     assert "Slice 4 | Skill distribution and synchronization design | Complete" in checklist
     assert "codex/skills/lotus-skill-manifest.json" in checklist
     assert "../../codex/skills/README.md" in developer_onboarding
@@ -557,7 +557,7 @@ def test_rfc_0074_slice_five_bootstrap_automation_is_governed_and_safe() -> None
         encoding="utf-8"
     )
 
-    assert "Implementation posture: `Approved | Slice 6 complete`" in checklist
+    assert "Implementation posture: `Complete`" in checklist
     assert "Slice 5 | Bootstrap and validation automation | Complete" in checklist
 
     assert "automation/Bootstrap-LotusDeveloperEnvironment.ps1" in checklist
@@ -610,7 +610,7 @@ def test_rfc_0074_slice_six_validation_drift_controls_are_governed() -> None:
         encoding="utf-8"
     )
 
-    assert "Implementation posture: `Approved | Slice 6 complete`" in checklist
+    assert "Implementation posture: `Complete`" in checklist
     assert "Slice 6 | Validation coverage and drift control | Complete" in checklist
     assert "tests/unit/test_developer_environment_bootstrap.py" in checklist
     assert "Slice 7 is the next permitted implementation slice" in checklist
@@ -632,3 +632,18 @@ def test_rfc_0074_slice_six_validation_drift_controls_are_governed() -> None:
         "local-private-skill",
     ):
         assert required in bootstrap_tests
+
+
+def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
+    rfc = (ROOT / "rfcs" / "RFC-0074-repeatable-developer-and-agent-bootstrap-system.md").read_text(
+        encoding="utf-8"
+    )
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    platform_repo_context = (ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+
+    assert "- Status: Implemented" in rfc
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 7 | Repository-local cross-link rollout | Complete" in checklist
+    assert "RFC-0074 is implemented and governed" in checklist
+    assert "[Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)" in platform_repo_context
+    assert "[Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)" in platform_repo_context
