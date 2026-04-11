@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Front-Office Runtime"
+  short_description: "Run the governed Lotus demo and populated-panel runtime path"
+  default_prompt: "Use the governed Lotus front-office runtime path to bring up the canonical Workbench stack, validate populated panels for PB_SG_GLOBAL_BAL_001, and collect screenshot plus machine-readable evidence."

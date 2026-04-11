@@ -33,6 +33,13 @@
       "reason": "Frontend delivery governance for Lotus product surfaces."
     },
     {
+      "name": "lotus-front-office-runtime",
+      "path": "codex/skills/lotus-front-office-runtime",
+      "category": "front-office-runtime",
+      "directly_lotus_owned": true,
+      "reason": "Governed front-office runtime, populated-panel proof, and demo screenshot workflow."
+    },
+    {
       "name": "lotus-methodology-doc-v3",
       "path": "codex/skills/lotus-methodology-doc-v3",
       "category": "methodology-documentation",

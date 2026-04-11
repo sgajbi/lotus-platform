@@ -23,11 +23,11 @@
 
 ## Slice 2: New Front-Office Runtime Skill
 
-- [ ] Add `lotus-front-office-runtime`.
-- [ ] Document trigger phrases and governed paths.
-- [ ] Keep the skill concise and directive.
-- [ ] Prove that the skill routes to validation-plus-evidence rather than screenshot-only success.
-- [ ] Review the skill for overlap with existing QA skills before moving on.
+- [x] Add `lotus-front-office-runtime`.
+- [x] Document trigger phrases and governed paths.
+- [x] Keep the skill concise and directive.
+- [x] Prove that the skill routes to validation-plus-evidence rather than screenshot-only success.
+- [x] Review the skill for overlap with existing QA skills before moving on.
 
 ## Slice 3: Hardening Existing Skills
 

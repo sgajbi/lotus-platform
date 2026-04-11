@@ -95,3 +95,51 @@ def test_rfc_0080_slice_1_artifacts_exist_and_capture_routing_decisions() -> Non
         "Do not use screenshot capture alone as proof",
     ):
         assert required_item in routing_map
+
+
+def test_rfc_0080_slice_2_adds_governed_front_office_runtime_skill() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0080-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (
+        ROOT / "rfcs" / "RFC-0080-slice-2-front-office-runtime-skill-evidence.md"
+    ).read_text(encoding="utf-8")
+    skill_doc = (
+        ROOT / "codex" / "skills" / "lotus-front-office-runtime" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    skill_ui = (
+        ROOT / "codex" / "skills" / "lotus-front-office-runtime" / "agents" / "openai.yaml"
+    ).read_text(encoding="utf-8")
+    manifest = (ROOT / "codex" / "skills" / "lotus-skill-manifest.json").read_text(
+        encoding="utf-8"
+    )
+    skills_readme = (ROOT / "codex" / "skills" / "README.md").read_text(encoding="utf-8")
+
+    for required_item in (
+        "## Slice 2: New Front-Office Runtime Skill",
+        "- [x] Add `lotus-front-office-runtime`.",
+        "- [x] Prove that the skill routes to validation-plus-evidence rather than screenshot-only success.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "lotus-front-office-runtime",
+        "screenshot-only success",
+        "codex/skills/README.md",
+        "stale wording",
+    ):
+        assert required_item in evidence
+
+    for required_item in (
+        "name: lotus-front-office-runtime",
+        "PB_SG_GLOBAL_BAL_001",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "Do not accept screenshot-only proof.",
+        "Use `lotus-qa-platform-validator` for backend or infrastructure QA",
+    ):
+        assert required_item in skill_doc
+
+    assert 'display_name: "Lotus Front-Office Runtime"' in skill_ui
+    assert '"name": "lotus-front-office-runtime"' in manifest
+    assert "automation/Bootstrap-LotusDeveloperEnvironment.ps1" in skills_readme
+    assert "Skill synchronization automation is not implemented" not in skills_readme
