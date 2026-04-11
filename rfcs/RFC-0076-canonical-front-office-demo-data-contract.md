@@ -20,6 +20,7 @@
   - `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
   - `RFC-0076-implementation-checklist.md`
   - `RFC-0076-slice-1-contract-spec-evidence.md`
+  - `RFC-0076-slice-2-core-contract-enforcement-evidence.md`
 
 ## Summary
 

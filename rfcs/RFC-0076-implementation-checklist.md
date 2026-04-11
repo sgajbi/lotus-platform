@@ -28,9 +28,11 @@
 
 ## Slice 2: Core Seed Contract Enforcement
 
-- [ ] Update `lotus-core` seed tooling to read or mirror the governed contract.
-- [ ] Enforce required coverage and deterministic economics in code.
-- [ ] Add focused tests for economic invariants and stale coverage failure modes.
+- [x] Update `lotus-core` seed tooling to read or mirror the governed contract.
+- [x] Enforce required coverage and deterministic economics in code.
+- [x] Add focused tests for economic invariants and stale coverage failure modes.
+- [x] Add slice evidence documenting the `lotus-core` adoption path.
+- [x] Review slice output for unnecessary coupling before moving on.
 
 ## Slice 3: Derived-State Readiness Enforcement
 

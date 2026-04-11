@@ -21,6 +21,9 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
     evidence = (ROOT / "rfcs" / "RFC-0076-slice-1-contract-spec-evidence.md").read_text(
         encoding="utf-8"
     )
+    slice_two_evidence = (
+        ROOT / "rfcs" / "RFC-0076-slice-2-core-contract-enforcement-evidence.md"
+    ).read_text(encoding="utf-8")
     contract_readme = (ROOT / "context" / "contracts" / "README.md").read_text(encoding="utf-8")
 
     assert "## Decision" in rfc
@@ -37,6 +40,10 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "- [x] Add machine-readable canonical demo invariants contract.",
         "- [x] Add platform tests that validate contract presence and required fields.",
         "- [x] Add slice evidence documenting what was introduced and why.",
+        "- [x] Update `lotus-core` seed tooling to read or mirror the governed contract.",
+        "- [x] Enforce required coverage and deterministic economics in code.",
+        "- [x] Add focused tests for economic invariants and stale coverage failure modes.",
+        "- [x] Add slice evidence documenting the `lotus-core` adoption path.",
     ):
         assert required_item in checklist
 
@@ -49,6 +56,15 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "no context or skill docs were changed in this slice",
     ):
         assert required_item in evidence
+
+    for required_item in (
+        "# RFC-0076 Slice 2 Core Contract Enforcement Evidence",
+        "https://github.com/sgajbi/lotus-core/pull/303",
+        "tools/front_office_seed_contract.py",
+        "does not hard-depend on `lotus-platform` at runtime",
+        "20 passed in 0.55s",
+    ):
+        assert required_item in slice_two_evidence
 
     for required_item in (
         "# Context Contracts",
