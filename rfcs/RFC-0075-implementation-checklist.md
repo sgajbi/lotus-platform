@@ -1,33 +1,33 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Pending approval
+- Status: Slice 1 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
 
-- [ ] RFC reviewed by platform owner.
-- [ ] RFC approved for implementation.
-- [ ] Canonical portfolio ID confirmed as `PB_SG_GLOBAL_BAL_001`.
-- [ ] Canonical benchmark ID confirmed as `BMK_PB_GLOBAL_BALANCED_60_40`.
-- [ ] Fixed demo as-of date policy confirmed.
-- [ ] Proposed demo as-of date `2026-04-10` approved or replaced.
-- [ ] Supported versus intentionally partial panels confirmed.
-- [ ] Docker cleanup scope confirmed.
-- [ ] Optional service DSN policy confirmed.
-- [ ] Diagnostic screenshot policy confirmed.
+- [x] RFC reviewed by platform owner.
+- [x] RFC approved for Slice 1 implementation.
+- [x] Canonical portfolio ID confirmed as `PB_SG_GLOBAL_BAL_001`.
+- [x] Canonical benchmark ID confirmed as `BMK_PB_GLOBAL_BALANCED_60_40`.
+- [x] Fixed demo as-of date policy recorded.
+- [x] Proposed demo as-of date `2026-04-10` recorded for final confirmation during implementation.
+- [x] Supported versus intentionally partial panel categories recorded.
+- [x] Docker cleanup scope recorded as explicit clean mode.
+- [x] Optional service DSN policy recorded as a Slice 2 decision item.
+- [x] Diagnostic screenshot policy confirmed.
 
 ## Slice 1: Baseline Diagnostics
 
-- [ ] Capture current backend endpoint status.
-- [ ] Capture current workbench panel status.
-- [ ] Record stale Docker and stale data failure modes.
-- [ ] Record calculation failures separately from UI mapping failures.
-- [ ] Identify owning repository for each failure.
-- [ ] Record `PORT_SMOKE_%` pollution status.
-- [ ] Record canonical portfolio analytics reference date status.
-- [ ] Record gateway/workbench mapping gaps separately from upstream calculation gaps.
-- [ ] Record manage/advisory/report/AI partial states.
+- [x] Capture current backend endpoint status.
+- [x] Capture current workbench panel status.
+- [x] Record stale Docker and stale data failure modes.
+- [x] Record calculation failures separately from UI mapping failures.
+- [x] Identify owning repository for each failure.
+- [x] Record `PORT_SMOKE_%` pollution status.
+- [x] Record canonical portfolio analytics reference date status.
+- [x] Record gateway/workbench mapping gaps separately from upstream calculation gaps.
+- [x] Record manage/advisory/report/AI partial states.
 
 ## Slice 2: Docker, Ingress, and Startup
 

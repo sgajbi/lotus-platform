@@ -1,6 +1,6 @@
 # RFC-0075: Canonical Front-Office Portfolio Seed and Demo Validation System
 
-- Status: Proposed
+- Status: Approved - Slice 1 Complete
 - Date: 2026-04-11
 - Owners: lotus-platform governance
 - Requires Approval From:
@@ -23,6 +23,7 @@
   - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
   - `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`
   - `RFC-0074-repeatable-developer-and-agent-bootstrap-system.md`
+  - `RFC-0075-slice-1-baseline-diagnostics.md`
 
 ## Summary
 
