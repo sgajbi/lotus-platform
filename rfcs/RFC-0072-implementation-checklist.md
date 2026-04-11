@@ -39,6 +39,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete | Backend scaffold now emits platform-owned `.editorconfig` and `.gitattributes` templates by default, and repository hygiene validation enforces deterministic text normalization rules |
 | Slice 5H | Workflow action runtime baseline | Complete | Platform-owned workflows and backend templates now enforce a modern GitHub Actions baseline for core actions, and platform repo checks fail on stale action majors |
 | Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete | RFC-0072 rollout documents now distinguish implemented governance controls from the remaining merge/closeout work and stale gap language is guarded by contract tests |
+| Slice 6A | PR readiness and conflict cleanup | Complete | Active RFC-0072 PRs were checked through GitHub; stale red gateway PR #84 was closed with branch preserved, and workbench PR #77 was updated from `main`, conflict-resolved, and returned to green |
 
 ## Slice 1 Completion Evidence
 

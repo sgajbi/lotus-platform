@@ -79,6 +79,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5G | Repository text and line-ending hygiene scaffold baseline | Complete" in checklist
     assert "Slice 5H | Workflow action runtime baseline | Complete" in checklist
     assert "Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete" in checklist
+    assert "Slice 6A | PR readiness and conflict cleanup | Complete" in checklist
+    assert "stale red gateway PR #84 was closed with branch preserved" in checklist
+    assert "workbench PR #77 was updated from `main`, conflict-resolved, and returned to green" in checklist
     assert "Known remaining work is implementation closeout, not technical rollout deviation" in checklist
     assert "Current scaffold source of truth" in checklist
 
