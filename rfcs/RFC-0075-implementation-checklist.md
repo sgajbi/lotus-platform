@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 4 complete
+- Status: Slice 5 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -67,18 +67,18 @@
 
 ## Slice 5: Performance and Risk Calculations
 
-- [ ] Validate performance workspace summary.
-- [ ] Validate contribution detail rows.
-- [ ] Validate attribution detail rows or governed fallback.
-- [ ] Validate benchmark-relative return behavior.
-- [ ] Validate performance numeric sanity ranges.
-- [ ] Validate risk snapshot.
-- [ ] Validate drawdown.
-- [ ] Validate concentration.
-- [ ] Validate rolling risk.
-- [ ] Validate historical risk attribution.
-- [ ] Validate risk row/window/contributor counts.
-- [ ] Add meaningful tests for calculation and contract gaps found.
+- [x] Validate performance workspace summary.
+- [x] Validate contribution detail rows.
+- [x] Validate attribution detail rows or governed fallback.
+- [x] Validate benchmark-relative return behavior.
+- [x] Validate performance numeric sanity ranges.
+- [x] Validate risk snapshot.
+- [x] Validate drawdown.
+- [x] Validate concentration.
+- [x] Validate rolling risk.
+- [x] Validate historical risk attribution.
+- [x] Validate risk row/window/contributor counts.
+- [x] Add meaningful tests for calculation and contract gaps found.
 
 ## Slice 6: Gateway and Workbench Panels
 

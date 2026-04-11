@@ -17,12 +17,13 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         encoding="utf-8"
     )
 
-    assert "Status: Approved - Slice 4 Complete" in rfc
+    assert "Status: Approved - Slice 5 Complete" in rfc
     assert "`RFC-0075-slice-1-baseline-diagnostics.md`" in rfc
     assert "`RFC-0075-slice-2-docker-ingress-startup-evidence.md`" in rfc
     assert "`RFC-0075-slice-3-core-seed-data-evidence.md`" in rfc
     assert "`RFC-0075-slice-4-derived-state-readiness-evidence.md`" in rfc
-    assert "- Status: Slice 4 complete" in checklist
+    assert "`RFC-0075-slice-5-performance-risk-calculation-evidence.md`" in rfc
+    assert "- Status: Slice 5 complete" in checklist
 
     for required_item in (
         "- [x] RFC approved for Slice 1 implementation.",
@@ -39,6 +40,9 @@ def test_rfc_0075_slice_one_baseline_is_governed_and_traceable() -> None:
         "- [x] Validate portfolio timeseries reaches ready date.",
         "- [x] Validate analytics reference `performance_end_date` is current.",
         "- [x] Add focused tests for readiness checks.",
+        "- [x] Validate contribution detail rows.",
+        "- [x] Validate attribution detail rows or governed fallback.",
+        "- [x] Validate risk row/window/contributor counts.",
     ):
         assert required_item in checklist
 
@@ -113,6 +117,28 @@ def test_rfc_0075_slice_four_derived_state_evidence_is_governed_and_traceable() 
         "Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001",
         "performance-risk-live.png",
         "contribution and attribution row counts",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0075_slice_five_calculation_evidence_is_governed_and_traceable() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0075-slice-5-performance-risk-calculation-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0075 Slice 5 Performance and Risk Calculation Evidence",
+        "calculationChecks",
+        "Performance calculation sanity",
+        '"portfolioReturnPct": 26.70474',
+        '"contributionRows": 4',
+        '"attributionState": "partial"',
+        "Risk calculation sanity",
+        '"readyMetricCount": 6',
+        '"rollingWindowCount": 4',
+        '"attributionContributorCount": 7',
+        "fallback_available=true",
+        "Longer rolling windows are emitted but may be warm-up only",
     ):
         assert required_item in evidence
 
