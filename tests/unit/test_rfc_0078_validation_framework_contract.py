@@ -47,3 +47,28 @@ def test_rfc_0078_preserves_operator_stability_and_dead_code_removal_posture() -
         "fail the slice if extraction only relocates complexity",
     ):
         assert required_item in rfc
+
+
+def test_rfc_0078_checklist_and_slice_1_evidence_exist() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0078-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-1-contract-layer-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "## Slice 1: Extract Core Validation Types and Result Models",
+        "## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene",
+        "Dead code introduced by extraction work is removed, not relocated.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/args.mjs",
+        "lotus-workbench/scripts/live/validation/contract-metadata.mjs",
+        "lotus-workbench/scripts/live/validation/evidence-summary-writer.mjs",
+        "duplicated bootstrap helpers were removed from the monolithic validator",
+        "no skill changes were made in this slice",
+    ):
+        assert required_item in evidence
