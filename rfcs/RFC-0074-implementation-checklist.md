@@ -2,7 +2,7 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 5 complete`
+Implementation posture: `Approved | Slice 6 complete`
 
 ## Slice Status
 
@@ -11,7 +11,7 @@ Implementation posture: `Approved | Slice 5 complete`
 - `Slice 3 | Agent ramp-up guide and first-prompt standard | Complete`
 - `Slice 4 | Skill distribution and synchronization design | Complete`
 - `Slice 5 | Bootstrap and validation automation | Complete`
-- `Slice 6 | Validation coverage and drift control | Pending`
+- `Slice 6 | Validation coverage and drift control | Complete`
 - `Slice 7 | Repository-local cross-link rollout | Pending`
 
 ## Slice Notes
@@ -107,12 +107,19 @@ Current source of truth:
 
 ### Slice 6 | Validation coverage and drift control
 
-Planned:
+Implemented:
 
-1. add documentation cross-link tests for onboarding entrypoints,
-2. add script tests for readiness-report shape and redaction behavior,
-3. add script tests for idempotency and scoped sync behavior,
-4. extend context validators where appropriate.
+1. added documentation and automation entrypoint drift tests for onboarding and bootstrap artifacts,
+2. added executable script tests for readiness-report shape and redaction behavior,
+3. added executable script tests for idempotency and scoped sync behavior,
+4. extended `automation/validate_engineering_context_system.py` to include onboarding and bootstrap entrypoints,
+5. hardened bootstrap PowerShell executable resolution for Windows and GitHub/Linux runner compatibility.
+
+Current source of truth:
+
+1. `tests/unit/test_developer_environment_bootstrap.py` covers report redaction, report structure, scoped sync, and idempotency.
+2. `automation/validate_engineering_context_system.py` protects onboarding and bootstrap entrypoint drift.
+3. Slice 7 is the next permitted implementation slice.
 
 ### Slice 7 | Repository-local cross-link rollout
 

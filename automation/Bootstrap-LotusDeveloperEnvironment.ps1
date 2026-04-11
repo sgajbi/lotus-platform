@@ -10,8 +10,27 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$arguments = @(
-    "-ExecutionPolicy", "Bypass",
+function Resolve-PowerShellExecutable {
+    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+    if ($pwsh) {
+        return $pwsh.Source
+    }
+
+    $windowsPowerShell = Get-Command powershell -ErrorAction SilentlyContinue
+    if ($windowsPowerShell) {
+        return $windowsPowerShell.Source
+    }
+
+    throw "Unable to locate pwsh or powershell for bootstrap validation."
+}
+
+$powerShellExecutable = Resolve-PowerShellExecutable
+$basePowerShellArguments = @("-NoProfile")
+if ($env:OS -eq "Windows_NT") {
+    $basePowerShellArguments += @("-ExecutionPolicy", "Bypass")
+}
+
+$arguments = $basePowerShellArguments + @(
     "-File", (Join-Path $PSScriptRoot "Validate-LotusDeveloperEnvironment.ps1"),
     "-Mode", "Sync",
     "-Profile", $Profile,
@@ -28,15 +47,14 @@ if ($AgentsTargetPath) {
     $arguments += @("-AgentsTargetPath", $AgentsTargetPath)
 }
 
-& powershell @arguments
+& $powerShellExecutable @arguments
 $syncExitCode = $LASTEXITCODE
 if ($syncExitCode -ne 0) {
     exit $syncExitCode
 }
 
 if ($ValidateAfterSync) {
-    $validateArguments = @(
-        "-ExecutionPolicy", "Bypass",
+    $validateArguments = $basePowerShellArguments + @(
         "-File", (Join-Path $PSScriptRoot "Validate-LotusDeveloperEnvironment.ps1"),
         "-Mode", "Validate",
         "-Profile", $Profile,
@@ -52,7 +70,7 @@ if ($ValidateAfterSync) {
         $validateArguments += @("-AgentsTargetPath", $AgentsTargetPath)
     }
 
-    & powershell @validateArguments
+    & $powerShellExecutable @validateArguments
     exit $LASTEXITCODE
 }
 
