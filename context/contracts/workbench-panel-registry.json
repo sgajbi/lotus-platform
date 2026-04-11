@@ -1,0 +1,398 @@
+{
+  "contract_id": "workbench-panel-registry",
+  "contract_version": "1.0.0",
+  "governed_by_rfc": "RFC-0077",
+  "related_rfcs": [
+    "RFC-0075",
+    "RFC-0076",
+    "RFC-0079"
+  ],
+  "canonical_data_contract": "canonical-front-office-demo-data-contract",
+  "panels": [
+    {
+      "panel_id": "portfolio.summary",
+      "display_name": "Portfolio Summary",
+      "screen_id": "portfolio.summary",
+      "route": "/portfolio?portfolioId={portfolio_id}",
+      "panel_kind": "summary_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-gateway",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/overview",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "portfolio shell renders",
+          "top holdings chart contains ranked rows",
+          "allocation donut renders"
+        ],
+        "loading": ["transient route hydration only"],
+        "error": ["route load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "portfolio-summary-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "portfolio.detailed",
+      "display_name": "Portfolio Detailed",
+      "screen_id": "portfolio.detailed",
+      "route": "/portfolio?portfolioId={portfolio_id}&tab=detailed",
+      "panel_kind": "detail_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-gateway",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/overview",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "transactions section renders",
+          "projected cashflow section renders",
+          "transactions grid shell renders",
+          "projected cashflow summary renders"
+        ],
+        "loading": ["transient route hydration only"],
+        "error": ["route load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "portfolio-detailed-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.summary",
+      "display_name": "Performance Summary",
+      "screen_id": "performance.summary",
+      "route": "/performance?portfolioId={portfolio_id}",
+      "panel_kind": "summary_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-performance",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/summary",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "net return path loads",
+          "performance drivers loads",
+          "return path table has at least 4 rows"
+        ],
+        "loading": ["transient route hydration only"],
+        "error": ["summary load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-summary-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-performance/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.analysis.contribution",
+      "display_name": "Performance Contribution",
+      "screen_id": "performance.analysis",
+      "route": "/performance?portfolioId={portfolio_id}&mode=analysis",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": "performance.summary",
+      "owning_service": "lotus-performance",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/details",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "performance drivers table is populated",
+          "contribution rows reconcile to net portfolio return"
+        ],
+        "loading": ["analysis route hydration only"],
+        "error": ["analysis load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-analysis-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-performance/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.analysis.attribution",
+      "display_name": "Performance Attribution",
+      "screen_id": "performance.analysis",
+      "route": "/performance?portfolioId={portfolio_id}&mode=analysis",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": "performance.summary",
+      "owning_service": "lotus-performance",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/details",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "partial",
+      "allowed_states": ["ready", "partial", "loading", "error"],
+      "validation_rules": {
+        "ready": ["attribution detail table is populated"],
+        "partial": [
+          "governed fallback is present",
+          "owner reason is explicit"
+        ],
+        "loading": ["analysis route hydration only"],
+        "error": ["analysis load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-analysis-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-performance/docs/methodologies",
+      "known_limitations": [
+        "benchmark-relative attribution may remain partial until full source-backed detail is available"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.advisor_brief",
+      "display_name": "Performance Advisor Brief",
+      "screen_id": "performance.advisor_brief",
+      "route": "/performance?portfolioId={portfolio_id}&mode=advisor",
+      "panel_kind": "analytic_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-performance",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/advisor-brief",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "talking points render",
+          "source metrics render",
+          "source evidence actions render"
+        ],
+        "loading": ["advisor route hydration only"],
+        "error": ["advisor brief load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-advisor-brief-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.risk.snapshot",
+      "display_name": "Risk Snapshot",
+      "screen_id": "performance.risk",
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-risk",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/risk/summary",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "summary metrics have sufficient observations",
+          "benchmark-relative metrics are ready"
+        ],
+        "loading": ["risk route hydration only"],
+        "error": ["risk summary load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-risk-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-risk/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.risk.drawdown",
+      "display_name": "Drawdown",
+      "screen_id": "performance.risk",
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-risk",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/risk/drawdown",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "underwater-series evidence is present",
+          "drawdown observation count is sufficient"
+        ],
+        "loading": ["risk route hydration only"],
+        "error": ["drawdown load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-risk-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-risk/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.risk.concentration",
+      "display_name": "Concentration",
+      "screen_id": "performance.risk",
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-risk",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/risk/concentration",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "issuer coverage ratio is sufficient",
+          "top exposure evidence is present"
+        ],
+        "loading": ["risk route hydration only"],
+        "error": ["concentration load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-risk-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-risk/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.risk.rolling",
+      "display_name": "Rolling Risk",
+      "screen_id": "performance.risk",
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-risk",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/risk/rolling",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "window_count_emitted == 4",
+          "computable_windows >= 2"
+        ],
+        "loading": ["risk route hydration only"],
+        "error": ["rolling risk load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-risk-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-risk/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.risk.historical_attribution",
+      "display_name": "Historical Risk Attribution",
+      "screen_id": "performance.risk",
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "panel_kind": "analytic_panel",
+      "panel_level": "subpanel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-risk",
+      "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/risk/attribution",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "historical attribution table is populated",
+          "residual is negligible"
+        ],
+        "loading": ["risk route hydration only"],
+        "error": ["historical attribution load failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-risk-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-risk/docs/methodologies",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "performance.evidence",
+      "display_name": "Evidence and Calculation Context",
+      "screen_id": "performance.evidence",
+      "route": "/performance?portfolioId={portfolio_id}&mode=evidence",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-gateway",
+      "gateway_endpoint": null,
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "unavailable",
+      "allowed_states": ["partial", "unavailable", "loading", "error"],
+      "validation_rules": {
+        "partial": [
+          "truthful degraded posture is rendered",
+          "owner reason is explicit"
+        ],
+        "unavailable": [
+          "evidence support is not exposed by the current backend contract"
+        ],
+        "loading": ["evidence route hydration only"],
+        "error": ["evidence route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "performance-evidence-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [
+        "full evidence and lineage support is deferred pending RFC-0079"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0079"
+    }
+  ]
+}

@@ -13,6 +13,11 @@ Current contracts:
    front-office portfolio and benchmark.
 2. `canonical-front-office-demo-data-invariants.json`
    The governed minimum thresholds and supportability invariants for the canonical dataset.
+3. `workbench-panel-registry.schema.json`
+   The governed schema for the RFC-0077 machine-readable Workbench panel registry.
+4. `workbench-panel-registry.json`
+   The governed initial panel inventory, state policy, ownership mapping, and evidence posture for
+   the canonical Workbench front-office surface.
 
 Rules:
 
