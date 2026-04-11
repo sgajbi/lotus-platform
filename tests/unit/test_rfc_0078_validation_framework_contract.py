@@ -100,3 +100,17 @@ def test_rfc_0078_slice_3_calculation_evidence_records_business_boundary() -> No
         "the calculation module remains business-specific",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0078_slice_4_browser_evidence_records_route_and_screenshot_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-4-browser-workflow-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/browser-workflows.mjs",
+        "screenshot evidence still records registry-owned names, routes, absolute paths, and as-of dates",
+        "inline screenshot and route-resolution helpers were removed from the monolithic validator",
+        "browser assertions remain panel-specific",
+    ):
+        assert required_item in evidence

@@ -40,10 +40,11 @@
 
 ## Slice 4: Extract Browser Workflow and Screenshot Capture
 
-- [ ] Isolate Playwright navigation and screenshot capture into reusable modules.
-- [ ] Keep screenshot naming governed by the RFC-0077 panel registry.
-- [ ] Preserve truthful ready/partial/unavailable evidence semantics.
-- [ ] Remove page-local duplication once the shared browser workflow is stable.
+- [x] Isolate Playwright navigation and screenshot capture into reusable modules.
+- [x] Keep screenshot naming governed by the RFC-0077 panel registry.
+- [x] Preserve truthful ready/partial/unavailable evidence semantics.
+- [x] Remove page-local duplication once the shared browser workflow is stable.
+- [x] Review slice output for simplification opportunities before moving on.
 
 ## Slice 5: Registry-Driven Panel Classification
 
