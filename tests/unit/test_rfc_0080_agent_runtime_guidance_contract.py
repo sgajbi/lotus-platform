@@ -232,3 +232,30 @@ def test_rfc_0080_slice_4_synchronizes_agents_and_context() -> None:
     assert "Use the [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md)" in engineering_context
     assert "[Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md)" in ramp_up
     assert "choose `lotus-front-office-runtime` first" in deployed_agents
+
+
+def test_rfc_0080_slice_6_records_closure_and_no_change_decisions() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0080-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (
+        ROOT / "rfcs" / "RFC-0080-slice-6-docs-skill-alignment-and-hygiene-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene",
+        "- [x] Remove dead or obsolete skill content introduced or exposed by earlier slices.",
+        "- [x] Document conscious no-change decisions explicitly.",
+        "- [ ] Complete PR evidence hygiene and branch hygiene before closure.",
+        "- [x] Lotus has a dedicated governed front-office runtime skill.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "No additional dead Lotus skill files or obsolete routing instructions remain",
+        "The deliberate no-change decisions are:",
+        "`LOTUS-DEVELOPER-ONBOARDING.md`",
+        "`CONTEXT-REFERENCE-MAP.md` and `TASK-ROUTING-GUIDE.md`",
+        "final branch hygiene should happen only after PR merge",
+    ):
+        assert required_item in evidence

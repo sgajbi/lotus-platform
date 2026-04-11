@@ -55,15 +55,15 @@
 
 ## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
-- [ ] Remove dead or obsolete skill content introduced or exposed by earlier slices.
-- [ ] Validate guidance consistency across skills, AGENTS, and central context.
-- [ ] Document conscious no-change decisions explicitly.
+- [x] Remove dead or obsolete skill content introduced or exposed by earlier slices.
+- [x] Validate guidance consistency across skills, AGENTS, and central context.
+- [x] Document conscious no-change decisions explicitly.
 - [ ] Complete PR evidence hygiene and branch hygiene before closure.
 
 ## Final Acceptance
 
-- [ ] Lotus has a dedicated governed front-office runtime skill.
-- [ ] Overlapping Lotus skills route more cleanly and avoid ambiguity.
-- [ ] AGENTS and central context point to the governed runtime path and async GitHub posture.
-- [ ] Screenshot-only proof patterns are explicitly rejected.
+- [x] Lotus has a dedicated governed front-office runtime skill.
+- [x] Overlapping Lotus skills route more cleanly and avoid ambiguity.
+- [x] AGENTS and central context point to the governed runtime path and async GitHub posture.
+- [x] Screenshot-only proof patterns are explicitly rejected.
 - [ ] CI evidence is truthful and branch hygiene is complete.
