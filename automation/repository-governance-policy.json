@@ -1,0 +1,143 @@
+{
+    "repos":  [
+                  {
+                      "name":  "lotus-advise",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Governance",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Postgres Migration Smoke",
+                                              "PR Merge Gate / Production Profile Startup Smoke",
+                                              "PR Merge Gate / Production Profile Guardrail Negatives",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-ai",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Runtime Mode Smoke",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-core",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Contracts Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (unit-db)",
+                                              "PR Merge Gate / Tests (integration-lite)",
+                                              "PR Merge Gate / Tests (ops-contract)",
+                                              "PR Merge Gate / Tests (transaction-buy-contract)",
+                                              "PR Merge Gate / Tests (transaction-sell-contract)",
+                                              "PR Merge Gate / Tests (transaction-dividend-contract)",
+                                              "PR Merge Gate / Tests (transaction-interest-contract)",
+                                              "PR Merge Gate / Tests (transaction-fx-contract)",
+                                              "PR Merge Gate / Tests (transaction-portfolio-flow-bundle-contract)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / E2E Smoke",
+                                              "PR Merge Gate / Docker Smoke Contract",
+                                              "PR Merge Gate / Latency Gate",
+                                              "PR Merge Gate / Performance Load Gate (Fast)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-gateway",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Unit",
+                                              "PR Merge Gate / Integration Tests",
+                                              "PR Merge Gate / Coverage Gate",
+                                              "PR Merge Gate / Validate Docker Build",
+                                              "PR Merge Gate / CI Local Docker Parity"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-manage",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-performance",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-report",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-risk",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Security",
+                                              "PR Merge Gate / Tests (unit)",
+                                              "PR Merge Gate / Tests (integration)",
+                                              "PR Merge Gate / Tests (e2e)",
+                                              "PR Merge Gate / Test Pyramid Gate",
+                                              "PR Merge Gate / Coverage Gate (Combined)",
+                                              "PR Merge Gate / Validate Docker Build"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-workbench",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Lint Typecheck Coverage Build",
+                                              "PR Merge Gate / Playwright Smoke",
+                                              "PR Merge Gate / Validate Docker Build",
+                                              "PR Merge Gate / CI Local Docker Parity"
+                                          ]
+                  },
+                  {
+                      "name":  "lotus-platform",
+                      "default_branch":  "main",
+                      "required_checks":  [
+                                              "PR Merge Gate / Workflow Lint",
+                                              "PR Merge Gate / Platform Repo Contracts",
+                                              "Cross-App Vocabulary Gate"
+                                          ]
+                  }
+              ]
+}

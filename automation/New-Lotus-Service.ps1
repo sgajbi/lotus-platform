@@ -26,6 +26,7 @@ if ((Test-Path $target) -and -not $Force) {
 
 $dirs = @(
   ".github/workflows",
+  "requirements",
   "src/app",
   "src/app/contracts",
   "src/app/middleware",
@@ -42,8 +43,16 @@ foreach ($dir in $dirs) {
 }
 
 Copy-Item (Join-Path $templateRoot "Makefile.backend.template") (Join-Path $target "Makefile") -Force
+Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template") (Join-Path $target ".editorconfig") -Force
+Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template") (Join-Path $target ".gitattributes") -Force
+Copy-Item (Join-Path $templateRoot ".gitignore.backend.template") (Join-Path $target ".gitignore") -Force
+Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template") (Join-Path $target ".dockerignore") -Force
+Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt") (Join-Path $target "requirements/shared-runtime.lock.txt") -Force
+Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt") (Join-Path $target "requirements/ci-tooling.lock.txt") -Force
 Copy-Item (Join-Path $templateRoot "pre-commit.backend.template.yaml") (Join-Path $target ".pre-commit-config.yaml") -Force
-Copy-Item (Join-Path $templateRoot "workflows/ci.backend.template.yml") (Join-Path $target ".github/workflows/ci.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/feature-lane.backend.template.yml") (Join-Path $target ".github/workflows/feature-lane.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/pr-merge-gate.backend.template.yml") (Join-Path $target ".github/workflows/pr-merge-gate.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/main-releasability.backend.template.yml") (Join-Path $target ".github/workflows/main-releasability.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/pr-auto-merge.template.yml") (Join-Path $target ".github/workflows/pr-auto-merge.yml") -Force
 
 $makefilePath = Join-Path $target "Makefile"
@@ -54,6 +63,28 @@ $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-gu
 $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report=`n`tpython -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`tpython -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report=`n`tpython scripts/coverage_gate.py"
 $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"
 Set-Content $makefilePath $makefile
+
+$runtimeDependencies = [ordered]@{
+  "fastapi" = "0.133.0"
+  "uvicorn" = "0.41.0"
+  "pydantic" = "2.12.0"
+  "pydantic-settings" = "2.13.0"
+  "prometheus-fastapi-instrumentator" = "7.1.0"
+}
+
+$developmentDependencies = [ordered]@{
+  "ruff" = "0.15.0"
+  "mypy" = "1.19.0"
+  "pytest" = "9.0.0"
+  "pytest-asyncio" = "1.2.0"
+  "pytest-cov" = "7.0.0"
+  "httpx" = "0.28.0"
+  "coverage" = "7.13.0"
+  "pip-audit" = "2.10.0"
+}
+
+$runtimeDependencyLines = $runtimeDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
+$developmentDependencyLines = $developmentDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
 
 $pyproject = @"
 [build-system]
@@ -67,23 +98,12 @@ description = "$Description"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.133.0",
-  "uvicorn>=0.41.0",
-  "pydantic>=2.12.0",
-  "pydantic-settings>=2.13.0",
-  "prometheus-fastapi-instrumentator>=7.1.0"
+$(($runtimeDependencyLines -join "`n"))
 ]
 
 [project.optional-dependencies]
 dev = [
-  "ruff>=0.15.0",
-  "mypy>=1.19.0",
-  "pytest>=9.0.0",
-  "pytest-asyncio>=1.2.0",
-  "pytest-cov>=7.0.0",
-  "httpx>=0.28.0",
-  "coverage>=7.13.0",
-  "pip-audit>=2.10.0"
+$(($developmentDependencyLines -join "`n"))
 ]
 
 [tool.ruff]
@@ -95,6 +115,12 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 "@
 Set-Content -Path (Join-Path $target "pyproject.toml") -Value $pyproject
+
+$sharedRuntimeLock = ($runtimeDependencies.GetEnumerator() | ForEach-Object { "$($_.Key)==$($_.Value)" }) -join "`n"
+Set-Content -Path (Join-Path $target "requirements/shared-runtime.lock.txt") -Value $sharedRuntimeLock
+
+$ciToolingLock = ($developmentDependencies.GetEnumerator() | ForEach-Object { "$($_.Key)==$($_.Value)" }) -join "`n"
+Set-Content -Path (Join-Path $target "requirements/ci-tooling.lock.txt") -Value $ciToolingLock
 
 $mypy = @"
 [mypy]
@@ -358,6 +384,7 @@ $readme = @(
   "make lint",
   "make typecheck",
   "make openapi-gate",
+  "make check",
   "make ci",
   '```',
   "",
@@ -391,16 +418,6 @@ $readme = @(
 Set-Content -Path (Join-Path $target "README.md") -Value $readme
 
 Set-Content -Path (Join-Path $target "docs/rfcs/README.md") -Value "# RFC Index`n"
-Set-Content -Path (Join-Path $target ".gitignore") -Value @"
-.venv/
-__pycache__/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage*
-dist/
-build/
-"@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
 APP_ENV=local
 LOG_LEVEL=INFO
@@ -448,7 +465,7 @@ Set-Content -Path (Join-Path $target "docs/runbooks/service-operations.md") -Val
 if (-not $SkipAutomationRegistration) {
   $reposPath = Join-Path $repoRoot "automation/repos.json"
   $serviceMapPath = Join-Path $repoRoot "automation/service-map.json"
-  $governancePolicyPath = Join-Path $repoRoot "automation/backend-governance-policy.json"
+  $governancePolicyPath = Join-Path $repoRoot "automation/repository-governance-policy.json"
   $coveragePolicyPath = Join-Path $repoRoot "automation/test-coverage-policy.json"
   $repoPathNormalized = $target.Replace("\", "/")
   $repoName = $ServiceName
@@ -461,8 +478,8 @@ if (-not $SkipAutomationRegistration) {
         github = "$GithubOrg/$repoName"
         path = $repoPathNormalized
         default_branch = "main"
-        preflight_fast_command = "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
-        preflight_full_command = "python -m ruff check . && python -m ruff format --check . && python scripts/dependency_health_check.py --requirements requirements.txt && python -m pip check && COVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report= && COVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report= && COVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
+        preflight_fast_command = "make check"
+        preflight_full_command = "make ci"
       }
       $repos | ConvertTo-Json -Depth 8 | Set-Content $reposPath
       Write-Host "Updated automation/repos.json with $repoName"
@@ -494,18 +511,18 @@ if (-not $SkipAutomationRegistration) {
         name = $repoName
         default_branch = "main"
         required_checks = @(
-          "Workflow Lint",
-          "Lint Typecheck Security",
-          "Tests (unit)",
-          "Tests (integration)",
-          "Tests (e2e)",
-          "Coverage Gate (Combined)",
-          "Validate Docker Build"
+          "PR Merge Gate / Workflow Lint",
+          "PR Merge Gate / Lint Typecheck Security",
+          "PR Merge Gate / Tests (unit)",
+          "PR Merge Gate / Tests (integration)",
+          "PR Merge Gate / Tests (e2e)",
+          "PR Merge Gate / Coverage Gate (Combined)",
+          "PR Merge Gate / Validate Docker Build"
         )
       }
       $policy.repos = @($policy.repos | Sort-Object name)
       $policy | ConvertTo-Json -Depth 8 | Set-Content $governancePolicyPath
-      Write-Host "Updated automation/backend-governance-policy.json with $repoName"
+      Write-Host "Updated automation/repository-governance-policy.json with $repoName"
     }
   }
 

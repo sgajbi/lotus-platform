@@ -1,5 +1,12 @@
 # Development Workflow and CI Strategy Standard
 
+Authoritative CI governance now lives in:
+
+1. `Continuous Integration, Validation, and Release Governance Standard.md`
+2. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+
+This document remains as a concise operator-facing companion and must stay aligned to those sources.
+
 ## Purpose
 Define a single, repeatable delivery workflow for all Lotus applications that keeps feedback fast, quality high, and production risk low.
 
@@ -24,26 +31,43 @@ Applies to all Lotus repositories (`lotus-core`, `lotus-risk`, `lotus-performanc
 
 ### 3. CI Tiering (Required)
 
-#### Tier A: Fast PR Gates (blocking)
-Run on every PR:
+#### Tier A: Remote Feature Lane
+Run on feature-branch push:
 1. workflow lint
 2. static quality (lint + typecheck)
-3. unit + focused integration suites
-4. contract gates (OpenAPI/vocabulary/governance where applicable)
-5. runtime confidence quick gates (smoke/latency/fast load profile)
+3. fast unit tests
+4. fast contract or schema checks
 
 Target: fast, deterministic feedback suitable for iterative development.
 
-#### Tier B: Full Validation Gates (heavy)
+#### Tier B: Pull Request Merge Gate
+Run on every PR:
+1. all Remote Feature Lane checks
+2. integration tests
+3. coverage gate
+4. security audit
+5. contract governance gates
+6. Docker build validation
+7. local parity or equivalent repo-native parity run
+
+#### Tier C: Main Releasability Gate
 Run on:
 1. `main` push
-2. `workflow_dispatch`
-3. scheduled/nightly runs
 
 Includes:
-1. full load/performance profiles
-2. replay/drain invariants
-3. heavier end-to-end and resilience checks
+1. PR-grade gate rerun or stricter equivalent
+2. release artifacts and retained evidence
+
+#### Tier D: Platform End-to-End Validation Lane
+Run on:
+1. `workflow_dispatch`
+2. scheduled/nightly runs
+
+Includes:
+1. canonical ingress and DNS validation
+2. seeded stack bring-up validation
+3. cross-app and browser-level validation
+4. demo-readiness and release-readiness evidence
 
 Target: institutional-grade operational assurance without slowing every PR.
 
@@ -65,7 +89,9 @@ Required end state: `local = remote = main`.
 When reviewer approval is not required:
 1. PR remains mandatory.
 2. CI checks act as approval control.
-3. Auto-merge is allowed only after required checks are green.
+3. Required approving review count is `0`.
+4. Conversation resolution remains required.
+5. Auto-merge is allowed only after required checks are green.
 
 ## Multi-Developer Mode
 When reviewer approval is required:
@@ -89,3 +115,4 @@ Include:
 1. Each repo must align its workflow files to this standard.
 2. Existing automation/skills should enforce this policy (pre-merge gate + branch hygiene).
 3. Repo-specific extensions are allowed only if they are stricter than this baseline.
+4. Use `platform-standards/Repository-CI-Lane-Mapping-Baseline.md` for the initial repo-to-lane interpretation until the full gap audit slice is complete.

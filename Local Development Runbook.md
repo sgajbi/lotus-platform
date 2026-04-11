@@ -1,8 +1,13 @@
 # Local Development Runbook (Docker, Bash)
 
-- Last updated: 2026-02-24
+- Last updated: 2026-04-10
 - Scope: run `lotus-advise` + `lotus-gateway` + `lotus-workbench` together with Docker, run `lotus-core` and `lotus-report` standalone when needed, and keep standardized local gates for `lotus-performance`
 - Current phase: lotus-manage-first UI/lotus-gateway workflows with lotus-core integration and lotus-performance baseline hardening
+
+Related platform standards:
+- `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
+- `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+- `Continuous Integration, Validation, and Release Governance Standard.md`
 
 ## 1. Prerequisites
 
@@ -643,7 +648,7 @@ Profiles are defined in `automation/task-profiles.json` and currently include:
 - `migration-quality`
 - `coverage-pyramid-baseline`
 - `backend-standards-conformance`
-- `enforce-backend-governance`
+- `enforce-repository-governance`
 - `openapi-conformance-baseline`
 - `domain-vocabulary-conformance`
 - `repo-metadata-validation`

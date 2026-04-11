@@ -1,0 +1,114 @@
+name: Platform End-to-End Validation
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      validation_profile:
+        description: "Platform validation profile to run."
+        type: choice
+        required: true
+        default: core-performance-green-lanes
+        options:
+          - core-performance-green-lanes
+          - core-performance-baseline
+      scenario_mode:
+        description: "Use a fresh seeded scenario or reuse an existing stable scenario on the runner."
+        type: choice
+        required: true
+        default: skip_seed
+        options:
+          - skip_seed
+          - fresh_seed
+      shared_scenario_suffix:
+        description: "Optional shared scenario suffix for TWR, returns-series, contribution, or baseline."
+        type: string
+        required: false
+      mwr_scenario_suffix:
+        description: "Optional MWR scenario suffix for MWR or baseline."
+        type: string
+        required: false
+      core_ingestion_base_url:
+        description: "lotus-core ingestion base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8200"
+      core_query_base_url:
+        description: "lotus-core query base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8202"
+      performance_base_url:
+        description: "lotus-performance base URL visible from the runner."
+        type: string
+        required: true
+        default: "http://127.0.0.1:8002"
+
+permissions:
+  contents: read
+
+jobs:
+  platform-end-to-end-validation:
+    name: Platform End-to-End Validation / ${{ github.event_name == 'schedule' && 'core-performance-green-lanes' || inputs.validation_profile }}
+    runs-on: self-hosted
+    steps:
+      - name: Checkout lotus-platform
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run platform validation lane
+        shell: pwsh
+        run: |
+          $validationProfile = if ("${{ github.event_name }}" -eq "schedule") { "core-performance-green-lanes" } else { "${{ inputs.validation_profile }}" }
+          $scenarioMode = if ("${{ github.event_name }}" -eq "schedule") { "skip_seed" } else { "${{ inputs.scenario_mode }}" }
+          $coreIngestionBaseUrl = if ("${{ github.event_name }}" -eq "schedule") { "http://127.0.0.1:8200" } else { "${{ inputs.core_ingestion_base_url }}" }
+          $coreQueryBaseUrl = if ("${{ github.event_name }}" -eq "schedule") { "http://127.0.0.1:8202" } else { "${{ inputs.core_query_base_url }}" }
+          $performanceBaseUrl = if ("${{ github.event_name }}" -eq "schedule") { "http://127.0.0.1:8002" } else { "${{ inputs.performance_base_url }}" }
+
+          $args = @(
+            "-ValidationProfile", $validationProfile,
+            "-ScenarioMode", $scenarioMode,
+            "-CoreIngestionBaseUrl", $coreIngestionBaseUrl,
+            "-CoreQueryBaseUrl", $coreQueryBaseUrl,
+            "-PerformanceBaseUrl", $performanceBaseUrl
+          )
+
+          if ("${{ inputs.shared_scenario_suffix }}") {
+            $args += @("-SharedScenarioSuffix", "${{ inputs.shared_scenario_suffix }}")
+          }
+
+          if ("${{ inputs.mwr_scenario_suffix }}") {
+            $args += @("-MwrScenarioSuffix", "${{ inputs.mwr_scenario_suffix }}")
+          }
+
+          & .\automation\Invoke-PlatformValidationLane.ps1 @args
+
+      - name: Append markdown evidence to workflow summary
+        if: always()
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $PWD "output/cross-app"
+          $summaryFiles = Get-ChildItem -Path $artifactRoot -Filter "workflow-summary-*.md" -ErrorAction SilentlyContinue | Sort-Object Name
+          if ($summaryFiles) {
+            foreach ($summaryFile in $summaryFiles) {
+              Get-Content $summaryFile.FullName | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+              "" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            }
+          } else {
+            "No workflow summary artifacts were produced for this platform validation run." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: platform-end-to-end-validation-${{ github.run_id }}
+          path: |
+            output/cross-app/*.json
+            output/cross-app/*.md
+          if-no-files-found: warn

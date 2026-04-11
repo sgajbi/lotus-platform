@@ -73,7 +73,17 @@ This map organizes the automation directory by responsibility without changing s
 
 ### Governance and Scaffolding
 
-- `Enforce-Backend-Governance.ps1`
+- `Enforce-Repository-Governance.ps1`
+- `validate_repository_governance.py`
+- `validate_repository_hygiene.py`
+- `render_context_registries.py`
+- `validate_engineering_context_system.py`
+- `validate_lotus_skill_alignment.py`
+- `validate_workflow_security.py`
+- `validate_workflow_action_runtime.py`
+- `validate_container_build_baseline.py`
+- `validate_platform_validation_coverage.py`
+- `Resolve-PlatformAutomationPython.ps1`
 - `New-Lotus-Service.ps1`
 - `Cleanup-Legacy-Workspace.ps1`
 
@@ -83,7 +93,8 @@ This map organizes the automation directory by responsibility without changing s
 - `task-profiles.json`: profile-to-task mapping
 - `qa-matrix.json`: runtime QA startup/API/log/monitoring checks per service
 - `service-map.json`: service refresh mapping
-- `backend-governance-policy.json`
+- `repository-governance-policy.json`
+- `platform-validation-profiles.json`
 - `test-coverage-policy.json`
 
 ## Documentation Set

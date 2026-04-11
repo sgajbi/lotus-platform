@@ -307,15 +307,10 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-CrossApp-CorePerforma
 
 Run the same cross-app validators from GitHub Actions on a self-hosted runner:
 
-- Workflow: `.github/workflows/core-performance-cross-app-validation.yml`
-- Recommended first mode while attribution alignment is still under investigation: `target=twr_benchmark` or `target=baseline` with `scenario_mode=skip_seed`
+- Workflow: `.github/workflows/platform-end-to-end-validation.yml`
+- Recommended day-to-day mode: `validation_profile=core-performance-green-lanes`
+- Recommended deeper manual mode while attribution alignment is still under investigation: `validation_profile=core-performance-baseline` with `scenario_mode=skip_seed`
 - The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
-
-Run only the currently stable green lanes from GitHub Actions:
-
-- Workflow: `.github/workflows/core-performance-green-lanes.yml`
-- Covers: `twr_benchmark`, `returns_series`, `contribution`, `mwr`
-- Recommended while attribution source reconciliation is still being fixed upstream
 
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
 
@@ -485,10 +480,78 @@ Generate dependency vulnerability rollup across backend services:
 powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1
 ```
 
-Enforce backend governance policy (branch protection + auto-merge + no review requirement):
+Enforce repository governance policy (branch protection + auto-merge + review requirements):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Enforce-Backend-Governance.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
+```
+
+Validate repository hygiene and dependency authority for a scaffolded or existing backend repo:
+
+```powershell
+python automation/validate_repository_hygiene.py --repo-root C:/Users/Sandeep/projects/lotus-manage
+```
+
+Render the human-readable ecosystem registries from the governed context manifest:
+
+```powershell
+python automation/render_context_registries.py
+```
+
+Validate the full RFC-0073 engineering context system contract:
+
+```powershell
+python automation/validate_engineering_context_system.py
+```
+
+Artifacts:
+- `output/engineering-context-system-validation.json`
+- `output/engineering-context-system-validation.md`
+
+Validate Lotus skill alignment against the governed context system:
+
+```powershell
+python automation/validate_lotus_skill_alignment.py
+```
+
+Artifacts:
+- `output/lotus-skill-alignment-validation.json`
+- `output/lotus-skill-alignment-validation.md`
+
+Validate workflow security and permissions posture across platform workflows and templates:
+
+```powershell
+python automation/validate_workflow_security.py
+```
+
+Validate GitHub Actions version/runtime posture across platform workflows and templates:
+
+```powershell
+python automation/validate_workflow_action_runtime.py
+```
+
+Validate container build and image baseline posture across backend scaffold templates:
+
+```powershell
+python automation/validate_container_build_baseline.py
+```
+
+Validate platform end-to-end coverage profiles against the workflow and entrypoint contract:
+
+```powershell
+python automation/validate_platform_validation_coverage.py
+```
+
+Bootstrap the isolated platform automation Python runtime:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Resolve-PlatformAutomationPython.ps1
+```
+
+Validate current repository governance drift against the platform policy:
+
+```powershell
+python automation/validate_repository_governance.py
 ```
 
 Scaffold a new standards-compliant Lotus backend and auto-register it in automation:
@@ -507,7 +570,7 @@ Profiles currently defined in `automation/task-profiles.json`:
 - `migration-quality`
 - `coverage-pyramid-baseline`
 - `backend-standards-conformance`
-- `enforce-backend-governance`
+- `enforce-repository-governance`
 - `openapi-conformance-baseline`
 - `domain-vocabulary-conformance`
 - `lotus-naming-conformance`
@@ -569,6 +632,16 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/dependency-vulnerability-rollup.md`
 - `output/backend-standards-conformance.json`
 - `output/backend-standards-conformance.md`
+- `output/repository-governance-enforcement.json`
+- `output/repository-governance-enforcement.md`
+- `output/repository-governance-validation.json`
+- `output/repository-governance-validation.md`
+- `output/repository-hygiene-validation.json`
+- `output/repository-hygiene-validation.md`
+- `output/workflow-security-validation.json`
+- `output/workflow-security-validation.md`
+- `output/workflow-action-runtime-validation.json`
+- `output/workflow-action-runtime-validation.md`
 - `output/openapi-conformance-summary.json`
 - `output/openapi-conformance-summary.md`
 - `output/domain-vocabulary-conformance.json`
@@ -627,7 +700,8 @@ Automation scope derives from `automation/repos.json` for all `lotus-*` repos (e
 When scaffolding a new service with `New-Lotus-Service.ps1`, automation registration updates by default:
 - `automation/repos.json`
 - `automation/service-map.json`
-- `automation/backend-governance-policy.json`
+- `automation/repository-governance-policy.json`
+- `automation/validate_repository_governance.py`
 - `automation/test-coverage-policy.json`
 
 This ensures new services inherit CI/CD, governance, and quality baselines without manual wiring.
