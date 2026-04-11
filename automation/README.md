@@ -25,6 +25,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/PR-Monitor.ps1`
 - `automation/Close-PR-Loop.ps1`
 - `automation/Detect-Stalled-PR-Checks.ps1`
+- `automation/Prune-MergedRemoteBranches.ps1`
 - `automation/Platform-Pulse.ps1`
 - `automation/Run-Agent.ps1`
 - `automation/Service-Refresh.ps1`
@@ -106,6 +107,21 @@ Close PR loop (monitor checks, queue auto-merge, clean merged branches):
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Close-PR-Loop.ps1
 ```
+
+Prune merged or stale closed remote branches using GitHub as the source of truth:
+
+```powershell
+# Dry-run a single repository
+powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -Repo sgajbi/lotus-core
+
+# Dry-run all governed Lotus repositories
+powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -AllLotusRepos
+
+# Apply after reviewing the dry-run report
+powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -AllLotusRepos -Apply
+```
+
+This script intentionally queries GitHub branches and PR state directly instead of trusting local `git branch -r`, because some Lotus clones track only `main` locally.
 
 Continuous PR lifecycle watch loop:
 
