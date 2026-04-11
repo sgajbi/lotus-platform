@@ -18,6 +18,9 @@ Apply it in line with:
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
+Use `lotus-front-office-runtime` as the primary route when the backend change is being validated
+through the governed canonical front-office runtime and populated Workbench product surfaces.
+
 ## Context-First Rule
 
 Before substantive backend work:
@@ -51,6 +54,7 @@ Before changing code:
    - migrations
    - Docker/runtime behavior
    - cross-app contracts
+   - canonical front-office runtime behavior
 
 ## Delivery Rules
 
@@ -80,6 +84,12 @@ Map validation to the platform lanes:
 4. Platform End-to-End Validation:
    - required when the change affects canonical product flows, gateway/upstream behavior, seeded demo flows, or platform runtime assumptions
 
+If the backend change affects governed front-office proof:
+
+1. validate the authoritative service locally,
+2. use the canonical runtime path for product-surface proof,
+3. do not claim UI readiness from backend checks alone.
+
 ## Backend Gold-Standard Checklist
 
 1. API contracts are truthful and fully documented.
@@ -88,6 +98,8 @@ Map validation to the platform lanes:
 4. Tests are meaningful, domain-aware, and high-value.
 5. PR evidence lists the actual commands run.
 6. Cross-app impacts are validated at the right layer.
+7. Front-office truth claims are supported by governed runtime evidence when the slice affects
+   product surfaces.
 
 ## Cross-App Rule
 

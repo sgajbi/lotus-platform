@@ -31,13 +31,13 @@
 
 ## Slice 3: Hardening Existing Skills
 
-- [ ] Tighten `lotus-qa-platform-validator`.
-- [ ] Tighten `lotus-pr-premerge-gate`.
-- [ ] Tighten `lotus-frontend-delivery-governance`.
-- [ ] Tighten `lotus-backend-delivery-governance`.
-- [ ] Tighten `lotus-validation-resolution-lifecycle` where routing overlap exists.
-- [ ] Remove stale wording and dead guidance that becomes obsolete.
-- [ ] Review inventory simplification opportunities before moving on.
+- [x] Tighten `lotus-qa-platform-validator`.
+- [x] Tighten `lotus-pr-premerge-gate`.
+- [x] Tighten `lotus-frontend-delivery-governance`.
+- [x] Tighten `lotus-backend-delivery-governance`.
+- [x] Tighten `lotus-validation-resolution-lifecycle` where routing overlap exists.
+- [x] Remove stale wording and dead guidance that becomes obsolete.
+- [x] Review inventory simplification opportunities before moving on.
 
 ## Slice 4: AGENTS and Context Synchronization
 

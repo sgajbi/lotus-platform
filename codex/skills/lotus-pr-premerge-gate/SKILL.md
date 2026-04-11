@@ -99,14 +99,20 @@ Map the repo to one of these profiles before deciding what "required" means:
 2. Open/update PR with explicit evidence section listing commands and pass results.
 3. PR is mandatory in single-developer mode.
 4. Human review approval is optional in the single-developer baseline; required GitHub checks, conversation resolution, and truthful evidence are the approval control.
-3. Monitor required checks via GitHub CLI:
-   - `gh pr checks <PR_NUMBER> --watch`
-4. If any required check fails:
+5. Prefer asynchronous monitoring for long checks:
+   - `gh pr checks <PR_NUMBER> --watch=false`
+6. If only heavy GitHub lanes remain pending and local proof is already green:
+   - enable auto-merge when appropriate,
+   - continue useful work,
+   - poll periodically instead of idling.
+7. If any required check fails:
    - Diagnose from logs.
    - Fix-forward in same branch.
    - Re-run affected local gates before pushing again.
 
-Rule: never enable merge (or auto-merge) while any required check is failing or pending with known instability.
+Rule: never enable merge (or auto-merge) while any required check is failing or pending with known
+instability. Pending heavy lanes with a stable history are acceptable for async monitoring once
+auto-merge is enabled.
 
 Definition of green:
 
@@ -170,6 +176,8 @@ Target end-state: local = remote = main.
 2. If a required check is flaky, treat it as a governance defect; do not silently work around it.
 3. If branch protection is weaker than the platform standard, call that out explicitly in the final response.
 4. Keep merge strategy aligned to repo policy; do not squash unless the user or repo policy requires it.
+5. For governed front-office runtime or screenshot-proof changes, require machine-readable evidence
+   in addition to screenshots.
 
 ## Non-negotiables
 

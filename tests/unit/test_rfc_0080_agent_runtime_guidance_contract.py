@@ -143,3 +143,52 @@ def test_rfc_0080_slice_2_adds_governed_front_office_runtime_skill() -> None:
     assert '"name": "lotus-front-office-runtime"' in manifest
     assert "automation/Bootstrap-LotusDeveloperEnvironment.ps1" in skills_readme
     assert "Skill synchronization automation is not implemented" not in skills_readme
+
+
+def test_rfc_0080_slice_3_hardens_existing_skill_boundaries() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0080-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (
+        ROOT / "rfcs" / "RFC-0080-slice-3-existing-skill-hardening-evidence.md"
+    ).read_text(encoding="utf-8")
+    qa_skill = (ROOT / "codex" / "skills" / "lotus-qa-platform-validator" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    pr_skill = (ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    frontend_skill = (
+        ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    backend_skill = (
+        ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    lifecycle_skill = (
+        ROOT / "codex" / "skills" / "lotus-validation-resolution-lifecycle" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "## Slice 3: Hardening Existing Skills",
+        "- [x] Tighten `lotus-qa-platform-validator`.",
+        "- [x] Tighten `lotus-validation-resolution-lifecycle` where routing overlap exists.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "`lotus-qa-platform-validator`",
+        "`lotus-pr-premerge-gate`",
+        "`lotus-frontend-delivery-governance`",
+        "`lotus-backend-delivery-governance`",
+        "`lotus-validation-resolution-lifecycle`",
+        "async GitHub behavior",
+        "screenshot-plus-evidence proof",
+    ):
+        assert required_item in evidence
+
+    assert "Use `lotus-front-office-runtime` instead for:" in qa_skill
+    assert "gh pr checks <PR_NUMBER> --watch=false" in pr_skill
+    assert "continue useful work while heavy lanes run" in evidence
+    assert "use `lotus-front-office-runtime` as the" in frontend_skill
+    assert "do not claim UI readiness from backend checks alone" in backend_skill
+    assert "compose this skill with `lotus-front-office-runtime`" in lifecycle_skill
