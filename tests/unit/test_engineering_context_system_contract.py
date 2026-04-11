@@ -138,11 +138,12 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "Platform Integration Architecture Bible" in standard_names
 
     active_rfcs = {entry["id"] for entry in manifest["active_rfc_registry"]}
-    assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073"}
+    assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073", "RFC-0074"}
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
-    assert "temporarily paused" in implementation_postures["RFC-0072"]
+    assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
+    assert implementation_postures["RFC-0074"] == "implemented and governed"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -369,3 +370,290 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert manifest["procedural_memory"]["pr_loop_playbook"] == "context/playbooks/PR-LOOP-PLAYBOOK.md"
     assert manifest["procedural_memory"]["validation_playbook"] == "context/playbooks/VALIDATION-PLAYBOOK.md"
     assert manifest["procedural_memory"]["fix_forward_patterns"] == "context/playbooks/FIX-FORWARD-PATTERNS.md"
+
+
+def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Slice 2 | Developer onboarding guide | Complete" in checklist
+    assert "docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in checklist
+    assert "../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in reference_map
+
+    for required_link in (
+        "../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md",
+        "../../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md",
+        "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
+        "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
+        "../../Local%20Development%20Runbook.md",
+        "../../context/LOTUS-QUICKSTART-CONTEXT.md",
+        "../../context/CONTEXT-REFERENCE-MAP.md",
+        "../../context/AGENTS-OPERATING-CONTRACT.md",
+        "../../context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "../../context/playbooks/VALIDATION-PLAYBOOK.md",
+        "../../context/playbooks/FIX-FORWARD-PATTERNS.md",
+    ):
+        assert required_link in onboarding
+
+    for heading in (
+        "## Expected Workspace Layout",
+        "## First Pull Sequence",
+        "## Prerequisite Classification",
+        "### Required For Normal Development",
+        "### Required For Full-Stack Validation",
+        "### Optional Or Task-Specific",
+        "## Codex Agent Context And Skills",
+        "## GitHub And CI Posture",
+        "## Ingress And Canonical Endpoints",
+        "## DSN And Environment Posture",
+        "## Validation Depth",
+        "## Fresh Machine Readiness Checklist",
+        "## Current RFC-0074 Boundary",
+    ):
+        assert heading in onboarding
+
+    for required_phrase in (
+        "Onboarding should not silently start Docker stacks",
+        "Do not overwrite local Codex guidance blindly",
+        "Do not run full local CI reflexively",
+        "platform-owned bootstrap automation exists",
+        "http://workbench.dev.lotus",
+        "http://gateway.dev.lotus",
+        "gh pr checks <pr-number> --watch=false",
+        "powershell -ExecutionPolicy Bypass -File automation\\Sync-Dev-Ingress-Hosts.ps1 -Apply",
+    ):
+        assert required_phrase in onboarding
+
+
+def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Slice 3 | Agent ramp-up guide and first-prompt standard | Complete" in checklist
+    assert "docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in checklist
+    assert "../docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in reference_map
+
+    for required_link in (
+        "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
+        "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
+        "../../context/LOTUS-QUICKSTART-CONTEXT.md",
+        "../../context/LOTUS-ENGINEERING-CONTEXT.md",
+        "../../context/CONTEXT-REFERENCE-MAP.md",
+        "../../context/PROCEDURAL-MEMORY-INDEX.md",
+        "../../context/AGENTS-OPERATING-CONTRACT.md",
+        "../../context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "../../context/playbooks/VALIDATION-PLAYBOOK.md",
+        "../../context/playbooks/FIX-FORWARD-PATTERNS.md",
+        "./LOTUS-DEVELOPER-ONBOARDING.md",
+    ):
+        assert required_link in ramp_up
+
+    for heading in (
+        "## First Prompt Template",
+        "## First-Turn Checklist",
+        "## Context Budget Tiers",
+        "### Tier 1: Startup Context",
+        "### Tier 2: Governance Context",
+        "### Tier 3: Deep Context",
+        "## Skill Selection",
+        "## Validation Lane Selection",
+        "## Async GitHub Monitoring",
+        "## Context Maintenance Rule",
+        "## Anti-Patterns",
+        "## Current RFC-0074 Boundary",
+    ):
+        assert heading in ramp_up
+
+    for required_phrase in (
+        "Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md",
+        "Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md",
+        "Do not start with Tier 3 by default.",
+        "lotus-backend-delivery-governance",
+        "lotus-frontend-delivery-governance",
+        "lotus-pr-premerge-gate",
+        "gh pr checks <pr-number> --watch=false",
+        "Do not update durable context for transient CI state unless it becomes a repeatable pattern.",
+        "RFC-0074 is implemented and governed.",
+        "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
+        "platform-owned Lotus skills under `lotus-platform/codex/skills`",
+    ):
+        assert required_phrase in ramp_up
+
+    for stale_phrase in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        assert stale_phrase not in ramp_up
+
+
+def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    developer_onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+    ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(encoding="utf-8")
+    skills_root = ROOT / "codex" / "skills"
+    manifest = json.loads((skills_root / "lotus-skill-manifest.json").read_text(encoding="utf-8"))
+    readme = (skills_root / "README.md").read_text(encoding="utf-8")
+
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 4 | Skill distribution and synchronization design | Complete" in checklist
+    assert "codex/skills/lotus-skill-manifest.json" in checklist
+    assert "../../codex/skills/README.md" in developer_onboarding
+    assert "lotus-platform/codex/skills" in ramp_up
+
+    expected_skills = {
+        "gh-issue-fix-qa-loop",
+        "lotus-backend-delivery-governance",
+        "lotus-codebase-review-ledger",
+        "lotus-frontend-delivery-governance",
+        "lotus-methodology-doc-v3",
+        "lotus-pr-premerge-gate",
+        "lotus-qa-platform-validator",
+        "lotus-rfc-review-loop",
+        "lotus-rfc0067-rollout",
+        "lotus-transaction-rfc-loop",
+        "lotus-validation-resolution-lifecycle",
+        "platform-automation-ops",
+        "platform-pulse-monitor",
+        "targeted-service-refresh",
+    }
+    manifest_names = {entry["name"] for entry in manifest["skills"]}
+    directory_names = {path.name for path in skills_root.iterdir() if path.is_dir()}
+
+    assert manifest["source"] == "lotus-platform/codex/skills"
+    assert manifest["unknown_local_skill_policy"] == "preserve"
+    assert manifest_names == expected_skills
+    assert directory_names == expected_skills
+
+    for entry in manifest["skills"]:
+        skill_dir = ROOT / entry["path"]
+        skill_doc = skill_dir / "SKILL.md"
+        assert skill_dir.exists()
+        assert skill_doc.exists()
+        assert f"name: {entry['name']}" in skill_doc.read_text(encoding="utf-8")
+
+    assert any(entry["name"] == "gh-issue-fix-qa-loop" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
+    assert "Unknown local skills must be preserved" in readme
+
+    for path in skills_root.rglob("*"):
+        if path.is_file():
+            text = path.read_text(encoding="utf-8")
+            assert "pbwm-platform-docs" not in text
+            assert "C:\\Users\\Sandeep" not in text
+            assert "C:/Users/Sandeep" not in text
+            assert "--squash --delete-branch" not in text
+
+
+def test_rfc_0074_slice_five_bootstrap_automation_is_governed_and_safe() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+    automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
+    validate_script = (ROOT / "automation" / "Validate-LotusDeveloperEnvironment.ps1").read_text(
+        encoding="utf-8"
+    )
+    bootstrap_script = (ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 5 | Bootstrap and validation automation | Complete" in checklist
+
+    assert "automation/Bootstrap-LotusDeveloperEnvironment.ps1" in checklist
+    assert "automation/Validate-LotusDeveloperEnvironment.ps1" in checklist
+    assert "output/developer-environment-readiness.json" in checklist
+    assert ".md` reports" in checklist
+    assert "Slice 6 is the next permitted implementation slice" in checklist
+
+    assert "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast" in onboarding
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" in onboarding
+    assert "unknown local Codex skills are preserved" in onboarding
+    assert "skill synchronization automation is not implemented yet" not in onboarding
+
+    assert "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast" in automation_readme
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" in automation_readme
+    assert "Validate-LotusDeveloperEnvironment.ps1" in directory_map
+    assert "Bootstrap-LotusDeveloperEnvironment.ps1" in directory_map
+
+    for required in (
+        '[ValidateSet("Inspect", "Sync", "Validate")]',
+        '[ValidateSet("fast", "extended", "platform")]',
+        "Test-GitHubAuth",
+        "Test-DockerPosture",
+        "Test-RepositoryPresence",
+        "Test-ContextDocs",
+        "Test-SkillSync",
+        "Test-AgentsSync",
+        "Test-IngressPosture",
+        "Test-DsnPosture",
+        "Redact-Value",
+        "unknown local skills are preserved",
+        "developer-environment-readiness.json",
+        "developer-environment-readiness.md",
+        "NoExitOnBlocked",
+        "Refusing to synchronize skill outside the requested Codex skills target root.",
+        "Refusing to synchronize a skill onto its governed source directory.",
+        "exit 1",
+    ):
+        assert required in validate_script
+
+    assert '"-Mode", "Sync"' in bootstrap_script
+    assert "ValidateAfterSync" in bootstrap_script
+    assert "Validate-LotusDeveloperEnvironment.ps1" in bootstrap_script
+
+
+def test_rfc_0074_slice_six_validation_drift_controls_are_governed() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    validator = (ROOT / "automation" / "validate_engineering_context_system.py").read_text(encoding="utf-8")
+    bootstrap_tests = (ROOT / "tests" / "unit" / "test_developer_environment_bootstrap.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 6 | Validation coverage and drift control | Complete" in checklist
+    assert "tests/unit/test_developer_environment_bootstrap.py" in checklist
+    assert "Slice 7 is the next permitted implementation slice" in checklist
+
+    for required in (
+        "LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance",
+        "LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail",
+        "LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains",
+        "missing required bootstrap behavior",
+        "Validate-LotusDeveloperEnvironment.ps1",
+        "Bootstrap-LotusDeveloperEnvironment.ps1",
+    ):
+        assert required in validator
+
+    for required in (
+        "test_developer_environment_inspect_report_is_redacted_and_structured",
+        "test_developer_environment_bootstrap_sync_is_idempotent_and_scoped",
+        "super-secret-password",
+        "assert secret_dsn not in raw_report",
+        "local-private-skill",
+    ):
+        assert required in bootstrap_tests
+
+
+def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
+    rfc = (ROOT / "rfcs" / "RFC-0074-repeatable-developer-and-agent-bootstrap-system.md").read_text(
+        encoding="utf-8"
+    )
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    platform_repo_context = (ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+
+    assert "- Status: Implemented" in rfc
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 7 | Repository-local cross-link rollout | Complete" in checklist
+    assert "RFC-0074 is implemented and governed" in checklist
+    assert "[Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)" in platform_repo_context
+    assert "[Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)" in platform_repo_context

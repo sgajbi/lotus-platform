@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lotus Backend Delivery Governance"
+  short_description: "Apply Lotus backend CI, validation, security, and PR standards"

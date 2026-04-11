@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Validation Lifecycle"
+  short_description: "Run end-to-end app validation and resolution loop"
+  default_prompt: "Execute the Lotus lifecycle: validate app, raise defects, coordinate fixes, drive PR merge, and revalidate until stable."

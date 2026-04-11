@@ -1,0 +1,4 @@
+interface:
+  display_name: "Issue Fix QA Loop"
+  short_description: "Automate issue fix to QA closure loop"
+  default_prompt: "Run an issue-driven dev-to-QA loop: fix, PR, merge, update issue, request QA retest, and continue until closure."

@@ -43,6 +43,10 @@ def validate_engineering_context_system() -> list[str]:
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
         "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
         "platform repo context": ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
+        "developer onboarding": ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md",
+        "agent ramp up": ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md",
+        "developer environment bootstrap": ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1",
+        "developer environment validation": ROOT / "automation" / "Validate-LotusDeveloperEnvironment.ps1",
         "ledger": CONTEXT_DIR / "platform-engineering-ledger.md",
         "decisions digest": CONTEXT_DIR / "recent-architectural-decisions-digest.md",
         "rfc checklist": ROOT / "rfcs" / "RFC-0073-implementation-checklist.md",
@@ -70,6 +74,10 @@ def validate_engineering_context_system() -> list[str]:
     repo_context_contract = _read_text(required_files["repository context contract"])
     repo_context_template = _read_text(required_files["repository context template"])
     platform_repo_context = _read_text(required_files["platform repo context"])
+    developer_onboarding = _read_text(required_files["developer onboarding"])
+    agent_ramp_up = _read_text(required_files["agent ramp up"])
+    developer_environment_bootstrap = _read_text(required_files["developer environment bootstrap"])
+    developer_environment_validation = _read_text(required_files["developer environment validation"])
     rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
     checklist = _read_text(required_files["rfc checklist"])
     manifest = json.loads(_read_text(required_files["manifest"]))
@@ -164,6 +172,45 @@ def validate_engineering_context_system() -> list[str]:
     if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
 
+    for text in (
+        "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
+        "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
+        "unknown local Codex skills are preserved",
+        "output/developer-environment-readiness.json",
+        "output/developer-environment-readiness.md",
+    ):
+        if text not in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
+
+    if "Do not start with Tier 3 by default." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
+    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
+    for stale_text in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        if stale_text in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
+    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
+    if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
+
+    for text, label, content in (
+        ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ('[ValidateSet("fast", "extended", "platform")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Redact-Value", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Test-SkillSync", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("developer-environment-readiness.json", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Refusing to synchronize skill outside the requested Codex skills target root.", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Resolve-PowerShellExecutable", "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
+        ('"-Mode", "Sync"', "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
+    ):
+        if text not in content:
+            errors.append(f"{label}: missing required bootstrap behavior `{text}`")
+
     if "Context Maintenance Rule" not in repo_context_contract:
         errors.append("Repository-Engineering-Context-Contract.md: missing Context Maintenance Rule")
     if "## Context Maintenance Rule" not in repo_context_template:
@@ -220,10 +267,12 @@ def validate_engineering_context_system() -> list[str]:
     rfc_postures = {entry.get("id"): entry.get("implementation_posture") for entry in active_rfcs if isinstance(entry, dict)}
     if rfc_postures.get("RFC-0071") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
-    if "temporarily paused" not in str(rfc_postures.get("RFC-0072", "")):
-        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture must record temporary pause")
+    if "partially implemented" not in str(rfc_postures.get("RFC-0072", "")):
+        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture drifted")
     if rfc_postures.get("RFC-0073") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
+    if rfc_postures.get("RFC-0074") != "implemented and governed":
+        errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
 
     registry_renderer = _load_registry_renderer()
     rendered_registries = registry_renderer.render_registry_document(manifest)

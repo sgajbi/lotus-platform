@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Txn RFC Loop"
+  short_description: "Run lotus-core transaction RFC planning and slice execution loop"
+  default_prompt: "Use this skill to drive lotus-core transaction RFC work from analysis through slice PR loop with governance gates."

@@ -85,6 +85,7 @@ The most operationally important current RFCs are:
 1. [RFC-0071](../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
 2. [RFC-0072](../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
 3. [RFC-0073](../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
+4. [RFC-0074](../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 
@@ -135,9 +136,11 @@ Read:
 
 ## Runbooks And Operations
 
-1. [Local Development Runbook](../Local%20Development%20Runbook.md)
-2. `docs/` and `automation/README.md` in `lotus-platform`
-3. platform validation and ingress automation under `automation/`
+1. [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+2. [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
+3. [Local Development Runbook](../Local%20Development%20Runbook.md)
+4. `docs/` and `automation/README.md` in `lotus-platform`
+5. platform validation and ingress automation under `automation/`
 
 ## Repository-Local Context Documents
 
