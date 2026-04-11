@@ -43,6 +43,9 @@ This RFC proposes:
 5. explicit UI support for AI-generated content disclosure and feedback,
 6. a cleanup and modernization program focused on UI speed, navigability, architectural quality, and dead-code removal.
 
+This RFC is intended to move `lotus-workbench` from a collection of improving product surfaces to a
+real enterprise-grade front-office product platform.
+
 ## Decision
 
 Lotus will evolve the front-office UI into a modular multi-workspace shell centered on `lotus-workbench`.
@@ -67,6 +70,37 @@ The decision also includes these non-negotiable implementation rules:
 5. no micro-frontend split is acceptable if it weakens shell consistency, observability, or accessibility,
 6. the shell, gateway composition layer, module boundaries, and design system are treated as
    product infrastructure, not optional frontend convenience.
+
+## Enterprise-Grade Product Target State
+
+RFC-0081 is a product-foundation RFC.
+
+The target is not a visually nicer demo. The target is an enterprise-grade front-office product
+platform that is:
+
+1. operationally supportable,
+2. architecture-governed,
+3. workflow-truthful,
+4. scalable across multiple Lotus product domains,
+5. ready for long-lived banking and advisory use,
+6. extensible for modern AI-assisted and agentic product capabilities.
+
+`lotus-workbench` should emerge from this program as:
+
+1. the governed front-office shell,
+2. the primary banker workspace for portfolio, performance, risk, proposal, and advisory flows,
+3. a stable host for future `lotus-manage`, `lotus-report`, and `lotus-ai` capabilities,
+4. a product whose quality bar is measured by enterprise standards rather than isolated visual
+   polish.
+
+Enterprise-grade in this RFC means:
+
+1. strong shell and module architecture,
+2. gateway-backed composition and workflow truth,
+3. governed performance, caching, observability, and audit behavior,
+4. rigorous naming, typography, and design-system standards,
+5. automation-backed validation for all important screens and panels,
+6. slice-by-slice review discipline before further rollout.
 
 ## Scope
 
@@ -837,12 +871,13 @@ The product direction in this RFC requires a modern UI foundation with explicit 
 1. shell composition,
 2. module boundaries,
 3. state and data flow,
-4. design-system ownership,
-5. performance,
-6. observability,
-7. accessibility,
-8. security and auditability,
-9. rollout and compatibility.
+4. caching and invalidation strategy,
+5. design-system ownership,
+6. performance,
+7. observability,
+8. accessibility,
+9. security and auditability,
+10. rollout and compatibility.
 
 ### What a modern banking-grade UI requires
 
@@ -958,6 +993,41 @@ The target gateway posture is:
 4. version-governed,
 5. supportive of progressive rollout and partial capability states.
 
+### Caching and invalidation strategy
+
+The UI uplift needs a governed caching model across shell, gateway, and workspace modules.
+
+Caching must improve perceived speed without creating stale or misleading front-office states.
+
+Required standards:
+
+1. cache ownership must be explicit at shell, module, and gateway-response levels,
+2. entity context, workflow truth, supportability, and evidence posture must never be treated as
+   indefinitely cacheable,
+3. analytical reference data, static metadata, and slow-changing lookup data may use longer-lived
+   caching where contract-safe,
+4. workflow-bearing and approval-bearing data must use freshness-aware caching with explicit
+   invalidation triggers,
+5. the shell should support predictable revalidation when:
+   - active entity changes,
+   - workflow state changes,
+   - proposal or consent actions complete,
+   - gateway freshness metadata indicates staleness,
+6. cache semantics should align with gateway-delivered freshness and supportability metadata,
+7. prefetching should be used selectively for likely next routes or workflow steps, not as blanket
+   eager loading,
+8. cached AI-assisted or AI-search content must remain distinguishable from authoritative live
+   workflow state.
+
+The target state should support:
+
+1. fast route transitions,
+2. low-friction back-and-forth navigation,
+3. controlled cache invalidation after high-value actions,
+4. no silent stale state in workflow-critical surfaces.
+
+Caching should be architected as product infrastructure, not scattered page-local fetch logic.
+
 ### Frontend state model
 
 The frontend should standardize state at three levels:
@@ -984,6 +1054,14 @@ The frontend should standardize state at three levels:
    - AI review status
 
 The architecture should explicitly prevent workflow truth from being represented only as local UI state.
+
+The state model should also define:
+
+1. cache lifecycle rules,
+2. invalidation triggers,
+3. prefetch boundaries,
+4. stale-while-revalidate behavior where acceptable,
+5. route transition reuse rules for dense analytical surfaces.
 
 ### Design-system ownership model
 
@@ -1030,6 +1108,9 @@ The architecture should support:
 5. memoization or derived-state control only where justified,
 6. prefetching of likely next-step workflow routes,
 7. performance budgets for initial route load and panel hydration.
+
+Performance optimization must stay aligned with the governed caching strategy rather than relying on
+opaque client-side persistence or duplicated fetch layers.
 
 The uplift should explicitly optimize:
 
@@ -1090,6 +1171,35 @@ Frontend observability should include:
 6. AI interaction and feedback telemetry,
 7. correlation with gateway request identifiers where appropriate.
 
+The uplift should also support front-office product usage understanding, not only technical
+debugging.
+
+Required observability dimensions:
+
+1. workspace and route usage frequency,
+2. panel and module usage frequency,
+3. drill-down and workflow-step completion rates,
+4. search and command-surface usage,
+5. action conversion for proposal, approval, consent, and execution handoff flows,
+6. abandonment and drop-off signals for high-value front-office workflows,
+7. degradation and partial-state frequency by module and route.
+
+Logging and tracing standards should include:
+
+1. structured frontend event logging for significant workflow actions,
+2. request and trace correlation across shell, gateway, and downstream services,
+3. route-to-panel timing visibility,
+4. error logging that preserves module, entity, and workflow context,
+5. audit-friendly traces for workflow-bearing actions and AI-assisted actions.
+
+The target state should allow Lotus to answer:
+
+1. which workspaces and panels are most used by front-office users,
+2. which proposal or advisory steps create friction,
+3. which screens are fast but underused,
+4. which screens are critical and performance-sensitive,
+5. which workflow states most often become blocked or abandoned.
+
 ### Security, entitlements, and audit
 
 The modern UI model must handle banking-grade controls explicitly.
@@ -1125,6 +1235,32 @@ The UI platform should follow a layered testing model:
 5. browser workflow tests for advisory and proposal lifecycles,
 6. shell integration tests across modules,
 7. governed live validation through the canonical front-office runtime.
+
+### Automation coverage requirements for new panels and screens
+
+Every new screen, panel, drawer, decision rail, workflow page, and artifact preview introduced by
+RFC-0081 must be added to the governed automation path.
+
+Required standards:
+
+1. each new surface must be registered in the relevant panel or workspace validation inventory,
+2. browser validation must exercise the new route, panel, or workflow state where it carries real
+   business value,
+3. screenshot automation must capture the new surface when it is part of demo, approval, or
+   acceptance evidence,
+4. partial, blocked, empty, and ready states must be reflected in the automation model where
+   applicable,
+5. shell-level and module-level automation must evolve with the surface inventory rather than
+   remaining fixed to legacy pages only,
+6. no new front-office surface should ship without explicit validation ownership and automation
+   coverage strategy.
+
+This is especially important for:
+
+1. new `Proposal` and `Advisory` workspaces,
+2. new workflow rails and consent surfaces,
+3. new AI-assisted or AI-search surfaces,
+4. future `lotus-manage` and `lotus-report` modules added into the shell.
 
 ### Migration strategy implications
 
@@ -1492,6 +1628,35 @@ Implementation of this RFC must include a conscious review of:
 If no skill or context changes are required for a given slice, that must be documented explicitly in
 the slice evidence rather than left implicit.
 
+## Slice Review Governance
+
+RFC-0081 is a high-impact product and architecture RFC. Each implementation slice must therefore be
+treated as a review gate, not just a checkpoint.
+
+Required governance rules:
+
+1. no subsequent slice may begin until the current slice has been reviewed for:
+   - architectural correctness,
+   - code quality,
+   - dead-code removal,
+   - naming quality,
+   - documentation impact,
+   - test strength,
+   - rollout risk,
+2. each slice must produce explicit evidence showing:
+   - what changed,
+   - what was deliberately not changed,
+   - what dead code or stale patterns were removed,
+   - what follow-up work remains,
+3. each slice review must assess whether the current topology, gateway model, or shared design
+   system needs further tightening before the next slice,
+4. any conscious no-change decision must be recorded rather than implied,
+5. slices that introduce shared architectural primitives must receive stricter review than
+   page-local implementation slices.
+
+The RFC should be executed as a sequence of controlled quality gates, not a continuous stream of
+UI edits.
+
 ## Proposed Implementation Slices
 
 ### Slice 1: Current-State Assessment and UI Target Model
@@ -1517,51 +1682,70 @@ the slice evidence rather than left implicit.
 4. remove obvious dead or duplicate shell styling patterns,
 5. define shell and navigation performance expectations.
 
-### Slice 4: Gateway Composition Foundation and Contract Hardening
+### Slice 4: Shared Information Architecture, Naming, and Typography Foundation
+
+1. standardize shell and workspace naming,
+2. define governed domain language for routes, modules, and workflow surfaces,
+3. finalize typography, tabular numeral, and hierarchy standards,
+4. align the information architecture and workspace topology to the governed shell model,
+5. remove stale naming, duplicate route language, and legacy visual terminology that conflicts with
+   the target state.
+
+### Slice 5: Gateway Composition Foundation and Contract Hardening
 
 1. define gateway contracts for shell entry, workspace bootstrap, and workflow-bearing surfaces,
 2. standardize supportability, freshness, evidence, and partial-state delivery expectations,
 3. define contract versioning and rollout posture for modular UI delivery,
 4. align naming and domain vocabulary across gateway and shell-facing contracts.
 
-### Slice 5: Portfolio, Performance, and Risk Surface Uplift
+### Slice 6: Portfolio, Performance, and Risk Surface Uplift
 
 1. align the analytical workspaces to one shared system,
 2. improve density, hierarchy, tables, charts, and decision rails,
 3. ensure supportability, evidence, and empty-state handling stay truthful,
 4. remove stale analytical layout patterns and duplicate page-local implementations.
 
-### Slice 6: Advisory and Proposal Workspace Integration
+### Slice 7: Advisory and Proposal Workspace Integration
 
 1. bring `lotus-advise` lifecycle capabilities into the shell,
 2. implement proposal workspace, proposal detail, artifact preview, and approval surfaces,
 3. ensure workflow gates and handoff states are contract-backed.
 
-### Slice 7: Micro-Frontend Composition and Extension Model
+### Slice 8: Micro-Frontend Composition and Extension Model
 
 1. establish module boundaries and shared shell contracts,
 2. define module registration, shared dependencies, and runtime composition rules,
 3. define the shared state, entitlement, and observability contracts required for modules,
 4. remove page-local composition hacks and dead patterns exposed by the new model,
-5. define cleanup and retirement rules for replaced routes and components.
+5. define cleanup and retirement rules for replaced routes and components,
+6. define how new module routes and panels are incorporated into governed automation.
 
-### Slice 8: AI Surface Governance and Agentic Extension Model
+### Slice 9: AI Surface Governance and Assistive Workflow Controls
 
 1. implement AI-generated content disclosure patterns,
 2. add quality feedback controls,
 3. define how AI-assisted content interacts with advisory and reporting flows,
 4. ensure AI affordances are clearly separated from authoritative workflow state,
-5. define audit, telemetry, and review semantics for AI-assisted UI actions,
-6. define agentic extension points for future workflow-native AI assist surfaces.
+5. define audit, telemetry, and review semantics for AI-assisted UI actions.
 
-### Slice 9: Performance, Accessibility, and Operability Hardening
+### Slice 10: AI Search, Command Surfaces, and Agentic Extension Model
+
+1. define architecture and UX standards for AI search and semantic discovery,
+2. define command-driven discovery and workflow-entry patterns,
+3. define agentic extension points for future workflow-native AI assist surfaces,
+4. ensure search, assist, and command surfaces remain subordinate to shell governance, entitlement,
+   and audit rules.
+
+### Slice 11: Performance, Accessibility, and Operability Hardening
 
 1. define and enforce route, shell, and module performance budgets,
 2. validate accessibility and keyboard ergonomics across shell and workspace patterns,
 3. validate observability, audit, and entitlement behavior across modular surfaces,
-4. remove stale implementation paths that undermine operability or maintainability.
+4. remove stale implementation paths that undermine operability or maintainability,
+5. extend automation coverage so all newly introduced front-office surfaces are validated through
+   the governed runtime path.
 
-### Slice 10: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
+### Slice 12: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
 1. update shell, design-system, and workspace documentation,
 2. update agent guidance if the new shell and workflow model changes routing or runtime expectations,

@@ -8,7 +8,9 @@
 
 - [x] RFC reviewed and tightened before implementation.
 - [x] Architecture, visual model, and module model made explicit.
+- [x] Enterprise-grade product target state made explicit.
 - [ ] RFC approved for slice implementation.
+- [ ] Slice review governance accepted as mandatory for implementation.
 
 ## Slice 1: Current-State Assessment and UI Target Model
 
@@ -33,14 +35,23 @@
 - [ ] Remove obvious dead or duplicate shell styling patterns.
 - [ ] Define shell and navigation performance expectations.
 
-## Slice 4: Gateway Composition Foundation and Contract Hardening
+## Slice 4: Shared Information Architecture, Naming, and Typography Foundation
+
+- [ ] Standardize shell and workspace naming.
+- [ ] Define governed domain language for routes, modules, and workflow surfaces.
+- [ ] Finalize typography, tabular numeral, and hierarchy standards.
+- [ ] Align information architecture and workspace topology to the governed shell model.
+- [ ] Remove stale naming and legacy terminology that conflicts with the target state.
+
+## Slice 5: Gateway Composition Foundation and Contract Hardening
 
 - [ ] Define gateway contracts for shell entry and workspace bootstrap.
 - [ ] Standardize supportability, freshness, evidence, and partial-state delivery expectations.
 - [ ] Define versioning and rollout posture for modular UI contracts.
 - [ ] Align gateway-facing naming and domain vocabulary with the shell model.
+- [ ] Define caching, revalidation, and invalidation expectations aligned to gateway freshness metadata.
 
-## Slice 5: Portfolio, Performance, and Risk Surface Uplift
+## Slice 6: Portfolio, Performance, and Risk Surface Uplift
 
 - [ ] Align analytical workspaces to the shared system.
 - [ ] Standardize chart, table, and summary-rail patterns.
@@ -48,39 +59,48 @@
 - [ ] Remove stale analytical layout patterns and duplicate page-local implementations.
 - [ ] Review whether the panel registry or runtime guidance needs updates.
 
-## Slice 6: Advisory and Proposal Workspace Integration
+## Slice 7: Advisory and Proposal Workspace Integration
 
 - [ ] Bring `lotus-advise` proposal lifecycle into the shell.
 - [ ] Implement proposal workspace, intent detail, artifact preview, and approval surfaces.
 - [ ] Ensure workflow gates and lifecycle readiness are contract-backed.
 - [ ] Review whether proposal and advisory guidance requires new context or skill updates.
 
-## Slice 7: Micro-Frontend Composition and Extension Model
+## Slice 8: Micro-Frontend Composition and Extension Model
 
 - [ ] Establish module boundaries and shell registration rules.
 - [ ] Define shared state, entitlement, and observability contracts.
 - [ ] Define code-organization and file-structure standards for the modular UI topology.
 - [ ] Remove page-local composition hacks and dead frontend patterns exposed by the new model.
 - [ ] Define cleanup and retirement rules for replaced routes and components.
+- [ ] Define how new module routes and panels are incorporated into governed automation.
 - [ ] Review whether module architecture requires new validator or onboarding guidance.
 
-## Slice 8: AI Surface Governance and Agentic Extension Model
+## Slice 9: AI Surface Governance and Assistive Workflow Controls
 
 - [ ] Implement AI provenance and feedback patterns.
 - [ ] Define audit, telemetry, and review semantics for AI-assisted actions.
 - [ ] Keep AI-assisted surfaces distinct from authoritative workflow state.
-- [ ] Define agentic AI extension standards for future workflow-native assist surfaces.
-- [ ] Define architecture and UX standards for AI search and command-driven discovery surfaces.
 - [ ] Review whether AI routing or context guidance must be updated.
 
-## Slice 9: Performance, Accessibility, and Operability Hardening
+## Slice 10: AI Search, Command Surfaces, and Agentic Extension Model
+
+- [ ] Define architecture and UX standards for AI search and command-driven discovery surfaces.
+- [ ] Define agentic AI extension standards for future workflow-native assist surfaces.
+- [ ] Define command-driven discovery and workflow-entry patterns.
+- [ ] Ensure search and assist surfaces remain subordinate to shell governance and audit rules.
+
+## Slice 11: Performance, Accessibility, and Operability Hardening
 
 - [ ] Define and enforce route, shell, and module performance budgets.
 - [ ] Validate accessibility and keyboard ergonomics across shell and workspace patterns.
 - [ ] Validate observability, audit, and entitlement behavior across modular surfaces.
+- [ ] Define usage telemetry, workflow analytics, logging, and tracing standards for front-office behavior.
+- [ ] Validate caching, prefetch, and invalidation behavior across shell and workflow-critical surfaces.
 - [ ] Remove stale implementation paths that undermine operability or maintainability.
+- [ ] Extend automation coverage so all newly introduced front-office surfaces are validated through the governed runtime path.
 
-## Slice 10: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
+## Slice 12: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
 - [ ] Update shell, design-system, and workspace documentation.
 - [ ] Update agent guidance if the shell and module model materially changes runtime or routing behavior.
@@ -88,17 +108,29 @@
 - [ ] Document conscious no-change decisions explicitly.
 - [ ] Complete branch hygiene, PR evidence hygiene, and cross-repo reference cleanup before closure.
 
+## Slice Review Gate
+
+- [ ] Each completed slice is reviewed before the next slice begins.
+- [ ] Each slice records what changed, what was removed, what was consciously left unchanged, and what follow-up remains.
+- [ ] Shared architectural slices receive stricter review than page-local implementation slices.
+- [ ] No next slice starts until review findings are resolved or explicitly deferred with rationale.
+
 ## Final Acceptance
 
+- [ ] `lotus-workbench` is materially closer to an enterprise-grade front-office product platform, not just a visually improved UI.
 - [ ] Lotus has a coherent institutional front-office shell.
 - [ ] Portfolio, performance, risk, proposal, and advisory surfaces share one interaction and visual system.
 - [ ] `lotus-advise` lifecycle capabilities are first-class UI workflows.
 - [ ] `lotus-gateway` is explicitly upgraded to support shell composition and modular workspace contracts.
 - [ ] The UI architecture supports governed modular extension without shell drift.
 - [ ] The uplift materially improves navigation speed and route clarity.
+- [ ] Caching and invalidation strategy improves speed without creating stale front-office workflow state.
 - [ ] Dead code and obsolete frontend patterns exposed by the uplift are removed.
 - [ ] Banking-grade naming, typography, and code organization are standardized across the uplift.
 - [ ] The shell and module model remain compatible with future agentic AI workflow surfaces.
 - [ ] The shell and gateway model remain compatible with future AI search and modern discovery features.
+- [ ] Every slice has review evidence and no slice advanced without a conscious quality gate.
+- [ ] All new screens, panels, and workflow surfaces are represented in the governed automation and screenshot path.
+- [ ] Front-office usage telemetry, logging, and tracing are sufficient to understand adoption, friction, and operational health.
 - [ ] AI-generated content is clearly disclosed and feedbackable.
 - [ ] CI evidence is truthful and branch hygiene is complete.
