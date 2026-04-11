@@ -1,6 +1,6 @@
 # RFC-0072: Platform-Wide Multi-Lane CI, Validation, and Release Governance
 
-- Status: Proposed
+- Status: Implemented
 - Date: 2026-04-10
 - Owners: lotus-platform governance
 - Requires Approval From:

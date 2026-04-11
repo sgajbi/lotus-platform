@@ -1,6 +1,6 @@
 # RFC-0072 Implementation Checklist
 
-- Rollout Status: In Progress
+- Rollout Status: Complete
 - Governing RFC: `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 
 ## Goal
@@ -40,6 +40,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 | Slice 5H | Workflow action runtime baseline | Complete | Platform-owned workflows and backend templates now enforce a modern GitHub Actions baseline for core actions, and platform repo checks fail on stale action majors |
 | Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete | RFC-0072 rollout documents now distinguish implemented governance controls from the remaining merge/closeout work and stale gap language is guarded by contract tests |
 | Slice 6A | PR readiness and conflict cleanup | Complete | Active RFC-0072 PRs were checked through GitHub; stale red gateway PR #84 was closed with branch preserved, and workbench PR #77 was updated from `main`, conflict-resolved, and returned to green |
+| Slice 6B | Single-developer governance closeout | Complete | Repository governance now uses required checks, protected `main`, conversation resolution, and audit evidence as the single-developer approval control; all non-platform rollout PRs have merged and the platform closeout PR carries the final implemented-state record |
 
 ## Slice 1 Completion Evidence
 
@@ -477,12 +478,52 @@ Evidence:
 1. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 2. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
 
+## Slice 6B Completion Evidence
+
+### Closeout artifacts
+
+1. `automation/Enforce-Repository-Governance.ps1`
+2. `automation/validate_repository_governance.py`
+3. `Continuous Integration, Validation, and Release Governance Standard.md`
+4. `platform-standards/Development-Workflow-and-CI-Strategy-Standard.md`
+5. `context/playbooks/PR-LOOP-PLAYBOOK.md`
+6. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+7. `rfcs/RFC-0072-implementation-checklist.md`
+
+### Slice 6B acceptance posture
+
+#### 1. Single-developer branch protection is explicit and enforced
+
+- Complete
+
+Evidence:
+
+1. branch protection requires pull requests, strict required checks, and conversation resolution,
+2. required approving review count is `0` for the single-developer operating model,
+3. the governance validator and documentation contract tests enforce the expected policy.
+
+#### 2. Application and service rollout PRs are merged
+
+- Complete
+
+Evidence:
+
+1. `lotus-workbench` PR #77 merged,
+2. `lotus-gateway` PR #102 merged,
+3. `lotus-core` PR #298 merged,
+4. `lotus-performance` PR #120 merged,
+5. `lotus-risk` PR #90 merged,
+6. `lotus-advise` PR #87 merged,
+7. `lotus-manage` PR #29 merged,
+8. `lotus-report` PR #35 merged,
+9. `lotus-ai` PR #34 merged.
+
 ## Deviation Posture
 
-There are no Slice 1 implementation deviations.
+There are no RFC-0072 implementation deviations.
 
-Known remaining work is implementation closeout, not technical rollout deviation:
+Known operational follow-up:
 
-1. merging the already-raised repo convergence PRs after required checks remain green,
-2. deleting merged feature branches and returning each repository to `main`,
-3. refreshing this checklist and the RFC status once the rollout PRs are merged.
+1. keep monitoring main-branch checks after merge,
+2. keep branch protection validation in the platform feature lane and PR merge gate,
+3. raise required approving review count above `0` only when Lotus has an independent reviewer account or multi-developer reviewer pool.

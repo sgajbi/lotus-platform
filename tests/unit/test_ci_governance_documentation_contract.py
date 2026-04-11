@@ -80,9 +80,11 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Slice 5H | Workflow action runtime baseline | Complete" in checklist
     assert "Slice 5I | Implementation-state reconciliation and governance drift cleanup | Complete" in checklist
     assert "Slice 6A | PR readiness and conflict cleanup | Complete" in checklist
+    assert "Slice 6B | Single-developer governance closeout | Complete" in checklist
     assert "stale red gateway PR #84 was closed with branch preserved" in checklist
     assert "workbench PR #77 was updated from `main`, conflict-resolved, and returned to green" in checklist
-    assert "Known remaining work is implementation closeout, not technical rollout deviation" in checklist
+    assert "There are no RFC-0072 implementation deviations" in checklist
+    assert "required approving review count is `0` for the single-developer operating model" in checklist
     assert "Current scaffold source of truth" in checklist
 
     assert "| `lotus-core` | Domain API | `.github/workflows/feature-lane.yml`, `.github/workflows/pr-merge-gate.yml`, `.github/workflows/main-releasability.yml`, `.github/workflows/pr-auto-merge.yml`" in mapping
