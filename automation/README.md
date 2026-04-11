@@ -248,6 +248,8 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 The screenshot directory receives `live-validation-summary.json`, `SHOT-INDEX.md`, and stable
 Workbench product-surface captures only after canonical endpoint, calculation, and panel validation
 passes.
+The live summary now also carries the governed canonical contract identity and version from
+`RFC-0076`, so downstream evidence consumers can prove which demo-data contract backed the run.
 
 Clean stale Lotus Docker containers and volumes before the governed bring-up:
 

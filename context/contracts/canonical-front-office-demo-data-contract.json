@@ -1,0 +1,120 @@
+{
+  "contract_id": "canonical-front-office-demo-data-contract",
+  "contract_version": "1.0.0",
+  "status": "proposed-for-rfc-0076-slice-1",
+  "last_reviewed_on": "2026-04-11",
+  "governed_by_rfc": "RFC-0076",
+  "portfolio": {
+    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "display_name": "Private Banking Singapore Global Balanced",
+    "booking_center": "Singapore",
+    "booking_entity": "Private Banking Singapore",
+    "mandate_type": "Global Balanced",
+    "base_currency": "USD",
+    "relationship_context": "advised_private_banking",
+    "supported_analysis_windows": [
+      "MTD",
+      "QTD",
+      "YTD",
+      "1Y"
+    ]
+  },
+  "benchmark": {
+    "benchmark_code": "BMK_PB_GLOBAL_BALANCED_60_40",
+    "display_name": "Private Banking Global Balanced 60/40",
+    "benchmark_type": "strategic_balanced_reference",
+    "weight_model": {
+      "equity": 0.6,
+      "fixed_income": 0.4
+    }
+  },
+  "date_policy": {
+    "canonical_as_of_date": "2026-04-10",
+    "refresh_policy": "fixed_until_governed_change",
+    "warmup_start_date": "2025-01-06",
+    "seed_start_date": "2025-03-31",
+    "projected_horizon_end_date": "2026-05-10"
+  },
+  "required_asset_coverage": [
+    "cash",
+    "equity",
+    "fixed_income",
+    "fund",
+    "private_credit",
+    "multi_currency_exposure"
+  ],
+  "required_transaction_coverage": [
+    "initial_funding",
+    "buy",
+    "sell",
+    "income",
+    "fee",
+    "withdrawal",
+    "fx_sensitive_cash_movement",
+    "projected_cashflow"
+  ],
+  "required_reference_data": [
+    "instrument_master",
+    "market_prices",
+    "fx_rates",
+    "benchmark_definition",
+    "benchmark_returns",
+    "risk_free_rates",
+    "allocation_metadata"
+  ],
+  "required_derived_state": [
+    "positions",
+    "valued_positions",
+    "position_timeseries",
+    "portfolio_timeseries",
+    "analytics_reference",
+    "performance_return_path",
+    "performance_contribution_rows",
+    "risk_snapshot",
+    "risk_concentration",
+    "risk_drawdown",
+    "risk_rolling_windows",
+    "risk_historical_attribution"
+  ],
+  "ownership": {
+    "lotus-platform": [
+      "cross_repo_governance",
+      "contract_documentation",
+      "platform_validation_summary"
+    ],
+    "lotus-core": [
+      "seed_identity",
+      "transaction_economics",
+      "holdings_and_valuations",
+      "benchmark_and_reference_seed_inputs",
+      "seed_readiness_validation"
+    ],
+    "lotus-performance": [
+      "performance_readiness_expectations",
+      "return_path_support",
+      "contribution_support"
+    ],
+    "lotus-risk": [
+      "risk_readiness_expectations",
+      "concentration_support",
+      "drawdown_support",
+      "rolling_risk_support",
+      "historical_attribution_support"
+    ],
+    "lotus-gateway": [
+      "portfolio_metadata_exposure",
+      "benchmark_linkage_exposure",
+      "truthful_downstream_contracts"
+    ],
+    "lotus-workbench": [
+      "truthful_panel_rendering",
+      "validation_evidence_alignment",
+      "no_fake_supportability"
+    ]
+  },
+  "validation_layers": [
+    "data_contract",
+    "derived_state_readiness",
+    "product_surface_readiness"
+  ]
+}

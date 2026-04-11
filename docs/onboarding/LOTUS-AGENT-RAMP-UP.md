@@ -171,8 +171,12 @@ route to the governed `lotus-workbench` runtime first:
 3. `npm run live:validate`
 4. `npm run live:stack:down`
 5. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` from `lotus-platform` when the task requires a platform-owned run summary and caller-directed screenshot pack.
+6. `../../context/contracts/canonical-front-office-demo-data-contract.json`
+7. `../../context/contracts/canonical-front-office-demo-data-invariants.json`
 
 Use `PB_SG_GLOBAL_BAL_001` unless the task explicitly requires another portfolio.
+Use the RFC-0076 contract files when you need the governed as-of date, benchmark identity, minimum
+supportability thresholds, or machine-readable canonical dataset truth.
 
 Do not default to `lotus-platform/platform-stack` as the primary front-office product bring-up path. That path owns shared infrastructure assets and ingress support, but the governed populated product-surface flow lives in `lotus-workbench`.
 
@@ -229,6 +233,7 @@ Avoid:
 7. ignoring GitHub failures because local checks passed,
 8. marking a slice complete without tests or context links.
 9. treating `lotus-platform/platform-stack` as the canonical populated front-office runtime when `lotus-workbench` already owns that governed flow.
+10. treating `PB_SG_GLOBAL_BAL_001` as a generic smoke fixture rather than a governed contract-backed dataset.
 
 ## Current RFC-0074 Boundary
 

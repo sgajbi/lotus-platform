@@ -80,12 +80,15 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
 1. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
 2. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
 3. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
-4. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary and caller-directed demo screenshot pack are required,
-5. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+4. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
+5. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary and caller-directed demo screenshot pack are required,
+6. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 
 Demo-ready screenshots must be captured only after canonical API, calculation, and panel validation passes. Pre-validation captures are diagnostic artifacts and must not be presented as demo-ready evidence.
+Machine-readable runtime evidence should preserve canonical contract identity and version, not just portfolio and route parameters.
+This runtime and dataset posture is governed by `RFC-0076`.
 
 ## Engineering Standards
 
