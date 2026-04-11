@@ -357,6 +357,33 @@ Validation must answer:
 3. which panels are expected to be ready, partial, or unavailable,
 4. whether any regression is caused by data, readiness, contract, or UI behavior.
 
+## Skills, Context, and Documentation Implications
+
+This RFC should not be implemented as a backend-only data exercise. The canonical data contract
+changes how future agents and developers should reason about front-office runtime quality.
+
+Expected guidance outcomes:
+
+1. agent and onboarding guidance should explicitly treat the canonical portfolio as governed product
+   infrastructure rather than disposable smoke data,
+2. stale references to timestamped smoke portfolios or ad hoc demo seeds should be removed where
+   they conflict with the governed contract,
+3. front-office runtime and validation guidance should point to the contract location when dataset
+   expectations matter,
+4. skill updates should be made only where they materially improve routing or reduce repeated
+   mistakes; otherwise "no change required" should be recorded consciously,
+5. documentation should clearly distinguish between:
+   - canonical demo and QA data,
+   - repo-local test fixtures,
+   - experimental or disposable seed paths.
+
+Likely candidates for review during implementation:
+
+1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+2. `lotus-platform/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
+3. `lotus-platform/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
+4. front-office runtime skills and QA/validation skills that reference seeded data behavior.
+
 ## Implementation Slices
 
 ### Slice 1: Contract Document and Machine-Readable Spec
