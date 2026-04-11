@@ -96,7 +96,7 @@ The current shape is appropriate:
 
 ```text
 python -m pytest tests\unit\test_rfc_0077_panel_registry_contract.py -q
-2 passed
+3 passed
 ```
 
 ## Review outcome

@@ -25,12 +25,12 @@
 
 ## Slice 2: Workbench Validator Adoption
 
-- [ ] Update Workbench live validation to consume registry metadata.
-- [ ] Replace duplicated hardcoded panel metadata where the registry improves clarity.
-- [ ] Keep browser interaction steps explicit where imperative logic is still safer.
-- [ ] Add high-value tests for panel classification, screenshot naming, and unsupported blank failure behavior.
-- [ ] Remove dead duplicated metadata made obsolete by the registry.
-- [ ] Review validator readability and maintainability before moving on.
+- [x] Update Workbench live validation to consume registry metadata.
+- [x] Replace duplicated hardcoded panel metadata where the registry improves clarity.
+- [x] Keep browser interaction steps explicit where imperative logic is still safer.
+- [x] Add high-value tests for panel classification, screenshot naming, and unsupported blank failure behavior.
+- [x] Remove dead duplicated metadata made obsolete by the registry.
+- [x] Review validator readability and maintainability before moving on.
 
 ## Slice 3: Gateway and Panel Supportability Alignment
 
@@ -53,6 +53,6 @@
 
 - [ ] Registry schema and registry document are versioned, governed, and machine-readable.
 - [ ] Initial governed panel inventory is explicit and test-backed.
-- [ ] Workbench validation consumes the registry without duplicated stale metadata.
+- [x] Workbench validation consumes the registry without duplicated stale metadata.
 - [ ] Meaningful tests exist for registry drift and slice evidence.
 - [ ] CI evidence is truthful.
