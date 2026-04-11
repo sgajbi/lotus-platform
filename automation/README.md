@@ -238,6 +238,20 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 - `output/front-office-qa/latest.json`
 - `output/front-office-qa/latest.md`
 
+Clean stale Lotus Docker containers and volumes before the governed bring-up:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages
+```
+
+Run full explicit Lotus cleanup, including matching local Lotus images, without starting the stack:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
+```
+
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts before cleanup, after cleanup, and after the run.
+
 Run backend/runtime QA readiness automation (startup + API/log/metrics/standards checks):
 
 ```powershell

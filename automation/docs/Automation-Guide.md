@@ -38,6 +38,8 @@ Canonical source: `lotus-platform/automation`
 | Enforce local-vs-CI scope parity (fail on gap) | `automation/Validate-Local-CI-Parity.ps1` | Prevent PR failures caused by missing local checks |
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |
 | Canonical front-office readiness validation | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` | Bring up the governed `lotus-workbench` runtime and validate populated UI/product surfaces |
+| Canonical front-office clean rebuild | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages` | Clean stale Lotus containers and volumes, rebuild images through the governed workbench runtime, and validate populated UI/product surfaces |
+| Canonical front-office full cleanup | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages` | Remove stale Lotus containers, volumes, and matching local Lotus images without starting the stack |
 | Backend/runtime QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up backend services and validate API/log/observability/standards |
 | Backend/runtime QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File backend/runtime defects with evidence in each repo |
 | Seeded cross-app TWR + benchmark validation | `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware portfolio scenario |
@@ -48,6 +50,8 @@ Canonical source: `lotus-platform/automation`
 | Reuse an existing stable cross-app scenario | `automation/Invoke-CrossApp-CorePerformance-*.ps1 -SkipSeed -ScenarioSuffix <suffix>` | Revalidate a known seeded scenario while fresh-seed analytics readiness is unstable |
 | Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
 | Explain local dev ingress rollout state | `automation/Explain-Dev-Ingress-Status.ps1` | Determine whether DNS is missing, staged hosts need to be applied, or services are unhealthy, and emit the exact compose refresh command when service routing is the problem |
+
+Canonical front-office QA writes Docker cleanup scope and before/after artifact counts to `output/front-office-qa/latest.json` and `output/front-office-qa/latest.md`. Use `-Clean` for stale-container and stale-volume ambiguity, and add `-RemoveImages` only when image freshness matters more than startup speed.
 
 ## Dev Ingress Operator Loop
 
