@@ -419,7 +419,7 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "Onboarding should not silently start Docker stacks",
         "Do not overwrite local Codex guidance blindly",
         "Do not run full local CI reflexively",
-        "Until those slices are complete, do not assume bootstrap scripts or platform-owned skill sync exist.",
+        "Platform-owned skill artifacts now exist, but skill synchronization automation is not implemented yet.",
         "http://workbench.dev.lotus",
         "http://gateway.dev.lotus",
         "gh pr checks <pr-number> --watch=false",
@@ -435,7 +435,6 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
         encoding="utf-8"
     )
 
-    assert "Implementation posture: `Approved | Slice 3 complete`" in checklist
     assert "Slice 3 | Agent ramp-up guide and first-prompt standard | Complete" in checklist
     assert "docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in checklist
     assert "../docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in reference_map
@@ -480,6 +479,64 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
         "lotus-pr-premerge-gate",
         "gh pr checks <pr-number> --watch=false",
         "Do not update durable context for transient CI state unless it becomes a repeatable pattern.",
-        "Until those slices are complete, do not assume platform-owned skill sync or bootstrap readiness scripts exist.",
+        "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`",
     ):
         assert required_phrase in ramp_up
+
+
+def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    developer_onboarding = (ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md").read_text(
+        encoding="utf-8"
+    )
+    ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(encoding="utf-8")
+    skills_root = ROOT / "codex" / "skills"
+    manifest = json.loads((skills_root / "lotus-skill-manifest.json").read_text(encoding="utf-8"))
+    readme = (skills_root / "README.md").read_text(encoding="utf-8")
+
+    assert "Implementation posture: `Approved | Slice 4 complete`" in checklist
+    assert "Slice 4 | Skill distribution and synchronization design | Complete" in checklist
+    assert "codex/skills/lotus-skill-manifest.json" in checklist
+    assert "../../codex/skills/README.md" in developer_onboarding
+    assert "lotus-platform/codex/skills" in ramp_up
+
+    expected_skills = {
+        "gh-issue-fix-qa-loop",
+        "lotus-backend-delivery-governance",
+        "lotus-codebase-review-ledger",
+        "lotus-frontend-delivery-governance",
+        "lotus-methodology-doc-v3",
+        "lotus-pr-premerge-gate",
+        "lotus-qa-platform-validator",
+        "lotus-rfc-review-loop",
+        "lotus-rfc0067-rollout",
+        "lotus-transaction-rfc-loop",
+        "lotus-validation-resolution-lifecycle",
+        "platform-automation-ops",
+        "platform-pulse-monitor",
+        "targeted-service-refresh",
+    }
+    manifest_names = {entry["name"] for entry in manifest["skills"]}
+    directory_names = {path.name for path in skills_root.iterdir() if path.is_dir()}
+
+    assert manifest["source"] == "lotus-platform/codex/skills"
+    assert manifest["unknown_local_skill_policy"] == "preserve"
+    assert manifest_names == expected_skills
+    assert directory_names == expected_skills
+
+    for entry in manifest["skills"]:
+        skill_dir = ROOT / entry["path"]
+        skill_doc = skill_dir / "SKILL.md"
+        assert skill_dir.exists()
+        assert skill_doc.exists()
+        assert f"name: {entry['name']}" in skill_doc.read_text(encoding="utf-8")
+
+    assert any(entry["name"] == "gh-issue-fix-qa-loop" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
+    assert "Unknown local skills must be preserved" in readme
+
+    for path in skills_root.rglob("*"):
+        if path.is_file():
+            text = path.read_text(encoding="utf-8")
+            assert "pbwm-platform-docs" not in text
+            assert "C:\\Users\\Sandeep" not in text
+            assert "--squash --delete-branch" not in text

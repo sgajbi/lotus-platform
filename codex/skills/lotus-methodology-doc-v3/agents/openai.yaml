@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Methodology Doc V3"
+  short_description: "Upgrade metric methodology docs to v3 standard"
+  default_prompt: "Use this skill to upgrade methodology docs with precise formulas, algorithm steps, validation behavior, and tabular worked examples."

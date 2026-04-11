@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lotus Frontend Delivery Governance"
+  short_description: "Apply Lotus frontend CI, browser validation, and PR standards"

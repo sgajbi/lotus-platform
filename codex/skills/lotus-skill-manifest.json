@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "source": "lotus-platform/codex/skills",
+  "sync_target": "C:\\Users\\<user>\\.codex\\skills",
+  "unknown_local_skill_policy": "preserve",
+  "skills": [
+    {
+      "name": "gh-issue-fix-qa-loop",
+      "path": "codex/skills/gh-issue-fix-qa-loop",
+      "category": "supporting-github-workflow",
+      "directly_lotus_owned": false,
+      "reason": "Required by the Lotus validation resolution lifecycle skill for issue-status updates."
+    },
+    {
+      "name": "lotus-backend-delivery-governance",
+      "path": "codex/skills/lotus-backend-delivery-governance",
+      "category": "backend-delivery-governance",
+      "directly_lotus_owned": true,
+      "reason": "Backend delivery governance for Lotus domain and capability services."
+    },
+    {
+      "name": "lotus-codebase-review-ledger",
+      "path": "codex/skills/lotus-codebase-review-ledger",
+      "category": "codebase-review",
+      "directly_lotus_owned": true,
+      "reason": "Pattern-based Lotus codebase review with durable review ledger."
+    },
+    {
+      "name": "lotus-frontend-delivery-governance",
+      "path": "codex/skills/lotus-frontend-delivery-governance",
+      "category": "frontend-delivery-governance",
+      "directly_lotus_owned": true,
+      "reason": "Frontend delivery governance for Lotus product surfaces."
+    },
+    {
+      "name": "lotus-methodology-doc-v3",
+      "path": "codex/skills/lotus-methodology-doc-v3",
+      "category": "methodology-documentation",
+      "directly_lotus_owned": true,
+      "reason": "Auditable methodology documentation standard for analytics metrics."
+    },
+    {
+      "name": "lotus-pr-premerge-gate",
+      "path": "codex/skills/lotus-pr-premerge-gate",
+      "category": "pr-governance",
+      "directly_lotus_owned": true,
+      "reason": "Lotus pre-merge verification workflow aligned to RFC-0072."
+    },
+    {
+      "name": "lotus-qa-platform-validator",
+      "path": "codex/skills/lotus-qa-platform-validator",
+      "category": "platform-qa",
+      "directly_lotus_owned": true,
+      "reason": "Platform QA validation workflow for Lotus services."
+    },
+    {
+      "name": "lotus-rfc-review-loop",
+      "path": "codex/skills/lotus-rfc-review-loop",
+      "category": "rfc-governance",
+      "directly_lotus_owned": true,
+      "reason": "RFC review and governance workflow for Lotus repositories."
+    },
+    {
+      "name": "lotus-rfc0067-rollout",
+      "path": "codex/skills/lotus-rfc0067-rollout",
+      "category": "api-contract-governance",
+      "directly_lotus_owned": true,
+      "reason": "RFC-0067 OpenAPI and vocabulary rollout workflow."
+    },
+    {
+      "name": "lotus-transaction-rfc-loop",
+      "path": "codex/skills/lotus-transaction-rfc-loop",
+      "category": "transaction-rfc-delivery",
+      "directly_lotus_owned": true,
+      "reason": "Lotus transaction RFC delivery loop for lotus-core."
+    },
+    {
+      "name": "lotus-validation-resolution-lifecycle",
+      "path": "codex/skills/lotus-validation-resolution-lifecycle",
+      "category": "validation-resolution",
+      "directly_lotus_owned": true,
+      "reason": "End-to-end validation, issue, PR, merge, and revalidation lifecycle."
+    },
+    {
+      "name": "platform-automation-ops",
+      "path": "codex/skills/platform-automation-ops",
+      "category": "platform-automation",
+      "directly_lotus_owned": true,
+      "reason": "Async platform automation operation patterns."
+    },
+    {
+      "name": "platform-pulse-monitor",
+      "path": "codex/skills/platform-pulse-monitor",
+      "category": "platform-monitoring",
+      "directly_lotus_owned": true,
+      "reason": "Cross-repo sync and PR monitoring pulse workflow."
+    },
+    {
+      "name": "targeted-service-refresh",
+      "path": "codex/skills/targeted-service-refresh",
+      "category": "runtime-refresh",
+      "directly_lotus_owned": true,
+      "reason": "Minimal-impact service refresh workflow for changed services."
+    }
+  ]
+}

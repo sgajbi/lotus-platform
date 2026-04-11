@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus RFC Review Loop"
+  short_description: "Iterative Lotus RFC audit loop"
+  default_prompt: "Run the Lotus RFC review loop: inventory RFCs, classify status against implementation, standardize docs, and update index/actions."

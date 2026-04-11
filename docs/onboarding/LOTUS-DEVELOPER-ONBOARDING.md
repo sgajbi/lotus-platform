@@ -169,7 +169,12 @@ The deployed local copy normally lives at:
 C:\Users\<user>\.codex\AGENTS.md
 ```
 
-Until RFC-0074 later slices introduce platform-owned skill distribution, Lotus skills may still exist in the local Codex profile. Treat local profile state as a consumer of platform guidance, not the source of truth.
+The platform-owned Lotus skill source is:
+
+1. [Lotus Codex Skills](../../codex/skills/README.md)
+2. [Lotus Skill Manifest](../../codex/skills/lotus-skill-manifest.json)
+
+Treat the local Codex profile as a consumer of platform guidance, not the source of truth.
 
 To check global `AGENTS.md` drift from the governed source:
 
@@ -309,10 +314,8 @@ At Slice 2, this guide is the onboarding entrypoint.
 
 Later RFC-0074 slices will add:
 
-1. agent ramp-up guide,
-2. platform-owned skill distribution,
-3. bootstrap and validation automation,
-4. onboarding drift controls,
-5. repository-local cross-links.
+1. bootstrap and validation automation,
+2. onboarding drift controls,
+3. repository-local cross-links.
 
-Until those slices are complete, do not assume bootstrap scripts or platform-owned skill sync exist.
+Platform-owned skill artifacts now exist, but skill synchronization automation is not implemented yet. Until that later slice is complete, do not assume bootstrap scripts or automated platform-owned skill sync exist.

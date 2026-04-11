@@ -1,0 +1,181 @@
+---
+name: lotus-pr-premerge-gate
+description: "Enforce Lotus pre-merge verification using the platform multi-lane CI model. Use when preparing to open, update, or merge a PR in any Lotus repo and the goal is zero avoidable CI failures: run repository-native local gates, map the change to Feature Lane and PR Merge Gate expectations, verify required GitHub checks are green, confirm evidence is truthful, then complete merge and branch hygiene."
+---
+
+# Lotus PR Premerge Gate
+
+## Overview
+
+Use this skill to prevent merge churn by enforcing a fixed sequence: local verification, CI verification, merge decision, and post-merge cleanup.
+
+Apply it in line with:
+
+1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
+3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
+4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
+
+Use `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` as the operating sequence and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when a required check fails.
+
+## Workspace Scope
+
+The governed source for this skill is `lotus-platform/codex/skills/lotus-pr-premerge-gate`.
+
+Apply it consistently in all Lotus repos unless a repo explicitly defines a stricter policy.
+
+## Workflow
+
+### 0) Repo-focus lock (required)
+
+Before any PR, merge, or cleanup action:
+
+1. Confirm intended repo path explicitly.
+2. Confirm repo identity:
+   - `git rev-parse --show-toplevel`
+   - `git remote -v`
+3. If repo does not match active user intent, stop and switch to the correct repo first.
+
+### 1) Pre-flight baseline
+
+1. Confirm branch status and divergence:
+   - `git status --short --branch`
+   - `git fetch origin --prune`
+2. Confirm scope of change:
+   - `git diff --name-only origin/main...HEAD`
+3. If scope is broad, split into smaller PRs before proceeding.
+
+### 1.1) Branch policy (single-developer optimized)
+
+1. Always branch from `main`.
+2. Use one branch per RFC or implementation slice.
+3. Never commit directly to `main`, even in single-developer mode.
+4. Prefer small, auditable commits and frequent push cadence.
+
+### 2) Mandatory local gate pack
+
+Run gates in this order and fail fast:
+
+1. Static quality:
+   - repo-native lint command
+   - repo-native typecheck command
+2. Fast tests:
+   - Targeted unit tests for changed modules.
+3. Contract/API gates (when API/schema touched):
+   - OpenAPI quality gate.
+   - API vocabulary generation/validation per RFC-0067.
+4. Integration slice:
+   - Changed service integration tests.
+5. Runtime confidence:
+   - Docker smoke and latency gate (if service/runtime behavior changed).
+
+Rule:
+
+1. use repository-native commands such as `make check`, `make lint`, `npm run typecheck`, or equivalent;
+2. do not invent ad hoc one-off commands if the repo already defines canonical local gates.
+
+Rule: do not push merge intent if any local gate is red.
+
+### 2.1) Tiered CI strategy (required)
+
+1. Fast PR tier (blocking):
+   - Feature Lane + PR Merge Gate checks relevant to the repository profile.
+2. Heavy tier (scheduled/manual/main):
+   - Main Releasability Gate and Platform End-to-End Validation checks.
+3. Do not run heavy-tier checks as blocking on every PR unless explicitly required for high-risk changes.
+
+Map the repo to one of these profiles before deciding what "required" means:
+
+1. UI Product
+2. Experience API
+3. Domain API
+4. Platform Governance / Automation
+5. Shared Capability Service
+
+### 3) PR check policy
+
+1. Push only after local gates are green.
+2. Open/update PR with explicit evidence section listing commands and pass results.
+3. PR is mandatory in single-developer mode.
+4. Human review approval is optional in the single-developer baseline; required GitHub checks, conversation resolution, and truthful evidence are the approval control.
+3. Monitor required checks via GitHub CLI:
+   - `gh pr checks <PR_NUMBER> --watch`
+4. If any required check fails:
+   - Diagnose from logs.
+   - Fix-forward in same branch.
+   - Re-run affected local gates before pushing again.
+
+Rule: never enable merge (or auto-merge) while any required check is failing or pending with known instability.
+
+Definition of green:
+
+1. local repository-native gates are green,
+2. required PR checks are green in GitHub,
+3. no known flaky required check is being ignored,
+4. PR evidence matches what actually ran.
+
+### 4) Merge decision gate
+
+Allow merge only when all conditions are true:
+
+1. Required GitHub checks are green.
+2. No unresolved conversations, explicitly blocking review comments, or requested changes.
+3. Local repo state is clean and branch contains only intended commits.
+4. PR description accurately reflects shipped behavior.
+
+If one condition is false, block merge.
+
+In single-developer mode, do not block merge only because no human approval review exists. The governed branch-protection baseline uses required approving review count `0`.
+
+If the change affects canonical UI behavior, cross-app integration, or platform runtime assumptions, also confirm whether Platform End-to-End Validation evidence is required before merge.
+
+### 5) Post-merge hygiene
+
+After merge completes:
+
+1. Delete remote branch.
+2. Delete local feature branch.
+3. Switch to main and sync:
+   - `git checkout main`
+   - `git pull --ff-only origin main`
+4. Confirm clean and aligned state:
+   - `git status --short --branch`
+   - `git branch -vv`
+5. Confirm authoritative remote branch state (server truth):
+   - `git ls-remote --heads origin`
+6. Confirm GitHub PR state:
+   - `gh pr list --state open --limit 100`
+
+Target end-state: local = remote = main.
+
+### 5.1) Branch cleanup policy
+
+1. Delete merged remote feature branch.
+2. Delete corresponding local branch.
+3. Ensure no stale working files remain.
+
+## Evidence template (use in PR body)
+
+1. `Static:` ruff, mypy
+2. `Unit:` targeted module tests
+3. `Integration:` affected suites
+4. `Runtime:` docker smoke, latency, fast performance gate (if applicable)
+5. `Governance:` OpenAPI + RFC-0067 vocabulary checks (if applicable)
+6. `Tiering:` confirm whether heavy checks are PR-blocking or scheduled/manual for this change
+
+## Additional Lotus Rules
+
+1. Never merge a repo-local green branch if platform-level required evidence is still red for the affected surface.
+2. If a required check is flaky, treat it as a governance defect; do not silently work around it.
+3. If branch protection is weaker than the platform standard, call that out explicitly in the final response.
+4. Keep merge strategy aligned to repo policy; do not squash unless the user or repo policy requires it.
+
+## Non-negotiables
+
+1. Never merge on red checks.
+2. Never skip local verification for speed.
+3. Never leave branch hygiene incomplete after merge.
+4. If a gate is flaky, stabilize the gate or make readiness explicit before merge.
+5. In single-developer mode, PR and CI checks replace human approval; they are mandatory.
+6. Branch cleanup must be verified with both local refs (`git branch -r`) and remote server truth (`git ls-remote --heads origin`).

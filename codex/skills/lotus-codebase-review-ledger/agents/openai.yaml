@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Review Ledger"
+  short_description: "Systematic codebase review and sign-off"
+  default_prompt: "Use $lotus-codebase-review-ledger to run a pattern-based review, update the ledger, and record sign-off evidence."

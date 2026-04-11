@@ -2,14 +2,14 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 3 complete`
+Implementation posture: `Approved | Slice 4 complete`
 
 ## Slice Status
 
 - `Slice 1 | Onboarding RFC approval and documentation skeleton | Complete`
 - `Slice 2 | Developer onboarding guide | Complete`
 - `Slice 3 | Agent ramp-up guide and first-prompt standard | Complete`
-- `Slice 4 | Skill distribution and synchronization design | Pending`
+- `Slice 4 | Skill distribution and synchronization design | Complete`
 - `Slice 5 | Bootstrap and validation automation | Pending`
 - `Slice 6 | Validation coverage and drift control | Pending`
 - `Slice 7 | Repository-local cross-link rollout | Pending`
@@ -69,14 +69,20 @@ Current source of truth:
 
 ### Slice 4 | Skill distribution and synchronization design
 
-Planned:
+Implemented:
 
-1. establish `codex/skills/` or approved equivalent as platform-owned source for Lotus skills,
-2. add a skill manifest or equivalent inventory for Lotus-owned skills,
-3. define safe synchronization into the local Codex skill directory,
-4. preserve local non-Lotus skills,
-5. report missing, stale, locally modified, and source-unavailable skill states,
-6. document source-of-truth ownership and drift behavior.
+1. established `codex/skills/` as the platform-owned source for Lotus skills,
+2. added `codex/skills/lotus-skill-manifest.json` as the governed skill inventory,
+3. copied and reviewed Lotus-owned skills and one required supporting GitHub issue-loop skill,
+4. removed stale local-machine and legacy `pbwm-platform-docs` references from the governed skill copies,
+5. documented source-of-truth ownership, unknown local skill preservation, and future sync states in `codex/skills/README.md`,
+6. added contract-test coverage for the skill inventory and stale-reference guardrails.
+
+Current source of truth:
+
+1. the governed Lotus skill source directory is `codex/skills/`.
+2. the governed skill inventory is `codex/skills/lotus-skill-manifest.json`.
+3. Slice 5 is the next permitted implementation slice.
 
 ### Slice 5 | Bootstrap and validation automation
 

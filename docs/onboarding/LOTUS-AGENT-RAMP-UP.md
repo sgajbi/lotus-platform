@@ -210,9 +210,8 @@ At Slice 3, this guide defines agent ramp-up and first prompt behavior.
 
 Later RFC-0074 slices will add:
 
-1. platform-owned skill distribution,
-2. bootstrap and validation automation,
-3. onboarding drift controls,
-4. repository-local cross-links.
+1. bootstrap and validation automation,
+2. onboarding drift controls,
+3. repository-local cross-links.
 
-Until those slices are complete, do not assume platform-owned skill sync or bootstrap readiness scripts exist.
+Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`, but automated skill sync and bootstrap readiness scripts are not implemented yet. Until those later slices are complete, do not assume automated platform-owned skill sync or bootstrap readiness scripts exist.

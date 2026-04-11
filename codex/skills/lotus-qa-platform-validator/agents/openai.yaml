@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus QA Validator"
+  short_description: "Validate Lotus services for platform readiness"
+  default_prompt: "Run platform QA automation for the requested Lotus repo, gather evidence artifacts, and file defects with reproducible details when requested."

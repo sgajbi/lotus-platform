@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lotus PR Premerge Gate"
+  short_description: "Run Lotus pre-merge verification with platform CI governance"
