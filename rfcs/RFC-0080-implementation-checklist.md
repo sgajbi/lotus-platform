@@ -41,10 +41,10 @@
 
 ## Slice 4: AGENTS and Context Synchronization
 
-- [ ] Update AGENTS guidance where the routing changes materially improve future sessions.
-- [ ] Update central context and onboarding docs where they should point to the governed runtime path.
-- [ ] Keep context concise and linked rather than duplicative.
-- [ ] Record conscious no-change decisions where updates are unnecessary.
+- [x] Update AGENTS guidance where the routing changes materially improve future sessions.
+- [x] Update central context and onboarding docs where they should point to the governed runtime path.
+- [x] Keep context concise and linked rather than duplicative.
+- [x] Record conscious no-change decisions where updates are unnecessary.
 
 ## Slice 5: Validation of Agent Routing Behavior
 

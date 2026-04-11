@@ -77,7 +77,8 @@ The canonical relationship model is:
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:
 
-1. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
+1. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
+2. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
 2. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
 3. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
 4. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
@@ -248,11 +249,12 @@ Agents working in Lotus are expected to operate like disciplined banking-grade e
 
 Use the right skill or workflow for the task:
 
-1. backend delivery governance for backend repos,
-2. frontend delivery governance for UI work,
-3. PR pre-merge governance for merge preparation,
-4. QA or platform validator skills for stack and platform validation,
-5. RFC or documentation skills for governance work.
+1. `lotus-front-office-runtime` for canonical populated Workbench runtime, demo screenshots, and panel-proof tasks,
+2. backend delivery governance for backend repos,
+3. frontend delivery governance for UI work,
+4. PR pre-merge governance for merge preparation,
+5. QA or platform validator skills for stack and platform validation,
+6. RFC or documentation skills for governance work.
 
 When a repeatable pattern emerges:
 
@@ -315,6 +317,14 @@ Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when you want the smallest
 2. backend API and domain-service work,
 3. cross-app integration and platform validation work,
 4. standards, RFC, and governance work.
+
+Use the [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when you need the smallest correct
+skill boundary for:
+
+1. canonical front-office runtime work,
+2. platform QA vs product-surface proof,
+3. delivery governance vs PR governance,
+4. async GitHub-heavy execution posture.
 
 Use [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when you need a human-readable view of:
 

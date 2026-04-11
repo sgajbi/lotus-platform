@@ -192,3 +192,43 @@ def test_rfc_0080_slice_3_hardens_existing_skill_boundaries() -> None:
     assert "use `lotus-front-office-runtime` as the" in frontend_skill
     assert "do not claim UI readiness from backend checks alone" in backend_skill
     assert "compose this skill with `lotus-front-office-runtime`" in lifecycle_skill
+
+
+def test_rfc_0080_slice_4_synchronizes_agents_and_context() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0080-implementation-checklist.md").read_text(
+        encoding="utf-8"
+    )
+    evidence = (
+        ROOT / "rfcs" / "RFC-0080-slice-4-agents-context-synchronization-evidence.md"
+    ).read_text(encoding="utf-8")
+    agents_contract = (ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md").read_text(
+        encoding="utf-8"
+    )
+    engineering_context = (ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md").read_text(
+        encoding="utf-8"
+    )
+    ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(
+        encoding="utf-8"
+    )
+    deployed_agents = Path(r"C:\Users\Sandeep\.codex\AGENTS.md").read_text(encoding="utf-8")
+
+    for required_item in (
+        "## Slice 4: AGENTS and Context Synchronization",
+        "- [x] Update AGENTS guidance where the routing changes materially improve future sessions.",
+        "- [x] Keep context concise and linked rather than duplicative.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "`context/AGENTS-OPERATING-CONTRACT.md`",
+        "`context/LOTUS-ENGINEERING-CONTEXT.md`",
+        "`docs/onboarding/LOTUS-AGENT-RAMP-UP.md`",
+        r"`C:\Users\Sandeep\.codex\AGENTS.md`",
+    ):
+        assert required_item in evidence
+
+    assert "LOTUS-SKILL-ROUTING-MAP.md" in agents_contract
+    assert "choose `lotus-front-office-runtime` first" in agents_contract
+    assert "Use the [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md)" in engineering_context
+    assert "[Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md)" in ramp_up
+    assert "choose `lotus-front-office-runtime` first" in deployed_agents

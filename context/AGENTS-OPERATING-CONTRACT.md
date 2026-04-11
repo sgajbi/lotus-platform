@@ -48,6 +48,9 @@ That means:
 
 When the task matches an available Lotus skill, use it.
 
+Before choosing between overlapping Lotus skills, consult
+`lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`.
+
 Prefer:
 
 1. standards, validators, and runbooks before inventing a new pattern,
@@ -55,6 +58,10 @@ Prefer:
 3. targeted local checks for quick proof,
 4. GitHub-backed heavy execution for expensive full validation,
 5. async monitoring and fix-forward work rather than blocking on long reruns.
+
+When a task is explicitly about canonical populated Workbench surfaces, demo screenshots, or
+`PB_SG_GLOBAL_BAL_001`, choose `lotus-front-office-runtime` first and use broader QA or delivery
+skills only as supporting guidance.
 
 ## Front-Office Runtime Routing Rule
 
@@ -102,6 +109,7 @@ Update the relevant context artifacts when:
 If the change is platform-wide:
 
 1. update the central context system in `lotus-platform/context/`.
+2. update `LOTUS-SKILL-ROUTING-MAP.md` if task routing expectations changed.
 
 If the change is repository-local:
 
@@ -119,11 +127,12 @@ Central context system:
 2. `<lotus-platform>/context/LOTUS-ENGINEERING-CONTEXT.md`
 3. `<lotus-platform>/context/CONTEXT-REFERENCE-MAP.md`
 4. `<lotus-platform>/context/PROCEDURAL-MEMORY-INDEX.md`
-5. `<lotus-platform>/context/lotus-context-manifest.json`
-6. `<lotus-platform>/context/platform-engineering-ledger.md`
-7. `<lotus-platform>/context/recent-architectural-decisions-digest.md`
-8. `<lotus-platform>/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
-9. `<lotus-platform>/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
+5. `<lotus-platform>/context/LOTUS-SKILL-ROUTING-MAP.md`
+6. `<lotus-platform>/context/lotus-context-manifest.json`
+7. `<lotus-platform>/context/platform-engineering-ledger.md`
+8. `<lotus-platform>/context/recent-architectural-decisions-digest.md`
+9. `<lotus-platform>/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
+10. `<lotus-platform>/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
 
 Repository-local context:
 
