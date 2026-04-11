@@ -16,7 +16,7 @@ Apply it in line with:
 5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
 6. Lotus UI and gateway ownership rules already established in platform RFCs
 
-Use [Change Playbooks](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md) for task sequencing, [Validation Playbook](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md) for proof selection, and [Fix-Forward Patterns](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md) when GitHub or runtime evidence surfaces a real defect.
+Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing, `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` for proof selection, and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when GitHub or runtime evidence surfaces a real defect.
 
 ## Context-First Rule
 

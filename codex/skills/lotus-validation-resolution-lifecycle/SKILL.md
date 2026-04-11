@@ -13,9 +13,9 @@ Before substantial lifecycle work, read:
 
 Use:
 
-1. [Validation Playbook](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md) for validation-depth choices,
-2. [PR Loop Playbook](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md) for PR progression and merge hygiene,
-3. [Fix-Forward Patterns](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md) when failures recur.
+1. `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` for validation-depth choices,
+2. `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` for PR progression and merge hygiene,
+3. `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when failures recur.
 
 Run this lifecycle:
 1. Bring up application and run API/observability/platform checks.

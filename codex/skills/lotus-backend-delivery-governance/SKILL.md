@@ -16,7 +16,7 @@ Apply it in line with:
 5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
 6. repository-local RFCs and standards already in force
 
-Use [Change Playbooks](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md) for task sequencing and [Validation Playbook](C:/Users/Sandeep/projects/lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md) when deciding how much proof is required.
+Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
 ## Context-First Rule
 

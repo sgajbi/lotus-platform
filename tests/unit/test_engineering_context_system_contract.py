@@ -539,4 +539,5 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
             text = path.read_text(encoding="utf-8")
             assert "pbwm-platform-docs" not in text
             assert "C:\\Users\\Sandeep" not in text
+            assert "C:/Users/Sandeep" not in text
             assert "--squash --delete-branch" not in text
