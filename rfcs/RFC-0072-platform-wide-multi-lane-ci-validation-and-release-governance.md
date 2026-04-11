@@ -355,7 +355,7 @@ Minimum required controls:
 2. static lint/type safety enforcement,
 3. secrets hygiene in committed source and workflow design,
 4. container build validation where containers are part of the runtime,
-5. branch protection and required review enforcement,
+5. branch protection, required-check enforcement, and conversation-resolution enforcement,
 6. auditability of merge evidence through retained workflow records.
 
 Planned platform baseline for progressive rollout:
@@ -499,10 +499,14 @@ The platform standard is:
 
 1. `main` must be protected in all Lotus repositories,
 2. direct pushes to `main` are not allowed except explicitly governed emergency paths,
-3. PR review is required,
+3. PRs are required before merge,
 4. required PR checks must be green before merge,
-5. auto-merge is allowed only when all required checks are green,
-6. merge queue or equivalent serialized merge discipline is preferred where repository throughput warrants it.
+5. required approving review count is `0` in the single-developer operating model,
+6. unresolved conversations or explicitly blocking review comments must be resolved,
+7. auto-merge is allowed only when all required checks are green,
+8. merge queue or equivalent serialized merge discipline is preferred where repository throughput warrants it.
+
+Human approval reviews are optional in the single-developer operating model because there is no independent second reviewer account. The control objective is retained through mandatory PRs, strict required checks, protected `main`, conversation resolution, truthful PR evidence, and GitHub audit history. Multi-developer or regulated-team operation can raise required approving review count above `0` without changing the rest of this model.
 
 Merge strategy:
 

@@ -27,3 +27,22 @@ def test_compare_governance_reports_drift_for_missing_branch_protection() -> Non
     assert any(item.startswith("protected:") for item in drift)
     assert any(item.startswith("required_checks:") for item in drift)
     assert any(item.startswith("allow_auto_merge:") for item in drift)
+
+
+def test_single_developer_governance_keeps_ci_gates_without_human_approval() -> None:
+    expected_repo = ExpectedRepositoryGovernance(
+        name="lotus-platform",
+        default_branch="main",
+        required_checks=("PR Merge Gate / Workflow Lint", "PR Merge Gate / Platform Repo Contracts"),
+    )
+
+    expected = expected_governance(expected_repo)
+
+    assert expected["approvals"] == 0
+    assert expected["protected"] is True
+    assert expected["strict"] is True
+    assert expected["require_conversation_resolution"] is True
+    assert expected["required_checks"] == [
+        "PR Merge Gate / Platform Repo Contracts",
+        "PR Merge Gate / Workflow Lint",
+    ]

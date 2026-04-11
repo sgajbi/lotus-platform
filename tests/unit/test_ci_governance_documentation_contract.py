@@ -311,7 +311,7 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "automation/repository-governance-policy.json" in governance_enforcer
     assert "required_linear_history = $false" in governance_enforcer
     assert "required_conversation_resolution = $true" in governance_enforcer
-    assert "required_approving_review_count = 1" in governance_enforcer
+    assert "required_approving_review_count = 0" in governance_enforcer
     assert "Repository Governance Enforcement" in governance_enforcer
     assert "repository-governance-validation" in (ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8")
     assert "def fetch_repository_governance" in governance_validator

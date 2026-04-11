@@ -198,8 +198,16 @@ Mandatory `main` protections:
 Auto-merge:
 
 1. allowed when all required checks are green,
-2. must not bypass required reviews,
-3. must not bypass required checks.
+2. must not bypass required checks,
+3. must not bypass unresolved conversations or explicitly blocking review comments.
+
+Single-developer baseline:
+
+1. pull requests remain mandatory,
+2. required GitHub checks act as the approval control,
+3. required approving review count is `0`,
+4. conversation resolution remains required,
+5. human review gates can be added later for multi-developer or regulated-team operation without weakening CI requirements.
 
 Merge strategy:
 

@@ -89,7 +89,9 @@ Required end state: `local = remote = main`.
 When reviewer approval is not required:
 1. PR remains mandatory.
 2. CI checks act as approval control.
-3. Auto-merge is allowed only after required checks are green.
+3. Required approving review count is `0`.
+4. Conversation resolution remains required.
+5. Auto-merge is allowed only after required checks are green.
 
 ## Multi-Developer Mode
 When reviewer approval is required:

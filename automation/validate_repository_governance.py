@@ -97,7 +97,7 @@ def expected_governance(expected: ExpectedRepositoryGovernance) -> dict[str, Any
         "protected": True,
         "required_checks": sorted(expected.required_checks),
         "strict": True,
-        "approvals": 1,
+        "approvals": 0,
         "dismiss_stale_reviews": True,
         "require_conversation_resolution": True,
         "required_linear_history": False,

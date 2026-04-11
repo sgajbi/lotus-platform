@@ -60,8 +60,10 @@ Do not claim commands or coverage that were not actually run.
 Before merge:
 
 1. required GitHub checks must be green,
-2. unresolved critical review or governance issues must be closed,
+2. unresolved conversations, explicitly blocking review comments, or governance issues must be closed,
 3. the PR description must still match the shipped behavior.
+
+In the single-developer Lotus operating model, approving human reviews are not required. PRs, protected `main`, required checks, conversation resolution, and audit evidence are the approval control.
 
 After merge:
 
