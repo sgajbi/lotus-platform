@@ -379,7 +379,6 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         encoding="utf-8"
     )
 
-    assert "Implementation posture: `Approved | Slice 2 complete`" in checklist
     assert "Slice 2 | Developer onboarding guide | Complete" in checklist
     assert "docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in checklist
     assert "../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md" in reference_map
@@ -427,3 +426,60 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "powershell -ExecutionPolicy Bypass -File automation\\Sync-Dev-Ingress-Hosts.ps1 -Apply",
     ):
         assert required_phrase in onboarding
+
+
+def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0074-implementation-checklist.md").read_text(encoding="utf-8")
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "Implementation posture: `Approved | Slice 3 complete`" in checklist
+    assert "Slice 3 | Agent ramp-up guide and first-prompt standard | Complete" in checklist
+    assert "docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in checklist
+    assert "../docs/onboarding/LOTUS-AGENT-RAMP-UP.md" in reference_map
+
+    for required_link in (
+        "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
+        "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
+        "../../context/LOTUS-QUICKSTART-CONTEXT.md",
+        "../../context/LOTUS-ENGINEERING-CONTEXT.md",
+        "../../context/CONTEXT-REFERENCE-MAP.md",
+        "../../context/PROCEDURAL-MEMORY-INDEX.md",
+        "../../context/AGENTS-OPERATING-CONTRACT.md",
+        "../../context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "../../context/playbooks/VALIDATION-PLAYBOOK.md",
+        "../../context/playbooks/FIX-FORWARD-PATTERNS.md",
+        "./LOTUS-DEVELOPER-ONBOARDING.md",
+    ):
+        assert required_link in ramp_up
+
+    for heading in (
+        "## First Prompt Template",
+        "## First-Turn Checklist",
+        "## Context Budget Tiers",
+        "### Tier 1: Startup Context",
+        "### Tier 2: Governance Context",
+        "### Tier 3: Deep Context",
+        "## Skill Selection",
+        "## Validation Lane Selection",
+        "## Async GitHub Monitoring",
+        "## Context Maintenance Rule",
+        "## Anti-Patterns",
+        "## Current RFC-0074 Boundary",
+    ):
+        assert heading in ramp_up
+
+    for required_phrase in (
+        "Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md",
+        "Read C:\\Users\\Sandeep\\projects\\lotus-platform\\context\\LOTUS-QUICKSTART-CONTEXT.md",
+        "Do not start with Tier 3 by default.",
+        "lotus-backend-delivery-governance",
+        "lotus-frontend-delivery-governance",
+        "lotus-pr-premerge-gate",
+        "gh pr checks <pr-number> --watch=false",
+        "Do not update durable context for transient CI state unless it becomes a repeatable pattern.",
+        "Until those slices are complete, do not assume platform-owned skill sync or bootstrap readiness scripts exist.",
+    ):
+        assert required_phrase in ramp_up

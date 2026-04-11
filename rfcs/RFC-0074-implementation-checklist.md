@@ -2,13 +2,13 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Approved | Slice 2 complete`
+Implementation posture: `Approved | Slice 3 complete`
 
 ## Slice Status
 
 - `Slice 1 | Onboarding RFC approval and documentation skeleton | Complete`
 - `Slice 2 | Developer onboarding guide | Complete`
-- `Slice 3 | Agent ramp-up guide and first-prompt standard | Pending`
+- `Slice 3 | Agent ramp-up guide and first-prompt standard | Complete`
 - `Slice 4 | Skill distribution and synchronization design | Pending`
 - `Slice 5 | Bootstrap and validation automation | Pending`
 - `Slice 6 | Validation coverage and drift control | Pending`
@@ -51,14 +51,21 @@ Current source of truth:
 
 ### Slice 3 | Agent ramp-up guide and first-prompt standard
 
-Planned:
+Implemented:
 
-1. create `docs/onboarding/LOTUS-AGENT-RAMP-UP.md`,
-2. publish path-specific and path-agnostic first-prompt templates,
-3. define small-context-first loading discipline,
-4. define Tier 1, Tier 2, and Tier 3 context-budget guidance,
-5. add the first-turn checklist for repo, branch, standards, skills, validation lane, and context maintenance,
-6. link to the RFC-0073 context system and procedural memory.
+1. created `docs/onboarding/LOTUS-AGENT-RAMP-UP.md`,
+2. published path-specific and path-agnostic first-prompt templates,
+3. defined small-context-first loading discipline,
+4. defined Tier 1, Tier 2, and Tier 3 context-budget guidance,
+5. added the first-turn checklist for repo, branch, standards, skills, validation lane, and context maintenance,
+6. linked to the RFC-0073 context system and procedural memory,
+7. linked the agent ramp-up guide from the central context reference map,
+8. added contract-test coverage for the Slice 3 agent ramp-up guide.
+
+Current source of truth:
+
+1. the agent ramp-up entrypoint is `docs/onboarding/LOTUS-AGENT-RAMP-UP.md`.
+2. Slice 4 is the next permitted implementation slice.
 
 ### Slice 4 | Skill distribution and synchronization design
 

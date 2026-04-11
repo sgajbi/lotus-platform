@@ -137,9 +137,10 @@ Read:
 ## Runbooks And Operations
 
 1. [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
-2. [Local Development Runbook](../Local%20Development%20Runbook.md)
-3. `docs/` and `automation/README.md` in `lotus-platform`
-4. platform validation and ingress automation under `automation/`
+2. [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
+3. [Local Development Runbook](../Local%20Development%20Runbook.md)
+4. `docs/` and `automation/README.md` in `lotus-platform`
+5. platform validation and ingress automation under `automation/`
 
 ## Repository-Local Context Documents
 
