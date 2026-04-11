@@ -372,8 +372,8 @@
     {
       "id": "RFC-0074",
       "title": "Repeatable developer and agent bootstrap system",
-      "status": "draft",
-      "implementation_posture": "proposed for approval"
+      "status": "approved",
+      "implementation_posture": "approved; Slice 1 complete"
     }
   ]
 }

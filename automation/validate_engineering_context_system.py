@@ -224,7 +224,7 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("lotus-context-manifest.json: RFC-0072 implementation posture drifted")
     if rfc_postures.get("RFC-0073") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
-    if rfc_postures.get("RFC-0074") != "proposed for approval":
+    if rfc_postures.get("RFC-0074") != "approved; Slice 1 complete":
         errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
 
     registry_renderer = _load_registry_renderer()

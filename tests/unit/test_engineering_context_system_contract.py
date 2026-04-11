@@ -143,7 +143,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert implementation_postures["RFC-0071"] == "implemented and governed"
     assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
-    assert implementation_postures["RFC-0074"] == "proposed for approval"
+    assert implementation_postures["RFC-0074"] == "approved; Slice 1 complete"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:

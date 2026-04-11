@@ -2,11 +2,11 @@
 
 This checklist tracks delivery of RFC-0074, `Repeatable Developer and Agent Bootstrap System`.
 
-Implementation posture: `Draft pending approval`
+Implementation posture: `Approved | Slice 1 complete`
 
 ## Slice Status
 
-- `Slice 1 | Onboarding RFC approval and documentation skeleton | Draft`
+- `Slice 1 | Onboarding RFC approval and documentation skeleton | Complete`
 - `Slice 2 | Developer onboarding guide | Pending`
 - `Slice 3 | Agent ramp-up guide and first-prompt standard | Pending`
 - `Slice 4 | Skill distribution and synchronization design | Pending`
@@ -18,13 +18,19 @@ Implementation posture: `Draft pending approval`
 
 ### Slice 1 | Onboarding RFC approval and documentation skeleton
 
-Planned:
+Implemented:
 
-1. review and approve RFC-0074,
-2. lock naming and target file locations,
-3. approve source-of-truth boundaries and context-budget tiers,
-4. approve readiness report contract and bootstrap safety rules,
+1. reviewed and approved RFC-0074,
+2. locked naming and target file locations,
+3. approved source-of-truth boundaries and context-budget tiers,
+4. approved readiness report contract and bootstrap safety rules,
 5. avoid implementing bootstrap automation before approval.
+
+Current source of truth:
+
+1. RFC-0074 status is `Approved`.
+2. implementation must proceed one slice at a time.
+3. Slice 2 is the next permitted implementation slice.
 
 ### Slice 2 | Developer onboarding guide
 

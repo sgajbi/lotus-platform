@@ -1,6 +1,6 @@
 # RFC-0074: Repeatable Developer and Agent Bootstrap System
 
-- Status: Draft
+- Status: Approved
 - Date: 2026-04-11
 - Owners: lotus-platform governance
 - Requires Approval From:
