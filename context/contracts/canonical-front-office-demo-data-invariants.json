@@ -1,0 +1,47 @@
+{
+  "contract_id": "canonical-front-office-demo-data-invariants",
+  "contract_version": "1.0.0",
+  "status": "proposed-for-rfc-0076-slice-1",
+  "governed_by_rfc": "RFC-0076",
+  "canonical_portfolio_id": "PB_SG_GLOBAL_BAL_001",
+  "canonical_benchmark_code": "BMK_PB_GLOBAL_BALANCED_60_40",
+  "canonical_as_of_date": "2026-04-10",
+  "minimum_thresholds": {
+    "transactions": 30,
+    "cash_accounts": 2,
+    "valued_positions": 6,
+    "allocation_views": 4,
+    "projected_cashflow_points": 1,
+    "performance_contribution_rows": 4,
+    "risk_ready_metrics": 6,
+    "risk_rolling_windows": 4,
+    "risk_attribution_contributors": 7
+  },
+  "required_support_states": {
+    "portfolio.summary": "ready",
+    "portfolio.detailed": "ready",
+    "performance.summary": "ready",
+    "performance.analysis": "ready",
+    "performance.advisor_brief": "ready",
+    "performance.risk": "ready",
+    "performance.evidence": "truthfully_degraded"
+  },
+  "required_coverage_assertions": [
+    "all_seeded_instruments_have_market_price_covering_canonical_as_of_date",
+    "all_required_currency_pairs_have_fx_rate_covering_projected_horizon_end_date",
+    "benchmark_returns_cover_warmup_and_reporting_windows",
+    "risk_free_series_cover_supported_performance_and_risk_windows",
+    "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation"
+  ],
+  "economic_invariants": [
+    "transaction_ids_are_deterministic",
+    "source_record_ids_are_deterministic",
+    "economic_event_ids_are_deterministic",
+    "transaction_sign_conventions_are_governed",
+    "positions_and_cash_legs_reconcile_after_seeded_activity"
+  ],
+  "notes": [
+    "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
+    "Performance evidence remains truthfully degraded until a governed evidence contract is implemented."
+  ]
+}

@@ -18,6 +18,8 @@
   - `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`
   - `RFC-0074-repeatable-developer-and-agent-bootstrap-system.md`
   - `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
+  - `RFC-0076-implementation-checklist.md`
+  - `RFC-0076-slice-1-contract-spec-evidence.md`
 
 ## Summary
 
