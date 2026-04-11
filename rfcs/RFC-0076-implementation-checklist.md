@@ -50,15 +50,15 @@
 
 ## Slice 5: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
-- [ ] Update docs and onboarding only where the contract materially improves routing or clarity.
-- [ ] Review relevant skills and record whether explicit contract references are required.
-- [ ] Remove stale guidance that encourages ad hoc smoke portfolio usage where inappropriate.
-- [ ] Document any conscious `no change required` decisions for skills and context.
-- [ ] Complete PR evidence hygiene and branch hygiene before closure.
+- [x] Update docs and onboarding only where the contract materially improves routing or clarity.
+- [x] Review relevant skills and record whether explicit contract references are required.
+- [x] Remove stale guidance that encourages ad hoc smoke portfolio usage where inappropriate.
+- [x] Document any conscious `no change required` decisions for skills and context.
+- [x] Complete PR evidence hygiene and branch hygiene before closure.
 
 ## Final Acceptance
 
-- [ ] Canonical contract artifacts are versioned, governed, and machine-readable.
-- [ ] Downstream implementation slices adopt the contract without duplicating stale assumptions.
-- [ ] Meaningful tests exist for contract drift and slice evidence.
+- [x] Canonical contract artifacts are versioned, governed, and machine-readable.
+- [x] Downstream implementation slices adopt the contract without duplicating stale assumptions.
+- [x] Meaningful tests exist for contract drift and slice evidence.
 - [ ] CI evidence is truthful.

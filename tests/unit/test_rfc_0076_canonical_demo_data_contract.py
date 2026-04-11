@@ -28,6 +28,16 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         ROOT / "rfcs" / "RFC-0076-slice-3-derived-state-readiness-evidence.md"
     ).read_text(encoding="utf-8")
     contract_readme = (ROOT / "context" / "contracts" / "README.md").read_text(encoding="utf-8")
+    agent_contract = (ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md").read_text(encoding="utf-8")
+    engineering_context = (ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md").read_text(
+        encoding="utf-8"
+    )
+    agent_ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(
+        encoding="utf-8"
+    )
+    decisions_digest = (ROOT / "context" / "recent-architectural-decisions-digest.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "## Decision" in rfc
     assert "## Skills, Context, and Documentation Implications" in rfc
@@ -110,6 +120,11 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
     ):
         assert required_item in contract_readme
 
+    for content in (agent_contract, engineering_context, agent_ramp_up, decisions_digest):
+        assert "canonical-front-office-demo-data-contract.json" in content
+        assert "PB_SG_GLOBAL_BAL_001" in content
+        assert "RFC-0076" in content
+
 
 def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> None:
     contract = _load_json("context/contracts/canonical-front-office-demo-data-contract.json")
@@ -180,3 +195,20 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     economic_invariants = invariants["economic_invariants"]
     assert "transaction_ids_are_deterministic" in economic_invariants
     assert "positions_and_cash_legs_reconcile_after_seeded_activity" in economic_invariants
+
+
+def test_rfc_0076_slice_five_evidence_records_context_and_skill_decisions() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0076-slice-5-context-skill-branch-hygiene-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0076 Slice 5 Evidence: Context, Skills, and Branch Hygiene",
+        "context/AGENTS-OPERATING-CONTRACT.md",
+        "lotus-qa-platform-validator",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "Conscious no-change decisions",
+        "PORT_SMOKE_*",
+        "5 passed",
+    ):
+        assert required_item in evidence

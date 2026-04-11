@@ -73,8 +73,14 @@ use the governed `lotus-workbench` runtime and validation flow first:
 3. `npm run live:validate`
 4. `npm run live:stack:down`
 5. `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when the task needs platform-owned validation evidence and a caller-directed demo screenshot pack
+6. `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json`
+7. `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json`
 
 Use `PB_SG_GLOBAL_BAL_001` as the governed seeded front-office portfolio unless the task explicitly requires another dataset.
+
+Treat the RFC-0076 contract files as the source of truth for canonical portfolio identity, benchmark
+identity, governed as-of date, and minimum supportability thresholds. Runtime evidence should carry
+contract provenance instead of relying on implicit repo convention.
 
 Do not treat `lotus-platform/platform-stack` as the canonical front-office product bring-up path. It owns shared ingress and infrastructure support, not the full governed product-surface flow.
 
