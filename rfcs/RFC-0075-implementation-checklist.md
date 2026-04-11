@@ -1,7 +1,7 @@
 # RFC-0075 Implementation Checklist
 
 - RFC: `RFC-0075-canonical-front-office-portfolio-seed-and-demo-validation-system.md`
-- Status: Slice 3 complete
+- Status: Slice 4 complete
 - Last updated: 2026-04-11
 
 ## Approval Gate
@@ -56,14 +56,14 @@
 
 ## Slice 4: Derived State Readiness
 
-- [ ] Validate positions and valued positions.
-- [ ] Validate transaction and cash account counts.
-- [ ] Validate position timeseries reaches ready date.
-- [ ] Validate portfolio timeseries reaches ready date.
-- [ ] Validate analytics reference `performance_end_date` is current.
-- [ ] Add actionable diagnostics for stuck async processing.
-- [ ] Add focused tests for readiness checks.
-- [ ] Persist readiness evidence in a machine-readable run summary.
+- [x] Validate positions and valued positions.
+- [x] Validate transaction and cash account counts.
+- [x] Validate position timeseries reaches ready date.
+- [x] Validate portfolio timeseries reaches ready date.
+- [x] Validate analytics reference `performance_end_date` is current.
+- [x] Add actionable diagnostics for stuck async processing.
+- [x] Add focused tests for readiness checks.
+- [x] Persist readiness evidence in a machine-readable run summary.
 
 ## Slice 5: Performance and Risk Calculations
 
