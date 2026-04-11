@@ -24,6 +24,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "screenshot_directory" in wrapper
     assert "output\\playwright\\live-canonical" in wrapper
     assert "live-validation-summary.json" in wrapper
+    assert "canonical_contract" in wrapper
+    assert "canonicalContract" in wrapper
     assert "[switch]$Clean" in wrapper
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RemoveImages" in wrapper
@@ -34,6 +36,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
     assert "Screenshot directory" in wrapper
+    assert "Canonical contract:" in wrapper
+    assert "Governed by:" in wrapper
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
     assert "validation did not produce a live summary" in wrapper
     assert "validation summary is stale" in wrapper
@@ -48,6 +52,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 `" in automation_readme
     assert "-ScreenshotDirectory C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots" in automation_readme
+    assert "canonical contract identity and version" in automation_readme
     assert "calculationChecks" in automation_readme
     assert "panelClassifications" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme

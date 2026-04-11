@@ -44,9 +44,9 @@
 
 ## Slice 4: Cross-App Contract Adoption
 
-- [ ] Update validators and downstream summaries to surface contract identity or version.
-- [ ] Align gateway and Workbench expectations with the contract.
-- [ ] Document any intentionally partial surfaces that remain outside the current contract.
+- [x] Update validators and downstream summaries to surface contract identity or version.
+- [x] Align gateway and Workbench expectations with the contract.
+- [x] Document any intentionally partial surfaces that remain outside the current contract.
 
 ## Slice 5: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 

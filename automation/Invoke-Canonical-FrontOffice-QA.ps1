@@ -217,6 +217,7 @@ try {
     $liveSummary = Get-Content -Raw $liveSummaryPath | ConvertFrom-Json
     $summary.screenshots = @($liveSummary.screenshots)
     $summary.live_validation_summary = $liveSummary
+    $summary.canonical_contract = $liveSummary.canonicalContract
   }
 } catch {
   $summary.status = "failed"
@@ -252,6 +253,8 @@ $markdown += "- Remove images: $($summary.remove_images)"
 $markdown += "- Keep running: $($summary.keep_running)"
 $markdown += "- Portfolio: $PortfolioId"
 $markdown += "- Benchmark: $BenchmarkCode"
+$markdown += "- Canonical contract: $($summary.canonical_contract.contractId) $($summary.canonical_contract.contractVersion)"
+$markdown += "- Governed by: $($summary.canonical_contract.governedByRfc)"
 $markdown += "- Workbench repo: $WorkbenchRepoPath"
 $markdown += "- Governed runbook: $($summary.governed_runbook)"
 $markdown += "- Live summary: $liveSummaryPath"

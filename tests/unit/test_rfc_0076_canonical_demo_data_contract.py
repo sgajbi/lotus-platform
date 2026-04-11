@@ -51,6 +51,9 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "- [x] Surface contract-aware stale state diagnostics.",
         "- [x] Add tests proving readiness drift is caught before UI validation.",
         "- [x] Add slice evidence documenting the readiness-diagnostics implementation.",
+        "- [x] Update validators and downstream summaries to surface contract identity or version.",
+        "- [x] Align gateway and Workbench expectations with the contract.",
+        "- [x] Document any intentionally partial surfaces that remain outside the current contract.",
     ):
         assert required_item in checklist
 
@@ -82,6 +85,23 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "source-owned readiness semantics",
     ):
         assert required_item in slice_three_evidence
+
+    slice_four_evidence = (
+        ROOT / "rfcs" / "RFC-0076-slice-4-cross-app-contract-adoption-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0076 Slice 4 Evidence: Cross-App Contract Adoption",
+        "canonicalContract.contractId",
+        "canonical-front-office-demo-data-contract.json",
+        "deterministic fallback payload",
+        "canonical_contract",
+        "performance.evidence",
+        "RFC-0079",
+        "7 passed",
+        "5 passed",
+    ):
+        assert required_item in slice_four_evidence
 
     for required_item in (
         "# Context Contracts",
