@@ -128,3 +128,17 @@ def test_rfc_0078_slice_5_panel_governance_evidence_records_registry_boundary() 
         "existing RFC-0077 contract",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0078_slice_6_records_conscious_no_skill_change_and_branch_hygiene_rule() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0078-slice-6-docs-context-skill-hygiene-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "scripts/live/validation/",
+        "no skill updates were required for RFC-0078",
+        "Branch hygiene is intentionally deferred until PRs merge.",
+        "monolithic script",
+    ):
+        assert required_item in evidence

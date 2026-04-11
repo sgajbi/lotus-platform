@@ -56,9 +56,9 @@
 
 ## Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
-- [ ] Update docs only where the modular framework materially changes implementation routing.
-- [ ] Review relevant skills and record whether guidance should be added, tightened, or left unchanged.
-- [ ] Remove stale guidance that points future agents toward the monolithic validator shape.
+- [x] Update docs only where the modular framework materially changes implementation routing.
+- [x] Review relevant skills and record whether guidance should be added, tightened, or left unchanged.
+- [x] Remove stale guidance that points future agents toward the monolithic validator shape.
 - [ ] Complete PR evidence hygiene and branch hygiene before closure.
 
 ## Final Acceptance
