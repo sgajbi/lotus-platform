@@ -72,3 +72,17 @@ def test_rfc_0078_checklist_and_slice_1_evidence_exist() -> None:
         "no skill changes were made in this slice",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0078_slice_2_probe_evidence_records_dead_code_removal_boundary() -> None:
+    evidence = (ROOT / "rfcs" / "RFC-0078-slice-2-probe-layer-evidence.md").read_text(
+        encoding="utf-8"
+    )
+
+    for required_item in (
+        "lotus-workbench/scripts/live/validation/probes.mjs",
+        "`checkDns`, `fetchJson`, and `fetchText` no longer exist in the monolithic validator",
+        "gateway payload assertions remain in the validator because they are business checks",
+        "no skill changes were made in this slice",
+    ):
+        assert required_item in evidence

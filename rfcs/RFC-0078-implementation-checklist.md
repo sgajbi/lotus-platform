@@ -24,10 +24,11 @@
 
 ## Slice 2: Extract API Probing and Gateway Assertions
 
-- [ ] Move HTTP and DNS probing into dedicated validation modules.
-- [ ] Preserve source-owned error messages and timeout behavior.
-- [ ] Add focused tests for probe result handling and gateway failure classification.
-- [ ] Remove obsolete fetch-helper duplication from the monolithic validator.
+- [x] Move HTTP and DNS probing into dedicated validation modules.
+- [x] Preserve source-owned error messages and timeout behavior.
+- [x] Add focused tests for probe result handling and gateway failure classification.
+- [x] Remove obsolete fetch-helper duplication from the monolithic validator.
+- [x] Review slice output for simplification opportunities before moving on.
 
 ## Slice 3: Extract Calculation Sanity Modules
 
