@@ -56,6 +56,7 @@ Before editing files, the agent should identify:
 6. smallest local validation lane,
 7. GitHub checks or PRs to monitor asynchronously,
 8. whether durable context or repository-local documentation may need an update.
+9. whether the task is actually a front-office runtime or UI-proof task that must use the governed `lotus-workbench` live runtime path.
 
 If any of these are unclear, inspect the repository and context map before implementing.
 
@@ -153,6 +154,27 @@ Select validation before implementation.
 
 Prefer targeted local checks and GitHub-backed heavy execution. Do not repeatedly run full local CI when GitHub can run the expensive matrix while the agent continues useful work.
 
+## Front-Office Runtime Routing
+
+When the task is about:
+
+1. Workbench demo readiness,
+2. populated screens or panels,
+3. screenshot capture,
+4. canonical UI proof,
+5. front-office seeded runtime validation,
+
+route to the governed `lotus-workbench` runtime first:
+
+1. `../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`
+2. `npm run live:stack:up`
+3. `npm run live:validate`
+4. `npm run live:stack:down`
+
+Use `PB_SG_GLOBAL_BAL_001` unless the task explicitly requires another portfolio.
+
+Do not default to `lotus-platform/platform-stack` as the primary front-office product bring-up path. That path owns shared infrastructure assets and ingress support, but the governed populated product-surface flow lives in `lotus-workbench`.
+
 ## Async GitHub Monitoring
 
 When checks are already running in GitHub:
@@ -203,6 +225,7 @@ Avoid:
 6. duplicating platform policy prose into repository-local docs,
 7. ignoring GitHub failures because local checks passed,
 8. marking a slice complete without tests or context links.
+9. treating `lotus-platform/platform-stack` as the canonical populated front-office runtime when `lotus-workbench` already owns that governed flow.
 
 ## Current RFC-0074 Boundary
 

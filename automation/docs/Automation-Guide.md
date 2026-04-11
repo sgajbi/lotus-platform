@@ -11,14 +11,15 @@ Canonical source: `lotus-platform/automation`
 3. Need asynchronous long-running checks: run `Start-Background-Run.ps1` with a profile.
 4. Need PR lifecycle automation: run `Close-PR-Loop.ps1`.
 5. Need one repo preflight before push: run `Preflight-PR.ps1`.
-6. Need production-readiness QA validation: run `Invoke-Platform-QA.ps1`.
-7. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
-8. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
-9. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
-10. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
-11. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
-12. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
-13. Need to classify the current RFC-0071 local ingress rollout state: run `Explain-Dev-Ingress-Status.ps1`.
+6. Need governed populated front-office validation: run `Invoke-Canonical-FrontOffice-QA.ps1`.
+7. Need backend service readiness QA validation: run `Invoke-Platform-QA.ps1`.
+8. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
+9. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
+10. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
+11. Need a reusable seeded cross-app contribution scenario: run `Invoke-CrossApp-CorePerformance-Contribution.ps1`.
+12. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
+13. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
+14. Need to classify the current RFC-0071 local ingress rollout state: run `Explain-Dev-Ingress-Status.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -36,8 +37,9 @@ Canonical source: `lotus-platform/automation`
 | Validate automation config integrity | `automation/Validate-Automation-Config.ps1` | Keep repos/profiles/refs consistent |
 | Enforce local-vs-CI scope parity (fail on gap) | `automation/Validate-Local-CI-Parity.ps1` | Prevent PR failures caused by missing local checks |
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |
-| Platform QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up services and validate API/log/observability/standards |
-| Platform QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File defects with evidence in each repo |
+| Canonical front-office readiness validation | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` | Bring up the governed `lotus-workbench` runtime and validate populated UI/product surfaces |
+| Backend/runtime QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up backend services and validate API/log/observability/standards |
+| Backend/runtime QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File backend/runtime defects with evidence in each repo |
 | Seeded cross-app TWR + benchmark validation | `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware portfolio scenario |
 | Seeded cross-app MWR validation | `automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic stateful MWR scenario |
 | Seeded cross-app returns-series validation | `automation/Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1 -BringUp` | Validate `lotus-core` and `lotus-performance` together on a realistic benchmark-aware returns-series scenario |

@@ -56,6 +56,27 @@ Prefer:
 4. GitHub-backed heavy execution for expensive full validation,
 5. async monitoring and fix-forward work rather than blocking on long reruns.
 
+## Front-Office Runtime Routing Rule
+
+When the task is about:
+
+1. local front-office runtime bring-up,
+2. populated Workbench screens,
+3. panel validation,
+4. demo screenshots,
+5. canonical UI proof,
+
+use the governed `lotus-workbench` runtime and validation flow first:
+
+1. `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`
+2. `npm run live:stack:up`
+3. `npm run live:validate`
+4. `npm run live:stack:down`
+
+Use `PB_SG_GLOBAL_BAL_001` as the governed seeded front-office portfolio unless the task explicitly requires another dataset.
+
+Do not treat `lotus-platform/platform-stack` as the canonical front-office product bring-up path. It owns shared ingress and infrastructure support, not the full governed product-surface flow.
+
 ## Context Maintenance Rule
 
 Keep the context system up to date as Lotus changes.

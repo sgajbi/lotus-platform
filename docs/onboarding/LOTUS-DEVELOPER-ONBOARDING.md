@@ -10,7 +10,8 @@ It does not replace:
 2. [RFC-0072](../../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md) for CI and validation lanes,
 3. [RFC-0073](../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md) for the governed context system,
 4. [RFC-0074](../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md) for the onboarding bootstrap target state,
-5. [Local Development Runbook](../../Local%20Development%20Runbook.md) for runtime stack bring-up and ingress operations.
+5. [Local Development Runbook](../../Local%20Development%20Runbook.md) for shared ingress and platform-stack operations,
+6. [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) for populated product-surface bring-up, seeded front-office data, and UI panel validation.
 
 ## Purpose
 
@@ -126,11 +127,34 @@ These may not block documentation or narrow code work, but they block local stac
 | Docker Compose | `docker compose version` | installed |
 | Canonical ingress hosts | `automation/Sync-Dev-Ingress-Hosts.ps1` | hosts block present or staged |
 | Ingress smoke | `automation/Validate-Dev-Ingress-Smoke.ps1` | `ready` after stack start |
-| Platform stack `.env` | `platform-stack\.env` | configured from `.env.example` |
+| Shared platform-stack `.env` | `platform-stack\.env` | configured from `.env.example` when shared infra flow is required |
 | DSN and environment posture | repo-local `.env` or platform stack `.env` | variables present, secrets not printed |
-| Seeded data | repo-specific seed scripts and runbooks | available when demo or panel validation is required |
+| Seeded data | governed front-office seed scripts and runbooks | available when demo or panel validation is required |
 
-Use the [Local Development Runbook](../../Local%20Development%20Runbook.md) for exact stack bring-up and ingress commands.
+Use the [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) when the task requires populated Workbench, Gateway, Manage, Risk, Performance, Advisor Brief, or Evidence product surfaces.
+
+Use the [Local Development Runbook](../../Local%20Development%20Runbook.md) for shared ingress and platform-stack operations rather than as the primary front-office demo bring-up path.
+
+## Canonical Front-Office Runtime
+
+For front-office product validation, demo preparation, screenshot capture, and populated panel checks, the governed path is in `lotus-workbench`.
+
+Use:
+
+```powershell
+cd C:\Users\<user>\projects\lotus-workbench
+npm run live:stack:up
+npm run live:validate
+```
+
+The governed reference seed is:
+
+1. portfolio `PB_SG_GLOBAL_BAL_001`
+2. benchmark `BMK_PB_GLOBAL_BALANCED_60_40`
+
+Use `npm run live:stack:down` for teardown.
+
+Do not improvise a separate product-surface bring-up from `lotus-platform/platform-stack` when this governed runtime already covers seeded data, canonical endpoints, and populated UI validation.
 
 ### Optional Or Task-Specific
 
@@ -282,7 +306,7 @@ powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.p
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 ```
 
-Use [RFC-0071](../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md) and the [Local Development Runbook](../../Local%20Development%20Runbook.md) when ingress status is not `ready`.
+Use [RFC-0071](../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md), the [Local Development Runbook](../../Local%20Development%20Runbook.md), and the [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) when ingress status is not `ready` or when a front-office surface must be validated end-to-end.
 
 ## DSN And Environment Posture
 
@@ -329,7 +353,7 @@ Use this checklist after a new clone or pull.
 
 ## Current RFC-0074 Boundary
 
-At Slice 5, this guide is the onboarding entrypoint and platform-owned bootstrap automation exists.
+RFC-0074 is implemented and governed. platform-owned bootstrap automation exists.
 
 Current automation supports:
 
@@ -337,6 +361,6 @@ Current automation supports:
 2. sync mode for governed Lotus skill and `AGENTS.md` synchronization,
 3. validate mode for explicit readiness gating,
 4. fast, extended, and platform validation profiles,
-5. redacted JSON and Markdown readiness reports.
-
-Later RFC-0074 slices will add onboarding drift controls and repository-local cross-links.
+5. redacted JSON and Markdown readiness reports,
+6. onboarding drift controls through context validation,
+7. repository-local cross-links back to the central onboarding and ramp-up guides.

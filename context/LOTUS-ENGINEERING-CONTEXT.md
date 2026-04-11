@@ -73,6 +73,17 @@ The canonical relationship model is:
 3. Domain-specific business logic belongs in the authoritative service or a governed view-model layer, not as uncontrolled UI logic.
 4. Standards, validators, and platform automation are part of the architecture and should be maintained with the same discipline as product code.
 
+## Front-Office Runtime Governance
+
+For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:
+
+1. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
+2. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
+3. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
+4. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+
+Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
+
 ## Engineering Standards
 
 Lotus engineering is expected to be:

@@ -25,6 +25,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Detect-Stalled-PR-Checks.ps1`
 - `Preflight-PR.ps1`
 - `Invoke-Platform-QA.ps1`
+- `Invoke-Canonical-FrontOffice-QA.ps1`
 
 ### Cross-App Validation
 

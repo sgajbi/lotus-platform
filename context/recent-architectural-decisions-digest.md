@@ -14,6 +14,15 @@ Current assumption:
 2. ingress, hosts management, and service discovery are part of the platform contract,
 3. validation and demo readiness should use canonical endpoints end-to-end.
 
+### Front-office local runtime routing
+
+Current assumption:
+
+1. the canonical populated front-office runtime lives in `lotus-workbench`,
+2. front-office demo, screenshot, and panel-validation flows should start from `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
+3. `lotus-platform/platform-stack` remains the shared ingress and infrastructure baseline, not the primary governed product-surface bring-up path,
+4. `PB_SG_GLOBAL_BAL_001` is the default governed seeded portfolio for local front-office proof unless the task explicitly requires another portfolio.
+
 ### RFC-0072 | Multi-lane CI, validation, and release governance
 
 Current assumption:

@@ -46,6 +46,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Sync-Dev-Ingress-Hosts.ps1`
 - `automation/Generate-Dependency-Vulnerability-Rollup.ps1`
 - `automation/Invoke-Platform-QA.ps1`
+- `automation/Invoke-Canonical-FrontOffice-QA.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1`
 - `automation/Invoke-CrossApp-CorePerformance-Contribution.ps1`
@@ -226,7 +227,18 @@ Summarize recent failures only:
 powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 3
 ```
 
-Run platform-level QA readiness automation (startup + API/log/metrics/standards checks):
+Run governed canonical front-office QA readiness automation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+```
+
+This delegates to the governed `lotus-workbench` runtime and validation flow, uses the seeded front-office portfolio `PB_SG_GLOBAL_BAL_001`, and writes wrapper evidence to:
+
+- `output/front-office-qa/latest.json`
+- `output/front-office-qa/latest.md`
+
+Run backend/runtime QA readiness automation (startup + API/log/metrics/standards checks):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp
@@ -264,7 +276,7 @@ Suite artifact:
 Run these cross-app scenarios serially against the shared local stack. They seed live platform state and should not be run in parallel if you want deterministic economic assertions.
 Interpret the suite by `expectation_met_count` and each scenario's `expected_posture`, not only by raw failed-check counts. The current core-performance pack is now fully green and acts as a reusable regression suite for healthy cash-only, liquidation/re-entry, staged-flow, same-currency funded-trade, cross-currency funded-trade, single-position cross-surface consistency, multi-position cross-surface consistency, and internal-rebalance consistency stories.
 
-Run QA and auto-create GitHub issues for each detected defect:
+Run backend/runtime QA and auto-create GitHub issues for each detected defect:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
@@ -701,6 +713,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/qa/*/qa-summary.md`
 - `output/qa/*/qa-issues.json`
 - `output/qa/*/evidence/*.md`
+- `output/front-office-qa/latest.json`
+- `output/front-office-qa/latest.md`
 - `output/lotus-naming-conformance.json`
 - `output/lotus-naming-conformance.md`
 - `output/preflight/*.json`

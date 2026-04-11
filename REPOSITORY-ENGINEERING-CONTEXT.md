@@ -30,9 +30,10 @@ This repository does not own a business-domain API. It owns the engineering and 
 Current repository posture:
 
 1. RFC-0072 implementation is active and has standardized CI lane, workflow security, container, validation, and repository-governance foundations.
-2. RFC-0073 implementation is active and has established the central ecosystem context system.
-3. Platform validation, ingress, and local runtime automation are already in active use for canonical stack bring-up and proof.
-4. Repository-local context rollout to the rest of the estate is not complete yet.
+2. RFC-0073 is implemented and governs the central ecosystem context system.
+3. RFC-0074 is implemented and governs developer onboarding, agent ramp-up, and bootstrap synchronization.
+4. Platform validation, ingress, and local runtime automation are already in active use for canonical stack bring-up and proof.
+5. Front-office product-surface bring-up is governed through `lotus-workbench`; this repository owns the shared ingress and infrastructure support around that flow rather than replacing it.
 
 ## Architecture And Module Map
 
@@ -63,7 +64,8 @@ Boundary rules:
 
 1. platform-wide truth belongs here,
 2. repository-local truth must remain in the owning repository,
-3. cross-repo validation should be encoded once here rather than reimplemented ad hoc elsewhere.
+3. cross-repo validation should be encoded once here rather than reimplemented ad hoc elsewhere,
+4. `platform-stack` is not the primary front-office product bring-up path when `lotus-workbench` already owns the governed populated UI runtime.
 
 ## Repo-Native Commands
 
