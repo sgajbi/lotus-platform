@@ -229,3 +229,22 @@ def test_rfc_0081_slice_7_evidence_exists_and_records_proposal_workspace_model()
         "Slice 7 is complete.",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0081_slice_8_evidence_exists_and_records_module_extension_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-8-micro-frontend-composition-and-extension-model-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 8: Micro-Frontend Composition and Extension Model Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target micro-frontend composition model confirmed by slice 8",
+        "### 1. Shell-owned module registration model",
+        "### 2. Module-boundary model",
+        "### 3. Shared runtime and dependency model",
+        "### 5. Automation and extension rule",
+        "No immediate validator or onboarding guidance update is required before implementation begins.",
+        "Slice 8 is complete.",
+    ):
+        assert required_item in evidence

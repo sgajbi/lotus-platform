@@ -68,13 +68,13 @@
 
 ## Slice 8: Micro-Frontend Composition and Extension Model
 
-- [ ] Establish module boundaries and shell registration rules.
-- [ ] Define shared state, entitlement, and observability contracts.
-- [ ] Define code-organization and file-structure standards for the modular UI topology.
-- [ ] Remove page-local composition hacks and dead frontend patterns exposed by the new model.
-- [ ] Define cleanup and retirement rules for replaced routes and components.
-- [ ] Define how new module routes and panels are incorporated into governed automation.
-- [ ] Review whether module architecture requires new validator or onboarding guidance.
+- [x] Establish module boundaries and shell registration rules.
+- [x] Define shared state, entitlement, and observability contracts.
+- [x] Define code-organization and file-structure standards for the modular UI topology.
+- [x] Remove page-local composition hacks and dead frontend patterns exposed by the new model.
+- [x] Define cleanup and retirement rules for replaced routes and components.
+- [x] Define how new module routes and panels are incorporated into governed automation.
+- [x] Review whether module architecture requires new validator or onboarding guidance.
 
 ## Slice 9: AI Surface Governance and Assistive Workflow Controls
 
