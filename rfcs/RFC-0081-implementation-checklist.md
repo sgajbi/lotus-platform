@@ -20,7 +20,7 @@ Legend:
 | 1 | Current-state assessment | Not applicable (doc-only) | `RFC-0081-slice-1-current-state-assessment-and-target-model-evidence.md` |
 | 2 | Gateway experience-contract assessment | Not applicable (doc-only) | `RFC-0081-slice-2-gateway-experience-contract-assessment-and-target-model-evidence.md` |
 | 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` |
-| 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83 (portfolio typography adjustments) |
+| 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83; commit `2060065` (`Standardize workbench typography and naming foundation`); screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-4-review`; gateway/platform naming alignment still pending |
 | 5 | Gateway composition foundation | Not started | — |
 | 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio + performance only) | `lotus-workbench` PR #83 |
 | 7 | Advisory & proposal workspace integration | Not started | — |
