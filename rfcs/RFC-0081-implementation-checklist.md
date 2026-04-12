@@ -37,11 +37,11 @@
 
 ## Slice 4: Shared Information Architecture, Naming, and Typography Foundation
 
-- [ ] Standardize shell and workspace naming.
-- [ ] Define governed domain language for routes, modules, and workflow surfaces.
-- [ ] Finalize typography, tabular numeral, and hierarchy standards.
-- [ ] Align information architecture and workspace topology to the governed shell model.
-- [ ] Remove stale naming and legacy terminology that conflicts with the target state.
+- [x] Standardize shell and workspace naming.
+- [x] Define governed domain language for routes, modules, and workflow surfaces.
+- [x] Finalize typography, tabular numeral, and hierarchy standards.
+- [x] Align information architecture and workspace topology to the governed shell model.
+- [x] Remove stale naming and legacy terminology that conflicts with the target state.
 
 ## Slice 5: Gateway Composition Foundation and Contract Hardening
 

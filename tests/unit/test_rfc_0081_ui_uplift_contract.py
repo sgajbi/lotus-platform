@@ -153,3 +153,22 @@ def test_rfc_0081_slice_3_evidence_exists_and_records_shell_foundation_model() -
         "Slice 3 is complete.",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0081_slice_4_evidence_exists_and_records_naming_topology_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-4-information-architecture-naming-and-typography-foundation-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 4: Shared Information Architecture, Naming, and Typography Foundation Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target information architecture and naming model confirmed by slice 4",
+        "### 1. Top-level shell vocabulary",
+        "### 2. Route topology model",
+        "### 3. Shared naming hierarchy",
+        "### 5. Typography naming rule",
+        "No immediate agent skill or onboarding guidance update is required before implementation begins.",
+        "Slice 4 is complete.",
+    ):
+        assert required_item in evidence
