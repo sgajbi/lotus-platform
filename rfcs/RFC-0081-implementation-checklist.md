@@ -19,10 +19,10 @@ Legend:
 | --- | --- | --- | --- |
 | 1 | Current-state assessment | Not applicable (doc-only) | `RFC-0081-slice-1-current-state-assessment-and-target-model-evidence.md` |
 | 2 | Gateway experience-contract assessment | Not applicable (doc-only) | `RFC-0081-slice-2-gateway-experience-contract-assessment-and-target-model-evidence.md` |
-| 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` |
+| 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; commits `98991db` and `08e52a0` (gateway-backed shell bootstrap consumption and shell registry reduction); `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` and `lotus-workbench/output/playwright/rfc-0081-slice-6a-review` |
 | 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83; commit `2060065` (`Standardize workbench typography and naming foundation`); screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-4-review`; gateway/platform naming alignment still pending |
-| 5 | Gateway composition foundation | Completed (implementation) | `lotus-gateway` branch `codex/rfc-0081-slice-5-gateway-composition-foundation`; commit `7aae028` (`Harden shell bootstrap capability contract`); `RFC-0081-slice-5-gateway-composition-foundation-and-contract-hardening-evidence.md` |
-| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio + performance only) | `lotus-workbench` PR #83 |
+| 5 | Gateway composition foundation | Completed (implementation) | `lotus-gateway` branch `codex/rfc-0081-slice-5-gateway-composition-foundation`; commit `7aae028` (`Harden shell bootstrap capability contract`); consumed in `lotus-workbench` commit `08e52a0`; `RFC-0081-slice-5-gateway-composition-foundation-and-contract-hardening-evidence.md` |
+| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio analytical surface uplift in progress) | `lotus-workbench` PR #83; commits `cc8c851`, `2002cc3`, `08e52a0`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-6a-review` |
 | 7 | Advisory & proposal workspace integration | Not started | — |
 | 8 | Micro-frontend composition model | Not started | — |
 | 9 | AI surface governance | Not started | — |
@@ -42,7 +42,7 @@ and are part of PR #83 unless noted.
 | 3 | Portfolio selector rail | `ed225ad` Polish portfolio selector rail; `6a79ae4` Address portfolio selector accessibility feedback |
 | 4 | Summary KPI foundation | `a267e63` Redesign portfolio summary KPI foundation; `2c5678c` Address portfolio KPI review feedback |
 | 5 | Allocation panel | `09224e7` Refine portfolio allocation module; `f769e5a` Fix allocation review issues |
-| 6 | Right-rail detail panels | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes |
+| 6 | Right-rail detail panels | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes; `cc8c851` Refine portfolio analytical surface density; `2002cc3` Stack cramped portfolio insight modules; `08e52a0` Wire shell bootstrap into portfolio analytics surface |
 | 7 | Detail module scanning | `6d71030` Refine portfolio detail module scanning |
 | 8 | Performance snapshot compact view | `d4b8625` Condense performance snapshot default view |
 | 9 | Width parity + type scale | `b35cd1f` Normalize portfolio module width and type scale |
@@ -62,6 +62,7 @@ and are part of PR #83 unless noted.
 Latest evidence folders:
 - `rfc-0081-slice-3-review`
 - `rfc-0081-slice-5-review-after-fix`
+- `rfc-0081-slice-6a-review`
 - `rfc-0081-slice-6-review`
 - `rfc-0081-slice-7-review`
 - `rfc-0081-slice-8-review`
