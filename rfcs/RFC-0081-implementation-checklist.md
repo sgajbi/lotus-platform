@@ -61,10 +61,10 @@
 
 ## Slice 7: Advisory and Proposal Workspace Integration
 
-- [ ] Bring `lotus-advise` proposal lifecycle into the shell.
-- [ ] Implement proposal workspace, intent detail, artifact preview, and approval surfaces.
-- [ ] Ensure workflow gates and lifecycle readiness are contract-backed.
-- [ ] Review whether proposal and advisory guidance requires new context or skill updates.
+- [x] Bring `lotus-advise` proposal lifecycle into the shell.
+- [x] Implement proposal workspace, intent detail, artifact preview, and approval surfaces.
+- [x] Ensure workflow gates and lifecycle readiness are contract-backed.
+- [x] Review whether proposal and advisory guidance requires new context or skill updates.
 
 ## Slice 8: Micro-Frontend Composition and Extension Model
 

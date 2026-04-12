@@ -210,3 +210,22 @@ def test_rfc_0081_slice_6_evidence_exists_and_records_analytical_uplift_model() 
         "Slice 6 is complete.",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0081_slice_7_evidence_exists_and_records_proposal_workspace_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-7-advisory-and-proposal-workspace-integration-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 7: Advisory and Proposal Workspace Integration Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target proposal and advisory workspace model confirmed by slice 7",
+        "### 1. Proposal workspace model",
+        "### 2. Advisory workspace model",
+        "### 3. Workflow-truth model",
+        "### 4. Artifact and consent model",
+        "No immediate context or skill update is required before implementation begins.",
+        "Slice 7 is complete.",
+    ):
+        assert required_item in evidence
