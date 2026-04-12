@@ -1,8 +1,89 @@
 # RFC-0081 Implementation Checklist
 
 - RFC: `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`
-- Status: Proposed
+- Status: Proposed (documentation complete; implementation in progress)
 - Last updated: 2026-04-12
+
+## Implementation Tracking (Evidence-Based)
+
+This section tracks **code implementation status** with evidence. Documentation-only slices are
+marked as such. Evidence links should point to PRs, commits, and screenshot folders.
+
+Legend:
+- Status: Not started | In progress | Partial | Completed (implementation)
+- Evidence: PR, commits, screenshot paths, or validation logs
+
+### Implementation Status by Slice
+
+| Slice | Scope (Implementation) | Status | Evidence |
+| --- | --- | --- | --- |
+| 1 | Current-state assessment | Not applicable (doc-only) | `RFC-0081-slice-1-current-state-assessment-and-target-model-evidence.md` |
+| 2 | Gateway experience-contract assessment | Not applicable (doc-only) | `RFC-0081-slice-2-gateway-experience-contract-assessment-and-target-model-evidence.md` |
+| 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` |
+| 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83 (portfolio typography adjustments) |
+| 5 | Gateway composition foundation | Not started | — |
+| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio + performance only) | `lotus-workbench` PR #83 |
+| 7 | Advisory & proposal workspace integration | Not started | — |
+| 8 | Micro-frontend composition model | Not started | — |
+| 9 | AI surface governance | Not started | — |
+| 10 | AI search/command surfaces | Not started | — |
+| 11 | Performance/accessibility/operability hardening | Not started | — |
+| 12 | Documentation/agent context/branch hygiene (implementation) | Not started | — |
+
+### Workbench Implementation Commits by Slice (PR #83)
+
+All commits listed below are from `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`
+and are part of PR #83 unless noted.
+
+| Slice | Workbench scope | Commits |
+| --- | --- | --- |
+| 1 | Portfolio foundation layout | `1efb2e9` Implement portfolio page foundation layout; `f7c2cc6` Address portfolio foundation review feedback |
+| 2 | Header hierarchy uplift | `e4189c3` Implement portfolio header hierarchy uplift |
+| 3 | Portfolio selector rail | `ed225ad` Polish portfolio selector rail; `6a79ae4` Address portfolio selector accessibility feedback |
+| 4 | Summary KPI foundation | `a267e63` Redesign portfolio summary KPI foundation; `2c5678c` Address portfolio KPI review feedback |
+| 5 | Allocation panel | `09224e7` Refine portfolio allocation module; `f769e5a` Fix allocation review issues |
+| 6 | Right-rail detail panels | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes |
+| 7 | Detail module scanning | `6d71030` Refine portfolio detail module scanning |
+| 8 | Performance snapshot compact view | `d4b8625` Condense performance snapshot default view |
+| 9 | Width parity + type scale | `b35cd1f` Normalize portfolio module width and type scale |
+| 10 | Toolbar grouping | `cb85e2d` Regroup portfolio header controls |
+| 11 | Toolbar balance | `5d18f3f` Balance portfolio toolbar control groups |
+| 12 | Toolbar micro-layout | `9b9fdca` Refine portfolio toolbar micro layout |
+| 13 | Compact date controls | `c17b49a` Compact portfolio period date controls |
+| 14 | Toolbar spacing + size match | `17f196b` Tune portfolio toolbar sizing; `71b483d` Iterate portfolio toolbar layout; `1f2c5b1` Refine portfolio toolbar spacing; `fae9e36` Polish portfolio toolbar closeout |
+
+### Active Implementation Evidence (Workbench)
+
+- Repo: `C:\Users\Sandeep\projects\lotus-workbench`
+- PR: `#83` (branch `codex/rfc-0081-slice-1-portfolio-foundation`)
+- Implemented slices (workbench-local): 1–14 (UI uplift only, scoped to portfolio/performance)
+- Screenshot evidence root: `C:\Users\Sandeep\projects\lotus-workbench\output\playwright`
+
+Latest evidence folders:
+- `rfc-0081-slice-3-review`
+- `rfc-0081-slice-5-review-after-fix`
+- `rfc-0081-slice-6-review`
+- `rfc-0081-slice-7-review`
+- `rfc-0081-slice-8-review`
+- `rfc-0081-slice-9-review`
+- `rfc-0081-slice-10-review`
+- `rfc-0081-slice-11-review`
+- `rfc-0081-slice-12-review`
+- `rfc-0081-slice-13-review`
+- `rfc-0081-slice-14-review`
+
+This list must be updated whenever a new slice is implemented or reviewed.
+
+### Cross-Repo Slice 3 Evidence
+
+- `lotus-workbench`
+  - branch: `codex/rfc-0081-slice-1-portfolio-foundation`
+  - shell/nav/design-system foundation implemented locally with focused shell tests, lint, typecheck,
+    and screenshot evidence
+- `lotus-gateway`
+  - branch: `codex/rfc-0081-slice-3-shell-nav-foundation`
+  - normalized workspace navigation contract aligned to the new shell tab set with focused unit,
+    integration, and contract coverage
 
 ## Approval Gate
 

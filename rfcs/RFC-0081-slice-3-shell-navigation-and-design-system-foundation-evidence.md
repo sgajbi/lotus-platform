@@ -3,259 +3,71 @@
 - RFC: `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`
 - Slice: `Slice 3: Shell, Navigation, and Design-System Foundation`
 - Date: 2026-04-12
-- Status: Completed and reviewed
+- Status: Implemented
 
-## Scope of the assessment
+## Outcome
 
-Slice 3 reviewed the current `lotus-workbench` shell, navigation, typography, token ownership, and
-shared UI foundation to define the implementation target for the shell uplift.
+Slice 3 moved the shared shell and navigation foundation from assessment into implementation across
+`lotus-workbench` and `lotus-gateway`.
 
-The slice focused on:
+The implemented foundation now provides:
 
-1. shell frame and app switcher behavior,
-2. route and navigation vocabulary,
-3. shared text and typography primitives,
-4. design tokens and theme ownership,
-5. shell-related CSS topology,
-6. dead or duplicate shell styling patterns that should be retired.
-
-The goal of the slice was to lock the foundation model before route-level UI implementation starts.
-
-## Files and surfaces reviewed
-
-Reviewed directly in `lotus-workbench`:
-
-1. `src/shell/app-shell.tsx`
-2. `src/shell/app-registry.ts`
-3. `src/shell/app-switcher-nav.tsx`
-4. `src/design-system/theme/tokens.ts`
-5. `src/design-system/theme/mui-theme.ts`
-6. `src/design-system/components/text.tsx`
-7. `src/design-system/components/app-page-shell.tsx`
-8. `src/design-system/components/workbench-page-header.tsx`
-9. `src/design-system/components/page-toolbar.tsx`
-10. `src/design-system/components/workspace-layout.tsx`
-11. `src/app/globals.css`
-
-## Current-state findings
-
-### 1. The current shell frame is usable, but still too thin for the target enterprise product shell
-
-Evidence:
-
-1. `src/shell/app-shell.tsx` currently provides:
-   - Lotus identity,
-   - a top bar,
-   - `AppSwitcherNav`,
-   - page body slot
-2. it does not yet provide:
-   - shell search,
-   - banker context,
-   - notification center,
-   - command surface,
-   - shell-level status or freshness affordances.
-
-Assessment:
-
-1. keep the shell-root pattern,
-2. replace the current shell frame with a richer enterprise shell composition,
-3. avoid adding more page-local substitutes for shell concerns.
-
-### 2. The current shell navigation model is transitional and does not match the target topology
-
-Evidence:
-
-1. `src/shell/app-registry.ts` still defines:
-   - `Overview`,
-   - `Relationship Book`,
-   - `Portfolio`,
-   - `Performance`,
-   - `Reporting`,
-   - `Operations`
-2. `src/shell/app-switcher-nav.tsx` renders this as app-switcher navigation backed by fallback
-   platform capabilities.
-
-Assessment:
-
-1. keep the registry-driven navigation concept,
-2. replace the current vocabulary with the governed front-office workspaces:
+1. one shared shell top bar plus workspace tab bar structure in `lotus-workbench`,
+2. one governed workspace tab set:
    - `Portfolio`
    - `Performance`
    - `Risk`
    - `Proposal`
    - `Advisory`
-3. retire ambiguous or transitional shell labels such as `Overview` and `Operations` once their
-   governed replacements exist.
+3. shared design-system primitives for workspace tabs and toolbar groups,
+4. explicit gateway navigation flags for the new workspace shell composition contract,
+5. removal of stale duplicate shell nav CSS selectors that no longer match runtime markup.
 
-Current gap:
+## Repositories Changed
 
-1. shell navigation still reflects implementation history rather than product topology.
+### `lotus-workbench`
 
-### 3. The typography and token direction is strong, but ownership is split across too many layers
+Implemented shell and design-system foundation changes in:
 
-Evidence:
+1. `src/shell/app-registry.ts`
+2. `src/shell/app-switcher-nav.tsx`
+3. `src/shell/app-shell.tsx`
+4. `src/design-system/components/workspace-tab-nav.tsx`
+5. `src/design-system/components/workbench-toolbar-group.tsx`
+6. `src/design-system/components/workspace-header.tsx`
+7. `src/design-system/index.ts`
+8. `src/features/platform-capabilities/types.ts`
+9. `src/apps/portfolio/components/portfolio-workspace-toolbar.tsx`
+10. `src/app/globals.css`
+11. `tests/unit/app-shell.test.tsx`
+12. `tests/integration/top-nav-capabilities.test.tsx`
+13. `tests/unit/design-system-components.test.tsx`
+14. `tests/unit/portfolio-workspace-toolbar.test.tsx`
 
-1. `src/design-system/theme/tokens.ts` already defines:
-   - colors,
-   - spacing,
-   - radius,
-   - typography variants,
-   - layout tokens,
-   - table density tokens
-2. `src/design-system/components/text.tsx` already maps a governed set of text variants,
-3. `src/design-system/theme/mui-theme.ts` uses tokens for MUI surfaces.
+### `lotus-gateway`
 
-Assessment:
+Aligned normalized capabilities to the shell composition contract in:
 
-1. keep the design-token investment,
-2. keep the governed `Text` primitive,
-3. replace the current split ownership model where too much shell and typography behavior still
-   lives in global CSS instead of token-governed component styling.
+1. `src/app/services/platform_capabilities_service.py`
+2. `tests/unit/test_platform_capabilities_service.py`
+3. `tests/integration/test_platform_capabilities_router.py`
+4. `tests/contract/test_platform_capabilities_contract.py`
 
-Current gap:
-
-1. token intent exists, but runtime ownership is not yet tight enough for a large uplift.
-
-### 4. `src/app/globals.css` is carrying too much shell and shared-component responsibility
-
-Evidence:
-
-1. `globals.css` imports fonts, defines root variables, shell layout rules, typography classes,
-   shell navigation styles, responsive rules, workbench card rules, chart rules, toolbar rules,
-   and many product-area styles in one very large file,
-2. shell styles such as:
-   - `.shell-topbar`
-   - `.shell-nav`
-   - `.shell-nav-link`
-   - `.shell-brand`
-   coexist in the same file as many route-specific or module-era styles.
-
-Assessment:
-
-1. keep only truly global reset and root-token wiring in global CSS,
-2. replace monolithic global styling with clearer ownership:
-   - shell styles,
-   - navigation styles,
-   - typography primitives,
-   - shared layout primitives,
-   - workspace-specific styles
-3. retire shell styling that remains trapped in page-era global CSS once migrated to design-system
-   or shell-owned files.
-
-Current gap:
-
-1. the current CSS topology will create more drift if later slices keep adding shell and workspace
-   logic into one global stylesheet.
-
-### 5. Shared layout primitives are promising, but naming and layering still need tightening
-
-Evidence:
-
-1. `workspace-layout.tsx` provides reusable composition primitives:
-   - `WorkstationPage`
-   - `WorkspaceLayout`
-   - `WorkspaceRail`
-   - `WorkspaceMain`
-   - `WorkspaceSide`
-   - `WorkstationShell`
-2. `app-page-shell.tsx`, `workbench-page-header.tsx`, and `page-toolbar.tsx` provide foundational
-   wrappers for page structure.
-
-Assessment:
-
-1. keep these shared layout primitives,
-2. keep layout composition in reusable components rather than page-local wrappers,
-3. replace naming and layering that still mixes:
-   - `app`,
-   - `workbench`,
-   - `workspace`,
-   - `workstation`
-   without a final governed hierarchy.
-
-Current gap:
-
-1. naming and ownership are close, but not yet clean enough for a long-lived shell and
-   micro-frontend host.
-
-### 6. The current visual language already trends institutional, but it still overuses soft gradients and shell chrome
-
-Evidence:
-
-1. `globals.css` still uses shell gradients, sticky chrome, and multiple shadow rules,
-2. the RFC target is more restrained:
-   - neutral surfaces,
-   - disciplined hierarchy,
-   - low shadow,
-   - strong typography,
-   - action-first rails.
-
-Assessment:
-
-1. keep the current premium/institutional direction,
-2. replace remaining decorative shell treatment that does not add decision value,
-3. remove shell visual flourishes that make the product feel more transitional than enterprise.
-
-### 7. Shell performance expectations need to be explicit before implementation
-
-Evidence:
-
-1. current shell pieces are small, but later slices will add search, notifications, advisory
-   workflow rails, AI assist entry points, and more module composition,
-2. no explicit shell performance budget is attached to the current shell foundations.
-
-Assessment:
-
-1. the shell should define first-paint, nav-switch, and command-surface expectations now,
-2. later slices should not be allowed to grow shell complexity without budget and measurement.
-
-## Keep / replace / retire decisions
-
-### Keep
-
-1. shell-root composition in `app-shell.tsx`,
-2. registry-driven navigation,
-3. token foundation in `tokens.ts`,
-4. `Text` primitive as the typography contract,
-5. shared layout primitives in `workspace-layout.tsx`,
-6. MUI token integration in `mui-theme.ts`.
-
-### Replace
-
-1. transitional shell vocabulary in `app-registry.ts`,
-2. app-switcher posture with a governed workspace shell navigation model,
-3. split shell/token ownership between `tokens.ts`, MUI theme overrides, and broad global CSS,
-4. shell styling that depends on one very large `globals.css`,
-5. mixed `app` / `workbench` / `workspace` / `workstation` ownership language where a clearer
-   hierarchy is needed.
-
-### Retire
-
-1. hidden and transitional shell entries once governed workspace entries exist,
-2. decorative shell gradients and shadow treatment that add chrome rather than clarity,
-3. shell-local CSS trapped inside monolithic global styling once moved to shell- or design-system-
-   owned modules,
-4. duplicate shell naming patterns that obscure ownership.
-
-## Target shell and design-system foundation confirmed by slice 3
-
-Slice 3 confirms this foundation model for RFC-0081 implementation.
+## What Changed
 
 ### 1. Shell structure
 
-The shell should evolve into one governed front-office frame with:
+`lotus-workbench` now uses a clearer shared shell structure:
 
-1. brand and entity context,
-2. workspace navigation,
-3. command/search entry,
-4. shell actions and notifications,
-5. optional assist/AI entry,
-6. stable content frame for workspace pages.
+1. shell brand row in `AppShell`,
+2. dedicated shell workspace bar below the brand row,
+3. shared workspace tab navigation component for shell tabs instead of page-local nav markup.
 
-### 2. Navigation model
+This normalized the shell frame so route surfaces can share one top-level navigation structure.
 
-Shell navigation should become workspace-first, not implementation-first.
+### 2. Navigation foundation
 
-The governed top-level workspace set is:
+The shell app registry was standardized to the governed workspace set:
 
 1. `Portfolio`
 2. `Performance`
@@ -263,87 +75,113 @@ The governed top-level workspace set is:
 4. `Proposal`
 5. `Advisory`
 
-Hidden or compatibility-era shell entries should not remain part of the long-term model.
+Implementation detail:
 
-### 3. Typography and token ownership
+1. `Risk` is backed by the existing supported route `/performance?mode=risk`,
+2. `Proposal` and `Advisory` remain visible but disabled because the shell routes are not yet
+   backed by a stable supported workspace contract in this slice,
+3. hidden transitional shell labels such as `Relationship Book`, `Reporting`, and `Operations`
+   were removed from the runtime shell registry.
 
-Typography, spacing, radius, color, and layout standards should be governed from token-owned design
-system sources first, with global CSS only providing:
+### 3. Shared primitives
 
-1. reset,
-2. root custom-property wiring,
-3. truly global app behavior.
+The slice added or upgraded shared primitives for reuse:
 
-Page and shell styling should not continue to accumulate in a single global stylesheet.
+1. `WorkspaceTabNav` for governed shell/workspace tab sets,
+2. `WorkbenchToolbarGroup` for labeled toolbar groups,
+3. `WorkspaceHeader` now composes through `WorkbenchPageHeader` so page header structure is shared
+   instead of locally re-owned.
 
-### 4. Component ownership model
+The portfolio toolbar now uses `WorkbenchToolbarGroup` instead of bespoke group markup, which gives
+the shell and page-control foundation a shared component contract.
 
-Shared ownership should follow this order:
+### 4. Gateway experience composition alignment
 
-1. design tokens,
-2. shared text and typography primitives,
-3. shell and navigation primitives,
-4. shared layout primitives,
-5. workspace-level composition,
-6. page- and module-level domain rendering.
+`lotus-gateway` now returns explicit normalized workspace navigation flags:
 
-This prevents route-level code from re-owning shell and typography behavior.
+1. `portfolio_workspace`
+2. `performance_workspace`
+3. `risk_workspace`
+4. `proposal_workspace`
+5. `advisory_workspace`
 
-### 5. Shell performance posture
+These were added without removing legacy navigation keys so existing consumers stay compatible while
+the shell begins moving to the governed workspace vocabulary.
 
-The shell should adopt explicit performance expectations:
+### 5. Dead or duplicate styling removed
 
-1. lightweight first paint,
-2. low-cost workspace switching,
-3. non-blocking command/search surface initialization,
-4. deferred loading for non-critical shell adjuncts,
-5. no workspace-local duplication of shell dependencies.
+The slice removed stale duplicate shell nav CSS ownership by retiring unused `.shell-nav` and
+`.shell-nav-link*` selector usage in favor of the new shared `.workspace-tab-nav*` contract.
 
-## Review of slice 3
+## Validation
 
-### What was improved by the review
+### `lotus-workbench`
 
-The review tightened several foundation decisions that would otherwise stay vague:
+Commands run:
 
-1. token direction is good enough to keep,
-2. global CSS ownership is too broad and must be reduced,
-3. shell naming and route vocabulary cleanup is mandatory,
-4. shell performance expectations must be treated as architecture, not later optimization.
+1. `npx vitest run tests/unit/app-shell.test.tsx tests/integration/top-nav-capabilities.test.tsx tests/unit/design-system-components.test.tsx tests/unit/portfolio-workspace-toolbar.test.tsx`
+2. `npm run lint`
+3. `npm run typecheck`
+4. `git diff --check`
 
-### What was consciously not changed in slice 3
+Result:
 
-1. no `lotus-workbench` code was changed yet,
-2. no shell components were renamed yet,
-3. no global CSS was split yet,
-4. no tokens were changed yet.
+1. focused shell/design-system tests passed,
+2. lint passed,
+3. typecheck passed,
+4. diff check passed.
 
-This is correct for slice 3. The slice exists to lock the target shell and foundation model before
-implementation code starts in later slices.
+### `lotus-gateway`
 
-### Guidance and context decision
+Commands run:
 
-No immediate frontend skill or onboarding guidance update is required before implementation begins.
+1. `python -m pytest tests/unit/test_platform_capabilities_service.py tests/integration/test_platform_capabilities_router.py tests/contract/test_platform_capabilities_contract.py`
+2. `python -m ruff check .`
+3. `python -m ruff format --check .`
+4. `python scripts/check_monetary_float_usage.py`
+5. `python -m mypy src`
+6. `git diff --check`
 
-Reason:
+Result:
 
-1. the problem identified here is implementation topology, not missing agent routing guidance,
-2. guidance updates will be more valuable once slices 4 through 6 establish the actual shell,
-   naming, and module ownership changes.
+1. focused gateway tests passed,
+2. ruff check passed,
+3. ruff format check passed after formatting the touched files,
+4. monetary float guard passed,
+5. mypy passed,
+6. diff check passed.
 
-This is a conscious no-change decision.
+## Screenshot Evidence
 
-### Follow-up implications for slice 4
+Shell top bar and workspace tab evidence was captured from the canonical populated workbench using
+`PB_SG_GLOBAL_BAL_001` under:
 
-Slice 4 should now proceed from a clearer baseline:
+`C:\Users\Sandeep\projects\lotus-workbench\output\playwright\rfc-0081-slice-3-review`
 
-1. naming cleanup is not just wording work, it is ownership cleanup,
-2. typography standards must map directly onto the shared token model,
-3. route and workspace terminology should align with the governed shell before deeper UI work
-   begins.
+Files:
 
-## Conclusion
+1. `portfolio-shell-tabs.png`
+2. `performance-shell-tabs.png`
+3. `risk-shell-tabs.png`
 
-Slice 3 is complete.
+## Consciously Not Changed
 
-It produced a code-grounded shell and design-system foundation assessment, explicit
-keep/replace/retire decisions, and a defensible target model for later shell implementation slices.
+Slice 3 did not:
+
+1. add new business actions,
+2. change backend business behavior,
+3. enable unsupported Proposal or Advisory workflows,
+4. redesign portfolio modules beyond moving the portfolio toolbar onto the shared toolbar-group
+   primitive,
+5. change stable existing routes except exposing `Risk` through the already-supported
+   `/performance?mode=risk` workspace mode.
+
+## Follow-Up Notes For Slice 4
+
+Slice 4 can now build on a real shared shell/navigation contract instead of page-local markup.
+
+Recommended next focus:
+
+1. move additional shared shell/layout styling out of `globals.css` where practical,
+2. extend the shared header and card primitives only where they replace duplication,
+3. keep Proposal and Advisory disabled until backed by supported workspace routes and data.
