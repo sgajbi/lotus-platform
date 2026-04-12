@@ -111,3 +111,22 @@ def test_rfc_0081_slice_1_evidence_exists_and_records_keep_replace_retire() -> N
         "Slice 1 is complete.",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0081_slice_2_evidence_exists_and_records_gateway_target_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-2-gateway-experience-contract-assessment-and-target-model-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 2: Gateway Experience-Contract Assessment and Target Model Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target gateway experience-contract model confirmed by slice 2",
+        "### 1. Shell bootstrap contract",
+        "### 2. Workspace bootstrap contracts",
+        "### 3. Workflow-truth contracts",
+        "### 5. Cache and freshness model",
+        "No immediate gateway guidance change is required before implementation begins.",
+        "Slice 2 is complete.",
+    ):
+        assert required_item in evidence

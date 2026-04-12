@@ -2,7 +2,7 @@
 
 - RFC: `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`
 - Status: Proposed
-- Last updated: 2026-04-11
+- Last updated: 2026-04-12
 
 ## Approval Gate
 
@@ -21,10 +21,10 @@
 
 ## Slice 2: Gateway Experience-Contract Assessment and Target Model
 
-- [ ] Audit current `lotus-gateway` support for shell bootstrap, workspace composition, workflow state, and evidence delivery.
-- [ ] Identify missing gateway capabilities needed for the shell and modular UI model.
-- [ ] Define target experience-contract expectations for current and future workspaces.
-- [ ] Review whether current gateway guidance or RFC cross-links need updates before implementation begins.
+- [x] Audit current `lotus-gateway` support for shell bootstrap, workspace composition, workflow state, and evidence delivery.
+- [x] Identify missing gateway capabilities needed for the shell and modular UI model.
+- [x] Define target experience-contract expectations for current and future workspaces.
+- [x] Review whether current gateway guidance or RFC cross-links need updates before implementation begins.
 
 ## Slice 3: Shell, Navigation, and Design-System Foundation
 
@@ -112,8 +112,8 @@
 
 - [x] Each completed slice is reviewed before the next slice begins.
 - [x] Each slice records what changed, what was removed, what was consciously left unchanged, and what follow-up remains.
-- [ ] Shared architectural slices receive stricter review than page-local implementation slices.
-- [ ] No next slice starts until review findings are resolved or explicitly deferred with rationale.
+- [x] Shared architectural slices receive stricter review than page-local implementation slices.
+- [x] No next slice starts until review findings are resolved or explicitly deferred with rationale.
 
 ## Final Acceptance
 
