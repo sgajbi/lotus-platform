@@ -172,3 +172,41 @@ def test_rfc_0081_slice_4_evidence_exists_and_records_naming_topology_model() ->
         "Slice 4 is complete.",
     ):
         assert required_item in evidence
+
+
+def test_rfc_0081_slice_5_evidence_exists_and_records_gateway_hardening_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-5-gateway-composition-foundation-and-contract-hardening-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 5: Gateway Composition Foundation and Contract Hardening Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target gateway composition model confirmed by slice 5",
+        "### 1. Shell entry contract family",
+        "### 2. Workspace bootstrap contract family",
+        "### 4. Freshness and consistency model",
+        "### 6. Caching, revalidation, and invalidation model",
+        "No immediate agent skill or onboarding guidance update is required before implementation begins.",
+        "Slice 5 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_6_evidence_exists_and_records_analytical_uplift_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-6-portfolio-performance-and-risk-surface-uplift-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 6: Portfolio, Performance, and Risk Surface Uplift Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target analytical surface model confirmed by slice 6",
+        "### 1. Portfolio workspace model",
+        "### 2. Performance workspace model",
+        "### 3. Risk workspace model",
+        "### 5. Structural cleanup model",
+        "No immediate panel-registry or runtime-guidance update is required before implementation begins.",
+        "Slice 6 is complete.",
+    ):
+        assert required_item in evidence

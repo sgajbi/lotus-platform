@@ -45,19 +45,19 @@
 
 ## Slice 5: Gateway Composition Foundation and Contract Hardening
 
-- [ ] Define gateway contracts for shell entry and workspace bootstrap.
-- [ ] Standardize supportability, freshness, evidence, and partial-state delivery expectations.
-- [ ] Define versioning and rollout posture for modular UI contracts.
-- [ ] Align gateway-facing naming and domain vocabulary with the shell model.
-- [ ] Define caching, revalidation, and invalidation expectations aligned to gateway freshness metadata.
+- [x] Define gateway contracts for shell entry and workspace bootstrap.
+- [x] Standardize supportability, freshness, evidence, and partial-state delivery expectations.
+- [x] Define versioning and rollout posture for modular UI contracts.
+- [x] Align gateway-facing naming and domain vocabulary with the shell model.
+- [x] Define caching, revalidation, and invalidation expectations aligned to gateway freshness metadata.
 
 ## Slice 6: Portfolio, Performance, and Risk Surface Uplift
 
-- [ ] Align analytical workspaces to the shared system.
-- [ ] Standardize chart, table, and summary-rail patterns.
-- [ ] Preserve truthful supportability, evidence, and empty-state behavior.
-- [ ] Remove stale analytical layout patterns and duplicate page-local implementations.
-- [ ] Review whether the panel registry or runtime guidance needs updates.
+- [x] Align analytical workspaces to the shared system.
+- [x] Standardize chart, table, and summary-rail patterns.
+- [x] Preserve truthful supportability, evidence, and empty-state behavior.
+- [x] Remove stale analytical layout patterns and duplicate page-local implementations.
+- [x] Review whether the panel registry or runtime guidance needs updates.
 
 ## Slice 7: Advisory and Proposal Workspace Integration
 
