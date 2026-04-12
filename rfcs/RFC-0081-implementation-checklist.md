@@ -28,12 +28,12 @@
 
 ## Slice 3: Shell, Navigation, and Design-System Foundation
 
-- [ ] Define upgraded shell structure.
-- [ ] Define shared navigation, entity context, and toolbar patterns.
-- [ ] Define shared tokens and primitives.
-- [ ] Define professional typography, sizing, and naming standards for the shell and shared UI layer.
-- [ ] Remove obvious dead or duplicate shell styling patterns.
-- [ ] Define shell and navigation performance expectations.
+- [x] Define upgraded shell structure.
+- [x] Define shared navigation, entity context, and toolbar patterns.
+- [x] Define shared tokens and primitives.
+- [x] Define professional typography, sizing, and naming standards for the shell and shared UI layer.
+- [x] Remove obvious dead or duplicate shell styling patterns.
+- [x] Define shell and navigation performance expectations.
 
 ## Slice 4: Shared Information Architecture, Naming, and Typography Foundation
 

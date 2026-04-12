@@ -76,22 +76,26 @@ def test_rfc_0081_checklist_exists_and_matches_the_slice_model() -> None:
         "## Slice 8: Micro-Frontend Composition and Extension Model",
         "## Slice 12: Documentation, Agent Context, Skill Alignment, and Branch Hygiene",
         "## Slice Review Gate",
-        "- [ ] Define professional typography, sizing, and naming standards for the shell and shared UI layer.",
-        "- [ ] Define shell and navigation performance expectations.",
-        "- [ ] Define code-organization and file-structure standards for the modular UI topology.",
-        "- [ ] Define agentic AI extension standards for future workflow-native assist surfaces.",
-        "- [ ] Define architecture and UX standards for AI search and command-driven discovery surfaces.",
-        "- [ ] Define how new module routes and panels are incorporated into governed automation.",
-        "- [ ] Define caching, revalidation, and invalidation expectations aligned to gateway freshness metadata.",
-        "- [ ] Dead code and obsolete frontend patterns exposed by the uplift are removed.",
-        "- [ ] Banking-grade naming, typography, and code organization are standardized across the uplift.",
-        "- [ ] The shell and module model remain compatible with future agentic AI workflow surfaces.",
-        "- [ ] The shell and gateway model remain compatible with future AI search and modern discovery features.",
-        "- [ ] All new screens, panels, and workflow surfaces are represented in the governed automation and screenshot path.",
-        "- [ ] Front-office usage telemetry, logging, and tracing are sufficient to understand adoption, friction, and operational health.",
-        "- [ ] Caching and invalidation strategy improves speed without creating stale front-office workflow state.",
-        "- [ ] `lotus-workbench` is materially closer to an enterprise-grade front-office product platform, not just a visually improved UI.",
-        "- [ ] Update agent guidance if the shell and module model materially changes runtime or routing behavior.",
+    ):
+        assert required_item in checklist
+
+    for required_item in (
+        "Define professional typography, sizing, and naming standards for the shell and shared UI layer.",
+        "Define shell and navigation performance expectations.",
+        "Define code-organization and file-structure standards for the modular UI topology.",
+        "Define agentic AI extension standards for future workflow-native assist surfaces.",
+        "Define architecture and UX standards for AI search and command-driven discovery surfaces.",
+        "Define how new module routes and panels are incorporated into governed automation.",
+        "Define caching, revalidation, and invalidation expectations aligned to gateway freshness metadata.",
+        "Dead code and obsolete frontend patterns exposed by the uplift are removed.",
+        "Banking-grade naming, typography, and code organization are standardized across the uplift.",
+        "The shell and module model remain compatible with future agentic AI workflow surfaces.",
+        "The shell and gateway model remain compatible with future AI search and modern discovery features.",
+        "All new screens, panels, and workflow surfaces are represented in the governed automation and screenshot path.",
+        "Front-office usage telemetry, logging, and tracing are sufficient to understand adoption, friction, and operational health.",
+        "Caching and invalidation strategy improves speed without creating stale front-office workflow state.",
+        "`lotus-workbench` is materially closer to an enterprise-grade front-office product platform, not just a visually improved UI.",
+        "Update agent guidance if the shell and module model materially changes runtime or routing behavior.",
     ):
         assert required_item in checklist
 
@@ -128,5 +132,24 @@ def test_rfc_0081_slice_2_evidence_exists_and_records_gateway_target_model() -> 
         "### 5. Cache and freshness model",
         "No immediate gateway guidance change is required before implementation begins.",
         "Slice 2 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_3_evidence_exists_and_records_shell_foundation_model() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 3: Shell, Navigation, and Design-System Foundation Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target shell and design-system foundation confirmed by slice 3",
+        "### 1. Shell structure",
+        "### 2. Navigation model",
+        "### 3. Typography and token ownership",
+        "### 5. Shell performance posture",
+        "No immediate frontend skill or onboarding guidance update is required before implementation begins.",
+        "Slice 3 is complete.",
     ):
         assert required_item in evidence
