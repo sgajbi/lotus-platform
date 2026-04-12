@@ -22,7 +22,7 @@ Legend:
 | 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; commits `98991db` and `08e52a0` (gateway-backed shell bootstrap consumption and shell registry reduction); `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` and `lotus-workbench/output/playwright/rfc-0081-slice-6a-review` |
 | 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83; commit `2060065` (`Standardize workbench typography and naming foundation`); screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-4-review`; gateway/platform naming alignment still pending |
 | 5 | Gateway composition foundation | Completed (implementation) | `lotus-gateway` branch `codex/rfc-0081-slice-5-gateway-composition-foundation`; commit `7aae028` (`Harden shell bootstrap capability contract`); consumed in `lotus-workbench` commit `08e52a0`; `RFC-0081-slice-5-gateway-composition-foundation-and-contract-hardening-evidence.md` |
-| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio analytical surface uplift in progress) | `lotus-workbench` PR #83; commits `cc8c851`, `2002cc3`, `08e52a0`, `455658a`, `fc74bd4`, `809c89a`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-6a-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6b-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6c-review`, and review-fix evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix` |
+| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio accepted; Performance/Risk first uplift pass complete pending final cross-surface review) | `lotus-workbench` PR #83; commits `cc8c851`, `2002cc3`, `08e52a0`, `455658a`, `fc74bd4`, `809c89a`, `b2cf9ee`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-6a-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6b-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6c-review`, review-fix evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-current-state`, and review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-review` |
 | 7 | Advisory & proposal workspace integration | Not started | — |
 | 8 | Micro-frontend composition model | Not started | — |
 | 9 | AI surface governance | Not started | — |
@@ -42,7 +42,7 @@ and are part of PR #83 unless noted.
 | 3 | Portfolio selector rail | `ed225ad` Polish portfolio selector rail; `6a79ae4` Address portfolio selector accessibility feedback |
 | 4 | Summary KPI foundation | `a267e63` Redesign portfolio summary KPI foundation; `2c5678c` Address portfolio KPI review feedback |
 | 5 | Allocation panel | `09224e7` Refine portfolio allocation module; `f769e5a` Fix allocation review issues |
-| 6 | Right-rail detail panels | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes; `cc8c851` Refine portfolio analytical surface density; `2002cc3` Stack cramped portfolio insight modules; `08e52a0` Wire shell bootstrap into portfolio analytics surface; `455658a` Strengthen portfolio analytical workspace; `fc74bd4` Refine portfolio analytical ownership and flow; `809c89a` Fix portfolio analytical review issues |
+| 6 | Portfolio, Performance, and Risk surface uplift | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes; `cc8c851` Refine portfolio analytical surface density; `2002cc3` Stack cramped portfolio insight modules; `08e52a0` Wire shell bootstrap into portfolio analytics surface; `455658a` Strengthen portfolio analytical workspace; `fc74bd4` Refine portfolio analytical ownership and flow; `809c89a` Fix portfolio analytical review issues; `b2cf9ee` Uplift performance and risk analytical surfaces |
 | 7 | Detail module scanning | `6d71030` Refine portfolio detail module scanning |
 | 8 | Performance snapshot compact view | `d4b8625` Condense performance snapshot default view |
 | 9 | Width parity + type scale | `b35cd1f` Normalize portfolio module width and type scale |
@@ -66,6 +66,8 @@ Latest evidence folders:
 - `rfc-0081-slice-6b-review`
 - `rfc-0081-slice-6c-review`
 - `rfc-0081-slice-6c-review-fix`
+- `rfc-0081-slice-6d-current-state`
+- `rfc-0081-slice-6d-review`
 - `rfc-0081-slice-6-review`
 - `rfc-0081-slice-7-review`
 - `rfc-0081-slice-8-review`
@@ -83,6 +85,11 @@ Slice 6C review-fix evidence:
 - `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix/detailed-hero-kpi-review-fix.png`
 - `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix/summary-performance-snapshot-review-fix.png`
 - `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix/detailed-performance-snapshot-review-fix.png`
+
+Slice 6D Performance/Risk review evidence:
+- Before screenshots: `lotus-workbench/output/playwright/rfc-0081-slice-6d-current-state`
+- After screenshots: `lotus-workbench/output/playwright/rfc-0081-slice-6d-review`
+- Workbench validation: focused Performance/Risk vitest lane, `npm run lint`, `npm run typecheck`, and `git diff --check`.
 
 ### Cross-Repo Slice 3 Evidence
 
@@ -144,11 +151,11 @@ Slice 6C review-fix evidence:
 
 ## Slice 6: Portfolio, Performance, and Risk Surface Uplift
 
-- [x] Align analytical workspaces to the shared system.
-- [x] Standardize chart, table, and summary-rail patterns.
+- [ ] Align analytical workspaces to the shared system. Partial: Portfolio is accepted for now; Performance/Risk first uplift pass has review evidence.
+- [ ] Standardize chart, table, and summary-rail patterns. Partial: Performance/Risk chart and risk posture patterns improved; final cross-surface consistency review remains.
 - [x] Preserve truthful supportability, evidence, and empty-state behavior.
-- [x] Remove stale analytical layout patterns and duplicate page-local implementations.
-- [x] Review whether the panel registry or runtime guidance needs updates.
+- [ ] Remove stale analytical layout patterns and duplicate page-local implementations. Partial: no new unsupported behavior; broader stale pattern removal remains for final closeout.
+- [ ] Review whether the panel registry or runtime guidance needs updates.
 
 ## Slice 7: Advisory and Proposal Workspace Integration
 
