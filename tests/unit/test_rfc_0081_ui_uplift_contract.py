@@ -95,7 +95,7 @@ def test_rfc_0081_checklist_exists_and_matches_the_slice_model() -> None:
         "Front-office usage telemetry, logging, and tracing are sufficient to understand adoption, friction, and operational health.",
         "Caching and invalidation strategy improves speed without creating stale front-office workflow state.",
         "`lotus-workbench` is materially closer to an enterprise-grade front-office product platform, not just a visually improved UI.",
-        "Update agent guidance if the shell and module model materially changes runtime or routing behavior.",
+        "Review whether agent guidance must change once shell and module routing changes become real.",
     ):
         assert required_item in checklist
 
@@ -246,5 +246,90 @@ def test_rfc_0081_slice_8_evidence_exists_and_records_module_extension_model() -
         "### 5. Automation and extension rule",
         "No immediate validator or onboarding guidance update is required before implementation begins.",
         "Slice 8 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_9_evidence_exists_and_records_ai_governance_model() -> None:
+    evidence = (
+        ROOT
+        / "rfcs"
+        / "RFC-0081-slice-9-ai-surface-governance-and-assistive-workflow-controls-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 9: AI Surface Governance and Assistive Workflow Controls Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target AI governance model confirmed by slice 9",
+        "### 1. AI disclosure model",
+        "### 2. Human review and workflow separation model",
+        "### 3. Feedback and quality loop model",
+        "### 6. Retrieval and search governance linkage",
+        "No immediate skill or onboarding guidance update is required before implementation begins.",
+        "Slice 9 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_10_evidence_exists_and_records_ai_search_and_command_model() -> None:
+    evidence = (
+        ROOT
+        / "rfcs"
+        / "RFC-0081-slice-10-ai-search-command-surfaces-and-agentic-extension-model-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 10: AI Search, Command Surfaces, and Agentic Extension Model Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target AI search and command model confirmed by slice 10",
+        "### 1. Shell-owned discovery entry model",
+        "### 2. Result-class model",
+        "### 3. Search and assist separation model",
+        "### 5. Command and search gateway model",
+        "### 6. Automation and validation model",
+        "No immediate skill or onboarding guidance update is required before implementation begins.",
+        "Slice 10 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_11_evidence_exists_and_records_operability_model() -> None:
+    evidence = (
+        ROOT
+        / "rfcs"
+        / "RFC-0081-slice-11-performance-accessibility-and-operability-hardening-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 11: Performance, Accessibility, and Operability Hardening Evidence",
+        "## Keep / replace / retire decisions",
+        "## Target operability model confirmed by slice 11",
+        "### 1. Performance-budget model",
+        "### 2. Freshness and caching model",
+        "### 3. Accessibility and keyboard-ergonomics model",
+        "### 4. Observability and usage model",
+        "### 6. Automation-coverage model",
+        "No immediate skill or onboarding guidance update is required before implementation begins.",
+        "Slice 11 is complete.",
+    ):
+        assert required_item in evidence
+
+
+def test_rfc_0081_slice_12_evidence_exists_and_records_context_and_hygiene_posture() -> None:
+    evidence = (
+        ROOT
+        / "rfcs"
+        / "RFC-0081-slice-12-docs-context-skill-alignment-and-branch-hygiene-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 12: Documentation, Agent Context, Skill Alignment, and Branch Hygiene Evidence",
+        "## Keep / replace / retire decisions",
+        "## Documentation and context decision for this slice",
+        "### 1. No immediate agent-context change is required before implementation begins",
+        "### 2. Documentation updates must happen during implementation, not ahead of it",
+        "### 3. Skills should only change when product routing changes materially",
+        "### 4. Branch hygiene decision",
+        "Slice 12 is complete.",
     ):
         assert required_item in evidence

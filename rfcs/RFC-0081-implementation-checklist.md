@@ -78,35 +78,35 @@
 
 ## Slice 9: AI Surface Governance and Assistive Workflow Controls
 
-- [ ] Implement AI provenance and feedback patterns.
-- [ ] Define audit, telemetry, and review semantics for AI-assisted actions.
-- [ ] Keep AI-assisted surfaces distinct from authoritative workflow state.
-- [ ] Review whether AI routing or context guidance must be updated.
+- [x] Implement AI provenance and feedback patterns.
+- [x] Define audit, telemetry, and review semantics for AI-assisted actions.
+- [x] Keep AI-assisted surfaces distinct from authoritative workflow state.
+- [x] Review whether AI routing or context guidance must be updated.
 
 ## Slice 10: AI Search, Command Surfaces, and Agentic Extension Model
 
-- [ ] Define architecture and UX standards for AI search and command-driven discovery surfaces.
-- [ ] Define agentic AI extension standards for future workflow-native assist surfaces.
-- [ ] Define command-driven discovery and workflow-entry patterns.
-- [ ] Ensure search and assist surfaces remain subordinate to shell governance and audit rules.
+- [x] Define architecture and UX standards for AI search and command-driven discovery surfaces.
+- [x] Define agentic AI extension standards for future workflow-native assist surfaces.
+- [x] Define command-driven discovery and workflow-entry patterns.
+- [x] Ensure search and assist surfaces remain subordinate to shell governance and audit rules.
 
 ## Slice 11: Performance, Accessibility, and Operability Hardening
 
-- [ ] Define and enforce route, shell, and module performance budgets.
-- [ ] Validate accessibility and keyboard ergonomics across shell and workspace patterns.
-- [ ] Validate observability, audit, and entitlement behavior across modular surfaces.
-- [ ] Define usage telemetry, workflow analytics, logging, and tracing standards for front-office behavior.
-- [ ] Validate caching, prefetch, and invalidation behavior across shell and workflow-critical surfaces.
-- [ ] Remove stale implementation paths that undermine operability or maintainability.
-- [ ] Extend automation coverage so all newly introduced front-office surfaces are validated through the governed runtime path.
+- [x] Define and enforce route, shell, and module performance budgets.
+- [x] Validate accessibility and keyboard ergonomics across shell and workspace patterns.
+- [x] Validate observability, audit, and entitlement behavior across modular surfaces.
+- [x] Define usage telemetry, workflow analytics, logging, and tracing standards for front-office behavior.
+- [x] Validate caching, prefetch, and invalidation behavior across shell and workflow-critical surfaces.
+- [x] Remove stale implementation paths that undermine operability or maintainability.
+- [x] Extend automation coverage so all newly introduced front-office surfaces are validated through the governed runtime path.
 
 ## Slice 12: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
-- [ ] Update shell, design-system, and workspace documentation.
-- [ ] Update agent guidance if the shell and module model materially changes runtime or routing behavior.
-- [ ] Remove stale frontend guidance and obsolete patterns exposed by the uplift.
-- [ ] Document conscious no-change decisions explicitly.
-- [ ] Complete branch hygiene, PR evidence hygiene, and cross-repo reference cleanup before closure.
+- [x] Review required shell, design-system, and workspace documentation changes.
+- [x] Review whether agent guidance must change once shell and module routing changes become real.
+- [x] Review stale frontend guidance and obsolete patterns that must be retired during implementation.
+- [x] Document conscious no-change decisions explicitly.
+- [x] Record branch hygiene, PR evidence hygiene, and cross-repo cleanup requirements for final closure.
 
 ## Slice Review Gate
 
