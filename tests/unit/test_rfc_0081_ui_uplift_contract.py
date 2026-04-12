@@ -94,3 +94,20 @@ def test_rfc_0081_checklist_exists_and_matches_the_slice_model() -> None:
         "- [ ] Update agent guidance if the shell and module model materially changes runtime or routing behavior.",
     ):
         assert required_item in checklist
+
+
+def test_rfc_0081_slice_1_evidence_exists_and_records_keep_replace_retire() -> None:
+    evidence = (
+        ROOT / "rfcs" / "RFC-0081-slice-1-current-state-assessment-and-target-model-evidence.md"
+    ).read_text(encoding="utf-8")
+
+    for required_item in (
+        "# RFC-0081 Slice 1: Current-State Assessment and UI Target Model Evidence",
+        "## Keep / replace / retire decisions",
+        "### Keep",
+        "### Replace",
+        "### Retire",
+        "## Review of slice 1",
+        "Slice 1 is complete.",
+    ):
+        assert required_item in evidence

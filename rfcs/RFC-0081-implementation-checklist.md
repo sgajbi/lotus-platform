@@ -14,10 +14,10 @@
 
 ## Slice 1: Current-State Assessment and UI Target Model
 
-- [ ] Audit current Lotus shell and workspace drift.
-- [ ] Record keep, replace, retire decisions for major patterns.
-- [ ] Define target page archetypes and workspace structure.
-- [ ] Review whether current frontend guidance needs early updates before implementation begins.
+- [x] Audit current Lotus shell and workspace drift.
+- [x] Record keep, replace, retire decisions for major patterns.
+- [x] Define target page archetypes and workspace structure.
+- [x] Review whether current frontend guidance needs early updates before implementation begins.
 
 ## Slice 2: Gateway Experience-Contract Assessment and Target Model
 
@@ -110,8 +110,8 @@
 
 ## Slice Review Gate
 
-- [ ] Each completed slice is reviewed before the next slice begins.
-- [ ] Each slice records what changed, what was removed, what was consciously left unchanged, and what follow-up remains.
+- [x] Each completed slice is reviewed before the next slice begins.
+- [x] Each slice records what changed, what was removed, what was consciously left unchanged, and what follow-up remains.
 - [ ] Shared architectural slices receive stricter review than page-local implementation slices.
 - [ ] No next slice starts until review findings are resolved or explicitly deferred with rationale.
 
