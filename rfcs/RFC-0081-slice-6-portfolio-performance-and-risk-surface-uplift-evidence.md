@@ -2,345 +2,319 @@
 
 - RFC: `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`
 - Slice: `Slice 6: Portfolio, Performance, and Risk Surface Uplift`
-- Date: 2026-04-12
-- Status: Completed and reviewed
+- Date: 2026-04-13
+- Status: Partial implementation and active review
 
-## Scope of the assessment
+## Scope of the slice
 
-Slice 6 reviewed the current analytical surfaces in `lotus-workbench` to define how portfolio,
-performance, and risk should be uplifted under the governed shell, gateway, and naming model
-already established by slices 1 through 5.
+Slice 6 started as the analytical-surface assessment for `Portfolio`, `Performance`, and `Risk`,
+then became the main implementation track for the first serious product-surface uplift under the
+new shell, gateway, and naming model established by slices 3 through 5.
 
-The slice focused on:
+The implemented slice has focused on:
 
-1. current workspace ownership for `Portfolio`, `Performance`, and `Risk`,
-2. summary-first and detail-on-demand quality of the analytical pages,
-3. supportability, evidence, empty-state, and methodology behavior,
-4. chart, table, rail, and drawer consistency,
-5. structural hotspots where page-local or monolithic code will undermine the uplift if left
-   unaddressed.
+1. portfolio workspace organization, density, and modularization,
+2. shell-bootstrap consumption inside the workbench rather than fallback-led shell ownership,
+3. performance summary information hierarchy, chart structure, support-state truthfulness, and
+   repeated-label reduction,
+4. first-pass risk workspace uplift and analytical zoning,
+5. code cleanup needed to stop analytical pages from remaining monolithic and page-local.
 
-The goal of the slice was to decide what analytical patterns are already strong enough to keep and
-where later implementation must tighten layout, ownership, and code organization.
+The slice is not closed. The portfolio surface is materially uplifted, performance summary has been
+substantially improved but is still under active refinement, and risk has completed a first uplift
+pass but still needs final cross-surface consistency review.
 
-## Files and surfaces reviewed
+## Repositories and active branches
 
-Reviewed directly in `lotus-workbench`:
+### `lotus-workbench`
 
-1. `src/apps/portfolio/portfolio-experience-page.tsx`
-2. `src/apps/portfolio/components/portfolio-workspace.tsx`
-3. `src/apps/portfolio/capabilities.ts`
-4. `src/apps/portfolio/view-model.ts`
-5. `src/apps/performance/performance-analytics-page.tsx`
-6. `src/apps/performance/components/performance-workspace-view.tsx`
-7. `src/apps/performance/workspace-assembler.ts`
-8. `src/apps/performance/view-model.ts`
-9. `src/apps/performance/advisor-brief-view-model.ts`
-10. `src/apps/performance/components/risk/*`
+1. Repo: `C:\Users\Sandeep\projects\lotus-workbench`
+2. Branch: `codex/rfc-0081-slice-1-portfolio-foundation`
+3. PR: `#83`
 
-Additional structure checks:
+### `lotus-platform`
 
-1. `portfolio-workspace.tsx` is approximately `1856` lines,
-2. `advisor-brief-view-model.ts` is approximately `776` lines,
-3. `performance-view-model.ts` is approximately `301` lines,
-4. `risk` currently lives inside the performance workspace rather than as a standalone top-level
-   app.
+1. Repo: `C:\Users\Sandeep\projects\lotus-platform`
+2. Branch: `codex/rfc-0081-ui-uplift-hardening-20260411`
+3. This document and `RFC-0081-implementation-checklist.md` carry the implementation ledger.
 
-## Current-state findings
+## Assessment findings that still govern the implementation
 
-### 1. The analytical surfaces already follow summary-first discipline better than many legacy wealth UIs
+The original slice-6 assessment remains valid and still governs the implementation:
 
-Evidence:
+1. `Portfolio`, `Performance`, and `Risk` were already directionally summary-first and
+   supportability-aware.
+2. Risk remained product-important but structurally subordinate to performance.
+3. Supportability, methodology, evidence, and truthful unavailable-state handling were strong and
+   had to be preserved.
+4. `portfolio-workspace.tsx` and parts of the performance surface had clear monolithic hotspots.
+5. Chart, drawer, table, and rail ownership was uneven and had to be tightened rather than
+   multiplied.
 
-1. `portfolio-experience-page.tsx` is intentionally thin and delegates to a workspace client,
-2. `performance-analytics-page.tsx` renders summary-first and explicitly defers deep detail on
-   first paint,
-3. `performance-workspace-view.tsx` keeps analysis and evidence deferred behind mode selection,
-4. portfolio and performance surfaces already use:
-   - rail structures,
-   - summary frames,
-   - deferred modules,
-   - supportability-aware states.
+The important correction is that slice 6 did not stop at assessment. Those findings have already
+driven real implementation and review-fix work.
 
-Assessment:
+## What has been implemented so far
 
-1. keep the summary-first and detail-on-demand discipline,
-2. keep deferred loading for heavier analytical and evidence surfaces,
-3. keep capability-aware rendering and explicit degraded-state messaging,
-4. treat these as governed analytical patterns rather than incidental implementation choices.
+### 1. Portfolio analytical surface
 
-Current gap:
+Portfolio is the strongest completed portion of slice 6.
 
-1. the interaction model is directionally right, but the surfaces are not yet visually and
-   structurally unified enough to feel like one enterprise-grade front-office product.
+Implemented work includes:
 
-### 2. Risk is product-important but still structurally subordinate to the performance workspace
+1. analytical main-column extraction from the original coarse `portfolio-workspace.tsx` ownership,
+2. section decomposition into insights, changes, and drilldown boundaries,
+3. drawer-builder decomposition into metric, exception, and record-specific ownership,
+4. right-rail detail-card and definition-list standardization,
+5. allocation, top-holdings, summary, and support-state hierarchy refinement,
+6. shell-bootstrap consumption so portfolio analytical surfaces are no longer tied to duplicated
+   shell ownership assumptions.
 
-Evidence:
+Material slice-6 portfolio commits:
 
-1. there is no standalone `src/apps/risk`,
-2. `risk` exists as a mode inside the performance workspace,
-3. there is a substantial dedicated risk component family under
-   `src/apps/performance/components/risk/*`,
-4. slice 4 locked `Risk` as a first-class shell workspace.
+1. `cc8c851` `Refine portfolio analytical surface density`
+2. `2002cc3` `Stack cramped portfolio insight modules`
+3. `08e52a0` `Wire shell bootstrap into portfolio analytics surface`
+4. `455658a` `Strengthen portfolio analytical workspace`
+5. `fc74bd4` `Refine portfolio analytical ownership and flow`
+6. `809c89a` `Fix portfolio analytical review issues`
 
 Assessment:
 
-1. keep the existing risk analytical primitives and supportability behavior,
-2. replace the long-term assumption that risk remains only a performance sub-mode,
-3. require later implementation to make risk first-class in shell topology while preserving shared
-   analytical components where reuse is real,
-4. avoid duplicating risk modules just to create a new route.
+1. portfolio is materially improved,
+2. ownership is clearer,
+3. duplicate or mixed-responsibility patterns have been reduced,
+4. the surface is acceptable for the current RFC scope,
+5. there is still CSS concentration in `globals.css`, but the product surface itself is no longer
+   the main slice-6 risk.
 
-Current gap:
+### 2. Shell/bootstrap consumption on the analytical surfaces
 
-1. the product language says `Risk` is first-class, but the app topology still treats it as a
-   nested performance specialization.
+Slice 6 also completed an important ownership correction:
 
-### 3. Supportability, methodology access, and truthful empty-state behavior are already strong and must be preserved
+1. workbench shell tabs are now contract-led from gateway-backed `shellBootstrap`,
+2. `app-registry.ts` is reduced to route-activation logic rather than being a second shell source
+   of truth,
+3. first render is no longer visibly fallback-led in the app switcher,
+4. disabled-workspace reasons are governed product copy rather than raw contract leakage.
 
-Evidence:
+This is part of slice 6 because the analytical surfaces were still being rendered under the old
+fallback-led shell posture even after slices 3 and 5 were documented.
 
-1. `src/apps/portfolio/capabilities.ts` has explicit `partial`, `unavailable`, and hidden-state
-   logic,
-2. `portfolio/view-model.ts` and `performance/advisor-brief-view-model.ts` preserve partial and
-   unavailable reasoning,
-3. the risk component family includes methodology and coverage access, detail drawers, and explicit
-   empty-state copy,
-4. `performance-workspace-view.tsx` already renders degraded-state messaging rather than pretending
-   the workspace is ready.
+Key commits:
 
-Assessment:
+1. `08e52a0` `Wire shell bootstrap into portfolio analytics surface`
+2. `455658a` `Strengthen portfolio analytical workspace`
+3. `fc74bd4` `Refine portfolio analytical ownership and flow`
 
-1. keep supportability-state truthfulness,
-2. keep methodology and evidence access as first-class analytical behavior,
-3. keep empty, partial, and unavailable states explicit and professionally worded,
-4. do not trade these truthful states away for cleaner screenshots or simpler layouts.
+### 3. Performance summary surface
 
-Current gap:
+Performance summary has seen the largest volume of slice-6 follow-on work and remains the area that
+is still open.
 
-1. the behavioral model is strong, but the final UI uplift must standardize how these states look
-   and where they appear across all analytical surfaces.
+Implemented work includes:
 
-### 4. Portfolio and advisory-brief surfaces still contain monolithic hotspots that will slow down the uplift if left untouched
+1. initial performance and risk analytical-surface uplift,
+2. return-path chart structure refactors,
+3. tooltip contract extraction and hardening,
+4. repeated label and support-layer reduction,
+5. unavailable and loading state cleanup,
+6. horizon comparison refactors,
+7. contributor/drivers cleanup,
+8. control-bar compaction,
+9. trust-strip hierarchy softening,
+10. summary-copy and comparison-density refinement.
 
-Evidence:
+Major performance summary commits:
 
-1. `src/apps/portfolio/components/portfolio-workspace.tsx` is approximately `1856` lines,
-2. the same file mixes:
-   - workspace composition,
-   - drawer state,
-   - section behavior,
-   - metric-detail builders,
-   - exception-detail builders,
-   - drilldown logic,
-   - formatting-oriented rendering helpers,
-3. `src/apps/performance/advisor-brief-view-model.ts` is approximately `776` lines and concentrates
-   significant supportability, evidence, and narrative logic in one file.
-
-Assessment:
-
-1. keep the underlying domain behavior and business logic,
-2. replace monolithic file concentration with clearer boundaries,
-3. require later implementation to split:
-   - route orchestration,
-   - workspace composition,
-   - drilldown or drawer builders,
-   - analytical modules,
-   - state hooks,
-   - copy maps,
-   - tests,
-4. avoid page-local accretion while performing the visual uplift.
-
-Current gap:
-
-1. the code quality risk is not that the product surfaces are weak; it is that some of the strongest
-   surfaces are held in files that are already too large for the next wave of product change.
-
-### 5. Charts, tables, rails, and drawers are rich, but pattern ownership is still uneven
-
-Evidence:
-
-1. portfolio uses dedicated holdings, liquidity, projected cashflow, paired analytics, and rail
-   modules,
-2. performance uses summary, analysis, advisor, risk, and evidence modes with dedicated module
-   families,
-3. risk has a disciplined drawer and analytical-table family,
-4. some analytical interaction patterns are still local to one workspace rather than clearly owned
-   as shared enterprise primitives.
+1. `b2cf9ee` `Uplift performance and risk analytical surfaces`
+2. `3b4ed4d` `Uplift performance analytics visuals`
+3. `f8a5439` `Refine performance hierarchy and unavailable states`
+4. `e26b4ef` `Polish performance return path chart styling`
+5. `57eb45b` `Simplify performance chart information hierarchy`
+6. `cf00f33` `Condense performance economics strip`
+7. `920b192` `Sharpen performance return path annotations`
+8. `06f6d05` `Tighten horizon comparison information density`
+9. `b6b753a` `Simplify performance contributor detail table`
+10. `db7b95a` `Refactor performance return path chart option`
+11. `0e16bbd` `Compact performance unavailable states`
+12. `670ea63` `Refine performance loading state`
+13. `5ba55ba` `Compact performance unavailable module framing`
+14. `0c3b0cd` `Reduce repeated performance comparison labels`
+15. `3da8f8c` `Compact performance analysis control chrome`
+16. `dc33cba` `Rebalance performance chart information hierarchy`
+17. `be3e048` `Tighten performance chart tooltip evidence`
+18. `da1d38e` `Refactor performance horizon comparison module`
+19. `bf20bbe` `Refactor performance analysis detail sections`
+20. `ea340fe` `Simplify performance return path support layer`
+21. `5e8e9e0` `Refactor performance return path panel composition`
+22. `78fb7a4` `Extract performance return path tooltip contract`
+23. `ae73bd0` `Rebalance performance return path layout`
+24. `28ded71` `Strengthen performance return path chart styling`
+25. `5eab1c7` `Condense performance horizon comparison matrix`
+26. `3eceb88` `Simplify performance return path summary copy`
+27. `e5a8980` `Compress performance analysis control bar`
+28. `5b2e9fa` `Soften performance trust strip hierarchy`
 
 Assessment:
 
-1. keep the strong reusable patterns already extracted,
-2. replace page-local or workspace-local duplicates where shared ownership is now obvious,
-3. require table, drawer, chart, and rail patterns to become more visibly governed by the shared
-   system,
-4. keep domain-specific content local while promoting generic analytical scaffolding upward.
+1. the code is materially cleaner than the original performance-summary path,
+2. responsibility is better split,
+3. tooltip behavior is more reliable,
+4. repeated comparison information has been reduced,
+5. loading and unavailable states are more truthful and less noisy,
+6. but the surface is still not visually accepted as final PB-grade analytics UI.
 
-Current gap:
+The remaining problem is no longer only code quality. It is final analytical presentation quality.
 
-1. the uplift will create avoidable drift if it adds new page-local table or drawer variants instead
-   of consolidating the existing strong patterns.
+### 4. Risk surface
 
-## Keep / replace / retire decisions
+Risk received its first slice-6 uplift pass, mainly through `b2cf9ee`.
 
-### Keep
+Implemented work includes:
 
-1. summary-first analytical framing,
-2. deferred loading for heavy analytical and evidence modes,
-3. truthful supportability, empty, partial, and unavailable states,
-4. methodology and coverage access patterns,
-5. rich risk analytical components and drill-down behavior,
-6. route-to-workspace delegation where already clean.
+1. clearer analytical zoning,
+2. better framing of primary and secondary risk areas,
+3. improved concentration scale legibility,
+4. stronger alignment to the shared analytical system.
 
-### Replace
+Assessment:
 
-1. the long-term assumption that `Risk` stays a permanent sub-mode under `Performance`,
-2. monolithic portfolio and advisor-brief file concentration,
-3. workspace-local ownership of patterns that are now clearly shared analytical primitives,
-4. any visual uplift approach that standardizes appearance but leaves structural hotspots untouched.
+1. risk is improved,
+2. risk is no longer the weakest analytical surface structurally,
+3. but it still needs final cross-surface review against portfolio and performance so the product
+   feels governed rather than independently polished.
 
-### Retire
+## Complexity and maintainability gains already achieved
 
-1. new analytical page work that adds more behavior into `portfolio-workspace.tsx`,
-2. duplicate chart, drawer, or table scaffolding introduced for one workspace only,
-3. hidden topology where product-important surfaces exist only as nested modes without clear shell
-   ownership,
-4. decorative analytical UI that does not preserve supportability, evidence, or drill-down value.
+Slice 6 has already reduced complexity in meaningful ways.
 
-## Target analytical surface model confirmed by slice 6
+### Portfolio
 
-Slice 6 confirms the analytical-surface posture for RFC-0081 implementation.
+1. coarse workspace composition was split into named analytical sections,
+2. drawer logic was split by subject instead of mixed in one builder file,
+3. right-rail primitives were standardized,
+4. tests were moved toward role- and behavior-based assertions.
 
-### 1. Portfolio workspace model
+### Performance
 
-The `Portfolio` workspace should remain:
+1. return-path chart responsibilities were separated into smaller units,
+2. tooltip contract was extracted and hardened,
+3. horizon comparison ownership was tightened,
+4. unavailable-state rendering became reusable and more intentional,
+5. repeated copy and header clutter were reduced,
+6. control-bar and trust-strip hierarchy became more compact and easier to reason about.
 
-1. summary-first,
-2. decision-support focused,
-3. rail-aware,
-4. drilldown capable,
-5. operationally truthful.
+### Shell/bootstrap
 
-Later implementation should tighten:
+1. duplicate shell ownership was reduced,
+2. the gateway contract is now more honestly consumed by workbench,
+3. app switcher behavior is more deterministic.
 
-1. code organization,
-2. module boundaries,
-3. visual consistency,
-4. empty-state and action presentation,
-5. layout rhythm across summary and detailed sections.
+## High-value evidence collected so far
 
-### 2. Performance workspace model
+### Portfolio evidence folders
 
-The `Performance` workspace should remain:
+1. `lotus-workbench/output/playwright/rfc-0081-slice-6a-review`
+2. `lotus-workbench/output/playwright/rfc-0081-slice-6b-review`
+3. `lotus-workbench/output/playwright/rfc-0081-slice-6c-review`
+4. `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix`
 
-1. summary-first on entry,
-2. mode-driven for deep analysis,
-3. evidence-aware,
-4. benchmark and control-strip friendly,
-5. defer-heavy for analysis and evidence.
+### Performance and risk evidence folders
 
-Later implementation should tighten:
+1. `lotus-workbench/output/playwright/rfc-0081-slice-6d-current-state`
+2. `lotus-workbench/output/playwright/rfc-0081-slice-6d-review`
+3. `lotus-workbench/output/playwright/rfc-0081-slice-6e-current-state`
+4. `lotus-workbench/output/playwright/rfc-0081-slice-6e-review`
+5. `lotus-workbench/output/playwright/rfc-0081-slice-6f-current-state`
+6. `lotus-workbench/output/playwright/rfc-0081-slice-6f-review`
+7. `lotus-workbench/output/playwright/rfc-0081-performance-current-review`
+8. `lotus-workbench/output/playwright/rfc-0081-performance-chart-visual-review`
+9. `lotus-workbench/output/playwright/rfc-0081-performance-chart-annotation-review`
+10. `lotus-workbench/output/playwright/rfc-0081-performance-economics-review`
+11. `lotus-workbench/output/playwright/rfc-0081-performance-hierarchy-review`
+12. `lotus-workbench/output/playwright/rfc-0081-performance-analysis-summary-refactor`
+13. `lotus-workbench/output/playwright/rfc-0081-performance-chart-readout-review`
+14. `lotus-workbench/output/playwright/rfc-0081-performance-return-path-layout`
+15. `lotus-workbench/output/playwright/rfc-0081-performance-control-bar-review`
+16. `lotus-workbench/output/playwright/rfc-0081-performance-trust-strip-review`
 
-1. visual hierarchy,
-2. shared analytical table and chart ownership,
-3. shell vocabulary alignment,
-4. cleaner boundary between shared analytical primitives and mode-specific content.
+## Validation posture
 
-### 3. Risk workspace model
+The implemented slice has not relied on screenshots alone.
 
-The `Risk` workspace should become first-class in the shell while preserving reuse of the existing
-risk analytical components.
+Repeated validation has included:
 
-That means:
+1. focused `vitest` lanes for portfolio, shell, performance, and risk surfaces,
+2. `npm run lint`,
+3. `npm run typecheck`,
+4. `git diff --check`,
+5. browser review against the governed workbench runtime,
+6. PR `#83` GitHub checks.
 
-1. risk remains analytically dense and evidence-aware,
-2. methodology and coverage access remain integral,
-3. drawers and deep drilldowns remain first-class,
-4. the shell and route model should stop treating risk as merely a nested analytical mode.
+Important runtime truth:
 
-### 4. Analytical state and evidence model
+1. some performance browser validation has been limited by governed data/runtime issues,
+2. canonical populated performance proof has not been continuously stable,
+3. that instability is one reason slice 6 remains partial rather than closed.
 
-All three analytical workspaces must preserve:
+## What was consciously not changed
 
-1. ready,
-2. partial,
-3. unavailable,
-4. empty,
-5. degraded or blocked where workflow truth or source availability requires it.
+1. no fake performance, risk, or contribution data was introduced to make screenshots look better,
+2. no unsupported workflow actions were added,
+3. no backend contract was changed inside this evidence update,
+4. no claim is being made that risk is already a fully standalone top-level app implementation,
+5. no claim is being made that performance summary has reached final PB-grade visual quality,
+6. no claim is being made that slice 6 is complete.
 
-These states must remain:
+## Pending work before slice 6 can be closed
 
-1. explicit,
-2. business-readable,
-3. contract-backed,
-4. visually consistent across portfolio, performance, and risk.
+Slice 6 is still open because the remaining work is real, not cosmetic.
 
-### 5. Structural cleanup model
+### 1. Performance summary final acceptance
 
-Later implementation should use the uplift to reduce concentration and improve maintainability:
+Still required:
 
-1. split large page-local files,
-2. move reusable analytical scaffolding upward,
-3. keep domain-specific view-model logic where it belongs,
-4. avoid introducing new local helper piles during visual polish,
-5. retire duplicated scaffolding once replacements are proven.
+1. stronger PB-grade chart presentation,
+2. final cleanup of repeated comparison information in populated states,
+3. sharper analytical hierarchy across return path, horizon comparison, and drivers,
+4. final browser validation against stable canonical populated data.
 
-## Review of slice 6
+### 2. Risk consistency review
 
-### What was improved by the review
+Still required:
 
-The review tightened several important points:
+1. final review against the shared analytical system,
+2. consistency checks with the improved performance surface,
+3. decision on whether any remaining risk layout or density issues still fall inside slice 6.
 
-1. it made explicit that current analytical quality is better than the shell-level product posture,
-2. it identified risk topology, not analytical depth, as the key structural gap,
-3. it confirmed that supportability and methodology access are assets to preserve, not cleanup
-   targets,
-4. it identified clear monolithic hotspots that later implementation must reduce rather than accept,
-5. it clarified that code organization is part of the analytical uplift, not a later optional
-   refactor.
+### 3. Cross-surface consistency pass
 
-### What was consciously not changed in slice 6
+Still required:
 
-1. no `lotus-workbench` code was changed yet,
-2. no portfolio, performance, or risk routes were moved yet,
-3. no component families were renamed yet,
-4. no analytical modules were split yet,
-5. no panel registry or runtime guidance was updated yet.
+1. final comparison of portfolio, performance, and risk surfaces as one governed product,
+2. verification that shared analytical primitives are visibly consistent,
+3. final review of CSS ownership and any remaining page-local drift.
 
-This is correct for slice 6. The slice exists to lock the analytical target model and cleanup
-priorities before code changes start.
+### 4. Runtime and evidence closeout
 
-### Guidance and context decision
+Still required:
 
-No immediate panel-registry or runtime-guidance update is required before implementation begins.
-
-Reason:
-
-1. the current slice defines analytical uplift and cleanup priorities, but the governed runtime and
-   panel registry should only be updated after the analytical surfaces and topology actually change,
-2. updating validation guidance now would risk documenting target surfaces that are not yet adopted
-   in the product runtime.
-
-This is a conscious no-change decision.
-
-### Follow-up implications for slice 7
-
-Slice 7 should proceed with these tighter assumptions:
-
-1. proposal and advisory workspaces must reach the same supportability and drilldown quality as the
-   analytical surfaces,
-2. workflow-bearing proposal pages should borrow the strongest summary-first and drawer patterns
-   already present in analytical pages,
-3. proposal surfaces must avoid creating new monoliths similar to the largest current analytical
-   files,
-4. workflow truth must remain stricter than analytical read-side freshness and supportability.
+1. stable canonical browser proof for populated performance states,
+2. final review-fix pass if new defects are found during that runtime validation,
+3. truthful closure of slice 6 in the implementation checklist only after those gates pass.
 
 ## Conclusion
 
-Slice 6 is complete.
+Slice 6 is not complete.
 
-It produced a code-grounded analytical-surface assessment, explicit keep/replace/retire decisions,
-and a defensible uplift model for portfolio, performance, and risk that preserves existing strengths
-while forcing structural cleanup where the next stage of enterprise product work would otherwise
-create more drift and code concentration.
+It has already delivered substantial implementation:
+
+1. portfolio analytical uplift is materially real and acceptable for the current RFC scope,
+2. shell/bootstrap ownership is materially cleaner,
+3. performance summary has been significantly refactored and improved,
+4. risk has a first meaningful uplift pass.
+
+But the slice remains partial because the final quality bar for performance summary and cross-surface
+consistency has not yet been met. This document now records the actual implementation state rather
+than the earlier assessment-only posture.

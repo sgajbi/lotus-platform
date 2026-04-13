@@ -2,7 +2,7 @@
 
 - RFC: `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`
 - Status: Proposed (documentation complete; implementation in progress)
-- Last updated: 2026-04-12
+- Last updated: 2026-04-13
 
 ## Implementation Tracking (Evidence-Based)
 
@@ -22,7 +22,7 @@ Legend:
 | 3 | Shell/navigation/design-system foundation | Completed (implementation) | `lotus-workbench` branch `codex/rfc-0081-slice-1-portfolio-foundation`; commits `98991db` and `08e52a0` (gateway-backed shell bootstrap consumption and shell registry reduction); `lotus-gateway` branch `codex/rfc-0081-slice-3-shell-nav-foundation`; `RFC-0081-slice-3-shell-navigation-and-design-system-foundation-evidence.md`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-3-review` and `lotus-workbench/output/playwright/rfc-0081-slice-6a-review` |
 | 4 | Naming & typography foundation (platform-wide) | Partial (workbench-local only) | `lotus-workbench` PR #83; commit `2060065` (`Standardize workbench typography and naming foundation`); screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-4-review`; gateway/platform naming alignment still pending |
 | 5 | Gateway composition foundation | Completed (implementation) | `lotus-gateway` branch `codex/rfc-0081-slice-5-gateway-composition-foundation`; commit `7aae028` (`Harden shell bootstrap capability contract`); consumed in `lotus-workbench` commit `08e52a0`; `RFC-0081-slice-5-gateway-composition-foundation-and-contract-hardening-evidence.md` |
-| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio accepted; Performance hierarchy/unavailable-state uplift implemented but canonical live validation is blocked; Risk first uplift pass complete pending final cross-surface review) | `lotus-workbench` PR #83; commits `cc8c851`, `2002cc3`, `08e52a0`, `455658a`, `fc74bd4`, `809c89a`, `b2cf9ee`, `3b4ed4d`, `f8a5439`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-6a-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6b-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6c-review`, review-fix evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-current-state`, review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-review`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6e-current-state`, review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6e-review`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6f-current-state`, and diagnostic review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6f-review` |
+| 6 | Portfolio/Performance/Risk surface uplift | Partial (portfolio surface materially uplifted; performance summary substantially improved and still in active refinement; risk first uplift pass complete pending final cross-surface consistency review) | `lotus-workbench` PR #83; commits `cc8c851`, `2002cc3`, `08e52a0`, `455658a`, `fc74bd4`, `809c89a`, `b2cf9ee`, `3b4ed4d`, `f8a5439`, `e26b4ef`, `57eb45b`, `cf00f33`, `920b192`, `06f6d05`, `b6b753a`, `db7b95a`, `0e16bbd`, `670ea63`, `5ba55ba`, `0c3b0cd`, `3da8f8c`, `dc33cba`, `be3e048`, `da1d38e`, `bf20bbe`, `ea340fe`, `5e8e9e0`, `78fb7a4`, `ae73bd0`, `28ded71`, `5eab1c7`, `3eceb88`, `e5a8980`, `5b2e9fa`; screenshots in `lotus-workbench/output/playwright/rfc-0081-slice-6a-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6b-review`, `lotus-workbench/output/playwright/rfc-0081-slice-6c-review`, review-fix evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6c-review-fix`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-current-state`, review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6d-review`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6e-current-state`, review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6e-review`, current-state evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6f-current-state`, diagnostic review evidence in `lotus-workbench/output/playwright/rfc-0081-slice-6f-review`, and iterative performance refinement evidence in `lotus-workbench/output/playwright/rfc-0081-performance-*` |
 | 7 | Advisory & proposal workspace integration | Not started | — |
 | 8 | Micro-frontend composition model | Not started | — |
 | 9 | AI surface governance | Not started | — |
@@ -42,7 +42,7 @@ and are part of PR #83 unless noted.
 | 3 | Portfolio selector rail | `ed225ad` Polish portfolio selector rail; `6a79ae4` Address portfolio selector accessibility feedback |
 | 4 | Summary KPI foundation | `a267e63` Redesign portfolio summary KPI foundation; `2c5678c` Address portfolio KPI review feedback |
 | 5 | Allocation panel | `09224e7` Refine portfolio allocation module; `f769e5a` Fix allocation review issues |
-| 6 | Portfolio, Performance, and Risk surface uplift | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes; `cc8c851` Refine portfolio analytical surface density; `2002cc3` Stack cramped portfolio insight modules; `08e52a0` Wire shell bootstrap into portfolio analytics surface; `455658a` Strengthen portfolio analytical workspace; `fc74bd4` Refine portfolio analytical ownership and flow; `809c89a` Fix portfolio analytical review issues; `b2cf9ee` Uplift performance and risk analytical surfaces; `3b4ed4d` Uplift performance analytics visuals; `f8a5439` Refine performance hierarchy and unavailable states |
+| 6 | Portfolio, Performance, and Risk surface uplift | `2fc0d17` Refine portfolio side rail panels; `e41be96` Decouple detail card styling from portfolio classes; `cc8c851` Refine portfolio analytical surface density; `2002cc3` Stack cramped portfolio insight modules; `08e52a0` Wire shell bootstrap into portfolio analytics surface; `455658a` Strengthen portfolio analytical workspace; `fc74bd4` Refine portfolio analytical ownership and flow; `809c89a` Fix portfolio analytical review issues; `b2cf9ee` Uplift performance and risk analytical surfaces; `3b4ed4d` Uplift performance analytics visuals; `f8a5439` Refine performance hierarchy and unavailable states; `e26b4ef` Polish performance return path chart styling; `57eb45b` Simplify performance chart information hierarchy; `cf00f33` Condense performance economics strip; `920b192` Sharpen performance return path annotations; `06f6d05` Tighten horizon comparison information density; `b6b753a` Simplify performance contributor detail table; `db7b95a` Refactor performance return path chart option; `0e16bbd` Compact performance unavailable states; `670ea63` Refine performance loading state; `5ba55ba` Compact performance unavailable module framing; `0c3b0cd` Reduce repeated performance comparison labels; `3da8f8c` Compact performance analysis control chrome; `dc33cba` Rebalance performance chart information hierarchy; `be3e048` Tighten performance chart tooltip evidence; `da1d38e` Refactor performance horizon comparison module; `bf20bbe` Refactor performance analysis detail sections; `ea340fe` Simplify performance return path support layer; `5e8e9e0` Refactor performance return path panel composition; `78fb7a4` Extract performance return path tooltip contract; `ae73bd0` Rebalance performance return path layout; `28ded71` Strengthen performance return path chart styling; `5eab1c7` Condense performance horizon comparison matrix; `3eceb88` Simplify performance return path summary copy; `e5a8980` Compress performance analysis control bar; `5b2e9fa` Soften performance trust strip hierarchy |
 | 7 | Detail module scanning | `6d71030` Refine portfolio detail module scanning |
 | 8 | Performance snapshot compact view | `d4b8625` Condense performance snapshot default view |
 | 9 | Width parity + type scale | `b35cd1f` Normalize portfolio module width and type scale |
@@ -72,6 +72,21 @@ Latest evidence folders:
 - `rfc-0081-slice-6e-review`
 - `rfc-0081-slice-6f-current-state`
 - `rfc-0081-slice-6f-review`
+- `rfc-0081-performance-current-review`
+- `rfc-0081-performance-chart-visual-review`
+- `rfc-0081-performance-chart-annotation-review`
+- `rfc-0081-performance-economics-review`
+- `rfc-0081-performance-unavailable-review.png`
+- `rfc-0081-performance-unavailable-refined.png`
+- `rfc-0081-performance-unavailable-refined-close.png`
+- `rfc-0081-performance-unavailable-refined-close-2.png`
+- `rfc-0081-performance-loading-review.png`
+- `rfc-0081-performance-hierarchy-review`
+- `rfc-0081-performance-analysis-summary-refactor`
+- `rfc-0081-performance-chart-readout-review`
+- `rfc-0081-performance-return-path-layout`
+- `rfc-0081-performance-control-bar-review`
+- `rfc-0081-performance-trust-strip-review`
 - `rfc-0081-slice-6-review`
 - `rfc-0081-slice-7-review`
 - `rfc-0081-slice-8-review`
@@ -108,6 +123,54 @@ Slice 6F Performance hierarchy and unavailable-state evidence:
 - Workbench commit: `f8a5439` (`Refine performance hierarchy and unavailable states`)
 - Workbench validation: focused Performance vitest lane, `npm run lint`, `npm run typecheck`, and `git diff --check`.
 - Remaining risk: canonical live validation is currently blocked. Refreshing the governed local runtime hit `lotus-core` ingestion rate limiting while reseeding `PB_SG_GLOBAL_BAL_001`, and the resulting canonical route currently returns a top-level performance workspace unavailable page (`The selected portfolio could not be loaded from the performance workspace contract.`). The 6F review folder is therefore diagnostic runtime evidence, not acceptance-grade proof of the new chart/lower-module unavailable-state treatment.
+
+Slice 6 iterative performance-summary refinement evidence after 6F:
+- Chart-surface and hierarchy commits:
+  - `e26b4ef` (`Polish performance return path chart styling`)
+  - `57eb45b` (`Simplify performance chart information hierarchy`)
+  - `cf00f33` (`Condense performance economics strip`)
+  - `920b192` (`Sharpen performance return path annotations`)
+  - `06f6d05` (`Tighten horizon comparison information density`)
+  - `b6b753a` (`Simplify performance contributor detail table`)
+  - `db7b95a` (`Refactor performance return path chart option`)
+  - `0e16bbd` (`Compact performance unavailable states`)
+  - `670ea63` (`Refine performance loading state`)
+  - `5ba55ba` (`Compact performance unavailable module framing`)
+  - `0c3b0cd` (`Reduce repeated performance comparison labels`)
+  - `3da8f8c` (`Compact performance analysis control chrome`)
+  - `dc33cba` (`Rebalance performance chart information hierarchy`)
+  - `be3e048` (`Tighten performance chart tooltip evidence`)
+  - `da1d38e` (`Refactor performance horizon comparison module`)
+  - `bf20bbe` (`Refactor performance analysis detail sections`)
+  - `ea340fe` (`Simplify performance return path support layer`)
+  - `5e8e9e0` (`Refactor performance return path panel composition`)
+  - `78fb7a4` (`Extract performance return path tooltip contract`)
+  - `ae73bd0` (`Rebalance performance return path layout`)
+  - `28ded71` (`Strengthen performance return path chart styling`)
+  - `5eab1c7` (`Condense performance horizon comparison matrix`)
+  - `3eceb88` (`Simplify performance return path summary copy`)
+  - `e5a8980` (`Compress performance analysis control bar`)
+  - `5b2e9fa` (`Soften performance trust strip hierarchy`)
+- Browser evidence folders:
+  - `lotus-workbench/output/playwright/rfc-0081-performance-current-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-chart-visual-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-chart-annotation-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-economics-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-hierarchy-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-analysis-summary-refactor`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-chart-readout-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-return-path-layout`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-control-bar-review`
+  - `lotus-workbench/output/playwright/rfc-0081-performance-trust-strip-review`
+- Current slice-6 posture after these changes:
+  - Portfolio: materially uplifted and acceptable for current RFC scope.
+  - Performance Summary: materially improved in structure, density, and code modularity, but still not visually accepted as final PB-grade analytics UI.
+  - Risk: first uplift pass completed, but final cross-surface consistency and deeper visual maturity remain pending.
+- Remaining pending work inside slice 6:
+  - final PB-grade chart-surface polish for performance summary,
+  - final review of repeated comparison information across populated chart states,
+  - stronger live canonical validation once governed populated performance data is stable again,
+  - final cross-surface consistency pass across portfolio, performance, and risk.
 
 ### Cross-Repo Slice 3 Evidence
 
@@ -169,11 +232,11 @@ Slice 6F Performance hierarchy and unavailable-state evidence:
 
 ## Slice 6: Portfolio, Performance, and Risk Surface Uplift
 
-- [ ] Align analytical workspaces to the shared system. Partial: Portfolio is accepted for now; Performance hierarchy/unavailable-state uplift is implemented but canonical live proof is blocked, and Risk first uplift pass has review evidence.
-- [ ] Standardize chart, table, and summary-rail patterns. Partial: Performance chart/horizon/driver patterns and Risk posture patterns improved; final cross-surface consistency review remains.
+- [ ] Align analytical workspaces to the shared system. Partial: Portfolio is accepted for now; Performance Summary has materially improved hierarchy, density, control layout, and support-state presentation but remains under active refinement; Risk first uplift pass has review evidence but still needs final consistency review.
+- [ ] Standardize chart, table, and summary-rail patterns. Partial: Performance chart/horizon/driver patterns, tooltip contracts, control bars, and summary rails were significantly tightened; final PB-grade chart polish and cross-surface consistency review remain.
 - [x] Preserve truthful supportability, evidence, and empty-state behavior.
-- [ ] Remove stale analytical layout patterns and duplicate page-local implementations. Partial: no new unsupported behavior; broader stale pattern removal remains for final closeout.
-- [ ] Review whether the panel registry or runtime guidance needs updates.
+- [ ] Remove stale analytical layout patterns and duplicate page-local implementations. Partial: major performance-summary duplication and monolithic ownership were reduced, but broader slice-6 cleanup is not yet complete.
+- [ ] Review whether the panel registry or runtime guidance needs updates. Pending final slice-6 closeout once populated canonical validation is stable again.
 
 ## Slice 7: Advisory and Proposal Workspace Integration
 
