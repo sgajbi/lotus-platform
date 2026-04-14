@@ -537,6 +537,86 @@ Target ingestion evidence:
 8. rejection reasons,
 9. operator or automation identity.
 
+## Reconciliation And Data Quality
+
+Target reconciliation behavior:
+
+1. reconciliation is a core product capability,
+2. cash, position, transaction, and market-data reconciliation status is queryable,
+3. breaks carry age, severity, owner, tolerance, and resolution state,
+4. downstream consumers can detect whether data is reconciled, stale, partial, or blocked,
+5. data-quality state is included in source-data products when safety depends on it.
+
+Target statuses:
+
+1. `COMPLETE`,
+2. `PARTIAL`,
+3. `STALE`,
+4. `UNRECONCILED`,
+5. `BREAK_OPEN`,
+6. `BLOCKED`,
+7. `UNKNOWN`.
+
+Status naming may be refined by implementation RFCs, but the target contract must preserve these
+business distinctions.
+
+## Market, Instrument, Benchmark, And Reference Data
+
+The target architecture treats reference data as source truth, not metadata decoration.
+
+Core-owned reference primitives:
+
+1. instrument identity,
+2. security identifiers,
+3. classifications,
+4. currency,
+5. issuer and sector/region attributes where sourced,
+6. eligibility/source attributes where core owns the evidence,
+7. prices,
+8. FX rates,
+9. benchmark assignment,
+10. benchmark constituent data,
+11. index series,
+12. risk-free series.
+
+Rules:
+
+1. source attributes may feed suitability, risk, and performance, but those downstream conclusions are
+   not core-owned,
+2. benchmark source data belongs in core when it is foundational input,
+3. benchmark-relative analytics belong in `lotus-performance` and `lotus-risk`,
+4. stale or partial reference data must be visible in supportability and source-data products.
+
+## Eventing
+
+Events are useful for propagation and audit, but they are not a replacement for governed read
+contracts.
+
+Target event families:
+
+1. portfolio created or updated,
+2. account relationship changed,
+3. transaction batch ingested,
+4. transaction booked,
+5. transaction corrected or cancelled,
+6. portfolio state restated,
+7. market-data batch ingested,
+8. benchmark assignment changed,
+9. reconciliation completed,
+10. data-quality status changed,
+11. source-data export completed,
+12. replay completed.
+
+Event rules:
+
+1. events must be idempotent for consumers,
+2. events must include correlation and source identity,
+3. event schema must be versioned,
+4. events should notify consumers that source truth changed; consumers should still use governed read
+   contracts for state retrieval,
+5. eventing does not justify duplicating core-owned state into downstream services without a clear
+   projection contract.
+
 ## Security, Tenancy, And Entitlements
 
 System-of-record architecture must make access boundaries explicit.
@@ -648,106 +728,6 @@ Each consumer map should identify:
 5. allowed failure behavior,
 6. validation evidence.
 
-## Target-State Gap Analysis Requirements
-
-Before runtime implementation starts, `lotus-core` must produce a repo-local gap analysis against this
-RFC.
-
-The gap analysis must include:
-
-1. current route-to-target-domain map,
-2. current table/model-to-target-domain map,
-3. current temporal-field inventory,
-4. current ingestion and replay capability inventory,
-5. current reconciliation and data-quality capability inventory,
-6. current source-data product equivalence map,
-7. duplicate and ambiguous endpoint list,
-8. consumer impact matrix,
-9. proposed implementation slice order,
-10. validation lane per slice.
-
-This gap analysis is the bridge between this master blueprint and code-changing work in `lotus-core`.
-
-## Reconciliation And Data Quality
-
-Target reconciliation behavior:
-
-1. reconciliation is a core product capability,
-2. cash, position, transaction, and market-data reconciliation status is queryable,
-3. breaks carry age, severity, owner, tolerance, and resolution state,
-4. downstream consumers can detect whether data is reconciled, stale, partial, or blocked,
-5. data-quality state is included in source-data products when safety depends on it.
-
-Target statuses:
-
-1. `COMPLETE`,
-2. `PARTIAL`,
-3. `STALE`,
-4. `UNRECONCILED`,
-5. `BREAK_OPEN`,
-6. `BLOCKED`,
-7. `UNKNOWN`.
-
-Status naming may be refined by implementation RFCs, but the target contract must preserve these
-business distinctions.
-
-## Market, Instrument, Benchmark, And Reference Data
-
-The target architecture treats reference data as source truth, not metadata decoration.
-
-Core-owned reference primitives:
-
-1. instrument identity,
-2. security identifiers,
-3. classifications,
-4. currency,
-5. issuer and sector/region attributes where sourced,
-6. eligibility/source attributes where core owns the evidence,
-7. prices,
-8. FX rates,
-9. benchmark assignment,
-10. benchmark constituent data,
-11. index series,
-12. risk-free series.
-
-Rules:
-
-1. source attributes may feed suitability, risk, and performance, but those downstream conclusions are
-   not core-owned,
-2. benchmark source data belongs in core when it is foundational input,
-3. benchmark-relative analytics belong in `lotus-performance` and `lotus-risk`,
-4. stale or partial reference data must be visible in supportability and source-data products.
-
-## Eventing
-
-Events are useful for propagation and audit, but they are not a replacement for governed read
-contracts.
-
-Target event families:
-
-1. portfolio created or updated,
-2. account relationship changed,
-3. transaction batch ingested,
-4. transaction booked,
-5. transaction corrected or cancelled,
-6. portfolio state restated,
-7. market-data batch ingested,
-8. benchmark assignment changed,
-9. reconciliation completed,
-10. data-quality status changed,
-11. source-data export completed,
-12. replay completed.
-
-Event rules:
-
-1. events must be idempotent for consumers,
-2. events must include correlation and source identity,
-3. event schema must be versioned,
-4. events should notify consumers that source truth changed; consumers should still use governed read
-   contracts for state retrieval,
-5. eventing does not justify duplicating core-owned state into downstream services without a clear
-   projection contract.
-
 ## OpenAPI, Vocabulary, And Contract Governance
 
 RFC-0083 relies on RFC-0067 and RFC-0082.
@@ -790,6 +770,26 @@ RFC-0082 is the boundary guardrail.
 RFC-0083 is the target architecture blueprint.
 
 Implementation slices must comply with both.
+
+## Target-State Gap Analysis Requirements
+
+Before runtime implementation starts, `lotus-core` must produce a repo-local gap analysis against this
+RFC.
+
+The gap analysis must include:
+
+1. current route-to-target-domain map,
+2. current table/model-to-target-domain map,
+3. current temporal-field inventory,
+4. current ingestion and replay capability inventory,
+5. current reconciliation and data-quality capability inventory,
+6. current source-data product equivalence map,
+7. duplicate and ambiguous endpoint list,
+8. consumer impact matrix,
+9. proposed implementation slice order,
+10. validation lane per slice.
+
+This gap analysis is the bridge between this master blueprint and code-changing work in `lotus-core`.
 
 ## Implementation Program
 
