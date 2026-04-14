@@ -42,7 +42,8 @@ This RFC is the master blueprint. It intentionally separates:
 6. ingestion and lineage,
 7. reconciliation and data quality,
 8. endpoint consolidation,
-9. implementation slices.
+9. cross-cutting security, tenancy, audit, retention, versioning, and observability requirements,
+10. implementation slices.
 
 It does not require a greenfield `lotus-core-v2`, a parallel repository, or a gRPC migration.
 
@@ -118,7 +119,35 @@ In the target state:
 7. reconciliation status is visible and usable by downstream consumers,
 8. data-quality status is part of the API contract, not hidden in logs,
 9. endpoint count is controlled by stable product contracts rather than ad hoc convenience routes,
-10. downstream analytics services receive ingredients, not core-owned analytics conclusions.
+10. downstream analytics services receive ingredients, not core-owned analytics conclusions,
+11. access to core truth is tenant-scoped, policy-aware, and auditable,
+12. source-data contracts are versioned and migration-safe,
+13. operators can diagnose source-data quality, latency, ingestion, reconciliation, and replay state
+    without direct database access.
+
+## Target Architecture Invariants
+
+These invariants are mandatory. Implementation slices may choose different tactical designs, but they
+must not violate these outcomes.
+
+1. `lotus-core` is the only authoritative writer for core-owned portfolio, account, transaction,
+   holding, cash, market-data, benchmark, and foundational reference truth.
+2. Core-owned truth is never corrected through downstream service databases or UI-local state.
+3. Every externally meaningful mutation is idempotent, correlated, audited, and traceable to an actor,
+   automation identity, or source system.
+4. Every source-data product is deterministic for the same request scope, source scope, policy scope,
+   and restatement version.
+5. Every source-data product exposes enough provenance for a downstream service to explain what data it
+   used.
+6. Every large retrieval path has a deterministic paging or export strategy.
+7. Every route that serves downstream consumers has an RFC-0082 contract family.
+8. Every cross-service contract has an owner, version, validation lane, and deprecation path.
+9. Temporal fields use domain-specific names; generic date fields are not acceptable in new contracts.
+10. Read models may optimize access, but they must not silently change source truth.
+11. Events notify consumers that truth changed; governed read contracts remain the source retrieval
+    mechanism.
+12. `lotus-core` must be diagnosable through supportability APIs and evidence bundles, not only through
+    logs or database inspection.
 
 ## Architectural Principles
 
@@ -237,12 +266,25 @@ Command requirements:
 
 1. idempotency key or deterministic source identity where repeat submission is possible,
 2. request correlation id,
-3. tenant or policy context where applicable,
-4. validation result,
-5. audit actor or source-system identity,
-6. source lineage,
-7. clear success, partial success, rejection, or conflict behavior,
-8. no hidden downstream analytics side effects.
+3. tenant context,
+4. policy context where applicable,
+5. validation result,
+6. audit actor or source-system identity,
+7. source lineage,
+8. schema or contract version,
+9. clear success, partial success, rejection, or conflict behavior,
+10. no hidden downstream analytics side effects.
+
+Command outcomes must distinguish:
+
+1. accepted and applied,
+2. accepted for asynchronous processing,
+3. idempotent replay,
+4. conflict,
+5. rejected validation failure,
+6. partially accepted batch,
+7. quarantined for repair,
+8. blocked by policy or entitlement.
 
 ## Read Model
 
@@ -263,10 +305,22 @@ Read requirements:
 2. explicit currency behavior where values are currency-bearing,
 3. explicit source-service identity,
 4. contract version,
-5. request id or snapshot id,
-6. completeness/freshness diagnostics where downstream safety depends on them,
-7. deterministic pagination or export lifecycle for large retrieval,
-8. no downstream analytics conclusions.
+5. tenant and policy scope where applicable,
+6. request id or snapshot id,
+7. completeness/freshness diagnostics where downstream safety depends on them,
+8. deterministic pagination or export lifecycle for large retrieval,
+9. schema version or product version,
+10. no downstream analytics conclusions.
+
+Read products must distinguish:
+
+1. complete data,
+2. complete but unreconciled data,
+3. partial data,
+4. stale data,
+5. restated data,
+6. blocked data,
+7. not available because the consumer is not entitled.
 
 ## Temporal Model
 
@@ -354,6 +408,26 @@ catalog rather than creating ad hoc endpoint shapes.
 | `ReconciliationEvidenceBundle` | support, gateway, report, operators | reconciliation status and break evidence |
 | `DataQualityCoverageReport` | performance, risk, gateway, support | completeness, freshness, and quality diagnostics |
 | `IngestionEvidenceBundle` | support, operations, audit | source batch, validation, replay, and rejection evidence |
+
+### Source-data product contract requirements
+
+Every source-data product must define:
+
+1. product name,
+2. product version,
+3. owning module,
+4. primary consumers,
+5. allowed request scope,
+6. temporal scope,
+7. tenant and policy scope,
+8. source systems included,
+9. completeness semantics,
+10. freshness semantics,
+11. reconciliation semantics,
+12. restatement behavior,
+13. pagination or export behavior,
+14. failure and partial-success behavior,
+15. deprecation and migration rules.
 
 ## API Target Topology
 
@@ -462,6 +536,137 @@ Target ingestion evidence:
 7. accepted/rejected record counts,
 8. rejection reasons,
 9. operator or automation identity.
+
+## Security, Tenancy, And Entitlements
+
+System-of-record architecture must make access boundaries explicit.
+
+Target requirements:
+
+1. every externally reachable core contract must be tenant-scoped or explicitly documented as
+   platform-global,
+2. every mutation must carry an actor, automation, or source-system identity,
+3. every support or operator route must distinguish supportability access from business-domain access,
+4. every source-data product must define whether it is suitable for UI, service-to-service, support, or
+   operator use,
+5. entitlement and policy decisions must be represented as contract behavior, not silent filtering,
+6. blocked or filtered responses must expose safe supportability details without leaking unauthorized
+   data,
+7. PII or client-sensitive fields must be identified in schema documentation and evidence bundles,
+8. audit evidence must be sufficient to reconstruct who or what changed core truth and why.
+
+Security and entitlement implementation may be phased, but new target contracts must not assume a
+single-tenant or fully trusted internal caller model.
+
+## Data Lifecycle, Retention, And Archival
+
+Core-owned truth must have explicit lifecycle behavior.
+
+Target lifecycle classes:
+
+1. immutable source records,
+2. mutable operational records,
+3. correction records,
+4. restatement versions,
+5. read-model projections,
+6. source-data exports,
+7. supportability evidence bundles,
+8. ingestion validation reports,
+9. reconciliation break records,
+10. operator audit records.
+
+Lifecycle rules:
+
+1. source records and audit records should be append-oriented unless a governed correction model applies,
+2. read-model projections can be rebuilt and should not be treated as the source of truth,
+3. exports need expiry and regeneration semantics,
+4. evidence bundles need retention rules aligned to audit and operational needs,
+5. archival must preserve enough identity to explain historical downstream analytics and reports,
+6. deletion or redaction must be governed separately from ordinary correction behavior.
+
+## Versioning, Compatibility, And Migration
+
+Lotus is pre-live, so target correction is preferred over long compatibility windows. That does not
+remove the need for disciplined migration.
+
+Target versioning requirements:
+
+1. source-data products have explicit versions,
+2. breaking changes require a migration note and affected-consumer list,
+3. short-lived aliases must have removal criteria,
+4. deprecated endpoints must identify the replacement source-data product,
+5. downstream consumer maps must be updated in the same slice as contract changes,
+6. vocabulary changes must pass RFC-0067 governance,
+7. schema migrations must have rollback or fix-forward posture documented,
+8. data backfills must identify source scope, idempotency, and verification evidence.
+
+## Observability, SLOs, And Operational Diagnostics
+
+Core target architecture must be operable.
+
+Target observability requirements:
+
+1. every command family emits structured logs with correlation and source identity,
+2. every source-data product exposes latency, payload-size, and partial-result diagnostics where
+   practical,
+3. ingestion, validation, replay, reconciliation, export, and data-quality jobs expose status APIs,
+4. critical pipelines expose success/failure counters,
+5. operators can identify stale feeds, delayed reconciliation, failed exports, and replay failures,
+6. downstream consumers can distinguish empty data from unavailable, unauthorized, stale, partial, or
+   unreconciled data,
+7. platform validation can probe readiness without using direct database access.
+
+Initial SLOs should be defined per source-data product during implementation slices rather than in this
+master RFC. The target architecture requires SLO ownership, not one universal latency target for all
+core contracts.
+
+## Consumer Contract Expectations
+
+Downstream services must consume core through stable contracts rather than implementation internals.
+
+Consumer obligations:
+
+1. `lotus-performance` consumes analytics input products and does not request performance conclusions
+   from core,
+2. `lotus-risk` consumes source inputs and upstream performance outputs where governed, and does not
+   request risk conclusions from core,
+3. `lotus-gateway` consumes operational reads, supportability, source inputs, and domain outputs, and
+   does not calculate core, performance, or risk truth,
+4. `lotus-advise` consumes advisory source-data and simulation inputs without owning core state or risk
+   methodology,
+5. `lotus-manage` consumes governed state/source inputs for DPM execution without becoming the source
+   of core portfolio truth,
+6. `lotus-report` consumes governed source data and analytics outputs without becoming the source of
+   operational or analytics truth.
+
+Each consumer map should identify:
+
+1. routes or products consumed,
+2. owner service,
+3. RFC-0082 family,
+4. supportability expectations,
+5. allowed failure behavior,
+6. validation evidence.
+
+## Target-State Gap Analysis Requirements
+
+Before runtime implementation starts, `lotus-core` must produce a repo-local gap analysis against this
+RFC.
+
+The gap analysis must include:
+
+1. current route-to-target-domain map,
+2. current table/model-to-target-domain map,
+3. current temporal-field inventory,
+4. current ingestion and replay capability inventory,
+5. current reconciliation and data-quality capability inventory,
+6. current source-data product equivalence map,
+7. duplicate and ambiguous endpoint list,
+8. consumer impact matrix,
+9. proposed implementation slice order,
+10. validation lane per slice.
+
+This gap analysis is the bridge between this master blueprint and code-changing work in `lotus-core`.
 
 ## Reconciliation And Data Quality
 
@@ -597,7 +802,8 @@ Deliverables:
 1. align RFC-0083 with current RFC-0082 route inventory,
 2. identify current modules and routes that map cleanly to target domains,
 3. identify stale, duplicate, or ambiguous route families,
-4. define acceptance evidence for each later slice.
+4. complete the target-state gap analysis required by this RFC,
+5. define acceptance evidence for each later slice.
 
 Minimum validation:
 
@@ -720,14 +926,31 @@ Minimum validation:
 1. affected repo PR Merge Gate when runtime contracts change,
 2. platform end-to-end proof when gateway/workbench behavior changes.
 
-### Slice 9: Eventing and supportability hardening
+### Slice 9: Security, tenancy, and lifecycle hardening
+
+Deliverables:
+
+1. tenant and entitlement posture for downstream-facing contracts,
+2. support/operator access classification,
+3. PII/client-sensitive field classification where applicable,
+4. audit and retention requirements for source-data products and evidence bundles,
+5. migration posture for any schema or persistence changes.
+
+Minimum validation:
+
+1. security/entitlement contract tests where runtime changes,
+2. audit evidence tests for mutations where code changes,
+3. migration smoke where persistence changes.
+
+### Slice 10: Eventing and supportability hardening
 
 Deliverables:
 
 1. event family definitions,
 2. event schema governance,
-3. operator diagnostics,
-4. supportability evidence bundles.
+3. observability and supportability API posture,
+4. operator diagnostics,
+5. supportability evidence bundles.
 
 Minimum validation:
 
@@ -735,15 +958,18 @@ Minimum validation:
 2. supportability API tests,
 3. platform validation where operations workflows change.
 
-### Slice 10: Production-readiness closure
+### Slice 11: Production-readiness closure
 
 Deliverables:
 
 1. final route inventory,
 2. final source-data product catalog,
 3. final deprecation list,
-4. downstream consumer conformance proof,
-5. platform context and onboarding updates.
+4. final temporal-field inventory,
+5. final security/tenancy/entitlement posture,
+6. final observability and supportability posture,
+7. downstream consumer conformance proof,
+8. platform context and onboarding updates.
 
 Minimum validation:
 
@@ -761,6 +987,8 @@ RFC-0083 implementation uses the RFC-0072 lane model.
 | route metadata or OpenAPI descriptions | Feature Lane plus OpenAPI/vocabulary proof | PR Merge Gate when schemas or behavior change |
 | command/read classification tests | Feature Lane targeted tests | PR Merge Gate if route behavior changes |
 | persistence, ingestion, reconciliation, or migration changes | PR Merge Gate | Main releasability when production posture changes |
+| security, tenancy, entitlement, audit, or retention changes | PR Merge Gate | platform/security review when sensitive data or access posture changes |
+| source-data product SLO or observability changes | Feature Lane targeted proof | PR Merge Gate when readiness or runtime behavior changes |
 | downstream consumer contract changes | affected repo Feature Lane | affected repo PR Merge Gate when runtime coupling changes |
 | gateway/workbench-facing behavior changes | affected backend and gateway gates | platform end-to-end validation |
 
@@ -779,8 +1007,16 @@ RFC-0083 is implemented when all of the following are true.
 9. Duplicate or ambiguous endpoint families are removed, deprecated, or explicitly governed.
 10. Downstream consumers use source-data products and do not depend on core-owned analytics
     conclusions.
-11. Platform context and repo-local contexts reflect the target architecture.
-12. No gRPC or parallel `lotus-core-v2` path is introduced without separate evidence and approval.
+11. Tenant, entitlement, support/operator access, audit, and sensitive-data posture are explicitly
+    defined for downstream-facing contracts.
+12. Data lifecycle, retention, export expiry, archival, and restatement behavior are explicitly
+    defined for source-data products and evidence bundles.
+13. Source-data product versions, deprecations, migration rules, and affected-consumer maps are
+    maintained.
+14. Observability and supportability APIs allow operators to diagnose ingestion, replay,
+    reconciliation, export, and data-quality state.
+15. Platform context and repo-local contexts reflect the target architecture.
+16. No gRPC or parallel `lotus-core-v2` path is introduced without separate evidence and approval.
 
 ## Non-Goals
 
@@ -802,6 +1038,10 @@ This RFC does not:
 4. Which current reporting, cashflow, projection, or enrichment routes should be retired rather than
    formalized?
 5. Should platform CI eventually validate source-data product catalog completeness across consumers?
+6. Which core fields are client-sensitive enough to require explicit schema classification?
+7. What retention windows are required for source records, evidence bundles, exports, reconciliation
+   breaks, and audit records?
+8. Which source-data products need explicit SLOs before production launch?
 
 ## Recommended Next Actions
 
