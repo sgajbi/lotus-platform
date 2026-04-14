@@ -43,6 +43,15 @@ Current assumption:
 3. REST/OpenAPI remains the canonical current integration model; gRPC is deferred unless retrieval-shape evidence proves transport is the limiting factor,
 4. pre-live cleanup should improve the current applications directly rather than creating parallel `v2` services.
 
+### RFC-0083 | Core system-of-record target architecture
+
+Current assumption:
+
+1. `lotus-core` should harden into a banking-grade system of record through controlled slices, not a greenfield `v2` rewrite,
+2. the target core architecture separates command/write behavior from read/source-data products,
+3. temporal vocabulary, deterministic state reconstruction, ingestion lineage, reconciliation, data quality, and source-data product contracts are first-class architecture concerns,
+4. future implementation work should treat RFC-0083 as the target blueprint and RFC-0082 as the boundary guardrail.
+
 ### Product and UI posture
 
 Current assumption:
