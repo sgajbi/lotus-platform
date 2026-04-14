@@ -34,6 +34,15 @@ Current assumption:
 3. repo-native `make check` and `make ci` commands should match real lane truth,
 4. workflow security, action baselines, container build rules, and release evidence are now governed platform concerns.
 
+### RFC-0082 | Core domain authority and analytics-serving boundary hardening
+
+Current assumption:
+
+1. `lotus-core` is the source-data, operational read, snapshot/simulation, analytics-input, policy, and control-execution authority, not the owner of downstream performance or risk conclusions,
+2. `lotus-performance`, `lotus-risk`, `lotus-gateway`, `lotus-advise`, and `lotus-manage` must classify upstream `lotus-core` consumption under explicit RFC-0082 contract families,
+3. REST/OpenAPI remains the canonical current integration model; gRPC is deferred unless retrieval-shape evidence proves transport is the limiting factor,
+4. pre-live cleanup should improve the current applications directly rather than creating parallel `v2` services.
+
 ### Product and UI posture
 
 Current assumption:

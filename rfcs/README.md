@@ -120,6 +120,7 @@ Reference baseline:
 - `RFC-0028-ui-bff-integration-model-and-responsibility-rules.md`
 - `RFC-0029-phased-integration-roadmap-pas-pa-dpm.md`
 - `RFC-0030-adr-governance-and-decision-traceability.md`
+- `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`
 
 
 
