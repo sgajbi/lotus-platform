@@ -143,14 +143,15 @@ def test_rfc_0081_slice_3_evidence_exists_and_records_shell_foundation_model() -
 
     for required_item in (
         "# RFC-0081 Slice 3: Shell, Navigation, and Design-System Foundation Evidence",
-        "## Keep / replace / retire decisions",
-        "## Target shell and design-system foundation confirmed by slice 3",
+        "- Status: Implemented",
+        "## Outcome",
+        "## What Changed",
         "### 1. Shell structure",
-        "### 2. Navigation model",
-        "### 3. Typography and token ownership",
-        "### 5. Shell performance posture",
-        "No immediate frontend skill or onboarding guidance update is required before implementation begins.",
-        "Slice 3 is complete.",
+        "### 2. Navigation foundation",
+        "### 3. Shared primitives",
+        "### 5. Dead or duplicate styling removed",
+        "## Consciously Not Changed",
+        "## Follow-Up Notes For Slice 4",
     ):
         assert required_item in evidence
 
@@ -181,14 +182,15 @@ def test_rfc_0081_slice_5_evidence_exists_and_records_gateway_hardening_model() 
 
     for required_item in (
         "# RFC-0081 Slice 5: Gateway Composition Foundation and Contract Hardening Evidence",
-        "## Keep / replace / retire decisions",
-        "## Target gateway composition model confirmed by slice 5",
-        "### 1. Shell entry contract family",
-        "### 2. Workspace bootstrap contract family",
-        "### 4. Freshness and consistency model",
-        "### 6. Caching, revalidation, and invalidation model",
-        "No immediate agent skill or onboarding guidance update is required before implementation begins.",
-        "Slice 5 is complete.",
+        "- Status: Completed and reviewed",
+        "## Scope implemented",
+        "## What changed",
+        "### 1. Added a typed `shellBootstrap` contract to the normalized platform-capabilities payload",
+        "### 2. Added workspace descriptors with truthful shell-facing metadata",
+        "### 3. Preserved explicit degradation semantics",
+        "## Validation commands run",
+        "## Consciously not changed",
+        "## Follow-up implications",
     ):
         assert required_item in evidence
 
@@ -200,14 +202,15 @@ def test_rfc_0081_slice_6_evidence_exists_and_records_analytical_uplift_model() 
 
     for required_item in (
         "# RFC-0081 Slice 6: Portfolio, Performance, and Risk Surface Uplift Evidence",
-        "## Keep / replace / retire decisions",
-        "## Target analytical surface model confirmed by slice 6",
-        "### 1. Portfolio workspace model",
-        "### 2. Performance workspace model",
-        "### 3. Risk workspace model",
-        "### 5. Structural cleanup model",
-        "No immediate panel-registry or runtime-guidance update is required before implementation begins.",
-        "Slice 6 is complete.",
+        "- Status: Partial implementation and active review",
+        "## Scope of the slice",
+        "## What has been implemented so far",
+        "### 1. Portfolio analytical surface",
+        "### 3. Performance summary surface",
+        "### 4. Risk surface",
+        "### 5. Slice-6 continuation: cross-mode consistency and advisor refresh behavior",
+        "## Pending work before slice 6 can be closed",
+        "Slice 6 is not complete.",
     ):
         assert required_item in evidence
 

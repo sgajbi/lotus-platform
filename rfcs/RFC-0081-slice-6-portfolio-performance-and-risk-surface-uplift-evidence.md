@@ -185,6 +185,56 @@ Assessment:
 3. but it still needs final cross-surface review against portfolio and performance so the product
    feels governed rather than independently polished.
 
+### 5. Slice-6 continuation: cross-mode consistency and advisor refresh behavior
+
+The latest continuation of slice 6 has started tightening the non-summary performance modes as one
+governed analytical workspace rather than three adjacent implementations.
+
+Implemented continuation changes include:
+
+1. a shared mode-intro seam for `Analysis`, `Advisor Brief`, and `Risk`,
+2. explicit in-place advisor brief refresh behavior instead of relying on re-selecting the active
+   mode,
+3. centralized performance-workspace mode registry so labels, titles, subtitles, and mode-intro
+   copy no longer drift across route entry, mode switching, and advisor drilldown surfaces,
+4. extraction of advisor-brief request logic into a dedicated hook,
+5. breakup of the prior advisor-brief view-model monolith into dedicated fallback-builder,
+   gateway-normalization, and types modules,
+6. focused integration and unit assertions that the three modes expose the intended slice-6 framing,
+   advisor refresh behavior, and shared mode metadata,
+7. compaction of the shared mode-intro presentation so non-summary surfaces read as governed
+   analytical stages instead of page-local banners,
+8. explicit degraded-state treatment for risk drawdown and rolling panels so partial upstream
+   contracts do not leave visually blank analytical regions,
+9. breakup of the advisor brief into a denser decision surface by removing duplicate drilldowns,
+   compressing the overview/header chrome, and moving narrative, workflow, and exception cards into
+   tighter side-by-side presentation where screen width allows,
+10. early Gateway advisor-brief fetch behavior so the narrative path no longer waits for unrelated
+    detail hydration before starting the backend-backed brief request,
+11. supportability normalization so a partial backend advisor-brief contract renders as `Partial`
+    instead of misleading `Generating`,
+12. acceptance of the human-readable `mode=advisor-brief` route alias so direct links and review
+    captures resolve to the governed `advisor` mode instead of silently falling back to summary,
+13. further risk-shell compaction across context and executive posture bands so the top-of-screen
+    review area is denser without dropping backend-backed content,
+14. a new analysis decision-summary band built from live active return, attribution reconciliation,
+    contribution coverage, and capability-backed evidence posture,
+15. a compact risk supportability panel that summarizes ready-module count, outstanding review
+    items, and non-ready contract reasons instead of repeating every ready module in a tall list.
+
+The latest continuation is currently represented on `lotus-workbench` by commit:
+
+1. `411ab3b` `Continue RFC-0081 slice 6 performance surface uplift`
+
+Assessment:
+
+1. this does not close slice 6,
+2. it does reduce one of the remaining consistency gaps called out in this document,
+3. it also fixes a real interaction weakness in the advisor brief workflow instead of only polishing
+   copy or styling,
+4. and it makes the live `PB_SG_GLOBAL_BAL_001` risk surface more truthful under partial backend
+   conditions by replacing dead space with explicit partial-state guidance.
+
 ## Complexity and maintainability gains already achieved
 
 Slice 6 has already reduced complexity in meaningful ways.
@@ -238,6 +288,12 @@ Slice 6 has already reduced complexity in meaningful ways.
 14. `lotus-workbench/output/playwright/rfc-0081-performance-return-path-layout`
 15. `lotus-workbench/output/playwright/rfc-0081-performance-control-bar-review`
 16. `lotus-workbench/output/playwright/rfc-0081-performance-trust-strip-review`
+17. `lotus-workbench/output/playwright/rfc-0081-slice-6g-review`
+18. `lotus-workbench/output/playwright/rfc-0081-slice-6h-review`
+19. `lotus-workbench/output/playwright/rfc-0081-slice-6i-review`
+20. `lotus-workbench/output/playwright/rfc-0081-slice-6j-review`
+21. `lotus-workbench/output/playwright/rfc-0081-slice-6k-review`
+22. `lotus-workbench/output/playwright/rfc-0081-slice-6l-review`
 
 ## Validation posture
 
@@ -251,6 +307,16 @@ Repeated validation has included:
 4. `git diff --check`,
 5. browser review against the governed workbench runtime,
 6. PR `#83` GitHub checks.
+
+Latest focused local proof for the cross-mode continuation:
+
+1. `npx vitest run tests/unit/performance-advisor-brief-mode.test.tsx`
+2. `npx vitest run tests/unit/performance-workspace-modes.test.ts`
+3. `npx vitest run tests/unit/performance-advisor-brief-view-model.test.ts`
+4. `npx vitest run tests/unit/performance-risk-mode.test.tsx`
+5. `npx vitest run tests/integration/performance-analytics-page.test.tsx`
+6. `npm run lint`
+7. `npm run typecheck`
 
 Important runtime truth:
 
@@ -288,15 +354,24 @@ Still required:
 2. consistency checks with the improved performance surface,
 3. decision on whether any remaining risk layout or density issues still fall inside slice 6.
 
-### 3. Cross-surface consistency pass
+### 3. Advisor brief completion pass
 
 Still required:
 
-1. final comparison of portfolio, performance, and risk surfaces as one governed product,
+1. final advisor-brief parity review against the improved performance summary and analysis modes,
+2. removal of any remaining duplicate workflow, exception, or narrative framing,
+3. confirmation that advisor refresh, supportability, and drilldown behavior meet the same gold
+   standard as the other performance modes.
+
+### 4. Cross-surface consistency pass
+
+Still required:
+
+1. final comparison of portfolio, performance, risk, and advisor surfaces as one governed product,
 2. verification that shared analytical primitives are visibly consistent,
 3. final review of CSS ownership and any remaining page-local drift.
 
-### 4. Runtime and evidence closeout
+### 5. Runtime and evidence closeout
 
 Still required:
 
@@ -313,8 +388,9 @@ It has already delivered substantial implementation:
 1. portfolio analytical uplift is materially real and acceptable for the current RFC scope,
 2. shell/bootstrap ownership is materially cleaner,
 3. performance summary has been significantly refactored and improved,
-4. risk has a first meaningful uplift pass.
+4. risk has a first meaningful uplift pass,
+5. advisor brief has meaningful slice-6 continuity work but is not yet at final acceptance.
 
-But the slice remains partial because the final quality bar for performance summary and cross-surface
-consistency has not yet been met. This document now records the actual implementation state rather
-than the earlier assessment-only posture.
+But the slice remains partial because the final quality bar for performance, risk, advisor brief,
+and cross-surface consistency has not yet been met. This document now records the actual
+implementation state rather than the earlier assessment-only posture.
