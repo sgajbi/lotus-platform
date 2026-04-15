@@ -148,7 +148,7 @@
       "owning_service": "lotus-performance",
       "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/details",
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "partial",
+      "required_support_state": "ready",
       "allowed_states": ["ready", "partial", "loading", "error"],
       "validation_rules": {
         "ready": ["attribution detail table is populated"],
@@ -165,9 +165,7 @@
       },
       "evidence_required": true,
       "methodology_reference": "lotus-performance/docs/methodologies",
-      "known_limitations": [
-        "benchmark-relative attribution may remain partial until full source-backed detail is available"
-      ],
+      "known_limitations": [],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": null
     },
