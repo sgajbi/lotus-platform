@@ -118,5 +118,6 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"
     )
-    assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "partial"
+    assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "ready"
+    assert panel_by_id["performance.analysis.attribution"]["known_limitations"] == []
     assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]

@@ -14,6 +14,8 @@ These playbooks turn recurring delivery practice into durable operating guidance
    How to choose the right validation path from repo-local checks up to full platform proof.
 4. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)
    Repeatable responses to CI, validation, runtime, and contract failures.
+5. [TWR Investigation Playbook](./playbooks/TWR-INVESTIGATION-PLAYBOOK.md)
+   How to investigate implausible TWR numbers across API math, source economics, reconciliation, and documentation.
 
 ## When To Use This Layer
 

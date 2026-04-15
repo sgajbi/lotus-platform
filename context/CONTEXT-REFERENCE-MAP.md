@@ -64,6 +64,8 @@ The registry companion currently exposes:
    Validation depth and evidence selection.
 5. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)
    Repeatable response patterns for CI and runtime failures.
+6. [TWR Investigation Playbook](./playbooks/TWR-INVESTIGATION-PLAYBOOK.md)
+   Investigation sequence for time-weighted return defects, implausible economics, and upstream reconciliation issues.
 
 ## Platform Standards
 

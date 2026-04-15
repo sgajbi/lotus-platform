@@ -32,6 +32,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | --- | --- | --- | --- |
 | Bring up canonical Workbench runtime, validate populated panels, generate governed demo screenshots | `lotus-front-office-runtime` | `lotus-frontend-delivery-governance`, `lotus-pr-premerge-gate` | `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`, `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1` |
 | Validate service runtime, API, observability, and platform QA posture | `lotus-qa-platform-validator` | `lotus-validation-resolution-lifecycle` | `lotus-platform/automation/Invoke-Platform-QA.ps1` |
+| Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Implement or review backend code in Lotus service repositories | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
@@ -72,6 +73,17 @@ Use when the user wants:
 1. validate -> issue -> fix -> PR -> merge -> revalidate loop,
 2. defect-driven stabilization,
 3. repeated QA and closure until no blockers remain.
+
+### `lotus-endpoint-certification-loop`
+
+Use when the task is about:
+
+1. endpoint-by-endpoint certification,
+2. testing all request options and every returned figure,
+3. OpenAPI/Swagger completeness,
+4. upstream and downstream integration correctness,
+5. GitHub issue review for endpoint-specific defects,
+6. duplicate, stale, or dead endpoint migration decisions.
 
 ## Keep, Tighten, Add, Remove Decisions
 
