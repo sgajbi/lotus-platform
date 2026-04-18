@@ -138,3 +138,23 @@ Implication:
 
 Future Lotus documentation cleanup should move surviving cross-cutting investor, sales, and GTM
 material into the platform-governance layer when it no longer belongs to one application repo.
+
+### 2026-04-18 | Cross-cutting business and moat pages should be rewritten around Lotus operating value, not copied from stale service mechanics
+
+Continuing the platform commercial-doc cleanup showed that historical strategy pages often mix a
+useful business point with outdated single-repo implementation detail, stale competitor framing, or
+hard numeric claims that are not part of current validated repo truth.
+
+The documentation became more durable once:
+
+1. cross-cutting benefits, moat, and positioning pages were rewritten in current Lotus ecosystem
+   language,
+2. old service-by-service mechanics were replaced with operating-model value such as governance,
+   bounded ownership, reusable automation, supportability, and validated delivery,
+3. stale or unverifiable market-size and competitor-detail claims were not copied forward unless
+   they were intentionally refreshed from current source material.
+
+Implication:
+
+Future platform-level commercial documentation should translate durable business meaning into current
+Lotus operating value instead of preserving brittle historical specifics.

@@ -68,15 +68,20 @@ as the durable home for Lotus documentation workflow guidance.
    ecosystem-level platform narrative under the platform-governance repository instead of leaving it
    stranded inside one application repo. Keep numeric pricing and deal-specific terms high-level
    unless the user explicitly asks for detailed commercial mechanics.
-15. Use this content split:
+15. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
+   comparisons, or unverified market-size numbers, translate the durable business meaning into
+   current Lotus ecosystem language instead of copying the old claims forward. Prefer operating-model
+   value, ownership clarity, delivery leverage, and supportability posture over brittle legacy
+   specifics.
+16. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-16. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+17. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-17. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+18. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
