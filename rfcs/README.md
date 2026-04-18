@@ -122,6 +122,7 @@ Reference baseline:
 - `RFC-0030-adr-governance-and-decision-traceability.md`
 - `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`
 - `RFC-0083-lotus-core-system-of-record-target-architecture.md`
+- `RFC-0084-lotus-context-assembly-and-compaction-hardening-for-agentic-development.md`
 
 
 
