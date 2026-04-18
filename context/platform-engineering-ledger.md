@@ -195,3 +195,24 @@ Implication:
 
 Future Lotus documentation work should add or refresh deep-doc indexes when the detailed document
 set is broad enough that readers would otherwise scan a flat directory or a bloated README.
+
+### 2026-04-18 | README/wiki cleanup needs an explicit anti-duplication and publish-hygiene rule
+
+Recent cross-repo wiki work showed two recurring failure modes:
+
+1. new pages were easy to create even when the right move was to tighten an existing nearby page,
+2. GitHub wiki publication could unintentionally carry other pending repo-local `wiki/` edits if
+   the authored-source diff was not checked first.
+
+The documentation workflow became safer once:
+
+1. the platform layering guidance explicitly told agents to scan adjacent README, wiki, and deep-doc
+   pages before creating a new document,
+2. the README/wiki governance skill explicitly told agents to prefer consolidation over parallel
+   pages,
+3. publication guidance treated the repo-local `wiki/` diff as a required pre-publish check.
+
+Implication:
+
+Future Lotus documentation work should reduce overlap first, add pages only for real navigation or
+ownership boundaries, and verify the authored wiki diff before publishing to GitHub.

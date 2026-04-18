@@ -36,65 +36,72 @@ as the durable home for Lotus documentation workflow guidance.
    - inspect contracts or request/response models for the real integration shape
    - inspect `Makefile` or equivalent repo-native command surface
    - use those code surfaces to decide how the wiki should group the system
-4. Before a major README rewrite, check whether the repo already has docs regression tests or
+4. Scan the existing `README.md`, `wiki/`, and relevant `docs/` subtree for overlapping pages
+   before adding a new one:
+   - prefer tightening an existing page when the new content would mostly duplicate structure
+   - merge or retire near-duplicate wiki pages instead of letting both survive
+   - use new pages only when there is a real navigation or ownership boundary
+5. Before a major README rewrite, check whether the repo already has docs regression tests or
    public-contract tests that pin README or guide language. Search the test tree for `README.md`,
    key guide paths, or `docs` contract test packs so you preserve governed public truth instead of
    deleting required contract language accidentally.
-5. When the repository has been split, renamed, or re-scoped, scan current operator-facing evidence
+6. When the repository has been split, renamed, or re-scoped, scan current operator-facing evidence
    docs such as `docs/demo/`, manual-validation notes, and runbooks for stale service names, image
    names, ingress identities, and command targets.
-6. When a repository has older wiki or strategy material with useful historical signal, mine it as
+7. When a repository has older wiki or strategy material with useful historical signal, mine it as
    source material instead of copying its structure blindly. Classify what remains current repo
    truth, what has become ecosystem background, what now belongs in another Lotus repository, and
    what should be retired.
-7. When the harvested legacy material is broad enough that future cleanup would otherwise repeat the
+8. When the harvested legacy material is broad enough that future cleanup would otherwise repeat the
    same classification work, create a durable migration ledger page or doc so later agents can reuse
    the disposition instead of re-triaging the same historical pages.
-8. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
-9. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
+9. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
+10. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
    copying them.
-10. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
+11. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
    should not become an unbounded duplicate of `docs/`.
-11. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
+12. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
-12. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
+13. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
    disabled navigation entries, and target future topology. Do not treat every historical route or
    shell label as an active product commitment.
-13. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
+14. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
    business or market framing only when it clarifies why the platform exists, never as a substitute
    for actual automation, standards, and runtime ownership.
-14. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
+15. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
    ecosystem-level platform narrative under the platform-governance repository instead of leaving it
    stranded inside one application repo. Keep numeric pricing and deal-specific terms high-level
    unless the user explicitly asks for detailed commercial mechanics.
-15. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
+16. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
    comparisons, or unverified market-size numbers, translate the durable business meaning into
    current Lotus ecosystem language instead of copying the old claims forward. Prefer operating-model
    value, ownership clarity, delivery leverage, and supportability posture over brittle legacy
    specifics.
-16. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
+17. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
    competitor assertions unless they are freshly verified for the current date. For evergreen repo
    wiki pages, prefer structural market forces, buyer pain, and Lotus positioning over brittle
    point-in-time statistics.
-17. Use this content split:
+18. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-18. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+19. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-19. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
+20. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
    than editing the GitHub wiki clone directly. Treat publication as a synchronization step, not as
    a second authoring workflow.
-20. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
+21. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
+    carry only the intended slice or also other pending authored wiki edits.
+22. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
    fails because of old characters such as `:`, use a bare clone publication path instead of
    mutating the repo-local `wiki/` source or skipping the publish.
-21. When replacing a legacy wiki with the current governed page set, preserve durable business or
+23. When replacing a legacy wiki with the current governed page set, preserve durable business or
    operator signal by migrating it into grounded Lotus language first; then retire the stale page
    names from the live wiki.
-22. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+24. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard

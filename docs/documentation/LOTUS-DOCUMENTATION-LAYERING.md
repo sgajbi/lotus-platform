@@ -94,7 +94,12 @@ Keep these rules explicit:
 3. do not put deep architecture detail into the README unless it changes the fast-start contract,
 4. do not leave ecosystem-level narrative trapped inside one application repository when it clearly
    belongs to `lotus-platform`,
-5. do not use stale legacy wiki pages as current truth without reclassification.
+5. do not use stale legacy wiki pages as current truth without reclassification,
+6. do not create a new page when a nearby README, wiki page, or deep doc can be tightened instead.
+
+Before adding a new document, scan the adjacent `README.md`, `wiki/`, and relevant `docs/` folder
+for overlap. Prefer consolidating or sharpening an existing page when the new content would mostly
+repeat structure that already exists.
 
 ## `lotus-platform` Specific Posture
 
@@ -132,6 +137,10 @@ When updating Lotus docs, use this order:
 3. update `wiki/` to keep onboarding and operator navigation aligned,
 4. update `context/` only when the change is platform-wide or should become durable guidance for
    future work.
+
+If the repository publishes a GitHub wiki, finish by checking whether the repo-local `wiki/`
+changes should be synchronized to the live wiki immediately or batched with other pending authored
+wiki changes.
 
 ## Related References
 
