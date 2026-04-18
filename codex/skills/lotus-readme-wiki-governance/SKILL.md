@@ -48,15 +48,18 @@ as the durable home for Lotus documentation workflow guidance.
    copying them.
 8. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
    should not become an unbounded duplicate of `docs/`.
-9. Use this content split:
+9. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
+   shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
+   not silently document the wrong contract.
+10. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-10. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+11. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-11. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+12. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
@@ -71,6 +74,8 @@ Every Lotus README should cover:
 3. how to start quickly,
 4. which commands map to the validation lanes,
 5. where the detailed docs and runbooks live.
+6. repository layout, common commands, and runtime posture whenever the repo has enough surface
+   area that omitting them would slow orientation.
 
 The README must be:
 
@@ -131,14 +136,16 @@ After updating docs:
    contract layout,
 5. when documenting a shared-capability or AI service, distinguish capability-catalog truth from
    rollout-governed live execution or provider-allowlist truth,
-6. when the repo has docs regression tests or public-doc contract tests, run the targeted pack after
+6. when request conventions are mixed, verify that at least one wiki page contains executable
+   examples using the currently supported query and body shapes,
+7. when the repo has docs regression tests or public-doc contract tests, run the targeted pack after
    README or wiki changes and treat failures as contract drift until proven otherwise,
-7. update repo-local engineering context when you discover that README/wiki changes are governed by a
+8. update repo-local engineering context when you discover that README/wiki changes are governed by a
    meaningful docs regression pack or another repeatable documentation constraint,
-8. if repo-native checks regenerate artifacts such as OpenAPI snapshots or API vocabulary files,
+9. if repo-native checks regenerate artifacts such as OpenAPI snapshots or API vocabulary files,
    inspect the diff and avoid committing timestamp-only or otherwise non-semantic churn in a docs slice,
-9. run any lightweight repo checks needed to confirm commands or paths if they were uncertain,
-10. validate this skill with `quick_validate.py` after edits to the skill itself.
+10. run any lightweight repo checks needed to confirm commands or paths if they were uncertain,
+11. validate this skill with `quick_validate.py` after edits to the skill itself.
 
 ## Durable Guidance
 

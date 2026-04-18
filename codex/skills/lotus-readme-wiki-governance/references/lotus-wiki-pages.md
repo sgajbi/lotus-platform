@@ -1,0 +1,184 @@
+# Lotus Wiki Pages
+
+Use this reference to seed a Lotus repo wiki or a local `wiki/` source set.
+
+## Purpose
+
+The Lotus wiki should be:
+
+1. an onboarding surface,
+2. an operator navigation layer,
+3. a concise summary of repo truth,
+4. a route into the detailed repo docs.
+
+It should not become a second uncontrolled documentation tree.
+
+Use the wiki for the material that is too detailed for the README but too important to bury inside
+deep architecture or RFC documents.
+
+## Standard Page Set
+
+Create these pages unless the repo truly lacks the subject:
+
+1. `Home`
+2. `Overview`
+3. `Architecture`
+4. `Getting Started`
+5. `Development Workflow`
+6. `Validation and CI`
+7. `Operations Runbook`
+8. `Security and Governance`
+9. `RFC Index`
+10. `Integrations`
+11. `Roadmap`
+12. `_Sidebar`
+
+Optional pages when the repo surface is large enough to justify them:
+
+1. `API Surface`
+2. `Platform Surfaces`
+3. `Capability Packs`
+4. `Troubleshooting`
+5. `RFC Index` grouped by capability family rather than one flat list when the RFC estate is large
+
+### API Surface
+
+Summarize:
+
+1. grouped public endpoints or route families,
+2. current contract notes that are easy to get wrong,
+3. copy-paste-ready request examples when query or request-body conventions are mixed,
+4. links to deeper contract or OpenAPI material when present.
+
+## Page Intent
+
+### Home
+
+Summarize:
+
+1. repo role,
+2. current phase,
+3. quickest starting links,
+4. most important commands,
+5. page navigation.
+
+### Overview
+
+Summarize:
+
+1. business role,
+2. ownership boundaries,
+3. upstream and downstream relationships,
+4. current-state posture.
+
+### Architecture
+
+Summarize:
+
+1. major modules,
+2. runtime shape,
+3. critical seams,
+4. execution flow or data flow when it is central to understanding the repo,
+5. links to the detailed architecture docs.
+
+### Getting Started
+
+Summarize:
+
+1. prerequisites,
+2. install steps,
+3. local run path,
+4. health checks,
+5. important environment or mode choices,
+6. where to look first when startup fails.
+
+### Development Workflow
+
+Summarize:
+
+1. common developer commands,
+2. local working loop,
+3. formatting, linting, tests,
+4. repo-specific caveats.
+
+### Validation and CI
+
+Summarize:
+
+1. lane model,
+2. feature-lane commands,
+3. PR-grade commands,
+4. Docker or runtime parity,
+5. evidence expectations,
+6. what the important gates actually protect.
+
+### Operations Runbook
+
+Summarize:
+
+1. health endpoints,
+2. readiness semantics,
+3. operational checks,
+4. rollout or rollback highlights,
+5. grouped operator-facing surfaces when the repo exposes many control-plane APIs,
+6. links to full runbooks.
+
+### Security and Governance
+
+Summarize:
+
+1. relevant governance posture,
+2. security-sensitive seams,
+3. production readiness caveats,
+4. links to standards and local governance docs.
+
+### RFC Index
+
+Summarize:
+
+1. major active RFCs,
+2. what each RFC governs locally,
+3. links to the canonical RFC docs,
+4. grouping by capability family or maturity when the repo carries many RFCs.
+
+### Integrations
+
+Summarize:
+
+1. who calls this repo,
+2. which services it calls,
+3. canonical URLs or identities when relevant,
+4. the primary executable contract or contracts,
+5. integration guides or contract docs.
+
+### Roadmap
+
+Summarize:
+
+1. current phase,
+2. delivered foundations,
+3. intentional limitations,
+4. next major milestones,
+5. the difference between implemented bounded runtime and broader future-facing expansion.
+
+## Naming
+
+For a local source set intended for GitHub wiki publication:
+
+1. use one file per page,
+2. match page names closely, for example `Home.md` or `Validation-and-CI.md`,
+3. include `_Sidebar.md` for navigation,
+4. keep the source set inside the main repository under `wiki/` when possible,
+5. treat any separate local clone of `*.wiki.git` as a publish target rather than a second editing
+   location.
+
+## Writing Rules
+
+1. Keep each page concise.
+2. Prefer summary plus links over duplication.
+3. Keep page titles stable across repos where possible.
+4. Use the same section order across repos unless a repo-type reason justifies a change.
+5. Group large API estates by surface area derived from code, such as router prefixes or contract
+   families, instead of presenting an unstructured endpoint dump.
+6. Add light cross-links between pages so readers can move from overview to setup to operations to
+   troubleshooting without returning to the sidebar every time.

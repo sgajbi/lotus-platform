@@ -66,3 +66,21 @@ Standards such as CI lane structure, workflow permissions, action baselines, rep
 Implication:
 
 When a pattern matters ecosystem-wide, do not stop at prose. Promote it into executable truth where practical.
+
+### 2026-04-18 | README and wiki quality improves when mixed API conventions are shown, not merely described
+
+Cross-repo README and wiki rollout work showed that short prose warnings are not enough when a repo
+still exposes mixed query names, compatibility aliases, or transitional request-body shapes.
+
+The documentation became materially safer once:
+
+1. the README stayed concise and delegated detailed examples into the repo-local `wiki/`,
+2. the wiki remained the canonical authored source inside the main repository,
+3. API-surface pages included copy-paste-ready examples for the currently supported parameter shapes,
+4. repo-local engineering context explicitly called out this documentation requirement where it
+   mattered.
+
+Implication:
+
+Future README/wiki work should add executable examples for mixed public contracts and keep that rule
+in the platform documentation skill, not only in one repo.
