@@ -84,3 +84,21 @@ Implication:
 
 Future README/wiki work should add executable examples for mixed public contracts and keep that rule
 in the platform documentation skill, not only in one repo.
+
+### 2026-04-18 | Product-UI docs must separate active surfaces from legacy or capability-disabled routes
+
+Workbench documentation tightening showed that route inventories can easily drift into historical
+topology instead of current product truth.
+
+The documentation became materially more truthful once:
+
+1. active supported surfaces were stated explicitly,
+2. compatibility redirects were called out as compatibility-only instead of live product ownership,
+3. capability-disabled shell entries were not described as active routes simply because the labels
+   still exist in the shell model,
+4. canonical runtime examples used the governed seeded portfolio and validation output paths.
+
+Implication:
+
+Future README/wiki work for product UIs should document supported surfaces, compatibility routes,
+disabled navigation entries, and canonical evidence paths separately.

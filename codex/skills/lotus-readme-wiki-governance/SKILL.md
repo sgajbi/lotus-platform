@@ -51,15 +51,18 @@ as the durable home for Lotus documentation workflow guidance.
 9. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
-10. Use this content split:
+10. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
+   disabled navigation entries, and target future topology. Do not treat every historical route or
+   shell label as an active product commitment.
+11. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-11. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+12. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-12. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+13. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
@@ -114,7 +117,8 @@ any standalone local clone of the GitHub wiki repo as disposable publication plu
 Apply the standard with repo-type-specific emphasis:
 
 1. `product-ui`
-   focus on product role, gateway dependency, live runtime validation, and browser evidence
+   focus on product role, gateway dependency, live runtime validation, browser evidence, and the
+   distinction between active supported surfaces versus legacy or capability-disabled routes
 2. `experience-api`
    focus on client contract ownership, upstream dependency map, and cross-app payload shaping
 3. `domain-service`

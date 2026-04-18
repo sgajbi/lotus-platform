@@ -48,7 +48,9 @@ Summarize:
 1. grouped public endpoints or route families,
 2. current contract notes that are easy to get wrong,
 3. copy-paste-ready request examples when query or request-body conventions are mixed,
-4. links to deeper contract or OpenAPI material when present.
+4. links to deeper contract or OpenAPI material when present,
+5. for product UIs, whether each route family is active, compatibility-only, or capability-disabled
+   when route existence and supported product posture differ.
 
 ## Page Intent
 
