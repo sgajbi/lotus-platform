@@ -29,6 +29,15 @@ with:
 - onboarding and automation references
 - documentation contract tests
 
+Use:
+
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
+- [Lotus Skill Routing Map](../context/LOTUS-SKILL-ROUTING-MAP.md)
+
+When the task is specifically README/wiki standardization across Lotus repos, use the governed
+`lotus-readme-wiki-governance` workflow instead of treating the change as ordinary prose cleanup.
+
 ## Async GitHub posture
 
 Prefer targeted local proof plus GitHub for the heavy matrix.

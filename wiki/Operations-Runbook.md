@@ -31,7 +31,10 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 1. classify whether the issue is ingress, platform automation, documentation governance, or
    front-office runtime proof
 2. if ingress-related, run `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1`
-3. if documentation-related, run the targeted doc-contract pack
+3. if documentation-related, first classify whether the change belongs in `README.md`, repo-local
+   `wiki/`, deep `docs/`, or platform `context/` using [Lotus Documentation
+   Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md), then run the targeted
+   doc-contract pack
 4. if product-surface proof is required, switch to the governed `lotus-workbench` runtime flow
 5. only after the category is clear should you start deeper repo-level debugging
 
@@ -40,5 +43,6 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 - [automation/README.md](../automation/README.md)
 - [platform-stack/README.md](../platform-stack/README.md)
 - [Local Development Runbook](../Local%20Development%20Runbook.md)
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 - [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - [Troubleshooting](Troubleshooting)
