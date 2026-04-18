@@ -132,8 +132,10 @@ After updating docs:
    README or wiki changes and treat failures as contract drift until proven otherwise,
 7. update repo-local engineering context when you discover that README/wiki changes are governed by a
    meaningful docs regression pack or another repeatable documentation constraint,
-8. run any lightweight repo checks needed to confirm commands or paths if they were uncertain,
-9. validate this skill with `quick_validate.py` after edits to the skill itself.
+8. if repo-native checks regenerate artifacts such as OpenAPI snapshots or API vocabulary files,
+   inspect the diff and avoid committing timestamp-only or otherwise non-semantic churn in a docs slice,
+9. run any lightweight repo checks needed to confirm commands or paths if they were uncertain,
+10. validate this skill with `quick_validate.py` after edits to the skill itself.
 
 ## Durable Guidance
 
