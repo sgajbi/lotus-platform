@@ -43,6 +43,14 @@ Rule:
 
 ### Platform docs changed and you are unsure what to run
 
+Classify the change first:
+
+- use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md) to
+  decide whether the change belongs in `README.md`, repo-local `wiki/`, deep `docs/`, or platform
+  `context/`
+- use [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md) when the task is really documentation
+  workflow rather than generic platform debugging
+
 Use this high-signal pack first:
 
 ```powershell
@@ -71,3 +79,4 @@ runtime flow before continuing platform-level debugging.
 - [Getting Started](Getting-Started)
 - [Operations Runbook](Operations-Runbook)
 - [Platform Surfaces](Platform-Surfaces)
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)

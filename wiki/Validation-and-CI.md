@@ -35,9 +35,22 @@ automation README expectations.
 
 When changing platform docs, run the targeted contract packs rather than assuming prose-only safety.
 
+Before running the pack, classify the documentation change through:
+
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
+
+That keeps README, repo-local wiki, deep docs, and platform context from drifting into the wrong
+surface even when the tests are green.
+
 ## High-signal targeted pack
 
 ```powershell
 python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q
 python automation/validate_engineering_context_system.py
 ```
+
+## Related references
+
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
