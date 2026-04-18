@@ -34,3 +34,10 @@ Platform documentation is partially protected by unit contract tests, including 
 automation README expectations.
 
 When changing platform docs, run the targeted contract packs rather than assuming prose-only safety.
+
+## High-signal targeted pack
+
+```powershell
+python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q
+python automation/validate_engineering_context_system.py
+```

@@ -123,6 +123,8 @@ Important runtime note:
 
 - use `lotus-workbench` for canonical populated front-office validation
 - use `lotus-platform` for ingress, governance, validation wrappers, and ecosystem-wide automation
+- use [`wiki/Platform-Surfaces.md`](wiki/Platform-Surfaces.md) when you need to decide which
+  platform-owned area is responsible for a task
 
 ## Common Commands
 
@@ -136,6 +138,8 @@ Important runtime note:
   platform validation lane
 - `python -m pytest tests/unit -q`
   targeted unit contract tests
+- `python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q`
+  high-signal targeted documentation and operator contract pack
 - `python automation/validate_engineering_context_system.py`
   context-system drift validation
 - `powershell -ExecutionPolicy Bypass -File automation\Validate-Service-Addressing.ps1`
@@ -190,6 +194,10 @@ Important current platform truths:
   [rfcs/README.md](rfcs/README.md)
 - platform narrative and commercial framing:
   [wiki/Investor-Pitch.md](wiki/Investor-Pitch.md)
+- platform responsibility map:
+  [wiki/Platform-Surfaces.md](wiki/Platform-Surfaces.md)
+- troubleshooting:
+  [wiki/Troubleshooting.md](wiki/Troubleshooting.md)
 - wiki home:
   [wiki/Home.md](wiki/Home.md)
 

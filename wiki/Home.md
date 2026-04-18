@@ -15,10 +15,12 @@ Use it for:
 
 - [Overview](Overview)
 - [Architecture](Architecture)
+- [Platform Surfaces](Platform-Surfaces)
 - [Getting Started](Getting-Started)
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
+- [Troubleshooting](Troubleshooting)
 
 ## Important commands
 
@@ -33,6 +35,14 @@ python automation/validate_engineering_context_system.py
 - `lotus-platform` owns standards, automation, ingress support, validation, and central governance
 - `lotus-workbench` owns the canonical populated front-office runtime
 - domain truth stays in the domain-authoritative Lotus services
+
+## Use this repository when
+
+- you need to validate or govern multiple Lotus repositories together
+- you need to debug ingress, environment posture, or cross-repo runtime support
+- you need standards, templates, or validator truth
+- you need onboarding, agent-guidance, or central context updates
+- you need a cross-cutting ecosystem document that does not belong to one application repo
 
 ## Key references
 
