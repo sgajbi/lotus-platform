@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTEXT_DIR = ROOT / "context"
+WORKSPACE_ROOT = ROOT.parent
 
 
 def _load_registry_renderer():
@@ -22,6 +23,10 @@ def _load_registry_renderer():
 
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _normalize_text(value: str) -> str:
+    return value.replace("\r\n", "\n").rstrip("\n\r")
 
 
 def validate_engineering_context_system() -> list[str]:
@@ -43,6 +48,7 @@ def validate_engineering_context_system() -> list[str]:
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
         "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
         "platform repo context": ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
+        "platform repo agents": ROOT / "AGENTS.md",
         "developer onboarding": ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md",
         "agent ramp up": ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md",
         "developer environment bootstrap": ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1",
@@ -81,6 +87,7 @@ def validate_engineering_context_system() -> list[str]:
     rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
     checklist = _read_text(required_files["rfc checklist"])
     manifest = json.loads(_read_text(required_files["manifest"]))
+    normalized_agents_contract = _normalize_text(agents_contract)
 
     if "- Status: Implemented" not in rfc:
         errors.append("RFC-0073 must be marked Implemented once all slices are complete")
@@ -90,6 +97,8 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("RFC-0073 checklist: Slice 6 must be marked complete")
     if "Implementation posture: `Complete`" not in checklist:
         errors.append("RFC-0073 checklist must record complete implementation posture")
+    if "Slice 2A | Repo-root AGENTS deployment and drift control | Complete" not in checklist:
+        errors.append("RFC-0073 checklist: Slice 2A must be marked complete")
 
     for link_target in (
         "./LOTUS-QUICKSTART-CONTEXT.md",
@@ -181,6 +190,8 @@ def validate_engineering_context_system() -> list[str]:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
     if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
     for text in (
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "npm run live:stack:up",
@@ -260,6 +271,31 @@ def validate_engineering_context_system() -> list[str]:
     if "## Context Maintenance Rule" not in platform_repo_context:
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
 
+    applications = manifest.get("applications", [])
+    if len(applications) != 10:
+        errors.append("lotus-context-manifest.json: applications registry must include 10 Lotus repositories")
+    if any(entry.get("status") != "implemented" for entry in applications):
+        errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
+
+    for application in applications:
+        repository_name = application.get("repository")
+        if not repository_name:
+            errors.append("lotus-context-manifest.json: application entry missing repository name")
+            continue
+        repo_root = ROOT if repository_name == "lotus-platform" else WORKSPACE_ROOT / repository_name
+        if not repo_root.exists():
+            continue
+        repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
+        if not repo_context_path.exists():
+            continue
+        repo_agents_path = repo_root / "AGENTS.md"
+        if not repo_agents_path.exists():
+            errors.append(f"{repository_name}: missing repo-root AGENTS.md")
+            continue
+        repo_agents_text = _normalize_text(_read_text(repo_agents_path))
+        if repo_agents_text != normalized_agents_contract:
+            errors.append(f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md")
+
     context_documents = manifest.get("context_documents", {})
     for key, expected_path in {
         "index": "context/README.md",
@@ -283,12 +319,6 @@ def validate_engineering_context_system() -> list[str]:
     }.items():
         if procedural_memory.get(key) != expected_path:
             errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
-
-    applications = manifest.get("applications", [])
-    if len(applications) != 10:
-        errors.append("lotus-context-manifest.json: applications registry must include 10 Lotus repositories")
-    if any(entry.get("status") != "implemented" for entry in applications):
-        errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
 
     standards_registry = manifest.get("standards_registry", [])
     standard_names = {entry.get("name") for entry in standards_registry if isinstance(entry, dict)}

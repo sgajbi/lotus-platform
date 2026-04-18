@@ -174,10 +174,50 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert '[switch]$CheckOnly' in sync_script
     assert "Normalize-ContractContent" in sync_script
     assert "Resolve-DefaultTargetPath" in sync_script
-    assert 'if ($env:GITHUB_ACTIONS -eq "true")' in sync_script
+    assert '$target.kind -eq "deployed" -and $env:GITHUB_ACTIONS -eq "true"' in sync_script
     assert "Agent operating contract check skipped because deployed AGENTS target is not present on this GitHub runner" in sync_script
     assert "[System.IO.File]::WriteAllText" in sync_script
-    assert "Target AGENTS file is not synchronized with the governed source." in sync_script
+    assert "Target AGENTS file is not synchronized with the governed source:" in sync_script
+
+
+def test_rfc_0073_slice_two_a_repo_root_agents_are_synchronized_and_validated() -> None:
+    checklist = (ROOT / "rfcs" / "RFC-0073-implementation-checklist.md").read_text(encoding="utf-8")
+    evidence = (
+        ROOT / "rfcs" / "RFC-0073-slice-2a-repo-root-agents-deployment-and-drift-control-evidence.md"
+    ).read_text(encoding="utf-8")
+    agents_contract = (CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md").read_text(encoding="utf-8")
+    platform_repo_agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    sync_script = (ROOT / "automation" / "Sync-AgentOperatingContract.ps1").read_text(encoding="utf-8")
+    validator = (ROOT / "automation" / "validate_engineering_context_system.py").read_text(encoding="utf-8")
+    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+
+    assert "Implementation posture: `Complete`" in checklist
+    assert "Slice 2A | Repo-root AGENTS deployment and drift control | Complete" in checklist
+    assert "Review outcome:" in checklist
+    assert "repo-root `AGENTS.md` drift visibility now exists through the context validator" in checklist
+
+    assert "repo-root `AGENTS.md` copies across the in-scope Lotus repositories" in evidence
+    assert "`automation/Sync-AgentOperatingContract.ps1` now supports" in evidence
+    assert "The mandatory slice review was completed before moving forward." in evidence
+    assert "no repo-specific content was added to repo-root `AGENTS.md`" in evidence
+
+    assert platform_repo_agents == agents_contract
+    assert "Repo-root `AGENTS.md` files across Lotus repositories" in agents_contract
+
+    for required_item in (
+        "[string[]]$Repository = @()",
+        "[switch]$AllRepoRoots",
+        "[switch]$IncludeDeployedTarget",
+        "Resolve-RequestedTargets",
+        "Resolve-RepoRootTargetPath",
+        "default deployed target",
+    ):
+        assert required_item in sync_script
+
+    assert 'Sync-AgentOperatingContract.ps1") -CheckOnly -TargetPath (Join-Path $repoRoot "AGENTS.md")' not in repo_checks
+    assert "platform repo agents" in validator
+    assert "repo-root AGENTS.md is not synchronized" in validator
+    assert "missing repo-root AGENTS.md" in validator
 
 
 def test_rfc_0073_slice_three_a_repository_context_contract_and_platform_pilot_exist() -> None:
@@ -541,6 +581,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
         "lotus-methodology-doc-v3",
         "lotus-pr-premerge-gate",
         "lotus-qa-platform-validator",
+        "lotus-readme-wiki-governance",
         "lotus-rfc-review-loop",
         "lotus-rfc0067-rollout",
         "lotus-transaction-rfc-loop",
