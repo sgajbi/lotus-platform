@@ -26,3 +26,12 @@ automation, and runtime support.
 
 Platform integration should centralize cross-repo governance once, instead of encouraging each repo
 to reinvent the same operator workflows.
+
+## Legacy documentation boundary
+
+When historical documentation was written under one application repo but actually describes Lotus as
+an ecosystem, it should be reclassified and moved into `lotus-platform`.
+
+See:
+
+- [Legacy Core Wiki Migration Ledger](Legacy-Core-Wiki-Migration-Ledger)

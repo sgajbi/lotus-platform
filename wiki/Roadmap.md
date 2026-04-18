@@ -19,6 +19,7 @@
 - cleaner repo-to-platform documentation boundaries
 - stronger reusable documentation patterns across Lotus repos
 - more durable evidence and operator summaries for cross-app validation
+- explicit migration of surviving cross-cutting legacy wiki material into platform-owned docs
 
 ## Intentional boundaries
 

@@ -13,4 +13,5 @@
 - [Investor Pitch](Investor-Pitch)
 - [Commercial Model and GTM](Commercial-Model-and-GTM)
 - [Sales FAQ](Sales-FAQ)
+- [Legacy Core Wiki Migration Ledger](Legacy-Core-Wiki-Migration-Ledger)
 - [Roadmap](Roadmap)

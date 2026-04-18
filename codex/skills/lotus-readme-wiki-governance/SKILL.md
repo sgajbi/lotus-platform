@@ -47,33 +47,36 @@ as the durable home for Lotus documentation workflow guidance.
    source material instead of copying its structure blindly. Classify what remains current repo
    truth, what has become ecosystem background, what now belongs in another Lotus repository, and
    what should be retired.
-7. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
-8. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
+7. When the harvested legacy material is broad enough that future cleanup would otherwise repeat the
+   same classification work, create a durable migration ledger page or doc so later agents can reuse
+   the disposition instead of re-triaging the same historical pages.
+8. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
+9. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
    copying them.
-9. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
+10. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
    should not become an unbounded duplicate of `docs/`.
-10. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
+11. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
-11. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
+12. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
    disabled navigation entries, and target future topology. Do not treat every historical route or
    shell label as an active product commitment.
-12. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
+13. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
    business or market framing only when it clarifies why the platform exists, never as a substitute
    for actual automation, standards, and runtime ownership.
-13. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
+14. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
    ecosystem-level platform narrative under the platform-governance repository instead of leaving it
    stranded inside one application repo. Keep numeric pricing and deal-specific terms high-level
    unless the user explicitly asks for detailed commercial mechanics.
-14. Use this content split:
+15. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-15. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+16. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-16. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+17. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
