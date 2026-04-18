@@ -192,6 +192,13 @@ For normal development:
 
 Use the full [Lotus Engineering Context](../../context/LOTUS-ENGINEERING-CONTEXT.md) when the task affects architecture, standards, cross-repo ownership, or governance.
 
+When the task is specifically about README, wiki, or documentation structure, also load:
+
+1. [Lotus Documentation Layering](../documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+2. the target repository `README.md`
+3. the target repository `wiki/` source when present
+4. only the deeper `docs/` pages needed to keep the front-door docs truthful
+
 ## Codex Agent Context And Skills
 
 The governed operating contract source is:
@@ -208,6 +215,10 @@ The platform-owned Lotus skill source is:
 
 1. [Lotus Codex Skills](../../codex/skills/README.md)
 2. [Lotus Skill Manifest](../../codex/skills/lotus-skill-manifest.json)
+
+For repository README and wiki standardization work, use the governed
+`lotus-readme-wiki-governance` skill and keep the repo-local `wiki/` directory as the authored
+source when a GitHub wiki exists.
 
 Treat the local Codex profile as a consumer of platform guidance, not the source of truth.
 

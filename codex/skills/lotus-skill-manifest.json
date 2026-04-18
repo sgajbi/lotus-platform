@@ -54,6 +54,13 @@
       "reason": "Lotus pre-merge verification workflow aligned to RFC-0072."
     },
     {
+      "name": "lotus-readme-wiki-governance",
+      "path": "codex/skills/lotus-readme-wiki-governance",
+      "category": "documentation-governance",
+      "directly_lotus_owned": true,
+      "reason": "Gold-standard README and wiki structure for Lotus repositories, including doc-contract-aware validation."
+    },
+    {
       "name": "lotus-qa-platform-validator",
       "path": "codex/skills/lotus-qa-platform-validator",
       "category": "platform-qa",

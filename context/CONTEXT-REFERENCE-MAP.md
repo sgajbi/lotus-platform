@@ -136,6 +136,17 @@ Read:
 5. the relevant standard documents under `platform-standards/`,
 6. the platform engineering ledger and recent architectural decisions digest.
 
+### For README, wiki, and documentation-system work
+
+Read:
+
+1. the engineering context,
+2. the target repo context,
+3. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md),
+4. [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
+5. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when a documentation skill boundary matters,
+6. only the target repo `README.md`, `wiki/`, and deeper `docs/` pages needed to keep the docs truthful.
+
 ## Runbooks And Operations
 
 1. [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)

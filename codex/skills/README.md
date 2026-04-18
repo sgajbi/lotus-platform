@@ -49,6 +49,13 @@ When a Lotus skill changes:
 5. keep merge strategy guidance aligned to Lotus repository policy,
 6. update tests that validate the governed skill inventory.
 
+When the task is documentation-system work rather than code delivery, prefer the dedicated Lotus
+documentation workflow:
+
+1. load [Lotus Documentation Layering](../../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+2. use the `lotus-readme-wiki-governance` skill for README/wiki standardization
+3. treat repo-local `wiki/` as the authored source when a GitHub wiki is published
+
 ## Runtime Boundary
 
 The platform-owned source of truth for Lotus skills is this directory.

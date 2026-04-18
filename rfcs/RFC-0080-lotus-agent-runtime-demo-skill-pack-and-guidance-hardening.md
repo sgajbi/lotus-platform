@@ -49,7 +49,9 @@ Specifically:
 4. AGENTS and central context documents will explicitly reinforce the governed runtime, async GitHub
    workflow, and evidence-backed validation posture,
 5. every implementation slice under this RFC must end with an explicit review of whether context,
-   skills, or documentation should be updated, left unchanged consciously, or simplified.
+   skills, or documentation should be updated, left unchanged consciously, or simplified,
+6. no subsequent slice should begin until that review is complete and the review outcome is recorded
+   truthfully.
 
 ## Problem
 
@@ -105,6 +107,28 @@ This RFC does not govern:
 2. the panel registry contract, which remains owned by RFC-0077,
 3. the validation framework runtime code, which remains owned by RFC-0078,
 4. evidence and lineage payloads, which remain owned by RFC-0079.
+
+## Mandatory Slice Review Gate
+
+Every completed slice under this RFC must be reviewed before work starts on the next slice.
+
+That review must explicitly check:
+
+1. whether complexity can be reduced further,
+2. whether code, tests, docs, and automation can be made cleaner, more readable, more maintainable,
+   and more modular,
+3. whether dead code, stale guidance, duplicated logic, or oversized files should be removed,
+   simplified, or split,
+4. whether tests are meaningful and high-value rather than superficial,
+5. whether documentation and governed context were updated wherever repository or platform truth
+   changed,
+6. whether any conscious no-change decisions should be recorded explicitly.
+
+The slice review is not complete unless it records:
+
+1. improvements made in the same slice,
+2. opportunities intentionally deferred,
+3. justification for anything left unchanged when a reasonable reviewer could expect it to change.
 
 ## Agent Routing Rule
 
@@ -199,11 +223,12 @@ These skills must clearly reference:
 
 The following guidance must be reviewed and aligned:
 
-1. `C:\\Users\\Sandeep\\.codex\\AGENTS.md`
-2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-3. `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`
-4. `lotus-platform/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
-5. `lotus-platform/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
+1. repo-root `AGENTS.md` in affected Lotus repositories
+2. `C:\\Users\\Sandeep\\.codex\\AGENTS.md`
+3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+4. `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`
+5. `lotus-platform/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
+6. `lotus-platform/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
 
 These documents must:
 
@@ -211,7 +236,11 @@ These documents must:
 2. explicitly discourage stale stack paths,
 3. instruct maintainers to keep docs synchronized when the runtime path changes materially,
 4. reinforce async GitHub usage and fix-forward execution as the default for long CI loops,
-5. make it explicit that screenshots without validation evidence are not sufficient proof.
+5. make it explicit that screenshots without validation evidence are not sufficient proof,
+6. keep repo-root and deployed AGENTS entrypoints synchronized when routing guidance changes.
+
+This RFC does not authorize repo-specific routing forks inside repo-root `AGENTS.md`. Routing policy
+continues to be authored centrally and synchronized outward.
 
 ## Skill Inventory Review Rule
 
@@ -236,52 +265,59 @@ RFC evidence.
 1. review current Lotus skills,
 2. identify overlap, gaps, stale guidance, and dead guidance,
 3. define the target routing map,
-4. record explicit keep, tighten, remove, and add decisions.
+4. record explicit keep, tighten, remove, and add decisions,
+5. complete and record the mandatory slice review gate before moving to Slice 2.
 
 ### Slice 2: New Front-Office Runtime Skill
 
 1. add `lotus-front-office-runtime`,
 2. document trigger phrases and governed paths,
 3. keep the skill concise, directive, and linked to source-of-truth runbooks,
-4. prove that the skill routes to validation-plus-evidence rather than screenshots-only success.
+4. prove that the skill routes to validation-plus-evidence rather than screenshots-only success,
+5. complete and record the mandatory slice review gate before moving to Slice 3.
 
 ### Slice 3: Hardening Existing Skills
 
 1. update QA, PR, frontend, and backend Lotus skills,
 2. align them with RFC-0075 through RFC-0079 runtime behavior,
 3. remove stale or ambiguous wording,
-4. prove that front-office tasks no longer route through weaker generic skill paths.
+4. prove that front-office tasks no longer route through weaker generic skill paths,
+5. complete and record the mandatory slice review gate before moving to Slice 4.
 
 ### Slice 4: AGENTS and Context Synchronization
 
 1. update global AGENTS guidance,
 2. update Lotus context docs and onboarding docs,
 3. add durable cross-links and maintenance expectations,
-4. keep context concise and avoid duplicating runbooks.
+4. keep context concise and avoid duplicating runbooks,
+5. complete and record the mandatory slice review gate before moving to Slice 5.
 
 ### Slice 5: Validation of Agent Routing Behavior
 
 1. prove that a new agent can select the governed runtime path with minimal ambiguity,
 2. prove that async GitHub behavior is reflected in the updated skills,
 3. prove that stale startup or screenshot-only behaviors are no longer encouraged,
-4. add tests or contract guards for key guidance artifacts where appropriate.
+4. add tests or contract guards for key guidance artifacts where appropriate,
+5. complete and record the mandatory slice review gate before moving to Slice 6.
 
 ### Slice 6: Documentation, Agent Context, Skill Alignment, and Branch Hygiene
 
 1. remove dead or obsolete Lotus skill content,
 2. validate that the guidance is internally consistent,
 3. document any conscious decisions to leave specific skills or docs unchanged,
-4. complete branch hygiene, PR evidence hygiene, and cross-repo reference cleanup before closure.
+4. complete branch hygiene, PR evidence hygiene, and cross-repo reference cleanup before closure,
+5. complete and record the final mandatory slice review gate before RFC closure.
 
 ## Acceptance Criteria
 
 1. A dedicated skill exists for the governed front-office runtime and demo path.
 2. Existing Lotus skills route tasks more cleanly and avoid overlap.
 3. AGENTS and Lotus context docs explicitly point to the governed runtime path.
-4. Async GitHub execution and fix-forward behavior are explicitly reinforced in the relevant skills.
-5. Screenshot-only success patterns are explicitly rejected.
-6. Obsolete skill guidance is removed.
-7. The final slice records any conscious no-change decisions for skills or docs.
+4. Repo-root and deployed AGENTS entrypoints stay synchronized when routing posture changes.
+5. Async GitHub execution and fix-forward behavior are explicitly reinforced in the relevant skills.
+6. Screenshot-only success patterns are explicitly rejected.
+7. Obsolete skill guidance is removed.
+8. The final slice records any conscious no-change decisions for skills or docs.
 
 ## Risks and Mitigations
 

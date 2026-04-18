@@ -217,6 +217,19 @@ Role:
 
 It should remain concise, stable, and strict.
 
+Distribution model:
+
+1. the canonical authored contract lives in `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`,
+2. every Lotus repository should contain a repo-root `AGENTS.md` synchronized from that governed
+   source,
+3. deployed local runtime copies such as `C:\Users\Sandeep\.codex\AGENTS.md` are valid execution
+   targets but do not replace repo-root bootstrap visibility,
+4. repository-specific truth belongs in `REPOSITORY-ENGINEERING-CONTEXT.md`, not in divergent
+   per-repo `AGENTS.md` policy bodies,
+5. repo-root `AGENTS.md` files should be byte-for-byte synchronized copies of the governed
+   contract unless the synchronization workflow deliberately supports a minimal generated header or
+   footer without policy drift.
+
 ### 2. `LOTUS-QUICKSTART-CONTEXT.md`
 
 Role:
@@ -301,6 +314,7 @@ Recommended location:
 2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 3. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
 4. `lotus-platform/context/lotus-context-manifest.json`
+5. `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`
 
 ### Repository-local documents
 
@@ -314,6 +328,7 @@ Repository-local context belongs in each repository because:
 Recommended location:
 
 1. `<repo>/REPOSITORY-ENGINEERING-CONTEXT.md`
+2. `<repo>/AGENTS.md` as the synchronized repo-root operating entrypoint
 
 This should be standardized across the Lotus estate.
 
@@ -799,7 +814,9 @@ The revised `AGENTS.md` must:
 3. cross-link the central and repository-local context documents,
 4. define mandatory operating rules and delivery expectations,
 5. require context maintenance when platform or repo reality changes,
-6. stay short enough to remain trustworthy and actively used.
+6. stay short enough to remain trustworthy and actively used,
+7. exist at the root of each Lotus repository as a synchronized copy of the governed contract,
+8. keep repo-specific policy out of the file body and in `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
 `AGENTS.md` must not try to duplicate the full central context.
 
@@ -827,13 +844,53 @@ Outcome:
 
 1. `AGENTS.md` becomes the short operational contract,
 2. it links to the governed context set,
-3. it includes context maintenance obligations.
+3. it includes context maintenance obligations,
+4. the governed source and deployed runtime copy exist.
 
 Acceptance criteria:
 
 1. `AGENTS.md` references the new context system,
 2. `AGENTS.md` does not duplicate the full context body,
-3. mandatory reading order is explicit.
+3. mandatory reading order is explicit,
+4. the governed source contract and at least one deployed runtime copy are synchronized.
+
+### Slice 2A: Repo-root `AGENTS.md` deployment and drift control
+
+Outcome:
+
+1. every Lotus repository exposes the operating contract at repo root,
+2. repo entrypoints and local runtime copies are synchronized from the same governed source,
+3. drift detection covers repo-root copies as well as the local deployed copy,
+4. the rollout does not create per-repo policy forks.
+
+In-scope repositories:
+
+1. `lotus-platform`
+2. `lotus-workbench`
+3. `lotus-gateway`
+4. `lotus-core`
+5. `lotus-performance`
+6. `lotus-risk`
+7. `lotus-advise`
+8. `lotus-manage`
+9. `lotus-report`
+10. `lotus-ai`
+
+Non-goals for this slice:
+
+1. adding repo-specific instructions to repo-root `AGENTS.md`,
+2. moving repository-local truth out of `REPOSITORY-ENGINEERING-CONTEXT.md`,
+3. introducing a second authored operating-contract source outside `lotus-platform/context/`,
+4. changing broader routing policy beyond what the governed contract already states.
+
+Acceptance criteria:
+
+1. every Lotus repository contains `AGENTS.md` at repo root,
+2. repo-root copies match `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`,
+3. synchronization tooling can target the deployed local copy and one or more repo roots,
+4. validation makes repo-root drift visible,
+5. implementation evidence records the repo inventory that was synchronized,
+6. no in-scope repository introduces a hand-edited policy variant.
 
 ### Slice 3: Repository-local context rollout
 
@@ -912,10 +969,11 @@ This RFC is complete when:
 1. Lotus has a platform-owned central engineering context system,
 2. every Lotus repository has a repository-local engineering context document,
 3. `AGENTS.md` is revised to cross-link and govern the system,
-4. the central context documents define engineering, delivery, naming, documentation, testing, observability, and production-readiness expectations,
-5. the machine-readable manifest exists and is usable,
-6. maintenance rules are explicit,
-7. context becomes a durable and trusted onboarding foundation for future agent sessions.
+4. every Lotus repository has a synchronized repo-root `AGENTS.md`,
+5. the central context documents define engineering, delivery, naming, documentation, testing, observability, and production-readiness expectations,
+6. the machine-readable manifest exists and is usable,
+7. maintenance rules are explicit,
+8. context becomes a durable and trusted onboarding foundation for future agent sessions.
 
 ## Approval Requested
 
@@ -926,4 +984,7 @@ Approve this RFC if the team agrees that:
 3. `lotus-platform` should own the central context documents and manifest,
 4. each repository should own its local engineering context document,
 5. `AGENTS.md` should become the operational entrypoint and not the full knowledge base,
-6. this system should be implemented before further relying on ad hoc session memory for cross-repository engineering work.
+6. repo-root `AGENTS.md` copies should be synchronized across the Lotus estate rather than relying
+   only on one local deployed runtime copy,
+7. this system should be implemented before further relying on ad hoc session memory for
+   cross-repository engineering work.

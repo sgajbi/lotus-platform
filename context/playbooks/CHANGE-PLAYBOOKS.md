@@ -71,3 +71,26 @@ Sequence:
 5. update the checklist in the same change
 6. add or extend contract tests and validators where the RFC introduces new governed artifacts
 7. do not claim later slices are complete early
+
+## README, Wiki, And Documentation Change Playbook
+
+Use this when the primary change is documentation structure, README/wiki standardization, or moving
+content cleanly between repo front doors, repo-local wiki, deep docs, and platform context.
+
+Sequence:
+
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md)
+2. read the target repository `REPOSITORY-ENGINEERING-CONTEXT.md`
+3. read [Lotus Documentation Layering](../../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+4. load the target repo `README.md`, `wiki/`, and only the deeper `docs/` pages needed for truth
+5. check whether tests already pin README, guide, or public-doc language before rewriting
+6. keep README concise, keep `wiki/` navigational, and keep deep technical truth in `docs/`
+7. update platform `context/` only when the lesson becomes reusable cross-repo guidance
+8. run targeted documentation or context contract checks before pushing
+
+Non-negotiables:
+
+1. do not turn the README into a second wiki
+2. do not turn the wiki into a second `docs/` tree
+3. do not publish stale route examples, unsupported aliases, or unverified ownership claims
+4. keep repo-local `wiki/` as the authored source when a GitHub wiki exists

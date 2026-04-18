@@ -8,6 +8,7 @@ Implementation posture: `Complete`
 
 - `Slice 1 | Central context architecture | Complete`
 - `Slice 2 | AGENTS.md modernization | Complete`
+- `Slice 2A | Repo-root AGENTS deployment and drift control | Complete`
 - `Slice 3 | Repository-local context rollout | Complete`
 - `Slice 3A | Repository-local context contract and platform pilot | Complete`
 - `Slice 3B | Repository-local context rollout wave 1 (`lotus-workbench`, `lotus-gateway`, `lotus-core`) | Complete`
@@ -44,6 +45,40 @@ Implemented:
 3. deployed `AGENTS.md` synchronization from the governed source,
 4. contract-test coverage for mandatory reading order, cross-links, and maintenance obligations
 5. `automation/Sync-AgentOperatingContract.ps1` for repeatable synchronization and drift checks
+
+Conscious no-change boundary at the time:
+
+1. Slice 2 synchronized the governed contract to the deployed local runtime copy,
+2. it did not yet roll out repo-root `AGENTS.md` files across every Lotus repository.
+
+### Slice 2A | Repo-root AGENTS deployment and drift control
+
+Implemented:
+
+1. add synchronized repo-root `AGENTS.md` to every Lotus repository,
+2. extend `automation/Sync-AgentOperatingContract.ps1` so it can target repo roots as well as the
+   deployed local runtime copy,
+3. extend drift visibility so repo-root copies are checked in addition to `C:\Users\Sandeep\.codex\AGENTS.md`,
+4. add or update contract tests for repo-root presence and synchronization.
+
+Scope guardrails:
+
+1. do not add repo-specific policy text to repo-root `AGENTS.md`,
+2. keep repository-local truth in `REPOSITORY-ENGINEERING-CONTEXT.md`,
+3. treat `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md` as the only authored policy source,
+4. record the exact in-scope repository inventory in the slice evidence,
+5. do not move to the next implementation slice until Slice 2A has been reviewed for simplification,
+   maintainability, drift risk, documentation follow-through, and meaningful test coverage.
+
+Review outcome:
+
+1. the rollout stayed on one synchronization path rather than introducing a second AGENTS copy
+   mechanism,
+2. repo-root drift is now visible through the platform validator when those repositories are present
+   in the workspace and through explicit repo-root checks in `Invoke-PlatformRepoChecks.ps1` for
+   `lotus-platform`,
+3. no repo-specific policy was added to repo-root `AGENTS.md`; local truth remains in
+   `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
 ### Slice 3A | Repository-local context contract and platform pilot
 
@@ -97,6 +132,11 @@ Implemented:
 3. feature-lane enforcement in `automation/Invoke-PlatformRepoChecks.ps1`,
 4. `Sync-AgentOperatingContract.ps1 -CheckOnly` integration so deployed `AGENTS.md` drift is visible in the operational repo gate,
 5. automation documentation updates so the context validator is discoverable and repeatable.
+
+Follow-on completed by Slice 2A:
+
+1. repo-root `AGENTS.md` drift visibility now exists through the context validator when the relevant
+   repositories are present in the workspace.
 
 ### Slice 6 | Skills, automation, and procedural memory alignment
 

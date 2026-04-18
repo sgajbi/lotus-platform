@@ -21,6 +21,9 @@ Repository-specific truth belongs in each repository's `REPOSITORY-ENGINEERING-C
 
 Do not duplicate full platform policy prose into repository-local docs unless local interpretation is required.
 
+For the split between repo `README.md`, repo-local `wiki/`, deep `docs/`, and platform `context/`,
+use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md).
+
 ## Contents
 
 1. [LOTUS-QUICKSTART-CONTEXT.md](./LOTUS-QUICKSTART-CONTEXT.md)
