@@ -54,3 +54,4 @@ See:
 - [Investor Pitch](Investor-Pitch)
 - [Commercial Model and GTM](Commercial-Model-and-GTM)
 - [Sales FAQ](Sales-FAQ)
+- [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)
