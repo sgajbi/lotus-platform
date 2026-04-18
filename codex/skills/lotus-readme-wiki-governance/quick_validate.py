@@ -20,6 +20,7 @@ REQUIRED_SNIPPETS = [
 REQUIRED_RELATIVE_PATHS = [
     "references/lotus-readme-wiki-standard.md",
     "references/lotus-wiki-pages.md",
+    "references/github-wiki-publication.md",
 ]
 
 

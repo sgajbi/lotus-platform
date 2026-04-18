@@ -173,6 +173,10 @@ Central docs own platform truth.
 
 Repository-local docs own repo truth.
 
+When a repository uses a GitHub wiki, the repo-local `wiki/` directory should be treated as the
+canonical authored source and the `*.wiki.git` repository should be treated as publication
+transport only.
+
 Do not duplicate central policy prose into every repo unless repo-local interpretation is required.
 
 ## API Quality And UI Alignment

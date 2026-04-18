@@ -69,6 +69,9 @@ Use this split consistently:
 4. standalone `*.wiki.git` clone when used
    publication transport for the live GitHub wiki, not a second authored source
 
+If the live GitHub wiki carries legacy filenames that are not Windows-safe, use a bare-clone
+publication path rather than treating the legacy file naming as the standard.
+
 Do not let the README become a second wiki, and do not let the wiki become a second `docs/`
 tree.
 

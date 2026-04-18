@@ -176,7 +176,9 @@ For a local source set intended for GitHub wiki publication:
 3. include `_Sidebar.md` for navigation,
 4. keep the source set inside the main repository under `wiki/` when possible,
 5. treat any separate local clone of `*.wiki.git` as a publish target rather than a second editing
-   location.
+   location,
+6. if a legacy live wiki cannot be checked out cleanly on Windows, publish through a bare clone
+   instead of editing around the legacy filenames.
 
 ## Writing Rules
 

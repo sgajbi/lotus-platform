@@ -85,7 +85,16 @@ as the durable home for Lotus documentation workflow guidance.
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
 18. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-19. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+19. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
+   than editing the GitHub wiki clone directly. Treat publication as a synchronization step, not as
+   a second authoring workflow.
+20. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
+   fails because of old characters such as `:`, use a bare clone publication path instead of
+   mutating the repo-local `wiki/` source or skipping the publish.
+21. When replacing a legacy wiki with the current governed page set, preserve durable business or
+   operator signal by migrating it into grounded Lotus language first; then retire the stale page
+   names from the live wiki.
+22. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
@@ -114,6 +123,8 @@ The README must be:
 ## Wiki Standard
 
 Read [references/lotus-wiki-pages.md](./references/lotus-wiki-pages.md) before drafting.
+Read [references/github-wiki-publication.md](./references/github-wiki-publication.md) when the task
+includes publishing.
 
 The wiki should provide a stable operator and onboarding surface with:
 
