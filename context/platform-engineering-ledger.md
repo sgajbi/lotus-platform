@@ -120,3 +120,21 @@ Implication:
 
 Future README/wiki work should classify legacy material into current repo truth, ecosystem
 background, migrated ownership, or retirement before reusing it.
+
+### 2026-04-18 | Cross-cutting investor and GTM narrative belongs in lotus-platform when it survives repo splits
+
+Older Lotus wiki material showed that investor pitch, sales FAQ, and GTM pages can contain useful
+ecosystem narrative even when they are misplaced under one application repository.
+
+The documentation became more coherent once:
+
+1. commercial framing that still described the wider Lotus ecosystem was moved to `lotus-platform`,
+2. the content was rewritten in current Lotus language instead of old PAS or single-repo language,
+3. platform docs kept commercial framing at the level of positioning, packaging, and adoption
+   posture rather than repo-local feature claims,
+4. detailed pricing mechanics stayed high-level unless explicitly requested.
+
+Implication:
+
+Future Lotus documentation cleanup should move surviving cross-cutting investor, sales, and GTM
+material into the platform-governance layer when it no longer belongs to one application repo.

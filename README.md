@@ -188,6 +188,8 @@ Important current platform truths:
   [platform-standards/README.md](platform-standards/README.md)
 - RFC inventory:
   [rfcs/README.md](rfcs/README.md)
+- platform narrative and commercial framing:
+  [wiki/Investor-Pitch.md](wiki/Investor-Pitch.md)
 - wiki home:
   [wiki/Home.md](wiki/Home.md)
 

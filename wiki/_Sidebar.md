@@ -10,4 +10,7 @@
 - [Security and Governance](Security-and-Governance)
 - [RFC Index](RFC-Index)
 - [Integrations](Integrations)
+- [Investor Pitch](Investor-Pitch)
+- [Commercial Model and GTM](Commercial-Model-and-GTM)
+- [Sales FAQ](Sales-FAQ)
 - [Roadmap](Roadmap)

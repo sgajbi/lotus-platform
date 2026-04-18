@@ -41,3 +41,16 @@ The platform layer exists to ensure:
 - RFC-0074 governs onboarding, bootstrap, and skill distribution posture
 - `lotus-workbench` is the canonical front-office runtime
 - `lotus-platform` wraps that runtime with ingress, QA, and governance support
+
+## Cross-cutting commercial narrative
+
+Lotus also needs a consistent ecosystem-level way to explain why the platform matters commercially.
+
+That narrative belongs here in `lotus-platform`, not as accidental residue inside one application
+repository.
+
+See:
+
+- [Investor Pitch](Investor-Pitch)
+- [Commercial Model and GTM](Commercial-Model-and-GTM)
+- [Sales FAQ](Sales-FAQ)
