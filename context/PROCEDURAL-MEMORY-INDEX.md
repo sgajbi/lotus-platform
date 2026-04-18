@@ -7,7 +7,7 @@ These playbooks turn recurring delivery practice into durable operating guidance
 ## Playbooks
 
 1. [Change Playbooks](./playbooks/CHANGE-PLAYBOOKS.md)
-   How to execute backend, frontend, cross-repo, and RFC-driven changes.
+   How to execute backend, frontend, cross-repo, RFC-driven, and documentation-change work.
 2. [PR Loop Playbook](./playbooks/PR-LOOP-PLAYBOOK.md)
    How to validate, push, monitor, fix forward, merge, and clean up.
 3. [Validation Playbook](./playbooks/VALIDATION-PLAYBOOK.md)
