@@ -91,6 +91,33 @@ Operating rule:
 2. repository context owns local truth
 3. do not fork policy prose across both unless the local repository needs explicit interpretation
 
+## README, Wiki, And Documentation Work
+
+Use this path when the task is specifically about repository front-door docs, repo-local wiki
+structure, documentation layering, or moving content cleanly between `README.md`, `wiki/`, deep
+`docs/`, and platform `context/`.
+
+Read in this order:
+
+1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
+2. the target repository `REPOSITORY-ENGINEERING-CONTEXT.md`
+3. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+4. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md)
+
+Then load only what the task needs:
+
+1. the target repo `README.md`
+2. the target repo `wiki/` source when present
+3. only the deeper `docs/` pages needed to keep the README and wiki truthful
+4. the `lotus-readme-wiki-governance` skill when the task is about standardization or cross-repo consistency
+
+Operating rule:
+
+1. keep README concise and truthful
+2. keep repo-local `wiki/` as the authored source when a GitHub wiki exists
+3. keep deep technical truth in `docs/`
+4. update `context/` only when the lesson becomes platform-wide guidance
+
 ## Async Execution And Heavy Validation Routing
 
 When the task requires expensive CI, browser, or platform validation:
