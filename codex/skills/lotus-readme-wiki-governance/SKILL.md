@@ -40,20 +40,23 @@ as the durable home for Lotus documentation workflow guidance.
    public-contract tests that pin README or guide language. Search the test tree for `README.md`,
    key guide paths, or `docs` contract test packs so you preserve governed public truth instead of
    deleting required contract language accidentally.
-5. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
-6. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
+5. When the repository has been split, renamed, or re-scoped, scan current operator-facing evidence
+   docs such as `docs/demo/`, manual-validation notes, and runbooks for stale service names, image
+   names, ingress identities, and command targets.
+6. Preserve repo truth. Do not invent maturity, ownership, runtime support, or production readiness.
+7. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
    copying them.
-7. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
+8. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
    should not become an unbounded duplicate of `docs/`.
-8. Use this content split:
+9. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-9. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+10. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-10. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+11. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
