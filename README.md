@@ -194,6 +194,8 @@ Important current platform truths:
   [rfcs/README.md](rfcs/README.md)
 - platform narrative and commercial framing:
   [wiki/Investor-Pitch.md](wiki/Investor-Pitch.md)
+- platform market framing:
+  [wiki/Market-Landscape.md](wiki/Market-Landscape.md)
 - platform responsibility map:
   [wiki/Platform-Surfaces.md](wiki/Platform-Surfaces.md)
 - troubleshooting:

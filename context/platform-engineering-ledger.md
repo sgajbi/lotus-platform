@@ -158,3 +158,21 @@ Implication:
 
 Future platform-level commercial documentation should translate durable business meaning into current
 Lotus operating value instead of preserving brittle historical specifics.
+
+### 2026-04-18 | Market-position pages should prefer evergreen structure over stale market statistics
+
+The next documentation pass showed that old market-landscape pages often carry dated CAGR, market
+size, named-customer, or competitor-specific claims that become unreliable faster than repo docs are
+maintained.
+
+The documentation became more truthful once:
+
+1. market framing focused on buyer pain, operating constraints, and adoption direction,
+2. Lotus positioning was explained through current architecture and operating model,
+3. hard market or competitor claims were omitted unless they were intentionally refreshed from
+   current source material.
+
+Implication:
+
+Future market-position or commercial wiki pages should default to evergreen structural framing and
+avoid brittle point-in-time claims unless fresh sourcing is part of the slice.

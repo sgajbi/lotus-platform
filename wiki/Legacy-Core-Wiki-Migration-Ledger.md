@@ -65,6 +65,7 @@ The source inventory reviewed came from the harvested `lotus-core.wiki.git` page
 The following cross-cutting pages are now represented under `lotus-platform/wiki/`:
 
 - [Investor Pitch](Investor-Pitch)
+- [Market Landscape](Market-Landscape)
 - [Commercial Model and GTM](Commercial-Model-and-GTM)
 - [Sales FAQ](Sales-FAQ)
 

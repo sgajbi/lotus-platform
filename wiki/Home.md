@@ -22,6 +22,7 @@ Use it for:
 - [Operations Runbook](Operations-Runbook)
 - [Troubleshooting](Troubleshooting)
 - [Business Benefits](Business-Benefits)
+- [Market Landscape](Market-Landscape)
 - [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)
 
 ## Important commands
