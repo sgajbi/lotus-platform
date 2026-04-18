@@ -13,6 +13,7 @@
 - [RFC Index](RFC-Index)
 - [Integrations](Integrations)
 - [Investor Pitch](Investor-Pitch)
+- [Business Benefits](Business-Benefits)
 - [Commercial Model and GTM](Commercial-Model-and-GTM)
 - [Sales FAQ](Sales-FAQ)
 - [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)

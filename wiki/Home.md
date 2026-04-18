@@ -21,6 +21,7 @@ Use it for:
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
 - [Troubleshooting](Troubleshooting)
+- [Business Benefits](Business-Benefits)
 - [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)
 
 ## Important commands
