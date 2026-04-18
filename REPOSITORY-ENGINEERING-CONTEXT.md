@@ -53,6 +53,8 @@ Primary areas:
    Contract tests for platform validators, automation, standards, and documentation governance.
 7. `wiki/`
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
+8. `docs/documentation/`
+   deep documentation governance and layering guidance for Lotus documentation surfaces.
 
 ## Runtime And Integration Boundaries
 
@@ -136,6 +138,7 @@ Update this document when:
 3. validation or ingress automation changes materially,
 4. the repository's current RFC rollout posture changes,
 5. dominant local patterns or key directories change.
+6. documentation layering or publication posture changes materially.
 
 ## Cross-Links
 

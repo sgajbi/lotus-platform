@@ -176,3 +176,22 @@ Implication:
 
 Future market-position or commercial wiki pages should default to evergreen structural framing and
 avoid brittle point-in-time claims unless fresh sourcing is part of the slice.
+
+### 2026-04-18 | Large deep-doc trees need an explicit index or README to stay usable
+
+Documentation cleanup across `lotus-platform` and `lotus-core` showed that a strong README and wiki
+are still not enough when the deeper `docs/` tree becomes broad and flat.
+
+The documentation became materially easier to use once:
+
+1. the front-door docs stayed concise,
+2. a deep-doc index was added where the detailed architecture set had grown too large to browse
+   casually,
+3. repo-local engineering context named that deep-doc index as a real navigation surface,
+4. the platform repo carried an explicit documentation-layering document instead of leaving the
+   split between README, wiki, docs, and context implicit.
+
+Implication:
+
+Future Lotus documentation work should add or refresh deep-doc indexes when the detailed document
+set is broad enough that readers would otherwise scan a flat directory or a bloated README.

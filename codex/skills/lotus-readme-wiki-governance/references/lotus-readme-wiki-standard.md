@@ -54,6 +54,9 @@ Use this section order unless the repo type needs a minor adjustment:
    the current product depends on a short fixed set.
 9. When a service has mixed request conventions or compatibility aliases, point the reader to a
    wiki page with executable examples rather than trying to explain the entire nuance inline.
+10. When a repository has a large or flat deep-doc tree, add or refresh a docs index so the README
+   and wiki can route readers into the deep material without dumping a long unstructured link list
+   into the front door.
 
 ## Source-of-Truth Hierarchy
 

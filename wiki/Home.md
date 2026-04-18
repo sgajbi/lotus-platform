@@ -51,6 +51,7 @@ python automation/validate_engineering_context_system.py
 
 - [Repository Engineering Context](../REPOSITORY-ENGINEERING-CONTEXT.md)
 - [Lotus Context System](../context/README.md)
+- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 - [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
 - [RFC Index](RFC-Index)

@@ -192,6 +192,8 @@ Important current platform truths:
   [platform-standards/README.md](platform-standards/README.md)
 - RFC inventory:
   [rfcs/README.md](rfcs/README.md)
+- documentation layering:
+  [docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md](docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 - platform narrative and commercial framing:
   [wiki/Investor-Pitch.md](wiki/Investor-Pitch.md)
 - platform market framing:

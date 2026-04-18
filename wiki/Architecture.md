@@ -62,3 +62,6 @@ Platform and ecosystem governance RFC inventory.
   governed central context system
 - `rfcs/`
   architectural and governance decisions
+
+For the explicit Lotus split between README, `wiki/`, deep `docs/`, and platform `context/`, use
+[Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md).
