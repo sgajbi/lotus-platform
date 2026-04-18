@@ -345,6 +345,22 @@ Detached work should return one bounded outcome shape.
 6. changed file lists,
 7. test names and outcomes.
 
+### Task outcome contract
+
+Every detached engineering task should be able to return, in bounded form:
+
+1. task identity,
+2. final or current status,
+3. concise human-readable summary,
+4. evidence refs,
+5. changed files or write impact where applicable,
+6. blocker or failure reason where applicable,
+7. cleanup posture,
+8. recommended next local action.
+
+The outcome contract should be short enough to survive handoff and compaction, but explicit enough
+to avoid stale or ambiguous status retelling.
+
 ## State Authority and Invariants
 
 This RFC establishes the following authority rules.
@@ -389,6 +405,20 @@ Status checks should happen:
 
 Queued or running tasks that overrun their expected time should become explicit findings, not quiet
 background clutter.
+
+### 3a. Stale-task escalation contract
+
+Stale-task handling should distinguish:
+
+1. `late but still owned`,
+2. `stalled and needs inspection`,
+3. `lost ownership context`,
+4. `superseded by a newer task`,
+5. `safe to keep running while foreground work continues`.
+
+The point is not to interrupt useful work reflexively.
+
+The point is to stop stale detached work from becoming invisible.
 
 ### 4. Do not claim completion without evidence
 
@@ -565,6 +595,24 @@ Mitigation:
 1. encode the rule in skills and onboarding,
 2. reinforce launch-once and periodic-poll posture,
 3. keep result return push-oriented where platform automation supports it.
+
+## Validation Posture
+
+This RFC should drive both governed guidance and executable validation where the signal is strong
+enough.
+
+The platform should prefer validation for:
+
+1. required documentation and skill cross-links,
+2. required background-run artifact references where implementation adopts the ledger contract,
+3. required branch/PR hygiene references in skills or onboarding once implemented,
+4. obvious contract-shape checks for durable output artifacts where the platform owns those files.
+
+The platform should prefer governed prose rather than brittle automation for:
+
+1. whether a delegated task was well-scoped in a nuanced case,
+2. whether a polling interval was reasonable for one specific situation,
+3. whether a human or agent made the best foreground/parallelization tradeoff in context.
 
 ## Open Questions
 
