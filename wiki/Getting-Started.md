@@ -48,6 +48,19 @@ powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvi
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. [Context Reference Map](../context/CONTEXT-REFERENCE-MAP.md)
 
+## Documentation work path
+
+When the task is about README, wiki, or deeper docs rather than code behavior, add this before
+editing:
+
+1. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+2. the target repo `README.md`
+3. the target repo `wiki/` source when present
+4. only the deeper `docs/` pages needed to keep the README and wiki truthful
+
+Use this path to avoid turning the README into a second wiki or the wiki into a second `docs/`
+tree.
+
 ## Important runtime note
 
 For canonical populated front-office validation, use `lotus-workbench`:

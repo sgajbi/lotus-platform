@@ -83,6 +83,10 @@ Use Tier 1 for:
 4. straightforward PR follow-up,
 5. narrow UI or backend tasks with clear ownership.
 
+For focused documentation updates, also load
+[Lotus Documentation Layering](../documentation/LOTUS-DOCUMENTATION-LAYERING.md) before editing
+README, wiki, or deep-doc structure.
+
 ### Tier 2: Governance Context
 
 Use when the task affects standards, CI, runtime, cross-repository contracts, or platform architecture.
