@@ -17,6 +17,10 @@ Reference baseline:
 - `lotus-advise` is the primary engineering standard for automation, testing, and architecture discipline.
 - Advanced patterns from the other repositories are absorbed where they improve platform quality.
 
+## Supporting Program Memos
+
+- `AI-AGENTIC-DEVELOPMENT-RFC-PROGRAM-ALIGNMENT-MEMO.md`
+
 ## RFC Index
 
 - `RFC-0001-repository-strategy-and-target-operating-model.md`
