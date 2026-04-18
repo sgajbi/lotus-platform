@@ -300,6 +300,25 @@ Compaction should not:
 4. drop explicit user decisions in favor of inferred summaries,
 5. preserve so much stale detail that the compacted context becomes noisy instead of useful.
 
+### Compaction output contract
+
+When a session compacts, the resulting compacted state should preserve, in bounded form:
+
+1. current task identity,
+2. exact active identifiers still relevant to the next slice,
+3. explicit accepted, rejected, deferred, and still-open decisions,
+4. active plan state and next intended action,
+5. known blockers, assumptions, and pending validations.
+
+The compacted output should not attempt to become a full transcript replacement.
+
+It should be:
+
+1. precise,
+2. identifier-safe,
+3. decision-aware,
+4. short enough to keep the next turn useful.
+
 ## Durable Note-Capture and Promotion Model
 
 Before or during compaction, Lotus agent workflows should have one bounded chance to capture durable
@@ -337,6 +356,22 @@ The system should prefer:
 1. explicit artifact updates,
 2. concise durable notes,
 3. no speculative permanent memory without a governed destination.
+
+### Promotion decision rules
+
+Promotion is required when a session uncovers information that is:
+
+1. likely to affect the correctness of future work,
+2. not already captured in the current source of truth,
+3. reusable across future sessions, repos, or delivery slices,
+4. too exact or operationally important to risk losing in compaction.
+
+Promotion is not required for:
+
+1. temporary scratch reasoning,
+2. already-captured repository truth,
+3. low-value conversational repetition,
+4. implementation trivia with no future operational value.
 
 ## State Authority and Invariants
 
@@ -501,6 +536,24 @@ Deliverables:
 3. updated skills where needed,
 4. PR and branch-hygiene evidence,
 5. no stale guidance that implies implementation beyond what was actually delivered.
+
+## Validation Posture
+
+This RFC should drive both governed guidance and executable validation where the signal is strong
+enough.
+
+The platform should prefer validation for:
+
+1. required cross-links,
+2. required context artifact presence,
+3. required skill or onboarding references after implementation,
+4. obvious identifier-preservation contract checks where a validator can enforce them truthfully.
+
+The platform should prefer governed prose rather than brittle automation for:
+
+1. nuanced judgment about which session insights deserve promotion,
+2. task-specific context minimization choices,
+3. exact summarization quality beyond what can be validated meaningfully.
 
 ## Risks and Mitigations
 
