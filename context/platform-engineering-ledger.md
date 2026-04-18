@@ -102,3 +102,21 @@ Implication:
 
 Future README/wiki work for product UIs should document supported surfaces, compatibility routes,
 disabled navigation entries, and canonical evidence paths separately.
+
+### 2026-04-18 | Legacy Lotus wiki material should be mined by ownership boundary before reuse
+
+Reviewing the older `lotus-core` wiki showed that legacy Lotus documentation can contain useful
+business framing, market context, and platform rationale even when its repo ownership and technical
+topology are outdated.
+
+The documentation became safer once:
+
+1. historical pages were treated as source material instead of as a direct structure template,
+2. reusable ecosystem background was separated from current repo truth,
+3. stale service-specific or legacy-naming material was not copied into platform-governance docs,
+4. rewritten docs used current Lotus vocabulary, architecture, and ownership boundaries.
+
+Implication:
+
+Future README/wiki work should classify legacy material into current repo truth, ecosystem
+background, migrated ownership, or retirement before reusing it.

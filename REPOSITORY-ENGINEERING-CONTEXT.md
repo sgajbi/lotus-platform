@@ -51,6 +51,8 @@ Primary areas:
    The central context system introduced by RFC-0073.
 6. `tests/unit/`
    Contract tests for platform validators, automation, standards, and documentation governance.
+7. `wiki/`
+   canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
 
 ## Runtime And Integration Boundaries
 
@@ -93,6 +95,18 @@ Use these commands as the primary local contract:
 
 The platform repo checks entrypoint is the local truth for most repository validation. Keep it aligned with workflow reality.
 
+Important documentation expectations:
+
+1. platform README and wiki work is partially governed by unit-level documentation contract tests,
+2. central context, onboarding, automation, and standards docs should stay cross-linked rather than
+   being rewritten as parallel prose silos,
+3. repo-local `wiki/` content should summarize platform role, operator flows, and ecosystem
+   boundaries without duplicating the entire RFC or `context/` tree,
+4. common targeted documentation contract packs include
+   `tests/unit/test_engineering_context_system_contract.py`,
+   `tests/unit/test_dev_ingress_status_automation_contract.py`, and
+   `tests/unit/test_front_office_runtime_automation_contract.py`.
+
 ## Standards And RFCs That Govern This Repository
 
 Most relevant current governance:
@@ -109,6 +123,9 @@ Most relevant current governance:
 2. Standards-only changes are not complete unless scaffold, validator, or runbook impact is considered.
 3. Avoid duplicating platform-wide policy across many files; prefer one central source of truth plus contract tests.
 4. Use GitHub for the expensive validation matrix when practical, and use targeted local proof for faster fix-forward work.
+5. when harvesting legacy strategy or wiki material, reclassify it against current Lotus ownership
+   boundaries before reusing it in `lotus-platform`; old ecosystem narrative can still help, but
+   repo docs must speak in current Lotus vocabulary and current architecture.
 
 ## Context Maintenance Rule
 

@@ -73,6 +73,10 @@ Summarize:
 3. upstream and downstream relationships,
 4. current-state posture.
 
+For platform-governance repositories, this page may also include concise ecosystem rationale for why
+the platform layer exists, but it should still stay anchored to actual repo-owned automation,
+standards, runtime support, and governance responsibilities.
+
 ### Architecture
 
 Summarize:
