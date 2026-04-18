@@ -180,6 +180,10 @@ Important current platform truths:
 
 - central context system:
   [context/README.md](context/README.md)
+- task routing guide:
+  [context/TASK-ROUTING-GUIDE.md](context/TASK-ROUTING-GUIDE.md)
+- skill routing map:
+  [context/LOTUS-SKILL-ROUTING-MAP.md](context/LOTUS-SKILL-ROUTING-MAP.md)
 - developer onboarding:
   [docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - agent ramp-up:
