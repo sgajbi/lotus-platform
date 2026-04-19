@@ -49,6 +49,12 @@ Important machine-readable platform contract families now include:
 2. `../platform-contracts/domain-vocabulary/`
 3. `../platform-contracts/domain-data-products/`
 
+For RFC-0084 work, the highest-signal machine-readable files are:
+
+1. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+2. [Domain Data Product Semantics Registry](../platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json)
+3. [Domain Data Product Trust Metadata Registry](../platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json)
+
 ## Task Routing
 
 1. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)

@@ -28,6 +28,17 @@ Central Lotus context system:
 
 Shared standards and scaffolds for backend repositories, workflows, and CI lanes.
 
+### `platform-contracts/`
+
+Machine-readable governance plane for ecosystem-wide contract families.
+
+For RFC-0084, this now includes:
+
+- producer and consumer declarations under `platform-contracts/domain-data-products/`
+- identifier and temporal semantics under `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
+- trust metadata, evidence classes, and lineage bundle classes under
+  `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
+
 ### `platform-stack/`
 
 Shared local ingress and infrastructure support stack.
@@ -49,6 +60,8 @@ Platform and ecosystem governance RFC inventory.
 2. each Lotus repo owns its own implementation truth
 3. `lotus-workbench` owns canonical populated front-office runtime proof
 4. `lotus-platform` owns the supporting governance, ingress, and validation system around that flow
+5. `lotus-gateway` may remain the ecosystem API face, but RFC-0084 keeps product authority in the
+   producing domain repositories rather than moving it into the gateway
 
 ## Documentation layering
 
