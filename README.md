@@ -179,7 +179,8 @@ Important current platform truths:
 5. documentation changes in this repo are partially governed by unit-level documentation contract
    tests and should be treated as contract work, not just prose edits
 6. RFC-0084 domain-data-product producer and consumer schemas live under
-   `platform-contracts/domain-data-products/`
+   `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
+   `lotus-core`, `lotus-performance`, and `lotus-risk`
 
 ## Documentation Map
 

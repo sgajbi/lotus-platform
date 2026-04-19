@@ -82,7 +82,9 @@ For cross-domain governed data products:
    for producer and consumer declarations introduced by RFC-0084,
 3. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
-4. producer and consumer declarations should stay explicit, version-aware, and validator-backed.
+4. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
+   `lotus-risk`,
+5. producer and consumer declarations should stay explicit, version-aware, and validator-backed.
 
 ## Front-Office Runtime Governance
 

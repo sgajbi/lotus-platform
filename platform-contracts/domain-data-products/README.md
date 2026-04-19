@@ -22,6 +22,17 @@ Current aligned producer declarations:
 1. `lotus-core-products.v1.json`
    Initial platform-mapped declaration derived from the RFC-0083 source-data product catalog and
    governed security profiles.
+2. `lotus-performance-products.v1.json`
+   First analytics-output producer declaration for the performance authority wave.
+3. `lotus-risk-products.v1.json`
+   First analytics-output producer declaration for the risk authority wave.
+
+Current aligned consumer declarations:
+
+1. `lotus-performance-consumers.v1.json`
+   Declares the first governed upstream dependencies used by the performance authority wave.
+2. `lotus-risk-consumers.v1.json`
+   Declares the first governed upstream dependencies used by the risk authority wave.
 
 Expected declaration file patterns:
 
