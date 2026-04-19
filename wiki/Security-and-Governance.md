@@ -13,6 +13,8 @@
 - central context and agent operating contract
 - scaffold and validator ownership
 - RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
+- RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway
+  publication drift, and Workbench discovery consumption drift
 
 ## Important standards
 

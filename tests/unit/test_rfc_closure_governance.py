@@ -78,6 +78,7 @@ def test_mesh_rfcs_are_marked_implemented_after_gateway_and_workbench_merge() ->
         "RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md",
         "RFC-0087-live-trust-telemetry-and-certification-plane.md",
         "RFC-0088-self-serve-discovery-and-dependency-catalog.md",
+        "RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md",
     ]:
         text = (ROOT / "rfcs" / rfc_name).read_text(encoding="utf-8")
 

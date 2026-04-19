@@ -120,6 +120,10 @@ Boundary rules:
 18. `rfcs/RFC-GOVERNANCE-STANDARD.md` is the durable rule for new and reopened
    implementation-bearing RFCs: include the second-last code-review/governance slice and the final
    documentation/context/wiki/skills/branch-hygiene slice.
+19. RFC-0089 is implemented for first-wave mesh certification enforcement. The platform-owned gate
+    lives in `automation/mesh_certification_gate.py`, writes operator artifacts to
+    `output/mesh-certification/`, runs as an advisory platform repo-check smoke, and supports local
+    blocking proof with sibling producer, gateway, and Workbench repositories.
 
 ## Repo-Native Commands
 
@@ -145,6 +149,10 @@ Use these commands as the primary local contract:
    `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
 10. live trust certification generation
    `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
+11. mesh certification gate, platform-only advisory smoke
+   `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
+12. mesh certification gate, local blocking proof with sibling repos
+   `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 
 ## Validation And CI Expectations
 

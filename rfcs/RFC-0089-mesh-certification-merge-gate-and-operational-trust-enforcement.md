@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | Implemented |
 | Created | 2026-04-20 |
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers |
@@ -48,7 +48,7 @@ The user intent preserved in this RFC is:
 
 ## Current Implementation Reality
 
-Overall classification: `Foundation implemented; enforcement not yet implemented`
+Overall classification: `Implemented for first-wave mesh certification enforcement`
 
 ### Implemented foundation
 
@@ -70,25 +70,41 @@ Overall classification: `Foundation implemented; enforcement not yet implemented
 8. `lotus-platform` PR #150
    Adds the RFC closure governance standard and marks RFC-0085 through RFC-0088 implemented.
 
-### Remaining enforcement gap
+### What is now implemented
 
-1. cross-repo live trust certification is a commandable proof, not yet a mandatory merge gate,
-2. there is no single operator status artifact that summarizes current mesh certification health
-   across products, producers, and dependencies,
-3. gateway and Workbench drift are covered by their repo tests, but there is no platform-level mesh
-   gate that ties catalog, live trust, gateway publication, and UI consumption together,
-4. failures need a clearer classification model so teams know whether stale trust is blocking,
-   warning-only, or deferred.
+1. `automation/mesh_certification_gate.py`
+   Runs the RFC-0089 mesh certification gate in `advisory` or `blocking` mode.
+2. `automation/Invoke-PlatformRepoChecks.ps1`
+   Runs an advisory mesh certification smoke as part of the platform repo checks.
+3. `output/mesh-certification/`
+   Receives generated operator artifacts:
+   - `mesh-certification-status.json`,
+   - `mesh-certification-status.md`,
+   - `mesh-certification-issues.json`.
+4. `tests/unit/test_mesh_certification_gate.py`
+   Protects certified, missing, stale, advisory, artifact rendering, gateway drift, and Workbench
+   drift behavior.
+5. `docs/operations/mesh-certification-gate-runbook.md`
+   Documents commands, outputs, issue codes, and fix-forward actions.
+
+### Implementation boundary and future hardening
+
+1. platform CI runs the gate in advisory mode because GitHub's platform-only checkout does not
+   include sibling producer, gateway, or Workbench repositories,
+2. local and PR evidence must include the blocking command with sibling repositories when the
+   change affects first-wave telemetry, gateway publication, or Workbench discovery,
+3. future hardening can add multi-repo checkout orchestration to run blocking mode directly in
+   GitHub PR Merge Gate for cross-repo mesh changes.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0089 response |
 | --- | --- | --- | --- |
-| Enforce live trust certification before relevant changes merge | Platform validator and generator exist; producer telemetry snapshots exist | Not yet enforced as one gate | Add a platform mesh certification gate that validates source declarations, telemetry, generated live trust, and required product posture |
-| Make operational status visible | Generated catalog, graph, certification, and Workbench UI exist | Partially satisfied | Add a platform-generated operator status artifact with certification counts, issue classes, producer ownership, and timestamps |
-| Prevent gateway/Workbench drift | Gateway and Workbench tests are green | Partially satisfied | Add platform-level checks that verify required gateway endpoints and Workbench BFF-only discovery posture remain discoverable |
-| Keep this implementation-bearing | Current RFCs already prove mesh surfaces | Not yet satisfied for enforcement | Implement automation, tests, CI integration, docs, and evidence in slices |
-| Preserve second-last and final closure slices | RFC governance standard exists | Satisfied in RFC shape | Include mandatory Slice 7 and Slice 8 |
+| Enforce live trust certification before relevant changes merge | `automation/mesh_certification_gate.py`; blocking local proof command | Satisfied for first-wave local proof and advisory platform lane | Future hardening may add GitHub multi-repo blocking orchestration |
+| Make operational status visible | `output/mesh-certification/mesh-certification-status.json`; `.md`; `mesh-certification-issues.json` | Satisfied | Operator artifacts are generated from one status object |
+| Prevent gateway/Workbench drift | Gateway and Workbench drift checks in `automation/mesh_certification_gate.py` | Satisfied at contract-presence level | Deeper behavior stays in repo-native gateway/workbench tests |
+| Keep this implementation-bearing | Gate automation, tests, platform check entrypoint, runbook, context/wiki updates | Satisfied | RFC-0089 is implemented |
+| Preserve second-last and final closure slices | Slice 7 and Slice 8 evidence recorded in this RFC and PR evidence | Satisfied | Closure model is preserved |
 
 ## Design Reasoning and Trade-offs
 
@@ -471,6 +487,8 @@ RFC-0089 is complete when:
 5. CI integration makes mesh certification drift visible,
 6. Slice 7 and Slice 8 are completed according to `RFC-GOVERNANCE-STANDARD.md`.
 
+Current status: all acceptance criteria are met for the first-wave implementation boundary.
+
 ## Evidence Required Before Marking Implemented
 
 The implementation PR must include or link:
@@ -484,6 +502,42 @@ The implementation PR must include or link:
 7. Workbench consumption drift-check evidence,
 8. Slice 7 review notes showing API certification and platform-governance decisions,
 9. Slice 8 documentation/context/wiki/skills/branch-hygiene notes.
+
+## Implementation Closure Evidence
+
+Implementation evidence:
+
+1. targeted gate tests:
+   `python -m pytest tests/unit/test_mesh_certification_gate.py -q`,
+2. live-trust regression tests:
+   `python -m pytest tests/unit/test_live_trust_certification.py -q`,
+3. RFC closure governance tests:
+   `python -m pytest tests/unit/test_rfc_closure_governance.py -q`,
+4. static checks:
+   `python -m ruff check automation tests`,
+5. local blocking proof:
+   `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`,
+6. feature lane:
+   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature`.
+
+Slice 7 review outcome:
+
+1. API certification pattern is preserved by checking gateway publication contract evidence rather
+   than moving product authority into gateway,
+2. Workbench governance is preserved by checking gateway/BFF-only discovery consumption and
+   rejecting direct platform-file coupling,
+3. platform governance is preserved by composing existing validators and keeping generated
+   artifacts derived from product, telemetry, and certification inputs,
+4. no duplicate schema validator or duplicate gateway/workbench test suite was introduced.
+
+Slice 8 closure outcome:
+
+1. platform docs now include `docs/operations/mesh-certification-gate-runbook.md`,
+2. automation README documents advisory and blocking gate commands,
+3. central context and wiki surfaces point to the mesh certification gate,
+4. skills guidance was consciously assessed; no new skill is created in this slice because existing
+   backend governance, PR pre-merge, RFC review, and QA validation skills cover the work until
+   repeated operational failure patterns justify a dedicated skill.
 
 ## Non-Goals
 
@@ -540,7 +594,9 @@ Initial no-change decision:
 
 ## Next Actions
 
-1. approve RFC-0089 as the next implementation program,
-2. implement Slice 0 and Slice 1 in `lotus-platform`,
-3. keep gateway and Workbench checks contract-level unless deeper drift is found,
-4. treat mandatory cross-repo trust enforcement as the main business-value objective.
+1. use the blocking local proof command whenever first-wave telemetry, gateway publication, or
+   Workbench discovery changes,
+2. consider GitHub multi-repo checkout orchestration if cross-repo mesh changes become frequent
+   enough to justify a heavier PR Merge Gate,
+3. promote additional products into the blocking set only after they have repo-native telemetry
+   snapshots and an explicit acceptance decision.
