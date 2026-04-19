@@ -113,7 +113,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
         assert panel_by_id[panel_id]["gateway_endpoint"] == expected_endpoint
 
-    assert panel_by_id["performance.evidence"]["required_support_state"] == "unavailable"
+    assert panel_by_id["performance.evidence"]["required_support_state"] == "partial"
     assert panel_by_id["performance.evidence"]["owner_follow_up_rfc"] == "RFC-0079"
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"
