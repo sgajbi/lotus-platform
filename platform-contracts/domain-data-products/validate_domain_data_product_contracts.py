@@ -503,6 +503,15 @@ def validate_producer_contract(
 
 
 def validate_consumer_contract(path: Path, payload: dict) -> list[str]:
+    return validate_consumer_contract_with_context(path, payload)
+
+
+def validate_consumer_contract_with_context(
+    path: Path,
+    payload: dict,
+    *,
+    trust_metadata_keys: set[str] | None = None,
+) -> list[str]:
     issues: list[str] = []
 
     if payload.get("contract_id") != "domain-data-product-consumers":
@@ -573,6 +582,18 @@ def validate_consumer_contract(path: Path, payload: dict) -> list[str]:
             _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
         if not _is_non_empty_list(dependency["required_trust_metadata"]):
             _append_issue(issues, path, f"dependencies[{index}].required_trust_metadata must be non-empty")
+        elif trust_metadata_keys is not None:
+            unknown_trust_metadata = [
+                trust_metadata_field
+                for trust_metadata_field in dependency["required_trust_metadata"]
+                if trust_metadata_field not in trust_metadata_keys
+            ]
+            if unknown_trust_metadata:
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
+                )
 
         migration_posture = dependency["migration_posture"]
         if not isinstance(migration_posture, dict):
@@ -631,6 +652,8 @@ def validate_cross_references(
                 product.get("product_version", ""),
             )
             product_index[key] = product
+            if product.get("lifecycle_status") == "retired":
+                continue
             latest_key = (
                 product.get("product_name", ""),
                 product.get("owner_repository", ""),
@@ -808,7 +831,13 @@ def validate_contract_directory(directory: Path) -> list[str]:
     for path in consumer_paths:
         payload = _load_json(path)
         consumer_payloads.append((path, payload))
-        issues.extend(validate_consumer_contract(path, payload))
+        issues.extend(
+            validate_consumer_contract_with_context(
+                path,
+                payload,
+                trust_metadata_keys=trust_metadata_keys,
+            )
+        )
 
     issues.extend(validate_cross_references(producer_payloads, consumer_payloads))
     return issues
