@@ -204,6 +204,8 @@ consumption drift check. It writes operator artifacts to `output/mesh-certificat
 - `mesh-certification-status.md`
 - `mesh-certification-issues.json`
 
+For failure handling, use [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md).
+
 One-shot PR health (with failing check detection):
 
 ```powershell
