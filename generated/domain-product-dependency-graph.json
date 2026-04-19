@@ -1,0 +1,773 @@
+{
+  "contract_id": "lotus-domain-product-dependency-graph",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0084",
+    "RFC-0088"
+  ],
+  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "source_catalog": "domain-product-catalog.json",
+  "node_count": 29,
+  "edge_count": 86,
+  "nodes": [
+    {
+      "node_id": "product:lotus-core:BenchmarkAssignment:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:BenchmarkAssignment:v1",
+      "product_name": "BenchmarkAssignment",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:BenchmarkConstituentWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:BenchmarkConstituentWindow:v1",
+      "product_name": "BenchmarkConstituentWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:DataQualityCoverageReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:DataQualityCoverageReport:v1",
+      "product_name": "DataQualityCoverageReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:HoldingsAsOf:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:HoldingsAsOf:v1",
+      "product_name": "HoldingsAsOf",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:IndexSeriesWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:IndexSeriesWindow:v1",
+      "product_name": "IndexSeriesWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:IngestionEvidenceBundle:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:IngestionEvidenceBundle:v1",
+      "product_name": "IngestionEvidenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:InstrumentReferenceBundle:v1",
+      "product_name": "InstrumentReferenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:MarketDataWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:MarketDataWindow:v1",
+      "product_name": "MarketDataWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioAnalyticsReference:v1",
+      "product_name": "PortfolioAnalyticsReference",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioStateSnapshot:v1",
+      "product_name": "PortfolioStateSnapshot",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "simulation_and_projected_state",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioTimeseriesInput:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioTimeseriesInput:v1",
+      "product_name": "PortfolioTimeseriesInput",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PositionTimeseriesInput:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PositionTimeseriesInput:v1",
+      "product_name": "PositionTimeseriesInput",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:ReconciliationEvidenceBundle:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ReconciliationEvidenceBundle:v1",
+      "product_name": "ReconciliationEvidenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:RiskFreeSeriesWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:RiskFreeSeriesWindow:v1",
+      "product_name": "RiskFreeSeriesWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:TransactionLedgerWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:TransactionLedgerWindow:v1",
+      "product_name": "TransactionLedgerWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:BenchmarkExposureContext:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:BenchmarkExposureContext:v1",
+      "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:ReturnsSeriesBundle:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
+      "product_name": "ReturnsSeriesBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:ConcentrationRiskReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:ConcentrationRiskReport:v1",
+      "product_name": "ConcentrationRiskReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:DrawdownAnalyticsReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:DrawdownAnalyticsReport:v1",
+      "product_name": "DrawdownAnalyticsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:HistoricalRiskAttributionReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:HistoricalRiskAttributionReport:v1",
+      "product_name": "HistoricalRiskAttributionReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:RiskMetricsReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:RiskMetricsReport:v1",
+      "product_name": "RiskMetricsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:RollingRiskMetricsReport:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:RollingRiskMetricsReport:v1",
+      "product_name": "RollingRiskMetricsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "repo:lotus-advise",
+      "node_type": "repository",
+      "repository": "lotus-advise"
+    },
+    {
+      "node_id": "repo:lotus-core",
+      "node_type": "repository",
+      "repository": "lotus-core"
+    },
+    {
+      "node_id": "repo:lotus-gateway",
+      "node_type": "repository",
+      "repository": "lotus-gateway"
+    },
+    {
+      "node_id": "repo:lotus-manage",
+      "node_type": "repository",
+      "repository": "lotus-manage"
+    },
+    {
+      "node_id": "repo:lotus-performance",
+      "node_type": "repository",
+      "repository": "lotus-performance"
+    },
+    {
+      "node_id": "repo:lotus-report",
+      "node_type": "repository",
+      "repository": "lotus-report"
+    },
+    {
+      "node_id": "repo:lotus-risk",
+      "node_type": "repository",
+      "repository": "lotus-risk"
+    }
+  ],
+  "edges": [
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkAssignment:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkAssignment:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkAssignment:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkConstituentWindow:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkConstituentWindow:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DataQualityCoverageReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DataQualityCoverageReport:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DataQualityCoverageReport:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DataQualityCoverageReport:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:IndexSeriesWindow:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:IndexSeriesWindow:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:IngestionEvidenceBundle:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:IngestionEvidenceBundle:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:IngestionEvidenceBundle:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:MarketDataWindow:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:MarketDataWindow:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioTimeseriesInput:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioTimeseriesInput:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PositionTimeseriesInput:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PositionTimeseriesInput:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ReconciliationEvidenceBundle:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ReconciliationEvidenceBundle:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ReconciliationEvidenceBundle:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ReconciliationEvidenceBundle:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:RiskFreeSeriesWindow:v1",
+      "to": "repo:lotus-performance"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:RiskFreeSeriesWindow:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:TransactionLedgerWindow:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:TransactionLedgerWindow:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:TransactionLedgerWindow:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:TransactionLedgerWindow:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:BenchmarkExposureContext:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:ReturnsSeriesBundle:v1",
+      "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:ConcentrationRiskReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:DrawdownAnalyticsReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:HistoricalRiskAttributionReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RiskMetricsReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RollingRiskMetricsReport:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:BenchmarkAssignment:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "consumption_mode": "paged_api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:MarketDataWindow:v1",
+      "consumption_mode": "paged_api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:PortfolioTimeseriesInput:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:RiskFreeSeriesWindow:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "consumption_mode": "paged_api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-core:PositionTimeseriesInput:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-core:RiskFreeSeriesWindow:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-performance:BenchmarkExposureContext:v1",
+      "consumption_mode": "paged_api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-performance:ReturnsSeriesBundle:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:BenchmarkAssignment:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:BenchmarkConstituentWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:DataQualityCoverageReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:HoldingsAsOf:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:IndexSeriesWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:IngestionEvidenceBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:InstrumentReferenceBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:MarketDataWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioAnalyticsReference:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioStateSnapshot:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioTimeseriesInput:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PositionTimeseriesInput:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:ReconciliationEvidenceBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:RiskFreeSeriesWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:TransactionLedgerWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:BenchmarkExposureContext:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:ReturnsSeriesBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:ConcentrationRiskReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:DrawdownAnalyticsReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:HistoricalRiskAttributionReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:RiskMetricsReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:RollingRiskMetricsReport:v1"
+    }
+  ]
+}

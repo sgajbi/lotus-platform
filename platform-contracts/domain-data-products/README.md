@@ -49,6 +49,35 @@ Validation command:
 python .\platform-contracts\domain-data-products\validate_domain_data_product_contracts.py
 ```
 
+Discovery generation command:
+
+```powershell
+python .\automation\generate_domain_product_discovery.py
+```
+
+Discovery drift-check command:
+
+```powershell
+python .\automation\generate_domain_product_discovery.py --check --generated-at-utc 2026-04-19T00:00:00Z
+```
+
+Generated discovery artifacts:
+
+1. `../../generated/domain-product-catalog.json`
+   Machine-readable product catalog for ownership, lifecycle, route, approval, and trust metadata
+   discovery.
+2. `../../generated/domain-product-dependency-graph.json`
+   Graph-friendly repository, product, approval, and consumer dependency relationships.
+3. `../../generated/domain-product-catalog.md`
+   Human-readable catalog summary generated from the governed declarations.
+
+Source manifest:
+
+1. `domain-product-source-manifest.v1.json`
+   Governed aggregation-source manifest that records which repositories are included from the
+   platform mirror today, which repositories already have repo-native declarations, and which
+   repositories are waiting for clean-slate confirmation before federated aggregation is enabled.
+
 Contract-family rules:
 
 1. producer declarations live with the platform contract family rather than under `context/contracts/`,
@@ -56,3 +85,7 @@ Contract-family rules:
 3. consumer declarations must remain explicit, version-aware, and trust-metadata-aware,
 4. this contract family governs ownership, lifecycle, trust metadata, and dependency posture rather
    than runtime/demo-only contracts.
+5. generated discovery artifacts must be regenerated from this contract family rather than edited
+   by hand.
+6. the source manifest must make temporary platform-mirror usage explicit while repo-native
+   aggregation is being staged.
