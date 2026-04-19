@@ -74,6 +74,8 @@ def test_domain_product_source_manifest_tracks_repo_native_rollout_without_readi
     assert by_repository["lotus-performance"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-risk"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-advise"]["catalog_inclusion"] == "pending_platform_declaration"
+    assert by_repository["lotus-report"]["repo_native_status"] == "implemented"
+    assert by_repository["lotus-report"]["catalog_inclusion"] == "pending_platform_declaration"
     assert by_repository["lotus-core"]["repo_native_status"] == "pending_clean_slate_confirmation"
 
 
