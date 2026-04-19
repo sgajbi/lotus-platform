@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.local/platform-contracts/trust-telemetry/trust-telemetry-snapshot.schema.json",
+  "title": "Lotus Domain Product Trust Telemetry Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfcs",
+    "emitted_at_utc",
+    "product_id",
+    "producer_repository",
+    "product_name",
+    "product_version",
+    "source_repository",
+    "freshness",
+    "completeness_status",
+    "reconciliation_status",
+    "data_quality_status",
+    "lineage",
+    "blocking",
+    "observed_trust_metadata",
+    "evidence"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "lotus-domain-product-trust-telemetry-snapshot"
+    },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "governed_by_rfcs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "contains": {
+        "const": "RFC-0087"
+      }
+    },
+    "emitted_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "producer_repository": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "product_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]+$"
+    },
+    "product_version": {
+      "type": "string",
+      "pattern": "^(v[0-9]+|[0-9]+\\.[0-9]+\\.[0-9]+)$"
+    },
+    "source_repository": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "freshness_class",
+        "freshness_state",
+        "evaluated_at_utc"
+      ],
+      "properties": {
+        "freshness_class": {
+          "type": "string"
+        },
+        "freshness_state": {
+          "enum": [
+            "current",
+            "stale",
+            "unknown"
+          ]
+        },
+        "evaluated_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "observed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "age_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_allowed_age_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "completeness_status": {
+      "type": "string"
+    },
+    "reconciliation_status": {
+      "type": "string"
+    },
+    "data_quality_status": {
+      "type": "string"
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineage_materialized",
+        "evidence_access_class"
+      ],
+      "properties": {
+        "lineage_materialized": {
+          "type": "boolean"
+        },
+        "lineage_bundle_id": {
+          "type": "string"
+        },
+        "evidence_access_class": {
+          "type": "string"
+        },
+        "evidence_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blocking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blocked"
+      ],
+      "properties": {
+        "blocked": {
+          "type": "boolean"
+        },
+        "blocked_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "observed_trust_metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "correlation_id",
+        "validation_lanes"
+      ],
+      "properties": {
+        "correlation_id": {
+          "type": "string"
+        },
+        "validation_lanes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "feature",
+              "pr-merge",
+              "main-releasability",
+              "platform-end-to-end"
+            ]
+          },
+          "minItems": 1
+        },
+        "source_event_id": {
+          "type": "string"
+        },
+        "source_artifact_uri": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
