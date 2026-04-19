@@ -95,6 +95,8 @@ Boundary rules:
 11. `platform-contracts/trust-telemetry/` and `automation/validate_trust_telemetry.py` define the
    RFC-0087 runtime telemetry contract that producer and consumer repos should target before their
    telemetry can be certified.
+12. `automation/generate_live_trust_certification.py` turns validated RFC-0087 telemetry snapshots
+   into deterministic live trust certification artifacts under `output/trust-certification/`.
 
 ## Repo-Native Commands
 
@@ -118,6 +120,8 @@ Use these commands as the primary local contract:
    `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
 9. trust telemetry snapshot validation
    `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
+10. live trust certification generation
+   `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
 
 ## Validation And CI Expectations
 
