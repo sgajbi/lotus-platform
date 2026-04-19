@@ -73,6 +73,26 @@ The canonical relationship model is:
 3. Domain-specific business logic belongs in the authoritative service or a governed view-model layer, not as uncontrolled UI logic.
 4. Standards, validators, and platform automation are part of the architecture and should be maintained with the same discipline as product code.
 
+## Domain Data Product Governance
+
+For cross-domain governed data products:
+
+1. domain repositories remain authoritative for product truth,
+2. `lotus-platform/platform-contracts/domain-data-products/` is the platform-owned contract family
+   for producer and consumer declarations introduced by RFC-0084,
+3. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
+   is the governed identifier, temporal-semantic, and trust-vocabulary registry that those
+   declarations must reference,
+4. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
+   is the governed trust metadata field registry, evidence-class registry, and lineage-bundle
+   registry for those declarations,
+5. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
+   product authority or product registry,
+6. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
+   `lotus-risk`,
+7. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+   validator-backed.
+
 ## Front-Office Runtime Governance
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:

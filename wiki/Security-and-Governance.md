@@ -12,6 +12,7 @@
 - service addressing and ingress governance
 - central context and agent operating contract
 - scaffold and validator ownership
+- RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
 
 ## Important standards
 

@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus-platform/contracts/domain-data-products.schema.json",
+  "title": "Lotus Domain Data Product Producer Declaration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "producer_repository",
+    "authoritative_domain",
+    "products"
+  ],
+  "properties": {
+    "contract_id": { "type": "string", "const": "domain-data-products" },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "governed_by_rfc": { "type": "string", "const": "RFC-0084" },
+    "producer_repository": { "$ref": "#/$defs/repositoryName" },
+    "authoritative_domain": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]+$"
+    },
+    "products": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/productEntry" }
+    }
+  },
+  "$defs": {
+    "repositoryName": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "productFamily": {
+      "type": "string",
+      "enum": [
+        "operational_source_data",
+        "analytics_input",
+        "analytics_output",
+        "simulation_and_projected_state",
+        "workflow_and_decision_state",
+        "reporting_and_evidence",
+        "supportability_and_control_plane",
+        "ai_runtime_and_evaluation"
+      ]
+    },
+    "lifecycleStatus": {
+      "type": "string",
+      "enum": ["proposed", "active", "deprecated", "internal_only", "retired"]
+    },
+    "requestScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_level", "supports_bulk"],
+      "properties": {
+        "scope_level": {
+          "type": "string",
+          "enum": [
+            "portfolio",
+            "account",
+            "tenant",
+            "benchmark",
+            "report_run",
+            "workflow_run",
+            "global"
+          ]
+        },
+        "supports_bulk": { "type": "boolean" }
+      }
+    },
+    "temporalScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_time_field", "freshness_basis", "supports_restatement"],
+      "properties": {
+        "primary_time_field": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        },
+        "freshness_basis": {
+          "type": "string",
+          "enum": [
+            "as_of_date",
+            "valuation_date",
+            "ingested_at",
+            "observed_at",
+            "event_time",
+            "mixed"
+          ]
+        },
+        "supports_restatement": { "type": "boolean" }
+      }
+    },
+    "freshnessPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["freshness_class", "max_allowed_age_description"],
+      "properties": {
+        "freshness_class": {
+          "type": "string",
+          "enum": ["real_time", "intraday", "daily", "batch", "event_driven"]
+        },
+        "max_allowed_age_description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "completenessPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_status", "partial_allowed"],
+      "properties": {
+        "default_status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "partial",
+            "stale",
+            "unreconciled",
+            "break_open",
+            "blocked",
+            "unknown"
+          ]
+        },
+        "partial_allowed": { "type": "boolean" }
+      }
+    },
+    "lineagePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lineage_required", "evidence_bundle_required", "evidence_access_class_ref"],
+      "properties": {
+        "lineage_required": { "type": "boolean" },
+        "evidence_bundle_required": { "type": "boolean" },
+        "evidence_access_class_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        },
+        "lineage_bundle_class_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        }
+      }
+    },
+    "deprecationPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "successor_product"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["not_deprecated", "announced", "migration_required", "retired"]
+        },
+        "successor_product": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z][A-Za-z0-9]+$"
+        }
+      }
+    },
+    "trustMetadataField": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]+$"
+    },
+    "productEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_name",
+        "product_version",
+        "owner_repository",
+        "product_family",
+        "authoritative_domain",
+        "lifecycle_status",
+        "request_scope",
+        "temporal_scope",
+        "temporal_semantics_ref",
+        "identifier_refs",
+        "required_trust_metadata",
+        "freshness_policy",
+        "completeness_policy",
+        "lineage_policy",
+        "security_profile_ref",
+        "approved_consumers",
+        "deprecation_policy"
+      ],
+      "properties": {
+        "product_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9]+$"
+        },
+        "product_version": {
+          "type": "string",
+          "pattern": "^(v[0-9]+|[0-9]+\\.[0-9]+\\.[0-9]+)$"
+        },
+        "owner_repository": { "$ref": "#/$defs/repositoryName" },
+        "product_family": { "$ref": "#/$defs/productFamily" },
+        "authoritative_domain": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        },
+        "lifecycle_status": { "$ref": "#/$defs/lifecycleStatus" },
+        "request_scope": { "$ref": "#/$defs/requestScope" },
+        "temporal_scope": { "$ref": "#/$defs/temporalScope" },
+        "temporal_semantics_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        },
+        "identifier_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]+$"
+          }
+        },
+        "required_trust_metadata": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/trustMetadataField" }
+        },
+        "serving_plane": {
+          "type": "string",
+          "enum": ["query_service", "query_control_plane_service"]
+        },
+        "current_routes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^/" }
+        },
+        "freshness_policy": { "$ref": "#/$defs/freshnessPolicy" },
+        "completeness_policy": { "$ref": "#/$defs/completenessPolicy" },
+        "lineage_policy": { "$ref": "#/$defs/lineagePolicy" },
+        "security_profile_ref": { "type": "string", "minLength": 1 },
+        "approved_consumers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/repositoryName" }
+        },
+        "deprecation_policy": { "$ref": "#/$defs/deprecationPolicy" }
+      }
+    }
+  }
+}

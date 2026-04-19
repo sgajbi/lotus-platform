@@ -43,6 +43,18 @@ The registry companion currently exposes:
 3. standards registry,
 4. active RFC registry.
 
+Important machine-readable platform contract families now include:
+
+1. `../platform-contracts/api-vocabulary/`
+2. `../platform-contracts/domain-vocabulary/`
+3. `../platform-contracts/domain-data-products/`
+
+For RFC-0084 work, the highest-signal machine-readable files are:
+
+1. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+2. [Domain Data Product Semantics Registry](../platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json)
+3. [Domain Data Product Trust Metadata Registry](../platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json)
+
 ## Task Routing
 
 1. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
@@ -79,6 +91,7 @@ Key standards to use frequently:
 6. [Platform Observability Standards](../Platform%20Observability%20Standards.md)
 7. [Domain Vocabulary Glossary](../Domain%20Vocabulary%20Glossary.md)
 8. [Platform Integration Architecture Bible](../Platform%20Integration%20Architecture%20Bible.md)
+9. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 
 ## Active Governance RFCs
 

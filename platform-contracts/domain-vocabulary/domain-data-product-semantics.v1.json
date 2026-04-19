@@ -1,0 +1,228 @@
+{
+  "contract_id": "domain-data-product-semantics",
+  "contract_version": "1.0.0",
+  "governed_by_rfc": "RFC-0084",
+  "domain": "domain_data_product_semantics",
+  "description": "Platform-governed identifier, temporal, and trust vocabulary registry for cross-domain data-product contracts.",
+  "identifiers": [
+    {
+      "key": "portfolio_id",
+      "semantic_id": "lotus.portfolio_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical portfolio identifier used across source-data, performance, and risk products."
+    },
+    {
+      "key": "benchmark_id",
+      "semantic_id": "lotus.benchmark_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical benchmark identifier used for linked benchmark resolution and benchmark-shaped products."
+    },
+    {
+      "key": "position_id",
+      "semantic_id": "lotus.position_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical position identifier for position-level source and derived analytics products."
+    },
+    {
+      "key": "instrument_id",
+      "semantic_id": "lotus.instrument_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical instrument identifier used for holdings, exposure, enrichment, and reference products."
+    },
+    {
+      "key": "issuer_id",
+      "semantic_id": "lotus.issuer_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical issuer identifier used where products publish issuer-level exposure or enrichment context."
+    },
+    {
+      "key": "index_id",
+      "semantic_id": "lotus.index_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical index identifier used for benchmark market-series and index-series products."
+    },
+    {
+      "key": "risk_free_curve_id",
+      "semantic_id": "lotus.risk_free_curve_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical risk-free curve identifier for governed risk-free source series."
+    },
+    {
+      "key": "calculation_id",
+      "semantic_id": "lotus.calculation_id",
+      "stability": "ephemeral",
+      "lifecycle": "active",
+      "description": "Durable calculation handle for async-capable analytics products."
+    },
+    {
+      "key": "tenant_id",
+      "semantic_id": "lotus.tenant_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Tenant identifier used for policy, access, and trust context across governed products."
+    },
+    {
+      "key": "correlation_id",
+      "semantic_id": "lotus.correlation_id",
+      "stability": "ephemeral",
+      "lifecycle": "active",
+      "description": "Correlation identifier propagated for cross-service traceability and supportability."
+    },
+    {
+      "key": "snapshot_id",
+      "semantic_id": "lotus.snapshot_id",
+      "stability": "ephemeral",
+      "lifecycle": "active",
+      "description": "Snapshot identifier for point-in-time portfolio state and downstream reproducibility."
+    }
+  ],
+  "temporal_semantics": [
+    {
+      "key": "as_of_date",
+      "semantic_id": "lotus.as_of_date",
+      "category": "business_effective_date",
+      "description": "Business-effective date used to resolve a governed product view."
+    },
+    {
+      "key": "valuation_date",
+      "semantic_id": "lotus.valuation_date",
+      "category": "observation_date",
+      "description": "Observation date used for valuation, market-series, and benchmark exposure rows."
+    },
+    {
+      "key": "generated_at",
+      "semantic_id": "lotus.generated_at",
+      "category": "publication_timestamp",
+      "description": "UTC timestamp at which a governed product payload was generated."
+    },
+    {
+      "key": "observed_at",
+      "semantic_id": "lotus.observed_at",
+      "category": "observation_timestamp",
+      "description": "Timestamp at which the upstream source observation was recorded."
+    },
+    {
+      "key": "ingested_at",
+      "semantic_id": "lotus.ingested_at",
+      "category": "ingestion_timestamp",
+      "description": "Timestamp at which a source event or batch was ingested into Lotus."
+    }
+  ],
+  "trust_vocabularies": {
+    "freshness_classes": [
+      {
+        "key": "real_time",
+        "meaning": "Expected to reflect current source state without a scheduled batch delay."
+      },
+      {
+        "key": "intraday",
+        "meaning": "Expected to refresh multiple times within the business day."
+      },
+      {
+        "key": "daily",
+        "meaning": "Expected to refresh once per governed business day or as-of cycle."
+      },
+      {
+        "key": "batch",
+        "meaning": "Expected to refresh as part of a scheduled batch or workflow run."
+      },
+      {
+        "key": "event_driven",
+        "meaning": "Expected to refresh when governed source events arrive."
+      }
+    ],
+    "completeness_statuses": [
+      {
+        "key": "complete",
+        "meaning": "The product is expected to deliver its full governed payload shape."
+      },
+      {
+        "key": "partial",
+        "meaning": "The product may deliver a bounded but intentionally incomplete payload with explicit diagnostics."
+      },
+      {
+        "key": "stale",
+        "meaning": "Evidence exists, but it is older than the product or supportability freshness threshold."
+      },
+      {
+        "key": "unreconciled",
+        "meaning": "Required reconciliation or coverage has not run or has no observed data."
+      },
+      {
+        "key": "break_open",
+        "meaning": "A non-blocking break remains open and must be visible to downstream consumers or operators."
+      },
+      {
+        "key": "blocked",
+        "meaning": "The product may be unavailable because a required dependency or control failed."
+      },
+      {
+        "key": "unknown",
+        "meaning": "The product cannot currently attest to completeness status."
+      }
+    ],
+    "reconciliation_statuses": [
+      {
+        "key": "reconciled",
+        "meaning": "The product or its source inputs reconcile to the governing evidence baseline."
+      },
+      {
+        "key": "partial",
+        "meaning": "Some reconciliation coverage exists, but warnings, running controls, or incomplete inputs remain."
+      },
+      {
+        "key": "stale",
+        "meaning": "Reconciliation evidence exists but is older than the governing freshness threshold."
+      },
+      {
+        "key": "unreconciled",
+        "meaning": "The product or its source inputs failed a required reconciliation check."
+      },
+      {
+        "key": "break_open",
+        "meaning": "A non-blocking reconciliation break remains open."
+      },
+      {
+        "key": "blocked",
+        "meaning": "A blocking reconciliation issue prevents safe downstream use."
+      },
+      {
+        "key": "not_applicable",
+        "meaning": "Reconciliation is not required for this product family."
+      },
+      {
+        "key": "unknown",
+        "meaning": "The product cannot currently attest to reconciliation state truthfully."
+      }
+    ],
+    "data_quality_statuses": [
+      {
+        "key": "quality_passed",
+        "meaning": "Required data-quality checks passed for the governed product or source input."
+      },
+      {
+        "key": "quality_warning",
+        "meaning": "The product is usable, but a non-blocking data-quality warning exists."
+      },
+      {
+        "key": "quality_failed",
+        "meaning": "The product failed a required data-quality gate."
+      },
+      {
+        "key": "quality_blocked",
+        "meaning": "A blocking data-quality issue prevents safe downstream use."
+      },
+      {
+        "key": "quality_unknown",
+        "meaning": "The product cannot currently attest to data-quality state truthfully."
+      }
+    ]
+  }
+}
