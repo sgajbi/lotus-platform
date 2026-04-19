@@ -107,6 +107,17 @@ Boundary rules:
    governed product or catalog-consuming capability. Transitional platform mirror declarations are
    retained only as compatibility evidence and must not be active source paths in generated catalog
    artifacts.
+15. RFC-0085 is implemented/proven for the first-wave gateway read-only publication path:
+   `lotus-gateway` exposes catalog, detail, dependency graph, and live trust certification APIs
+   under `/api/v1/domain-products` while reading platform-generated artifacts rather than owning
+   product truth.
+16. RFC-0088 is implemented/proven for first-wave self-serve discovery:
+   `lotus-workbench` exposes `/data-products`, consumes gateway through the BFF only, and renders
+   real catalog, dependency, lifecycle, approved-consumer, certification, trust, unavailable,
+   loading, empty, stale/attention, and error states.
+17. The gateway and Workbench first-wave mesh commits are on shared RFC-0033 draft PR branches; treat
+   them as proven and merge-ready evidence, not merged platform-wide closure, until those draft PRs
+   are accepted by their branch owners.
 
 ## Repo-Native Commands
 

@@ -123,10 +123,10 @@ Reference baseline:
 - `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`
 - `RFC-0083-lotus-core-system-of-record-target-architecture.md`
 - `RFC-0084-mesh-governance.md`
-- `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`
-- `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`
-- `RFC-0087-live-trust-telemetry-and-certification-plane.md`
-- `RFC-0088-self-serve-discovery-and-dependency-catalog.md`
+- `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md` (implemented/proven for first-wave gateway publication; shared draft PR pending merge)
+- `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md` (implemented)
+- `RFC-0087-live-trust-telemetry-and-certification-plane.md` (implemented/proven for first-wave telemetry, certification, gateway, and Workbench consumption)
+- `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented/proven for generated discovery plus Workbench UI; shared draft PR pending merge)
 
 
 
