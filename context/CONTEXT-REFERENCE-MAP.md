@@ -77,6 +77,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 13. `../automation/generate_live_trust_certification.py`
     Generates deterministic RFC-0087 live trust certification artifacts from validated telemetry
     snapshots.
+14. `../tests/unit/test_domain_product_rollout_closure.py`
+    Protects RFC-0086 closure posture: first-wave repo-native source ownership, active catalog source
+    paths, `lotus-ai` exclusion rationale, and transitional platform mirror retention.
 
 ## Task Routing
 
