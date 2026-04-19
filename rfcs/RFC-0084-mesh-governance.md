@@ -42,6 +42,73 @@ This RFC is intentionally not a textbook data-mesh compliance exercise. The goal
 governed domain data-product platform that preserves current Lotus strengths and materially improves
 commercial explainability.
 
+## Problem
+
+Lotus already behaves like a governed multi-service estate, but it still lacks one platform-owned
+rule set for domain products across the ecosystem.
+
+That leaves five practical problems.
+
+### 1. Mesh-grade behavior exists, but mostly inside one domain
+
+`lotus-core` already has named products, consumer declarations, security classification, trust
+metadata, and contract guards.
+
+Equivalent platformized discipline does not yet exist across:
+
+1. `lotus-performance` analytics products,
+2. `lotus-risk` analytics products,
+3. `lotus-advise` advisory outputs,
+4. `lotus-manage` operational workflow products,
+5. `lotus-report` reporting and evidence products,
+6. `lotus-ai` runtime and evaluation products.
+
+### 2. Semantic governance exists, but product governance does not
+
+RFC-0067 gives Lotus meaningful vocabulary control and cross-repo naming discipline.
+
+What it does not yet provide is:
+
+1. product ownership declarations,
+2. consumer approval declarations,
+3. lifecycle and deprecation posture,
+4. freshness and completeness obligations,
+5. lineage and trust requirements per product.
+
+### 3. Platform validation is strong, but narrow in product scope
+
+`lotus-platform` already owns cross-repo validation lanes, repository governance, and contract-backed
+runtime validation.
+
+It does not yet validate, across the estate:
+
+1. whether every authoritative product is registered,
+2. whether producers publish required trust metadata,
+3. whether consumers use approved product versions,
+4. whether critical product dependencies are fully declared,
+5. whether cross-domain identifier semantics are consistent.
+
+### 4. Customer trust evidence is still implementation-centric
+
+Lotus has valuable supportability and lineage surfaces, especially in `lotus-core`.
+
+But the estate cannot yet present one coherent, customer-credible explanation for:
+
+1. who owns a result,
+2. what upstream products were used,
+3. whether the result is complete, partial, stale, blocked, or unreconciled,
+4. what evidence exists if the result is challenged.
+
+### 5. Without a platform-owned product model, the estate can drift
+
+If each domain continues to improve locally without a shared governance plane, Lotus risks:
+
+1. duplicated product shapes,
+2. hidden downstream dependencies,
+3. uneven producer maturity,
+4. weak customer-facing explainability,
+5. cross-repo truth discoverable only by reading many repositories.
+
 ## Original Requested Requirements (Preserved)
 
 The original user request, preserved in intent, was:
@@ -278,6 +345,30 @@ Lotus adopts the following architectural direction.
    lineage policy, validation, and generated discovery artifacts.
 4. Lotus will measure success by trustable domain products and explainable cross-domain workflows,
    not by terminology compliance.
+
+### Governance invariants
+
+These invariants are mandatory. Implementation slices may choose different tactical designs, but
+they must not violate these outcomes.
+
+1. Domain repositories remain the only authoritative owners of their business-domain products.
+2. `lotus-platform` owns governance, registry, validation, semantic-control, and discovery-plane
+   responsibilities rather than business computation.
+3. Every cross-domain product must have an owner, version, lifecycle status, approved-consumer
+   posture, and deprecation path.
+4. Every critical product must publish enough trust metadata for downstream explainability and
+   operational support.
+5. Every cross-domain consumer dependency must be declared explicitly rather than inferred from
+   incidental API usage.
+6. Every cross-domain product and dependency that matters operationally must be validator-addressable
+   in CI.
+7. Platform-generated trust and discovery surfaces must report partial, stale, blocked, and
+   unreconciled states truthfully rather than collapsing them into generic success.
+8. `lotus-gateway` and other composition layers may compose products, but they must not become shadow
+   authorities or shadow registries.
+9. RFC-0067 semantic governance remains the canonical base layer for product and identifier
+   vocabulary.
+10. The final two implementation slices remain mandatory quality gates, not optional cleanup work.
 
 ### Target operating model
 
@@ -662,6 +753,59 @@ Minimum validation:
 2. skill and routing review,
 3. branch hygiene verification,
 4. explicit recorded no-change decisions where applicable.
+
+## Validation and Evidence Model
+
+RFC-0084 implementation should use the RFC-0072 lane model rather than ad hoc proof.
+
+### Required feature-lane evidence
+
+For any slice implementing this RFC:
+
+1. targeted repo-native validation in the changed repository,
+2. contract, schema, or validator proof for the changed governance surface,
+3. updated docs proving the operating model changed intentionally,
+4. explicit note of affected producers, consumers, and registries.
+
+### Required PR Merge Gate evidence
+
+1. `lotus-platform` PR-grade proof when schemas, validators, catalogs, or governance automation
+   change,
+2. affected producer repo PR-grade proof when product declarations or trust metadata contracts
+   change,
+3. affected consumer repo PR-grade proof when dependency posture or response semantics change,
+4. truthful note of remaining deferred gaps.
+
+### Platform end-to-end evidence
+
+Platform end-to-end validation is required when:
+
+1. gateway or workbench behavior changes because trust surfaces or dependency posture changed,
+2. critical seeded workflows depend on the newly governed products,
+3. customer-visible readiness, completeness, or lineage behavior changes.
+
+### Lane mapping by expected slice type
+
+| Slice type | Typical repositories | Minimum lane | Escalation trigger |
+| --- | --- | --- | --- |
+| RFC/docs-only direction | `lotus-platform` | Feature Lane docs proof | none unless runtime or contracts change |
+| registry schema and validator work | `lotus-platform` | Feature Lane plus schema/contract tests | PR Merge Gate when validator or contract behavior changes |
+| producer declaration onboarding | producer repo plus `lotus-platform` | Feature Lane in both touched repos | PR Merge Gate when published contracts or trust metadata change |
+| consumer conformance work | consumer repo plus `lotus-platform` | Feature Lane in affected consumer | PR Merge Gate when dependency semantics or runtime behavior change |
+| trust-surface or gateway-facing changes | `lotus-platform`, `lotus-gateway`, affected producers | PR Merge Gate | platform end-to-end validation |
+| Slice 7 certification and governance tightening | all touched repos | PR Merge Gate | platform end-to-end validation when customer-visible behavior changed |
+
+### Certification expectation for Slice 7
+
+The penultimate slice is not a cosmetic review.
+
+It must confirm that:
+
+1. affected APIs follow Lotus endpoint certification posture,
+2. OpenAPI and vocabulary governance remain current,
+3. route-family and ownership classifications remain accurate,
+4. tests and validators are meaningful rather than superficial,
+5. implementation did not leave drift between code, contracts, docs, and repo context.
 
 ## Open Questions
 
