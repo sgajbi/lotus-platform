@@ -416,16 +416,16 @@ Lotus validates and eventually surfaces:
 
 ### Platform capability model
 
-`lotus-platform` should add a new capability family under `context/contracts/` or
-`platform-contracts/` for governed domain products.
+`lotus-platform` should add a new capability family under `platform-contracts/` for governed domain
+products.
 
 #### A. Domain data-product registry
 
 Introduce contracts such as:
 
-1. `context/contracts/domain-data-products/*.json`
-2. `context/contracts/domain-data-products.schema.json`
-3. `context/contracts/domain-data-product-consumers.schema.json`
+1. `platform-contracts/domain-data-products/*.json`
+2. `platform-contracts/domain-data-products.schema.json`
+3. `platform-contracts/domain-data-product-consumers.schema.json`
 
 Minimum fields should include:
 
@@ -456,6 +456,15 @@ Introduce machine-readable registries for:
    reporting.
 
 This extends RFC-0067 rather than replacing it.
+
+Rationale for `platform-contracts/`:
+
+1. this capability is a platform governance contract family rather than a local runtime/demo
+   contract,
+2. it belongs next to API vocabulary and other machine-readable platform standards,
+3. it should be treated as ecosystem contract infrastructure, not repository-context metadata,
+4. keeping it under `platform-contracts/` reduces the risk of mixing durable governance contracts
+   with narrower context-owned runtime artifacts.
 
 #### C. Trust metadata contract
 
@@ -548,9 +557,57 @@ The initial platform vocabulary should cover at least:
 
 #### `lotus-gateway`
 
-1. declare upstream product dependencies for stable experience contracts,
-2. surface trust posture where user experience depends on it,
-3. avoid becoming a shadow registry.
+1. declare upstream product dependencies for stable experience contracts and published gateway APIs,
+2. surface trust posture where user experience or ecosystem-facing API behavior depends on it,
+3. remain the governed ecosystem API face, composition layer, ingress, policy, and cross-cutting
+   publication plane,
+4. avoid becoming a domain-product authority or shadow registry for data products owned elsewhere.
+
+### Gateway position
+
+`lotus-gateway` should remain important, but its role needs to stay precise.
+
+The right long-term model is:
+
+1. domain services own domain products,
+2. `lotus-platform` owns domain-product governance and registry truth,
+3. `lotus-gateway` owns ecosystem API publishing, ingress, composition, policy enforcement,
+   cross-cutting controls, and consumer-facing contract shaping where needed.
+
+That means `lotus-gateway` can and should be the face of Lotus APIs without becoming the owner of
+the underlying domain products.
+
+#### What `lotus-gateway` should own
+
+1. unified API ingress for UI and ecosystem consumers,
+2. authentication, authorization, entitlement, throttling, audit correlation, and cross-cutting
+   publication controls,
+3. composition of multiple domain products into consumer-friendly API contracts,
+4. versioned published API surfaces for external consumers,
+5. exposure of trust posture where customer-facing APIs need it.
+
+#### What `lotus-gateway` should not own
+
+1. canonical domain truth that belongs in source systems such as `lotus-core`,
+2. analytics truth that belongs in `lotus-performance` or `lotus-risk`,
+3. the platform registry of what products exist and who owns them,
+4. silent private copies of product semantics that drift from the authoritative producers.
+
+#### Practical recommendation
+
+This is the right thing to do if it is implemented with discipline.
+
+It becomes the wrong thing if gateway turns into:
+
+1. a second product registry,
+2. a second semantic authority,
+3. a place where domain logic is reimplemented for publishing convenience.
+
+The clean separation is:
+
+1. producers own product truth,
+2. `lotus-platform` owns product governance truth,
+3. `lotus-gateway` owns API publication and composition truth.
 
 #### `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`
 
@@ -655,10 +712,17 @@ Minimum validation:
 
 Deliverables:
 
-1. register initial `lotus-performance` products,
-2. register initial `lotus-risk` products,
+1. register the first governed `lotus-performance` analytics products,
+2. register the first governed `lotus-risk` analytics products,
 3. define trust metadata expectations for analytics outputs,
 4. add producer and consumer declarations for those repositories.
+
+Initial scope decision for this RFC:
+
+1. `lotus-performance` and `lotus-risk` are the first analytics producer wave after `lotus-core`,
+2. `lotus-gateway` is not part of the first producer wave and should be treated as a governed
+   consumer/composer unless a future slice introduces gateway-owned cross-cutting API products with
+   separate justification.
 
 Minimum validation:
 
@@ -811,21 +875,23 @@ It must confirm that:
 
 1. Which `lotus-performance` and `lotus-risk` products should be the first platform-registered
    analytics outputs?
-2. Should the first platform registry live under `context/contracts/` or `platform-contracts/`?
-3. Which trust metadata fields must be global versus product-family-specific?
-4. Which product families should remain internal-only in the first rollout?
-5. Should gateway-facing contracts surface lineage references directly, or should that remain in
+2. Which trust metadata fields must be global versus product-family-specific?
+3. Which product families should remain internal-only in the first rollout?
+4. Should gateway-facing contracts surface lineage references directly, or should that remain in
    operator-facing supportability surfaces first?
-6. At what maturity level should Lotus expose a customer-facing trust surface rather than generated
+5. At what maturity level should Lotus expose a customer-facing trust surface rather than generated
    platform artifacts only?
 
 ## Next Actions
 
 1. Review and approve this RFC as the platform direction for governed domain data products.
-2. Start Slice 1 in `lotus-platform` by defining the initial registry schemas and validator surface.
+2. Start Slice 1 in `lotus-platform/platform-contracts/` by defining the initial registry schemas
+   and validator surface.
 3. Treat `lotus-core` source-data product governance as the first producer reference model.
-4. Choose the first `lotus-performance` and `lotus-risk` products to onboard in Slice 3.
-5. Preserve Slice 7 and Slice 8 as mandatory quality and closure gates rather than optional cleanup.
+4. Treat `lotus-performance` and `lotus-risk` as the first analytics producer wave in Slice 3.
+5. Keep `lotus-gateway` scoped as the ecosystem API face and governed consumer/composer rather than
+   a default domain-product authority.
+6. Preserve Slice 7 and Slice 8 as mandatory quality and closure gates rather than optional cleanup.
 
 ## Skills and Guidance Assessment for Future Work
 
