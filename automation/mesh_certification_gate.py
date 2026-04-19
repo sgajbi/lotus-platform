@@ -232,6 +232,7 @@ def _validate_required_telemetry(
     *,
     telemetry_payloads: dict[str, tuple[Path, dict[str, Any]]],
     issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
 ) -> None:
     for product_id, producer_repository in REQUIRED_PRODUCTS.items():
         if product_id in telemetry_payloads:
@@ -239,7 +240,7 @@ def _validate_required_telemetry(
         _issue(
             issues,
             code="missing_telemetry",
-            severity="error",
+            severity="error" if gate_mode == "blocking" else "warning",
             producer_repository=producer_repository,
             product_id=product_id,
             remediation=(
@@ -467,7 +468,11 @@ def build_mesh_certification_status(
         issues=issues,
         catalog_path=catalog_path,
     )
-    _validate_required_telemetry(telemetry_payloads=telemetry_payloads, issues=issues)
+    _validate_required_telemetry(
+        telemetry_payloads=telemetry_payloads,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
     issues.extend(
         _issue_from_live_certification(
             raw_issue,

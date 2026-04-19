@@ -191,6 +191,22 @@ def test_mesh_certification_gate_advisory_mode_reports_without_blocking(
     assert gate._exit_code(status) == 0
 
 
+def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> None:
+    gate = _load_gate_module()
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=[Path("does-not-exist")],
+        gate_mode="advisory",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "certified_with_warnings"
+    assert status["summary"]["missing_telemetry_count"] == 4
+    assert status["summary"]["error_count"] == 0
+    assert gate._exit_code(status) == 0
+
+
 def test_mesh_certification_gate_writes_json_markdown_and_issues(
     tmp_path: Path,
 ) -> None:

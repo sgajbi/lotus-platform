@@ -185,6 +185,25 @@ The generated live trust certification report classifies each telemetry snapshot
 `attention_required` using deterministic freshness, completeness, reconciliation, data-quality,
 lineage, and blocking rules.
 
+Run the RFC-0089 mesh certification gate:
+
+```powershell
+# Platform-only CI smoke; does not require sibling gateway/workbench checkouts.
+python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
+
+# Local blocking proof with sibling lotus-core, lotus-performance, lotus-risk, lotus-advise,
+# lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
+python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
+```
+
+The mesh certification gate composes the catalog, source manifest, RFC-0087 telemetry validator,
+live trust certification generator, gateway publication drift check, and Workbench BFF-only
+consumption drift check. It writes operator artifacts to `output/mesh-certification/`:
+
+- `mesh-certification-status.json`
+- `mesh-certification-status.md`
+- `mesh-certification-issues.json`
+
 One-shot PR health (with failing check detection):
 
 ```powershell
