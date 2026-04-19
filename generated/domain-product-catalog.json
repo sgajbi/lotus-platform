@@ -22,12 +22,12 @@
         "repository": "lotus-core",
         "source_mode": "platform_contract_mirror",
         "catalog_inclusion": "included",
-        "repo_native_status": "pending_clean_slate_confirmation",
+        "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [
           "platform-contracts/domain-data-products/lotus-core-products.v1.json"
         ],
-        "notes": "Core remains represented by the platform mirror until repo-native source aggregation is promoted through a clean-slate implementation slice."
+        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
       },
       {
         "repository": "lotus-performance",
