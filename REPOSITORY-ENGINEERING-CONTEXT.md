@@ -85,6 +85,9 @@ Boundary rules:
 7. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json` records which
    repositories are currently cataloged from platform mirrors versus waiting for repo-native
    aggregation from settled sibling branches.
+8. `automation/query_domain_product_discovery.py` is the platform-owned self-serve query surface
+   for generated catalog and graph artifacts; it must remain read-only and must not replace contract
+   validation or gateway-facing discovery APIs.
 
 ## Repo-Native Commands
 
@@ -100,6 +103,10 @@ Use these commands as the primary local contract:
    `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
 5. targeted unit contract tests
    `python -m pytest tests/unit -q`
+6. domain-product discovery artifact generation
+   `python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z`
+7. domain-product discovery self-serve query
+   `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
 
 ## Validation And CI Expectations
 

@@ -53,6 +53,8 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Invoke-CrossApp-CorePerformance-Attribution.ps1`
 - `automation/Validate-OpenAPI-Conformance.ps1`
 - `automation/Validate-Domain-Vocabulary.ps1`
+- `automation/generate_domain_product_discovery.py`
+- `automation/query_domain_product_discovery.py`
 - `automation/Validate-Rounding-Consistency.ps1`
 - `automation/Validate-Monetary-Float-Guard.ps1`
 - `automation/Validate-Scalability-Availability.ps1`
@@ -103,6 +105,42 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 
 `Run-Agent.ps1` now executes five checks per iteration: repo sync, PR monitor, backend standards conformance validation, OpenAPI conformance validation, and domain vocabulary conformance validation.
 It also validates RFC-0068 shared infrastructure ownership on every iteration, emits machine-readable status to `output/agent-status.json`, runs metadata validation every iteration, and performs full coverage + dependency rollup every N iterations (`-FullAuditEvery`, default `5`).
+
+## Domain-Product Discovery
+
+Generate governed catalog, dependency graph, and markdown artifacts:
+
+```powershell
+python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z
+```
+
+Check that checked-in artifacts are current:
+
+```powershell
+python automation/generate_domain_product_discovery.py --check --generated-at-utc 2026-04-19T00:00:00Z
+```
+
+Query products approved for a consumer:
+
+```powershell
+python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk
+```
+
+Inspect a product by governed identity:
+
+```powershell
+python automation/query_domain_product_discovery.py product --product-id lotus-performance:ReturnsSeriesBundle:v1
+```
+
+Inspect consumer dependencies and graph neighborhoods:
+
+```powershell
+python automation/query_domain_product_discovery.py consumer lotus-risk
+python automation/query_domain_product_discovery.py graph-neighborhood repo:lotus-risk
+```
+
+The query CLI reads generated artifacts only. It does not redefine product ownership, trust
+metadata, approved consumers, or dependency truth.
 
 One-shot PR health (with failing check detection):
 
