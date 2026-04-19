@@ -54,6 +54,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-OpenAPI-Conformance.ps1`
 - `automation/Validate-Domain-Vocabulary.ps1`
 - `automation/generate_domain_product_discovery.py`
+- `automation/generate_domain_product_certification.py`
 - `automation/query_domain_product_discovery.py`
 - `automation/Validate-Rounding-Consistency.ps1`
 - `automation/Validate-Monetary-Float-Guard.ps1`
@@ -141,6 +142,20 @@ python automation/query_domain_product_discovery.py graph-neighborhood repo:lotu
 
 The query CLI reads generated artifacts only. It does not redefine product ownership, trust
 metadata, approved consumers, or dependency truth.
+
+Generate trust certification evidence for the generated catalog and dependency graph:
+
+```powershell
+python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z
+```
+
+Certification artifacts are written to:
+
+- `generated/domain-product-certification-report.json`
+- `generated/domain-product-certification-report.md`
+
+The certification report checks product trust metadata, producer-approved consumers, consumer
+dependency reciprocity, validation lanes, failure posture, and dependency-graph consistency.
 
 One-shot PR health (with failing check detection):
 
