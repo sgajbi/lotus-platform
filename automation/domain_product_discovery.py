@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import tempfile
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -453,3 +454,32 @@ def write_discovery_artifacts(
     (output_directory / CATALOG_FILENAME).write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
     (output_directory / GRAPH_FILENAME).write_text(json.dumps(graph, indent=2) + "\n", encoding="utf-8")
     (output_directory / CATALOG_MARKDOWN_FILENAME).write_text(markdown, encoding="utf-8")
+
+
+def check_discovery_artifacts(
+    output_directory: Path = DEFAULT_OUTPUT_DIRECTORY,
+    declaration_directory: Path = DEFAULT_DECLARATION_DIRECTORY,
+    *,
+    generated_at_utc: str,
+    source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+) -> list[str]:
+    with tempfile.TemporaryDirectory(prefix="lotus-domain-product-discovery-check-") as temp_dir_string:
+        temp_dir = Path(temp_dir_string)
+        write_discovery_artifacts(
+            temp_dir,
+            declaration_directory,
+            generated_at_utc=generated_at_utc,
+            source_manifest_path=source_manifest_path,
+        )
+
+        issues: list[str] = []
+        for artifact_name in (CATALOG_FILENAME, GRAPH_FILENAME, CATALOG_MARKDOWN_FILENAME):
+            expected_path = temp_dir / artifact_name
+            actual_path = output_directory / artifact_name
+            if not actual_path.exists():
+                issues.append(f"{actual_path}: generated discovery artifact is missing")
+                continue
+            if actual_path.read_text(encoding="utf-8") != expected_path.read_text(encoding="utf-8"):
+                issues.append(f"{actual_path}: generated discovery artifact is stale")
+
+        return issues

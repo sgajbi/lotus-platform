@@ -112,3 +112,22 @@ def test_checked_in_domain_product_discovery_outputs_are_not_stale(tmp_path: Pat
         assert (GENERATED_DIRECTORY / artifact_name).read_text(encoding="utf-8") == (
             tmp_path / artifact_name
         ).read_text(encoding="utf-8")
+
+
+def test_domain_product_discovery_check_reports_stale_outputs(tmp_path: Path) -> None:
+    generator = _load_generator_module()
+
+    generator.write_discovery_artifacts(
+        tmp_path,
+        DECLARATION_DIRECTORY,
+        generated_at_utc=CHECKED_IN_GENERATED_AT,
+    )
+    (tmp_path / "domain-product-catalog.md").write_text("stale\n", encoding="utf-8")
+
+    issues = generator.check_discovery_artifacts(
+        tmp_path,
+        DECLARATION_DIRECTORY,
+        generated_at_utc=CHECKED_IN_GENERATED_AT,
+    )
+
+    assert issues == [f"{tmp_path / 'domain-product-catalog.md'}: generated discovery artifact is stale"]

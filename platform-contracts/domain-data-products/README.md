@@ -55,6 +55,12 @@ Discovery generation command:
 python .\automation\generate_domain_product_discovery.py
 ```
 
+Discovery drift-check command:
+
+```powershell
+python .\automation\generate_domain_product_discovery.py --check --generated-at-utc 2026-04-19T00:00:00Z
+```
+
 Generated discovery artifacts:
 
 1. `../../generated/domain-product-catalog.json`
