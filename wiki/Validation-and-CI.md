@@ -19,6 +19,10 @@
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
 - platform validation lane:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
+- mesh certification advisory smoke:
+  `python automation\mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
+- mesh certification blocking proof with sibling repos:
+  `python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 
 ## What the gates protect
 
@@ -27,6 +31,7 @@
 - automation and validator correctness
 - cross-repository governance posture
 - reusable platform validation entrypoints
+- RFC-0089 first-wave mesh certification posture for governed domain products
 
 ## Documentation contract posture
 
@@ -39,6 +44,7 @@ Before running the pack, classify the documentation change through:
 
 - [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 - [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
+- [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
 
 That keeps README, repo-local wiki, deep docs, and platform context from drifting into the wrong
 surface even when the tests are green.

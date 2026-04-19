@@ -18,6 +18,7 @@ try {
     & $toolingPython automation/validate_workflow_action_runtime.py
     & $toolingPython automation/validate_container_build_baseline.py
     & $toolingPython automation/validate_platform_validation_coverage.py
+    & $toolingPython automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
     & (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -CheckOnly
 
     if ($Lane -in @("pr-merge", "main-releasability")) {

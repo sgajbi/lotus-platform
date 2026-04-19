@@ -124,6 +124,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
 6. RFC-0085, RFC-0087, and RFC-0088 are implemented and merged for the first-wave mesh surface:
    platform PR #149 closed platform evidence, gateway PR #136 merged the publication/trust API
    surface, and Workbench PR #97 merged the `/data-products` discovery UI.
+7. RFC-0089 is implemented for first-wave mesh certification enforcement:
+   `automation/mesh_certification_gate.py` composes the domain-product catalog, source manifest,
+   RFC-0087 telemetry validation, live trust certification, gateway publication drift checks, and
+   Workbench gateway/BFF-only consumption checks. Platform CI runs an advisory gate smoke through
+   `automation/Invoke-PlatformRepoChecks.ps1`; local blocking proof with sibling repositories uses
+   `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`.
 
 For RFC governance:
 

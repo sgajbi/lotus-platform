@@ -18,6 +18,8 @@
 - [RFC-0072](../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
 - [RFC-0073](../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
 - [RFC-0074](../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
+- [RFC-0089](../rfcs/RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md)
+  mesh certification merge gate and operational trust enforcement
 
 ## Local meaning
 
@@ -25,3 +27,5 @@
 - RFC-0072 governs lane structure and validation expectations
 - RFC-0073 governs the central context system and operating contract
 - RFC-0074 governs onboarding, bootstrap, and skill distribution posture
+- RFC-0089 governs the first-wave mesh certification gate, operator artifacts, and
+  fix-forward workflow for trust telemetry, gateway publication, and Workbench discovery drift
