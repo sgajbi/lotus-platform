@@ -307,7 +307,8 @@ That review must check:
 1. whether telemetry is truthful rather than decorative,
 2. whether route-local trust logic can be simplified or removed,
 3. whether certification artifacts are stronger than prior ad hoc evidence,
-4. whether any repeated lesson should become durable context or skill guidance.
+4. whether any repeated lesson should become durable context or skill guidance,
+5. whether the slice left the changed repos cleaner and more maintainable than before.
 
 ## Rollout and Backward Compatibility
 
@@ -317,36 +318,71 @@ That review must check:
 2. classify which are declarative only versus runtime-backed,
 3. identify first-wave certification targets.
 
+Exit gate:
+
+1. the first-wave certification targets are explicit,
+2. current trust signals are classified truthfully rather than optimistically.
+
 ### Slice 1: Platform trust telemetry schema and validator
 
 1. add trust telemetry schemas,
 2. add validation automation,
 3. add contract tests for telemetry semantics.
 
+Exit gate:
+
+1. telemetry contracts are machine-validated,
+2. semantics are consistent with the governed trust vocabulary.
+
 ### Slice 2: First-wave repo telemetry emission
 
 1. add telemetry emission in the first-wave producer and consumer repos,
 2. align emitted signals to governed trust vocabulary.
+
+Exit gate:
+
+1. participating repos emit governed telemetry rather than repo-specific ad hoc status payloads,
+2. emission is test-backed in the participating repos.
 
 ### Slice 3: Platform trust certification engine
 
 1. implement certification rules,
 2. generate trust certification artifacts.
 
+Exit gate:
+
+1. certification artifacts are generated from governed telemetry,
+2. certification logic is deterministic and test-backed.
+
 ### Slice 4: Gateway certified trust consumption
 
 1. update first-wave gateway route families to consume certified trust artifacts,
 2. retire conflicting route-local trust heuristics where certification exists.
+
+Exit gate:
+
+1. covered route families prefer certified trust posture,
+2. conflicting route-local trust handling is removed or consciously justified.
 
 ### Slice 5: Workbench runtime trust adoption
 
 1. update workbench surfaces to prefer certified trust posture,
 2. add tests for runtime current/partial/stale/blocked states.
 
+Exit gate:
+
+1. covered workbench surfaces render runtime-backed trust states truthfully,
+2. tests prove the important degraded-state paths.
+
 ### Slice 6: Certification lane integration
 
 1. add platform validation and merge-gate checks for trust telemetry and certification,
 2. make trust certification drift CI-visible.
+
+Exit gate:
+
+1. trust certification drift is visible in platform validation,
+2. lane behavior is truthful about what is enforced versus what is only reported.
 
 ### Slice 7: Code Review, API Certification, and Governance Tightening
 
@@ -355,7 +391,14 @@ This slice is mandatory.
 1. review telemetry emission, certification logic, and gateway/workbench trust handling for loose
    ends and duplicate logic,
 2. confirm API publication and trust certification follow the certification pattern,
-3. tighten platform governance and remove stale shortcuts where safe.
+3. tighten platform governance and remove stale shortcuts where safe,
+4. remove or retire route-local trust logic, stale evidence branches, and temporary certification
+   shortcuts where the new plane is already authoritative.
+
+Exit gate:
+
+1. no completed first-wave route family is left with avoidable duplicate trust logic,
+2. API certification and platform governance expectations are satisfied across the wave.
 
 ### Slice 8: Documentation, Agent Context, Wiki Update, Skills Review, and Branch Hygiene
 
@@ -365,7 +408,17 @@ This slice is mandatory.
 2. update wiki and operator-facing discovery of certification artifacts,
 3. consciously assess whether skills or routing guidance should change for telemetry and trust
    certification work,
-4. complete branch hygiene truthfully.
+4. identify documentation or context that should be added to improve future telemetry and
+   certification work,
+5. identify documentation or context that should be removed because it would become stale or
+   misleading after rollout,
+6. complete branch hygiene truthfully.
+
+Exit gate:
+
+1. any keep, tighten, add, remove, or no-change decisions for skills and context are explicit,
+2. future agents can discover the trust certification plane quickly,
+3. no branch or context debt is left behind.
 
 ## Validation and Evidence Model
 
@@ -393,6 +446,8 @@ Required proof for implementation under this RFC:
 2. no context files are changed until durable artifact paths and commands exist,
 3. no existing docs are removed until runtime certification is implemented.
 
+That no-change posture at the draft stage is intentional rather than accidental.
+
 ## Risks and Mitigations
 
 ### Risk: Telemetry is noisy but not trustworthy
@@ -417,7 +472,9 @@ This RFC is complete only when:
 2. `lotus-platform` produces certified trust artifacts from runtime telemetry,
 3. gateway consumes certified trust posture for covered route families,
 4. workbench surfaces covered by the first wave render runtime-backed trust states,
-5. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
+5. duplicate route-local trust logic is removed or explicitly justified where certification is now
+   authoritative,
+6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
 
 ## Non-Goals
 
