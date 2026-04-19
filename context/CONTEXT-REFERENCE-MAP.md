@@ -74,6 +74,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 12. `../automation/validate_trust_telemetry.py`
     Validates product trust telemetry snapshots against the generated product catalog and governed
     trust vocabulary before certification logic consumes them.
+13. `../automation/generate_live_trust_certification.py`
+    Generates deterministic RFC-0087 live trust certification artifacts from validated telemetry
+    snapshots.
 
 ## Task Routing
 

@@ -269,6 +269,11 @@ Implementation evidence now includes:
 4. `tests/unit/test_trust_telemetry_contracts.py`
    Covers valid telemetry, unknown products, ungoverned trust states, unsupported validation lanes,
    undeclared observed metadata, and blocked snapshots without reasons.
+5. `automation/generate_live_trust_certification.py`
+   Generates deterministic live trust certification artifacts from validated telemetry snapshots.
+6. `tests/unit/test_live_trust_certification.py`
+   Covers certified snapshots, stale/blocked/invalid snapshots, and generated JSON/Markdown live
+   certification reports.
 
 Telemetry should cover at least:
 
