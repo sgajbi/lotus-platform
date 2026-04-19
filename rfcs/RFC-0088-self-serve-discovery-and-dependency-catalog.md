@@ -272,7 +272,8 @@ That review must check:
 1. whether generated outputs remain source-driven and truthful,
 2. whether duplicate manual discovery prose can be removed or reduced,
 3. whether future agents will be able to use the outputs directly,
-4. whether any repeated discovery lesson should become durable context or skill guidance.
+4. whether any repeated discovery lesson should become durable context or skill guidance,
+5. whether the slice left the discovery surface cleaner and easier to maintain than before.
 
 ## Rollout and Backward Compatibility
 
@@ -282,36 +283,73 @@ That review must check:
 2. identify which generated outputs are needed first,
 3. classify which existing docs should later link to generated discovery instead of duplicating it.
 
+Exit gate:
+
+1. source inputs for the first-wave generated artifacts are explicit,
+2. existing manual discovery docs are classified as durable, transitional, or removable.
+
 ### Slice 1: Catalog and graph schema design
 
 1. define generated artifact shapes,
 2. define graph-friendly export formats,
 3. add generator validation tests.
 
+Exit gate:
+
+1. generated artifact shapes are explicit and test-backed,
+2. graph exports are sufficient for both human and automation use in the first wave.
+
 ### Slice 2: First generated catalog outputs
 
 1. generate the first product catalog from governed inputs,
 2. generate the first dependency graph artifact.
+
+Exit gate:
+
+1. generated outputs are produced from real governed inputs,
+2. the first-wave catalog and graph answer core ownership and dependency questions truthfully.
 
 ### Slice 3: Context and onboarding integration
 
 1. link context and onboarding docs to the generated discovery surfaces,
 2. update reference maps to make the generated artifacts easy to find.
 
+Exit gate:
+
+1. context and onboarding no longer require avoidable manual repo archaeology for common discovery
+   questions,
+2. generated outputs are discoverable from the normal Lotus reading path.
+
 ### Slice 4: Publication and consumer visibility integration
 
 1. extend the catalog to show gateway publication families where applicable,
 2. connect product, consumer, and publication relationships in the generated view.
+
+Exit gate:
+
+1. generated outputs can connect domain products to consumer and publication posture where
+   applicable,
+2. publication visibility is source-driven rather than manually narrated.
 
 ### Slice 5: Discovery UX and automation hardening
 
 1. improve generated artifact readability and machine-utility,
 2. add tests and validation for drift and regeneration.
 
+Exit gate:
+
+1. generated outputs are both readable and automation-friendly,
+2. drift and regeneration are test-backed.
+
 ### Slice 6: Agent and operator readiness hardening
 
 1. confirm the generated catalog supports the most common discovery questions,
 2. reduce manual repo-archeology requirements in docs and procedures.
+
+Exit gate:
+
+1. common ownership and dependency questions are answerable from the generated plane,
+2. operator and agent discovery paths are materially simpler than before.
 
 ### Slice 7: Code Review, Governance Tightening, and Loose-End Closure
 
@@ -320,7 +358,14 @@ This slice is mandatory.
 1. review generation logic, drift checks, and context integration for loose ends and duplicated
    discovery prose,
 2. tighten governance so generated discovery remains the stronger truth source,
-3. confirm the discovery and dependency catalog follows the platform certification pattern.
+3. confirm the discovery and dependency catalog follows the platform certification pattern,
+4. remove or retire duplicated manual discovery prose and transitional shortcuts where generated
+   discovery is already authoritative.
+
+Exit gate:
+
+1. no completed discovery surface is left with avoidable duplicate manual truth,
+2. platform governance and certification expectations are satisfied across the discovery plane.
 
 ### Slice 8: Documentation, Agent Context, Wiki Update, Skills Review, and Branch Hygiene
 
@@ -331,7 +376,14 @@ This slice is mandatory.
    dependency-discovery work,
 3. identify anything that should be added or removed from the context/docs to support future agent
    effectiveness,
-4. complete branch hygiene truthfully.
+4. make any keep, tighten, add, remove, or no-change decisions for discovery guidance explicit,
+5. complete branch hygiene truthfully.
+
+Exit gate:
+
+1. future agents can discover the generated discovery plane quickly,
+2. any no-change decision for skills or context is explicit rather than omitted,
+3. no branch or context debt is left behind.
 
 ## Validation and Evidence Model
 
@@ -359,6 +411,8 @@ Required proof for implementation under this RFC:
 2. no context files are changed until generated artifact paths are implemented,
 3. no manual discovery docs are removed until generated outputs are proven sufficient.
 
+That no-change posture at the draft stage is intentional rather than accidental.
+
 ## Risks and Mitigations
 
 ### Risk: Generated catalog becomes another stale artifact
@@ -383,7 +437,9 @@ This RFC is complete only when:
 2. Lotus can generate a dependency graph from governed inputs,
 3. context and onboarding surfaces point to the generated discovery plane,
 4. common ownership and dependency questions are answerable without manual multi-repo archaeology,
-5. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
+5. duplicated manual discovery truth is removed or explicitly justified where generated discovery is
+   authoritative,
+6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
 
 ## Non-Goals
 
