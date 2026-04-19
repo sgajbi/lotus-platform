@@ -178,6 +178,21 @@ def build_live_trust_certification_report(
 ) -> dict[str, Any]:
     context = _load_validation_context(catalog_path=catalog_path)
     telemetry_paths = _iter_telemetry_paths(telemetry_path)
+    return build_live_trust_certification_report_from_paths(
+        telemetry_paths,
+        source_telemetry_path=telemetry_path.as_posix(),
+        generated_at_utc=generated_at_utc,
+        context=context,
+    )
+
+
+def build_live_trust_certification_report_from_paths(
+    telemetry_paths: list[Path],
+    *,
+    source_telemetry_path: str,
+    generated_at_utc: str,
+    context: dict[str, Any],
+) -> dict[str, Any]:
     certifications: list[dict[str, Any]] = []
     issues: list[dict[str, str]] = []
 
@@ -196,7 +211,7 @@ def build_live_trust_certification_report(
         "contract_version": "1.0.0",
         "governed_by_rfcs": ["RFC-0087"],
         "generated_at_utc": generated_at_utc,
-        "source_telemetry_path": telemetry_path.as_posix(),
+        "source_telemetry_path": source_telemetry_path,
         "summary": {
             "certification_state": _certification_state(issues),
             "telemetry_snapshot_count": len(telemetry_paths),
