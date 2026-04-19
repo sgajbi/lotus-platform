@@ -144,6 +144,47 @@ The gate will:
 5. verify gateway and Workbench publication/consumption posture at the contract level,
 6. publish human-readable and machine-readable operator status artifacts.
 
+### First-wave required certification set
+
+RFC-0089 does not make every catalog product blocking on day one. The blocking gate applies to the
+first-wave products that already have live telemetry snapshots and are part of the current
+end-to-end proof:
+
+| Product id | Producer repository | Required evidence | Blocking posture |
+| --- | --- | --- | --- |
+| `lotus-core:PortfolioStateSnapshot:v1` | `lotus-core` | repo-native declaration; telemetry snapshot; live trust certification | Required |
+| `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | repo-native declaration; telemetry snapshot; live trust certification | Required |
+| `lotus-risk:RiskMetricsReport:v1` | `lotus-risk` | repo-native declaration; telemetry snapshot; live trust certification | Required |
+| `lotus-advise:AdvisoryProposalLifecycleRecord:v1` | `lotus-advise` | repo-native declaration; telemetry snapshot; live trust certification | Required |
+
+The gate may report advisory findings for the broader generated catalog, but it must not fail a PR
+for products outside this first-wave set until those products are deliberately promoted into the
+blocking certification set.
+
+### Gate input contract
+
+The implementation should treat these inputs as authoritative:
+
+1. source manifest:
+   `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json`,
+2. generated catalog:
+   `generated/domain-product-catalog.json`,
+3. generated dependency graph:
+   `generated/domain-product-dependency-graph.json`,
+4. trust telemetry contract:
+   `platform-contracts/trust-telemetry/`,
+5. first-wave telemetry snapshots from sibling repositories:
+   `../lotus-core/contracts/trust-telemetry/`,
+   `../lotus-performance/contracts/trust-telemetry/`,
+   `../lotus-risk/contracts/trust-telemetry/`, and
+   `../lotus-advise/contracts/trust-telemetry/`,
+6. live trust certification output from `automation/generate_live_trust_certification.py`,
+7. gateway publication evidence from the domain-product route family,
+8. Workbench consumption evidence from the `/data-products` gateway/BFF-only surface.
+
+The gate must compose existing validators and generators where possible. It should not reimplement
+domain-product declaration parsing, trust telemetry schema validation, or live certification logic.
+
 ### Public artifacts
 
 Recommended generated outputs:
@@ -166,6 +207,25 @@ The status artifact should include:
 10. issue list grouped by producer repository and product id,
 11. source artifact paths,
 12. validation lane and gate mode.
+
+### Operator status schema floor
+
+The JSON operator status artifact should have a stable minimum shape:
+
+| Field | Purpose |
+| --- | --- |
+| `contract_id` | Stable artifact family id, expected to be `lotus-mesh-certification-status` |
+| `contract_version` | Status artifact schema version |
+| `generated_at_utc` | Deterministic generation timestamp |
+| `gate_mode` | `advisory` or `blocking` |
+| `certification_state` | Overall state: `certified`, `certified_with_warnings`, or `failed` |
+| `required_products` | First-wave blocking product set with producer repository and certification state |
+| `summary` | Product and issue counts by severity and category |
+| `issues` | Stable issue list using the RFC-0089 taxonomy |
+| `source_artifacts` | Paths to the manifest, catalog, graph, telemetry inputs, and live trust artifacts |
+
+The Markdown artifact should be generated from the same in-memory result as the JSON artifact so the
+human-readable and machine-readable views cannot drift.
 
 ### Gate modes
 
@@ -203,6 +263,31 @@ Each issue must carry:
 4. remediation summary,
 5. source evidence path.
 
+Severity semantics:
+
+1. `error`
+   Fails blocking mode.
+2. `warning`
+   Does not fail advisory mode and should not fail blocking mode unless attached to a required
+   first-wave product rule that explicitly promotes it.
+3. `info`
+   Records non-blocking context such as products outside the first-wave blocking set.
+
+### Cross-repo boundary rules
+
+The platform gate must keep ownership boundaries clean:
+
+1. producer repositories own telemetry snapshots and product truth,
+2. `lotus-platform` owns the certification gate, issue taxonomy, and operator artifacts,
+3. `lotus-gateway` owns API publication and must not become the product registry,
+4. `lotus-workbench` owns presentation and must consume gateway/BFF APIs only,
+5. the platform gate may inspect contract evidence in sibling repos, but it must not write into
+   those repos.
+
+Gateway and Workbench drift checks should be contract-presence checks, not duplicate test suites.
+If deeper behavioral proof is needed, the gate should call repo-native tests or require PR evidence
+rather than reimplementing those services inside `lotus-platform`.
+
 ### CI integration
 
 The platform Feature Lane should run a fast check over checked-in fixtures and generated artifact
@@ -227,12 +312,15 @@ complexity would make the first implementation brittle.
 
 1. define the gate contract and issue taxonomy,
 2. identify first-wave required product ids and repositories,
-3. document advisory versus blocking behavior.
+3. document advisory versus blocking behavior,
+4. lock the operator status schema floor,
+5. document the explicit non-blocking catalog products that remain advisory-only.
 
 Exit gate:
 
 1. required product set is explicit,
-2. gate failure semantics are clear.
+2. gate failure semantics are clear,
+3. schema and issue-code stability are test-protected.
 
 ### Slice 1: Platform Mesh Certification Gate
 
@@ -240,29 +328,35 @@ Exit gate:
    validation, and live certification generation as one gate,
 2. add blocking/advisory mode,
 3. add issue classification and exit-code behavior,
-4. add high-value unit tests for certified, stale, blocked, missing, and invalid telemetry paths.
+4. add high-value unit tests for certified, stale, blocked, missing, and invalid telemetry paths,
+5. keep the implementation modular: input discovery, validation orchestration, issue
+   classification, status rendering, and CLI exit behavior should be separately testable.
 
 Exit gate:
 
 1. the gate can certify the current first-wave mesh,
-2. meaningful failures produce actionable issue codes and remediation text.
+2. meaningful failures produce actionable issue codes and remediation text,
+3. implementation code does not duplicate existing validators.
 
 ### Slice 2: Operator Status Artifacts
 
 1. generate machine-readable and Markdown status artifacts,
 2. summarize product, producer, issue, and timestamp posture,
-3. include source artifact provenance.
+3. include source artifact provenance,
+4. make JSON the canonical generated status artifact and Markdown a rendered view.
 
 Exit gate:
 
 1. an operator can tell whether the mesh is certified without reading raw telemetry snapshots,
-2. automation can consume the JSON status deterministically.
+2. automation can consume the JSON status deterministically,
+3. JSON and Markdown status agree in tests.
 
 ### Slice 3: CI And Path-Based Enforcement
 
 1. wire the gate into platform validation commands,
 2. add GitHub workflow integration for relevant path changes,
-3. document which lane is advisory and which lane is blocking.
+3. document which lane is advisory and which lane is blocking,
+4. update local and CI command evidence so failure modes are reproducible outside GitHub.
 
 Exit gate:
 
@@ -275,7 +369,8 @@ Exit gate:
 2. verify OpenAPI or contract evidence for catalog, detail, dependency graph, and trust
    certification endpoints,
 3. avoid duplicating gateway tests; the platform check should verify publication presence and
-   contract discoverability.
+   contract discoverability,
+4. fail with `gateway_publication_drift` only when expected contract evidence is missing or stale.
 
 Exit gate:
 
@@ -286,7 +381,9 @@ Exit gate:
 
 1. add a platform-level check that Workbench `/data-products` exists,
 2. verify Workbench uses BFF/gateway discovery APIs rather than platform files,
-3. ensure degraded trust states remain tested in Workbench.
+3. ensure degraded trust states remain tested in Workbench,
+4. fail with `workbench_consumption_drift` when platform-file coupling or missing discovery surface
+   is detected.
 
 Exit gate:
 
@@ -373,6 +470,20 @@ RFC-0089 is complete when:
 4. operator status artifacts are generated and documented,
 5. CI integration makes mesh certification drift visible,
 6. Slice 7 and Slice 8 are completed according to `RFC-GOVERNANCE-STANDARD.md`.
+
+## Evidence Required Before Marking Implemented
+
+The implementation PR must include or link:
+
+1. local targeted unit test output for the mesh certification gate,
+2. platform Feature Lane output,
+3. platform PR Merge Gate output,
+4. a successful blocking-mode run over the current first-wave telemetry snapshots,
+5. generated operator status JSON and Markdown paths,
+6. gateway publication drift-check evidence,
+7. Workbench consumption drift-check evidence,
+8. Slice 7 review notes showing API certification and platform-governance decisions,
+9. Slice 8 documentation/context/wiki/skills/branch-hygiene notes.
 
 ## Non-Goals
 
