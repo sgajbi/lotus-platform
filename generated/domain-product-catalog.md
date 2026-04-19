@@ -3,14 +3,15 @@
 This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
-- Source declaration directory: `platform-contracts/domain-data-products`
-- Product count: `22`
-- Dependency count: `12`
+- Source declaration directory: `federated:domain-product-source-manifest`
+- Product count: `23`
+- Dependency count: `17`
 
 ## Products
 
 | Product | Producer | Version | Family | Lifecycle | Approved Consumers | Routes |
 | --- | --- | --- | --- | --- | --- | --- |
+| `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway | /advisory/proposals/{proposal_id}, /advisory/proposals/{proposal_id}/versions/{version_no}, /advisory/proposals/{proposal_id}/timeline, /advisory/proposals/{proposal_id}/approvals |
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report | /integration/portfolios/{portfolio_id}/benchmark-assignment |
 | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/composition-window |
 | `DataQualityCoverageReport` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-manage | /integration/benchmarks/{benchmark_id}/coverage, /integration/reference/risk-free-series/coverage |
@@ -38,12 +39,17 @@ This file is generated from governed domain-data-product declarations.
 
 | Consumer | Upstream Product | Producer | Version | Mode | Failure Posture |
 | --- | --- | --- | --- | --- | --- |
+| `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
+| `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-report` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
+| `lotus-report` | `TransactionLedgerWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-risk` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-risk` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-risk` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` |

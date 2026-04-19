@@ -68,28 +68,33 @@ Assessment:
 
 Lotus has a real control plane. The remaining problem is ownership locality and rollout breadth.
 
-#### 2. First-wave declarations already prove the pattern
+#### 2. Repo-native declarations now prove the pattern
 
 Evidence:
 
-1. `platform-contracts/domain-data-products/lotus-core-products.v1.json`
-2. `platform-contracts/domain-data-products/lotus-performance-products.v1.json`
-3. `platform-contracts/domain-data-products/lotus-performance-consumers.v1.json`
-4. `platform-contracts/domain-data-products/lotus-risk-products.v1.json`
-5. `platform-contracts/domain-data-products/lotus-risk-consumers.v1.json`
+1. `lotus-core/contracts/domain-data-products/lotus-core-products.v1.json`
+2. `lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json`
+3. `lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json`
+4. `lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json`
+5. `lotus-risk/contracts/domain-data-products/lotus-risk-consumers.v1.json`
+6. `lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json`
+7. `lotus-advise/contracts/domain-data-products/lotus-advise-consumers.v1.json`
+8. `lotus-report/contracts/domain-data-products/lotus-report-consumers.v1.json`
+9. `lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json`
 
 Assessment:
 
-The declaration model is not hypothetical. It already models real producers and consumers.
+The declaration model is not hypothetical. It now models real producers and consumers in the
+owning repositories for the current rollout wave.
 
 #### 3. Some repo-local evidence already exists outside the platform repo
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
-2. `C:/Users/Sandeep/projects/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
-3. `C:/Users/Sandeep/projects/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
-4. `C:/Users/Sandeep/projects/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
+1. `lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
+2. `lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
+3. `lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
+4. `lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
 
 Assessment:
 
@@ -97,30 +102,33 @@ There is already repo-local knowledge about product and dependency posture. RFC-
 that into repo-native machine-readable declarations instead of keeping it mostly in docs or only in
 `lotus-platform`.
 
-### What is only partially implemented
+### What is now implemented in platform aggregation
 
-1. product truth is federated conceptually but not yet in declaration ownership,
-2. first-wave rollout covers only part of the ecosystem,
-3. platform validation exists, but repo-native onboarding templates and local checks do not yet
-   exist,
-4. wider consumer declarations remain incomplete outside the current first wave.
+1. the standard repo-native declaration location is `contracts/domain-data-products`,
+2. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json` records included
+   repo-native sources,
+3. `automation/generate_domain_product_discovery.py` loads included declarations from sibling
+   repositories and validates them as one federated source set before writing generated artifacts,
+4. `generated/domain-product-catalog.json`, `generated/domain-product-dependency-graph.json`, and
+   `generated/domain-product-certification-report.json` are generated from the federated set,
+5. `lotus-manage`, `lotus-advise`, and `lotus-report` are included in the current generated catalog
+   and certification report.
 
-### What is not yet implemented
+### What remains partially implemented
 
-1. no standard repo-native declaration location across the domain repos,
-2. no platform-supported aggregation flow that discovers declarations from each repo as native
-   source files,
-3. no broader domain onboarding for `lotus-manage`, `lotus-advise`, `lotus-report`, and `lotus-ai`,
-4. no standardized onboarding templates or repo-native validation entrypoints for declaration
-   maintenance.
+1. `lotus-ai` domain-product guidance and consumer posture still needs a settled repo-native slice,
+2. transitional platform mirror declarations are still retained as compatibility evidence and should
+   be reviewed for removal or explicit retention in the closure slice,
+3. repo-native validation entrypoints are present in participating work but still need final
+   cross-repo governance sign-off before the RFC is marked implemented.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0086 response |
 | --- | --- | --- | --- |
-| Move from platform-only proof to federated ownership | First-wave declarations exist only in `lotus-platform` | Partially satisfied | Move declarations into owning repos and make platform the validator and aggregator |
-| Broaden rollout beyond the first wave | Current first wave covers `lotus-core`, `lotus-performance`, and `lotus-risk` | Not yet satisfied | Onboard `lotus-manage`, `lotus-advise`, `lotus-report`, and `lotus-ai` |
-| Make onboarding repeatable rather than centrally handcrafted | Schemas and validator exist, but no repo-native template flow exists | Not yet satisfied | Add templates, repo-native layout guidance, and platform aggregation rules |
+| Move from platform-only proof to federated ownership | Repo-native declarations exist in the current rollout repositories and platform aggregation reads them | Mostly satisfied | Keep platform as validator and aggregator; complete closure review |
+| Broaden rollout beyond the first wave | Current generated catalog includes `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-report`, and `lotus-manage` | Mostly satisfied | Complete `lotus-ai` posture or consciously mark it out of the RFC-0086 producer/consumer wave |
+| Make onboarding repeatable rather than centrally handcrafted | Source manifest plus federated generator now define the repeatable path | Partially satisfied | Finish repo-local command/docs sign-off and closure review |
 | Keep work parallelizable across repos | Current model is technically cross-repo but not yet structured for independent repo implementation | Partially satisfied | Define per-repo rollout slices and shared validator expectations |
 | Preserve strong closure discipline | User requested same quality posture as RFC-0084 and RFC-0085 | Not yet satisfied before this pass | Include mandatory Slice 7 and Slice 8 plus a mandatory slice review gate |
 

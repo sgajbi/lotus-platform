@@ -257,8 +257,8 @@ Reviewed evidence includes:
 Implementation evidence now includes:
 
 1. `automation/generate_domain_product_discovery.py`
-   Generates the platform-owned domain-product catalog and dependency graph from governed
-   declarations.
+   Generates the platform-owned domain-product catalog and dependency graph from the governed
+   source manifest, including repo-native declarations in sibling Lotus repositories.
 2. `generated/domain-product-catalog.json`
    Machine-readable product discovery artifact.
 3. `generated/domain-product-dependency-graph.json`
@@ -268,8 +268,9 @@ Implementation evidence now includes:
 5. `tests/unit/test_domain_product_discovery_generator.py`
    Covers catalog generation, graph generation, output writing, and checked-in artifact drift.
 6. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json`
-   Records the governed platform-mirror versus repo-native source posture used by discovery
-   generation while active branches in adjacent repositories settle.
+   Records the governed source posture used by discovery generation. The current included rollout
+   wave uses repo-native sources for `lotus-core`, `lotus-performance`, `lotus-risk`,
+   `lotus-advise`, `lotus-report`, and `lotus-manage`.
 
 ## Original Acceptance Criteria Alignment
 

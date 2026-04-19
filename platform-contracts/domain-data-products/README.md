@@ -74,18 +74,17 @@ Generated discovery artifacts:
 Source manifest:
 
 1. `domain-product-source-manifest.v1.json`
-   Governed aggregation-source manifest that records which repositories are included from the
-   platform mirror today, which repositories already have repo-native declarations, and which
-   repositories are waiting for clean-slate confirmation before federated aggregation is enabled.
+   Governed aggregation-source manifest that records which repositories are included from
+   repo-native declarations and which, if any, still require temporary platform mirrors.
 
 Contract-family rules:
 
-1. producer declarations live with the platform contract family rather than under `context/contracts/`,
+1. producer declarations live in the owning repository once repo-native rollout is complete,
 2. producer declarations are repo-owned in content but platform-owned in schema and validation,
 3. consumer declarations must remain explicit, version-aware, and trust-metadata-aware,
 4. this contract family governs ownership, lifecycle, trust metadata, and dependency posture rather
    than runtime/demo-only contracts.
 5. generated discovery artifacts must be regenerated from this contract family rather than edited
    by hand.
-6. the source manifest must make temporary platform-mirror usage explicit while repo-native
-   aggregation is being staged.
+6. the source manifest must make temporary platform-mirror usage explicit; included repo-native
+   sources are validated together before catalog, graph, and certification artifacts are generated.

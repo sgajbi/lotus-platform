@@ -68,12 +68,11 @@ def test_domain_product_certification_report_certifies_current_catalog_and_graph
         "lotus-core",
         "lotus-performance",
         "lotus-risk",
-    ]
-    assert report["source_manifest_posture"]["pending_repositories"] == [
         "lotus-advise",
         "lotus-report",
         "lotus-manage",
     ]
+    assert report["source_manifest_posture"]["pending_repositories"] == []
 
 
 def test_domain_product_certification_report_checks_consumer_producer_reciprocity() -> (
@@ -141,7 +140,12 @@ def test_domain_product_certification_report_markdown_is_customer_readable() -> 
     assert "# Lotus Domain Product Certification Report" in markdown
     assert "Certification state: `certified`" in markdown
     assert "| `ReturnsSeriesBundle` | `lotus-performance` | `certified` |" in markdown
+    assert (
+        "| `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `certified` |"
+        in markdown
+    )
     assert "| `lotus-risk` | `certified` | `6` | `0` |" in markdown
+    assert "| `lotus-report` | `certified` | `2` | `0` |" in markdown
 
 
 def test_checked_in_domain_product_certification_outputs_are_current(

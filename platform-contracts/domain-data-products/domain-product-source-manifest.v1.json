@@ -6,69 +6,61 @@
     "RFC-0086",
     "RFC-0088"
   ],
-  "description": "Governed source manifest for domain-product declaration aggregation. Platform mirror sources are used until repo-native sources are promoted through a dedicated federated aggregation slice.",
+  "description": "Governed source manifest for domain-product declaration aggregation. Included repositories are read from repo-native declaration files in sibling Lotus repositories; platform mirrors are reserved only for repositories that have not yet completed repo-native rollout.",
   "repositories": [
     {
       "repository": "lotus-core",
-      "source_mode": "platform_contract_mirror",
+      "source_mode": "repo_native",
       "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
-      "platform_declaration_paths": [
-        "platform-contracts/domain-data-products/lotus-core-products.v1.json"
-      ],
-      "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+      "platform_declaration_paths": [],
+      "notes": "Repo-native declarations are merged and included through federated aggregation."
     },
     {
       "repository": "lotus-performance",
-      "source_mode": "platform_contract_mirror",
+      "source_mode": "repo_native",
       "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
-      "platform_declaration_paths": [
-        "platform-contracts/domain-data-products/lotus-performance-products.v1.json",
-        "platform-contracts/domain-data-products/lotus-performance-consumers.v1.json"
-      ],
-      "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+      "platform_declaration_paths": [],
+      "notes": "Repo-native producer and consumer declarations are merged and included through federated aggregation."
     },
     {
       "repository": "lotus-risk",
-      "source_mode": "platform_contract_mirror",
+      "source_mode": "repo_native",
       "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
-      "platform_declaration_paths": [
-        "platform-contracts/domain-data-products/lotus-risk-products.v1.json",
-        "platform-contracts/domain-data-products/lotus-risk-consumers.v1.json"
-      ],
-      "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+      "platform_declaration_paths": [],
+      "notes": "Repo-native producer and consumer declarations are merged and included through federated aggregation."
     },
     {
       "repository": "lotus-advise",
-      "source_mode": "repo_native_pending_platform_mirror",
-      "catalog_inclusion": "pending_platform_declaration",
+      "source_mode": "repo_native",
+      "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
       "platform_declaration_paths": [],
-      "notes": "Repo-native declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+      "notes": "Repo-native advisory producer and consumer declarations are merged and included through federated aggregation."
     },
     {
       "repository": "lotus-report",
-      "source_mode": "repo_native_pending_platform_mirror",
-      "catalog_inclusion": "pending_platform_declaration",
+      "source_mode": "repo_native",
+      "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
       "platform_declaration_paths": [],
-      "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+      "notes": "Repo-native reporting consumer declarations are merged and included through federated aggregation."
     },
     {
       "repository": "lotus-manage",
-      "source_mode": "repo_native_pending_platform_mirror",
-      "catalog_inclusion": "pending_platform_declaration",
+      "source_mode": "repo_native",
+      "catalog_inclusion": "included",
       "repo_native_status": "implemented",
       "repo_native_declaration_path": "contracts/domain-data-products",
       "platform_declaration_paths": [],
-      "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+      "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
     }
   ]
 }

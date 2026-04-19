@@ -83,12 +83,14 @@ Boundary rules:
 6. generated domain-product discovery artifacts are derived platform outputs and should not redefine
    ownership or dependency truth by hand.
 7. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json` records which
-   repositories are currently cataloged from platform mirrors versus waiting for repo-native
-   aggregation from settled sibling branches.
-8. `automation/query_domain_product_discovery.py` is the platform-owned self-serve query surface
+   repositories are included from repo-native sibling declarations and which, if any, still need
+   temporary platform mirrors.
+8. `automation/generate_domain_product_discovery.py` validates the included repo-native declaration
+   set as one federated source before writing generated catalog and graph artifacts.
+9. `automation/query_domain_product_discovery.py` is the platform-owned self-serve query surface
    for generated catalog and graph artifacts; it must remain read-only and must not replace contract
    validation or gateway-facing discovery APIs.
-9. `generated/domain-product-certification-report.json` and `.md` are derived RFC-0087 trust
+10. `generated/domain-product-certification-report.json` and `.md` are derived RFC-0087 trust
    certification artifacts over the generated catalog and dependency graph.
 
 ## Repo-Native Commands
