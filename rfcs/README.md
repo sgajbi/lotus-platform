@@ -125,6 +125,8 @@ Reference baseline:
 - `RFC-0084-mesh-governance.md`
 - `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`
 - `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`
+- `RFC-0087-live-trust-telemetry-and-certification-plane.md`
+- `RFC-0088-self-serve-discovery-and-dependency-catalog.md`
 
 
 
