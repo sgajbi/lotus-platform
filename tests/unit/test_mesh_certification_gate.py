@@ -172,6 +172,63 @@ def test_mesh_certification_gate_blocks_missing_and_stale_required_products(
     assert gate._exit_code(status) == 1
 
 
+def test_mesh_certification_gate_reports_invalid_json_snapshot(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    invalid_path = tmp_path / "invalid-telemetry.json"
+    invalid_path.write_text("{not-json", encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=[*telemetry_paths, invalid_path],
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert any(issue["code"] == "invalid_telemetry" for issue in status["issues"])
+    assert gate._exit_code(status) == 1
+
+
+def test_mesh_certification_gate_reports_dependency_graph_drift(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    graph_path = tmp_path / "domain-product-dependency-graph.json"
+    graph_path.write_text(
+        json.dumps(
+            {
+                "contract_id": "lotus-domain-product-dependency-graph",
+                "contract_version": "1.0.0",
+                "nodes": [],
+                "edges": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        dependency_graph_path=graph_path,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    catalog_drift_issues = [
+        issue for issue in status["issues"] if issue["code"] == "catalog_drift"
+    ]
+    assert status["certification_state"] == "failed"
+    assert len(catalog_drift_issues) == len(gate.REQUIRED_PRODUCTS)
+    assert all(
+        "dependency graph" in issue["remediation"]
+        for issue in catalog_drift_issues
+    )
+
+
 def test_mesh_certification_gate_advisory_mode_reports_without_blocking(
     tmp_path: Path,
 ) -> None:

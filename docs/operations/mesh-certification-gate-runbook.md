@@ -76,7 +76,7 @@ the blocking certification set.
 | `reconciliation_attention_required` | Reconciliation is stale, unreconciled, break-open, or unknown. | Fix reconciliation evidence or keep the gate blocked. |
 | `data_quality_attention_required` | Data quality failed, blocked, or unknown. | Fix data-quality evidence before marking the product certified. |
 | `lineage_not_materialized` | Required lineage evidence is not materialized. | Materialize lineage evidence or document why the product cannot be certified. |
-| `catalog_drift` | Required product identity or source-manifest posture drifted. | Regenerate discovery artifacts or restore the repo-native declaration/source manifest. |
+| `catalog_drift` | Required product identity, source-manifest posture, or dependency-graph posture drifted. | Regenerate discovery artifacts or restore the repo-native declaration/source manifest. |
 | `gateway_publication_drift` | Gateway no longer exposes the required discovery/trust route family. | Restore the gateway route/contract evidence and run gateway repo-native tests. |
 | `workbench_consumption_drift` | Workbench discovery is missing or bypasses gateway/BFF. | Restore `/data-products` and gateway/BFF-only consumption. |
 
