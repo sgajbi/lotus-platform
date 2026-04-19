@@ -114,7 +114,15 @@
       "properties": {
         "default_status": {
           "type": "string",
-          "enum": ["complete", "partial", "blocked", "unknown"]
+          "enum": [
+            "complete",
+            "partial",
+            "stale",
+            "unreconciled",
+            "break_open",
+            "blocked",
+            "unknown"
+          ]
         },
         "partial_allowed": { "type": "boolean" }
       }
@@ -122,10 +130,18 @@
     "lineagePolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["lineage_required", "evidence_bundle_required"],
+      "required": ["lineage_required", "evidence_bundle_required", "evidence_access_class_ref"],
       "properties": {
         "lineage_required": { "type": "boolean" },
-        "evidence_bundle_required": { "type": "boolean" }
+        "evidence_bundle_required": { "type": "boolean" },
+        "evidence_access_class_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        },
+        "lineage_bundle_class_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]+$"
+        }
       }
     },
     "deprecationPolicy": {
@@ -145,22 +161,7 @@
     },
     "trustMetadataField": {
       "type": "string",
-      "enum": [
-        "product_name",
-        "product_version",
-        "tenant_id",
-        "generated_at",
-        "as_of_date",
-        "restatement_version",
-        "reconciliation_status",
-        "data_quality_status",
-        "latest_evidence_timestamp",
-        "source_batch_fingerprint",
-        "snapshot_id",
-        "policy_version",
-        "correlation_id",
-        "lineage_bundle_id"
-      ]
+      "pattern": "^[a-z][a-z0-9_]+$"
     },
     "productEntry": {
       "type": "object",

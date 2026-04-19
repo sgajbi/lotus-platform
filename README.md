@@ -183,6 +183,8 @@ Important current platform truths:
    `lotus-core`, `lotus-performance`, and `lotus-risk`
 7. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
    `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
+8. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
+   `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
 
 ## Documentation Map
 

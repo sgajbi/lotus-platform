@@ -24,7 +24,13 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "as_of_date"
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context",
+        "risk_free_context"
       ],
       "current_routes": [
         "/analytics/risk/calculate"
@@ -39,7 +45,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -73,7 +80,12 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "as_of_date"
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context"
       ],
       "current_routes": [
         "/analytics/risk/drawdown"
@@ -88,7 +100,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -122,7 +135,13 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "as_of_date"
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context",
+        "risk_free_context"
       ],
       "current_routes": [
         "/analytics/risk/rolling-metrics"
@@ -137,7 +156,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -171,7 +191,12 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "as_of_date"
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context"
       ],
       "current_routes": [
         "/analytics/risk/historical-attribution"
@@ -186,7 +211,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -223,7 +249,13 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "as_of_date"
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "coverage_ratio",
+        "coverage_status"
       ],
       "current_routes": [
         "/analytics/risk/concentration"
@@ -238,7 +270,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [

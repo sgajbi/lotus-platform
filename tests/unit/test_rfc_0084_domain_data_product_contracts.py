@@ -15,6 +15,9 @@ SLICE_3_EVIDENCE_PATH = ROOT / "rfcs" / "RFC-0084-slice-3-analytics-producer-onb
 SEMANTICS_REGISTRY_PATH = (
     ROOT / "platform-contracts" / "domain-vocabulary" / "domain-data-product-semantics.v1.json"
 )
+TRUST_METADATA_REGISTRY_PATH = (
+    ROOT / "platform-contracts" / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+)
 LOTUS_CORE_PRODUCTS_PATH = (
     ROOT / "platform-contracts" / "domain-data-products" / "lotus-core-products.v1.json"
 )
@@ -102,6 +105,126 @@ def _write_semantics_registry(path: Path) -> None:
     )
 
 
+def _write_trust_metadata_registry(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _write_json(
+        path,
+        {
+            "contract_id": "domain-data-product-trust-metadata",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "domain": "domain_data_product_trust",
+            "description": "Test trust metadata registry.",
+            "evidence_access_classes": [
+                {"key": "customer_consumable", "description": "Customer-facing."},
+                {"key": "operator_only", "description": "Operator-only."},
+            ],
+            "trust_metadata_fields": [
+                {
+                    "key": "product_name",
+                    "semantic_id": "lotus.product_name",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Product name.",
+                },
+                {
+                    "key": "product_version",
+                    "semantic_id": "lotus.product_version",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Product version.",
+                },
+                {
+                    "key": "as_of_date",
+                    "semantic_id": "lotus.as_of_date",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "As-of date.",
+                },
+                {
+                    "key": "generated_at",
+                    "semantic_id": "lotus.generated_at",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Generated at.",
+                },
+                {
+                    "key": "reconciliation_status",
+                    "semantic_id": "lotus.reconciliation_status",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Reconciliation status.",
+                },
+                {
+                    "key": "data_quality_status",
+                    "semantic_id": "lotus.data_quality_status",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Data-quality status.",
+                },
+                {
+                    "key": "lineage_bundle_id",
+                    "semantic_id": "lotus.lineage_bundle_id",
+                    "evidence_access_class": "operator_only",
+                    "description": "Lineage bundle id.",
+                },
+                {
+                    "key": "correlation_id",
+                    "semantic_id": "lotus.correlation_id",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Correlation id.",
+                },
+                {
+                    "key": "latest_evidence_timestamp",
+                    "semantic_id": "lotus.latest_evidence_timestamp",
+                    "evidence_access_class": "operator_only",
+                    "description": "Latest evidence timestamp.",
+                },
+                {
+                    "key": "request_fingerprint",
+                    "semantic_id": "lotus.request_fingerprint",
+                    "evidence_access_class": "customer_consumable",
+                    "description": "Request fingerprint.",
+                },
+            ],
+            "lineage_bundle_classes": [
+                {
+                    "key": "customer_lineage_summary",
+                    "evidence_access_class": "customer_consumable",
+                    "required_fields": ["generated_at", "correlation_id", "request_fingerprint"],
+                    "description": "Customer lineage summary.",
+                },
+                {
+                    "key": "operator_reconciliation_evidence",
+                    "evidence_access_class": "operator_only",
+                    "required_fields": [
+                        "generated_at",
+                        "correlation_id",
+                        "reconciliation_status",
+                        "latest_evidence_timestamp"
+                    ],
+                    "description": "Operator reconciliation evidence.",
+                },
+                {
+                    "key": "operator_quality_evidence",
+                    "evidence_access_class": "operator_only",
+                    "required_fields": [
+                        "generated_at",
+                        "correlation_id",
+                        "data_quality_status",
+                        "latest_evidence_timestamp"
+                    ],
+                    "description": "Operator quality evidence.",
+                },
+                {
+                    "key": "operator_ingestion_evidence",
+                    "evidence_access_class": "operator_only",
+                    "required_fields": [
+                        "generated_at",
+                        "correlation_id",
+                        "latest_evidence_timestamp"
+                    ],
+                    "description": "Operator ingestion evidence.",
+                },
+            ],
+        },
+    )
+
+
 def _load_lotus_core_modules():
     import sys
 
@@ -146,6 +269,7 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
     assert "lotus-performance-products.v1.json" in readme
     assert "lotus-risk-products.v1.json" in readme
     assert "domain-data-product-semantics.v1.json" in readme
+    assert "domain-data-product-trust-metadata.v1.json" in readme
 
     assert consumer_schema["properties"]["contract_id"]["const"] == "domain-data-product-consumers"
     assert consumer_schema["properties"]["governed_by_rfc"]["const"] == "RFC-0084"
@@ -156,6 +280,9 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
 def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_path: Path) -> None:
     validator = _load_validator_module()
     _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
 
     _write_json(
         tmp_path / "lotus-core-products.v1.json",
@@ -199,7 +326,9 @@ def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_pa
                     },
                     "lineage_policy": {
                         "lineage_required": True,
-                        "evidence_bundle_required": True
+                        "evidence_bundle_required": True,
+                        "evidence_access_class_ref": "operator_only",
+                        "lineage_bundle_class_ref": "operator_reconciliation_evidence",
                     },
                     "security_profile_ref": "source_data_read.standard",
                     "approved_consumers": ["lotus-performance", "lotus-risk"],
@@ -239,6 +368,9 @@ def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_pa
 def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path: Path) -> None:
     validator = _load_validator_module()
     _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
 
     _write_json(
         tmp_path / "lotus-core-products.v1.json",
@@ -275,7 +407,9 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
                     },
                     "lineage_policy": {
                         "lineage_required": True,
-                        "evidence_bundle_required": True
+                        "evidence_bundle_required": True,
+                        "evidence_access_class_ref": "operator_only",
+                        "lineage_bundle_class_ref": "operator_reconciliation_evidence",
                     },
                     "security_profile_ref": "source_data_read.standard",
                     "approved_consumers": ["lotus-performance"],
@@ -310,7 +444,9 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
                     },
                     "lineage_policy": {
                         "lineage_required": True,
-                        "evidence_bundle_required": True
+                        "evidence_bundle_required": True,
+                        "evidence_access_class_ref": "operator_only",
+                        "lineage_bundle_class_ref": "operator_reconciliation_evidence",
                     },
                     "security_profile_ref": "source_data_read.standard",
                     "approved_consumers": ["lotus-performance"],
@@ -353,6 +489,9 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
 def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Path) -> None:
     validator = _load_validator_module()
     _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
 
     _write_json(
         tmp_path / "lotus-performance-products.v1.json",
@@ -390,6 +529,7 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
                     "lineage_policy": {
                         "lineage_required": True,
                         "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
                     },
                     "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
                     "approved_consumers": ["lotus-risk"],
@@ -431,6 +571,9 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
 def test_rfc_0084_validator_rejects_unknown_identifier_reference(tmp_path: Path) -> None:
     validator = _load_validator_module()
     _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
 
     _write_json(
         tmp_path / "lotus-core-products.v1.json",
@@ -468,6 +611,8 @@ def test_rfc_0084_validator_rejects_unknown_identifier_reference(tmp_path: Path)
                     "lineage_policy": {
                         "lineage_required": True,
                         "evidence_bundle_required": True,
+                        "evidence_access_class_ref": "operator_only",
+                        "lineage_bundle_class_ref": "operator_reconciliation_evidence",
                     },
                     "security_profile_ref": "source_data_read.standard",
                     "approved_consumers": ["lotus-performance"],
@@ -483,6 +628,67 @@ def test_rfc_0084_validator_rejects_unknown_identifier_reference(tmp_path: Path)
     issues = validator.validate_contract_directory(tmp_path)
 
     assert any("unknown identifiers" in issue for issue in issues)
+
+
+def test_rfc_0084_validator_rejects_unknown_trust_metadata_reference(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
+
+    _write_json(
+        tmp_path / "lotus-core-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-core",
+            "authoritative_domain": "portfolio_state",
+            "products": [
+                {
+                    "product_name": "PortfolioStateSnapshot",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-core",
+                    "product_family": "operational_source_data",
+                    "authoritative_domain": "portfolio_state",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "as_of_date",
+                        "freshness_basis": "as_of_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id"],
+                    "required_trust_metadata": ["product_name", "unknown_trust_field"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": False,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "source_data_read.standard",
+                    "approved_consumers": ["lotus-performance"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    issues = validator.validate_contract_directory(tmp_path)
+
+    assert any("unknown fields" in issue for issue in issues)
 
 
 def test_rfc_0084_validator_requires_semantics_registry_for_producer_validation(tmp_path: Path) -> None:
@@ -526,6 +732,8 @@ def test_rfc_0084_validator_requires_semantics_registry_for_producer_validation(
                     "lineage_policy": {
                         "lineage_required": True,
                         "evidence_bundle_required": True,
+                        "evidence_access_class_ref": "operator_only",
+                        "lineage_bundle_class_ref": "operator_reconciliation_evidence",
                     },
                     "security_profile_ref": "source_data_read.standard",
                     "approved_consumers": ["lotus-performance"],
@@ -588,16 +796,33 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
     assert by_name["IngestionEvidenceBundle"]["temporal_scope"]["primary_time_field"] == "ingested_at"
     assert by_name["IngestionEvidenceBundle"]["temporal_semantics_ref"] == "ingested_at"
     assert by_name["ReconciliationEvidenceBundle"]["lineage_policy"]["evidence_bundle_required"] is True
+    assert by_name["ReconciliationEvidenceBundle"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"
+    assert (
+        by_name["ReconciliationEvidenceBundle"]["lineage_policy"]["lineage_bundle_class_ref"]
+        == "operator_reconciliation_evidence"
+    )
+    assert by_name["DataQualityCoverageReport"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"
+    assert (
+        by_name["DataQualityCoverageReport"]["lineage_policy"]["lineage_bundle_class_ref"]
+        == "operator_quality_evidence"
+    )
+    assert by_name["IngestionEvidenceBundle"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"
+    assert (
+        by_name["IngestionEvidenceBundle"]["lineage_policy"]["lineage_bundle_class_ref"]
+        == "operator_ingestion_evidence"
+    )
 
 
 def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations() -> None:
     validator = _load_validator_module()
     semantics_registry = _load_json(SEMANTICS_REGISTRY_PATH)
+    trust_metadata_registry = _load_json(TRUST_METADATA_REGISTRY_PATH)
     core_declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
     performance_declaration = _load_json(LOTUS_PERFORMANCE_PRODUCTS_PATH)
     risk_declaration = _load_json(LOTUS_RISK_PRODUCTS_PATH)
 
     assert validator.validate_semantics_registry(SEMANTICS_REGISTRY_PATH, semantics_registry) == []
+    assert validator.validate_trust_metadata_registry(TRUST_METADATA_REGISTRY_PATH, trust_metadata_registry) == []
 
     identifier_keys = {entry["key"] for entry in semantics_registry["identifiers"]}
     temporal_keys = {entry["key"] for entry in semantics_registry["temporal_semantics"]}
@@ -607,6 +832,9 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
     completeness_statuses = {
         entry["key"] for entry in semantics_registry["trust_vocabularies"]["completeness_statuses"]
     }
+    trust_metadata_keys = {entry["key"] for entry in trust_metadata_registry["trust_metadata_fields"]}
+    evidence_access_classes = {entry["key"] for entry in trust_metadata_registry["evidence_access_classes"]}
+    lineage_bundle_class_keys = {entry["key"] for entry in trust_metadata_registry["lineage_bundle_classes"]}
 
     assert {
         "portfolio_id",
@@ -623,7 +851,9 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
     }.issubset(identifier_keys)
     assert {"as_of_date", "valuation_date", "generated_at", "observed_at", "ingested_at"} <= temporal_keys
     assert {"daily", "batch", "event_driven"} <= freshness_classes
-    assert {"complete", "partial", "blocked", "unknown"} <= completeness_statuses
+    assert {"complete", "partial", "stale", "unreconciled", "break_open", "blocked", "unknown"} <= completeness_statuses
+    assert {"customer_consumable", "operator_only"} <= evidence_access_classes
+    assert {"operator_reconciliation_evidence", "operator_quality_evidence", "operator_ingestion_evidence"} <= lineage_bundle_class_keys
 
     for declaration in (core_declaration, performance_declaration, risk_declaration):
         for product in declaration["products"]:
@@ -631,6 +861,10 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
             assert product["temporal_semantics_ref"] in temporal_keys
             assert product["freshness_policy"]["freshness_class"] in freshness_classes
             assert product["completeness_policy"]["default_status"] in completeness_statuses
+            assert set(product["required_trust_metadata"]) <= trust_metadata_keys
+            assert product["lineage_policy"]["evidence_access_class_ref"] in evidence_access_classes
+            if product["lineage_policy"]["evidence_bundle_required"]:
+                assert product["lineage_policy"]["lineage_bundle_class_ref"] in lineage_bundle_class_keys
 
 
 def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -> None:
@@ -756,3 +990,61 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert "lotus-performance-consumers.v1.json" in readme
     assert "lotus-risk-consumers.v1.json" in readme
     assert "mandatory review" in slice_3_evidence.lower()
+
+
+def test_rfc_0084_selected_producer_trust_metadata_aligns_to_live_repo_truth() -> None:
+    semantics_registry = _load_json(SEMANTICS_REGISTRY_PATH)
+    risk_declaration = _load_json(LOTUS_RISK_PRODUCTS_PATH)
+    core_declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+
+    reconciliation_target_model = _load_repo_text(
+        "lotus-core", "docs/architecture/RFC-0083-reconciliation-data-quality-target-model.md"
+    )
+    risk_surface_alignment = _load_repo_text("lotus-risk", "docs/domain-apis/risk-product-surface-alignment.md")
+    concentration_live_characterization = _load_repo_text(
+        "lotus-risk", "tests/integration/test_concentration_live_characterization.py"
+    )
+    rolling_live_characterization = _load_repo_text(
+        "lotus-risk", "tests/integration/test_rolling_live_characterization.py"
+    )
+
+    completeness_keys = {
+        entry["key"] for entry in semantics_registry["trust_vocabularies"]["completeness_statuses"]
+    }
+    assert {"complete", "partial", "stale", "unreconciled", "break_open", "blocked", "unknown"} <= completeness_keys
+    for status in ("`COMPLETE`", "`PARTIAL`", "`STALE`", "`UNRECONCILED`", "`BREAK_OPEN`", "`BLOCKED`", "`UNKNOWN`"):
+        assert status in reconciliation_target_model
+
+    risk_products = {product["product_name"]: product for product in risk_declaration["products"]}
+    core_products = {product["product_name"]: product for product in core_declaration["products"]}
+
+    for field in (
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "coverage_status",
+    ):
+        assert field in risk_surface_alignment
+
+    for field in (
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+    ):
+        assert field in concentration_live_characterization
+        assert field in risk_products["ConcentrationRiskReport"]["required_trust_metadata"]
+
+    for field in ("coverage_ratio", "coverage_status"):
+        assert field in concentration_live_characterization
+        assert field in risk_products["ConcentrationRiskReport"]["required_trust_metadata"]
+
+    for field in ("benchmark_context", "risk_free_context"):
+        assert field in rolling_live_characterization
+        assert field in risk_products["RollingRiskMetricsReport"]["required_trust_metadata"]
+        assert field in risk_products["RiskMetricsReport"]["required_trust_metadata"]
+
+    assert core_products["ReconciliationEvidenceBundle"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"
+    assert core_products["DataQualityCoverageReport"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"
+    assert core_products["IngestionEvidenceBundle"]["lineage_policy"]["evidence_access_class_ref"] == "operator_only"

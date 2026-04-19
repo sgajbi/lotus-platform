@@ -13,6 +13,8 @@ Slice 1 adds the contract family foundations:
    Lightweight validator for producer and consumer declaration files.
 4. `../domain-vocabulary/domain-data-product-semantics.v1.json`
    Identifier, temporal-semantic, and trust-vocabulary registry used to harden cross-domain product contracts.
+5. `../domain-vocabulary/domain-data-product-trust-metadata.v1.json`
+   Trust metadata field registry, evidence access classes, and lineage bundle expectations for governed products.
 
 Producer onboarding begins in later RFC-0084 slices:
 

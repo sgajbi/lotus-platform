@@ -47,7 +47,7 @@ Primary areas:
    Machine-readable platform contract families including API vocabulary, domain vocabulary, and
    RFC-0084 domain-data-product governance, including first-wave producer and consumer declarations
    for `lotus-core`, `lotus-performance`, and `lotus-risk`, plus the governed identifier and
-   temporal semantics registry used by those declarations.
+   temporal semantics registry and trust metadata registry used by those declarations.
 4. `platform-stack/`
    Shared runtime assets, ingress stack material, and environment-level infrastructure definitions.
 5. `rfcs/`

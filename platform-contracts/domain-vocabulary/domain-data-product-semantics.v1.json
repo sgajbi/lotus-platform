@@ -148,6 +148,18 @@
         "meaning": "The product may deliver a bounded but intentionally incomplete payload with explicit diagnostics."
       },
       {
+        "key": "stale",
+        "meaning": "Evidence exists, but it is older than the product or supportability freshness threshold."
+      },
+      {
+        "key": "unreconciled",
+        "meaning": "Required reconciliation or coverage has not run or has no observed data."
+      },
+      {
+        "key": "break_open",
+        "meaning": "A non-blocking break remains open and must be visible to downstream consumers or operators."
+      },
+      {
         "key": "blocked",
         "meaning": "The product may be unavailable because a required dependency or control failed."
       },
@@ -162,12 +174,32 @@
         "meaning": "The product or its source inputs reconcile to the governing evidence baseline."
       },
       {
+        "key": "partial",
+        "meaning": "Some reconciliation coverage exists, but warnings, running controls, or incomplete inputs remain."
+      },
+      {
+        "key": "stale",
+        "meaning": "Reconciliation evidence exists but is older than the governing freshness threshold."
+      },
+      {
         "key": "unreconciled",
         "meaning": "The product or its source inputs failed a required reconciliation check."
       },
       {
+        "key": "break_open",
+        "meaning": "A non-blocking reconciliation break remains open."
+      },
+      {
+        "key": "blocked",
+        "meaning": "A blocking reconciliation issue prevents safe downstream use."
+      },
+      {
         "key": "not_applicable",
         "meaning": "Reconciliation is not required for this product family."
+      },
+      {
+        "key": "unknown",
+        "meaning": "The product cannot currently attest to reconciliation state truthfully."
       }
     ],
     "data_quality_statuses": [
@@ -182,6 +214,14 @@
       {
         "key": "quality_failed",
         "meaning": "The product failed a required data-quality gate."
+      },
+      {
+        "key": "quality_blocked",
+        "meaning": "A blocking data-quality issue prevents safe downstream use."
+      },
+      {
+        "key": "quality_unknown",
+        "meaning": "The product cannot currently attest to data-quality state truthfully."
       }
     ]
   }

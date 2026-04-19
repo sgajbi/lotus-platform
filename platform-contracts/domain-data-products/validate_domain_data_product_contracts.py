@@ -10,6 +10,7 @@ from pathlib import Path
 PRODUCT_GLOB = "*-products.v1.json"
 CONSUMER_GLOB = "*-consumers.v1.json"
 SEMANTICS_REGISTRY_FILENAME = "domain-data-product-semantics.v1.json"
+TRUST_METADATA_REGISTRY_FILENAME = "domain-data-product-trust-metadata.v1.json"
 REPOSITORY_PATTERN = re.compile(r"^lotus-[a-z0-9-]+$")
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 PRODUCT_VERSION_PATTERN = re.compile(r"^(v[0-9]+|[0-9]+\.[0-9]+\.[0-9]+)$")
@@ -48,6 +49,10 @@ REQUIRED_DEPENDENCY_FIELDS = {
 
 def _find_semantics_registry_path(directory: Path) -> Path:
     return directory.resolve().parent / "domain-vocabulary" / SEMANTICS_REGISTRY_FILENAME
+
+
+def _find_trust_metadata_registry_path(directory: Path) -> Path:
+    return directory.resolve().parent / "domain-vocabulary" / TRUST_METADATA_REGISTRY_FILENAME
 
 
 def _load_json(path: Path) -> dict:
@@ -164,6 +169,113 @@ def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
     return issues
 
 
+def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
+    issues: list[str] = []
+
+    if payload.get("contract_id") != "domain-data-product-trust-metadata":
+        _append_issue(issues, path, "contract_id must be 'domain-data-product-trust-metadata'")
+    if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
+        payload["contract_version"]
+    ):
+        _append_issue(issues, path, "contract_version must be semver")
+    if payload.get("governed_by_rfc") != "RFC-0084":
+        _append_issue(issues, path, "governed_by_rfc must be 'RFC-0084'")
+    if payload.get("domain") != "domain_data_product_trust":
+        _append_issue(issues, path, "domain must be 'domain_data_product_trust'")
+    if not isinstance(payload.get("description"), str) or not payload["description"].strip():
+        _append_issue(issues, path, "description must be a non-empty string")
+
+    evidence_access_classes = _validate_registry_entry_list(
+        issues,
+        path,
+        field_name="evidence_access_classes",
+        entries=payload.get("evidence_access_classes"),
+        required_string_fields=("description",),
+    )
+
+    trust_metadata_fields = payload.get("trust_metadata_fields")
+    trust_metadata_keys = _validate_registry_entry_list(
+        issues,
+        path,
+        field_name="trust_metadata_fields",
+        entries=trust_metadata_fields,
+        required_string_fields=("semantic_id", "evidence_access_class", "description"),
+    )
+    if isinstance(trust_metadata_fields, list):
+        for index, entry in enumerate(trust_metadata_fields):
+            if not isinstance(entry, dict):
+                continue
+            semantic_id = entry.get("semantic_id")
+            if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
+                _append_issue(issues, path, f"trust_metadata_fields[{index}].semantic_id must start with lotus.")
+            evidence_access_class = entry.get("evidence_access_class")
+            if evidence_access_class not in evidence_access_classes:
+                _append_issue(
+                    issues,
+                    path,
+                    f"trust_metadata_fields[{index}].evidence_access_class must reference a registered evidence access class",
+                )
+
+    lineage_bundle_classes = payload.get("lineage_bundle_classes")
+    if not _is_non_empty_list(lineage_bundle_classes):
+        _append_issue(issues, path, "lineage_bundle_classes must be a non-empty array")
+    else:
+        seen_bundle_keys: set[str] = set()
+        for index, entry in enumerate(lineage_bundle_classes):
+            if not isinstance(entry, dict):
+                _append_issue(issues, path, f"lineage_bundle_classes[{index}] must be an object")
+                continue
+
+            key = entry.get("key")
+            if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
+                _append_issue(issues, path, f"lineage_bundle_classes[{index}].key must be snake_case")
+            elif key in seen_bundle_keys:
+                _append_issue(issues, path, f"lineage_bundle_classes contains duplicate key {key}")
+            else:
+                seen_bundle_keys.add(key)
+
+            description = entry.get("description")
+            if not isinstance(description, str) or not description.strip():
+                _append_issue(issues, path, f"lineage_bundle_classes[{index}].description must be a non-empty string")
+
+            evidence_access_class = entry.get("evidence_access_class")
+            if evidence_access_class not in evidence_access_classes:
+                _append_issue(
+                    issues,
+                    path,
+                    f"lineage_bundle_classes[{index}].evidence_access_class must reference a registered evidence access class",
+                )
+
+            required_fields = entry.get("required_fields")
+            if not _is_non_empty_list(required_fields):
+                _append_issue(issues, path, f"lineage_bundle_classes[{index}].required_fields must be a non-empty array")
+            else:
+                seen_required_fields: set[str] = set()
+                for required_index, required_field in enumerate(required_fields):
+                    if not isinstance(required_field, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", required_field):
+                        _append_issue(
+                            issues,
+                            path,
+                            f"lineage_bundle_classes[{index}].required_fields[{required_index}] must be snake_case",
+                        )
+                        continue
+                    if required_field in seen_required_fields:
+                        _append_issue(
+                            issues,
+                            path,
+                            f"lineage_bundle_classes[{index}].required_fields contains duplicate field {required_field}",
+                        )
+                    if required_field not in trust_metadata_keys:
+                        _append_issue(
+                            issues,
+                            path,
+                            f"lineage_bundle_classes[{index}].required_fields contains unknown trust metadata field {required_field}",
+                        )
+                    seen_required_fields.add(required_field)
+
+    return issues
+
+
 def validate_producer_contract(
     path: Path,
     payload: dict,
@@ -172,6 +284,9 @@ def validate_producer_contract(
     temporal_keys: set[str] | None = None,
     freshness_classes: set[str] | None = None,
     completeness_statuses: set[str] | None = None,
+    trust_metadata_keys: set[str] | None = None,
+    evidence_access_classes: set[str] | None = None,
+    lineage_bundle_class_keys: set[str] | None = None,
 ) -> list[str]:
     issues: list[str] = []
 
@@ -268,6 +383,18 @@ def validate_producer_contract(
                 path,
                 f"products[{index}].required_trust_metadata must be non-empty",
             )
+        elif trust_metadata_keys is not None:
+            unknown_trust_metadata = [
+                trust_metadata_field
+                for trust_metadata_field in product["required_trust_metadata"]
+                if trust_metadata_field not in trust_metadata_keys
+            ]
+            if unknown_trust_metadata:
+                _append_issue(
+                    issues,
+                    path,
+                    f"products[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
+                )
         if identifier_keys is not None:
             identifier_refs = product["identifier_refs"]
             if not _is_non_empty_list(identifier_refs):
@@ -302,6 +429,39 @@ def validate_producer_contract(
                 issues,
                 path,
                 f"products[{index}].completeness_policy.default_status must reference the trust vocabulary registry",
+            )
+        if (
+            evidence_access_classes is not None
+            and product["lineage_policy"]["evidence_access_class_ref"] not in evidence_access_classes
+        ):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].lineage_policy.evidence_access_class_ref must reference the trust metadata registry",
+            )
+        lineage_bundle_class_ref = product["lineage_policy"].get("lineage_bundle_class_ref")
+        if product["lineage_policy"]["evidence_bundle_required"]:
+            if not isinstance(lineage_bundle_class_ref, str):
+                _append_issue(
+                    issues,
+                    path,
+                    f"products[{index}].lineage_policy.lineage_bundle_class_ref is required when evidence_bundle_required is true",
+                )
+            elif lineage_bundle_class_keys is not None and lineage_bundle_class_ref not in lineage_bundle_class_keys:
+                _append_issue(
+                    issues,
+                    path,
+                    f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
+                )
+        elif (
+            lineage_bundle_class_ref is not None
+            and lineage_bundle_class_keys is not None
+            and lineage_bundle_class_ref not in lineage_bundle_class_keys
+        ):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
             )
         for optional_list_field in ("current_routes",):
             if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
@@ -449,6 +609,7 @@ def validate_cross_references(
 def validate_contract_directory(directory: Path) -> list[str]:
     issues: list[str] = []
     semantics_registry_path = _find_semantics_registry_path(directory)
+    trust_metadata_registry_path = _find_trust_metadata_registry_path(directory)
     producer_paths = sorted(directory.rglob(PRODUCT_GLOB))
     consumer_paths = sorted(directory.rglob(CONSUMER_GLOB))
 
@@ -458,6 +619,9 @@ def validate_contract_directory(directory: Path) -> list[str]:
     temporal_keys: set[str] | None = None
     freshness_classes: set[str] | None = None
     completeness_statuses: set[str] | None = None
+    trust_metadata_keys: set[str] | None = None
+    evidence_access_classes: set[str] | None = None
+    lineage_bundle_class_keys: set[str] | None = None
 
     if producer_paths and not semantics_registry_path.exists():
         _append_issue(
@@ -489,6 +653,31 @@ def validate_contract_directory(directory: Path) -> list[str]:
             if isinstance(entry, dict)
         }
 
+    if producer_paths and not trust_metadata_registry_path.exists():
+        _append_issue(
+            issues,
+            trust_metadata_registry_path,
+            "trust metadata registry is required when validating domain data product declarations",
+        )
+    elif trust_metadata_registry_path.exists():
+        trust_metadata_payload = _load_json(trust_metadata_registry_path)
+        issues.extend(validate_trust_metadata_registry(trust_metadata_registry_path, trust_metadata_payload))
+        trust_metadata_keys = {
+            entry.get("key", "")
+            for entry in trust_metadata_payload.get("trust_metadata_fields", [])
+            if isinstance(entry, dict)
+        }
+        evidence_access_classes = {
+            entry.get("key", "")
+            for entry in trust_metadata_payload.get("evidence_access_classes", [])
+            if isinstance(entry, dict)
+        }
+        lineage_bundle_class_keys = {
+            entry.get("key", "")
+            for entry in trust_metadata_payload.get("lineage_bundle_classes", [])
+            if isinstance(entry, dict)
+        }
+
     for path in producer_paths:
         payload = _load_json(path)
         producer_payloads.append((path, payload))
@@ -500,6 +689,9 @@ def validate_contract_directory(directory: Path) -> list[str]:
                 temporal_keys=temporal_keys,
                 freshness_classes=freshness_classes,
                 completeness_statuses=completeness_statuses,
+                trust_metadata_keys=trust_metadata_keys,
+                evidence_access_classes=evidence_access_classes,
+                lineage_bundle_class_keys=lineage_bundle_class_keys,
             )
         )
 

@@ -1,0 +1,202 @@
+{
+  "contract_id": "domain-data-product-trust-metadata",
+  "contract_version": "1.0.0",
+  "governed_by_rfc": "RFC-0084",
+  "domain": "domain_data_product_trust",
+  "description": "Platform-governed trust metadata field registry, evidence access classes, and lineage bundle expectations for cross-domain data products.",
+  "evidence_access_classes": [
+    {
+      "key": "customer_consumable",
+      "description": "Evidence and trust metadata that may flow into customer-facing or advisor-facing product surfaces."
+    },
+    {
+      "key": "operator_only",
+      "description": "Evidence and trust metadata that exists for control, reconciliation, ingestion, or support workflows and should not be treated as a customer-facing product payload by default."
+    }
+  ],
+  "trust_metadata_fields": [
+    {
+      "key": "product_name",
+      "semantic_id": "lotus.product_name",
+      "evidence_access_class": "customer_consumable",
+      "description": "Published product identifier."
+    },
+    {
+      "key": "product_version",
+      "semantic_id": "lotus.product_version",
+      "evidence_access_class": "customer_consumable",
+      "description": "Published product contract version."
+    },
+    {
+      "key": "tenant_id",
+      "semantic_id": "lotus.tenant_id",
+      "evidence_access_class": "customer_consumable",
+      "description": "Tenant scope for the product payload."
+    },
+    {
+      "key": "generated_at",
+      "semantic_id": "lotus.generated_at",
+      "evidence_access_class": "customer_consumable",
+      "description": "UTC timestamp when the product payload was generated."
+    },
+    {
+      "key": "as_of_date",
+      "semantic_id": "lotus.as_of_date",
+      "evidence_access_class": "customer_consumable",
+      "description": "Business-effective date carried by the product."
+    },
+    {
+      "key": "restatement_version",
+      "semantic_id": "lotus.restatement_version",
+      "evidence_access_class": "customer_consumable",
+      "description": "Restatement or replay version that identifies regenerated product truth."
+    },
+    {
+      "key": "reconciliation_status",
+      "semantic_id": "lotus.reconciliation_status",
+      "evidence_access_class": "customer_consumable",
+      "description": "Published reconciliation posture for the product or its governing source inputs."
+    },
+    {
+      "key": "data_quality_status",
+      "semantic_id": "lotus.data_quality_status",
+      "evidence_access_class": "customer_consumable",
+      "description": "Published data-quality posture for the product or its governing source inputs."
+    },
+    {
+      "key": "latest_evidence_timestamp",
+      "semantic_id": "lotus.latest_evidence_timestamp",
+      "evidence_access_class": "operator_only",
+      "description": "Timestamp of the latest supportability or control evidence used by the product."
+    },
+    {
+      "key": "source_batch_fingerprint",
+      "semantic_id": "lotus.source_batch_fingerprint",
+      "evidence_access_class": "operator_only",
+      "description": "Fingerprint for the upstream source batch or event set."
+    },
+    {
+      "key": "snapshot_id",
+      "semantic_id": "lotus.snapshot_id",
+      "evidence_access_class": "customer_consumable",
+      "description": "Snapshot identifier for reproducible point-in-time source truth."
+    },
+    {
+      "key": "policy_version",
+      "semantic_id": "lotus.policy_version",
+      "evidence_access_class": "operator_only",
+      "description": "Version of the governing policy or supportability rules applied to the payload."
+    },
+    {
+      "key": "correlation_id",
+      "semantic_id": "lotus.correlation_id",
+      "evidence_access_class": "customer_consumable",
+      "description": "Cross-service correlation identifier for tracing and support escalation."
+    },
+    {
+      "key": "lineage_bundle_id",
+      "semantic_id": "lotus.lineage_bundle_id",
+      "evidence_access_class": "operator_only",
+      "description": "Identifier for a downloadable or queryable lineage bundle."
+    },
+    {
+      "key": "blocked_reason",
+      "semantic_id": "lotus.blocked_reason",
+      "evidence_access_class": "operator_only",
+      "description": "Machine-readable explanation for a blocked or withheld product state."
+    },
+    {
+      "key": "lineage_version",
+      "semantic_id": "lotus.lineage_version",
+      "evidence_access_class": "customer_consumable",
+      "description": "Version of the audit-lineage metadata contract exposed to downstream consumers."
+    },
+    {
+      "key": "request_fingerprint",
+      "semantic_id": "lotus.request_fingerprint",
+      "evidence_access_class": "customer_consumable",
+      "description": "Fingerprint for the current product request or durable execution."
+    },
+    {
+      "key": "source_services",
+      "semantic_id": "lotus.source_services",
+      "evidence_access_class": "customer_consumable",
+      "description": "Ordered set of source services that materially contributed to the product."
+    },
+    {
+      "key": "upstream_request_fingerprints",
+      "semantic_id": "lotus.upstream_request_fingerprints",
+      "evidence_access_class": "customer_consumable",
+      "description": "Fingerprints for upstream requests used to derive the current product."
+    },
+    {
+      "key": "benchmark_context",
+      "semantic_id": "lotus.benchmark_context",
+      "evidence_access_class": "customer_consumable",
+      "description": "Metadata that explains how benchmark inputs were requested, resolved, or applied."
+    },
+    {
+      "key": "risk_free_context",
+      "semantic_id": "lotus.risk_free_context",
+      "evidence_access_class": "customer_consumable",
+      "description": "Metadata that explains how risk-free inputs were requested, resolved, or applied."
+    },
+    {
+      "key": "coverage_ratio",
+      "semantic_id": "lotus.coverage_ratio",
+      "evidence_access_class": "customer_consumable",
+      "description": "Coverage ratio or completeness fraction published for a governed result."
+    },
+    {
+      "key": "coverage_status",
+      "semantic_id": "lotus.coverage_status",
+      "evidence_access_class": "customer_consumable",
+      "description": "Coverage classification associated with a governed result."
+    }
+  ],
+  "lineage_bundle_classes": [
+    {
+      "key": "customer_lineage_summary",
+      "evidence_access_class": "customer_consumable",
+      "required_fields": [
+        "generated_at",
+        "correlation_id",
+        "request_fingerprint"
+      ],
+      "description": "Lightweight lineage summary suitable for customer-facing or advisor-facing product support."
+    },
+    {
+      "key": "operator_reconciliation_evidence",
+      "evidence_access_class": "operator_only",
+      "required_fields": [
+        "generated_at",
+        "correlation_id",
+        "reconciliation_status",
+        "latest_evidence_timestamp"
+      ],
+      "description": "Operator-grade reconciliation evidence bundle for support, audit, and break investigation workflows."
+    },
+    {
+      "key": "operator_quality_evidence",
+      "evidence_access_class": "operator_only",
+      "required_fields": [
+        "generated_at",
+        "correlation_id",
+        "data_quality_status",
+        "latest_evidence_timestamp"
+      ],
+      "description": "Operator-grade data-quality coverage bundle for support and readiness workflows."
+    },
+    {
+      "key": "operator_ingestion_evidence",
+      "evidence_access_class": "operator_only",
+      "required_fields": [
+        "generated_at",
+        "correlation_id",
+        "source_batch_fingerprint",
+        "latest_evidence_timestamp"
+      ],
+      "description": "Operator-grade ingestion and replay evidence bundle for source troubleshooting."
+    }
+  ]
+}

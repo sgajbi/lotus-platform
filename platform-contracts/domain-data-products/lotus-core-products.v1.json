@@ -50,7 +50,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -116,7 +117,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -183,7 +185,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "business_consumer_access:client_sensitive:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
@@ -248,7 +251,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
@@ -312,7 +316,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
@@ -374,7 +379,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
@@ -436,7 +442,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -500,7 +507,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -565,7 +573,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -629,7 +638,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -693,7 +703,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -755,7 +766,8 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": false
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
@@ -818,7 +830,9 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": true
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_reconciliation_evidence"
       },
       "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
       "approved_consumers": [
@@ -884,7 +898,9 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": true
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_quality_evidence"
       },
       "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
       "approved_consumers": [
@@ -951,7 +967,9 @@
       },
       "lineage_policy": {
         "lineage_required": true,
-        "evidence_bundle_required": true
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_ingestion_evidence"
       },
       "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
       "approved_consumers": [

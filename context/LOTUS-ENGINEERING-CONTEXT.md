@@ -83,11 +83,14 @@ For cross-domain governed data products:
 3. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
    is the governed identifier, temporal-semantic, and trust-vocabulary registry that those
    declarations must reference,
-4. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
+4. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
+   is the governed trust metadata field registry, evidence-class registry, and lineage-bundle
+   registry for those declarations,
+5. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
-5. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
+6. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
    `lotus-risk`,
-6. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+7. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
 ## Front-Office Runtime Governance
