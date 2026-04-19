@@ -80,11 +80,15 @@ For cross-domain governed data products:
 1. domain repositories remain authoritative for product truth,
 2. `lotus-platform/platform-contracts/domain-data-products/` is the platform-owned contract family
    for producer and consumer declarations introduced by RFC-0084,
-3. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
+3. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
+   is the governed identifier, temporal-semantic, and trust-vocabulary registry that those
+   declarations must reference,
+4. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
-4. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
+5. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
    `lotus-risk`,
-5. producer and consumer declarations should stay explicit, version-aware, and validator-backed.
+6. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+   validator-backed.
 
 ## Front-Office Runtime Governance
 

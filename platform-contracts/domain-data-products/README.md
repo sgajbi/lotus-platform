@@ -11,6 +11,8 @@ Slice 1 adds the contract family foundations:
    Consumer declaration schema for repositories that depend on governed domain products.
 3. `validate_domain_data_product_contracts.py`
    Lightweight validator for producer and consumer declaration files.
+4. `../domain-vocabulary/domain-data-product-semantics.v1.json`
+   Identifier, temporal-semantic, and trust-vocabulary registry used to harden cross-domain product contracts.
 
 Producer onboarding begins in later RFC-0084 slices:
 

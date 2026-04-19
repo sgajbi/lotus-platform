@@ -12,6 +12,9 @@ README_PATH = ROOT / "platform-contracts" / "domain-data-products" / "README.md"
 VALIDATOR_PATH = ROOT / "platform-contracts" / "domain-data-products" / "validate_domain_data_product_contracts.py"
 EVIDENCE_PATH = ROOT / "rfcs" / "RFC-0084-slice-1-schema-evidence.md"
 SLICE_3_EVIDENCE_PATH = ROOT / "rfcs" / "RFC-0084-slice-3-analytics-producer-onboarding-evidence.md"
+SEMANTICS_REGISTRY_PATH = (
+    ROOT / "platform-contracts" / "domain-vocabulary" / "domain-data-product-semantics.v1.json"
+)
 LOTUS_CORE_PRODUCTS_PATH = (
     ROOT / "platform-contracts" / "domain-data-products" / "lotus-core-products.v1.json"
 )
@@ -47,6 +50,56 @@ def _write_json(path: Path, payload: dict) -> None:
 
 def _load_repo_text(repository: str, relative_path: str) -> str:
     return (ROOT.parent / repository / relative_path).read_text(encoding="utf-8")
+
+
+def _write_semantics_registry(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _write_json(
+        path,
+        {
+            "contract_id": "domain-data-product-semantics",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "domain": "domain_data_product_semantics",
+            "description": "Test semantics registry.",
+            "identifiers": [
+                {
+                    "key": "portfolio_id",
+                    "semantic_id": "lotus.portfolio_id",
+                    "stability": "stable",
+                    "lifecycle": "active",
+                    "description": "Portfolio identifier.",
+                },
+                {
+                    "key": "calculation_id",
+                    "semantic_id": "lotus.calculation_id",
+                    "stability": "ephemeral",
+                    "lifecycle": "active",
+                    "description": "Calculation identifier.",
+                }
+            ],
+            "temporal_semantics": [
+                {
+                    "key": "as_of_date",
+                    "semantic_id": "lotus.as_of_date",
+                    "category": "business_effective_date",
+                    "description": "As-of date.",
+                },
+                {
+                    "key": "valuation_date",
+                    "semantic_id": "lotus.valuation_date",
+                    "category": "observation_date",
+                    "description": "Valuation date.",
+                }
+            ],
+            "trust_vocabularies": {
+                "freshness_classes": [{"key": "daily", "meaning": "Daily."}],
+                "completeness_statuses": [{"key": "complete", "meaning": "Complete."}],
+                "reconciliation_statuses": [{"key": "reconciled", "meaning": "Reconciled."}],
+                "data_quality_statuses": [{"key": "quality_passed", "meaning": "Passed."}],
+            },
+        },
+    )
 
 
 def _load_lotus_core_modules():
@@ -92,6 +145,7 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
     assert "validate_domain_data_product_contracts.py" in readme
     assert "lotus-performance-products.v1.json" in readme
     assert "lotus-risk-products.v1.json" in readme
+    assert "domain-data-product-semantics.v1.json" in readme
 
     assert consumer_schema["properties"]["contract_id"]["const"] == "domain-data-product-consumers"
     assert consumer_schema["properties"]["governed_by_rfc"]["const"] == "RFC-0084"
@@ -101,6 +155,7 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
 
 def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_path: Path) -> None:
     validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
 
     _write_json(
         tmp_path / "lotus-core-products.v1.json",
@@ -124,6 +179,8 @@ def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_pa
                         "freshness_basis": "as_of_date",
                         "supports_restatement": True
                     },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id"],
                     "required_trust_metadata": [
                         "product_name",
                         "product_version",
@@ -181,6 +238,7 @@ def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_pa
 
 def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path: Path) -> None:
     validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
 
     _write_json(
         tmp_path / "lotus-core-products.v1.json",
@@ -204,6 +262,8 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
                         "freshness_basis": "as_of_date",
                         "supports_restatement": True
                     },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id"],
                     "required_trust_metadata": ["product_name"],
                     "freshness_policy": {
                         "freshness_class": "daily",
@@ -237,6 +297,8 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
                         "freshness_basis": "as_of_date",
                         "supports_restatement": True
                     },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id"],
                     "required_trust_metadata": ["product_name"],
                     "freshness_policy": {
                         "freshness_class": "daily",
@@ -290,6 +352,7 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
 
 def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Path) -> None:
     validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
 
     _write_json(
         tmp_path / "lotus-performance-products.v1.json",
@@ -313,6 +376,8 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
                         "freshness_basis": "valuation_date",
                         "supports_restatement": True,
                     },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
                     "required_trust_metadata": ["product_name", "product_version", "as_of_date"],
                     "freshness_policy": {
                         "freshness_class": "daily",
@@ -363,6 +428,121 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
     assert any("consumer is not approved" in issue for issue in issues)
 
 
+def test_rfc_0084_validator_rejects_unknown_identifier_reference(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+
+    _write_json(
+        tmp_path / "lotus-core-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-core",
+            "authoritative_domain": "portfolio_state",
+            "products": [
+                {
+                    "product_name": "PortfolioStateSnapshot",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-core",
+                    "product_family": "operational_source_data",
+                    "authoritative_domain": "portfolio_state",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "as_of_date",
+                        "freshness_basis": "as_of_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id", "unknown_identifier"],
+                    "required_trust_metadata": ["product_name"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": False,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": True,
+                    },
+                    "security_profile_ref": "source_data_read.standard",
+                    "approved_consumers": ["lotus-performance"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    issues = validator.validate_contract_directory(tmp_path)
+
+    assert any("unknown identifiers" in issue for issue in issues)
+
+
+def test_rfc_0084_validator_requires_semantics_registry_for_producer_validation(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    products_dir = tmp_path / "domain-data-products"
+    products_dir.mkdir()
+
+    _write_json(
+        products_dir / "lotus-core-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-core",
+            "authoritative_domain": "portfolio_state",
+            "products": [
+                {
+                    "product_name": "PortfolioStateSnapshot",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-core",
+                    "product_family": "operational_source_data",
+                    "authoritative_domain": "portfolio_state",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "as_of_date",
+                        "freshness_basis": "as_of_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "as_of_date",
+                    "identifier_refs": ["portfolio_id"],
+                    "required_trust_metadata": ["product_name"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": False,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": True,
+                    },
+                    "security_profile_ref": "source_data_read.standard",
+                    "approved_consumers": ["lotus-performance"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    issues = validator.validate_contract_directory(products_dir)
+
+    assert any("semantics registry is required" in issue for issue in issues)
+
+
 def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() -> None:
     validator = _load_validator_module()
     core_modules = _load_lotus_core_modules()
@@ -400,10 +580,57 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
         )
 
     assert by_name["MarketDataWindow"]["temporal_scope"]["primary_time_field"] == "valuation_date"
+    assert by_name["PortfolioStateSnapshot"]["identifier_refs"] == ["portfolio_id", "snapshot_id", "tenant_id"]
+    assert by_name["RiskFreeSeriesWindow"]["identifier_refs"] == ["risk_free_curve_id", "tenant_id"]
     assert by_name["MarketDataWindow"]["request_scope"]["scope_level"] == "benchmark"
+    assert by_name["MarketDataWindow"]["temporal_semantics_ref"] == "valuation_date"
     assert by_name["RiskFreeSeriesWindow"]["request_scope"]["scope_level"] == "global"
     assert by_name["IngestionEvidenceBundle"]["temporal_scope"]["primary_time_field"] == "ingested_at"
+    assert by_name["IngestionEvidenceBundle"]["temporal_semantics_ref"] == "ingested_at"
     assert by_name["ReconciliationEvidenceBundle"]["lineage_policy"]["evidence_bundle_required"] is True
+
+
+def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations() -> None:
+    validator = _load_validator_module()
+    semantics_registry = _load_json(SEMANTICS_REGISTRY_PATH)
+    core_declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+    performance_declaration = _load_json(LOTUS_PERFORMANCE_PRODUCTS_PATH)
+    risk_declaration = _load_json(LOTUS_RISK_PRODUCTS_PATH)
+
+    assert validator.validate_semantics_registry(SEMANTICS_REGISTRY_PATH, semantics_registry) == []
+
+    identifier_keys = {entry["key"] for entry in semantics_registry["identifiers"]}
+    temporal_keys = {entry["key"] for entry in semantics_registry["temporal_semantics"]}
+    freshness_classes = {
+        entry["key"] for entry in semantics_registry["trust_vocabularies"]["freshness_classes"]
+    }
+    completeness_statuses = {
+        entry["key"] for entry in semantics_registry["trust_vocabularies"]["completeness_statuses"]
+    }
+
+    assert {
+        "portfolio_id",
+        "benchmark_id",
+        "position_id",
+        "instrument_id",
+        "issuer_id",
+        "index_id",
+        "risk_free_curve_id",
+        "calculation_id",
+        "tenant_id",
+        "correlation_id",
+        "snapshot_id",
+    }.issubset(identifier_keys)
+    assert {"as_of_date", "valuation_date", "generated_at", "observed_at", "ingested_at"} <= temporal_keys
+    assert {"daily", "batch", "event_driven"} <= freshness_classes
+    assert {"complete", "partial", "blocked", "unknown"} <= completeness_statuses
+
+    for declaration in (core_declaration, performance_declaration, risk_declaration):
+        for product in declaration["products"]:
+            assert set(product["identifier_refs"]) <= identifier_keys
+            assert product["temporal_semantics_ref"] in temporal_keys
+            assert product["freshness_policy"]["freshness_class"] in freshness_classes
+            assert product["completeness_policy"]["default_status"] in completeness_statuses
 
 
 def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -> None:

@@ -181,6 +181,8 @@ Important current platform truths:
 6. RFC-0084 domain-data-product producer and consumer schemas live under
    `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
    `lotus-core`, `lotus-performance`, and `lotus-risk`
+7. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
+   `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
 
 ## Documentation Map
 

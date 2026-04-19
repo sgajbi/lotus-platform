@@ -9,6 +9,7 @@ from pathlib import Path
 
 PRODUCT_GLOB = "*-products.v1.json"
 CONSUMER_GLOB = "*-consumers.v1.json"
+SEMANTICS_REGISTRY_FILENAME = "domain-data-product-semantics.v1.json"
 REPOSITORY_PATTERN = re.compile(r"^lotus-[a-z0-9-]+$")
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 PRODUCT_VERSION_PATTERN = re.compile(r"^(v[0-9]+|[0-9]+\.[0-9]+\.[0-9]+)$")
@@ -23,6 +24,8 @@ REQUIRED_PRODUCT_FIELDS = {
     "lifecycle_status",
     "request_scope",
     "temporal_scope",
+    "temporal_semantics_ref",
+    "identifier_refs",
     "required_trust_metadata",
     "freshness_policy",
     "completeness_policy",
@@ -43,6 +46,10 @@ REQUIRED_DEPENDENCY_FIELDS = {
 }
 
 
+def _find_semantics_registry_path(directory: Path) -> Path:
+    return directory.resolve().parent / "domain-vocabulary" / SEMANTICS_REGISTRY_FILENAME
+
+
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -55,7 +62,117 @@ def _is_non_empty_list(value: object) -> bool:
     return isinstance(value, list) and len(value) > 0
 
 
-def validate_producer_contract(path: Path, payload: dict) -> list[str]:
+def _validate_registry_entry_list(
+    issues: list[str],
+    path: Path,
+    *,
+    field_name: str,
+    entries: object,
+    required_string_fields: tuple[str, ...],
+) -> set[str]:
+    keys: set[str] = set()
+
+    if not _is_non_empty_list(entries):
+        _append_issue(issues, path, f"{field_name} must be a non-empty array")
+        return keys
+
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            _append_issue(issues, path, f"{field_name}[{index}] must be an object")
+            continue
+
+        key = entry.get("key")
+        if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
+            _append_issue(issues, path, f"{field_name}[{index}].key must be snake_case")
+        elif key in keys:
+            _append_issue(issues, path, f"{field_name} contains duplicate key {key}")
+        else:
+            keys.add(key)
+
+        for required_field in required_string_fields:
+            value = entry.get(required_field)
+            if not isinstance(value, str) or not value.strip():
+                _append_issue(
+                    issues,
+                    path,
+                    f"{field_name}[{index}].{required_field} must be a non-empty string",
+                )
+
+    return keys
+
+
+def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
+    issues: list[str] = []
+
+    if payload.get("contract_id") != "domain-data-product-semantics":
+        _append_issue(issues, path, "contract_id must be 'domain-data-product-semantics'")
+    if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
+        payload["contract_version"]
+    ):
+        _append_issue(issues, path, "contract_version must be semver")
+    if payload.get("governed_by_rfc") != "RFC-0084":
+        _append_issue(issues, path, "governed_by_rfc must be 'RFC-0084'")
+    if payload.get("domain") != "domain_data_product_semantics":
+        _append_issue(issues, path, "domain must be 'domain_data_product_semantics'")
+    if not isinstance(payload.get("description"), str) or not payload["description"].strip():
+        _append_issue(issues, path, "description must be a non-empty string")
+
+    identifier_keys = _validate_registry_entry_list(
+        issues,
+        path,
+        field_name="identifiers",
+        entries=payload.get("identifiers"),
+        required_string_fields=("semantic_id", "stability", "lifecycle", "description"),
+    )
+    temporal_keys = _validate_registry_entry_list(
+        issues,
+        path,
+        field_name="temporal_semantics",
+        entries=payload.get("temporal_semantics"),
+        required_string_fields=("semantic_id", "category", "description"),
+    )
+
+    for field_name, keys in (("identifiers", identifier_keys), ("temporal_semantics", temporal_keys)):
+        entries = payload.get(field_name, [])
+        if not isinstance(entries, list):
+            continue
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                continue
+            semantic_id = entry.get("semantic_id")
+            if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
+                _append_issue(issues, path, f"{field_name}[{index}].semantic_id must start with lotus.")
+
+    trust_vocabularies = payload.get("trust_vocabularies")
+    if not isinstance(trust_vocabularies, dict):
+        _append_issue(issues, path, "trust_vocabularies must be an object")
+    else:
+        for field_name in (
+            "freshness_classes",
+            "completeness_statuses",
+            "reconciliation_statuses",
+            "data_quality_statuses",
+        ):
+            _validate_registry_entry_list(
+                issues,
+                path,
+                field_name=f"trust_vocabularies.{field_name}",
+                entries=trust_vocabularies.get(field_name),
+                required_string_fields=("meaning",),
+            )
+
+    return issues
+
+
+def validate_producer_contract(
+    path: Path,
+    payload: dict,
+    *,
+    identifier_keys: set[str] | None = None,
+    temporal_keys: set[str] | None = None,
+    freshness_classes: set[str] | None = None,
+    completeness_statuses: set[str] | None = None,
+) -> list[str]:
     issues: list[str] = []
 
     if payload.get("contract_id") != "domain-data-products":
@@ -150,6 +267,41 @@ def validate_producer_contract(path: Path, payload: dict) -> list[str]:
                 issues,
                 path,
                 f"products[{index}].required_trust_metadata must be non-empty",
+            )
+        if identifier_keys is not None:
+            identifier_refs = product["identifier_refs"]
+            if not _is_non_empty_list(identifier_refs):
+                _append_issue(issues, path, f"products[{index}].identifier_refs must be non-empty")
+            else:
+                unknown_identifier_refs = [
+                    identifier_ref for identifier_ref in identifier_refs if identifier_ref not in identifier_keys
+                ]
+                if unknown_identifier_refs:
+                    _append_issue(
+                        issues,
+                        path,
+                        f"products[{index}].identifier_refs contains unknown identifiers: {', '.join(unknown_identifier_refs)}",
+                    )
+        if temporal_keys is not None and product["temporal_semantics_ref"] not in temporal_keys:
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].temporal_semantics_ref must reference a registered temporal semantic",
+            )
+        if freshness_classes is not None and product["freshness_policy"]["freshness_class"] not in freshness_classes:
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].freshness_policy.freshness_class must reference the trust vocabulary registry",
+            )
+        if (
+            completeness_statuses is not None
+            and product["completeness_policy"]["default_status"] not in completeness_statuses
+        ):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].completeness_policy.default_status must reference the trust vocabulary registry",
             )
         for optional_list_field in ("current_routes",):
             if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
@@ -296,16 +448,60 @@ def validate_cross_references(
 
 def validate_contract_directory(directory: Path) -> list[str]:
     issues: list[str] = []
+    semantics_registry_path = _find_semantics_registry_path(directory)
     producer_paths = sorted(directory.rglob(PRODUCT_GLOB))
     consumer_paths = sorted(directory.rglob(CONSUMER_GLOB))
 
     producer_payloads: list[tuple[Path, dict]] = []
     consumer_payloads: list[tuple[Path, dict]] = []
+    identifier_keys: set[str] | None = None
+    temporal_keys: set[str] | None = None
+    freshness_classes: set[str] | None = None
+    completeness_statuses: set[str] | None = None
+
+    if producer_paths and not semantics_registry_path.exists():
+        _append_issue(
+            issues,
+            semantics_registry_path,
+            "semantics registry is required when validating domain data product declarations",
+        )
+    elif semantics_registry_path.exists():
+        semantics_payload = _load_json(semantics_registry_path)
+        issues.extend(validate_semantics_registry(semantics_registry_path, semantics_payload))
+        identifier_keys = {
+            identifier.get("key", "")
+            for identifier in semantics_payload.get("identifiers", [])
+            if isinstance(identifier, dict)
+        }
+        temporal_keys = {
+            semantic.get("key", "")
+            for semantic in semantics_payload.get("temporal_semantics", [])
+            if isinstance(semantic, dict)
+        }
+        freshness_classes = {
+            entry.get("key", "")
+            for entry in semantics_payload.get("trust_vocabularies", {}).get("freshness_classes", [])
+            if isinstance(entry, dict)
+        }
+        completeness_statuses = {
+            entry.get("key", "")
+            for entry in semantics_payload.get("trust_vocabularies", {}).get("completeness_statuses", [])
+            if isinstance(entry, dict)
+        }
 
     for path in producer_paths:
         payload = _load_json(path)
         producer_payloads.append((path, payload))
-        issues.extend(validate_producer_contract(path, payload))
+        issues.extend(
+            validate_producer_contract(
+                path,
+                payload,
+                identifier_keys=identifier_keys,
+                temporal_keys=temporal_keys,
+                freshness_classes=freshness_classes,
+                completeness_statuses=completeness_statuses,
+            )
+        )
 
     for path in consumer_paths:
         payload = _load_json(path)
