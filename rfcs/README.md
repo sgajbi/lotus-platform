@@ -127,6 +127,7 @@ Reference baseline:
 - `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md` (implemented)
 - `RFC-0087-live-trust-telemetry-and-certification-plane.md` (implemented and merged for first-wave telemetry, certification, gateway, and Workbench consumption)
 - `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented and merged for generated discovery plus Workbench UI)
+- `RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md` (proposed)
 
 ## RFC Closure Governance
 

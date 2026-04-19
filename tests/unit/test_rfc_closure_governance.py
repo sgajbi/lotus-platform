@@ -13,6 +13,7 @@ CURRENT_IMPLEMENTATION_RFCS = [
     "RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md",
     "RFC-0087-live-trust-telemetry-and-certification-plane.md",
     "RFC-0088-self-serve-discovery-and-dependency-catalog.md",
+    "RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md",
 ]
 
 SECOND_LAST_TERMS = [
