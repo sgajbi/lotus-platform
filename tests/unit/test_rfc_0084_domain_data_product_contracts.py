@@ -353,6 +353,8 @@ def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(tmp_pa
                     "product_name": "PortfolioStateSnapshot",
                     "producer_repository": "lotus-core",
                     "required_product_version": "1.0.0",
+                    "required_trust_metadata": ["product_name"],
+                    "migration_posture": {"status": "current"},
                     "consumption_mode": "api_read",
                     "business_purpose": "Seed governed portfolio state into analytics orchestration.",
                     "validation_lanes": ["feature", "pr-merge"],
@@ -471,6 +473,8 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
                     "product_name": "PortfolioStateSnapshot",
                     "producer_repository": "lotus-core",
                     "required_product_version": "2.0.0",
+                    "required_trust_metadata": ["product_name"],
+                    "migration_posture": {"status": "current"},
                     "consumption_mode": "api_read",
                     "business_purpose": "Use upstream state snapshot.",
                     "validation_lanes": ["feature"],
@@ -554,6 +558,8 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
                     "product_name": "ReturnsSeriesBundle",
                     "producer_repository": "lotus-performance",
                     "required_product_version": "v1",
+                    "required_trust_metadata": ["generated_at"],
+                    "migration_posture": {"status": "current"},
                     "consumption_mode": "gateway_composition",
                     "business_purpose": "Use upstream performance return-series output directly.",
                     "validation_lanes": ["feature"],
@@ -566,6 +572,333 @@ def test_rfc_0084_validator_rejects_unapproved_consumer_dependency(tmp_path: Pat
     issues = validator.validate_contract_directory(tmp_path)
 
     assert any("consumer is not approved" in issue for issue in issues)
+
+
+def test_rfc_0084_validator_rejects_version_drift_without_approved_transition(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
+
+    _write_json(
+        tmp_path / "lotus-performance-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-performance",
+            "authoritative_domain": "performance_analytics",
+            "products": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-performance",
+                    "product_family": "analytics_output",
+                    "authoritative_domain": "performance_analytics",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "date",
+                        "freshness_basis": "valuation_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
+                    "required_trust_metadata": ["generated_at", "correlation_id"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": True,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+                    "approved_consumers": ["lotus-risk"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                },
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "product_version": "v2",
+                    "owner_repository": "lotus-performance",
+                    "product_family": "analytics_output",
+                    "authoritative_domain": "performance_analytics",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "date",
+                        "freshness_basis": "valuation_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
+                    "required_trust_metadata": ["generated_at", "correlation_id"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": True,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+                    "approved_consumers": ["lotus-risk"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    _write_json(
+        tmp_path / "lotus-risk-consumers.v1.json",
+        {
+            "contract_id": "domain-data-product-consumers",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "consumer_repository": "lotus-risk",
+            "dependencies": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "producer_repository": "lotus-performance",
+                    "required_product_version": "v1",
+                    "required_trust_metadata": ["generated_at"],
+                    "migration_posture": {"status": "current"},
+                    "consumption_mode": "api_read",
+                    "business_purpose": "Use upstream return series while drifting from the latest version.",
+                    "validation_lanes": ["feature"],
+                    "failure_posture": "fail_closed",
+                }
+            ],
+        },
+    )
+
+    issues = validator.validate_contract_directory(tmp_path)
+
+    assert any("version drift requires approved_transition" in issue for issue in issues)
+
+
+def test_rfc_0084_validator_allows_approved_transition_for_version_drift(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
+
+    _write_json(
+        tmp_path / "lotus-performance-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-performance",
+            "authoritative_domain": "performance_analytics",
+            "products": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-performance",
+                    "product_family": "analytics_output",
+                    "authoritative_domain": "performance_analytics",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "date",
+                        "freshness_basis": "valuation_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
+                    "required_trust_metadata": ["generated_at", "correlation_id"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": True,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+                    "approved_consumers": ["lotus-risk"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                },
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "product_version": "v2",
+                    "owner_repository": "lotus-performance",
+                    "product_family": "analytics_output",
+                    "authoritative_domain": "performance_analytics",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "date",
+                        "freshness_basis": "valuation_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
+                    "required_trust_metadata": ["generated_at", "correlation_id"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": True,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+                    "approved_consumers": ["lotus-risk"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    _write_json(
+        tmp_path / "lotus-risk-consumers.v1.json",
+        {
+            "contract_id": "domain-data-product-consumers",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "consumer_repository": "lotus-risk",
+            "dependencies": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "producer_repository": "lotus-performance",
+                    "required_product_version": "v1",
+                    "required_trust_metadata": ["generated_at"],
+                    "migration_posture": {
+                        "status": "approved_transition",
+                        "target_product_version": "v2",
+                        "justification": "Risk is migrating to the latest producer contract incrementally.",
+                        "sunset_condition": "Remove the old version after downstream characterization and rollout close.",
+                    },
+                    "consumption_mode": "api_read",
+                    "business_purpose": "Use upstream return series during an approved migration window.",
+                    "validation_lanes": ["feature"],
+                    "failure_posture": "fail_closed",
+                }
+            ],
+        },
+    )
+
+    assert validator.validate_contract_directory(tmp_path) == []
+
+
+def test_rfc_0084_validator_rejects_missing_upstream_trust_metadata_for_consumer_dependency(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    _write_semantics_registry(tmp_path.parent / "domain-vocabulary" / "domain-data-product-semantics.v1.json")
+    _write_trust_metadata_registry(
+        tmp_path.parent / "domain-vocabulary" / "domain-data-product-trust-metadata.v1.json"
+    )
+
+    _write_json(
+        tmp_path / "lotus-performance-products.v1.json",
+        {
+            "contract_id": "domain-data-products",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "producer_repository": "lotus-performance",
+            "authoritative_domain": "performance_analytics",
+            "products": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "product_version": "v1",
+                    "owner_repository": "lotus-performance",
+                    "product_family": "analytics_output",
+                    "authoritative_domain": "performance_analytics",
+                    "lifecycle_status": "active",
+                    "request_scope": {"scope_level": "portfolio", "supports_bulk": False},
+                    "temporal_scope": {
+                        "primary_time_field": "date",
+                        "freshness_basis": "valuation_date",
+                        "supports_restatement": True,
+                    },
+                    "temporal_semantics_ref": "valuation_date",
+                    "identifier_refs": ["portfolio_id", "calculation_id"],
+                    "required_trust_metadata": ["generated_at"],
+                    "freshness_policy": {
+                        "freshness_class": "daily",
+                        "max_allowed_age_description": "Daily.",
+                    },
+                    "completeness_policy": {
+                        "default_status": "complete",
+                        "partial_allowed": True,
+                    },
+                    "lineage_policy": {
+                        "lineage_required": True,
+                        "evidence_bundle_required": False,
+                        "evidence_access_class_ref": "customer_consumable",
+                    },
+                    "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+                    "approved_consumers": ["lotus-risk"],
+                    "deprecation_policy": {
+                        "state": "not_deprecated",
+                        "successor_product": None,
+                    },
+                }
+            ],
+        },
+    )
+
+    _write_json(
+        tmp_path / "lotus-risk-consumers.v1.json",
+        {
+            "contract_id": "domain-data-product-consumers",
+            "contract_version": "1.0.0",
+            "governed_by_rfc": "RFC-0084",
+            "consumer_repository": "lotus-risk",
+            "dependencies": [
+                {
+                    "product_name": "ReturnsSeriesBundle",
+                    "producer_repository": "lotus-performance",
+                    "required_product_version": "v1",
+                    "required_trust_metadata": ["generated_at", "correlation_id"],
+                    "migration_posture": {"status": "current"},
+                    "consumption_mode": "api_read",
+                    "business_purpose": "Use upstream return series and require trace metadata.",
+                    "validation_lanes": ["feature"],
+                    "failure_posture": "fail_closed",
+                }
+            ],
+        },
+    )
+
+    issues = validator.validate_contract_directory(tmp_path)
+
+    assert any("missing required trust metadata" in issue for issue in issues)
 
 
 def test_rfc_0084_validator_rejects_unknown_identifier_reference(tmp_path: Path) -> None:
@@ -950,6 +1283,10 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert "/integration/portfolios/{portfolio_id}/benchmark-assignment" in performance_upstream_map
     assert "/integration/benchmarks/{benchmark_id}/market-series" in performance_upstream_map
     assert "/integration/reference/risk-free-series" in performance_upstream_map
+    assert all(
+        dependency["migration_posture"]["status"] == "current" for dependency in performance_consumers["dependencies"]
+    )
+    assert all(dependency["required_trust_metadata"] for dependency in performance_consumers["dependencies"])
 
     for product_name, route in {
         "RiskMetricsReport": "/analytics/risk/calculate",
@@ -984,6 +1321,12 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert "/integration/portfolios/{portfolio_id}/core-snapshot" in risk_upstream_map
     assert "/integration/portfolios/{portfolio_id}/analytics/position-timeseries" in risk_upstream_map
     assert "/integration/reference/risk-free-series" in risk_upstream_map
+    assert all(dependency["migration_posture"]["status"] == "current" for dependency in risk_consumers["dependencies"])
+    assert all(dependency["required_trust_metadata"] for dependency in risk_consumers["dependencies"])
+    returns_dependency = next(
+        dependency for dependency in risk_consumers["dependencies"] if dependency["product_name"] == "ReturnsSeriesBundle"
+    )
+    assert {"generated_at", "as_of_date", "correlation_id"} <= set(returns_dependency["required_trust_metadata"])
 
     assert "lotus-performance-products.v1.json" in readme
     assert "lotus-risk-products.v1.json" in readme

@@ -53,6 +53,6 @@ Contract-family rules:
 
 1. producer declarations live with the platform contract family rather than under `context/contracts/`,
 2. producer declarations are repo-owned in content but platform-owned in schema and validation,
-3. consumer declarations must remain explicit and version-aware,
+3. consumer declarations must remain explicit, version-aware, and trust-metadata-aware,
 4. this contract family governs ownership, lifecycle, trust metadata, and dependency posture rather
    than runtime/demo-only contracts.

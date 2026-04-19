@@ -40,6 +40,8 @@ REQUIRED_DEPENDENCY_FIELDS = {
     "product_name",
     "producer_repository",
     "required_product_version",
+    "required_trust_metadata",
+    "migration_posture",
     "consumption_mode",
     "business_purpose",
     "validation_lanes",
@@ -65,6 +67,15 @@ def _append_issue(issues: list[str], path: Path, message: str) -> None:
 
 def _is_non_empty_list(value: object) -> bool:
     return isinstance(value, list) and len(value) > 0
+
+
+def _parse_product_version(version: str) -> tuple[int, ...] | None:
+    if re.fullmatch(r"^v[0-9]+$", version):
+        return (0, int(version[1:]))
+    semver = SEMVER_PATTERN.fullmatch(version)
+    if semver:
+        return (1, *[int(part) for part in version.split(".")])
+    return None
 
 
 def _validate_registry_entry_list(
@@ -560,6 +571,46 @@ def validate_consumer_contract(path: Path, payload: dict) -> list[str]:
             )
         if not _is_non_empty_list(dependency["validation_lanes"]):
             _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
+        if not _is_non_empty_list(dependency["required_trust_metadata"]):
+            _append_issue(issues, path, f"dependencies[{index}].required_trust_metadata must be non-empty")
+
+        migration_posture = dependency["migration_posture"]
+        if not isinstance(migration_posture, dict):
+            _append_issue(issues, path, f"dependencies[{index}].migration_posture must be an object")
+            continue
+
+        status = migration_posture.get("status")
+        if status not in {"current", "approved_transition"}:
+            _append_issue(
+                issues,
+                path,
+                f"dependencies[{index}].migration_posture.status must be current or approved_transition",
+            )
+            continue
+
+        target_product_version = migration_posture.get("target_product_version")
+        if status == "current":
+            if target_product_version is not None:
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}].migration_posture.target_product_version must be null or omitted when status is current",
+                )
+        if status == "approved_transition":
+            if not isinstance(target_product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(target_product_version):
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}].migration_posture.target_product_version must use vN or semantic versioning when status is approved_transition",
+                )
+            for required_field in ("justification", "sunset_condition"):
+                value = migration_posture.get(required_field)
+                if not isinstance(value, str) or not value.strip():
+                    _append_issue(
+                        issues,
+                        path,
+                        f"dependencies[{index}].migration_posture.{required_field} must be a non-empty string when status is approved_transition",
+                    )
 
     return issues
 
@@ -570,6 +621,7 @@ def validate_cross_references(
 ) -> list[str]:
     issues: list[str] = []
     product_index: dict[tuple[str, str, str], dict] = {}
+    latest_product_version_index: dict[tuple[str, str], tuple[str, dict]] = {}
 
     for _, payload in producer_payloads:
         for product in payload.get("products", []):
@@ -579,6 +631,22 @@ def validate_cross_references(
                 product.get("product_version", ""),
             )
             product_index[key] = product
+            latest_key = (
+                product.get("product_name", ""),
+                product.get("owner_repository", ""),
+            )
+            version = product.get("product_version", "")
+            parsed_version = _parse_product_version(version) if isinstance(version, str) else None
+            if parsed_version is None:
+                continue
+            current_latest = latest_product_version_index.get(latest_key)
+            if current_latest is None:
+                latest_product_version_index[latest_key] = (version, product)
+                continue
+            current_latest_version = current_latest[0]
+            parsed_current_latest = _parse_product_version(current_latest_version)
+            if parsed_current_latest is None or parsed_version > parsed_current_latest:
+                latest_product_version_index[latest_key] = (version, product)
 
     for path, payload in consumer_payloads:
         for index, dependency in enumerate(payload.get("dependencies", [])):
@@ -601,6 +669,48 @@ def validate_cross_references(
                     issues,
                     path,
                     f"dependencies[{index}] consumer is not approved by upstream product declaration",
+                )
+
+            missing_trust_metadata = [
+                field
+                for field in dependency.get("required_trust_metadata", [])
+                if field not in upstream.get("required_trust_metadata", [])
+            ]
+            if missing_trust_metadata:
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}] upstream product declaration is missing required trust metadata: {', '.join(missing_trust_metadata)}",
+                )
+
+            latest_key = (
+                dependency.get("product_name", ""),
+                dependency.get("producer_repository", ""),
+            )
+            latest_product = latest_product_version_index.get(latest_key)
+            migration_posture = dependency.get("migration_posture", {})
+            if latest_product is None:
+                continue
+
+            latest_version = latest_product[0]
+            required_version = dependency.get("required_product_version", "")
+            migration_status = migration_posture.get("status")
+            target_product_version = migration_posture.get("target_product_version")
+
+            if required_version == latest_version:
+                if migration_status == "approved_transition":
+                    _append_issue(
+                        issues,
+                        path,
+                        f"dependencies[{index}] migration_posture approved_transition is unnecessary because required_product_version already matches the latest declared version",
+                    )
+                continue
+
+            if migration_status != "approved_transition" or target_product_version != latest_version:
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}] version drift requires approved_transition migration posture to latest version {latest_version}",
                 )
 
     return issues
