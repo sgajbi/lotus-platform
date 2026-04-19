@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import shutil
 import tempfile
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -12,6 +13,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
+DEFAULT_DOMAIN_VOCABULARY_DIRECTORY = ROOT / "platform-contracts" / "domain-vocabulary"
 DEFAULT_OUTPUT_DIRECTORY = ROOT / "generated"
 VALIDATOR_PATH = (
     DEFAULT_DECLARATION_DIRECTORY / "validate_domain_data_product_contracts.py"
@@ -38,6 +40,7 @@ CATALOG_INCLUSION_STATES = {
     "pending_repo_native_aggregation",
 }
 REPO_NATIVE_STATES = {"implemented", "planned", "pending_clean_slate_confirmation"}
+FEDERATED_SOURCE_SENTINEL = "federated:domain-product-source-manifest"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -189,7 +192,10 @@ def _relative_path(path: Path) -> str:
     try:
         return path.resolve().relative_to(ROOT).as_posix()
     except ValueError:
-        return path.resolve().as_posix()
+        try:
+            return path.resolve().relative_to(ROOT.parent).as_posix()
+        except ValueError:
+            return path.resolve().as_posix()
 
 
 def _product_id(
@@ -259,16 +265,36 @@ def validate_source_manifest(
                 f"{manifest_path}: repositories[{index}].repo_native_declaration_path must be contracts/domain-data-products"
             )
 
+        source_mode = entry.get("source_mode")
+        catalog_inclusion = entry.get("catalog_inclusion")
+        repo_native_status = entry.get("repo_native_status")
         platform_paths = entry.get("platform_declaration_paths")
         if not isinstance(platform_paths, list):
             issues.append(
                 f"{manifest_path}: repositories[{index}].platform_declaration_paths must be an array"
             )
             continue
-        if entry.get("catalog_inclusion") == "included" and not platform_paths:
+        if (
+            catalog_inclusion == "included"
+            and source_mode == "platform_contract_mirror"
+            and not platform_paths
+        ):
             issues.append(
-                f"{manifest_path}: repositories[{index}] included repositories must list platform declaration paths"
+                f"{manifest_path}: repositories[{index}] included platform-mirror repositories must list platform declaration paths"
             )
+        if source_mode == "repo_native":
+            if repo_native_status != "implemented":
+                issues.append(
+                    f"{manifest_path}: repositories[{index}] repo_native sources require repo_native_status implemented"
+                )
+            if isinstance(repository, str) and isinstance(repo_native_path, str):
+                repo_native_directory = ROOT.parent / repository / repo_native_path
+            else:
+                repo_native_directory = None
+            if repo_native_directory is not None and not repo_native_directory.exists():
+                issues.append(
+                    f"{manifest_path}: repositories[{index}] repo-native declaration directory does not exist: {repo_native_directory}"
+                )
         for path_index, platform_path in enumerate(platform_paths):
             if not isinstance(platform_path, str):
                 issues.append(
@@ -307,6 +333,84 @@ def _load_declaration_sources(
         for path in sorted(declaration_directory.rglob(CONSUMER_GLOB))
     ]
     return producer_payloads, consumer_payloads
+
+
+def _source_paths_from_manifest(
+    source_manifest: dict[str, Any],
+) -> list[Path]:
+    source_paths: list[Path] = []
+    for entry in source_manifest["repositories"]:
+        if entry["catalog_inclusion"] != "included":
+            continue
+
+        if entry["source_mode"] == "repo_native":
+            repo_directory = (
+                ROOT.parent
+                / entry["repository"]
+                / entry["repo_native_declaration_path"]
+            )
+            source_paths.extend(sorted(repo_directory.rglob(PRODUCT_GLOB)))
+            source_paths.extend(sorted(repo_directory.rglob(CONSUMER_GLOB)))
+            continue
+
+        for platform_path in entry["platform_declaration_paths"]:
+            source_paths.append(ROOT / platform_path)
+
+    return sorted(source_paths)
+
+
+def _load_declaration_sources_from_manifest(
+    source_manifest: dict[str, Any],
+) -> tuple[list[tuple[Path, dict[str, Any]]], list[tuple[Path, dict[str, Any]]]]:
+    producer_payloads: list[tuple[Path, dict[str, Any]]] = []
+    consumer_payloads: list[tuple[Path, dict[str, Any]]] = []
+    for source_path in _source_paths_from_manifest(source_manifest):
+        payload = _load_json(source_path)
+        if source_path.match(PRODUCT_GLOB):
+            producer_payloads.append((source_path, payload))
+        elif source_path.match(CONSUMER_GLOB):
+            consumer_payloads.append((source_path, payload))
+
+    return producer_payloads, consumer_payloads
+
+
+def _copy_validation_source(source_path: Path, target_directory: Path) -> None:
+    target_path = target_directory / source_path.name
+    if target_path.exists():
+        raise ValueError(
+            "Duplicate domain-product declaration filename in federated source set: "
+            f"{source_path.name}"
+        )
+    shutil.copy2(source_path, target_path)
+
+
+def _validate_declaration_sources(
+    producer_payloads: list[tuple[Path, dict[str, Any]]],
+    consumer_payloads: list[tuple[Path, dict[str, Any]]],
+) -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="lotus-domain-product-federated-validation-"
+    ) as temp_dir_string:
+        temp_dir = Path(temp_dir_string)
+        validation_contract_dir = temp_dir / "domain-data-products"
+        validation_vocabulary_dir = temp_dir / "domain-vocabulary"
+        validation_contract_dir.mkdir(parents=True)
+        validation_vocabulary_dir.mkdir(parents=True)
+
+        for registry_path in DEFAULT_DOMAIN_VOCABULARY_DIRECTORY.glob("*.json"):
+            shutil.copy2(registry_path, validation_vocabulary_dir / registry_path.name)
+        for source_path, _ in [*producer_payloads, *consumer_payloads]:
+            _copy_validation_source(source_path, validation_contract_dir)
+
+        validator = _load_platform_validator()
+        validation_issues = validator.validate_contract_directory(
+            validation_contract_dir
+        )
+        if validation_issues:
+            raise ValueError(
+                "Domain product declarations are invalid:\n"
+                + "\n".join(validation_issues)
+            )
 
 
 def _build_product_entry(
@@ -363,16 +467,16 @@ def _build_dependency_entry(dependency: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _build_catalog(
-    declaration_directory: Path,
+def _build_catalog_from_sources(
+    producer_payloads: list[tuple[Path, dict[str, Any]]],
+    consumer_payloads: list[tuple[Path, dict[str, Any]]],
     *,
     generated_at_utc: str,
+    source_declaration_directory: str,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    source_manifest: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    producer_payloads, consumer_payloads = _load_declaration_sources(
-        declaration_directory
-    )
-    source_manifest = _load_source_manifest(source_manifest_path)
+    source_manifest = source_manifest or _load_source_manifest(source_manifest_path)
     products: list[dict[str, Any]] = []
     consumers: list[dict[str, Any]] = []
     produced_by_repository: dict[str, int] = defaultdict(int)
@@ -419,7 +523,7 @@ def _build_catalog(
         "contract_version": "1.0.0",
         "governed_by_rfcs": ["RFC-0084", "RFC-0088"],
         "generated_at_utc": generated_at_utc,
-        "source_declaration_directory": _relative_path(declaration_directory),
+        "source_declaration_directory": source_declaration_directory,
         "source_manifest_path": _relative_path(source_manifest_path),
         "source_manifest": source_manifest,
         "product_count": len(products),
@@ -445,6 +549,24 @@ def _build_catalog(
             consumers, key=lambda consumer: consumer["consumer_repository"]
         ),
     }
+
+
+def _build_catalog(
+    declaration_directory: Path,
+    *,
+    generated_at_utc: str,
+    source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+) -> dict[str, Any]:
+    producer_payloads, consumer_payloads = _load_declaration_sources(
+        declaration_directory
+    )
+    return _build_catalog_from_sources(
+        producer_payloads,
+        consumer_payloads,
+        generated_at_utc=generated_at_utc,
+        source_declaration_directory=_relative_path(declaration_directory),
+        source_manifest_path=source_manifest_path,
+    )
 
 
 def _ensure_repository_node(nodes: dict[str, dict[str, Any]], repository: str) -> str:
@@ -604,20 +726,24 @@ def generate_discovery_artifacts(
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
 ) -> tuple[dict[str, Any], dict[str, Any], str]:
     declaration_directory = declaration_directory.resolve()
-    validator = _load_platform_validator()
-    validation_issues = validator.validate_contract_directory(declaration_directory)
-    if validation_issues:
-        raise ValueError(
-            "Domain product declarations are invalid:\n" + "\n".join(validation_issues)
-        )
+    source_manifest = _load_source_manifest(source_manifest_path)
+    producer_payloads, consumer_payloads = _load_declaration_sources_from_manifest(
+        source_manifest
+    )
+    if not producer_payloads:
+        raise ValueError("No producer domain-product declarations found to catalog")
+    _validate_declaration_sources(producer_payloads, consumer_payloads)
 
     generated_at = generated_at_utc or datetime.now(UTC).replace(
         microsecond=0
     ).isoformat().replace("+00:00", "Z")
-    catalog = _build_catalog(
-        declaration_directory,
+    catalog = _build_catalog_from_sources(
+        producer_payloads,
+        consumer_payloads,
         generated_at_utc=generated_at,
+        source_declaration_directory=FEDERATED_SOURCE_SENTINEL,
         source_manifest_path=source_manifest_path,
+        source_manifest=source_manifest,
     )
     graph = _build_graph(catalog)
     markdown = _render_catalog_markdown(catalog)

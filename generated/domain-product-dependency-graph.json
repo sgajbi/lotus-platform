@@ -7,9 +7,19 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 29,
-  "edge_count": 86,
+  "node_count": 30,
+  "edge_count": 93,
   "nodes": [
+    {
+      "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "product_name": "AdvisoryProposalLifecycleRecord",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "active"
+    },
     {
       "node_id": "product:lotus-core:BenchmarkAssignment:v1",
       "node_type": "domain_product",
@@ -267,6 +277,11 @@
     }
   ],
   "edges": [
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "to": "repo:lotus-gateway"
+    },
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:BenchmarkAssignment:v1",
@@ -529,6 +544,41 @@
     },
     {
       "edge_type": "consumes",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-core:HoldingsAsOf:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-core:InstrumentReferenceBundle:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "consumption_mode": "caller_supplied_contract_payload",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
       "from": "repo:lotus-performance",
       "to": "product:lotus-core:BenchmarkAssignment:v1",
       "consumption_mode": "api_read",
@@ -588,6 +638,28 @@
       "to": "product:lotus-core:RiskFreeSeriesWindow:v1",
       "consumption_mode": "api_read",
       "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-report",
+      "to": "product:lotus-core:HoldingsAsOf:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-report",
+      "to": "product:lotus-core:TransactionLedgerWindow:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
         "pr-merge"
@@ -658,6 +730,11 @@
         "feature",
         "pr-merge"
       ]
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1"
     },
     {
       "edge_type": "produces",

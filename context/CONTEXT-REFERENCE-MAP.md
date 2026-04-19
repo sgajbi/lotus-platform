@@ -66,6 +66,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 9. `../automation/generate_domain_product_certification.py`
    Generates trust-certification evidence over the catalog and dependency graph without redefining
    product ownership or dependency truth.
+10. `../automation/generate_domain_product_discovery.py`
+    Reads the governed source manifest, validates included repo-native declarations from sibling
+    repositories as one federated source set, and regenerates the catalog and dependency graph.
 
 ## Task Routing
 

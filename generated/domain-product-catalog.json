@@ -6,7 +6,7 @@
     "RFC-0088"
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
-  "source_declaration_directory": "platform-contracts/domain-data-products",
+  "source_declaration_directory": "federated:domain-product-source-manifest",
   "source_manifest_path": "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
   "source_manifest": {
     "contract_id": "lotus-domain-product-source-manifest",
@@ -16,85 +16,92 @@
       "RFC-0086",
       "RFC-0088"
     ],
-    "description": "Governed source manifest for domain-product declaration aggregation. Platform mirror sources are used until repo-native sources are promoted through a dedicated federated aggregation slice.",
+    "description": "Governed source manifest for domain-product declaration aggregation. Included repositories are read from repo-native declaration files in sibling Lotus repositories; platform mirrors are reserved only for repositories that have not yet completed repo-native rollout.",
     "repositories": [
       {
         "repository": "lotus-core",
-        "source_mode": "platform_contract_mirror",
+        "source_mode": "repo_native",
         "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
-        "platform_declaration_paths": [
-          "platform-contracts/domain-data-products/lotus-core-products.v1.json"
-        ],
-        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+        "platform_declaration_paths": [],
+        "notes": "Repo-native declarations are merged and included through federated aggregation."
       },
       {
         "repository": "lotus-performance",
-        "source_mode": "platform_contract_mirror",
+        "source_mode": "repo_native",
         "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
-        "platform_declaration_paths": [
-          "platform-contracts/domain-data-products/lotus-performance-products.v1.json",
-          "platform-contracts/domain-data-products/lotus-performance-consumers.v1.json"
-        ],
-        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+        "platform_declaration_paths": [],
+        "notes": "Repo-native producer and consumer declarations are merged and included through federated aggregation."
       },
       {
         "repository": "lotus-risk",
-        "source_mode": "platform_contract_mirror",
+        "source_mode": "repo_native",
         "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
-        "platform_declaration_paths": [
-          "platform-contracts/domain-data-products/lotus-risk-products.v1.json",
-          "platform-contracts/domain-data-products/lotus-risk-consumers.v1.json"
-        ],
-        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+        "platform_declaration_paths": [],
+        "notes": "Repo-native producer and consumer declarations are merged and included through federated aggregation."
       },
       {
         "repository": "lotus-advise",
-        "source_mode": "repo_native_pending_platform_mirror",
-        "catalog_inclusion": "pending_platform_declaration",
+        "source_mode": "repo_native",
+        "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [],
-        "notes": "Repo-native declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+        "notes": "Repo-native advisory producer and consumer declarations are merged and included through federated aggregation."
       },
       {
         "repository": "lotus-report",
-        "source_mode": "repo_native_pending_platform_mirror",
-        "catalog_inclusion": "pending_platform_declaration",
+        "source_mode": "repo_native",
+        "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [],
-        "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+        "notes": "Repo-native reporting consumer declarations are merged and included through federated aggregation."
       },
       {
         "repository": "lotus-manage",
-        "source_mode": "repo_native_pending_platform_mirror",
-        "catalog_inclusion": "pending_platform_declaration",
+        "source_mode": "repo_native",
+        "catalog_inclusion": "included",
         "repo_native_status": "implemented",
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [],
-        "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+        "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
       }
     ]
   },
-  "product_count": 22,
-  "dependency_count": 12,
-  "repository_count": 3,
+  "product_count": 23,
+  "dependency_count": 17,
+  "repository_count": 6,
   "repositories": [
+    {
+      "repository": "lotus-advise",
+      "produced_product_count": 1,
+      "consumed_dependency_count": 2
+    },
     {
       "repository": "lotus-core",
       "produced_product_count": 15,
       "consumed_dependency_count": 0
     },
     {
+      "repository": "lotus-manage",
+      "produced_product_count": 0,
+      "consumed_dependency_count": 1
+    },
+    {
       "repository": "lotus-performance",
       "produced_product_count": 2,
       "consumed_dependency_count": 6
+    },
+    {
+      "repository": "lotus-report",
+      "produced_product_count": 0,
+      "consumed_dependency_count": 2
     },
     {
       "repository": "lotus-risk",
@@ -103,6 +110,64 @@
     }
   ],
   "products": [
+    {
+      "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "product_name": "AdvisoryProposalLifecycleRecord",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "owner_repository": "lotus-advise",
+      "authoritative_domain": "advisory_workflow",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "generated_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": false
+      },
+      "temporal_semantics_ref": "generated_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Lifecycle state must reflect the latest persisted proposal event and immutable version evidence for the requested proposal."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/advisory/proposals/{proposal_id}",
+        "/advisory/proposals/{proposal_id}/versions/{version_no}",
+        "/advisory/proposals/{proposal_id}/timeline",
+        "/advisory/proposals/{proposal_id}/approvals"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json"
+    },
     {
       "product_id": "lotus-core:BenchmarkAssignment:v1",
       "product_name": "BenchmarkAssignment",
@@ -168,7 +233,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:BenchmarkConstituentWindow:v1",
@@ -234,7 +299,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:DataQualityCoverageReport:v1",
@@ -304,7 +369,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:HoldingsAsOf:v1",
@@ -375,7 +440,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:IndexSeriesWindow:v1",
@@ -441,7 +506,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:IngestionEvidenceBundle:v1",
@@ -511,7 +576,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:InstrumentReferenceBundle:v1",
@@ -580,7 +645,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:MarketDataWindow:v1",
@@ -646,7 +711,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:PortfolioAnalyticsReference:v1",
@@ -711,7 +776,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:PortfolioStateSnapshot:v1",
@@ -779,7 +844,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:PortfolioTimeseriesInput:v1",
@@ -844,7 +909,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:PositionTimeseriesInput:v1",
@@ -911,7 +976,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:ReconciliationEvidenceBundle:v1",
@@ -981,7 +1046,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:RiskFreeSeriesWindow:v1",
@@ -1046,7 +1111,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-core:TransactionLedgerWindow:v1",
@@ -1114,7 +1179,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
@@ -1171,7 +1236,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-performance-products.v1.json"
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json"
     },
     {
       "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
@@ -1229,7 +1294,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-performance-products.v1.json"
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json"
     },
     {
       "product_id": "lotus-risk:ConcentrationRiskReport:v1",
@@ -1291,7 +1356,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json"
     },
     {
       "product_id": "lotus-risk:DrawdownAnalyticsReport:v1",
@@ -1349,7 +1414,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json"
     },
     {
       "product_id": "lotus-risk:HistoricalRiskAttributionReport:v1",
@@ -1410,7 +1475,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json"
     },
     {
       "product_id": "lotus-risk:RiskMetricsReport:v1",
@@ -1469,7 +1534,7 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json"
     },
     {
       "product_id": "lotus-risk:RollingRiskMetricsReport:v1",
@@ -1528,14 +1593,98 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json"
     }
   ],
   "consumers": [
     {
+      "consumer_repository": "lotus-advise",
+      "dependency_count": 2,
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:HoldingsAsOf:v1",
+          "product_name": "HoldingsAsOf",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve canonical holdings and cash-balance context for stateful proposal simulation, workspace evaluation, and advisory lifecycle continuity.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:InstrumentReferenceBundle:v1",
+          "product_name": "InstrumentReferenceBundle",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve governed instrument enrichment and classification-taxonomy context for advisory shelf construction and supportability-bounded fallback labels.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "degrade_to_partial"
+        }
+      ]
+    },
+    {
+      "consumer_repository": "lotus-manage",
+      "dependency_count": 1,
+      "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",
+          "product_name": "PortfolioStateSnapshot",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "caller_supplied_contract_payload",
+          "business_purpose": "Run discretionary rebalance simulation and what-if analysis from a governed portfolio-state snapshot supplied through the current management request contract.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        }
+      ]
+    },
+    {
       "consumer_repository": "lotus-performance",
       "dependency_count": 6,
-      "source_path": "platform-contracts/domain-data-products/lotus-performance-consumers.v1.json",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json",
       "dependencies": [
         {
           "dependency_id": "lotus-core:BenchmarkAssignment:v1",
@@ -1669,9 +1818,66 @@
       ]
     },
     {
+      "consumer_repository": "lotus-report",
+      "dependency_count": 2,
+      "source_path": "lotus-report/contracts/domain-data-products/lotus-report-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:HoldingsAsOf:v1",
+          "product_name": "HoldingsAsOf",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Build portfolio summary, allocation, holdings, and portfolio-review reporting sections from governed core holdings and cash state.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:TransactionLedgerWindow:v1",
+          "product_name": "TransactionLedgerWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Build transaction and income activity sections for reporting payloads from the governed core transaction ledger window.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        }
+      ]
+    },
+    {
       "consumer_repository": "lotus-risk",
       "dependency_count": 6,
-      "source_path": "platform-contracts/domain-data-products/lotus-risk-consumers.v1.json",
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-consumers.v1.json",
       "dependencies": [
         {
           "dependency_id": "lotus-core:InstrumentReferenceBundle:v1",

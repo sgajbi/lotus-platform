@@ -115,6 +115,11 @@ Generate governed catalog, dependency graph, and markdown artifacts:
 python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z
 ```
 
+The generator reads `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json`.
+Repositories marked `source_mode: repo_native` are loaded from sibling repository
+`contracts/domain-data-products/` directories, then validated as one federated declaration set
+before generated artifacts are written.
+
 Check that checked-in artifacts are current:
 
 ```powershell
