@@ -162,6 +162,23 @@ That is more implementation work in the short term, but it prevents:
 2. product declarations drifting from the code that owns them,
 3. future product onboarding becoming a platform team bottleneck.
 
+## Why This Is The Next Highest-Value RFC
+
+This is the highest-value follow-on to RFC-0084 outside the gateway publication plane because it
+solves the ownership problem that still prevents Lotus from behaving like a truly federated system.
+
+If Lotus stopped at RFC-0084 and only added more platform-owned declaration files, it would have a
+strong governance proof but still a weak federated operating model. The platform would know a lot,
+but the owning repositories would not yet carry declaration truth as part of their normal delivery
+contract.
+
+RFC-0086 is the point where that changes. It gives Lotus:
+
+1. ownership locality,
+2. parallelizable repo rollout,
+3. repeatable onboarding,
+4. the right foundation for later discovery, telemetry, and federation claims.
+
 ## Gap Assessment
 
 ### Gap 1: Repo-native declaration ownership
@@ -321,7 +338,8 @@ That review must check:
 1. whether declaration ownership is now in the right repository,
 2. whether duplicated metadata or stale platform-curated copies can be removed,
 3. whether repo-native validation commands and tests are strong enough,
-4. whether any repeated onboarding lesson should become durable guidance.
+4. whether any repeated onboarding lesson should become durable guidance,
+5. whether the slice left the repo cleaner and easier to maintain than before.
 
 ## Rollout and Backward Compatibility
 
@@ -331,17 +349,32 @@ That review must check:
 2. identify which declarations remain platform-owned versus transitional,
 3. map the next rollout wave repository by repository.
 
+Exit gate:
+
+1. every current declaration has an explicit target owner,
+2. transitional versus durable platform-owned files are classified truthfully.
+
 ### Slice 1: Repo-native layout standard and templates
 
 1. define governed in-repo declaration locations,
 2. add templates and onboarding guidance,
 3. add aggregation rules that can discover repo-native files.
 
+Exit gate:
+
+1. the in-repo file layout standard is explicit,
+2. onboarding templates are sufficient to start parallel repo implementation safely.
+
 ### Slice 2: First-wave declaration migration
 
 1. move or mirror `lotus-core`, `lotus-performance`, and `lotus-risk` declarations into their
    owning repos,
 2. keep platform validation aligned during the transition.
+
+Exit gate:
+
+1. the first-wave repos own their own declaration content,
+2. migration posture for any mirrored files is explicit rather than implicit.
 
 ### Slice 3: Broader domain rollout
 
@@ -350,20 +383,41 @@ That review must check:
 3. onboard `lotus-report`,
 4. onboard `lotus-ai`.
 
+Exit gate:
+
+1. the broader domain wave has real repo-native declarations,
+2. product and dependency ownership is explicit across the participating repos.
+
 ### Slice 4: Repo-native validation and CI alignment
 
 1. add local validation entrypoints in the owning repos,
 2. align repo-native CI and platform aggregation checks.
+
+Exit gate:
+
+1. each participating repo has a truthful local validation path,
+2. repo-native and platform-native checks agree on declaration validity.
 
 ### Slice 5: Aggregation and certification hardening
 
 1. update platform automation to aggregate repo-native declarations,
 2. generate consistent certification inputs from the federated declaration set.
 
+Exit gate:
+
+1. platform aggregation no longer depends on platform-curated declarations as the primary truth,
+2. certification inputs are generated from the federated set consistently.
+
 ### Slice 6: Discovery and onboarding-readiness preparation
 
 1. make the federated declaration set ready for later catalog and telemetry RFCs,
 2. harden ownership, lifecycle, and consumer-approval posture across the broader rollout wave.
+
+Exit gate:
+
+1. later discovery and telemetry RFCs can build on this foundation without redesigning declaration
+   ownership,
+2. ownership and lifecycle posture are explicit enough for downstream automation.
 
 ### Slice 7: Code Review, Governance Tightening, and Loose-End Closure
 
@@ -372,7 +426,14 @@ This slice is mandatory.
 1. review each participating repo for declaration duplication, stale transitional copies, and weak
    validation paths,
 2. tighten platform aggregation, validation, and rollout rules,
-3. confirm the broader rollout follows the certification pattern and platform governance.
+3. confirm the broader rollout follows the certification pattern and platform governance,
+4. remove or retire transitional copies and onboarding shortcuts where the migration is already
+   complete.
+
+Exit gate:
+
+1. no completed rollout repo is left with avoidable declaration duplication,
+2. certification-pattern and governance expectations are satisfied across the wave.
 
 ### Slice 8: Documentation, Agent Context, Wiki Update, Skills Review, and Branch Hygiene
 
@@ -382,7 +443,16 @@ This slice is mandatory.
 2. update context and reference maps where durable paths changed,
 3. consciously assess whether skills or onboarding guidance should change for future repo rollout
    work,
-4. close branch and PR hygiene truthfully.
+4. identify documentation or context that should be added to improve future multi-repo rollout work,
+5. identify documentation or context that should be removed because it would become stale or
+   misleading after migration,
+6. close branch and PR hygiene truthfully.
+
+Exit gate:
+
+1. any keep, tighten, add, remove, or no-change decisions for skills and context are explicit,
+2. future agents can discover the repo-native onboarding path quickly,
+3. no branch or context debt is left behind.
 
 ## Validation and Evidence Model
 
@@ -409,6 +479,8 @@ Required proof for implementation under this RFC:
 1. no skills are changed in this draft-only pass,
 2. no context files are changed until durable repo-native paths are implemented,
 3. no existing docs are removed until migration is complete and platform aggregation is stable.
+
+That no-change posture at the draft stage is intentional rather than accidental.
 
 ## Risks and Mitigations
 
@@ -444,7 +516,18 @@ This RFC is complete only when:
 3. the broader rollout wave includes `lotus-manage`, `lotus-advise`, `lotus-report`, and
    `lotus-ai`,
 4. repo-native validation paths exist for the participating repositories,
-5. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
+5. transitional copies are either removed or explicitly justified,
+6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
+
+## Non-Goals
+
+This RFC does not:
+
+1. replace RFC-0085 gateway publication work,
+2. implement live telemetry or freshness measurement,
+3. implement the discovery catalog itself,
+4. allow repository-specific schema variants,
+5. claim that federation is complete before broader rollout and validation are actually finished.
 
 ## Open Questions
 
