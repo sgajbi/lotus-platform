@@ -98,7 +98,11 @@ Boundary rules:
    telemetry can be certified.
 12. `automation/generate_live_trust_certification.py` turns validated RFC-0087 telemetry snapshots
    into deterministic live trust certification artifacts under `output/trust-certification/`.
-13. RFC-0086 is implemented for the first-wave repo-native rollout. `lotus-ai` is consciously not
+13. First-wave RFC-0087 producer telemetry snapshots now live in repo-native
+   `contracts/trust-telemetry/` directories in `lotus-core`, `lotus-performance`, `lotus-risk`, and
+   `lotus-advise`; platform validation accepts those snapshots and combined live trust generation
+   certifies all four without issues.
+14. RFC-0086 is implemented for the first-wave repo-native rollout. `lotus-ai` is consciously not
    included as a first-wave producer or consumer declaration participant until it owns a stable
    governed product or catalog-consuming capability. Transitional platform mirror declarations are
    retained only as compatibility evidence and must not be active source paths in generated catalog

@@ -98,6 +98,18 @@ For cross-domain governed data products:
 9. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
+For RFC-0087 live trust telemetry:
+
+1. `platform-contracts/trust-telemetry/` owns the governed telemetry snapshot contract,
+2. `automation/validate_trust_telemetry.py` validates snapshots against the generated catalog and
+   trust vocabulary,
+3. first-wave producer snapshots live in `lotus-core`, `lotus-performance`, `lotus-risk`, and
+   `lotus-advise` under `contracts/trust-telemetry/`,
+4. `automation/generate_live_trust_certification.py` creates derived live-trust certification
+   artifacts from validated snapshots,
+5. gateway and Workbench must consume certified trust posture through governed APIs rather than
+   inventing decorative trust state.
+
 ## Front-Office Runtime Governance
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:
