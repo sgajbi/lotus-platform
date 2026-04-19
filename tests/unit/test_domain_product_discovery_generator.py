@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-GENERATOR_PATH = ROOT / "automation" / "generate_domain_product_discovery.py"
+GENERATOR_PATH = ROOT / "automation" / "domain_product_discovery.py"
 DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
 GENERATED_DIRECTORY = ROOT / "generated"
 CHECKED_IN_GENERATED_AT = "2026-04-19T00:00:00Z"
