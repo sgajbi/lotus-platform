@@ -84,3 +84,25 @@ def test_mesh_rfcs_are_marked_implemented_after_gateway_and_workbench_merge() ->
         assert "| Status | Implemented |" in text
         assert "pending merge" not in text.lower()
         assert "shared draft pr" not in text.lower()
+
+
+def test_rfc_0089_preserves_concrete_mesh_certification_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md"
+    )
+
+    for expected in [
+        "lotus-core:portfoliostatesnapshot:v1",
+        "lotus-performance:returnsseriesbundle:v1",
+        "lotus-risk:riskmetricsreport:v1",
+        "lotus-advise:advisoryproposallifecyclerecord:v1",
+        "gate input contract",
+        "operator status schema floor",
+        "cross-repo boundary rules",
+        "evidence required before marking implemented",
+        "gateway_publication_drift",
+        "workbench_consumption_drift",
+    ]:
+        assert expected in text
