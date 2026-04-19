@@ -59,6 +59,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 4. [Generated Domain Product Catalog](../generated/domain-product-catalog.json)
 5. [Generated Domain Product Dependency Graph](../generated/domain-product-dependency-graph.json)
 6. [Domain Product Source Manifest](../platform-contracts/domain-data-products/domain-product-source-manifest.v1.json)
+7. `../automation/query_domain_product_discovery.py`
+   Read-only self-serve query CLI for generated catalog, consumer dependency, and graph-neighborhood
+   discovery.
 
 ## Task Routing
 
