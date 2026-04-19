@@ -6,6 +6,7 @@ from pathlib import Path
 from domain_product_discovery import (
     DEFAULT_DECLARATION_DIRECTORY,
     DEFAULT_OUTPUT_DIRECTORY,
+    DEFAULT_SOURCE_MANIFEST_PATH,
     write_discovery_artifacts,
 )
 
@@ -31,12 +32,19 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Optional UTC timestamp to stamp into generated outputs. Useful for deterministic tests.",
     )
+    parser.add_argument(
+        "--source-manifest",
+        default=DEFAULT_SOURCE_MANIFEST_PATH,
+        type=Path,
+        help="Governed source manifest describing platform mirror and repo-native declaration sources.",
+    )
     args = parser.parse_args(argv)
 
     write_discovery_artifacts(
         args.output_directory,
         args.declaration_directory,
         generated_at_utc=args.generated_at_utc,
+        source_manifest_path=args.source_manifest,
     )
     print(
         "Generated domain-product discovery artifacts in "

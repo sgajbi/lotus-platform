@@ -82,6 +82,9 @@ Boundary rules:
    treated as platform contract infrastructure rather than repository-local metadata.
 6. generated domain-product discovery artifacts are derived platform outputs and should not redefine
    ownership or dependency truth by hand.
+7. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json` records which
+   repositories are currently cataloged from platform mirrors versus waiting for repo-native
+   aggregation from settled sibling branches.
 
 ## Repo-Native Commands
 

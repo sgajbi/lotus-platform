@@ -267,6 +267,9 @@ Implementation evidence now includes:
    Human-readable generated catalog summary.
 5. `tests/unit/test_domain_product_discovery_generator.py`
    Covers catalog generation, graph generation, output writing, and checked-in artifact drift.
+6. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json`
+   Records the governed platform-mirror versus repo-native source posture used by discovery
+   generation while active branches in adjacent repositories settle.
 
 ## Original Acceptance Criteria Alignment
 

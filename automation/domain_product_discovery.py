@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,11 +13,16 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
 DEFAULT_OUTPUT_DIRECTORY = ROOT / "generated"
 VALIDATOR_PATH = DEFAULT_DECLARATION_DIRECTORY / "validate_domain_data_product_contracts.py"
+DEFAULT_SOURCE_MANIFEST_PATH = DEFAULT_DECLARATION_DIRECTORY / "domain-product-source-manifest.v1.json"
 PRODUCT_GLOB = "*-products.v1.json"
 CONSUMER_GLOB = "*-consumers.v1.json"
 CATALOG_FILENAME = "domain-product-catalog.json"
 CATALOG_MARKDOWN_FILENAME = "domain-product-catalog.md"
 GRAPH_FILENAME = "domain-product-dependency-graph.json"
+REPOSITORY_PATTERN = re.compile(r"^lotus-[a-z0-9-]+$")
+SOURCE_MODES = {"platform_contract_mirror", "repo_native_pending_platform_mirror", "repo_native"}
+CATALOG_INCLUSION_STATES = {"included", "pending_platform_declaration", "pending_repo_native_aggregation"}
+REPO_NATIVE_STATES = {"implemented", "planned", "pending_clean_slate_confirmation"}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -42,6 +48,78 @@ def _relative_path(path: Path) -> str:
 
 def _product_id(producer_repository: str, product_name: str, product_version: str) -> str:
     return f"{producer_repository}:{product_name}:{product_version}"
+
+
+def validate_source_manifest(manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH) -> list[str]:
+    manifest = _load_json(manifest_path)
+    issues: list[str] = []
+    if manifest.get("contract_id") != "lotus-domain-product-source-manifest":
+        issues.append(f"{manifest_path}: contract_id must be lotus-domain-product-source-manifest")
+    if manifest.get("contract_version") != "1.0.0":
+        issues.append(f"{manifest_path}: contract_version must be 1.0.0")
+    if "RFC-0088" not in manifest.get("governed_by_rfcs", []):
+        issues.append(f"{manifest_path}: governed_by_rfcs must include RFC-0088")
+
+    repositories = manifest.get("repositories")
+    if not isinstance(repositories, list) or not repositories:
+        issues.append(f"{manifest_path}: repositories must be a non-empty array")
+        return issues
+
+    seen_repositories: set[str] = set()
+    for index, entry in enumerate(repositories):
+        if not isinstance(entry, dict):
+            issues.append(f"{manifest_path}: repositories[{index}] must be an object")
+            continue
+
+        repository = entry.get("repository")
+        if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
+            issues.append(f"{manifest_path}: repositories[{index}].repository must be a Lotus repository name")
+        elif repository in seen_repositories:
+            issues.append(f"{manifest_path}: repositories contains duplicate repository {repository}")
+        else:
+            seen_repositories.add(repository)
+
+        if entry.get("source_mode") not in SOURCE_MODES:
+            issues.append(f"{manifest_path}: repositories[{index}].source_mode is not governed")
+        if entry.get("catalog_inclusion") not in CATALOG_INCLUSION_STATES:
+            issues.append(f"{manifest_path}: repositories[{index}].catalog_inclusion is not governed")
+        if entry.get("repo_native_status") not in REPO_NATIVE_STATES:
+            issues.append(f"{manifest_path}: repositories[{index}].repo_native_status is not governed")
+
+        repo_native_path = entry.get("repo_native_declaration_path")
+        if not isinstance(repo_native_path, str) or repo_native_path != "contracts/domain-data-products":
+            issues.append(
+                f"{manifest_path}: repositories[{index}].repo_native_declaration_path must be contracts/domain-data-products"
+            )
+
+        platform_paths = entry.get("platform_declaration_paths")
+        if not isinstance(platform_paths, list):
+            issues.append(f"{manifest_path}: repositories[{index}].platform_declaration_paths must be an array")
+            continue
+        if entry.get("catalog_inclusion") == "included" and not platform_paths:
+            issues.append(
+                f"{manifest_path}: repositories[{index}] included repositories must list platform declaration paths"
+            )
+        for path_index, platform_path in enumerate(platform_paths):
+            if not isinstance(platform_path, str):
+                issues.append(
+                    f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] must be a string"
+                )
+                continue
+            resolved_path = ROOT / platform_path
+            if not resolved_path.exists():
+                issues.append(
+                    f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] does not exist: {platform_path}"
+                )
+
+    return issues
+
+
+def _load_source_manifest(manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH) -> dict[str, Any]:
+    issues = validate_source_manifest(manifest_path)
+    if issues:
+        raise ValueError("Domain product source manifest is invalid:\n" + "\n".join(issues))
+    return _load_json(manifest_path)
 
 
 def _load_declaration_sources(
@@ -114,8 +192,10 @@ def _build_catalog(
     declaration_directory: Path,
     *,
     generated_at_utc: str,
+    source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
 ) -> dict[str, Any]:
     producer_payloads, consumer_payloads = _load_declaration_sources(declaration_directory)
+    source_manifest = _load_source_manifest(source_manifest_path)
     products: list[dict[str, Any]] = []
     consumers: list[dict[str, Any]] = []
     produced_by_repository: dict[str, int] = defaultdict(int)
@@ -163,6 +243,8 @@ def _build_catalog(
         "governed_by_rfcs": ["RFC-0084", "RFC-0088"],
         "generated_at_utc": generated_at_utc,
         "source_declaration_directory": _relative_path(declaration_directory),
+        "source_manifest_path": _relative_path(source_manifest_path),
+        "source_manifest": source_manifest,
         "product_count": len(products),
         "dependency_count": sum(consumer["dependency_count"] for consumer in consumers),
         "repository_count": len(repository_names),
@@ -336,6 +418,7 @@ def generate_discovery_artifacts(
     declaration_directory: Path = DEFAULT_DECLARATION_DIRECTORY,
     *,
     generated_at_utc: str | None = None,
+    source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
 ) -> tuple[dict[str, Any], dict[str, Any], str]:
     declaration_directory = declaration_directory.resolve()
     validator = _load_platform_validator()
@@ -344,7 +427,11 @@ def generate_discovery_artifacts(
         raise ValueError("Domain product declarations are invalid:\n" + "\n".join(validation_issues))
 
     generated_at = generated_at_utc or datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-    catalog = _build_catalog(declaration_directory, generated_at_utc=generated_at)
+    catalog = _build_catalog(
+        declaration_directory,
+        generated_at_utc=generated_at,
+        source_manifest_path=source_manifest_path,
+    )
     graph = _build_graph(catalog)
     markdown = _render_catalog_markdown(catalog)
     return catalog, graph, markdown
@@ -355,10 +442,12 @@ def write_discovery_artifacts(
     declaration_directory: Path = DEFAULT_DECLARATION_DIRECTORY,
     *,
     generated_at_utc: str | None = None,
+    source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
 ) -> None:
     catalog, graph, markdown = generate_discovery_artifacts(
         declaration_directory,
         generated_at_utc=generated_at_utc,
+        source_manifest_path=source_manifest_path,
     )
     output_directory.mkdir(parents=True, exist_ok=True)
     (output_directory / CATALOG_FILENAME).write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")

@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 GENERATOR_PATH = ROOT / "automation" / "domain_product_discovery.py"
 DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
+SOURCE_MANIFEST_PATH = DECLARATION_DIRECTORY / "domain-product-source-manifest.v1.json"
 GENERATED_DIRECTORY = ROOT / "generated"
 CHECKED_IN_GENERATED_AT = "2026-04-19T00:00:00Z"
 
@@ -38,6 +39,8 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
     assert catalog["contract_id"] == "lotus-domain-product-catalog"
     assert catalog["governed_by_rfcs"] == ["RFC-0084", "RFC-0088"]
     assert catalog["generated_at_utc"] == CHECKED_IN_GENERATED_AT
+    assert catalog["source_manifest_path"] == "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json"
+    assert catalog["source_manifest"]["repositories"][0]["repository"] == "lotus-core"
     assert "lotus-core:PortfolioStateSnapshot:v1" in product_ids
     assert "lotus-performance:ReturnsSeriesBundle:v1" in product_ids
     assert "lotus-risk:RiskMetricsReport:v1" in product_ids
@@ -58,6 +61,20 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
     )
     assert "| `ReturnsSeriesBundle` | `lotus-performance` | `v1` |" in markdown
     assert "| `lotus-risk` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` |" in markdown
+
+
+def test_domain_product_source_manifest_tracks_repo_native_rollout_without_reading_active_branches() -> None:
+    generator = _load_generator_module()
+
+    assert generator.validate_source_manifest(SOURCE_MANIFEST_PATH) == []
+
+    manifest = json.loads(SOURCE_MANIFEST_PATH.read_text(encoding="utf-8"))
+    by_repository = {entry["repository"]: entry for entry in manifest["repositories"]}
+
+    assert by_repository["lotus-performance"]["repo_native_status"] == "implemented"
+    assert by_repository["lotus-risk"]["repo_native_status"] == "implemented"
+    assert by_repository["lotus-advise"]["catalog_inclusion"] == "pending_platform_declaration"
+    assert by_repository["lotus-core"]["repo_native_status"] == "pending_clean_slate_confirmation"
 
 
 def test_domain_product_discovery_generator_writes_json_and_markdown_outputs(tmp_path: Path) -> None:

@@ -65,6 +65,13 @@ Generated discovery artifacts:
 3. `../../generated/domain-product-catalog.md`
    Human-readable catalog summary generated from the governed declarations.
 
+Source manifest:
+
+1. `domain-product-source-manifest.v1.json`
+   Governed aggregation-source manifest that records which repositories are included from the
+   platform mirror today, which repositories already have repo-native declarations, and which
+   repositories are waiting for clean-slate confirmation before federated aggregation is enabled.
+
 Contract-family rules:
 
 1. producer declarations live with the platform contract family rather than under `context/contracts/`,
@@ -74,3 +81,5 @@ Contract-family rules:
    than runtime/demo-only contracts.
 5. generated discovery artifacts must be regenerated from this contract family rather than edited
    by hand.
+6. the source manifest must make temporary platform-mirror usage explicit while repo-native
+   aggregation is being staged.

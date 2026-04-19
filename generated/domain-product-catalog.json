@@ -7,6 +7,63 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_declaration_directory": "platform-contracts/domain-data-products",
+  "source_manifest_path": "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
+  "source_manifest": {
+    "contract_id": "lotus-domain-product-source-manifest",
+    "contract_version": "1.0.0",
+    "governed_by_rfcs": [
+      "RFC-0084",
+      "RFC-0086",
+      "RFC-0088"
+    ],
+    "description": "Governed source manifest for domain-product declaration aggregation. Platform mirror sources are used until repo-native sources are promoted through a dedicated federated aggregation slice.",
+    "repositories": [
+      {
+        "repository": "lotus-core",
+        "source_mode": "platform_contract_mirror",
+        "catalog_inclusion": "included",
+        "repo_native_status": "pending_clean_slate_confirmation",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [
+          "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+        ],
+        "notes": "Core remains represented by the platform mirror until repo-native source aggregation is promoted through a clean-slate implementation slice."
+      },
+      {
+        "repository": "lotus-performance",
+        "source_mode": "platform_contract_mirror",
+        "catalog_inclusion": "included",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [
+          "platform-contracts/domain-data-products/lotus-performance-products.v1.json",
+          "platform-contracts/domain-data-products/lotus-performance-consumers.v1.json"
+        ],
+        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+      },
+      {
+        "repository": "lotus-risk",
+        "source_mode": "platform_contract_mirror",
+        "catalog_inclusion": "included",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [
+          "platform-contracts/domain-data-products/lotus-risk-products.v1.json",
+          "platform-contracts/domain-data-products/lotus-risk-consumers.v1.json"
+        ],
+        "notes": "Repo-native declarations are merged; catalog generation still uses the platform mirror until federated aggregation is enabled."
+      },
+      {
+        "repository": "lotus-advise",
+        "source_mode": "repo_native_pending_platform_mirror",
+        "catalog_inclusion": "pending_platform_declaration",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [],
+        "notes": "Repo-native declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+      }
+    ]
+  },
   "product_count": 22,
   "dependency_count": 12,
   "repository_count": 3,
