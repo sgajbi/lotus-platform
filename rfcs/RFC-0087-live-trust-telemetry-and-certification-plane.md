@@ -49,7 +49,7 @@ The user intent preserved in this RFC is:
 
 ## Current Implementation Reality
 
-Overall classification: `Partially implemented (requires enhancement)`
+Overall classification: `Partially implemented (gateway and workbench adoption remaining)`
 
 ### What is implemented well today
 
@@ -93,29 +93,40 @@ Assessment:
 There is enough existing posture around observability, evidence, and lineage to justify a stronger
 platform-owned live trust plane rather than inventing an entirely new model.
 
-### What is only partially implemented
+### What is now implemented
 
-1. freshness and supportability are partially exposed but not consistently runtime-certified,
-2. lineage and evidence exist in strong pockets but not as one live product-certification model,
-3. trust posture is available in some gateway contracts but not yet derived from a shared telemetry
-   source,
-4. platform validation does not yet issue durable trust certification from live signals.
+1. `platform-contracts/trust-telemetry/trust-telemetry-snapshot.schema.json` defines the governed
+   RFC-0087 telemetry snapshot contract,
+2. `automation/validate_trust_telemetry.py` validates telemetry snapshots against the generated
+   domain-product catalog and trust vocabulary,
+3. `automation/generate_live_trust_certification.py` converts validated telemetry snapshots into
+   deterministic live trust certification artifacts,
+4. first-wave producer telemetry snapshots are merged in:
+   - `lotus-core/contracts/trust-telemetry/portfolio-state-snapshot.telemetry.v1.json`,
+   - `lotus-performance/contracts/trust-telemetry/returns-series-bundle.telemetry.v1.json`,
+   - `lotus-risk/contracts/trust-telemetry/risk-metrics-report.telemetry.v1.json`,
+   - `lotus-advise/contracts/trust-telemetry/advisory-proposal-lifecycle-record.telemetry.v1.json`,
+5. each first-wave producer repo has a local telemetry test that validates the snapshot with the
+   platform contract when `lotus-platform` is available and checks observed trust metadata against
+   the repo-native domain-product declaration.
 
-### What is not yet implemented
+### What remains partially implemented
 
-1. no common live trust telemetry contract family across repositories,
-2. no platform certification rule that converts raw telemetry into governed trust states,
-3. no durable trust-certification artifact family that gateway can consume consistently,
-4. no cross-repo requirement that governed products emit live freshness, completeness, lineage, and
-   blocked-state signals in a standardized way.
+1. gateway trust publication still needs to consume certified trust artifacts rather than only
+   route-local or static trust posture,
+2. Workbench discovery and trust surfaces still need to render certified runtime-backed trust state
+   through gateway APIs,
+3. platform CI has commands and tests for telemetry validation and live certification generation,
+   but cross-repo certification from producer telemetry directories is not yet a mandatory merge
+   gate.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0087 response |
 | --- | --- | --- | --- |
-| Move from declared trust to operational truth | Trust vocabularies and route-level supportability exist, but live shared telemetry does not | Partially satisfied | Add governed telemetry contracts, certification rules, and trust artifacts |
-| Make trust posture customer-credible | Gateway and workbench can show some trust posture today | Partially satisfied | Back those states with runtime evidence and certification instead of only declared policy |
-| Keep the work implementation-bearing | Observability and evidence patterns exist already | Partially satisfied | Define product-emitted telemetry, platform certification, and gateway consumption slices |
+| Move from declared trust to operational truth | Platform telemetry contracts, producer snapshots, and live certification generation now exist | Satisfied for platform and producer repos | Complete gateway and workbench consumption |
+| Make trust posture customer-credible | First-wave producer telemetry certifies cleanly, but gateway/workbench do not yet surface that certification end-to-end | Partially satisfied | Back UI-facing states with certified runtime evidence instead of only declared policy |
+| Keep the work implementation-bearing | Four producer repos now carry contract fixtures and tests; platform generates live trust certification | Satisfied for first-wave telemetry foundation | Continue gateway/workbench integration slices |
 | Preserve second-last and final closure slices | User requested this quality posture consistently | Not yet satisfied before this pass | RFC includes mandatory Slice 7 and Slice 8 plus review gates |
 
 ## Design Reasoning and Trade-offs
@@ -179,24 +190,25 @@ With RFC-0087:
 
 ## Gap Assessment
 
-### Gap 1: Live trust telemetry contracts
+### Closed gap 1: Live trust telemetry contracts
 
-There is no standard contract yet for product-emitted freshness, completeness, reconciliation,
-evidence, and blocked-state telemetry.
+The platform now owns the standard contract for product-emitted freshness, completeness,
+reconciliation, evidence, and blocked-state telemetry.
 
-### Gap 2: Platform certification logic
+### Closed gap 2: Platform certification logic
 
-The platform does not yet turn trust telemetry into governed certified trust states.
+The platform now turns validated telemetry into governed certified trust states through
+`automation/generate_live_trust_certification.py`.
 
-### Gap 3: Durable trust artifacts
+### Remaining gap 3: Durable trust artifacts
 
 Gateway and discovery surfaces do not yet have one consistent platform-certified artifact family to
 consume.
 
-### Gap 4: Cross-repo emission discipline
+### Partially closed gap 4: Cross-repo emission discipline
 
-Producer and consumer repos are not yet required to emit governed live trust telemetry for their
-products and dependencies.
+The first-wave producer repos now carry governed telemetry snapshots and local tests. Consumer-side
+or gateway-side telemetry emission remains future work.
 
 ## Deviations and Evolution Since Original RFC Direction
 
@@ -301,11 +313,50 @@ instead of relying only on route-local derived logic.
 Reviewed evidence includes:
 
 1. `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
-2. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
-3. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
-4. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
-5. `Platform Observability Standards.md`
-6. `rfcs/RFC-0079-gateway-evidence-and-lineage-contract.md`
+2. `platform-contracts/trust-telemetry/trust-telemetry-snapshot.schema.json`
+3. `automation/validate_trust_telemetry.py`
+4. `automation/generate_live_trust_certification.py`
+5. `tests/unit/test_trust_telemetry_contracts.py`
+6. `tests/unit/test_live_trust_certification.py`
+7. `C:/Users/Sandeep/projects/lotus-core/contracts/trust-telemetry/portfolio-state-snapshot.telemetry.v1.json`
+8. `C:/Users/Sandeep/projects/lotus-performance/contracts/trust-telemetry/returns-series-bundle.telemetry.v1.json`
+9. `C:/Users/Sandeep/projects/lotus-risk/contracts/trust-telemetry/risk-metrics-report.telemetry.v1.json`
+10. `C:/Users/Sandeep/projects/lotus-advise/contracts/trust-telemetry/advisory-proposal-lifecycle-record.telemetry.v1.json`
+11. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
+12. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
+13. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
+14. `Platform Observability Standards.md`
+15. `rfcs/RFC-0079-gateway-evidence-and-lineage-contract.md`
+
+Current cross-repo proof:
+
+1. `lotus-core` PR #319 merged with green Feature Lane and PR Merge Gate; local proof included
+   `make test` with 1843 passing tests,
+2. `lotus-performance` PR #130 merged with green Feature Lane and PR Merge Gate; local proof
+   included `make check` with 1145 passing unit tests,
+3. `lotus-risk` PR #98 merged with green Feature Lane and PR Merge Gate; local proof included
+   `make check` with 285 passing unit tests,
+4. `lotus-advise` PR #100 merged with green Feature Lane and PR Merge Gate; local proof included
+   `make check` with 553 passing unit tests,
+5. platform validation accepted each producer telemetry directory with
+   `automation/validate_trust_telemetry.py`,
+6. combined platform live-trust generation over the four snapshots produced
+   `certification_state: certified`, 4 certified snapshots, 0 attention-required snapshots, and 0
+   issues.
+
+## Implementation Evidence
+
+Implementation PRs and commits:
+
+1. platform PR #145 added the trust telemetry schema and validator,
+2. platform PR #146 added deterministic live trust certification generation,
+3. platform PR #147 closed RFC-0086 repo-native rollout evidence, which RFC-0087 consumes,
+4. `lotus-core` PR #319 added the `PortfolioStateSnapshot` telemetry snapshot and repo-local test,
+5. `lotus-performance` PR #130 added the `ReturnsSeriesBundle` telemetry snapshot and repo-local
+   test,
+6. `lotus-risk` PR #98 added the `RiskMetricsReport` telemetry snapshot and repo-local test,
+7. `lotus-advise` PR #100 added the `AdvisoryProposalLifecycleRecord` telemetry snapshot and
+   repo-local test.
 
 ## Original Acceptance Criteria Alignment
 
@@ -361,6 +412,10 @@ Exit gate:
 1. participating repos emit governed telemetry rather than repo-specific ad hoc status payloads,
 2. emission is test-backed in the participating repos.
 
+Status: complete for first-wave producer telemetry snapshots. Consumer and gateway telemetry
+emission remains outside this completed slice and should be handled only when there is a concrete
+consumer trust signal to certify.
+
 ### Slice 3: Platform trust certification engine
 
 1. implement certification rules,
@@ -400,6 +455,11 @@ Exit gate:
 
 1. trust certification drift is visible in platform validation,
 2. lane behavior is truthful about what is enforced versus what is only reported.
+
+Status: partially complete. Platform has explicit validator and generator commands, and producer
+repos have local tests. A mandatory cross-repo platform merge gate for producer telemetry
+directories remains a follow-up because it depends on stable checkout orchestration across the
+participating repositories.
 
 ### Slice 7: Code Review, API Certification, and Governance Tightening
 
@@ -457,13 +517,16 @@ Required proof for implementation under this RFC:
 3. a dedicated telemetry/certification skill may be justified if this becomes recurring cross-repo
    work.
 
-### Conscious no-change decisions at RFC draft stage
+### Conscious no-change and follow-up decisions at current rollout stage
 
-1. no skills are changed in this draft-only pass,
-2. no context files are changed until durable artifact paths and commands exist,
-3. no existing docs are removed until runtime certification is implemented.
+1. no new telemetry-specific skill is added yet because the current work is still covered by Lotus
+   backend governance plus repo-local tests and platform validators,
+2. context and repository-local engineering context are updated as durable artifact paths and
+   commands exist,
+3. no existing docs are removed until gateway and Workbench have adopted certified trust posture
+   and any route-local trust logic can be audited safely.
 
-That no-change posture at the draft stage is intentional rather than accidental.
+That posture is intentional rather than accidental.
 
 ## Risks and Mitigations
 
@@ -504,13 +567,17 @@ This RFC does not:
 
 ## Open Questions
 
-1. Which first-wave repos should emit telemetry first: producers only, or producers plus gateway?
-2. Should trust certification artifacts be persisted only in platform automation outputs or also in
-   repo-local evidence directories?
-3. Which trust states must be blocking in CI versus informational at first rollout?
+1. Resolved for this slice: first-wave telemetry starts with producer repos only. Gateway telemetry
+   should be added only when gateway owns a concrete certified-consumption signal.
+2. Resolved for this slice: repo-local telemetry snapshots live in producer
+   `contracts/trust-telemetry/` directories; platform certification artifacts remain generated
+   outputs.
+3. Open for final closure: which trust states become blocking in CI versus informational once
+   gateway and Workbench consume certified trust posture.
 
 ## Next Actions
 
-1. refine the trust telemetry schema family and artifact locations,
-2. identify the first-wave certification targets,
-3. prepare implementation prompts for the participating repos and gateway.
+1. complete RFC-0085 gateway consumption of certified trust artifacts,
+2. complete RFC-0088 Workbench rendering of certified runtime-backed trust states,
+3. decide whether the cross-repo producer telemetry certification should become a platform merge
+   gate or remain a documented operator check for the next implementation wave.
