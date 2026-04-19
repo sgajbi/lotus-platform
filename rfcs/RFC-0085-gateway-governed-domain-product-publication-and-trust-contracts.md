@@ -207,6 +207,27 @@ The trade-off is worth it because it avoids:
 3. later external API work having to reverse-engineer gateway behavior from Python services and UI
    assumptions.
 
+## Why This Is The Next Highest-Value RFC
+
+This is the highest-value next move after RFC-0084 because it connects three things Lotus already
+has but has not yet unified:
+
+1. a real product-governance control plane,
+2. a gateway that already contains trust-aware composition behavior,
+3. a workbench that already expects trustworthy gateway-backed product contracts.
+
+If Lotus stopped at RFC-0084, the estate would remain governance-rich but product-light. The
+control plane would exist, but the customer-facing and banker-facing API contracts would still be
+too route-local and too inconsistent to become a real commercial differentiator.
+
+RFC-0085 is the point where that changes. It is where the platform starts to produce a visible,
+sellable capability:
+
+1. one trustworthy API face,
+2. explicit authority and freshness,
+3. explainable partial-state behavior,
+4. a reusable publication model for future ecosystem APIs.
+
 ## Gap Assessment
 
 ### Gap 1: Platform-owned publication schema and validator
@@ -732,6 +753,17 @@ This RFC is complete only when:
    conflicting fallback trust assumptions,
 5. publication drift is CI-visible through platform validation and certification gates,
 6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
+
+## Non-Goals
+
+This RFC does not:
+
+1. move domain authority from domain services into gateway,
+2. replace RFC-0084 product declarations with gateway-owned metadata,
+3. force every current gateway route into the publication model immediately,
+4. define the complete external API strategy for every future Lotus consumer,
+5. justify a separate orchestration runtime unless gateway complexity later proves that split is
+   needed.
 
 ## Open Questions
 
