@@ -539,6 +539,14 @@ Slice 8 closure outcome:
    backend governance, PR pre-merge, RFC review, and QA validation skills cover the work until
    repeated operational failure patterns justify a dedicated skill.
 
+Post-implementation hardening review:
+
+1. malformed telemetry JSON is reported as structured `invalid_telemetry` evidence instead of
+   crashing the gate before operator artifacts can be written,
+2. duplicate telemetry snapshots for the same product are rejected as `invalid_telemetry`,
+3. dependency-graph drift is validated for the required first-wave product set using the existing
+   `catalog_drift` issue family, keeping the taxonomy stable while making the graph input real.
+
 ## Non-Goals
 
 This RFC does not:

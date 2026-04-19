@@ -114,16 +114,47 @@ def _iter_default_telemetry_paths(telemetry_paths: list[Path]) -> list[Path]:
     return sorted(set(discovered))
 
 
-def _telemetry_payloads_by_product(
+def _load_telemetry_payloads(
     telemetry_paths: list[Path],
-) -> dict[str, tuple[Path, dict[str, Any]]]:
+) -> tuple[
+    dict[str, tuple[Path, dict[str, Any]]],
+    list[Path],
+    list[MeshCertificationIssue],
+]:
     payloads: dict[str, tuple[Path, dict[str, Any]]] = {}
+    valid_paths: list[Path] = []
+    issues: list[MeshCertificationIssue] = []
     for telemetry_path in telemetry_paths:
-        payload = _load_json(telemetry_path)
+        try:
+            payload = _load_json(telemetry_path)
+        except json.JSONDecodeError as exc:
+            _issue(
+                issues,
+                code="invalid_telemetry",
+                severity="error",
+                remediation=f"Fix invalid JSON in trust telemetry snapshot: {exc}",
+                source_evidence_path=telemetry_path,
+            )
+            continue
         product_id = str(payload.get("product_id", ""))
         if product_id:
+            if product_id in payloads:
+                _issue(
+                    issues,
+                    code="invalid_telemetry",
+                    severity="error",
+                    producer_repository=str(payload.get("producer_repository", "")),
+                    product_id=product_id,
+                    remediation=(
+                        "Remove duplicate trust telemetry snapshots for this product; "
+                        "the mesh gate requires one authoritative snapshot per product."
+                    ),
+                    source_evidence_path=telemetry_path,
+                )
+                continue
             payloads[product_id] = (telemetry_path, payload)
-    return payloads
+            valid_paths.append(telemetry_path)
+    return payloads, valid_paths, issues
 
 
 def _catalog_products_by_id(catalog_path: Path) -> dict[str, dict[str, Any]]:
@@ -163,6 +194,54 @@ def _validate_required_products_in_catalog(
                 remediation="Restore catalog producer identity for the required product.",
                 source_evidence_path=catalog_path,
             )
+
+
+def _validate_required_products_in_graph(
+    *,
+    dependency_graph_path: Path,
+    issues: list[MeshCertificationIssue],
+) -> None:
+    try:
+        graph = _load_json(dependency_graph_path)
+    except FileNotFoundError:
+        _issue(
+            issues,
+            code="catalog_drift",
+            severity="error",
+            remediation="Regenerate the domain-product dependency graph.",
+            source_evidence_path=dependency_graph_path,
+        )
+        return
+    except json.JSONDecodeError as exc:
+        _issue(
+            issues,
+            code="catalog_drift",
+            severity="error",
+            remediation=f"Fix invalid JSON in the dependency graph: {exc}",
+            source_evidence_path=dependency_graph_path,
+        )
+        return
+
+    graph_product_ids = {
+        node.get("product_id")
+        for node in graph.get("nodes", [])
+        if isinstance(node, dict) and node.get("node_type") == "domain_product"
+    }
+    for product_id, producer_repository in REQUIRED_PRODUCTS.items():
+        if product_id in graph_product_ids:
+            continue
+        _issue(
+            issues,
+            code="catalog_drift",
+            severity="error",
+            producer_repository=producer_repository,
+            product_id=product_id,
+            remediation=(
+                "Regenerate the domain-product dependency graph so it includes "
+                "the required first-wave product."
+            ),
+            source_evidence_path=dependency_graph_path,
+        )
 
 
 def _validate_source_manifest(
@@ -453,10 +532,13 @@ def build_mesh_certification_status(
 ) -> dict[str, Any]:
     issues: list[MeshCertificationIssue] = []
     discovered_telemetry_paths = _iter_default_telemetry_paths(telemetry_paths or [])
-    telemetry_payloads = _telemetry_payloads_by_product(discovered_telemetry_paths)
+    telemetry_payloads, valid_telemetry_paths, telemetry_issues = (
+        _load_telemetry_payloads(discovered_telemetry_paths)
+    )
+    issues.extend(telemetry_issues)
     context = _load_validation_context(catalog_path=catalog_path)
     live_report = build_live_trust_certification_report_from_paths(
-        discovered_telemetry_paths,
+        valid_telemetry_paths,
         source_telemetry_path="mesh-certification:first-wave-telemetry",
         generated_at_utc=generated_at_utc,
         context=context,
@@ -467,6 +549,10 @@ def build_mesh_certification_status(
         products_by_id=_catalog_products_by_id(catalog_path),
         issues=issues,
         catalog_path=catalog_path,
+    )
+    _validate_required_products_in_graph(
+        dependency_graph_path=dependency_graph_path,
+        issues=issues,
     )
     _validate_required_telemetry(
         telemetry_payloads=telemetry_payloads,
