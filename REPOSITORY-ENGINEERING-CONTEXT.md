@@ -115,9 +115,11 @@ Boundary rules:
    `lotus-workbench` exposes `/data-products`, consumes gateway through the BFF only, and renders
    real catalog, dependency, lifecycle, approved-consumer, certification, trust, unavailable,
    loading, empty, stale/attention, and error states.
-17. The gateway and Workbench first-wave mesh commits are on shared RFC-0033 draft PR branches; treat
-   them as proven and merge-ready evidence, not merged platform-wide closure, until those draft PRs
-   are accepted by their branch owners.
+17. Gateway PR #136 and Workbench PR #97 are merged, so RFC-0085, RFC-0087, and RFC-0088 are now
+   implemented and merged for the first-wave mesh surface across platform, gateway, and Workbench.
+18. `rfcs/RFC-GOVERNANCE-STANDARD.md` is the durable rule for new and reopened
+   implementation-bearing RFCs: include the second-last code-review/governance slice and the final
+   documentation/context/wiki/skills/branch-hygiene slice.
 
 ## Repo-Native Commands
 

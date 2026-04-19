@@ -148,6 +148,13 @@ The most operationally important current RFCs are:
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 
+## RFC Governance
+
+1. [RFC Governance Standard](../rfcs/RFC-GOVERNANCE-STANDARD.md)
+   Required closure model for new and reopened implementation-bearing RFCs.
+2. New or reopened implementation RFCs must include the second-last code-review/governance slice and
+   the final docs/context/wiki/skills/branch-hygiene slice described in the standard.
+
 ## Task Routing Guidance
 
 ### For frontend and product-surface work

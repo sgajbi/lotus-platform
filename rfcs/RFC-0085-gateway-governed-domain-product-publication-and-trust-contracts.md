@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Implemented / Proven (first-wave API publication; shared draft PR pending merge) |
+| Status | Implemented |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; lotus-gateway maintainers; lotus-workbench maintainers |
@@ -157,7 +157,7 @@ Remaining future hardening:
 | Reduce duplicated publication and trust handling across producers | Producers declare products and telemetry repo-natively; gateway reads generated platform artifacts | Satisfied for first wave | Producer repos do not need to implement customer-facing discovery/trust publication |
 | Make workbench consume truthful contract posture instead of local fallbacks | Workbench `/data-products` consumes gateway/BFF catalog, graph, and trust APIs | Satisfied for first-wave discovery | Workbench renders unavailable/degraded states from gateway data rather than invented trust |
 | Include a second-last slice for code review, API certification, and governance tightening | Gateway contract/integration/OpenAPI tests and green PR checks | Satisfied for first wave | Loose-end review found no need for gateway-owned product truth or route-local trust calculation in this slice |
-| Include a final slice for docs, context, wiki, branch hygiene, and skills review | Gateway/Workbench docs plus platform RFC/context updates | Satisfied for first wave | Closure docs record shared draft PR posture and no-new-skill decision |
+| Include a final slice for docs, context, wiki, branch hygiene, and skills review | Gateway/Workbench docs plus platform RFC/context updates | Satisfied for first wave | Closure docs record merged PR posture and no-new-skill decision |
 | Improve future agent effectiveness where durable lessons emerge | Central context now links the gateway API and Workbench discovery path | Satisfied for first wave | Future agents can find the publication/discovery path from standard context |
 
 ## Design Reasoning and Trade-offs
@@ -508,9 +508,8 @@ First-wave implementation evidence:
    explicit unavailable posture when platform evidence is absent.
 2. `lotus-gateway` commit `cf0634a` fixed the branch quality gate after line-number and formatting
    drift surfaced in the shared advisor-brief branch.
-3. `lotus-gateway` PR #136 is draft because the branch also contains RFC-0033 advisor-brief work,
-   but the gateway mesh slice is committed, pushed, clean, merge-state clean, and has green Feature
-   Lane and PR Merge Gate checks.
+3. `lotus-gateway` PR #136 merged on 2026-04-19 with green Feature Lane, PR Merge Gate, and
+   auto-merge queue checks.
 4. Gateway contract and integration tests prove the trust endpoint preserves platform product
    identity, certified versus attention posture, trust issues, and OpenAPI documentation.
 5. Gateway remains the publication/API face only. It reads generated platform artifacts and does not
@@ -802,9 +801,7 @@ This RFC does not:
 
 ## Next Actions
 
-1. merge or mark ready the broader gateway PR #136 once the RFC-0033 branch owner approves the
-   shared draft PR,
-2. consider a future dedicated publication-manifest RFC only when route-family lifecycle policy or
+1. consider a future dedicated publication-manifest RFC only when route-family lifecycle policy or
    external API publication needs more than generated platform artifacts and OpenAPI tests,
-3. keep expanding gateway publication through the same pattern: platform-generated truth, gateway
+2. keep expanding gateway publication through the same pattern: platform-generated truth, gateway
    read-only publication, contract tests, and Workbench BFF-only consumption.

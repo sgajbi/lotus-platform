@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Implemented / Proven (first-wave live trust plane; shared gateway/workbench PRs pending merge) |
+| Status | Implemented |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers |
@@ -130,9 +130,9 @@ Remaining future hardening:
 
 | Requirement | Current evidence | Current status | RFC-0087 response |
 | --- | --- | --- | --- |
-| Move from declared trust to operational truth | Platform telemetry contracts, producer snapshots, live certification generation, gateway trust endpoint, and Workbench discovery UI now exist | Satisfied for first wave | Gateway and Workbench consumption are proven on shared draft PR branches |
+| Move from declared trust to operational truth | Platform telemetry contracts, producer snapshots, live certification generation, gateway trust endpoint, and Workbench discovery UI now exist | Satisfied for first wave | Gateway and Workbench consumption are merged |
 | Make trust posture customer-credible | First-wave producer telemetry certifies cleanly and gateway/workbench expose certified or unavailable trust posture | Satisfied for first wave | UI-facing states are backed by certified runtime evidence where available |
-| Keep the work implementation-bearing | Four producer repos carry contract fixtures/tests; platform generates live trust; gateway/workbench consume it | Satisfied for first wave | Remaining work is merge of shared draft PRs and future mandatory gate hardening |
+| Keep the work implementation-bearing | Four producer repos carry contract fixtures/tests; platform generates live trust; gateway/workbench consume it | Satisfied for first wave | Remaining work is future mandatory gate hardening |
 | Preserve second-last and final closure slices | Gateway/workbench tests, PR evidence, docs/context updates, and no-new-skill decision are recorded | Satisfied for first wave | Slice 7 and Slice 8 are closed for this implementation boundary |
 
 ## Design Reasoning and Trade-offs
@@ -367,9 +367,8 @@ Implementation PRs and commits:
    a read-only gateway endpoint and tests.
 9. `lotus-workbench` commit `30f5664` consumed that trust certification through the BFF-only
    self-serve discovery surface.
-10. Gateway PR #136 and Workbench PR #97 are shared draft PRs with broader RFC-0033 work, but both
-    branches are clean, pushed, merge-state clean, and have green Feature Lane and PR Merge Gate
-    checks for the committed mesh slices.
+10. Gateway PR #136 and Workbench PR #97 merged on 2026-04-19 with green Feature Lane, PR Merge
+    Gate, and auto-merge queue checks.
 
 ## Original Acceptance Criteria Alignment
 
@@ -592,7 +591,5 @@ This RFC does not:
 
 ## Next Actions
 
-1. merge or mark ready the broader gateway PR #136 and Workbench PR #97 when their RFC-0033 owners
-   approve those shared draft PRs,
-2. decide whether the cross-repo producer telemetry certification should become a platform merge
+1. decide whether the cross-repo producer telemetry certification should become a platform merge
    gate or remain a documented operator check for the next implementation wave.

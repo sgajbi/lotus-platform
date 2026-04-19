@@ -123,10 +123,26 @@ Reference baseline:
 - `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`
 - `RFC-0083-lotus-core-system-of-record-target-architecture.md`
 - `RFC-0084-mesh-governance.md`
-- `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md` (implemented/proven for first-wave gateway publication; shared draft PR pending merge)
+- `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md` (implemented and merged for first-wave gateway publication)
 - `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md` (implemented)
-- `RFC-0087-live-trust-telemetry-and-certification-plane.md` (implemented/proven for first-wave telemetry, certification, gateway, and Workbench consumption)
-- `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented/proven for generated discovery plus Workbench UI; shared draft PR pending merge)
+- `RFC-0087-live-trust-telemetry-and-certification-plane.md` (implemented and merged for first-wave telemetry, certification, gateway, and Workbench consumption)
+- `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented and merged for generated discovery plus Workbench UI)
+
+## RFC Closure Governance
+
+Use [RFC Governance Standard](RFC-GOVERNANCE-STANDARD.md) for new or reopened implementation
+RFCs.
+
+Every implementation-bearing RFC must include:
+
+1. a second-last slice for code review, loose-end tightening, API certification-pattern checks, and
+   platform-governance conformance,
+2. a final slice for documentation, agent context, wiki updates, skills/guidance assessment, and
+   branch hygiene.
+
+Legacy RFCs that predate this rule are not rewritten only for formatting. When a legacy RFC is
+reopened for implementation, it must be brought up to the current closure standard in the same
+change.
 
 
 
