@@ -70,6 +70,15 @@
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [],
         "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
+      },
+      {
+        "repository": "lotus-manage",
+        "source_mode": "repo_native_pending_platform_mirror",
+        "catalog_inclusion": "pending_platform_declaration",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [],
+        "notes": "Repo-native consumer declarations are merged, but platform catalog inclusion waits for a governed platform mirror or federated aggregation source."
       }
     ]
   },
