@@ -45,9 +45,10 @@ Primary areas:
    Governing standards, templates, and baseline contracts for repositories and workflows.
 3. `platform-contracts/`
    Machine-readable platform contract families including API vocabulary, domain vocabulary, and
-   RFC-0084 domain-data-product governance, including first-wave producer and consumer declarations
-   for `lotus-core`, `lotus-performance`, and `lotus-risk`, plus the governed identifier and
-   temporal semantics registry and trust metadata registry used by those declarations.
+   RFC-0084 domain-data-product governance, including the RFC-0086 source manifest for repo-native
+   declarations in `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
+   `lotus-report`, and `lotus-manage`, plus the governed identifier and temporal semantics registry
+   and trust metadata registry used by those declarations.
 4. `generated/`
    Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
    dependency graph derived from governed domain-data-product declarations.
@@ -97,6 +98,11 @@ Boundary rules:
    telemetry can be certified.
 12. `automation/generate_live_trust_certification.py` turns validated RFC-0087 telemetry snapshots
    into deterministic live trust certification artifacts under `output/trust-certification/`.
+13. RFC-0086 is implemented for the first-wave repo-native rollout. `lotus-ai` is consciously not
+   included as a first-wave producer or consumer declaration participant until it owns a stable
+   governed product or catalog-consuming capability. Transitional platform mirror declarations are
+   retained only as compatibility evidence and must not be active source paths in generated catalog
+   artifacts.
 
 ## Repo-Native Commands
 

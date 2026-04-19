@@ -88,9 +88,14 @@ For cross-domain governed data products:
    registry for those declarations,
 5. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
-6. the current aligned first-wave producers are `lotus-core`, `lotus-performance`, and
-   `lotus-risk`,
-7. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+6. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
+   `lotus-risk`, `lotus-advise`, `lotus-report`, and `lotus-manage`,
+7. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
+   `lotus-advise`; `lotus-report` and `lotus-manage` are current consumer-declaration
+   participants,
+8. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
+   it owns a stable governed product or catalog-consuming capability,
+9. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
 ## Front-Office Runtime Governance
