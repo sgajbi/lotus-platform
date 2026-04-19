@@ -124,6 +124,7 @@ Reference baseline:
 - `RFC-0083-lotus-core-system-of-record-target-architecture.md`
 - `RFC-0084-mesh-governance.md`
 - `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`
+- `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`
 
 
 
