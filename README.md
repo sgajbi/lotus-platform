@@ -65,6 +65,9 @@ Primary platform surfaces:
   central Lotus context system, registries, playbooks, and governed operating contract
 - `platform-standards/`
   templates and standards for backend repositories and workflow baselines
+- `platform-contracts/`
+  machine-readable platform contract families such as API vocabulary and governed domain-data-product
+  declarations
 - `platform-stack/`
   shared local ingress and infrastructure orchestration
 - `codex/skills/`
@@ -175,6 +178,8 @@ Important current platform truths:
    duplicated here
 5. documentation changes in this repo are partially governed by unit-level documentation contract
    tests and should be treated as contract work, not just prose edits
+6. RFC-0084 domain-data-product producer and consumer schemas live under
+   `platform-contracts/domain-data-products/`
 
 ## Documentation Map
 

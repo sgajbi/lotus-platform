@@ -43,17 +43,20 @@ Primary areas:
    PowerShell and Python automation for standards validation, platform checks, ingress helpers, governance, and runtime orchestration.
 2. `platform-standards/`
    Governing standards, templates, and baseline contracts for repositories and workflows.
-3. `platform-stack/`
+3. `platform-contracts/`
+   Machine-readable platform contract families including API vocabulary, domain vocabulary, and
+   RFC-0084 domain-data-product governance.
+4. `platform-stack/`
    Shared runtime assets, ingress stack material, and environment-level infrastructure definitions.
-4. `rfcs/`
+5. `rfcs/`
    Platform and ecosystem RFCs.
-5. `context/`
+6. `context/`
    The central context system introduced by RFC-0073.
-6. `tests/unit/`
+7. `tests/unit/`
    Contract tests for platform validators, automation, standards, and documentation governance.
-7. `wiki/`
+8. `wiki/`
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
-8. `docs/documentation/`
+9. `docs/documentation/`
    deep documentation governance and layering guidance for Lotus documentation surfaces.
 
 ## Runtime And Integration Boundaries
@@ -69,7 +72,9 @@ Boundary rules:
 1. platform-wide truth belongs here,
 2. repository-local truth must remain in the owning repository,
 3. cross-repo validation should be encoded once here rather than reimplemented ad hoc elsewhere,
-4. `platform-stack` is not the primary front-office product bring-up path when `lotus-workbench` already owns the governed populated UI runtime.
+4. `platform-stack` is not the primary front-office product bring-up path when `lotus-workbench` already owns the governed populated UI runtime,
+5. cross-domain data-product governance contracts now live under `platform-contracts/` and should be
+   treated as platform contract infrastructure rather than repository-local metadata.
 
 ## Repo-Native Commands
 
