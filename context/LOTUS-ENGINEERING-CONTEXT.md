@@ -110,6 +110,21 @@ For RFC-0087 live trust telemetry:
 5. gateway and Workbench must consume certified trust posture through governed APIs rather than
    inventing decorative trust state.
 
+For the RFC-0085/RFC-0088 first-wave publication and discovery path:
+
+1. `lotus-gateway` is the API publication face for generated domain-product discovery and trust
+   evidence; it must not become a product registry or domain-product authority,
+2. gateway exposes read-only domain-product catalog, detail, dependency graph, and trust
+   certification APIs under `/api/v1/domain-products`,
+3. gateway reads platform-generated discovery and live-trust artifacts and returns explicit
+   unavailable or degraded posture when certified platform evidence is absent,
+4. `lotus-workbench` exposes the first-wave self-serve discovery UI at `/data-products`,
+5. Workbench discovery must consume gateway through the BFF only and must not read platform files
+   directly or invent decorative trust state,
+6. RFC-0085, RFC-0087, and RFC-0088 are implemented/proven for the first-wave mesh surface, but the
+   gateway and Workbench commits currently live on shared RFC-0033 draft PR branches and should be
+   described as proven rather than merged until those PRs are accepted.
+
 ## Front-Office Runtime Governance
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:

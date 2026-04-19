@@ -12,7 +12,6 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 import re
-import sys
 from typing import Any
 
 INVENTORY_GLOB = "*-api-vocabulary.v1.json"

@@ -88,6 +88,16 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 18. `../tests/unit/test_domain_product_rollout_closure.py`
     Protects RFC-0086 closure posture: first-wave repo-native source ownership, active catalog source
     paths, `lotus-ai` exclusion rationale, and transitional platform mirror retention.
+19. `../../lotus-gateway/src/app/routers/domain_products.py`
+    Gateway API face for domain-product catalog, detail, dependency graph, and live trust
+    certification.
+20. `../../lotus-gateway/src/app/services/domain_product_catalog_service.py`
+    Gateway service that reads platform-generated discovery and trust artifacts without becoming the
+    product authority.
+21. `../../lotus-workbench/src/app/data-products/page.tsx`
+    Workbench self-serve discovery route that must consume gateway/BFF APIs only.
+22. `../../lotus-workbench/src/features/domain-products/`
+    Workbench client/API module for catalog, graph, trust, and degraded discovery states.
 
 ## Task Routing
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Implemented / Proven (first-wave live trust plane; shared gateway/workbench PRs pending merge) |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers |
@@ -49,7 +49,7 @@ The user intent preserved in this RFC is:
 
 ## Current Implementation Reality
 
-Overall classification: `Partially implemented (gateway and workbench adoption remaining)`
+Overall classification: `Implemented and proven for the first-wave live trust certification plane`
 
 ### What is implemented well today
 
@@ -110,24 +110,30 @@ platform-owned live trust plane rather than inventing an entirely new model.
    platform contract when `lotus-platform` is available and checks observed trust metadata against
    the repo-native domain-product declaration.
 
-### What remains partially implemented
+### What is now proven end to end
 
-1. gateway trust publication still needs to consume certified trust artifacts rather than only
-   route-local or static trust posture,
-2. Workbench discovery and trust surfaces still need to render certified runtime-backed trust state
-   through gateway APIs,
-3. platform CI has commands and tests for telemetry validation and live certification generation,
-   but cross-repo certification from producer telemetry directories is not yet a mandatory merge
-   gate.
+1. `lotus-gateway` now consumes the platform live-trust certification artifact through
+   `GET /api/v1/domain-products/trust-certification` and returns explicit unavailable posture when
+   the platform artifact is absent.
+2. `lotus-workbench` now renders runtime-backed trust state on `/data-products` through gateway/BFF
+   calls only, including unavailable and degraded states.
+3. Platform CI has commands and tests for telemetry validation and live certification generation.
+
+Remaining future hardening:
+
+1. cross-repo live trust telemetry certification is not yet a mandatory platform merge gate across
+   all participating repositories,
+2. consumer-side and gateway-owned telemetry emission should be added only when there is a concrete
+   consumer trust signal to certify.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0087 response |
 | --- | --- | --- | --- |
-| Move from declared trust to operational truth | Platform telemetry contracts, producer snapshots, and live certification generation now exist | Satisfied for platform and producer repos | Complete gateway and workbench consumption |
-| Make trust posture customer-credible | First-wave producer telemetry certifies cleanly, but gateway/workbench do not yet surface that certification end-to-end | Partially satisfied | Back UI-facing states with certified runtime evidence instead of only declared policy |
-| Keep the work implementation-bearing | Four producer repos now carry contract fixtures and tests; platform generates live trust certification | Satisfied for first-wave telemetry foundation | Continue gateway/workbench integration slices |
-| Preserve second-last and final closure slices | User requested this quality posture consistently | Not yet satisfied before this pass | RFC includes mandatory Slice 7 and Slice 8 plus review gates |
+| Move from declared trust to operational truth | Platform telemetry contracts, producer snapshots, live certification generation, gateway trust endpoint, and Workbench discovery UI now exist | Satisfied for first wave | Gateway and Workbench consumption are proven on shared draft PR branches |
+| Make trust posture customer-credible | First-wave producer telemetry certifies cleanly and gateway/workbench expose certified or unavailable trust posture | Satisfied for first wave | UI-facing states are backed by certified runtime evidence where available |
+| Keep the work implementation-bearing | Four producer repos carry contract fixtures/tests; platform generates live trust; gateway/workbench consume it | Satisfied for first wave | Remaining work is merge of shared draft PRs and future mandatory gate hardening |
+| Preserve second-last and final closure slices | Gateway/workbench tests, PR evidence, docs/context updates, and no-new-skill decision are recorded | Satisfied for first wave | Slice 7 and Slice 8 are closed for this implementation boundary |
 
 ## Design Reasoning and Trade-offs
 
@@ -357,6 +363,13 @@ Implementation PRs and commits:
 6. `lotus-risk` PR #98 added the `RiskMetricsReport` telemetry snapshot and repo-local test,
 7. `lotus-advise` PR #100 added the `AdvisoryProposalLifecycleRecord` telemetry snapshot and
    repo-local test.
+8. `lotus-gateway` commit `78ac98a` published the platform live trust certification artifact through
+   a read-only gateway endpoint and tests.
+9. `lotus-workbench` commit `30f5664` consumed that trust certification through the BFF-only
+   self-serve discovery surface.
+10. Gateway PR #136 and Workbench PR #97 are shared draft PRs with broader RFC-0033 work, but both
+    branches are clean, pushed, merge-state clean, and have green Feature Lane and PR Merge Gate
+    checks for the committed mesh slices.
 
 ## Original Acceptance Criteria Alignment
 
@@ -517,14 +530,16 @@ Required proof for implementation under this RFC:
 3. a dedicated telemetry/certification skill may be justified if this becomes recurring cross-repo
    work.
 
-### Conscious no-change and follow-up decisions at current rollout stage
+### Conscious closure decisions for skills, documentation, and context
 
 1. no new telemetry-specific skill is added yet because the current work is still covered by Lotus
    backend governance plus repo-local tests and platform validators,
-2. context and repository-local engineering context are updated as durable artifact paths and
-   commands exist,
-3. no existing docs are removed until gateway and Workbench have adopted certified trust posture
-   and any route-local trust logic can be audited safely.
+2. context and repository-local engineering context are updated as durable artifact paths, gateway
+   trust API paths, and Workbench consumption paths exist,
+3. no existing docs are removed because route-local trust logic still exists in non-discovery route
+   families and must be retired route-family-by-route-family,
+4. the next guidance improvement should be a platform merge-gate playbook only after cross-repo
+   telemetry checkout orchestration is stable.
 
 That posture is intentional rather than accidental.
 
@@ -546,12 +561,12 @@ Mitigation:
 
 ## Acceptance Criteria
 
-This RFC is complete only when:
+This RFC is complete for the first-wave live trust certification plane when:
 
 1. governed live trust telemetry exists for the first wave,
 2. `lotus-platform` produces certified trust artifacts from runtime telemetry,
-3. gateway consumes certified trust posture for covered route families,
-4. workbench surfaces covered by the first wave render runtime-backed trust states,
+3. gateway consumes certified trust posture for covered discovery/trust route families,
+4. workbench discovery surfaces render runtime-backed trust states,
 5. duplicate route-local trust logic is removed or explicitly justified where certification is now
    authoritative,
 6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
@@ -567,17 +582,17 @@ This RFC does not:
 
 ## Open Questions
 
-1. Resolved for this slice: first-wave telemetry starts with producer repos only. Gateway telemetry
+1. Resolved for this wave: first-wave telemetry starts with producer repos only. Gateway telemetry
    should be added only when gateway owns a concrete certified-consumption signal.
-2. Resolved for this slice: repo-local telemetry snapshots live in producer
+2. Resolved for this wave: repo-local telemetry snapshots live in producer
    `contracts/trust-telemetry/` directories; platform certification artifacts remain generated
    outputs.
-3. Open for final closure: which trust states become blocking in CI versus informational once
+3. Open for future hardening: which trust states become blocking in CI versus informational now that
    gateway and Workbench consume certified trust posture.
 
 ## Next Actions
 
-1. complete RFC-0085 gateway consumption of certified trust artifacts,
-2. complete RFC-0088 Workbench rendering of certified runtime-backed trust states,
-3. decide whether the cross-repo producer telemetry certification should become a platform merge
+1. merge or mark ready the broader gateway PR #136 and Workbench PR #97 when their RFC-0033 owners
+   approve those shared draft PRs,
+2. decide whether the cross-repo producer telemetry certification should become a platform merge
    gate or remain a documented operator check for the next implementation wave.

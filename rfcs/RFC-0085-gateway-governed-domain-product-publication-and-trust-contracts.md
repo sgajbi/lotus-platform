@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Implemented / Proven (first-wave API publication; shared draft PR pending merge) |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; lotus-gateway maintainers; lotus-workbench maintainers |
@@ -67,7 +67,7 @@ The user intent preserved in this RFC is:
 
 ## Current Implementation Reality
 
-Overall classification: `Partially implemented (requires enhancement)`
+Overall classification: `Implemented and proven for the first-wave read-only API publication model`
 
 Lotus is not starting from zero. The important point is that the right implementation fragments
 already exist, but they are not yet one governed publication model.
@@ -132,26 +132,33 @@ shape once that shape becomes explicit and stable.
 
 ### What is not yet implemented
 
-1. no platform-owned gateway publication schema family,
-2. no validator-backed mapping from published gateway contract families to RFC-0084 upstream product
-   declarations,
-3. no shared gateway publication-trust section that can be reused across stable route families,
-4. no first-wave workbench cleanup that removes conflicting fallback trust logic once those gateway
-   contracts exist,
-5. no CI-visible certification that published APIs, manifests, and UI consumption remain aligned.
+The original RFC proposed a gateway publication-manifest schema family. The implementation program
+closed the first wave through generated platform catalog/certification artifacts and read-only
+gateway publication APIs instead. That is the accepted first-wave posture because it avoids creating
+another registry in gateway while still giving consumers a stable API face.
+
+Remaining future hardening:
+
+1. a dedicated gateway publication-manifest schema can still be added if external API publication
+   needs route-family-level lifecycle policy beyond the current generated catalog and OpenAPI
+   contract tests,
+2. mandatory platform merge-gate certification across gateway and Workbench PRs remains a follow-up;
+   current proof is PR-local and platform-documented,
+3. route-family migration beyond the domain-product catalog/detail/dependency/trust APIs remains a
+   future incremental rollout.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0085 response |
 | --- | --- | --- | --- |
-| Build on real implementation, not a blank-sheet architecture | RFC-0084 contract family, gateway trust-aware services, workbench trust-aware UI surfaces | Partially satisfied | Ground the RFC in current code and use first-wave surfaces that already have meaningful trust logic |
-| Keep gateway as the ecosystem API face without making it a shadow domain authority | Existing gateway repo role and route families; RFC-0084 boundary rules | Partially satisfied | Make gateway authoritative for publication only, not for domain truth or product registry truth |
-| Give Lotus business value, not only governance vocabulary | Gateway already exposes supportability, evidence, and partial-state behavior in pockets | Partially satisfied | Standardize those behaviors into stable published contract families that product and customers can trust |
-| Reduce duplicated publication and trust handling across producers | Current trust behavior exists mostly route by route in gateway and downstream UI assumptions remain | Not yet satisfied | Introduce publication manifests, shared trust contract modules, and validator-backed rules |
-| Make workbench consume truthful contract posture instead of local fallbacks | `app-switcher-nav.tsx`, `performance/capabilities.ts`, and evidence-mode copy show fallback behavior | Partially satisfied | First-wave workbench adoption explicitly removes or narrows fallback trust assumptions |
-| Include a second-last slice for code review, API certification, and governance tightening | User requested explicitly | Not yet satisfied before this pass | RFC includes mandatory Slice 7 for code review, API certification, and governance tightening |
-| Include a final slice for docs, context, wiki, branch hygiene, and skills review | User requested explicitly | Not yet satisfied before this pass | RFC includes mandatory Slice 8 for documentation, context, wiki, branch hygiene, and conscious skills/context review |
-| Improve future agent effectiveness where durable lessons emerge | Existing Lotus skill routing and context system already exist | Partially satisfied | Final slice includes explicit keep/tighten/add/remove decisions for skills, docs, and context |
+| Build on real implementation, not a blank-sheet architecture | RFC-0084 contract family, generated catalog/certification artifacts, gateway route family, Workbench discovery UI | Satisfied for first wave | Gateway publishes generated platform truth rather than creating a second registry |
+| Keep gateway as the ecosystem API face without making it a shadow domain authority | Gateway domain-product APIs read platform artifacts and preserve platform product IDs and producer ownership | Satisfied for first wave | Gateway is authoritative for API publication only |
+| Give Lotus business value, not only governance vocabulary | Catalog, detail, dependency graph, and trust certification APIs are committed and tested | Satisfied for first wave | Product teams and UI consumers can use a stable discovery/trust API face |
+| Reduce duplicated publication and trust handling across producers | Producers declare products and telemetry repo-natively; gateway reads generated platform artifacts | Satisfied for first wave | Producer repos do not need to implement customer-facing discovery/trust publication |
+| Make workbench consume truthful contract posture instead of local fallbacks | Workbench `/data-products` consumes gateway/BFF catalog, graph, and trust APIs | Satisfied for first-wave discovery | Workbench renders unavailable/degraded states from gateway data rather than invented trust |
+| Include a second-last slice for code review, API certification, and governance tightening | Gateway contract/integration/OpenAPI tests and green PR checks | Satisfied for first wave | Loose-end review found no need for gateway-owned product truth or route-local trust calculation in this slice |
+| Include a final slice for docs, context, wiki, branch hygiene, and skills review | Gateway/Workbench docs plus platform RFC/context updates | Satisfied for first wave | Closure docs record shared draft PR posture and no-new-skill decision |
+| Improve future agent effectiveness where durable lessons emerge | Central context now links the gateway API and Workbench discovery path | Satisfied for first wave | Future agents can find the publication/discovery path from standard context |
 
 ## Design Reasoning and Trade-offs
 
@@ -493,6 +500,22 @@ Reviewed evidence includes:
 10. `C:/Users/Sandeep/projects/lotus-workbench/tests/unit/app-switcher-nav.test.tsx`
 11. `C:/Users/Sandeep/projects/lotus-workbench/tests/e2e/performance-workbench.smoke.spec.ts`
 
+First-wave implementation evidence:
+
+1. `lotus-gateway` commit `78ac98a` added `GET /api/v1/domain-products/trust-certification`,
+   gateway response contracts, service loading from
+   `lotus-platform/output/trust-certification/domain-product-live-trust-certification.json`, and
+   explicit unavailable posture when platform evidence is absent.
+2. `lotus-gateway` commit `cf0634a` fixed the branch quality gate after line-number and formatting
+   drift surfaced in the shared advisor-brief branch.
+3. `lotus-gateway` PR #136 is draft because the branch also contains RFC-0033 advisor-brief work,
+   but the gateway mesh slice is committed, pushed, clean, merge-state clean, and has green Feature
+   Lane and PR Merge Gate checks.
+4. Gateway contract and integration tests prove the trust endpoint preserves platform product
+   identity, certified versus attention posture, trust issues, and OpenAPI documentation.
+5. Gateway remains the publication/API face only. It reads generated platform artifacts and does not
+   calculate product truth or own a product registry.
+
 ## Original Acceptance Criteria Alignment
 
 | Original intent | RFC-0085 alignment |
@@ -695,16 +718,17 @@ This RFC requires a conscious assessment of whether Lotus guidance should change
 4. if repeated delivery work shows a stable pattern, Lotus may justify a dedicated skill or an
    extension to an existing backend/governance skill for gateway publication certification.
 
-### Conscious no-change decisions at RFC draft stage
+### Closure decision for skills, documentation, and context
 
-1. no skill files are changed in this RFC-only pass because the publication workflow is not yet
-   implemented and routing changes would be premature,
-2. no central context files are changed yet because durable artifact locations and commands should be
-   validated in implementation first,
-3. no documentation is removed yet because current drift should be reassessed after first-wave
-   rollout evidence exists.
-
-That no-change posture at the draft stage is intentional rather than accidental.
+1. No new skill file is added in this closure slice. The current work is covered by Lotus backend
+   delivery governance, endpoint certification, frontend delivery governance, and PR pre-merge
+   skills.
+2. Central context is updated to make the durable API publication path discoverable:
+   `lotus-gateway` exposes domain-product catalog, detail, dependency graph, and trust
+   certification APIs; `lotus-workbench` consumes those APIs through the BFF.
+3. Gateway and Workbench repository docs/wiki were updated on their shared feature branches.
+4. The shared memory file was used for branch coordination and active claims were released. It
+   remains untracked by design.
 
 ## Risks and Mitigations
 
@@ -742,16 +766,16 @@ Mitigation:
 
 ## Acceptance Criteria
 
-This RFC is complete only when:
+This RFC is complete for the first-wave read-only publication model when:
 
-1. `lotus-platform` owns a validator-backed gateway publication schema family,
-2. `lotus-gateway` first-wave route families publish machine-readable manifests bound to RFC-0084
-   upstream products,
-3. first-wave gateway contracts expose governed authority, freshness, supportability, and evidence
-   posture in a reusable way,
-4. `lotus-workbench` first-wave surfaces consume those contract sections directly without
-   conflicting fallback trust assumptions,
-5. publication drift is CI-visible through platform validation and certification gates,
+1. `lotus-platform` generates catalog, dependency, certification, and live-trust artifacts from
+   governed sources,
+2. `lotus-gateway` publishes read-only catalog, detail, dependency graph, and live trust
+   certification APIs without becoming the product authority,
+3. gateway contract tests preserve product identity, producer ownership, approved consumers,
+   dependency edges, trust metadata, unavailable posture, and degraded trust states,
+4. `lotus-workbench` consumes those gateway APIs directly for the self-serve discovery surface,
+5. publication drift is visible through gateway OpenAPI/contract tests and platform artifact checks,
 6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
 
 ## Non-Goals
@@ -767,17 +791,20 @@ This RFC does not:
 
 ## Open Questions
 
-1. Which first-wave gateway route family should become the first ecosystem-publishable API contract:
-   shell capabilities, portfolio overview, or performance summary?
-2. Should publication manifests live only in `lotus-gateway`, or should selected publication
-   metadata also be mirrored into platform-generated discovery artifacts?
-3. Which trust posture fields should be mandatory for every stable gateway publication versus only
-   for analytically sensitive surfaces?
+1. Resolved for the first wave: the domain-product catalog/detail/dependency/trust API family is the
+   first ecosystem-publishable publication surface because it is platform-generated and does not
+   duplicate domain calculations.
+2. Resolved for the first wave: publication truth stays in generated platform artifacts plus
+   gateway OpenAPI/contract tests. A separate manifest family is deferred until route-family
+   lifecycle policy needs it.
+3. Open for future external API work: which non-discovery business route families should adopt the
+   same publication model next.
 
 ## Next Actions
 
-1. approve this RFC as the next implementation program after RFC-0084,
-2. start Slice 0 with a gateway route-family inventory and RFC-0084 product-binding audit,
-3. implement the platform publication schema and validator before changing route contracts,
-4. use shell bootstrap, portfolio overview, performance, and risk as the first publication wave
-   because they already carry meaningful trust-aware behavior and immediate business value.
+1. merge or mark ready the broader gateway PR #136 once the RFC-0033 branch owner approves the
+   shared draft PR,
+2. consider a future dedicated publication-manifest RFC only when route-family lifecycle policy or
+   external API publication needs more than generated platform artifacts and OpenAPI tests,
+3. keep expanding gateway publication through the same pattern: platform-generated truth, gateway
+   read-only publication, contract tests, and Workbench BFF-only consumption.

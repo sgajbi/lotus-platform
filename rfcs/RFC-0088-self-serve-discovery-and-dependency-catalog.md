@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Draft |
+| Status | Implemented / Proven (platform generated discovery plus Workbench UI; shared draft PR pending merge) |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; ecosystem repository maintainers |
@@ -42,7 +42,7 @@ The user intent preserved in this RFC is:
 
 ## Current Implementation Reality
 
-Overall classification: `Partially implemented (requires enhancement)`
+Overall classification: `Implemented and proven for first-wave platform and Workbench discovery`
 
 ### What is implemented well today
 
@@ -84,27 +84,29 @@ Assessment:
 Repo-native onboarding is the right precursor. Once those declarations are federated, discovery can
 aggregate them into catalog and graph surfaces.
 
-### What is only partially implemented
+### What is now implemented
 
-1. ecosystem context exists, but product and dependency cataloging are not yet self-serve,
-2. product metadata exists, but graph-style discovery does not,
-3. ownership and dependency posture are available only by reading contracts or docs directly.
+1. platform-generated product catalog artifacts,
+2. platform-generated dependency graph artifacts,
+3. read-only platform query automation for agent/operator discovery,
+4. gateway read-only catalog/detail/dependency/trust APIs,
+5. Workbench `/data-products` discovery surface consuming gateway through the BFF only.
 
-### What is not yet implemented
+Remaining future hardening:
 
-1. no platform-generated product catalog,
-2. no platform-generated dependency graph,
-3. no single discovery surface for ownership, lifecycle, consumer posture, and publication posture,
-4. no self-serve discovery workflow for future agents and engineers.
+1. richer search/filtering can be added after the first-wave route proves stable,
+2. external customer documentation should wait until the shared Workbench PR is merged,
+3. graph visualization beyond the current dependency facts is optional and should not replace the
+   generated artifacts as the source of truth.
 
 ## Requirement-to-Implementation Traceability
 
 | Requirement | Current evidence | Current status | RFC-0088 response |
 | --- | --- | --- | --- |
-| Make product and dependency discovery self-serve | Context registries exist, but domain-product discovery is still manual | Partially satisfied | Generate catalog and dependency graph artifacts from governed declarations |
-| Keep the work implementation-bearing | Structured metadata already exists in context and contracts | Partially satisfied | Add generators, validation, and discovery artifacts instead of only prose |
-| Improve future agent effectiveness | Context system exists but still requires many file reads for cross-repo product discovery | Partially satisfied | Add machine-readable and human-readable discovery surfaces built from governed inputs |
-| Preserve strong closure discipline | User requested same quality posture | Not yet satisfied before this pass | Include mandatory Slice 7 and Slice 8 plus review gates |
+| Make product and dependency discovery self-serve | Generated catalog/graph artifacts, platform query CLI, gateway APIs, and Workbench `/data-products` now exist | Satisfied for first wave | Discovery is available to automation, operators, and UI consumers |
+| Keep the work implementation-bearing | Generator, drift tests, generated artifacts, gateway APIs, and Workbench UI/tests are committed | Satisfied for first wave | The RFC closes through code and tests, not only prose |
+| Improve future agent effectiveness | Context now points to generated artifacts, gateway API files, and Workbench discovery modules | Satisfied for first wave | Agents can answer ownership/dependency/trust questions without broad repo archaeology |
+| Preserve strong closure discipline | PR checks, targeted tests, docs/context updates, and branch status are recorded | Satisfied for first wave | Slice 7 and Slice 8 are closed for this implementation boundary |
 
 ## Design Reasoning and Trade-offs
 
@@ -271,6 +273,16 @@ Implementation evidence now includes:
    Records the governed source posture used by discovery generation. The current included rollout
    wave uses repo-native sources for `lotus-core`, `lotus-performance`, `lotus-risk`,
    `lotus-advise`, `lotus-report`, and `lotus-manage`.
+7. `lotus-gateway` commit `78ac98a`
+   Exposes gateway domain-product catalog, detail, dependency graph, and live trust certification
+   APIs as the API face for discovery.
+8. `lotus-workbench` commit `30f5664`
+   Adds `/data-products` as the self-serve discovery surface. The UI displays product name/version,
+   producer repository, lifecycle, approved consumers, dependencies, certification state, trust
+   posture, unavailable posture, stale/attention issues, and error/empty/loading states.
+9. `lotus-workbench` PR #97 is draft because the branch also contains broader RFC-0033
+   advisor-brief work, but the discovery slice is committed, pushed, clean, merge-state clean, and
+   has green Feature Lane and PR Merge Gate checks.
 
 ## Original Acceptance Criteria Alignment
 
@@ -423,13 +435,15 @@ Required proof for implementation under this RFC:
    it becomes durable truth,
 3. a dedicated discovery/catalog skill may be justified if this becomes recurring work.
 
-### Conscious no-change decisions at RFC draft stage
+### Closure decision for skills, documentation, and context
 
-1. no skills are changed in this draft-only pass,
-2. no context files are changed until generated artifact paths are implemented,
-3. no manual discovery docs are removed until generated outputs are proven sufficient.
-
-That no-change posture at the draft stage is intentional rather than accidental.
+1. No new discovery-specific skill is added. The current work is covered by Lotus backend delivery
+   governance, frontend delivery governance, and the central context system.
+2. Central context and repository-local context are updated so future agents can find generated
+   discovery artifacts, gateway APIs, and the Workbench `/data-products` surface quickly.
+3. Manual discovery prose is not removed wholesale because it still provides useful orientation;
+   generated catalog and graph artifacts are the stronger truth for product/dependency facts.
+4. Gateway and Workbench repository docs/wiki were updated on their shared feature branches.
 
 ## Risks and Mitigations
 
@@ -449,12 +463,14 @@ Mitigation:
 
 ## Acceptance Criteria
 
-This RFC is complete only when:
+This RFC is complete for the first-wave self-serve discovery plane when:
 
 1. Lotus can generate a product catalog from governed inputs,
 2. Lotus can generate a dependency graph from governed inputs,
-3. context and onboarding surfaces point to the generated discovery plane,
-4. common ownership and dependency questions are answerable without manual multi-repo archaeology,
+3. context and onboarding surfaces point to the generated discovery plane and gateway/Workbench
+   consumption path,
+4. common ownership, dependency, approved-consumer, lifecycle, and trust-posture questions are
+   answerable without manual multi-repo archaeology,
 5. duplicated manual discovery truth is removed or explicitly justified where generated discovery is
    authoritative,
 6. Slice 7 and Slice 8 are completed as mandatory quality and closure gates.
@@ -470,13 +486,18 @@ This RFC does not:
 
 ## Open Questions
 
-1. Which generated outputs should be canonical first: JSON only, or JSON plus Markdown?
-2. Should graph exports include gateway publication relationships in the first wave or only domain
-   producer-consumer edges?
-3. Which existing context docs should be slimmed down once generated discovery is strong enough?
+1. Resolved for the first wave: JSON plus Markdown catalog artifacts are canonical; JSON graph is
+   canonical for graph-friendly automation.
+2. Resolved for the first wave: graph exports cover domain producer-consumer edges and approval
+   posture; gateway publication is exposed through gateway APIs rather than manually injected into
+   the graph.
+3. Open for future cleanup: which manual orientation docs can be slimmed after the shared Workbench
+   discovery PR is merged and used routinely.
 
 ## Next Actions
 
-1. refine the generated artifact shapes and locations,
-2. define the first-wave dependency graph outputs,
-3. prepare implementation prompts for catalog generation and context integration.
+1. merge or mark ready the broader Workbench PR #97 when its RFC-0033 owner approves the shared
+   draft PR,
+2. add richer filtering/search only after the first-wave `/data-products` surface is accepted,
+3. consider a generated graph visualization only if it preserves generated artifacts as the source
+   of truth.
