@@ -661,6 +661,44 @@ No runtime or behavior change is implemented by this RFC-only slice.
 | Lotus should become commercially stronger and more credible | Explicitly positioned through trust, lineage, and supportability |
 | Future work should be guided by better skills and context | Explicit penultimate and final slices added |
 
+## Mandatory Slice Review Gate
+
+Every completed implementation slice under RFC-0084 must be reviewed thoroughly before work starts
+on the next slice.
+
+That review is mandatory for all slices, including schema-only, validator-only, documentation, and
+cross-repo conformance work.
+
+The review must explicitly check:
+
+1. whether complexity can be reduced further,
+2. whether code, tests, validators, docs, and automation can be made cleaner, more readable, more
+   maintainable, and more modular,
+3. whether dead code, duplicated logic, stale compatibility handling, oversized files, or weak
+   naming should be removed, split, renamed, or simplified,
+4. whether meaningful, high-value tests exist for the behavior introduced or changed,
+5. whether the slice materially improved reliability and maintainability rather than only adding
+   surface area,
+6. whether documentation, platform context, repo-local context, or wiki guidance changed and must be
+   updated in the same slice,
+7. whether any conscious no-change decisions should be recorded explicitly.
+
+The slice review is not complete unless it records:
+
+1. improvements made within the same slice,
+2. issues intentionally deferred,
+3. why those deferrals were acceptable,
+4. what would block the next slice if the issues were left unresolved,
+5. whether the codebase was left cleaner than it was before the slice began.
+
+Default cleanup expectation for every slice:
+
+1. reduce incidental complexity where possible,
+2. improve naming and module boundaries where touched code is weak,
+3. break monolithic files when doing so materially improves structure and comprehension,
+4. remove dead code and stale branching when encountered in the changed path,
+5. prefer durable abstractions and validator-backed rules over local patchwork fixes.
+
 ## Rollout and Backward Compatibility
 
 This RFC should be implemented in controlled slices.
@@ -829,7 +867,9 @@ For any slice implementing this RFC:
 1. targeted repo-native validation in the changed repository,
 2. contract, schema, or validator proof for the changed governance surface,
 3. updated docs proving the operating model changed intentionally,
-4. explicit note of affected producers, consumers, and registries.
+4. explicit note of affected producers, consumers, and registries,
+5. explicit slice-review evidence showing cleanup, maintainability, modularity, and test-quality
+   review before advancing to the next slice.
 
 ### Required PR Merge Gate evidence
 
@@ -838,7 +878,8 @@ For any slice implementing this RFC:
 2. affected producer repo PR-grade proof when product declarations or trust metadata contracts
    change,
 3. affected consumer repo PR-grade proof when dependency posture or response semantics change,
-4. truthful note of remaining deferred gaps.
+4. truthful note of remaining deferred gaps,
+5. truthful note of slice-review findings that were resolved versus consciously deferred.
 
 ### Platform end-to-end evidence
 
@@ -981,7 +1022,8 @@ This RFC is considered implemented when all of the following are true.
    posture.
 8. Lotus can explain freshness, completeness, lineage, and supportability for important cross-domain
    outputs consistently.
-9. Slice 7 verifies API certification-pattern compliance and loose-end tightening before closure.
-10. Slice 8 records documentation, context, skills, wiki, and branch-hygiene outcomes truthfully.
-11. The implementation strengthens current domain authority rather than creating a shadow central
+9. Every completed slice records a mandatory slice-review outcome before the next slice begins.
+10. Slice 7 verifies API certification-pattern compliance and loose-end tightening before closure.
+11. Slice 8 records documentation, context, skills, wiki, and branch-hygiene outcomes truthfully.
+12. The implementation strengthens current domain authority rather than creating a shadow central
     data system.
