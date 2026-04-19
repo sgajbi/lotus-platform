@@ -258,6 +258,18 @@ Recommended additions:
 1. `platform-contracts/trust-telemetry/*.schema.json`
 2. `automation/validate_trust_telemetry.py`
 
+Implementation evidence now includes:
+
+1. `platform-contracts/trust-telemetry/trust-telemetry-snapshot.schema.json`
+   Defines the first governed RFC-0087 runtime trust snapshot shape.
+2. `platform-contracts/trust-telemetry/README.md`
+   Documents the distinction between declared product trust metadata and runtime telemetry.
+3. `automation/validate_trust_telemetry.py`
+   Validates snapshots against the generated domain-product catalog and governed trust vocabulary.
+4. `tests/unit/test_trust_telemetry_contracts.py`
+   Covers valid telemetry, unknown products, ungoverned trust states, unsupported validation lanes,
+   undeclared observed metadata, and blocked snapshots without reasons.
+
 Telemetry should cover at least:
 
 1. freshness evaluation,

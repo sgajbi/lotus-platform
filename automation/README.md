@@ -56,6 +56,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/generate_domain_product_discovery.py`
 - `automation/generate_domain_product_certification.py`
 - `automation/query_domain_product_discovery.py`
+- `automation/validate_trust_telemetry.py`
 - `automation/Validate-Rounding-Consistency.ps1`
 - `automation/Validate-Monetary-Float-Guard.ps1`
 - `automation/Validate-Scalability-Availability.ps1`
@@ -161,6 +162,17 @@ Certification artifacts are written to:
 
 The certification report checks product trust metadata, producer-approved consumers, consumer
 dependency reciprocity, validation lanes, failure posture, and dependency-graph consistency.
+
+Validate live trust telemetry snapshots:
+
+```powershell
+python automation/validate_trust_telemetry.py path\to\telemetry-snapshots
+```
+
+The telemetry validator checks RFC-0087 runtime trust snapshots against the generated
+domain-product catalog and governed trust vocabulary. It rejects unknown products, ungoverned
+freshness/completeness/reconciliation/data-quality states, blocked snapshots without reasons, and
+observed trust metadata that the product did not declare.
 
 One-shot PR health (with failing check detection):
 

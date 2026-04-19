@@ -92,6 +92,9 @@ Boundary rules:
    validation or gateway-facing discovery APIs.
 10. `generated/domain-product-certification-report.json` and `.md` are derived RFC-0087 trust
    certification artifacts over the generated catalog and dependency graph.
+11. `platform-contracts/trust-telemetry/` and `automation/validate_trust_telemetry.py` define the
+   RFC-0087 runtime telemetry contract that producer and consumer repos should target before their
+   telemetry can be certified.
 
 ## Repo-Native Commands
 
@@ -113,6 +116,8 @@ Use these commands as the primary local contract:
    `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
 8. domain-product trust certification artifact generation
    `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
+9. trust telemetry snapshot validation
+   `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
 
 ## Validation And CI Expectations
 

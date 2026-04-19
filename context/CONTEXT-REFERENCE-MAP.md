@@ -69,6 +69,11 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 10. `../automation/generate_domain_product_discovery.py`
     Reads the governed source manifest, validates included repo-native declarations from sibling
     repositories as one federated source set, and regenerates the catalog and dependency graph.
+11. [Trust Telemetry Contracts](../platform-contracts/trust-telemetry/README.md)
+    Runtime telemetry schema and validation entrypoint for RFC-0087 live trust evidence.
+12. `../automation/validate_trust_telemetry.py`
+    Validates product trust telemetry snapshots against the generated product catalog and governed
+    trust vocabulary before certification logic consumes them.
 
 ## Task Routing
 
