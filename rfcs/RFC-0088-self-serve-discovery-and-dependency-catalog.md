@@ -254,6 +254,20 @@ Reviewed evidence includes:
 4. `rfcs/RFC-0084-mesh-governance.md`
 5. `rfcs/RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`
 
+Implementation evidence now includes:
+
+1. `automation/generate_domain_product_discovery.py`
+   Generates the platform-owned domain-product catalog and dependency graph from governed
+   declarations.
+2. `generated/domain-product-catalog.json`
+   Machine-readable product discovery artifact.
+3. `generated/domain-product-dependency-graph.json`
+   Graph-friendly product, repository, approval, and dependency artifact.
+4. `generated/domain-product-catalog.md`
+   Human-readable generated catalog summary.
+5. `tests/unit/test_domain_product_discovery_generator.py`
+   Covers catalog generation, graph generation, output writing, and checked-in artifact drift.
+
 ## Original Acceptance Criteria Alignment
 
 | Original intent | RFC-0088 alignment |

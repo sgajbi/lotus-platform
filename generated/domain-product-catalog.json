@@ -1,0 +1,1733 @@
+{
+  "contract_id": "lotus-domain-product-catalog",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0084",
+    "RFC-0088"
+  ],
+  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "source_declaration_directory": "platform-contracts/domain-data-products",
+  "product_count": 22,
+  "dependency_count": 12,
+  "repository_count": 3,
+  "repositories": [
+    {
+      "repository": "lotus-core",
+      "produced_product_count": 15,
+      "consumed_dependency_count": 0
+    },
+    {
+      "repository": "lotus-performance",
+      "produced_product_count": 2,
+      "consumed_dependency_count": 6
+    },
+    {
+      "repository": "lotus-risk",
+      "produced_product_count": 5,
+      "consumed_dependency_count": 6
+    }
+  ],
+  "products": [
+    {
+      "product_id": "lotus-core:BenchmarkAssignment:v1",
+      "product_name": "BenchmarkAssignment",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "benchmark_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Effective benchmark assignment for a portfolio and as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-report"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/benchmark-assignment"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:BenchmarkConstituentWindow:v1",
+      "product_name": "BenchmarkConstituentWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "benchmark",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "benchmark_id",
+        "index_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Effective benchmark constituent and weight segments across a requested window."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/benchmarks/{benchmark_id}/composition-window"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:DataQualityCoverageReport:v1",
+      "product_name": "DataQualityCoverageReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "benchmark",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "benchmark_id",
+        "risk_free_curve_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Completeness, freshness, and blocking coverage report for source products."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_quality_evidence"
+      },
+      "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-gateway",
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/benchmarks/{benchmark_id}/coverage",
+        "/integration/reference/risk-free-series/coverage"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:HoldingsAsOf:v1",
+      "product_name": "HoldingsAsOf",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "position_id",
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Canonical holdings and cash state for an as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-risk",
+        "lotus-report",
+        "lotus-manage",
+        "lotus-advise"
+      ],
+      "current_routes": [
+        "/portfolios/{portfolio_id}/positions",
+        "/portfolios/{portfolio_id}/cash-balances"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:IndexSeriesWindow:v1",
+      "product_name": "IndexSeriesWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "benchmark",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "valuation_date",
+        "freshness_basis": "observed_at",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "valuation_date",
+      "identifier_refs": [
+        "index_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Canonical index price and return source series."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/indices/{index_id}/price-series",
+        "/integration/indices/{index_id}/return-series"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:IngestionEvidenceBundle:v1",
+      "product_name": "IngestionEvidenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "ingested_at",
+        "freshness_basis": "ingested_at",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "ingested_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "correlation_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Source-batch, validation, replay, DLQ, quarantine, and repair evidence."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_ingestion_evidence"
+      },
+      "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-manage",
+        "lotus-report"
+      ],
+      "current_routes": [
+        "/lineage/portfolios/{portfolio_id}/keys",
+        "/support/portfolios/{portfolio_id}/reprocessing-keys",
+        "/support/portfolios/{portfolio_id}/reprocessing-jobs"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:InstrumentReferenceBundle:v1",
+      "product_name": "InstrumentReferenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "global",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "instrument_id",
+        "issuer_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Instrument, issuer, taxonomy, and classification source reference."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-gateway",
+        "lotus-advise"
+      ],
+      "current_routes": [
+        "/integration/instruments/enrichment-bulk",
+        "/integration/reference/classification-taxonomy"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:MarketDataWindow:v1",
+      "product_name": "MarketDataWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "benchmark",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "valuation_date",
+        "freshness_basis": "observed_at",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "valuation_date",
+      "identifier_refs": [
+        "benchmark_id",
+        "index_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Analytics-safe market-data window with observed and ingested timestamp lineage."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/benchmarks/{benchmark_id}/market-series"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PortfolioAnalyticsReference:v1",
+      "product_name": "PortfolioAnalyticsReference",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Portfolio reference context for analytics sourcing and lifecycle bounds."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/analytics/reference"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PortfolioStateSnapshot:v1",
+      "product_name": "PortfolioStateSnapshot",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "simulation_and_projected_state",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "snapshot_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Policy-aware multi-section snapshot for baseline or simulation state."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/core-snapshot"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PortfolioTimeseriesInput:v1",
+      "product_name": "PortfolioTimeseriesInput",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Portfolio-level valuation and cash-flow input for TWR/MWR workflows."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/analytics/portfolio-timeseries"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PositionTimeseriesInput:v1",
+      "product_name": "PositionTimeseriesInput",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "position_id",
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Position-level analytics input with valuation and cash-flow provenance."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/analytics/position-timeseries"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:ReconciliationEvidenceBundle:v1",
+      "product_name": "ReconciliationEvidenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "snapshot_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Consumer-safe reconciliation run, finding, break, and blocking evidence."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_reconciliation_evidence"
+      },
+      "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-gateway",
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/support/portfolios/{portfolio_id}/reconciliation-runs",
+        "/support/portfolios/{portfolio_id}/reconciliation-runs/{run_id}/findings"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:RiskFreeSeriesWindow:v1",
+      "product_name": "RiskFreeSeriesWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "global",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "valuation_date",
+        "freshness_basis": "observed_at",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "valuation_date",
+      "identifier_refs": [
+        "risk_free_curve_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Canonical risk-free rate source series for excess-return workflows."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-performance",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/reference/risk-free-series"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:TransactionLedgerWindow:v1",
+      "product_name": "TransactionLedgerWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Deterministically ordered transaction and income ledger window."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_sensitive:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-report",
+        "lotus-manage",
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/portfolios/{portfolio_id}/transactions"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-performance:BenchmarkExposureContext:v1",
+      "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "owner_repository": "lotus-performance",
+      "authoritative_domain": "performance_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "benchmark",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "valuation_date",
+        "freshness_basis": "valuation_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "valuation_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "benchmark_id",
+        "calculation_id",
+        "position_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Exposure rows must stay aligned to the benchmark performance context and resolved benchmark version for the requested as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/benchmarks/exposure-context"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-performance-products.v1.json"
+    },
+    {
+      "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
+      "product_name": "ReturnsSeriesBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "owner_repository": "lotus-performance",
+      "authoritative_domain": "performance_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "date",
+        "freshness_basis": "valuation_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "valuation_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "benchmark_id",
+        "calculation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Stateful series are recalculated from governed upstream data for the requested as-of date and window."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-risk"
+      ],
+      "current_routes": [
+        "/integration/returns/series",
+        "/integration/returns/series/results/{calculation_id}"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-performance-products.v1.json"
+    },
+    {
+      "product_id": "lotus-risk:ConcentrationRiskReport:v1",
+      "product_name": "ConcentrationRiskReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "owner_repository": "lotus-risk",
+      "authoritative_domain": "risk_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "position_id",
+        "instrument_id",
+        "issuer_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "coverage_ratio",
+        "coverage_status"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Concentration analytics must reflect the resolved current or simulated portfolio state for the requested as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/analytics/risk/concentration"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+    },
+    {
+      "product_id": "lotus-risk:DrawdownAnalyticsReport:v1",
+      "product_name": "DrawdownAnalyticsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "owner_repository": "lotus-risk",
+      "authoritative_domain": "risk_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Drawdown analytics must remain tied to the resolved return path and benchmark policy used for the requested as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/analytics/risk/drawdown"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+    },
+    {
+      "product_id": "lotus-risk:HistoricalRiskAttributionReport:v1",
+      "product_name": "HistoricalRiskAttributionReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "owner_repository": "lotus-risk",
+      "authoritative_domain": "risk_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "benchmark_id",
+        "position_id",
+        "instrument_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Historical attribution must stay aligned to the requested as-of date, upstream return series, exposure history, and benchmark context."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/analytics/risk/historical-attribution"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+    },
+    {
+      "product_id": "lotus-risk:RiskMetricsReport:v1",
+      "product_name": "RiskMetricsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "owner_repository": "lotus-risk",
+      "authoritative_domain": "risk_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context",
+        "risk_free_context"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Risk metrics must reflect the requested as-of date and the resolved upstream return series used for the calculation."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/analytics/risk/calculate"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+    },
+    {
+      "product_id": "lotus-risk:RollingRiskMetricsReport:v1",
+      "product_name": "RollingRiskMetricsReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "owner_repository": "lotus-risk",
+      "authoritative_domain": "risk_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "as_of_date",
+        "lineage_version",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "benchmark_context",
+        "risk_free_context"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Rolling risk metrics must stay aligned to the requested return window and explicit risk-free treatment."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/analytics/risk/rolling-metrics"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-products.v1.json"
+    }
+  ],
+  "consumers": [
+    {
+      "consumer_repository": "lotus-performance",
+      "dependency_count": 6,
+      "source_path": "platform-contracts/domain-data-products/lotus-performance-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:BenchmarkAssignment:v1",
+          "product_name": "BenchmarkAssignment",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "data_quality_status"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve the linked benchmark for stateful returns-series and benchmark-exposure workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:InstrumentReferenceBundle:v1",
+          "product_name": "InstrumentReferenceBundle",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "data_quality_status",
+            "latest_evidence_timestamp"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "paged_api_read",
+          "business_purpose": "Source canonical classification and instrument reference metadata for benchmark exposure grouping semantics.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:MarketDataWindow:v1",
+          "product_name": "MarketDataWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "data_quality_status",
+            "latest_evidence_timestamp"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "paged_api_read",
+          "business_purpose": "Retrieve benchmark market-series component weights and aligned market observations for performance-owned benchmark context.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioAnalyticsReference:v1",
+          "product_name": "PortfolioAnalyticsReference",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve portfolio open-date, reporting-currency, and lifecycle reference context for governed performance products.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioTimeseriesInput:v1",
+          "product_name": "PortfolioTimeseriesInput",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source canonical portfolio return observations for stateful returns-series workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:RiskFreeSeriesWindow:v1",
+          "product_name": "RiskFreeSeriesWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "data_quality_status",
+            "latest_evidence_timestamp"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Normalize governed risk-free series when the returns-series product is asked to emit risk-free return observations.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "degrade_to_partial"
+        }
+      ]
+    },
+    {
+      "consumer_repository": "lotus-risk",
+      "dependency_count": 6,
+      "source_path": "platform-contracts/domain-data-products/lotus-risk-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:InstrumentReferenceBundle:v1",
+          "product_name": "InstrumentReferenceBundle",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "data_quality_status",
+            "latest_evidence_timestamp"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "paged_api_read",
+          "business_purpose": "Resolve governed instrument, issuer, and classification reference context for concentration and attribution outputs.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",
+          "product_name": "PortfolioStateSnapshot",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve governed portfolio state for concentration stateful and simulation flows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PositionTimeseriesInput:v1",
+          "product_name": "PositionTimeseriesInput",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source historical position exposure rows for stateful historical risk attribution.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:RiskFreeSeriesWindow:v1",
+          "product_name": "RiskFreeSeriesWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "data_quality_status",
+            "latest_evidence_timestamp"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source governed risk-free series context when rolling Sharpe requires explicit upstream risk-free treatment.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-performance:BenchmarkExposureContext:v1",
+          "product_name": "BenchmarkExposureContext",
+          "producer_repository": "lotus-performance",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "paged_api_read",
+          "business_purpose": "Source performance-aligned benchmark exposure rows for approved stateful active-risk attribution workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-performance:ReturnsSeriesBundle:v1",
+          "product_name": "ReturnsSeriesBundle",
+          "producer_repository": "lotus-performance",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source performance-aligned portfolio and benchmark return observations for stateful risk, drawdown, rolling, and attribution workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        }
+      ]
+    }
+  ]
+}

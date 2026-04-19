@@ -48,17 +48,20 @@ Primary areas:
    RFC-0084 domain-data-product governance, including first-wave producer and consumer declarations
    for `lotus-core`, `lotus-performance`, and `lotus-risk`, plus the governed identifier and
    temporal semantics registry and trust metadata registry used by those declarations.
-4. `platform-stack/`
+4. `generated/`
+   Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
+   dependency graph derived from governed domain-data-product declarations.
+5. `platform-stack/`
    Shared runtime assets, ingress stack material, and environment-level infrastructure definitions.
-5. `rfcs/`
+6. `rfcs/`
    Platform and ecosystem RFCs.
-6. `context/`
+7. `context/`
    The central context system introduced by RFC-0073.
-7. `tests/unit/`
+8. `tests/unit/`
    Contract tests for platform validators, automation, standards, and documentation governance.
-8. `wiki/`
+9. `wiki/`
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
-9. `docs/documentation/`
+10. `docs/documentation/`
    deep documentation governance and layering guidance for Lotus documentation surfaces.
 
 ## Runtime And Integration Boundaries
@@ -77,6 +80,8 @@ Boundary rules:
 4. `platform-stack` is not the primary front-office product bring-up path when `lotus-workbench` already owns the governed populated UI runtime,
 5. cross-domain data-product governance contracts now live under `platform-contracts/` and should be
    treated as platform contract infrastructure rather than repository-local metadata.
+6. generated domain-product discovery artifacts are derived platform outputs and should not redefine
+   ownership or dependency truth by hand.
 
 ## Repo-Native Commands
 
