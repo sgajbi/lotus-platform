@@ -88,6 +88,8 @@ Boundary rules:
 8. `automation/query_domain_product_discovery.py` is the platform-owned self-serve query surface
    for generated catalog and graph artifacts; it must remain read-only and must not replace contract
    validation or gateway-facing discovery APIs.
+9. `generated/domain-product-certification-report.json` and `.md` are derived RFC-0087 trust
+   certification artifacts over the generated catalog and dependency graph.
 
 ## Repo-Native Commands
 
@@ -107,6 +109,8 @@ Use these commands as the primary local contract:
    `python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z`
 7. domain-product discovery self-serve query
    `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
+8. domain-product trust certification artifact generation
+   `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
 
 ## Validation And CI Expectations
 
