@@ -11,6 +11,7 @@ PRODUCT_GLOB = "*-products.v1.json"
 CONSUMER_GLOB = "*-consumers.v1.json"
 REPOSITORY_PATTERN = re.compile(r"^lotus-[a-z0-9-]+$")
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
+PRODUCT_VERSION_PATTERN = re.compile(r"^(v[0-9]+|[0-9]+\.[0-9]+\.[0-9]+)$")
 PRODUCT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9]+$")
 
 REQUIRED_PRODUCT_FIELDS = {
@@ -96,8 +97,14 @@ def validate_producer_contract(path: Path, payload: dict) -> list[str]:
         product_version = product["product_version"]
         if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
             _append_issue(issues, path, f"products[{index}].product_name must use stable product naming")
-        if not isinstance(product_version, str) or not SEMVER_PATTERN.fullmatch(product_version):
-            _append_issue(issues, path, f"products[{index}].product_version must be semantic versioning")
+        if not isinstance(product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
+            product_version
+        ):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].product_version must use vN or semantic versioning",
+            )
 
         key = (str(product_name), str(product_version))
         if key in seen_products:
@@ -144,6 +151,13 @@ def validate_producer_contract(path: Path, payload: dict) -> list[str]:
                 path,
                 f"products[{index}].required_trust_metadata must be non-empty",
             )
+        for optional_list_field in ("current_routes",):
+            if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
+                _append_issue(
+                    issues,
+                    path,
+                    f"products[{index}].{optional_list_field} must be non-empty when present",
+                )
 
         deprecation_policy = product["deprecation_policy"]
         if isinstance(deprecation_policy, dict):
@@ -224,8 +238,14 @@ def validate_consumer_contract(path: Path, payload: dict) -> list[str]:
             )
         if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
             _append_issue(issues, path, f"dependencies[{index}].product_name must use stable product naming")
-        if not isinstance(required_version, str) or not SEMVER_PATTERN.fullmatch(required_version):
-            _append_issue(issues, path, f"dependencies[{index}].required_product_version must be semantic versioning")
+        if not isinstance(required_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
+            required_version
+        ):
+            _append_issue(
+                issues,
+                path,
+                f"dependencies[{index}].required_product_version must use vN or semantic versioning",
+            )
         if not _is_non_empty_list(dependency["validation_lanes"]):
             _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
 

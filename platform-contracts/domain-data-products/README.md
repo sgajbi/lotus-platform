@@ -17,6 +17,12 @@ Producer onboarding begins in later RFC-0084 slices:
 1. Slice 2 aligns `lotus-core` producer declarations.
 2. Slice 3 onboards `lotus-performance` and `lotus-risk` as the first analytics producer wave.
 
+Current aligned producer declarations:
+
+1. `lotus-core-products.v1.json`
+   Initial platform-mapped declaration derived from the RFC-0083 source-data product catalog and
+   governed security profiles.
+
 Expected declaration file patterns:
 
 1. `*-products.v1.json`

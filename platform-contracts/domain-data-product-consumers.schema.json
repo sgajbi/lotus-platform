@@ -68,7 +68,7 @@
         "producer_repository": { "$ref": "#/$defs/repositoryName" },
         "required_product_version": {
           "type": "string",
-          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          "pattern": "^(v[0-9]+|[0-9]+\\.[0-9]+\\.[0-9]+)$"
         },
         "consumption_mode": { "$ref": "#/$defs/consumptionMode" },
         "business_purpose": { "type": "string", "minLength": 1 },

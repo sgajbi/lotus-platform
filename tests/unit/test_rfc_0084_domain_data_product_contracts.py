@@ -11,6 +11,9 @@ CONSUMER_SCHEMA_PATH = ROOT / "platform-contracts" / "domain-data-product-consum
 README_PATH = ROOT / "platform-contracts" / "domain-data-products" / "README.md"
 VALIDATOR_PATH = ROOT / "platform-contracts" / "domain-data-products" / "validate_domain_data_product_contracts.py"
 EVIDENCE_PATH = ROOT / "rfcs" / "RFC-0084-slice-1-schema-evidence.md"
+LOTUS_CORE_PRODUCTS_PATH = (
+    ROOT / "platform-contracts" / "domain-data-products" / "lotus-core-products.v1.json"
+)
 
 
 def _load_json(path: Path) -> dict:
@@ -27,6 +30,35 @@ def _load_validator_module():
 
 def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _load_lotus_core_modules():
+    import sys
+
+    lotus_core_root = ROOT.parent / "lotus-core"
+    sys.path.insert(0, str(lotus_core_root))
+    sys.path.insert(0, str(lotus_core_root / "src" / "libs" / "portfolio-common"))
+    from portfolio_common.source_data_products import (  # type: ignore
+        ANALYTICS_INPUT,
+        CONTROL_PLANE_AND_POLICY,
+        OPERATIONAL_READ,
+        QUERY_CONTROL_PLANE_SERVICE,
+        QUERY_SERVICE,
+        SNAPSHOT_AND_SIMULATION,
+        SOURCE_DATA_PRODUCT_CATALOG,
+    )
+    from portfolio_common.source_data_security import get_source_data_security_profile  # type: ignore
+
+    return {
+        "ANALYTICS_INPUT": ANALYTICS_INPUT,
+        "CONTROL_PLANE_AND_POLICY": CONTROL_PLANE_AND_POLICY,
+        "OPERATIONAL_READ": OPERATIONAL_READ,
+        "QUERY_CONTROL_PLANE_SERVICE": QUERY_CONTROL_PLANE_SERVICE,
+        "QUERY_SERVICE": QUERY_SERVICE,
+        "SNAPSHOT_AND_SIMULATION": SNAPSHOT_AND_SIMULATION,
+        "SOURCE_DATA_PRODUCT_CATALOG": SOURCE_DATA_PRODUCT_CATALOG,
+        "get_source_data_security_profile": get_source_data_security_profile,
+    }
 
 
 def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
@@ -235,3 +267,46 @@ def test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies(tmp_path:
 
     assert any("duplicate product declaration" in issue for issue in issues)
     assert any("references unknown product declaration" in issue for issue in issues)
+
+
+def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() -> None:
+    validator = _load_validator_module()
+    core_modules = _load_lotus_core_modules()
+    declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+
+    assert validator.validate_producer_contract(LOTUS_CORE_PRODUCTS_PATH, declaration) == []
+
+    family_map = {
+        core_modules["OPERATIONAL_READ"]: "operational_source_data",
+        core_modules["SNAPSHOT_AND_SIMULATION"]: "simulation_and_projected_state",
+        core_modules["ANALYTICS_INPUT"]: "analytics_input",
+        core_modules["CONTROL_PLANE_AND_POLICY"]: "supportability_and_control_plane",
+    }
+
+    catalog = core_modules["SOURCE_DATA_PRODUCT_CATALOG"]
+    by_name = {product["product_name"]: product for product in declaration["products"]}
+
+    assert declaration["producer_repository"] == "lotus-core"
+    assert len(declaration["products"]) == len(catalog)
+
+    for source_product in catalog:
+        declared = by_name[source_product.product_name]
+        profile = core_modules["get_source_data_security_profile"](source_product.product_name)
+
+        assert declared["product_version"] == source_product.product_version
+        assert declared["owner_repository"] == source_product.owner
+        assert declared["product_family"] == family_map[source_product.route_family]
+        assert declared["approved_consumers"] == list(source_product.consumers)
+        assert declared["required_trust_metadata"] == list(source_product.required_metadata_fields)
+        assert declared["serving_plane"] == source_product.serving_plane
+        assert declared["current_routes"] == list(source_product.current_routes)
+        assert declared["security_profile_ref"] == (
+            f"{profile.access_classification}:{profile.sensitivity_classification}:"
+            f"{profile.retention_requirement}:{profile.audit_requirement}"
+        )
+
+    assert by_name["MarketDataWindow"]["temporal_scope"]["primary_time_field"] == "valuation_date"
+    assert by_name["MarketDataWindow"]["request_scope"]["scope_level"] == "benchmark"
+    assert by_name["RiskFreeSeriesWindow"]["request_scope"]["scope_level"] == "global"
+    assert by_name["IngestionEvidenceBundle"]["temporal_scope"]["primary_time_field"] == "ingested_at"
+    assert by_name["ReconciliationEvidenceBundle"]["lineage_policy"]["evidence_bundle_required"] is True
