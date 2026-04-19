@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Implemented / Proven (platform generated discovery plus Workbench UI; shared draft PR pending merge) |
+| Status | Implemented |
 | Created | 2026-04-19 |
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; ecosystem repository maintainers |
@@ -280,9 +280,8 @@ Implementation evidence now includes:
    Adds `/data-products` as the self-serve discovery surface. The UI displays product name/version,
    producer repository, lifecycle, approved consumers, dependencies, certification state, trust
    posture, unavailable posture, stale/attention issues, and error/empty/loading states.
-9. `lotus-workbench` PR #97 is draft because the branch also contains broader RFC-0033
-   advisor-brief work, but the discovery slice is committed, pushed, clean, merge-state clean, and
-   has green Feature Lane and PR Merge Gate checks.
+9. `lotus-workbench` PR #97 merged on 2026-04-19 with green Feature Lane, PR Merge Gate, and
+   auto-merge queue checks.
 
 ## Original Acceptance Criteria Alignment
 
@@ -389,7 +388,9 @@ This slice is mandatory.
    discovery prose,
 2. tighten governance so generated discovery remains the stronger truth source,
 3. confirm the discovery and dependency catalog follows the platform certification pattern,
-4. remove or retire duplicated manual discovery prose and transitional shortcuts where generated
+4. confirm API certification posture for the gateway and Workbench discovery consumption path where
+   the generated catalog is published through APIs,
+5. remove or retire duplicated manual discovery prose and transitional shortcuts where generated
    discovery is already authoritative.
 
 Exit gate:
@@ -496,8 +497,6 @@ This RFC does not:
 
 ## Next Actions
 
-1. merge or mark ready the broader Workbench PR #97 when its RFC-0033 owner approves the shared
-   draft PR,
-2. add richer filtering/search only after the first-wave `/data-products` surface is accepted,
-3. consider a generated graph visualization only if it preserves generated artifacts as the source
+1. add richer filtering/search only after the first-wave `/data-products` surface is accepted,
+2. consider a generated graph visualization only if it preserves generated artifacts as the source
    of truth.

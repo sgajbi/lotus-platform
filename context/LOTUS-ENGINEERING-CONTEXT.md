@@ -121,9 +121,17 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
 4. `lotus-workbench` exposes the first-wave self-serve discovery UI at `/data-products`,
 5. Workbench discovery must consume gateway through the BFF only and must not read platform files
    directly or invent decorative trust state,
-6. RFC-0085, RFC-0087, and RFC-0088 are implemented/proven for the first-wave mesh surface, but the
-   gateway and Workbench commits currently live on shared RFC-0033 draft PR branches and should be
-   described as proven rather than merged until those PRs are accepted.
+6. RFC-0085, RFC-0087, and RFC-0088 are implemented and merged for the first-wave mesh surface:
+   platform PR #149 closed platform evidence, gateway PR #136 merged the publication/trust API
+   surface, and Workbench PR #97 merged the `/data-products` discovery UI.
+
+For RFC governance:
+
+1. new and reopened implementation-bearing RFCs must include a second-last code review,
+   loose-end-tightening, API certification, and platform-governance slice,
+2. they must also include a final documentation, agent context, wiki, skills/guidance assessment,
+   and branch-hygiene slice,
+3. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
 
 ## Front-Office Runtime Governance
 
