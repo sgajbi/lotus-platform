@@ -15,6 +15,8 @@ REQUIRED_REPOS = {
     "lotus-performance": "sgajbi/lotus-performance",
     "lotus-risk": "sgajbi/lotus-risk",
     "lotus-advise": "sgajbi/lotus-advise",
+    "lotus-report": "sgajbi/lotus-report",
+    "lotus-manage": "sgajbi/lotus-manage",
     "lotus-gateway": "sgajbi/lotus-gateway",
     "lotus-workbench": "sgajbi/lotus-workbench",
 }
@@ -26,10 +28,14 @@ REQUIRED_PATH_FILTERS = {
     "automation/Invoke-PlatformRepoChecks.ps1",
     "platform-contracts/domain-data-products/**",
     "platform-contracts/trust-telemetry/**",
+    "platform-contracts/mesh-slo/**",
+    "platform-contracts/mesh-access/**",
+    "platform-contracts/mesh-evidence/**",
     "generated/domain-product-catalog.json",
     "generated/domain-product-dependency-graph.json",
     "rfcs/RFC-0089-*",
     "rfcs/RFC-0090-*",
+    "rfcs/RFC-0091-*",
 }
 
 
@@ -68,6 +74,8 @@ def test_mesh_certification_workflow_exposes_explicit_branch_overrides() -> None
         "lotus_performance_ref",
         "lotus_risk_ref",
         "lotus_advise_ref",
+        "lotus_report_ref",
+        "lotus_manage_ref",
         "lotus_gateway_ref",
         "lotus_workbench_ref",
     }
@@ -88,7 +96,8 @@ def test_mesh_certification_workflow_checks_out_expected_sibling_layout() -> Non
     checkout_steps = {
         step["with"]["path"]: step
         for step in steps
-        if step.get("uses") == "actions/checkout@v6" and "repository" in step.get("with", {})
+        if step.get("uses") == "actions/checkout@v6"
+        and "repository" in step.get("with", {})
     }
     assert set(checkout_steps) == set(REQUIRED_REPOS)
 
@@ -114,7 +123,9 @@ def test_mesh_certification_workflow_calls_existing_blocking_gate_only() -> None
     assert "workbench_consumption_drift" not in workflow_text
 
 
-def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary() -> None:
+def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary() -> (
+    None
+):
     workflow = _workflow()
     upload_step = _step_by_name(workflow, "Upload mesh certification artifacts")
     summary_step = _step_by_name(workflow, "Append mesh certification summary")
@@ -125,14 +136,24 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     assert "mesh-certification-status.json" in upload_step["with"]["path"]
     assert "mesh-certification-status.md" in upload_step["with"]["path"]
     assert "mesh-certification-issues.json" in upload_step["with"]["path"]
+    assert "enterprise-mesh-certification-status.json" in upload_step["with"]["path"]
+    assert "enterprise-mesh-certification-status.md" in upload_step["with"]["path"]
+    assert "enterprise-mesh-certification-issues.json" in upload_step["with"]["path"]
     assert upload_step["with"]["if-no-files-found"] == "warn"
 
     assert summary_step["if"] == "always()"
-    assert summary_step["env"]["LOTUS_PLATFORM_REF"] == "${{ github.event.pull_request.head.sha || github.sha }}"
+    assert (
+        summary_step["env"]["LOTUS_PLATFORM_REF"]
+        == "${{ github.event.pull_request.head.sha || github.sha }}"
+    )
     assert "docs/operations/mesh-certification-gate-runbook.md" in summary_step["run"]
     assert "Certification state" in summary_step["run"]
+    assert "Maturity Check Families" in summary_step["run"]
+    assert "Certified required products" in summary_step["run"]
     assert "checkout, setup, or CI infrastructure failure" in summary_step["run"]
     assert "| lotus-platform | $LOTUS_PLATFORM_REF |" in summary_step["run"]
+    assert "| lotus-report | $LOTUS_REPORT_REF |" in summary_step["run"]
+    assert "| lotus-manage | $LOTUS_MANAGE_REF |" in summary_step["run"]
 
     assert fail_step["if"] == "steps.mesh_gate.outcome == 'failure'"
     assert fail_step["run"] == "exit 1"

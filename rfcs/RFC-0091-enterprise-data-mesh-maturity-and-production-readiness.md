@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-6 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-7 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -136,6 +136,14 @@ Implemented evidence:
     Adds RFC-0087/RFC-0091 trust telemetry for the promoted reporting product.
 23. `lotus-manage/contracts/trust-telemetry/portfolio-action-register.telemetry.v1.json`
     Adds RFC-0087/RFC-0091 trust telemetry for the promoted management product.
+24. `automation/mesh_certification_gate.py`
+    Enforces the six-product enterprise maturity wave with telemetry, SLO, access, lifecycle,
+    evidence, catalog, gateway, and Workbench maturity check families.
+25. `.github/workflows/mesh-certification-gate.yml`
+    Checks out `lotus-report` and `lotus-manage` alongside the existing mesh repositories and
+    uploads both RFC-0089 and RFC-0091 enterprise certification artifacts.
+26. `docs/operations/mesh-certification-gate-runbook.md`
+    Documents the RFC-0091 operator status taxonomy and fix-forward path.
 
 Slice 0 review result:
 
@@ -206,6 +214,19 @@ Slice 6 review result:
 4. SLO, access, and evidence policies cover all six maturity-wave products,
 5. the mesh certification gate certifies all six required products with zero issues in advisory
    platform proof.
+
+Slice 7 review result:
+
+1. enterprise mesh certification now classifies issues by operator-facing maturity family:
+   telemetry, SLO, access, lifecycle, evidence, catalog, gateway, and Workbench,
+2. the gate validates evidence-pack policy drift and required product lifecycle posture in addition
+   to telemetry, SLO, access, catalog, gateway, and Workbench checks,
+3. the gate writes compatibility `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts from
+   one status object,
+4. the GitHub workflow checks out the six maturity-wave producer repositories plus gateway and
+   Workbench, supports branch overrides for promoted products, and uploads enterprise artifacts,
+5. tests cover passing status, warning/blocking behavior, missing evidence policies, lifecycle
+   drift, workflow checkout scope, artifact upload, and maturity-check summary rendering.
 
 ## Enterprise Mesh Maturity Definition
 

@@ -146,6 +146,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    certification-history and evidence-pack manifests. Slice 6 promotes
    `lotus-report:ClientReportEvidencePack:v1` and
    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave.
+   Slice 7 turns mesh certification into an enterprise maturity gate with operator-facing
+   telemetry, SLO, access, lifecycle, evidence, catalog, gateway, and Workbench check families,
+   evidence-policy validation, lifecycle drift validation, and RFC-0091 `enterprise-mesh-*`
+   artifacts.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
    emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback

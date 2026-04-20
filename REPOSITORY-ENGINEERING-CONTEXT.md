@@ -153,6 +153,10 @@ Boundary rules:
 27. RFC-0091 Slice 6 promotes `lotus-report:ClientReportEvidencePack:v1` and
     `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Mesh
     certification now treats six products as required.
+28. RFC-0091 Slice 7 extends the mesh certification gate into the enterprise maturity gate. The gate
+    now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
+    evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
+    and writes both RFC-0089 `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts.
 
 ## Repo-Native Commands
 

@@ -155,6 +155,11 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     RFC-0091 promoted producer declaration for `ClientReportEvidencePack`.
 41. `../../lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json`
     RFC-0091 promoted producer declaration for `PortfolioActionRegister`.
+42. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+    RFC-0091 operator taxonomy for telemetry, SLO, access, lifecycle, evidence, catalog, gateway,
+    and Workbench certification failures.
+43. `../output/mesh-certification/enterprise-mesh-certification-status.json`
+    RFC-0091 generated enterprise maturity status artifact. Generated evidence, not source truth.
 
 ## Task Routing
 

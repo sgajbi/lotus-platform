@@ -320,17 +320,26 @@ Run the RFC-0089 mesh certification gate:
 python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
 
 # Local blocking proof with sibling lotus-core, lotus-performance, lotus-risk, lotus-advise,
-# lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
+# lotus-report, lotus-manage, lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
 python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 ```
 
 The mesh certification gate composes the catalog, source manifest, RFC-0087 telemetry validator,
-live trust certification generator, gateway publication drift check, and Workbench BFF-only
+live trust certification generator, mesh SLO policy, mesh access policy, evidence-pack policy,
+required product lifecycle posture, gateway publication drift check, and Workbench BFF-only
 consumption drift check. It writes operator artifacts to `output/mesh-certification/`:
 
 - `mesh-certification-status.json`
 - `mesh-certification-status.md`
 - `mesh-certification-issues.json`
+- `enterprise-mesh-certification-status.json`
+- `enterprise-mesh-certification-status.md`
+- `enterprise-mesh-certification-issues.json`
+
+The enterprise status includes operator-facing maturity check families for telemetry, SLO, access,
+lifecycle, evidence, catalog, gateway, and Workbench drift. The `enterprise-*` files are aliases
+for RFC-0091 evidence-pack and workflow consumers; the original `mesh-*` files remain for RFC-0089
+compatibility.
 
 For failure handling, use [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md).
 
