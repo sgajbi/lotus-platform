@@ -14,6 +14,7 @@ def test_platform_workflows_and_templates_meet_core_action_runtime_baseline() ->
         ROOT / ".github" / "workflows" / "main-releasability.yml",
         ROOT / ".github" / "workflows" / "platform-end-to-end-validation.yml",
         ROOT / ".github" / "workflows" / "api-vocabulary-governance.yml",
+        ROOT / ".github" / "workflows" / "mesh-certification-gate.yml",
         ROOT / "platform-standards" / "templates" / "workflows" / "feature-lane.backend.template.yml",
         ROOT / "platform-standards" / "templates" / "workflows" / "pr-merge-gate.backend.template.yml",
         ROOT / "platform-standards" / "templates" / "workflows" / "main-releasability.backend.template.yml",
