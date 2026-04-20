@@ -1,0 +1,116 @@
+{
+  "contract_id": "lotus-enterprise-mesh-closure-ledger",
+  "contract_version": "1.0.0",
+  "status": "complete_foundation_and_operating_control_plane",
+  "generated_at_utc": "2026-04-20T00:00:00Z",
+  "source_of_truth": "lotus-platform/docs/operations/enterprise-mesh-completion-handoff.md",
+  "completed_rfcs": [
+    "RFC-0084",
+    "RFC-0085",
+    "RFC-0086",
+    "RFC-0087",
+    "RFC-0088",
+    "RFC-0089",
+    "RFC-0090",
+    "RFC-0091",
+    "RFC-0092"
+  ],
+  "platform_prs": [
+    {"repo": "lotus-platform", "pr": 144, "purpose": "RFC-0086 federated domain-product aggregation"},
+    {"repo": "lotus-platform", "pr": 145, "purpose": "RFC-0087 trust telemetry contract validation"},
+    {"repo": "lotus-platform", "pr": 146, "purpose": "RFC-0087 live trust certification generation"},
+    {"repo": "lotus-platform", "pr": 149, "purpose": "first-wave mesh closure evidence"},
+    {"repo": "lotus-platform", "pr": 158, "purpose": "RFC-0091 enterprise mesh maturity"},
+    {"repo": "lotus-platform", "pr": 159, "purpose": "RFC-0092 production mesh operating report"},
+    {"repo": "lotus-platform", "pr": 160, "purpose": "platform wiki mesh coverage"}
+  ],
+  "repositories": [
+    {
+      "repo": "lotus-core",
+      "mesh_role": "producer",
+      "product_id": "lotus-core:PortfolioStateSnapshot:v1",
+      "source_wiki_pr": 320,
+      "published_wiki_commit": "4ce013d"
+    },
+    {
+      "repo": "lotus-performance",
+      "mesh_role": "producer",
+      "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
+      "source_wiki_pr": 131,
+      "published_wiki_commit": "31804a5"
+    },
+    {
+      "repo": "lotus-risk",
+      "mesh_role": "producer",
+      "product_id": "lotus-risk:RiskMetricsReport:v1",
+      "source_wiki_pr": 99,
+      "published_wiki_commit": "42da89e"
+    },
+    {
+      "repo": "lotus-advise",
+      "mesh_role": "producer",
+      "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "source_wiki_pr": 101,
+      "published_wiki_commit": "da5f52e"
+    },
+    {
+      "repo": "lotus-report",
+      "mesh_role": "producer",
+      "product_id": "lotus-report:ClientReportEvidencePack:v1",
+      "product_pr": 46,
+      "source_wiki_pr": 47,
+      "published_wiki_commit": "f0894f6"
+    },
+    {
+      "repo": "lotus-manage",
+      "mesh_role": "producer",
+      "product_id": "lotus-manage:PortfolioActionRegister:v1",
+      "product_pr": 39,
+      "source_wiki_pr": 40,
+      "published_wiki_commit": "27e7bd3"
+    },
+    {
+      "repo": "lotus-gateway",
+      "mesh_role": "read_only_api_publication_face",
+      "product_id": null,
+      "implementation_pr": 136,
+      "source_wiki_pr": 137,
+      "published_wiki_commit": "2382d8e"
+    },
+    {
+      "repo": "lotus-workbench",
+      "mesh_role": "self_serve_discovery_surface",
+      "product_id": null,
+      "implementation_pr": 97,
+      "source_wiki_pr": 98,
+      "published_wiki_commit": "d60f1d3"
+    },
+    {
+      "repo": "lotus-ai",
+      "mesh_role": "explicit_non_first_wave_participant",
+      "product_id": null,
+      "source_wiki_pr": 39,
+      "published_wiki_commit": "cc48082"
+    },
+    {
+      "repo": "lotus-platform",
+      "mesh_role": "governance_control_plane",
+      "product_id": null,
+      "source_wiki_pr": 160,
+      "published_wiki_commit": "7838a28"
+    }
+  ],
+  "validation_commands": [
+    "python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos",
+    "python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z",
+    "python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check",
+    "powershell -ExecutionPolicy Bypass -File automation\\Invoke-PlatformRepoChecks.ps1 -Lane feature"
+  ],
+  "future_work_boundary": [
+    "onboard additional data products",
+    "replace static fixture telemetry with continuous runtime telemetry where needed",
+    "build production certification history",
+    "add dashboards or alerts from RFC-0092 operating state",
+    "extend lotus-ai only after governed product or governed catalog-consuming capability exists"
+  ]
+}

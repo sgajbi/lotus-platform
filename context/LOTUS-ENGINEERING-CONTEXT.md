@@ -169,6 +169,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     records, then reports operating state, limited-history posture, drift trend, regression since
     prior certified posture, product operating posture, escalation ownership, and operator guidance.
     It is operational evidence, not product truth and not customer evidence export.
+12. The durable mesh completion handoff is
+    `docs/operations/enterprise-mesh-completion-handoff.md`, with machine-readable closure evidence
+    in `generated/enterprise-mesh-closure-ledger.json` and published human status in
+    `wiki/Enterprise-Mesh-Status.md`. Use those artifacts instead of old chat history when
+    continuing mesh expansion or briefing a new agent.
 
 For RFC governance:
 

@@ -169,6 +169,9 @@ Boundary rules:
     `enterprise-mesh-operating-report.json` and `.md` on every gate run so operators can see
     production-ready versus limited-history posture, drift trends, regressions, product operating
     posture, escalation owners, and state-specific guidance.
+32. The final durable mesh handoff is `docs/operations/enterprise-mesh-completion-handoff.md`.
+    The machine-readable closure ledger is `generated/enterprise-mesh-closure-ledger.json`, and
+    the published wiki landing page is `wiki/Enterprise-Mesh-Status.md`.
 
 ## Repo-Native Commands
 
