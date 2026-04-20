@@ -453,7 +453,8 @@ Final decision:
 
 ## Implementation Status And Evidence
 
-Implementation classification: `Implemented pending PR merge and GitHub check evidence`.
+Implementation classification: `Implemented on the RFC-0090 branch; merge requires the latest PR
+checks to remain green`.
 
 Implemented artifacts:
 
@@ -482,7 +483,8 @@ Local evidence captured before PR:
 5. `python -m pytest tests/unit/test_mesh_certification_gate.py tests/unit/test_mesh_certification_workflow.py tests/unit/test_workflow_security_validator.py tests/unit/test_workflow_action_runtime_validator.py tests/unit/test_rfc_closure_governance.py -q`
 
 Final implementation closure requires the RFC-0090 PR to run the GitHub
-**Cross-Repo Mesh Certification Gate** and the normal platform Feature Lane and PR Merge Gate.
+**Cross-Repo Mesh Certification Gate** and the normal platform Feature Lane and PR Merge Gate on
+the latest commit before merge.
 
 ## Next Actions
 
