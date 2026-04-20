@@ -45,4 +45,5 @@
   6 promotes reporting and management products into the enterprise maturity wave; Slice 7 adds the
   enterprise maturity certification taxonomy, evidence-policy drift checks, lifecycle drift checks,
   and enterprise certification artifacts; Slice 8 centralizes the maturity-wave scope and removes
-  duplicate required-product lists from certification automation
+  duplicate required-product lists from certification automation; Slice 9 completes documentation,
+  agent context, wiki, skills-routing, and branch-hygiene readiness updates

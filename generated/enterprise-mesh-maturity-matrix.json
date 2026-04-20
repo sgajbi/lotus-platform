@@ -53,7 +53,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-performance",
@@ -66,7 +66,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-risk",
@@ -79,7 +79,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-advise",
@@ -92,7 +92,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-report",
@@ -105,7 +105,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-manage",
@@ -118,7 +118,7 @@
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
     },
     {
       "repository": "lotus-gateway",
@@ -164,7 +164,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-core:BenchmarkAssignment:v1",
@@ -274,7 +274,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-core:PortfolioTimeseriesInput:v1",
@@ -340,7 +340,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
@@ -362,7 +362,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-report:ClientReportEvidencePack:v1",
@@ -373,7 +373,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-report/contracts/domain-data-products/lotus-report-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-risk:ConcentrationRiskReport:v1",
@@ -417,7 +417,7 @@
       "maturity_wave": "enterprise_wave_1",
       "lifecycle_status": "active",
       "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json",
-      "required_next_step": "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
       "product_id": "lotus-risk:RollingRiskMetricsReport:v1",

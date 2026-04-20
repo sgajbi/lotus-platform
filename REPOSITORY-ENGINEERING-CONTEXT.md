@@ -129,7 +129,7 @@ Boundary rules:
     producer repositories, `lotus-gateway`, and `lotus-workbench` in sibling layout, runs
     `automation/mesh_certification_gate.py` in blocking mode, uploads
     `output/mesh-certification/` artifacts, and remains read-only.
-21. RFC-0091 is in progress. Slice 0 adds the enterprise mesh maturity matrix generator and
+21. RFC-0091 is implemented. Slice 0 adds the enterprise mesh maturity matrix generator and
     generated matrix artifacts that classify every Lotus repository, first-wave product,
     candidate expansion product, and explicit non-participant posture before maturity
     implementation continues.
@@ -160,6 +160,9 @@ Boundary rules:
 29. RFC-0091 Slice 8 centralizes the six-product maturity-wave scope in
     `automation/mesh_maturity_scope.py`; platform automation must import that module rather than
     copying required-product lists into new validators or generators.
+30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and
+    branch-hygiene readiness updates. The durable skills decision is to tighten
+    `context/LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new dedicated mesh skill.
 
 ## Repo-Native Commands
 

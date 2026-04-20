@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | In Progress |
+| Status | Implemented |
 | Created | 2026-04-20 |
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers; security and operations owners |
@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-8 implemented on RFC-0091 branch`
+Current implementation status: `Implemented on RFC-0091 branch; PR and merge hygiene pending`
 
 Implemented evidence:
 
@@ -246,6 +246,20 @@ Slice 8 review result:
 4. tests now fail if certification automation reintroduces divergent required-product scopes,
 5. no dead duplicate scope tables remain in the touched platform automation modules.
 
+Slice 9 review result:
+
+1. RFC status is updated to `Implemented` with explicit note that PR and merge hygiene remain the
+   branch-level closure work,
+2. platform runbooks, automation README, central context, repository context, wiki source, and RFC
+   index are updated for the enterprise maturity gate and shared maturity scope,
+3. repo-local contexts for `lotus-report` and `lotus-manage` were updated in Slice 6 when those
+   repositories became maturity-wave producers,
+4. skills/guidance decision: tighten `LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new skill;
+   `lotus-backend-delivery-governance` plus `lotus-pr-premerge-gate` remain the right route for
+   mesh maturity work until repeated operational failures justify a dedicated mesh skill,
+5. stale active branch claims were not found in tracked platform context; ignored proof artifacts
+   remain under `output/` only and are not source truth.
+
 ## Enterprise Mesh Maturity Definition
 
 Lotus can be called a mature enterprise data mesh when these statements are true:
@@ -310,13 +324,13 @@ RFC-0091 must not be marked implemented if:
 
 | Requirement | Current evidence | Current status | RFC-0091 response |
 | --- | --- | --- | --- |
-| Continuous runtime trust evidence | RFC-0087 schema and first-wave snapshots | Partial | Add service-emitted telemetry hooks and durable ingestion/export path |
-| Self-service product onboarding | Repo-native declarations and source manifest | Partial | Add scaffolds, checklist, validator pack, and onboarding acceptance gate |
-| Access-governed discovery | Gateway and Workbench discovery exist | Partial | Add tenant/role/consumer entitlement policy to publication and UI discovery |
-| Operational SLO enforcement | Gate checks freshness and trust state | Partial | Add SLO policy contract, drift alerts, escalation ownership, and evidence history |
-| Audit/customer evidence | Certification artifacts exist per run | Partial | Add certification history and exportable evidence pack |
-| Broader rollout | First-wave producers certified | Partial | Promote additional products through controlled wave plan |
-| Lifecycle governance | Lifecycle fields exist in catalog | Partial | Enforce deprecation, replacement, compatibility, and consumer-impact workflows |
+| Continuous runtime trust evidence | RFC-0087 schema, maturity-wave snapshots, and runtime-preferred collection | Implemented | Runtime snapshots are preferred when present; static fixture fallback is explicit evidence, not hidden live telemetry |
+| Self-service product onboarding | `generate_domain_product_onboarding.py` plus bundle validation tests | Implemented | Scaffolds, checklist, validator pack, and onboarding acceptance gate exist |
+| Access-governed discovery | Mesh access policies and gateway/Workbench certification checks | Implemented | Tenant, role, use-case, denial-posture, and gateway-only policy are validated before publication proof |
+| Operational SLO enforcement | Mesh SLO policies and certification-gate drift checks | Implemented | SLO policy contract, drift issues, escalation owner, remediation, and evidence history are enforced |
+| Audit/customer evidence | Evidence policies and generated evidence-pack manifests | Implemented | Certification history and audience-filtered evidence packs can be generated |
+| Broader rollout | Report and manage products promoted into the six-product maturity wave | Implemented | Additional products are promoted through repo-native declarations, telemetry, and platform certification |
+| Lifecycle governance | Enterprise gate checks required product lifecycle posture | Implemented | Required products must remain active/not-deprecated unless governed successor and consumer-impact evidence exists |
 
 ## Design Principles
 
@@ -776,6 +790,8 @@ Initial decision:
 
 ## Next Actions
 
-1. review RFC-0091 for scope and sequencing,
-2. decide first maturity-wave products and repos in Slice 0,
-3. implement Slice 1 only after Slice 0 scope is approved.
+1. open the RFC-0091 platform PR with local feature-lane and blocking mesh-certification evidence,
+2. open or merge the `lotus-report` and `lotus-manage` producer rollout PRs before relying on the
+   GitHub cross-repo mesh gate on `main`,
+3. after all PRs are merged, run the GitHub cross-repo mesh certification gate against `main`,
+4. delete merged feature branches and return each repository to clean `main`.

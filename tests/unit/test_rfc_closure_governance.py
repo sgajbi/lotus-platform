@@ -62,7 +62,9 @@ def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> 
         assert expected in standard
 
 
-def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> None:
+def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
+    None
+):
     for rfc_name in CURRENT_IMPLEMENTATION_RFCS:
         text = _read(ROOT / "rfcs" / rfc_name)
 
@@ -154,7 +156,8 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "done and not-done semantics",
         "ownership map",
         "implementation status and evidence",
-        "slices 0-8 implemented on rfc-0091 branch",
+        "| status | implemented |",
+        "implemented on rfc-0091 branch; pr and merge hygiene pending",
         "automation/generate_domain_product_onboarding.py",
         "tests/unit/test_domain_product_onboarding_generator.py",
         "automation/collect_trust_telemetry.py",
@@ -174,6 +177,8 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "telemetry, slo, access, lifecycle, evidence, catalog, gateway, and workbench",
         "automation/mesh_maturity_scope.py",
         "tests/unit/test_mesh_maturity_scope.py",
+        "slice 9 review result",
+        "lotus-skill-routing-map.md",
         "generated/enterprise-mesh-maturity-matrix.json",
         "output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json",
         "code review, api certification, and governance tightening",

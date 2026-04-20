@@ -130,7 +130,10 @@ def _repository_entry(
     if first_wave_product_count:
         classification = "certified_first_wave"
         mesh_role = "producer"
-        required_next_step = "Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer."
+        required_next_step = (
+            "Maintain repo-native declaration, trust telemetry, SLO, access, "
+            "lifecycle, evidence-pack, and certification-gate posture."
+        )
     elif repository in CONSUMER_ONLY_REPOSITORIES:
         classification = "consumer_only"
         mesh_role = "candidate_expansion"
@@ -194,7 +197,10 @@ def _product_entries(catalog: dict[str, Any]) -> list[dict[str, Any]]:
         if product_id in FIRST_WAVE_PRODUCTS:
             classification = "certified_first_wave"
             maturity_wave = "enterprise_wave_1"
-            required_next_step = "Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls."
+            required_next_step = (
+                "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, "
+                "and certification-gate controls."
+            )
         else:
             classification = "deferred"
             maturity_wave = "future_wave"

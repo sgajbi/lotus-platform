@@ -14,6 +14,9 @@ CHECKED_IN_GENERATED_AT = "2026-04-20T00:00:00Z"
 
 
 def _load_generator_module():
+    automation_path = str(ROOT / "automation")
+    if automation_path not in sys.path:
+        sys.path.insert(0, automation_path)
     spec = importlib.util.spec_from_file_location(
         "enterprise_mesh_maturity_matrix_test", GENERATOR_PATH
     )
