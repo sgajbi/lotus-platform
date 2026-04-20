@@ -143,6 +143,7 @@ jobs:
           LOTUS_ADVISE_REF: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
           LOTUS_GATEWAY_REF: ${{ github.event.inputs.lotus_gateway_ref || 'main' }}
           LOTUS_WORKBENCH_REF: ${{ github.event.inputs.lotus_workbench_ref || 'main' }}
+          LOTUS_PLATFORM_REF: ${{ github.event.pull_request.head.sha || github.sha }}
           MESH_ARTIFACT_NAME: mesh-certification-${{ github.run_id }}-${{ github.sha }}
         run: |
           {
@@ -150,7 +151,7 @@ jobs:
             echo ""
             echo "| Repository | Ref |"
             echo "| --- | --- |"
-            echo "| lotus-platform | $GITHUB_SHA |"
+            echo "| lotus-platform | $LOTUS_PLATFORM_REF |"
             echo "| lotus-core | $LOTUS_CORE_REF |"
             echo "| lotus-performance | $LOTUS_PERFORMANCE_REF |"
             echo "| lotus-risk | $LOTUS_RISK_REF |"
