@@ -163,6 +163,12 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 44. `../automation/mesh_maturity_scope.py`
     Shared RFC-0091 maturity-wave product scope used by telemetry collection, SLO, access,
     evidence, maturity matrix, and certification-gate automation.
+45. `../automation/generate_enterprise_mesh_operating_report.py`
+    Generates the RFC-0092 production mesh operating report from current enterprise certification
+    status and certification-history records.
+46. `../output/mesh-certification/enterprise-mesh-operating-report.json`
+    RFC-0092 generated operator evidence for production-ready versus limited-history posture,
+    drift trend, regression detection, product operating posture, and escalation ownership.
 
 ## Task Routing
 

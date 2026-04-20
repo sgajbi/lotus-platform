@@ -29,6 +29,11 @@ from generate_mesh_evidence_pack import (
     DEFAULT_EVIDENCE_POLICY_DIRECTORY,
     validate_mesh_evidence_policies,
 )
+from generate_enterprise_mesh_operating_report import (
+    DEFAULT_HISTORY_DIRECTORY as DEFAULT_OPERATING_HISTORY_DIRECTORY,
+    build_report_from_paths,
+    write_enterprise_mesh_operating_report,
+)
 from mesh_maturity_scope import (
     REQUIRED_PRODUCTS,
     default_static_telemetry_directories,
@@ -973,6 +978,7 @@ def write_mesh_certification_status(
     status: dict[str, Any],
     *,
     output_directory: Path = DEFAULT_OUTPUT_DIRECTORY,
+    certification_history_directory: Path = DEFAULT_OPERATING_HISTORY_DIRECTORY,
 ) -> None:
     output_directory.mkdir(parents=True, exist_ok=True)
     (output_directory / MESH_CERTIFICATION_STATUS_FILENAME).write_text(
@@ -998,6 +1004,15 @@ def write_mesh_certification_status(
     (output_directory / ENTERPRISE_MESH_CERTIFICATION_ISSUES_FILENAME).write_text(
         json.dumps(status["issues"], indent=2) + "\n",
         encoding="utf-8",
+    )
+    operating_report = build_report_from_paths(
+        mesh_status_path=output_directory / ENTERPRISE_MESH_CERTIFICATION_STATUS_FILENAME,
+        history_directory=certification_history_directory,
+        generated_at_utc=status["generated_at_utc"],
+    )
+    write_enterprise_mesh_operating_report(
+        operating_report,
+        output_directory=output_directory,
     )
 
 

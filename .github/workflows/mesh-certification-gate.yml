@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/mesh-certification-gate.yml"
       - "automation/mesh_certification_gate.py"
+      - "automation/generate_enterprise_mesh_operating_report.py"
       - "automation/Invoke-PlatformRepoChecks.ps1"
       - "platform-contracts/domain-data-products/**"
       - "platform-contracts/trust-telemetry/**"
@@ -17,6 +18,7 @@ on:
       - "rfcs/RFC-0089-*"
       - "rfcs/RFC-0090-*"
       - "rfcs/RFC-0091-*"
+      - "rfcs/RFC-0092-*"
   workflow_dispatch:
     inputs:
       lotus_core_ref:
@@ -159,6 +161,8 @@ jobs:
             lotus-platform/output/mesh-certification/enterprise-mesh-certification-status.json
             lotus-platform/output/mesh-certification/enterprise-mesh-certification-status.md
             lotus-platform/output/mesh-certification/enterprise-mesh-certification-issues.json
+            lotus-platform/output/mesh-certification/enterprise-mesh-operating-report.json
+            lotus-platform/output/mesh-certification/enterprise-mesh-operating-report.md
           if-no-files-found: warn
 
       - name: Append mesh certification summary
@@ -229,6 +233,23 @@ jobs:
                   f"`{family.get('info_count', 0)}` |"
               )
           PY
+            operating_report_path="output/mesh-certification/enterprise-mesh-operating-report.json"
+            if [ -f "$operating_report_path" ]; then
+              python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("output/mesh-certification/enterprise-mesh-operating-report.json").read_text(encoding="utf-8"))
+          trend = report.get("drift_trend", {})
+          print("")
+          print("## Enterprise Operating Report")
+          print("")
+          print(f"- Operating state: `{report.get('operating_state', 'unknown')}`")
+          print(f"- Escalation items: `{len(report.get('escalation_queue', []))}`")
+          print(f"- History records: `{trend.get('history_record_count', 0)}`")
+          print(f"- Regression since previous: `{trend.get('regression_since_previous', False)}`")
+          PY
+            fi
           else
             {
               echo "## Certification Result"

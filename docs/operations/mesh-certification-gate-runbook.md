@@ -130,6 +130,8 @@ The gate writes operator artifacts to `output/mesh-certification/`:
 4. `enterprise-mesh-certification-status.json`
 5. `enterprise-mesh-certification-status.md`
 6. `enterprise-mesh-certification-issues.json`
+7. `enterprise-mesh-operating-report.json`
+8. `enterprise-mesh-operating-report.md`
 
 Use JSON for automation and Markdown for human review. The `enterprise-*` files are compatibility
 aliases for RFC-0091 evidence-pack and workflow consumers; they are rendered from the same status
@@ -147,6 +149,36 @@ Download that artifact from the workflow run when the gate fails. Inspect
 
 If the artifact is missing, the failure happened before the gate could write status. Check the
 checkout, Python setup, and workflow infrastructure steps first.
+
+## Enterprise Operating Report
+
+RFC-0092 adds an operator-facing report generated from the current enterprise mesh certification
+status plus optional certification-history records in
+`output/mesh-evidence-packs/certification-history/`.
+
+The report classifies the mesh into:
+
+| Operating state | Meaning |
+| --- | --- |
+| `production_ready` | Current certification is clean and enough prior certification history exists to support seasoned production posture. |
+| `production_ready_limited_history` | Current certification is clean, but history is still shallow. Use this wording for customer conversations until multiple history records exist. |
+| `attention_required` | Current certification has warnings that need review before customer evidence export or new product promotion. |
+| `blocked` | Current certification has errors or failed state. Stop mesh promotion and fix forward through owning repositories. |
+
+The report also includes:
+
+1. drift trend and consecutive certified run count,
+2. regression since the previous history record,
+3. product operating posture for every maturity-wave product,
+4. escalation queue with severity, family, owner repository, product, remediation, and source
+   evidence path,
+5. state-specific operator guidance.
+
+To regenerate it directly after a certification run:
+
+```powershell
+python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z
+```
 
 ## Required Maturity-Wave Products
 

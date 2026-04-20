@@ -346,6 +346,24 @@ compatibility.
 
 For failure handling, use [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md).
 
+Generate the RFC-0092 enterprise mesh operating report after a certification run:
+
+```powershell
+python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+The mesh certification gate now writes the operating report automatically alongside certification
+status artifacts:
+
+- `output/mesh-certification/enterprise-mesh-operating-report.json`
+- `output/mesh-certification/enterprise-mesh-operating-report.md`
+
+The operating report consumes the current enterprise mesh certification status and optional
+certification-history records from `output/mesh-evidence-packs/certification-history/`. It reports
+production readiness, limited-history posture, drift trends, regressions, product operating
+posture, and escalation ownership. It is operational evidence, not a product registry or customer
+evidence export.
+
 One-shot PR health (with failing check detection):
 
 ```powershell

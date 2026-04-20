@@ -25,6 +25,7 @@ REQUIRED_REPOS = {
 REQUIRED_PATH_FILTERS = {
     ".github/workflows/mesh-certification-gate.yml",
     "automation/mesh_certification_gate.py",
+    "automation/generate_enterprise_mesh_operating_report.py",
     "automation/Invoke-PlatformRepoChecks.ps1",
     "platform-contracts/domain-data-products/**",
     "platform-contracts/trust-telemetry/**",
@@ -36,6 +37,7 @@ REQUIRED_PATH_FILTERS = {
     "rfcs/RFC-0089-*",
     "rfcs/RFC-0090-*",
     "rfcs/RFC-0091-*",
+    "rfcs/RFC-0092-*",
 }
 
 
@@ -139,6 +141,8 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     assert "enterprise-mesh-certification-status.json" in upload_step["with"]["path"]
     assert "enterprise-mesh-certification-status.md" in upload_step["with"]["path"]
     assert "enterprise-mesh-certification-issues.json" in upload_step["with"]["path"]
+    assert "enterprise-mesh-operating-report.json" in upload_step["with"]["path"]
+    assert "enterprise-mesh-operating-report.md" in upload_step["with"]["path"]
     assert upload_step["with"]["if-no-files-found"] == "warn"
 
     assert summary_step["if"] == "always()"
@@ -149,6 +153,9 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     assert "docs/operations/mesh-certification-gate-runbook.md" in summary_step["run"]
     assert "Certification state" in summary_step["run"]
     assert "Maturity Check Families" in summary_step["run"]
+    assert "Enterprise Operating Report" in summary_step["run"]
+    assert "Operating state" in summary_step["run"]
+    assert "Regression since previous" in summary_step["run"]
     assert "Certified required products" in summary_step["run"]
     assert "checkout, setup, or CI infrastructure failure" in summary_step["run"]
     assert "| lotus-platform | $LOTUS_PLATFORM_REF |" in summary_step["run"]

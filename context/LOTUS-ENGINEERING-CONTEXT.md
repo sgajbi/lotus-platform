@@ -163,6 +163,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
 10. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
+11. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
+    `enterprise-mesh-operating-report.json` and `.md` alongside certification status artifacts.
+    The operating report consumes current certification status and optional certification-history
+    records, then reports operating state, limited-history posture, drift trend, regression since
+    prior certified posture, product operating posture, escalation ownership, and operator guidance.
+    It is operational evidence, not product truth and not customer evidence export.
 
 For RFC governance:
 
