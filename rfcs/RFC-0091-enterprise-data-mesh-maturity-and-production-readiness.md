@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | In Progress |
 | Created | 2026-04-20 |
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers; security and operations owners |
@@ -69,6 +69,32 @@ Remaining maturity gaps:
 6. broader product rollout beyond the first-wave blocking set is not yet complete,
 7. data-product lifecycle states are represented, but deprecation, replacement, compatibility, and
    consumer impact workflows are not yet enforced end to end.
+
+## Implementation Status And Evidence
+
+Current implementation status: `Slice 0 implemented on RFC-0091 branch`
+
+Implemented evidence:
+
+1. `automation/generate_enterprise_mesh_maturity_matrix.py`
+   Generates and checks the RFC-0091 maturity matrix.
+2. `generated/enterprise-mesh-maturity-matrix.json`
+   Machine-readable repository and product maturity posture.
+3. `generated/enterprise-mesh-maturity-matrix.md`
+   Human-readable maturity posture for operators and implementation planning.
+4. `tests/unit/test_enterprise_mesh_maturity_matrix.py`
+   Protects repository classification, candidate products, generated artifact writes, and stale
+   artifact detection.
+5. `automation/README.md`
+   Documents the generator and `--check` command.
+
+Slice 0 review result:
+
+1. every governed Lotus repository has explicit participation,
+2. candidate expansion products are explicit,
+3. `lotus-ai` posture is explicit,
+4. generated artifacts are reproducible and test-protected,
+5. no gateway, Workbench, or platform-generated artifact becomes product authority.
 
 ## Enterprise Mesh Maturity Definition
 

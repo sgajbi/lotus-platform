@@ -22,6 +22,8 @@
   mesh certification merge gate and operational trust enforcement
 - [RFC-0090](../rfcs/RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md)
   cross-repo mesh certification PR Merge Gate enforcement
+- [RFC-0091](../rfcs/RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md)
+  enterprise data mesh maturity and production readiness
 
 ## Local meaning
 
@@ -33,3 +35,6 @@
   fix-forward workflow for trust telemetry, gateway publication, and Workbench discovery drift
 - RFC-0090 governs the GitHub cross-repo workflow that runs RFC-0089 in blocking mode with sibling
   producer, gateway, and Workbench checkouts
+- RFC-0091 governs the final enterprise mesh maturity program; Slice 0 adds the generated maturity
+  matrix that classifies repository participation and candidate expansion before implementation
+  continues

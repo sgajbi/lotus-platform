@@ -56,6 +56,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/generate_domain_product_discovery.py`
 - `automation/generate_domain_product_certification.py`
 - `automation/query_domain_product_discovery.py`
+- `automation/generate_enterprise_mesh_maturity_matrix.py`
 - `automation/validate_trust_telemetry.py`
 - `automation/generate_live_trust_certification.py`
 - `automation/Validate-Rounding-Consistency.ps1`
@@ -163,6 +164,28 @@ Certification artifacts are written to:
 
 The certification report checks product trust metadata, producer-approved consumers, consumer
 dependency reciprocity, validation lanes, failure posture, and dependency-graph consistency.
+
+Generate the RFC-0091 enterprise mesh maturity matrix:
+
+```powershell
+python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+The maturity matrix classifies every governed Lotus repository into the first enterprise maturity
+wave, candidate expansion, explicit non-participant posture, API face, discovery UX, or platform
+governance role. It also defines the candidate products required before Lotus can claim mature
+enterprise mesh status.
+
+Check that checked-in maturity artifacts are current:
+
+```powershell
+python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+Maturity artifacts are written to:
+
+- `generated/enterprise-mesh-maturity-matrix.json`
+- `generated/enterprise-mesh-maturity-matrix.md`
 
 Validate live trust telemetry snapshots:
 

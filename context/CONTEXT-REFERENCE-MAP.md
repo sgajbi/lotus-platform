@@ -118,6 +118,13 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Workbench self-serve discovery route that must consume gateway/BFF APIs only.
 28. `../../lotus-workbench/src/features/domain-products/`
     Workbench client/API module for catalog, graph, trust, and degraded discovery states.
+29. `../automation/generate_enterprise_mesh_maturity_matrix.py`
+    Generates and checks the RFC-0091 Slice 0 maturity matrix for repository participation,
+    first-wave products, candidate products, support roles, and explicit non-participants.
+30. [Enterprise Mesh Maturity Matrix](../generated/enterprise-mesh-maturity-matrix.json)
+    Machine-readable RFC-0091 Slice 0 matrix. Generated evidence, not source truth.
+31. [Enterprise Mesh Maturity Matrix Markdown](../generated/enterprise-mesh-maturity-matrix.md)
+    Human-readable RFC-0091 Slice 0 matrix for implementation planning and operator review.
 
 ## Task Routing
 

@@ -153,6 +153,8 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "implementation boundary",
         "done and not-done semantics",
         "ownership map",
+        "implementation status and evidence",
+        "slice 0 implemented on rfc-0091 branch",
         "generated/enterprise-mesh-maturity-matrix.json",
         "output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json",
         "code review, api certification, and governance tightening",

@@ -129,6 +129,10 @@ Boundary rules:
     producer repositories, `lotus-gateway`, and `lotus-workbench` in sibling layout, runs
     `automation/mesh_certification_gate.py` in blocking mode, uploads
     `output/mesh-certification/` artifacts, and remains read-only.
+21. RFC-0091 is in progress. Slice 0 adds the enterprise mesh maturity matrix generator and
+    generated matrix artifacts that classify every Lotus repository, first-wave product,
+    candidate expansion product, and explicit non-participant posture before maturity
+    implementation continues.
 
 ## Repo-Native Commands
 
@@ -160,6 +164,10 @@ Use these commands as the primary local contract:
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 13. GitHub cross-repo mesh certification gate
    `.github/workflows/mesh-certification-gate.yml`
+14. enterprise mesh maturity matrix generation
+   `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
+15. enterprise mesh maturity matrix freshness check
+   `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
 
 ## Validation And CI Expectations
 
