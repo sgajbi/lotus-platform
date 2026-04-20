@@ -141,12 +141,16 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    `automation/collect_trust_telemetry.py` for runtime-preferred telemetry collection, Slice 3
    provides `platform-contracts/mesh-slo/` plus `automation/validate_mesh_slo_policies.py`, and
    Slice 4 provides `platform-contracts/mesh-access/` plus
-   `automation/validate_mesh_access_policies.py`.
+   `automation/validate_mesh_access_policies.py`. Slice 5 provides
+   `platform-contracts/mesh-evidence/` plus `automation/generate_mesh_evidence_pack.py` for
+   certification-history and evidence-pack manifests.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
    emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
-   evidence and must not masquerade as runtime telemetry. Mesh SLO and access-policy drift are
-   certification evidence and must not be handled as separate decorative reports.
+   evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
+   evidence-pack drift are certification evidence and must not be handled as separate decorative
+   reports. Public customer evidence packs must not expose restricted telemetry paths, source
+   artifacts, or consumer entitlement details.
 
 For RFC governance:
 

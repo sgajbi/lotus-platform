@@ -286,6 +286,24 @@ scope, allowed roles, allowed use cases, denial posture, audit owner, and gatewa
 publication. The mesh certification gate validates the policies so missing or malformed access
 governance fails certification before gateway or Workbench can present product access.
 
+Generate RFC-0091 certification history and evidence-pack manifests:
+
+```powershell
+python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized
+```
+
+Evidence policies live under `platform-contracts/mesh-evidence/`. The generator reads the mesh
+certification status, SLO policy, access policy, catalog, and live trust evidence, then writes:
+
+- `output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json`
+- `output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.md`
+- `output/mesh-evidence-packs/<pack-id>/certification-history-record.json`
+- `output/mesh-evidence-packs/certification-history/<pack-id>.json`
+
+Use `--audience customer-public`, `--audience customer-authorized`, or `--audience operator` to
+control field filtering. Public customer packs include only public customer evidence and exclude
+restricted telemetry paths, source artifacts, and consumer entitlement details.
+
 Run the RFC-0089 mesh certification gate:
 
 ```powershell

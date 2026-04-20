@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-4 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-5 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -117,6 +117,15 @@ Implemented evidence:
 16. `tests/unit/test_mesh_access_policies.py`
     Protects checked-in access policy validity, missing policy failures, gateway-only consumer
     governance, and usable versus restricted caller posture.
+17. `platform-contracts/mesh-evidence/`
+    Defines first-wave evidence-pack policies and field access classes for public customer,
+    restricted customer, operator-only, and internal-only evidence.
+18. `automation/generate_mesh_evidence_pack.py`
+    Generates certification-history records and audience-filtered evidence-pack manifests from
+    derived mesh certification artifacts.
+19. `tests/unit/test_mesh_evidence_pack.py`
+    Protects evidence-policy validity, durable history generation, authorized customer evidence,
+    public customer filtering, and missing policy failures.
 
 Slice 0 review result:
 
@@ -165,6 +174,17 @@ Slice 4 review result:
 4. the mesh certification gate validates access-policy presence and shape,
 5. gateway and Workbench runtime entitlement behavior remains a downstream implementation concern
    that must consume these policies without becoming product authority.
+
+Slice 5 review result:
+
+1. first-wave products now have explicit evidence-pack policies and field access classes,
+2. certification-history records are generated as derived artifacts from mesh certification output,
+3. customer, authorized-customer, and operator evidence packs can be generated without manual
+   assembly,
+4. customer-public packs exclude restricted telemetry paths, source artifacts, and allowed-consumer
+   details,
+5. gateway and Workbench evidence-pack exposure remains a downstream implementation concern that
+   must serve generated manifests only where access policy permits.
 
 ## Enterprise Mesh Maturity Definition
 

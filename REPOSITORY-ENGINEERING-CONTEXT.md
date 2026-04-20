@@ -146,6 +146,10 @@ Boundary rules:
 25. RFC-0091 Slice 4 adds `platform-contracts/mesh-access/` and
     `automation/validate_mesh_access_policies.py`; the mesh certification gate validates access
     policy presence and shape before gateway or Workbench can present entitled discovery.
+26. RFC-0091 Slice 5 adds `platform-contracts/mesh-evidence/` and
+    `automation/generate_mesh_evidence_pack.py`; certification-history records and evidence-pack
+    manifests are generated from derived mesh certification artifacts with audience-based field
+    filtering.
 
 ## Repo-Native Commands
 
@@ -191,6 +195,8 @@ Use these commands as the primary local contract:
    `python automation/validate_mesh_slo_policies.py`
 20. mesh access policy validation
    `python automation/validate_mesh_access_policies.py`
+21. mesh evidence pack generation
+   `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
 
 ## Validation And CI Expectations
 

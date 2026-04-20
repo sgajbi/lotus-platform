@@ -145,6 +145,12 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 37. `../automation/validate_mesh_access_policies.py`
     Validates mesh access policy identity against the generated catalog and evaluates usable versus
     restricted caller-context posture.
+38. [Mesh Evidence Policies](../platform-contracts/mesh-evidence/README.md)
+    RFC-0091 first-wave evidence-pack policies and field access classes for public customer,
+    restricted customer, operator-only, and internal-only evidence.
+39. `../automation/generate_mesh_evidence_pack.py`
+    Generates certification-history records and audience-filtered evidence-pack manifests from
+    derived mesh certification, catalog, SLO, access, and live trust artifacts.
 
 ## Task Routing
 
