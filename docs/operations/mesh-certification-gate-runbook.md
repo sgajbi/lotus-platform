@@ -1,6 +1,7 @@
 # Mesh Certification Gate Runbook
 
-This runbook covers the RFC-0089 mesh certification gate.
+This runbook covers the RFC-0089 mesh certification gate and the RFC-0090 GitHub
+cross-repo PR Merge Gate workflow.
 
 The gate turns Lotus domain-product mesh evidence into an operational control. It validates the
 first-wave product declarations, RFC-0087 trust telemetry snapshots, live trust certification,
@@ -42,6 +43,67 @@ The blocking command expects these sibling checkouts next to `lotus-platform`:
 5. `lotus-gateway`
 6. `lotus-workbench`
 
+## GitHub Cross-Repo Gate
+
+RFC-0090 adds a dedicated GitHub Actions workflow:
+
+```text
+.github/workflows/mesh-certification-gate.yml
+```
+
+The workflow runs automatically on pull requests to `main` when mesh-impacting platform files
+change. It can also be run manually from GitHub Actions as **Cross-Repo Mesh Certification Gate**.
+
+Automatic pull-request runs cover:
+
+1. `.github/workflows/mesh-certification-gate.yml`
+2. `automation/mesh_certification_gate.py`
+3. `automation/Invoke-PlatformRepoChecks.ps1`
+4. `platform-contracts/domain-data-products/**`
+5. `platform-contracts/trust-telemetry/**`
+6. `generated/domain-product-catalog.json`
+7. `generated/domain-product-dependency-graph.json`
+8. `rfcs/RFC-0089-*`
+9. `rfcs/RFC-0090-*`
+
+The workflow checks out these repositories in sibling layout:
+
+| Repository | Default ref | Checkout path |
+| --- | --- | --- |
+| `sgajbi/lotus-platform` | PR head | `lotus-platform` |
+| `sgajbi/lotus-core` | `main` | `lotus-core` |
+| `sgajbi/lotus-performance` | `main` | `lotus-performance` |
+| `sgajbi/lotus-risk` | `main` | `lotus-risk` |
+| `sgajbi/lotus-advise` | `main` | `lotus-advise` |
+| `sgajbi/lotus-gateway` | `main` | `lotus-gateway` |
+| `sgajbi/lotus-workbench` | `main` | `lotus-workbench` |
+
+Manual runs support explicit branch or SHA override inputs:
+
+1. `lotus_core_ref`
+2. `lotus_performance_ref`
+3. `lotus_risk_ref`
+4. `lotus_advise_ref`
+5. `lotus_gateway_ref`
+6. `lotus_workbench_ref`
+
+Use overrides for coordinated cross-repo validation only. Empty inputs mean `main`.
+
+Example manual proof:
+
+```text
+lotus_core_ref=feature/rfc0087-telemetry-refresh
+lotus_performance_ref=main
+lotus_risk_ref=main
+lotus_advise_ref=main
+lotus_gateway_ref=feature/rfc0085-domain-product-publication
+lotus_workbench_ref=feature/rfc0088-self-serve-discovery
+```
+
+The workflow step summary records the refs used, gate mode, artifact name, certification state, and
+issue counts. If an override ref cannot be checked out, treat the failure as checkout-related and
+fix the ref or repository access before investigating certification issues.
+
 ## Outputs
 
 The gate writes operator artifacts to `output/mesh-certification/`:
@@ -51,6 +113,19 @@ The gate writes operator artifacts to `output/mesh-certification/`:
 3. `mesh-certification-issues.json`
 
 Use JSON for automation and Markdown for human review. They are rendered from the same status object.
+
+The GitHub workflow uploads the same files as an artifact named:
+
+```text
+mesh-certification-<run-id>-<commit-sha>
+```
+
+Download that artifact from the workflow run when the gate fails. Inspect
+`mesh-certification-status.md` first for the human summary, then use
+`mesh-certification-issues.json` for exact issue codes and machine-readable evidence.
+
+If the artifact is missing, the failure happened before the gate could write status. Check the
+checkout, Python setup, and workflow infrastructure steps first.
 
 ## Required First-Wave Products
 
@@ -80,6 +155,25 @@ the blocking certification set.
 | `gateway_publication_drift` | Gateway no longer exposes the required discovery/trust route family. | Restore the gateway route/contract evidence and run gateway repo-native tests. |
 | `workbench_consumption_drift` | Workbench discovery is missing or bypasses gateway/BFF. | Restore `/data-products` and gateway/BFF-only consumption. |
 
+## Failure Classification
+
+Use this order when debugging a GitHub run:
+
+1. **Checkout failure**
+   The failing step is one of the repository checkouts. Fix the branch input, repository name, or
+   read access. Do not classify this as a mesh certification failure.
+2. **Setup failure**
+   The failing step is Python setup or timestamp resolution. Fix workflow infrastructure.
+3. **Mesh certification failure**
+   The `Run blocking mesh certification` step failed and artifacts were uploaded. Use the issue
+   codes in `mesh-certification-issues.json` and the fix-forward table above.
+4. **Artifact upload failure**
+   The gate step passed or failed, but upload failed. Fix artifact path or workflow upload posture;
+   do not change certification logic.
+
+For private repository variants, cross-repo checkout requires a read-only token with access to the
+first-wave sibling repositories. Do not hardcode tokens in workflow YAML.
+
 ## Review Expectations
 
 Before marking RFC-0089 implemented:
@@ -90,3 +184,15 @@ Before marking RFC-0089 implemented:
 4. include the mesh certification output summary in PR evidence,
 5. complete the RFC second-last governance/API-certification slice,
 6. complete the final docs/context/wiki/skills/branch-hygiene slice.
+
+Before marking RFC-0090 implemented:
+
+1. run workflow contract tests,
+2. run workflow security and action runtime validators,
+3. run the platform feature lane,
+4. run the platform PR Merge Gate,
+5. open a PR and verify the GitHub **Cross-Repo Mesh Certification Gate** runs for this workflow
+   change,
+6. include the uploaded artifact name and certification state in PR evidence,
+7. complete the RFC second-last governance/API-certification slice,
+8. complete the final docs/context/wiki/skills/branch-hygiene slice.

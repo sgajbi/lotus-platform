@@ -15,6 +15,7 @@ def test_allowlisted_auto_merge_template_is_the_only_pull_request_target_excepti
                 ROOT / ".github" / "workflows" / "main-releasability.yml",
                 ROOT / ".github" / "workflows" / "platform-end-to-end-validation.yml",
                 ROOT / ".github" / "workflows" / "api-vocabulary-governance.yml",
+                ROOT / ".github" / "workflows" / "mesh-certification-gate.yml",
             ]
         )
     }

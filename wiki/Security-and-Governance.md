@@ -15,6 +15,7 @@
 - RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
 - RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway
   publication drift, and Workbench discovery consumption drift
+- RFC-0090 read-only GitHub cross-repo workflow enforcement for the blocking mesh certification gate
 
 ## Important standards
 

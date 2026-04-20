@@ -1,0 +1,194 @@
+name: Cross-Repo Mesh Certification Gate
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/mesh-certification-gate.yml"
+      - "automation/mesh_certification_gate.py"
+      - "automation/Invoke-PlatformRepoChecks.ps1"
+      - "platform-contracts/domain-data-products/**"
+      - "platform-contracts/trust-telemetry/**"
+      - "generated/domain-product-catalog.json"
+      - "generated/domain-product-dependency-graph.json"
+      - "rfcs/RFC-0089-*"
+      - "rfcs/RFC-0090-*"
+  workflow_dispatch:
+    inputs:
+      lotus_core_ref:
+        description: "Optional lotus-core ref. Empty means main."
+        type: string
+        required: false
+      lotus_performance_ref:
+        description: "Optional lotus-performance ref. Empty means main."
+        type: string
+        required: false
+      lotus_risk_ref:
+        description: "Optional lotus-risk ref. Empty means main."
+        type: string
+        required: false
+      lotus_advise_ref:
+        description: "Optional lotus-advise ref. Empty means main."
+        type: string
+        required: false
+      lotus_gateway_ref:
+        description: "Optional lotus-gateway ref. Empty means main."
+        type: string
+        required: false
+      lotus_workbench_ref:
+        description: "Optional lotus-workbench ref. Empty means main."
+        type: string
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mesh-certification:
+    name: Cross-Repo Mesh Certification Gate / Blocking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout lotus-platform
+        uses: actions/checkout@v6
+        with:
+          path: lotus-platform
+
+      - name: Checkout lotus-core
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-core
+          path: lotus-core
+          ref: ${{ github.event.inputs.lotus_core_ref || 'main' }}
+
+      - name: Checkout lotus-performance
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-performance
+          path: lotus-performance
+          ref: ${{ github.event.inputs.lotus_performance_ref || 'main' }}
+
+      - name: Checkout lotus-risk
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-risk
+          path: lotus-risk
+          ref: ${{ github.event.inputs.lotus_risk_ref || 'main' }}
+
+      - name: Checkout lotus-advise
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-advise
+          path: lotus-advise
+          ref: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
+
+      - name: Checkout lotus-gateway
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-gateway
+          path: lotus-gateway
+          ref: ${{ github.event.inputs.lotus_gateway_ref || 'main' }}
+
+      - name: Checkout lotus-workbench
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-workbench
+          path: lotus-workbench
+          ref: ${{ github.event.inputs.lotus_workbench_ref || 'main' }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Resolve certification timestamp
+        id: timestamp
+        shell: bash
+        run: |
+          echo "generated_at_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Run blocking mesh certification
+        id: mesh_gate
+        continue-on-error: true
+        shell: bash
+        working-directory: lotus-platform
+        run: |
+          python automation/mesh_certification_gate.py \
+            --mode blocking \
+            --generated-at-utc "${{ steps.timestamp.outputs.generated_at_utc }}" \
+            --require-sibling-repos
+
+      - name: Upload mesh certification artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: mesh-certification-${{ github.run_id }}-${{ github.sha }}
+          path: |
+            lotus-platform/output/mesh-certification/mesh-certification-status.json
+            lotus-platform/output/mesh-certification/mesh-certification-status.md
+            lotus-platform/output/mesh-certification/mesh-certification-issues.json
+          if-no-files-found: warn
+
+      - name: Append mesh certification summary
+        if: always()
+        shell: bash
+        working-directory: lotus-platform
+        env:
+          LOTUS_CORE_REF: ${{ github.event.inputs.lotus_core_ref || 'main' }}
+          LOTUS_PERFORMANCE_REF: ${{ github.event.inputs.lotus_performance_ref || 'main' }}
+          LOTUS_RISK_REF: ${{ github.event.inputs.lotus_risk_ref || 'main' }}
+          LOTUS_ADVISE_REF: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
+          LOTUS_GATEWAY_REF: ${{ github.event.inputs.lotus_gateway_ref || 'main' }}
+          LOTUS_WORKBENCH_REF: ${{ github.event.inputs.lotus_workbench_ref || 'main' }}
+          MESH_ARTIFACT_NAME: mesh-certification-${{ github.run_id }}-${{ github.sha }}
+        run: |
+          {
+            echo "# Cross-Repo Mesh Certification Gate"
+            echo ""
+            echo "| Repository | Ref |"
+            echo "| --- | --- |"
+            echo "| lotus-platform | $GITHUB_SHA |"
+            echo "| lotus-core | $LOTUS_CORE_REF |"
+            echo "| lotus-performance | $LOTUS_PERFORMANCE_REF |"
+            echo "| lotus-risk | $LOTUS_RISK_REF |"
+            echo "| lotus-advise | $LOTUS_ADVISE_REF |"
+            echo "| lotus-gateway | $LOTUS_GATEWAY_REF |"
+            echo "| lotus-workbench | $LOTUS_WORKBENCH_REF |"
+            echo ""
+            echo "- Gate mode: blocking"
+            echo "- Required sibling repositories: enabled"
+            echo "- Artifact: \`$MESH_ARTIFACT_NAME\`"
+            echo "- Fix-forward runbook: \`docs/operations/mesh-certification-gate-runbook.md\`"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          status_path="output/mesh-certification/mesh-certification-status.json"
+          if [ -f "$status_path" ]; then
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          status = json.loads(Path("output/mesh-certification/mesh-certification-status.json").read_text(encoding="utf-8"))
+          summary = status.get("summary", {})
+          print("## Certification Result")
+          print("")
+          print(f"- Certification state: `{status.get('certification_state', 'unknown')}`")
+          print(f"- Error count: `{summary.get('error_count', 0)}`")
+          print(f"- Warning count: `{summary.get('warning_count', 0)}`")
+          print(f"- Info count: `{summary.get('info_count', 0)}`")
+          PY
+          else
+            {
+              echo "## Certification Result"
+              echo ""
+              echo "Mesh certification did not produce status artifacts. Treat this as a checkout, setup, or CI infrastructure failure rather than a data-product certification result."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail when mesh certification fails
+        if: steps.mesh_gate.outcome == 'failure'
+        shell: bash
+        run: exit 1

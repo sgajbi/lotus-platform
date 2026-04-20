@@ -32,7 +32,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | --- | --- | --- | --- |
 | Bring up canonical Workbench runtime, validate populated panels, generate governed demo screenshots | `lotus-front-office-runtime` | `lotus-frontend-delivery-governance`, `lotus-pr-premerge-gate` | `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`, `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1` |
 | Validate service runtime, API, observability, and platform QA posture | `lotus-qa-platform-validator` | `lotus-validation-resolution-lifecycle` | `lotus-platform/automation/Invoke-Platform-QA.ps1` |
-| Run or fix RFC-0089 mesh certification gate failures across domain-product telemetry, gateway publication, and Workbench discovery consumption | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate`, `lotus-rfc-review-loop`, `lotus-qa-platform-validator` | `lotus-platform/automation/mesh_certification_gate.py`, `lotus-platform/docs/operations/mesh-certification-gate-runbook.md` |
+| Run or fix RFC-0089/RFC-0090 mesh certification gate failures across domain-product telemetry, GitHub cross-repo checkout, gateway publication, and Workbench discovery consumption | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate`, `github:gh-fix-ci`, `lotus-rfc-review-loop`, `lotus-qa-platform-validator` | `lotus-platform/automation/mesh_certification_gate.py`, `lotus-platform/.github/workflows/mesh-certification-gate.yml`, `lotus-platform/docs/operations/mesh-certification-gate-runbook.md` |
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
@@ -109,9 +109,10 @@ than being inferred from generic QA or frontend skills.
 
 Reason:
 
-These skills remain the right fit. RFC-0089 adds a more explicit routing row for mesh
-certification work, but a dedicated mesh-certification skill is not created until repeated
-operational failure patterns prove that the current skill set is too broad.
+These skills remain the right fit. RFC-0089 and RFC-0090 add a more explicit routing row for mesh
+certification work and GitHub cross-repo gate failures, but a dedicated mesh-certification skill is
+not created until repeated operational failure patterns prove that the current skill set is too
+broad.
 
 ### Keep
 

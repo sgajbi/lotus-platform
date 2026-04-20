@@ -124,6 +124,11 @@ Boundary rules:
     lives in `automation/mesh_certification_gate.py`, writes operator artifacts to
     `output/mesh-certification/`, runs as an advisory platform repo-check smoke, and supports local
     blocking proof with sibling producer, gateway, and Workbench repositories.
+20. RFC-0090 is implemented for GitHub cross-repo mesh certification enforcement. The workflow
+    `.github/workflows/mesh-certification-gate.yml` checks out `lotus-platform`, first-wave
+    producer repositories, `lotus-gateway`, and `lotus-workbench` in sibling layout, runs
+    `automation/mesh_certification_gate.py` in blocking mode, uploads
+    `output/mesh-certification/` artifacts, and remains read-only.
 
 ## Repo-Native Commands
 
@@ -153,6 +158,8 @@ Use these commands as the primary local contract:
    `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
 12. mesh certification gate, local blocking proof with sibling repos
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
+13. GitHub cross-repo mesh certification gate
+   `.github/workflows/mesh-certification-gate.yml`
 
 ## Validation And CI Expectations
 
