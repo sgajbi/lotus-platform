@@ -128,9 +128,11 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     assert upload_step["with"]["if-no-files-found"] == "warn"
 
     assert summary_step["if"] == "always()"
+    assert summary_step["env"]["LOTUS_PLATFORM_REF"] == "${{ github.event.pull_request.head.sha || github.sha }}"
     assert "docs/operations/mesh-certification-gate-runbook.md" in summary_step["run"]
     assert "Certification state" in summary_step["run"]
     assert "checkout, setup, or CI infrastructure failure" in summary_step["run"]
+    assert "| lotus-platform | $LOTUS_PLATFORM_REF |" in summary_step["run"]
 
     assert fail_step["if"] == "steps.mesh_gate.outcome == 'failure'"
     assert fail_step["run"] == "exit 1"
