@@ -16,6 +16,22 @@
 - RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway
   publication drift, and Workbench discovery consumption drift
 - RFC-0090 read-only GitHub cross-repo workflow enforcement for the blocking mesh certification gate
+- RFC-0091 enterprise mesh maturity controls for repo-native onboarding, runtime-preferred
+  telemetry collection, SLO policies, access policies, evidence-pack policies, broader product
+  rollout, maturity scope, and enterprise certification artifacts
+- RFC-0092 production mesh operations evidence for current operating state, limited-history
+  posture, drift trend, regression detection, product operating posture, escalation ownership, and
+  operator guidance
+
+## Mesh governance boundaries
+
+- producer repositories own product declarations and telemetry evidence
+- `lotus-platform` owns aggregation, validation, certification, policy, evidence, and operating
+  reports
+- `lotus-gateway` is the read-only API publication face, not the product registry
+- `lotus-workbench` consumes gateway/BFF APIs only and must not read platform files directly
+- customer evidence packs must not expose restricted telemetry paths, source artifacts, or
+  entitlement details outside their approved audience class
 
 ## Important standards
 

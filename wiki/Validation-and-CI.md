@@ -25,6 +25,10 @@
   `python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 - GitHub cross-repo mesh certification gate:
   `.github/workflows/mesh-certification-gate.yml`
+- enterprise mesh maturity matrix:
+  `python automation\generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
+- enterprise mesh operating report check:
+  `python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check`
 
 ## What the gates protect
 
@@ -35,6 +39,23 @@
 - reusable platform validation entrypoints
 - RFC-0089 first-wave mesh certification posture for governed domain products
 - RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate
+- RFC-0091 enterprise maturity controls: telemetry collection, SLO, access, lifecycle, evidence,
+  catalog, gateway, and Workbench check families
+- RFC-0092 production mesh operations: operating state, limited-history posture, drift trend,
+  regression detection, escalation queue, and product operating posture
+
+## Mesh certification outputs
+
+`automation\mesh_certification_gate.py` writes:
+
+- `output/mesh-certification/mesh-certification-status.json`
+- `output/mesh-certification/mesh-certification-status.md`
+- `output/mesh-certification/mesh-certification-issues.json`
+- `output/mesh-certification/enterprise-mesh-certification-status.json`
+- `output/mesh-certification/enterprise-mesh-certification-status.md`
+- `output/mesh-certification/enterprise-mesh-certification-issues.json`
+- `output/mesh-certification/enterprise-mesh-operating-report.json`
+- `output/mesh-certification/enterprise-mesh-operating-report.md`
 
 ## Documentation contract posture
 
