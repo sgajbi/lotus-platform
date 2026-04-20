@@ -327,8 +327,7 @@ Exit gate:
 Exit gate:
 
 1. GitHub can run the blocking cross-repo gate,
-2. evidence is captured in PR checks or explicitly documented if the proof boundary depends on a
-   pending GitHub run.
+2. evidence is captured in PR checks and linked or summarized in the implementation evidence.
 
 ### Slice 7: Code Review, API Certification, And Governance Tightening
 
@@ -453,8 +452,7 @@ Final decision:
 
 ## Implementation Status And Evidence
 
-Implementation classification: `Implemented on the RFC-0090 branch; merge requires the latest PR
-checks to remain green`.
+Implementation classification: `Implemented and merged`.
 
 Implemented artifacts:
 
@@ -473,7 +471,7 @@ Implemented artifacts:
    Documents GitHub workflow usage, manual branch override examples, artifacts, and failure
    classification.
 
-Local evidence captured before PR:
+Local evidence captured before PR #156:
 
 1. `python -m pytest tests/unit/test_mesh_certification_workflow.py tests/unit/test_workflow_security_validator.py tests/unit/test_workflow_action_runtime_validator.py -q`
 2. `python automation/validate_workflow_security.py`
@@ -482,12 +480,26 @@ Local evidence captured before PR:
    Certified in blocking mode with `0` errors, `0` warnings, and `0` info issues.
 5. `python -m pytest tests/unit/test_mesh_certification_gate.py tests/unit/test_mesh_certification_workflow.py tests/unit/test_workflow_security_validator.py tests/unit/test_workflow_action_runtime_validator.py tests/unit/test_rfc_closure_governance.py -q`
 
-Final implementation closure requires the RFC-0090 PR to run the GitHub
-**Cross-Repo Mesh Certification Gate** and the normal platform Feature Lane and PR Merge Gate on
-the latest commit before merge.
+GitHub PR evidence:
+
+1. PR #156 merged into `main` at commit `f30f0f93b1fb546e25b04de3e845d2b12eeb51d9`.
+2. **Cross-Repo Mesh Certification Gate / Blocking** passed on PR #156.
+3. Feature Lane passed on PR #156.
+4. PR Merge Gate passed on PR #156.
+5. Cross-App Vocabulary Gate passed on PR #156.
+6. The RFC-0090 feature branch was deleted after merge and local `main` was synchronized with
+   `origin/main`.
+
+Post-merge hardening evidence:
+
+1. The workflow summary now reports `github.event.pull_request.head.sha` for pull-request runs and
+   falls back to `github.sha` for manual runs.
+2. `tests/unit/test_mesh_certification_workflow.py` protects the PR-head SHA summary contract.
 
 ## Next Actions
 
-1. open and verify the RFC-0090 implementation PR,
-2. fix-forward any GitHub workflow, Feature Lane, or PR Merge Gate failures,
-3. merge only after required checks are green and branch hygiene is complete.
+1. keep watching the GitHub cross-repo gate on future mesh-impacting PRs,
+2. create a dedicated mesh-certification skill only if repeated operational failure patterns prove
+   that the current skill routing is too broad,
+3. promote additional products into the blocking certification set only through a new governed RFC
+   or explicit RFC-0089 follow-up.
