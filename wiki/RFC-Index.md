@@ -41,4 +41,5 @@
   repo-native product bundles; Slice 2 adds runtime-preferred trust telemetry collection with
   explicit static fixture fallback evidence; Slice 3 adds first-wave mesh SLO policy enforcement
   into certification; Slice 4 adds first-wave access governance policies and certification checks;
-  Slice 5 adds certification-history records and audience-filtered evidence-pack manifests
+  Slice 5 adds certification-history records and audience-filtered evidence-pack manifests; Slice
+  6 promotes reporting and management products into the enterprise maturity wave

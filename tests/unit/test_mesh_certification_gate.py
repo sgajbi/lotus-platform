@@ -61,6 +61,30 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "generated_at": "2026-04-19T00:00:00Z",
             "correlation_id": "corr-001",
         }
+    if product_id == "lotus-report:ClientReportEvidencePack:v1":
+        return {
+            **common,
+            "tenant_id": "tenant-private-bank",
+            "generated_at": "2026-04-19T00:00:00Z",
+            "as_of_date": "2026-04-19",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "source_batch_fingerprint": "client-report-evidence-pack-001",
+            "lineage_bundle_id": "lineage-report-001",
+            "correlation_id": "corr-001",
+        }
+    if product_id == "lotus-manage:PortfolioActionRegister:v1":
+        return {
+            **common,
+            "tenant_id": "tenant-private-bank",
+            "generated_at": "2026-04-19T00:00:00Z",
+            "as_of_date": "2026-04-19",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "lineage_bundle_id": "lineage-manage-001",
+            "source_batch_fingerprint": "portfolio-action-register-001",
+            "correlation_id": "corr-001",
+        }
     return {
         **common,
         "generated_at": "2026-04-19T00:00:00Z",
@@ -78,6 +102,8 @@ def _snapshot(product_id: str) -> dict:
             "lotus-core:PortfolioStateSnapshot:v1",
             "lotus-performance:ReturnsSeriesBundle:v1",
             "lotus-risk:RiskMetricsReport:v1",
+            "lotus-report:ClientReportEvidencePack:v1",
+            "lotus-manage:PortfolioActionRegister:v1",
         }
         else "not_applicable"
     )
@@ -145,13 +171,15 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
 
     assert status["contract_id"] == "lotus-mesh-certification-status"
     assert status["certification_state"] == "certified"
-    assert status["summary"]["certified_required_product_count"] == 4
+    assert status["summary"]["certified_required_product_count"] == 6
     assert status["summary"]["error_count"] == 0
     assert [product["product_id"] for product in status["required_products"]] == [
         "lotus-core:PortfolioStateSnapshot:v1",
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+        "lotus-report:ClientReportEvidencePack:v1",
+        "lotus-manage:PortfolioActionRegister:v1",
     ]
 
 
@@ -320,7 +348,7 @@ def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> 
     )
 
     assert status["certification_state"] == "certified_with_warnings"
-    assert status["summary"]["missing_telemetry_count"] == 4
+    assert status["summary"]["missing_telemetry_count"] == 6
     assert status["summary"]["error_count"] == 0
     assert gate._exit_code(status) == 0
 

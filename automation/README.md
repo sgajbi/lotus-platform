@@ -286,6 +286,15 @@ scope, allowed roles, allowed use cases, denial posture, audit owner, and gatewa
 publication. The mesh certification gate validates the policies so missing or malformed access
 governance fails certification before gateway or Workbench can present product access.
 
+RFC-0091 maturity-wave scope now includes six required products:
+
+- `lotus-core:PortfolioStateSnapshot:v1`
+- `lotus-performance:ReturnsSeriesBundle:v1`
+- `lotus-risk:RiskMetricsReport:v1`
+- `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
+- `lotus-report:ClientReportEvidencePack:v1`
+- `lotus-manage:PortfolioActionRegister:v1`
+
 Generate RFC-0091 certification history and evidence-pack manifests:
 
 ```powershell

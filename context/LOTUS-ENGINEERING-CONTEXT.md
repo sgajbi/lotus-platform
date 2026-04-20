@@ -143,7 +143,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Slice 4 provides `platform-contracts/mesh-access/` plus
    `automation/validate_mesh_access_policies.py`. Slice 5 provides
    `platform-contracts/mesh-evidence/` plus `automation/generate_mesh_evidence_pack.py` for
-   certification-history and evidence-pack manifests.
+   certification-history and evidence-pack manifests. Slice 6 promotes
+   `lotus-report:ClientReportEvidencePack:v1` and
+   `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
    emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
@@ -151,6 +153,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    evidence-pack drift are certification evidence and must not be handled as separate decorative
    reports. Public customer evidence packs must not expose restricted telemetry paths, source
    artifacts, or consumer entitlement details.
+10. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
+    performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
+    management action register.
 
 For RFC governance:
 

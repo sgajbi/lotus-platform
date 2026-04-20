@@ -11,7 +11,7 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 23,
+    "product_count": 25,
     "dependency_count": 17,
     "producer_repository_count": 6,
     "included_repository_count": 6,
@@ -303,6 +303,23 @@
       "issue_count": 0
     },
     {
+      "product_id": "lotus-manage:PortfolioActionRegister:v1",
+      "producer_repository": "lotus-manage",
+      "product_name": "PortfolioActionRegister",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
       "producer_repository": "lotus-performance",
       "product_name": "BenchmarkExposureContext",
@@ -323,6 +340,23 @@
       "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
       "producer_repository": "lotus-performance",
       "product_name": "ReturnsSeriesBundle",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-report:ClientReportEvidencePack:v1",
+      "producer_repository": "lotus-report",
+      "product_name": "ClientReportEvidencePack",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",

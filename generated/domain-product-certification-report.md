@@ -4,7 +4,7 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Certification state: `certified`
-- Product count: `23`
+- Product count: `25`
 - Dependency count: `17`
 - Included repositories: `6`
 - Pending repositories: `0`
@@ -30,8 +30,10 @@ This file is generated from the governed domain-product catalog and dependency g
 | `ReconciliationEvidenceBundle` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `RiskFreeSeriesWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `TransactionLedgerWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioActionRegister` | `lotus-manage` | `certified` | `0` | `True` | `True` |
 | `BenchmarkExposureContext` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `ReturnsSeriesBundle` | `lotus-performance` | `certified` | `0` | `True` | `True` |
+| `ClientReportEvidencePack` | `lotus-report` | `certified` | `0` | `True` | `True` |
 | `ConcentrationRiskReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |

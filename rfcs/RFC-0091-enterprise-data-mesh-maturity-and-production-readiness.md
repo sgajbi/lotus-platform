@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-5 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-6 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -126,6 +126,16 @@ Implemented evidence:
 19. `tests/unit/test_mesh_evidence_pack.py`
     Protects evidence-policy validity, durable history generation, authorized customer evidence,
     public customer filtering, and missing policy failures.
+20. `lotus-report/contracts/domain-data-products/lotus-report-products.v1.json`
+    Promotes `ClientReportEvidencePack` into the enterprise maturity wave as a repo-native
+    reporting producer declaration.
+21. `lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json`
+    Promotes `PortfolioActionRegister` into the enterprise maturity wave as a repo-native
+    management producer declaration.
+22. `lotus-report/contracts/trust-telemetry/client-report-evidence-pack.telemetry.v1.json`
+    Adds RFC-0087/RFC-0091 trust telemetry for the promoted reporting product.
+23. `lotus-manage/contracts/trust-telemetry/portfolio-action-register.telemetry.v1.json`
+    Adds RFC-0087/RFC-0091 trust telemetry for the promoted management product.
 
 Slice 0 review result:
 
@@ -185,6 +195,17 @@ Slice 5 review result:
    details,
 5. gateway and Workbench evidence-pack exposure remains a downstream implementation concern that
    must serve generated manifests only where access policy permits.
+
+Slice 6 review result:
+
+1. `lotus-report:ClientReportEvidencePack:v1` and
+   `lotus-manage:PortfolioActionRegister:v1` are promoted from candidates into the maturity wave,
+2. both products have repo-native producer declarations and trust telemetry fixtures,
+3. platform discovery, certification, and maturity matrix artifacts are regenerated from repo
+   truth,
+4. SLO, access, and evidence policies cover all six maturity-wave products,
+5. the mesh certification gate certifies all six required products with zero issues in advisory
+   platform proof.
 
 ## Enterprise Mesh Maturity Definition
 

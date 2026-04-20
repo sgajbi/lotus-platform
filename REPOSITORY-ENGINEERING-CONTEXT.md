@@ -150,6 +150,9 @@ Boundary rules:
     `automation/generate_mesh_evidence_pack.py`; certification-history records and evidence-pack
     manifests are generated from derived mesh certification artifacts with audience-based field
     filtering.
+27. RFC-0091 Slice 6 promotes `lotus-report:ClientReportEvidencePack:v1` and
+    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Mesh
+    certification now treats six products as required.
 
 ## Repo-Native Commands
 

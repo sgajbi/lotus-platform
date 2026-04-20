@@ -45,6 +45,26 @@ REQUIRED_PRODUCT_METADATA = {
         "generated_at": GENERATED_AT_UTC,
         "correlation_id": "corr-lotus-advise",
     },
+    "lotus-report:ClientReportEvidencePack:v1": {
+        "tenant_id": "TENANT_PRIVATE_BANKING_DEMO",
+        "generated_at": GENERATED_AT_UTC,
+        "as_of_date": "2026-04-20",
+        "reconciliation_status": "reconciled",
+        "data_quality_status": "quality_passed",
+        "source_batch_fingerprint": "sha256:client-report-evidence-pack-test",
+        "lineage_bundle_id": "lineage:lotus-report:client-report-evidence-pack:test",
+        "correlation_id": "corr-lotus-report",
+    },
+    "lotus-manage:PortfolioActionRegister:v1": {
+        "tenant_id": "TENANT_PRIVATE_BANKING_DEMO",
+        "generated_at": GENERATED_AT_UTC,
+        "as_of_date": "2026-04-20",
+        "reconciliation_status": "reconciled",
+        "data_quality_status": "quality_passed",
+        "lineage_bundle_id": "lineage:lotus-manage:portfolio-action-register:test",
+        "source_batch_fingerprint": "sha256:portfolio-action-register-test",
+        "correlation_id": "corr-lotus-manage",
+    },
 }
 
 
@@ -150,7 +170,7 @@ def test_trust_telemetry_collection_prefers_runtime_over_static_fixture(
     assert returns_entry["source_path"] == runtime_path.as_posix()
     assert returns_entry["fixture_fallback"] is False
     assert manifest["summary"]["runtime_snapshot_count"] == 1
-    assert manifest["summary"]["static_fixture_snapshot_count"] == 3
+    assert manifest["summary"]["static_fixture_snapshot_count"] == 5
     assert manifest["summary"]["error_count"] == 0
     assert Path(returns_entry["collected_path"]).exists()
 
@@ -171,7 +191,7 @@ def test_trust_telemetry_collection_marks_fixture_fallback_explicitly(
     )
 
     assert manifest["summary"]["runtime_snapshot_count"] == 0
-    assert manifest["summary"]["static_fixture_snapshot_count"] == 4
+    assert manifest["summary"]["static_fixture_snapshot_count"] == 6
     assert all(entry["fixture_fallback"] is True for entry in manifest["snapshots"])
     assert all(
         entry["fallback_reason"] == "No runtime telemetry snapshot was available for this product."
@@ -201,10 +221,12 @@ def test_trust_telemetry_collection_reports_missing_required_products(
     }
     assert missing_products == {
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+        "lotus-report:ClientReportEvidencePack:v1",
+        "lotus-manage:PortfolioActionRegister:v1",
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
     }
-    assert manifest["summary"]["error_count"] == 3
+    assert manifest["summary"]["error_count"] == 5
 
 
 def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:
@@ -231,7 +253,7 @@ def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 0
-    assert "4 static fixture fallback(s)" in result.stdout
+    assert "6 static fixture fallback(s)" in result.stdout
     manifest = json.loads(
         (output_dir / "trust-telemetry-collection-manifest.json").read_text(
             encoding="utf-8"

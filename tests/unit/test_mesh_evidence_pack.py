@@ -68,6 +68,26 @@ def _mesh_status() -> dict:
             "data_quality_status": "quality_passed",
             "issue_count": 0,
         },
+        {
+            "product_id": "lotus-report:ClientReportEvidencePack:v1",
+            "producer_repository": "lotus-report",
+            "certification_state": "certified",
+            "freshness_state": "current",
+            "completeness_status": "complete",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "issue_count": 0,
+        },
+        {
+            "product_id": "lotus-manage:PortfolioActionRegister:v1",
+            "producer_repository": "lotus-manage",
+            "certification_state": "certified",
+            "freshness_state": "current",
+            "completeness_status": "complete",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "issue_count": 0,
+        },
     ]
     live_certifications = []
     for product in products:
@@ -100,8 +120,8 @@ def _mesh_status() -> dict:
         "certification_state": "certified",
         "required_products": products,
         "summary": {
-            "required_product_count": 4,
-            "certified_required_product_count": 4,
+            "required_product_count": 6,
+            "certified_required_product_count": 6,
             "attention_required_product_count": 0,
             "issue_count": 0,
             "error_count": 0,
@@ -204,7 +224,7 @@ def test_write_mesh_evidence_pack_persists_manifest_and_history(tmp_path: Path) 
         )
     )
     assert history["contract_id"] == "lotus-mesh-certification-history-record"
-    assert history["summary"]["certified_required_product_count"] == 4
+    assert history["summary"]["certified_required_product_count"] == 6
     assert (
         tmp_path
         / "packs"

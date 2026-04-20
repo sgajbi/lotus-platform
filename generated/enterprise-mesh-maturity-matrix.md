@@ -6,8 +6,8 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `10`
 - Product count: `25`
-- Certified first-wave products: `4`
-- Candidate products: `2`
+- Certified first-wave products: `6`
+- Candidate products: `0`
 - Ambiguous repositories: `0`
 
 ## Repository Maturity
@@ -19,8 +19,8 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-performance` | `certified_first_wave` | `producer` | `2` | `6` | Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer. |
 | `lotus-risk` | `certified_first_wave` | `producer` | `5` | `6` | Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `1` | `2` | Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer. |
-| `lotus-report` | `consumer_only` | `candidate_expansion` | `0` | `2` | Promote the RFC-0091 candidate product or keep the repository explicitly consumer-only. |
-| `lotus-manage` | `consumer_only` | `candidate_expansion` | `0` | `1` | Promote the RFC-0091 candidate product or keep the repository explicitly consumer-only. |
+| `lotus-report` | `certified_first_wave` | `producer` | `1` | `2` | Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer. |
+| `lotus-manage` | `certified_first_wave` | `producer` | `1` | `1` | Add runtime telemetry, SLO, access, lifecycle, and evidence-pack maturity controls for this producer. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
 | `lotus-ai` | `not_mesh_participant` | `explicit_posture_decision` | `0` | `0` | Not included until it owns a stable governed product or a catalog-consuming capability. |
@@ -45,10 +45,10 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:ReconciliationEvidenceBundle:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:RiskFreeSeriesWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:TransactionLedgerWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
-| `lotus-manage:PortfolioActionRegister:v1` | `lotus-manage` | `candidate` | `enterprise_wave_1_candidate` | `planned` | Add repo-native producer declaration, runtime telemetry, SLO policy, access policy, lifecycle policy, and gateway/Workbench proof. |
+| `lotus-manage:PortfolioActionRegister:v1` | `lotus-manage` | `certified_first_wave` | `enterprise_wave_1` | `active` | Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls. |
 | `lotus-performance:BenchmarkExposureContext:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | `certified_first_wave` | `enterprise_wave_1` | `active` | Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls. |
-| `lotus-report:ClientReportEvidencePack:v1` | `lotus-report` | `candidate` | `enterprise_wave_1_candidate` | `planned` | Add repo-native producer declaration, runtime telemetry, SLO policy, access policy, lifecycle policy, and evidence-pack tests. |
+| `lotus-report:ClientReportEvidencePack:v1` | `lotus-report` | `certified_first_wave` | `enterprise_wave_1` | `active` | Add RFC-0091 runtime, SLO, access, lifecycle, and evidence-pack controls. |
 | `lotus-risk:ConcentrationRiskReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:DrawdownAnalyticsReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:HistoricalRiskAttributionReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |

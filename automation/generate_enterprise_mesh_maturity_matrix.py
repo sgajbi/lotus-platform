@@ -32,26 +32,11 @@ FIRST_WAVE_PRODUCTS = {
     "lotus-performance:ReturnsSeriesBundle:v1",
     "lotus-risk:RiskMetricsReport:v1",
     "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+    "lotus-report:ClientReportEvidencePack:v1",
+    "lotus-manage:PortfolioActionRegister:v1",
 }
 
-CANDIDATE_PRODUCTS = [
-    {
-        "product_id": "lotus-report:ClientReportEvidencePack:v1",
-        "product_name": "ClientReportEvidencePack",
-        "product_version": "v1",
-        "producer_repository": "lotus-report",
-        "classification": "candidate",
-        "required_next_step": "Add repo-native producer declaration, runtime telemetry, SLO policy, access policy, lifecycle policy, and evidence-pack tests.",
-    },
-    {
-        "product_id": "lotus-manage:PortfolioActionRegister:v1",
-        "product_name": "PortfolioActionRegister",
-        "product_version": "v1",
-        "producer_repository": "lotus-manage",
-        "classification": "candidate",
-        "required_next_step": "Add repo-native producer declaration, runtime telemetry, SLO policy, access policy, lifecycle policy, and gateway/Workbench proof.",
-    },
-]
+CANDIDATE_PRODUCTS: list[dict[str, str]] = []
 
 SUPPORT_REPOSITORY_POSTURE = {
     "lotus-platform": {
@@ -76,7 +61,7 @@ SUPPORT_REPOSITORY_POSTURE = {
     },
 }
 
-CONSUMER_ONLY_REPOSITORIES = {"lotus-report", "lotus-manage"}
+CONSUMER_ONLY_REPOSITORIES: set[str] = set()
 REPO_NATIVE_PARTICIPATION_REPOSITORIES = {
     "lotus-core",
     "lotus-performance",
@@ -290,8 +275,10 @@ def build_enterprise_mesh_maturity_matrix(
                 "lotus-performance",
                 "lotus-risk",
                 "lotus-advise",
+                "lotus-report",
+                "lotus-manage",
             ],
-            "candidate_expansion_repositories": ["lotus-report", "lotus-manage"],
+            "candidate_expansion_repositories": [],
             "explicit_posture_decision_repositories": ["lotus-ai"],
             "api_face": "lotus-gateway",
             "discovery_and_operator_ux": "lotus-workbench",

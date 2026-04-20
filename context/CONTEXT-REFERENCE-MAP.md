@@ -151,6 +151,10 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 39. `../automation/generate_mesh_evidence_pack.py`
     Generates certification-history records and audience-filtered evidence-pack manifests from
     derived mesh certification, catalog, SLO, access, and live trust artifacts.
+40. `../../lotus-report/contracts/domain-data-products/lotus-report-products.v1.json`
+    RFC-0091 promoted producer declaration for `ClientReportEvidencePack`.
+41. `../../lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json`
+    RFC-0091 promoted producer declaration for `PortfolioActionRegister`.
 
 ## Task Routing
 

@@ -17,6 +17,8 @@ REQUIRED_PRODUCTS = {
     "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
     "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
     "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
+    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
+    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
 }
 VALID_DEFAULT_POSTURES = {"restricted", "internal", "public"}
 VALID_CUSTOMER_STATES = {"usable", "requestable", "restricted", "blocked"}

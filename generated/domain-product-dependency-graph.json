@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 30,
-  "edge_count": 93,
+  "node_count": 32,
+  "edge_count": 97,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -171,6 +171,16 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-manage:PortfolioActionRegister:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-manage:PortfolioActionRegister:v1",
+      "product_name": "PortfolioActionRegister",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-performance:BenchmarkExposureContext:v1",
       "node_type": "domain_product",
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
@@ -188,6 +198,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-report:ClientReportEvidencePack:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-report:ClientReportEvidencePack:v1",
+      "product_name": "ClientReportEvidencePack",
+      "product_version": "v1",
+      "producer_repository": "lotus-report",
+      "product_family": "client_reporting_evidence",
       "lifecycle_status": "active"
     },
     {
@@ -509,6 +529,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-manage:PortfolioActionRegister:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:BenchmarkExposureContext:v1",
       "to": "repo:lotus-risk"
     },
@@ -516,6 +541,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-performance:ReturnsSeriesBundle:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-report:ClientReportEvidencePack:v1",
+      "to": "repo:lotus-gateway"
     },
     {
       "edge_type": "approves_consumer",
@@ -813,6 +843,11 @@
     },
     {
       "edge_type": "produces",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-manage:PortfolioActionRegister:v1"
+    },
+    {
+      "edge_type": "produces",
       "from": "repo:lotus-performance",
       "to": "product:lotus-performance:BenchmarkExposureContext:v1"
     },
@@ -820,6 +855,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-performance",
       "to": "product:lotus-performance:ReturnsSeriesBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-report",
+      "to": "product:lotus-report:ClientReportEvidencePack:v1"
     },
     {
       "edge_type": "produces",

@@ -26,6 +26,8 @@ REQUIRED_PRODUCTS = {
     "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
     "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
     "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
+    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
+    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
 }
 DEFAULT_RUNTIME_DIRECTORIES = [
     ROOT.parent / repository / "output" / "trust-telemetry" / "runtime"

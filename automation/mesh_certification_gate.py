@@ -43,6 +43,8 @@ DEFAULT_TELEMETRY_DIRECTORIES = [
     ROOT.parent / "lotus-performance" / "contracts" / "trust-telemetry",
     ROOT.parent / "lotus-risk" / "contracts" / "trust-telemetry",
     ROOT.parent / "lotus-advise" / "contracts" / "trust-telemetry",
+    ROOT.parent / "lotus-report" / "contracts" / "trust-telemetry",
+    ROOT.parent / "lotus-manage" / "contracts" / "trust-telemetry",
 ]
 MESH_CERTIFICATION_STATUS_FILENAME = "mesh-certification-status.json"
 MESH_CERTIFICATION_MARKDOWN_FILENAME = "mesh-certification-status.md"
@@ -52,6 +54,8 @@ REQUIRED_PRODUCTS = {
     "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
     "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
     "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
+    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
+    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
 }
 LIVE_CERTIFICATION_CODE_MAP = {
     "invalid_trust_telemetry": "invalid_telemetry",
