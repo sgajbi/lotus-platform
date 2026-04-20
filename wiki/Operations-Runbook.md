@@ -7,6 +7,8 @@
 - platform repo checks
 - platform QA entrypoints
 - canonical front-office QA wrapper
+- mesh certification gate
+- enterprise mesh operating report
 - PR and background-run monitoring
 
 ## Useful commands
@@ -16,6 +18,8 @@ powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1
 powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.ps1
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
+python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 ```
 
@@ -25,6 +29,8 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 2. do not debug app routing before ingress posture is classified
 3. do not treat `platform-stack` as the canonical front-office product proof flow
 4. capture demo-ready product evidence only after canonical validation passes
+5. do not claim seasoned production mesh posture from a single clean certification run; use the
+   RFC-0092 operating report state and history count
 
 ## First-response sequence
 
@@ -36,7 +42,24 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
    Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md), then run the targeted
    doc-contract pack
 4. if product-surface proof is required, switch to the governed `lotus-workbench` runtime flow
-5. only after the category is clear should you start deeper repo-level debugging
+5. if mesh posture is questioned, run the blocking mesh certification gate and inspect
+   `enterprise-mesh-operating-report.md`
+6. only after the category is clear should you start deeper repo-level debugging
+
+## Mesh operations
+
+For mesh issues, start with:
+
+1. `output/mesh-certification/enterprise-mesh-certification-status.md`
+2. `output/mesh-certification/enterprise-mesh-operating-report.md`
+3. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+
+Operating states:
+
+- `production_ready`: clean current certification and enough history for seasoned posture
+- `production_ready_limited_history`: clean current certification but shallow history
+- `attention_required`: warnings need review before customer evidence export or product promotion
+- `blocked`: errors or failed certification; owning repositories must fix forward
 
 ## Key references
 
