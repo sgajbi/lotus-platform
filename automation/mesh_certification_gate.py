@@ -16,6 +16,11 @@ from validate_trust_telemetry import (
     _iter_telemetry_paths,
     _load_validation_context,
 )
+from validate_mesh_slo_policies import (
+    DEFAULT_SLO_POLICY_DIRECTORY,
+    evaluate_mesh_slo_violations,
+    validate_mesh_slo_policies,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +62,11 @@ BLOCKING_REQUIRED_PRODUCT_CODES = {
     "reconciliation_attention_required",
     "data_quality_attention_required",
     "lineage_not_materialized",
+    "mesh_slo_freshness_violation",
+    "mesh_slo_completeness_violation",
+    "mesh_slo_reconciliation_violation",
+    "mesh_slo_data_quality_violation",
+    "mesh_slo_lineage_violation",
     "catalog_drift",
     "gateway_publication_drift",
     "workbench_consumption_drift",
@@ -330,6 +340,43 @@ def _validate_required_telemetry(
         )
 
 
+def _validate_mesh_slo_policy_and_telemetry(
+    *,
+    telemetry_payloads: dict[str, tuple[Path, dict[str, Any]]],
+    slo_policy_path: Path,
+    issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
+) -> None:
+    policy_issues = validate_mesh_slo_policies(slo_policy_path)
+    for policy_issue in policy_issues:
+        _issue(
+            issues,
+            code="mesh_slo_policy_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            remediation=policy_issue,
+            source_evidence_path=slo_policy_path,
+        )
+
+    for violation in evaluate_mesh_slo_violations(
+        telemetry_payloads=telemetry_payloads,
+        policy_path=slo_policy_path,
+    ):
+        severity: Literal["error", "warning", "info"] = (
+            "error"
+            if gate_mode == "blocking" and violation["severity"] == "blocking"
+            else "warning"
+        )
+        _issue(
+            issues,
+            code=violation["code"],
+            severity=severity,
+            producer_repository=violation["producer_repository"],
+            product_id=violation["product_id"],
+            remediation=violation["remediation"],
+            source_evidence_path=violation["policy_path"],
+        )
+
+
 def _check_gateway_publication(
     *,
     gateway_root: Path,
@@ -484,6 +531,9 @@ def _summary(issues: list[MeshCertificationIssue], required_products: list[dict[
         "blocked_product_count": sum(
             1 for issue in issues if issue.code == "product_blocked"
         ),
+        "mesh_slo_violation_count": sum(
+            1 for issue in issues if issue.code.startswith("mesh_slo_")
+        ),
     }
 
 
@@ -523,6 +573,7 @@ def build_mesh_certification_status(
     catalog_path: Path = DEFAULT_CATALOG_PATH,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
     dependency_graph_path: Path = DEFAULT_GRAPH_PATH,
+    slo_policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
     gateway_root: Path = DEFAULT_GATEWAY_ROOT,
     workbench_root: Path = DEFAULT_WORKBENCH_ROOT,
     gate_mode: GateMode,
@@ -556,6 +607,12 @@ def build_mesh_certification_status(
     )
     _validate_required_telemetry(
         telemetry_payloads=telemetry_payloads,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
+    _validate_mesh_slo_policy_and_telemetry(
+        telemetry_payloads=telemetry_payloads,
+        slo_policy_path=slo_policy_path,
         issues=issues,
         gate_mode=gate_mode,
     )
@@ -603,6 +660,7 @@ def build_mesh_certification_status(
             "source_manifest": source_manifest_path.as_posix(),
             "catalog": catalog_path.as_posix(),
             "dependency_graph": dependency_graph_path.as_posix(),
+            "slo_policy_path": slo_policy_path.as_posix(),
             "telemetry_inputs": [path.as_posix() for path in discovered_telemetry_paths],
             "gateway_root": gateway_root.as_posix(),
             "workbench_root": workbench_root.as_posix(),
@@ -739,6 +797,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Directory where mesh certification status artifacts should be written.",
     )
     parser.add_argument(
+        "--slo-policy-path",
+        type=Path,
+        default=DEFAULT_SLO_POLICY_DIRECTORY,
+        help="Mesh SLO policy file or directory used for RFC-0091 SLO drift checks.",
+    )
+    parser.add_argument(
         "--require-sibling-repos",
         action="store_true",
         help="Treat missing lotus-gateway or lotus-workbench sibling checkouts as errors.",
@@ -754,6 +818,7 @@ def main(argv: list[str] | None = None) -> int:
         telemetry_paths=args.telemetry_path,
         gate_mode=args.mode,
         generated_at_utc=args.generated_at_utc,
+        slo_policy_path=args.slo_policy_path,
         require_sibling_repos=args.require_sibling_repos,
         check_publication_surfaces=not args.skip_publication_checks,
     )

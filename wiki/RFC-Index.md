@@ -39,4 +39,5 @@
   matrix that classifies repository participation and candidate expansion before implementation
   continues; Slice 1 adds the self-service onboarding scaffold and validation command for new
   repo-native product bundles; Slice 2 adds runtime-preferred trust telemetry collection with
-  explicit static fixture fallback evidence
+  explicit static fixture fallback evidence; Slice 3 adds first-wave mesh SLO policy enforcement
+  into certification

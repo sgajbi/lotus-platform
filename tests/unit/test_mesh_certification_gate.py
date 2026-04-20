@@ -71,6 +71,16 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
 
 def _snapshot(product_id: str) -> dict:
     producer, product_name, product_version = product_id.split(":")
+    reconciliation_status = (
+        "reconciled"
+        if product_id
+        in {
+            "lotus-core:PortfolioStateSnapshot:v1",
+            "lotus-performance:ReturnsSeriesBundle:v1",
+            "lotus-risk:RiskMetricsReport:v1",
+        }
+        else "not_applicable"
+    )
     return {
         "contract_id": "lotus-domain-product-trust-telemetry-snapshot",
         "contract_version": "1.0.0",
@@ -89,7 +99,7 @@ def _snapshot(product_id: str) -> dict:
             "max_allowed_age_seconds": 86400,
         },
         "completeness_status": "complete",
-        "reconciliation_status": "not_applicable",
+        "reconciliation_status": reconciliation_status,
         "data_quality_status": "quality_passed",
         "lineage": {
             "lineage_materialized": True,
@@ -170,6 +180,32 @@ def test_mesh_certification_gate_blocks_missing_and_stale_required_products(
     assert "stale_telemetry" in issue_codes
     assert "data_quality_attention_required" in issue_codes
     assert gate._exit_code(status) == 1
+
+
+def test_mesh_certification_gate_blocks_mesh_slo_violations(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    risk_path = next(path for path in telemetry_paths if "lotus-risk" in path.name)
+    risk_snapshot = json.loads(risk_path.read_text(encoding="utf-8"))
+    risk_snapshot["freshness"]["age_seconds"] = 90000
+    risk_path.write_text(json.dumps(risk_snapshot), encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert status["summary"]["mesh_slo_violation_count"] == 1
+    assert any(
+        issue["code"] == "mesh_slo_freshness_violation"
+        and issue["product_id"] == "lotus-risk:RiskMetricsReport:v1"
+        for issue in status["issues"]
+    )
 
 
 def test_mesh_certification_gate_reports_invalid_json_snapshot(

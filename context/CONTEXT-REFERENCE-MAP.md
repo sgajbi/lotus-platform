@@ -133,6 +133,12 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Collects RFC-0087 trust telemetry snapshots for RFC-0091 certification. Runtime snapshots from
     sibling repository `output/trust-telemetry/runtime/` directories are preferred; static fixtures
     from `contracts/trust-telemetry/` are explicit fallback evidence in the generated manifest.
+34. [Mesh SLO Policies](../platform-contracts/mesh-slo/README.md)
+    RFC-0091 first-wave SLO policies for freshness, completeness, reconciliation, data quality,
+    lineage, escalation owner, and remediation.
+35. `../automation/validate_mesh_slo_policies.py`
+    Validates mesh SLO policy identity against the generated catalog and evaluates trust telemetry
+    drift for mesh certification.
 
 ## Task Routing
 

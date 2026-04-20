@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-2 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-3 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -99,6 +99,16 @@ Implemented evidence:
 9. `tests/unit/test_trust_telemetry_collection.py`
    Protects runtime-over-fixture selection, explicit fixture fallback, missing required product
    errors, and CLI manifest generation.
+10. `platform-contracts/mesh-slo/`
+    Defines first-wave product SLO policies for freshness, completeness, reconciliation, data
+    quality, lineage, escalation ownership, and remediation.
+11. `automation/validate_mesh_slo_policies.py`
+    Validates mesh SLO policies against the generated catalog and evaluates telemetry drift.
+12. `tests/unit/test_mesh_slo_policies.py`
+    Protects checked-in policy validity, missing required policy failures, and telemetry violation
+    detection.
+13. `automation/mesh_certification_gate.py`
+    Now consumes SLO policies and turns blocking or advisory drift into mesh certification issues.
 
 Slice 0 review result:
 
@@ -128,6 +138,15 @@ Slice 2 review result:
 4. missing first-wave telemetry produces explicit collection issues,
 5. collected snapshots are copied into a deterministic output directory with a machine-readable
    manifest for downstream certification.
+
+Slice 3 review result:
+
+1. first-wave products now have explicit platform SLO policies,
+2. policies are validated against generated catalog identity,
+3. telemetry drift for freshness, completeness, reconciliation, data quality, and lineage is
+   evaluated by reusable automation,
+4. the mesh certification gate consumes SLO policies and emits SLO issues as certification drift,
+5. the current sibling first-wave telemetry set certifies cleanly against the SLO policies.
 
 ## Enterprise Mesh Maturity Definition
 

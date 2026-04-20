@@ -258,6 +258,23 @@ runtime-vs-fixture evidence boundary:
 python automation/generate_live_trust_certification.py output/trust-telemetry/collection/snapshots --generated-at-utc 2026-04-20T00:00:00Z
 ```
 
+Validate RFC-0091 mesh SLO policies:
+
+```powershell
+python automation/validate_mesh_slo_policies.py
+```
+
+Evaluate SLO drift against collected telemetry:
+
+```powershell
+python automation/validate_mesh_slo_policies.py --telemetry-path output/trust-telemetry/collection/snapshots
+```
+
+Mesh SLO policies live under `platform-contracts/mesh-slo/`. They define first-wave thresholds for
+freshness, completeness, reconciliation, data quality, lineage, escalation owner, and remediation.
+The mesh certification gate consumes those policies and emits certification issues when telemetry
+drifts from the policy.
+
 Run the RFC-0089 mesh certification gate:
 
 ```powershell

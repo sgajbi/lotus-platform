@@ -140,6 +140,9 @@ Boundary rules:
 23. RFC-0091 Slice 2 adds `automation/collect_trust_telemetry.py`, a collection step that prefers
     runtime snapshots from sibling repository `output/trust-telemetry/runtime/` directories and
     records static fixture fallback explicitly in `output/trust-telemetry/collection/`.
+24. RFC-0091 Slice 3 adds `platform-contracts/mesh-slo/` and
+    `automation/validate_mesh_slo_policies.py`; the mesh certification gate now evaluates
+    telemetry against first-wave SLO policies and reports policy drift as certification issues.
 
 ## Repo-Native Commands
 
@@ -181,6 +184,8 @@ Use these commands as the primary local contract:
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
 18. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
    `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
+19. mesh SLO policy validation
+   `python automation/validate_mesh_slo_policies.py`
 
 ## Validation And CI Expectations
 
