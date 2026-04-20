@@ -9,10 +9,14 @@ on:
       - "automation/Invoke-PlatformRepoChecks.ps1"
       - "platform-contracts/domain-data-products/**"
       - "platform-contracts/trust-telemetry/**"
+      - "platform-contracts/mesh-slo/**"
+      - "platform-contracts/mesh-access/**"
+      - "platform-contracts/mesh-evidence/**"
       - "generated/domain-product-catalog.json"
       - "generated/domain-product-dependency-graph.json"
       - "rfcs/RFC-0089-*"
       - "rfcs/RFC-0090-*"
+      - "rfcs/RFC-0091-*"
   workflow_dispatch:
     inputs:
       lotus_core_ref:
@@ -29,6 +33,14 @@ on:
         required: false
       lotus_advise_ref:
         description: "Optional lotus-advise ref. Empty means main."
+        type: string
+        required: false
+      lotus_report_ref:
+        description: "Optional lotus-report ref. Empty means main."
+        type: string
+        required: false
+      lotus_manage_ref:
+        description: "Optional lotus-manage ref. Empty means main."
         type: string
         required: false
       lotus_gateway_ref:
@@ -85,6 +97,20 @@ jobs:
           path: lotus-advise
           ref: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
 
+      - name: Checkout lotus-report
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-report
+          path: lotus-report
+          ref: ${{ github.event.inputs.lotus_report_ref || 'main' }}
+
+      - name: Checkout lotus-manage
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-manage
+          path: lotus-manage
+          ref: ${{ github.event.inputs.lotus_manage_ref || 'main' }}
+
       - name: Checkout lotus-gateway
         uses: actions/checkout@v6
         with:
@@ -130,6 +156,9 @@ jobs:
             lotus-platform/output/mesh-certification/mesh-certification-status.json
             lotus-platform/output/mesh-certification/mesh-certification-status.md
             lotus-platform/output/mesh-certification/mesh-certification-issues.json
+            lotus-platform/output/mesh-certification/enterprise-mesh-certification-status.json
+            lotus-platform/output/mesh-certification/enterprise-mesh-certification-status.md
+            lotus-platform/output/mesh-certification/enterprise-mesh-certification-issues.json
           if-no-files-found: warn
 
       - name: Append mesh certification summary
@@ -141,6 +170,8 @@ jobs:
           LOTUS_PERFORMANCE_REF: ${{ github.event.inputs.lotus_performance_ref || 'main' }}
           LOTUS_RISK_REF: ${{ github.event.inputs.lotus_risk_ref || 'main' }}
           LOTUS_ADVISE_REF: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
+          LOTUS_REPORT_REF: ${{ github.event.inputs.lotus_report_ref || 'main' }}
+          LOTUS_MANAGE_REF: ${{ github.event.inputs.lotus_manage_ref || 'main' }}
           LOTUS_GATEWAY_REF: ${{ github.event.inputs.lotus_gateway_ref || 'main' }}
           LOTUS_WORKBENCH_REF: ${{ github.event.inputs.lotus_workbench_ref || 'main' }}
           LOTUS_PLATFORM_REF: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -156,6 +187,8 @@ jobs:
             echo "| lotus-performance | $LOTUS_PERFORMANCE_REF |"
             echo "| lotus-risk | $LOTUS_RISK_REF |"
             echo "| lotus-advise | $LOTUS_ADVISE_REF |"
+            echo "| lotus-report | $LOTUS_REPORT_REF |"
+            echo "| lotus-manage | $LOTUS_MANAGE_REF |"
             echo "| lotus-gateway | $LOTUS_GATEWAY_REF |"
             echo "| lotus-workbench | $LOTUS_WORKBENCH_REF |"
             echo ""
@@ -180,6 +213,21 @@ jobs:
           print(f"- Error count: `{summary.get('error_count', 0)}`")
           print(f"- Warning count: `{summary.get('warning_count', 0)}`")
           print(f"- Info count: `{summary.get('info_count', 0)}`")
+          print(f"- Required products: `{summary.get('required_product_count', 0)}`")
+          print(f"- Certified required products: `{summary.get('certified_required_product_count', 0)}`")
+          print("")
+          print("## Maturity Check Families")
+          print("")
+          print("| Family | State | Errors | Warnings | Info |")
+          print("| --- | --- | --- | --- | --- |")
+          for family in status.get("maturity_check_families", []):
+              print(
+                  f"| `{family.get('family')}` | "
+                  f"`{family.get('state')}` | "
+                  f"`{family.get('error_count', 0)}` | "
+                  f"`{family.get('warning_count', 0)}` | "
+                  f"`{family.get('info_count', 0)}` |"
+              )
           PY
           else
             {

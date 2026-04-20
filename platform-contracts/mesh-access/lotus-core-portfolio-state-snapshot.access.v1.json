@@ -1,0 +1,36 @@
+{
+  "contract_id": "lotus-mesh-access-policy",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0091"
+  ],
+  "product_id": "lotus-core:PortfolioStateSnapshot:v1",
+  "producer_repository": "lotus-core",
+  "default_posture": "restricted",
+  "allowed_consumers": [
+    {
+      "consumer_repository": "lotus-gateway",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator",
+        "advisor"
+      ],
+      "use_cases": [
+        "discovery",
+        "portfolio_evidence_review"
+      ]
+    }
+  ],
+  "denial_posture": {
+    "customer_visible_state": "requestable",
+    "operator_visible_state": "restricted_with_reason",
+    "reason": "Portfolio state contains client-confidential holdings and requires explicit tenant and role authorization."
+  },
+  "audit": {
+    "owner_repository": "lotus-core",
+    "policy_owner": "portfolio-state-product-owner",
+    "decision_evidence": "access-policy:lotus-core:portfolio-state-snapshot:v1"
+  }
+}

@@ -135,6 +135,34 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    `lotus-gateway`, and `lotus-workbench` next to `lotus-platform`, runs the RFC-0089 gate in
    blocking mode, uploads mesh-certification artifacts, and keeps product authority in producer
    repositories and platform-generated evidence rather than gateway or Workbench.
+9. RFC-0091 is implemented for enterprise mesh maturity. Slice 0 provides the generated maturity
+   matrix, Slice 1 provides `automation/generate_domain_product_onboarding.py` for
+   scaffold-and-check onboarding bundles, Slice 2 provides
+   `automation/collect_trust_telemetry.py` for runtime-preferred telemetry collection, Slice 3
+   provides `platform-contracts/mesh-slo/` plus `automation/validate_mesh_slo_policies.py`, and
+   Slice 4 provides `platform-contracts/mesh-access/` plus
+   `automation/validate_mesh_access_policies.py`. Slice 5 provides
+   `platform-contracts/mesh-evidence/` plus `automation/generate_mesh_evidence_pack.py` for
+   certification-history and evidence-pack manifests. Slice 6 promotes
+   `lotus-report:ClientReportEvidencePack:v1` and
+   `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave.
+   Slice 7 turns mesh certification into an enterprise maturity gate with operator-facing
+   telemetry, SLO, access, lifecycle, evidence, catalog, gateway, and Workbench check families,
+   evidence-policy validation, lifecycle drift validation, and RFC-0091 `enterprise-mesh-*`
+   artifacts. Slice 8 centralizes the six-product maturity-wave scope in
+   `automation/mesh_maturity_scope.py`; new platform mesh automation should import that module
+   instead of copying product lists. Slice 9 completed the final documentation, context, wiki,
+   skills-routing, and branch-hygiene readiness updates.
+   Generated onboarding bundles are starter artifacts for owning repositories; they are not
+   platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
+   emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
+   evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
+   evidence-pack drift are certification evidence and must not be handled as separate decorative
+   reports. Public customer evidence packs must not expose restricted telemetry paths, source
+   artifacts, or consumer entitlement details.
+10. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
+    performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
+    management action register.
 
 For RFC governance:
 

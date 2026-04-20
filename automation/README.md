@@ -56,6 +56,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/generate_domain_product_discovery.py`
 - `automation/generate_domain_product_certification.py`
 - `automation/query_domain_product_discovery.py`
+- `automation/generate_enterprise_mesh_maturity_matrix.py`
 - `automation/validate_trust_telemetry.py`
 - `automation/generate_live_trust_certification.py`
 - `automation/Validate-Rounding-Consistency.ps1`
@@ -164,6 +165,57 @@ Certification artifacts are written to:
 The certification report checks product trust metadata, producer-approved consumers, consumer
 dependency reciprocity, validation lanes, failure posture, and dependency-graph consistency.
 
+Generate the RFC-0091 enterprise mesh maturity matrix:
+
+```powershell
+python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+The maturity matrix classifies every governed Lotus repository into the first enterprise maturity
+wave, candidate expansion, explicit non-participant posture, API face, discovery UX, or platform
+governance role. It also defines the candidate products required before Lotus can claim mature
+enterprise mesh status.
+
+Check that checked-in maturity artifacts are current:
+
+```powershell
+python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+Maturity artifacts are written to:
+
+- `generated/enterprise-mesh-maturity-matrix.json`
+- `generated/enterprise-mesh-maturity-matrix.md`
+
+Generate an RFC-0091 self-service onboarding bundle for a new or promoted domain product:
+
+```powershell
+python automation/generate_domain_product_onboarding.py `
+  --repository lotus-report `
+  --product-name ClientReportEvidencePack `
+  --product-version v1 `
+  --authoritative-domain reporting `
+  --product-family client_reporting `
+  --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack
+```
+
+Validate a generated onboarding bundle before copying completed files into an owning repository:
+
+```powershell
+python automation/generate_domain_product_onboarding.py `
+  --repository lotus-report `
+  --product-name ClientReportEvidencePack `
+  --product-version v1 `
+  --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack `
+  --check
+```
+
+The onboarding generator writes a producer declaration scaffold, telemetry scaffold, SLO policy,
+access policy, evidence-pack policy, README, and onboarding checklist. The generated bundle is a
+starting point for the owning repository; it is not platform-owned product truth until the domain
+team replaces placeholders, adds repo-native tests, emits runtime telemetry, and passes mesh
+certification.
+
 Validate live trust telemetry snapshots:
 
 ```powershell
@@ -185,6 +237,85 @@ The generated live trust certification report classifies each telemetry snapshot
 `attention_required` using deterministic freshness, completeness, reconciliation, data-quality,
 lineage, and blocking rules.
 
+Collect trust telemetry for RFC-0091 certification:
+
+```powershell
+python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+The collector prefers runtime snapshots from sibling repository
+`output/trust-telemetry/runtime/` directories. If runtime evidence is missing for a product, it
+falls back to the repo-native `contracts/trust-telemetry/` static fixture and records that fallback
+in the manifest. The manifest and copied snapshots are written to:
+
+- `output/trust-telemetry/collection/trust-telemetry-collection-manifest.json`
+- `output/trust-telemetry/collection/snapshots/`
+
+Use the collected snapshot directory as the input to live trust certification when proving the
+runtime-vs-fixture evidence boundary:
+
+```powershell
+python automation/generate_live_trust_certification.py output/trust-telemetry/collection/snapshots --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+Validate RFC-0091 mesh SLO policies:
+
+```powershell
+python automation/validate_mesh_slo_policies.py
+```
+
+Evaluate SLO drift against collected telemetry:
+
+```powershell
+python automation/validate_mesh_slo_policies.py --telemetry-path output/trust-telemetry/collection/snapshots
+```
+
+Mesh SLO policies live under `platform-contracts/mesh-slo/`. They define first-wave thresholds for
+freshness, completeness, reconciliation, data quality, lineage, escalation owner, and remediation.
+The mesh certification gate consumes those policies and emits certification issues when telemetry
+drifts from the policy.
+
+Validate RFC-0091 mesh access policies:
+
+```powershell
+python automation/validate_mesh_access_policies.py
+```
+
+Mesh access policies live under `platform-contracts/mesh-access/`. They define first-wave tenant
+scope, allowed roles, allowed use cases, denial posture, audit owner, and gateway-only consumer
+publication. The mesh certification gate validates the policies so missing or malformed access
+governance fails certification before gateway or Workbench can present product access.
+
+RFC-0091 maturity-wave scope now includes six required products:
+
+- `lotus-core:PortfolioStateSnapshot:v1`
+- `lotus-performance:ReturnsSeriesBundle:v1`
+- `lotus-risk:RiskMetricsReport:v1`
+- `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
+- `lotus-report:ClientReportEvidencePack:v1`
+- `lotus-manage:PortfolioActionRegister:v1`
+
+The required product scope is centralized in `automation/mesh_maturity_scope.py`. Reuse that module
+for platform automation instead of copying the product list into new scripts.
+
+Generate RFC-0091 certification history and evidence-pack manifests:
+
+```powershell
+python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized
+```
+
+Evidence policies live under `platform-contracts/mesh-evidence/`. The generator reads the mesh
+certification status, SLO policy, access policy, catalog, and live trust evidence, then writes:
+
+- `output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json`
+- `output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.md`
+- `output/mesh-evidence-packs/<pack-id>/certification-history-record.json`
+- `output/mesh-evidence-packs/certification-history/<pack-id>.json`
+
+Use `--audience customer-public`, `--audience customer-authorized`, or `--audience operator` to
+control field filtering. Public customer packs include only public customer evidence and exclude
+restricted telemetry paths, source artifacts, and consumer entitlement details.
+
 Run the RFC-0089 mesh certification gate:
 
 ```powershell
@@ -192,17 +323,26 @@ Run the RFC-0089 mesh certification gate:
 python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
 
 # Local blocking proof with sibling lotus-core, lotus-performance, lotus-risk, lotus-advise,
-# lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
+# lotus-report, lotus-manage, lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
 python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 ```
 
 The mesh certification gate composes the catalog, source manifest, RFC-0087 telemetry validator,
-live trust certification generator, gateway publication drift check, and Workbench BFF-only
+live trust certification generator, mesh SLO policy, mesh access policy, evidence-pack policy,
+required product lifecycle posture, gateway publication drift check, and Workbench BFF-only
 consumption drift check. It writes operator artifacts to `output/mesh-certification/`:
 
 - `mesh-certification-status.json`
 - `mesh-certification-status.md`
 - `mesh-certification-issues.json`
+- `enterprise-mesh-certification-status.json`
+- `enterprise-mesh-certification-status.md`
+- `enterprise-mesh-certification-issues.json`
+
+The enterprise status includes operator-facing maturity check families for telemetry, SLO, access,
+lifecycle, evidence, catalog, gateway, and Workbench drift. The `enterprise-*` files are aliases
+for RFC-0091 evidence-pack and workflow consumers; the original `mesh-*` files remain for RFC-0089
+compatibility.
 
 For failure handling, use [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md).
 

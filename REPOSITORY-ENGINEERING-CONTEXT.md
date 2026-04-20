@@ -129,6 +129,40 @@ Boundary rules:
     producer repositories, `lotus-gateway`, and `lotus-workbench` in sibling layout, runs
     `automation/mesh_certification_gate.py` in blocking mode, uploads
     `output/mesh-certification/` artifacts, and remains read-only.
+21. RFC-0091 is implemented. Slice 0 adds the enterprise mesh maturity matrix generator and
+    generated matrix artifacts that classify every Lotus repository, first-wave product,
+    candidate expansion product, and explicit non-participant posture before maturity
+    implementation continues.
+22. RFC-0091 Slice 1 adds `automation/generate_domain_product_onboarding.py`, a self-service
+    scaffold-and-check tool for repo-native product onboarding bundles. The tool writes product
+    declaration, telemetry, SLO, access, evidence, README, and checklist files to a caller-directed
+    output directory; generated bundles are onboarding aids, not platform-owned product truth.
+23. RFC-0091 Slice 2 adds `automation/collect_trust_telemetry.py`, a collection step that prefers
+    runtime snapshots from sibling repository `output/trust-telemetry/runtime/` directories and
+    records static fixture fallback explicitly in `output/trust-telemetry/collection/`.
+24. RFC-0091 Slice 3 adds `platform-contracts/mesh-slo/` and
+    `automation/validate_mesh_slo_policies.py`; the mesh certification gate now evaluates
+    telemetry against first-wave SLO policies and reports policy drift as certification issues.
+25. RFC-0091 Slice 4 adds `platform-contracts/mesh-access/` and
+    `automation/validate_mesh_access_policies.py`; the mesh certification gate validates access
+    policy presence and shape before gateway or Workbench can present entitled discovery.
+26. RFC-0091 Slice 5 adds `platform-contracts/mesh-evidence/` and
+    `automation/generate_mesh_evidence_pack.py`; certification-history records and evidence-pack
+    manifests are generated from derived mesh certification artifacts with audience-based field
+    filtering.
+27. RFC-0091 Slice 6 promotes `lotus-report:ClientReportEvidencePack:v1` and
+    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Mesh
+    certification now treats six products as required.
+28. RFC-0091 Slice 7 extends the mesh certification gate into the enterprise maturity gate. The gate
+    now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
+    evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
+    and writes both RFC-0089 `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts.
+29. RFC-0091 Slice 8 centralizes the six-product maturity-wave scope in
+    `automation/mesh_maturity_scope.py`; platform automation must import that module rather than
+    copying required-product lists into new validators or generators.
+30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and
+    branch-hygiene readiness updates. The durable skills decision is to tighten
+    `context/LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new dedicated mesh skill.
 
 ## Repo-Native Commands
 
@@ -160,6 +194,22 @@ Use these commands as the primary local contract:
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 13. GitHub cross-repo mesh certification gate
    `.github/workflows/mesh-certification-gate.yml`
+14. enterprise mesh maturity matrix generation
+   `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
+15. enterprise mesh maturity matrix freshness check
+   `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
+16. domain-product onboarding bundle scaffold
+   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
+17. domain-product onboarding bundle check
+   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
+18. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
+   `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
+19. mesh SLO policy validation
+   `python automation/validate_mesh_slo_policies.py`
+20. mesh access policy validation
+   `python automation/validate_mesh_access_policies.py`
+21. mesh evidence pack generation
+   `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
 
 ## Validation And CI Expectations
 

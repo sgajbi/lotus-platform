@@ -61,6 +61,30 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "generated_at": "2026-04-19T00:00:00Z",
             "correlation_id": "corr-001",
         }
+    if product_id == "lotus-report:ClientReportEvidencePack:v1":
+        return {
+            **common,
+            "tenant_id": "tenant-private-bank",
+            "generated_at": "2026-04-19T00:00:00Z",
+            "as_of_date": "2026-04-19",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "source_batch_fingerprint": "client-report-evidence-pack-001",
+            "lineage_bundle_id": "lineage-report-001",
+            "correlation_id": "corr-001",
+        }
+    if product_id == "lotus-manage:PortfolioActionRegister:v1":
+        return {
+            **common,
+            "tenant_id": "tenant-private-bank",
+            "generated_at": "2026-04-19T00:00:00Z",
+            "as_of_date": "2026-04-19",
+            "reconciliation_status": "reconciled",
+            "data_quality_status": "quality_passed",
+            "lineage_bundle_id": "lineage-manage-001",
+            "source_batch_fingerprint": "portfolio-action-register-001",
+            "correlation_id": "corr-001",
+        }
     return {
         **common,
         "generated_at": "2026-04-19T00:00:00Z",
@@ -71,6 +95,18 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
 
 def _snapshot(product_id: str) -> dict:
     producer, product_name, product_version = product_id.split(":")
+    reconciliation_status = (
+        "reconciled"
+        if product_id
+        in {
+            "lotus-core:PortfolioStateSnapshot:v1",
+            "lotus-performance:ReturnsSeriesBundle:v1",
+            "lotus-risk:RiskMetricsReport:v1",
+            "lotus-report:ClientReportEvidencePack:v1",
+            "lotus-manage:PortfolioActionRegister:v1",
+        }
+        else "not_applicable"
+    )
     return {
         "contract_id": "lotus-domain-product-trust-telemetry-snapshot",
         "contract_version": "1.0.0",
@@ -89,16 +125,14 @@ def _snapshot(product_id: str) -> dict:
             "max_allowed_age_seconds": 86400,
         },
         "completeness_status": "complete",
-        "reconciliation_status": "not_applicable",
+        "reconciliation_status": reconciliation_status,
         "data_quality_status": "quality_passed",
         "lineage": {
             "lineage_materialized": True,
             "evidence_access_class": "customer_consumable",
         },
         "blocking": {"blocked": False},
-        "observed_trust_metadata": _metadata(
-            product_id, product_name, product_version
-        ),
+        "observed_trust_metadata": _metadata(product_id, product_name, product_version),
         "evidence": {
             "correlation_id": "corr-001",
             "validation_lanes": ["feature", "pr-merge"],
@@ -106,7 +140,9 @@ def _snapshot(product_id: str) -> dict:
     }
 
 
-def _write_required_snapshots(tmp_path: Path, *, stale_risk: bool = False) -> list[Path]:
+def _write_required_snapshots(
+    tmp_path: Path, *, stale_risk: bool = False
+) -> list[Path]:
     gate = _load_gate_module()
     telemetry_paths = []
     for product_id in gate.REQUIRED_PRODUCTS:
@@ -134,14 +170,32 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     )
 
     assert status["contract_id"] == "lotus-mesh-certification-status"
+    assert status["governed_by_rfcs"] == ["RFC-0089", "RFC-0091"]
     assert status["certification_state"] == "certified"
-    assert status["summary"]["certified_required_product_count"] == 4
+    assert status["summary"]["certified_required_product_count"] == 6
     assert status["summary"]["error_count"] == 0
+    assert status["summary"]["mesh_lifecycle_issue_count"] == 0
+    assert status["summary"]["mesh_evidence_issue_count"] == 0
+    assert {family["family"] for family in status["maturity_check_families"]} == {
+        "telemetry",
+        "slo",
+        "access",
+        "lifecycle",
+        "evidence",
+        "catalog",
+        "gateway",
+        "workbench",
+    }
+    assert all(
+        family["state"] == "passed" for family in status["maturity_check_families"]
+    )
     assert [product["product_id"] for product in status["required_products"]] == [
         "lotus-core:PortfolioStateSnapshot:v1",
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+        "lotus-report:ClientReportEvidencePack:v1",
+        "lotus-manage:PortfolioActionRegister:v1",
     ]
 
 
@@ -170,6 +224,118 @@ def test_mesh_certification_gate_blocks_missing_and_stale_required_products(
     assert "stale_telemetry" in issue_codes
     assert "data_quality_attention_required" in issue_codes
     assert gate._exit_code(status) == 1
+
+
+def test_mesh_certification_gate_blocks_mesh_slo_violations(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    risk_path = next(path for path in telemetry_paths if "lotus-risk" in path.name)
+    risk_snapshot = json.loads(risk_path.read_text(encoding="utf-8"))
+    risk_snapshot["freshness"]["age_seconds"] = 90000
+    risk_path.write_text(json.dumps(risk_snapshot), encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert status["summary"]["mesh_slo_violation_count"] == 1
+    assert any(
+        issue["code"] == "mesh_slo_freshness_violation"
+        and issue["product_id"] == "lotus-risk:RiskMetricsReport:v1"
+        for issue in status["issues"]
+    )
+
+
+def test_mesh_certification_gate_blocks_missing_access_policies(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    empty_access_policy_dir = tmp_path / "empty-access"
+    empty_access_policy_dir.mkdir()
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        access_policy_path=empty_access_policy_dir,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert any(
+        issue["code"] == "mesh_access_policy_drift" for issue in status["issues"]
+    )
+    assert status["source_artifacts"]["access_policy_path"] == (
+        empty_access_policy_dir.as_posix()
+    )
+
+
+def test_mesh_certification_gate_blocks_missing_evidence_policies(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    empty_evidence_policy_dir = tmp_path / "empty-evidence"
+    empty_evidence_policy_dir.mkdir()
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        evidence_policy_path=empty_evidence_policy_dir,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert status["summary"]["mesh_evidence_issue_count"] > 0
+    assert any(
+        issue["code"] == "mesh_evidence_policy_drift" for issue in status["issues"]
+    )
+    assert status["source_artifacts"]["evidence_policy_path"] == (
+        empty_evidence_policy_dir.as_posix()
+    )
+
+
+def test_mesh_certification_gate_blocks_required_product_lifecycle_drift(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    catalog_path = tmp_path / "domain-product-catalog.json"
+    catalog = json.loads(
+        (ROOT / "generated" / "domain-product-catalog.json").read_text(encoding="utf-8")
+    )
+    for product in catalog["products"]:
+        if product["product_id"] == "lotus-report:ClientReportEvidencePack:v1":
+            product["lifecycle_status"] = "deprecated"
+            product["deprecation_policy"] = {
+                "state": "deprecated",
+                "successor_product": None,
+            }
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        catalog_path=catalog_path,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert status["summary"]["mesh_lifecycle_issue_count"] == 1
+    assert any(
+        issue["code"] == "mesh_lifecycle_drift"
+        and issue["product_id"] == "lotus-report:ClientReportEvidencePack:v1"
+        for issue in status["issues"]
+    )
 
 
 def test_mesh_certification_gate_reports_invalid_json_snapshot(
@@ -224,8 +390,7 @@ def test_mesh_certification_gate_reports_dependency_graph_drift(
     assert status["certification_state"] == "failed"
     assert len(catalog_drift_issues) == len(gate.REQUIRED_PRODUCTS)
     assert all(
-        "dependency graph" in issue["remediation"]
-        for issue in catalog_drift_issues
+        "dependency graph" in issue["remediation"] for issue in catalog_drift_issues
     )
 
 
@@ -259,7 +424,7 @@ def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> 
     )
 
     assert status["certification_state"] == "certified_with_warnings"
-    assert status["summary"]["missing_telemetry_count"] == 4
+    assert status["summary"]["missing_telemetry_count"] == 6
     assert status["summary"]["error_count"] == 0
     assert gate._exit_code(status) == 0
 
@@ -285,13 +450,20 @@ def test_mesh_certification_gate_writes_json_markdown_and_issues(
     rendered_issues = json.loads(
         (output_dir / "mesh-certification-issues.json").read_text(encoding="utf-8")
     )
-    markdown = (output_dir / "mesh-certification-status.md").read_text(
-        encoding="utf-8"
+    rendered_enterprise_status = json.loads(
+        (output_dir / "enterprise-mesh-certification-status.json").read_text(
+            encoding="utf-8"
+        )
     )
+    markdown = (output_dir / "mesh-certification-status.md").read_text(encoding="utf-8")
     assert rendered_status["certification_state"] == "certified"
+    assert rendered_enterprise_status == rendered_status
     assert rendered_issues == []
     assert "# Lotus Mesh Certification Status" in markdown
+    assert "## Maturity Check Families" in markdown
     assert "lotus-core:PortfolioStateSnapshot:v1" in markdown
+    assert (output_dir / "enterprise-mesh-certification-status.md").exists()
+    assert (output_dir / "enterprise-mesh-certification-issues.json").exists()
 
 
 def test_mesh_certification_gate_detects_gateway_and_workbench_drift(
@@ -306,9 +478,7 @@ def test_mesh_certification_gate_detects_gateway_and_workbench_drift(
         gateway_root / "src" / "app" / "services" / "domain_product_catalog_service.py"
     )
     workbench_page = workbench_root / "src" / "app" / "data-products" / "page.tsx"
-    workbench_api = (
-        workbench_root / "src" / "features" / "domain-products" / "api.ts"
-    )
+    workbench_api = workbench_root / "src" / "features" / "domain-products" / "api.ts"
     gateway_router.parent.mkdir(parents=True)
     gateway_service.parent.mkdir(parents=True)
     workbench_page.parent.mkdir(parents=True)

@@ -16,6 +16,23 @@ from validate_trust_telemetry import (
     _iter_telemetry_paths,
     _load_validation_context,
 )
+from validate_mesh_slo_policies import (
+    DEFAULT_SLO_POLICY_DIRECTORY,
+    evaluate_mesh_slo_violations,
+    validate_mesh_slo_policies,
+)
+from validate_mesh_access_policies import (
+    DEFAULT_ACCESS_POLICY_DIRECTORY,
+    validate_mesh_access_policies,
+)
+from generate_mesh_evidence_pack import (
+    DEFAULT_EVIDENCE_POLICY_DIRECTORY,
+    validate_mesh_evidence_policies,
+)
+from mesh_maturity_scope import (
+    REQUIRED_PRODUCTS,
+    default_static_telemetry_directories,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,21 +46,19 @@ DEFAULT_GRAPH_PATH = ROOT / "generated" / "domain-product-dependency-graph.json"
 DEFAULT_OUTPUT_DIRECTORY = ROOT / "output" / "mesh-certification"
 DEFAULT_GATEWAY_ROOT = ROOT.parent / "lotus-gateway"
 DEFAULT_WORKBENCH_ROOT = ROOT.parent / "lotus-workbench"
-DEFAULT_TELEMETRY_DIRECTORIES = [
-    ROOT.parent / "lotus-core" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-performance" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-risk" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-advise" / "contracts" / "trust-telemetry",
-]
+DEFAULT_TELEMETRY_DIRECTORIES = default_static_telemetry_directories()
 MESH_CERTIFICATION_STATUS_FILENAME = "mesh-certification-status.json"
 MESH_CERTIFICATION_MARKDOWN_FILENAME = "mesh-certification-status.md"
 MESH_CERTIFICATION_ISSUES_FILENAME = "mesh-certification-issues.json"
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-}
+ENTERPRISE_MESH_CERTIFICATION_STATUS_FILENAME = (
+    "enterprise-mesh-certification-status.json"
+)
+ENTERPRISE_MESH_CERTIFICATION_MARKDOWN_FILENAME = (
+    "enterprise-mesh-certification-status.md"
+)
+ENTERPRISE_MESH_CERTIFICATION_ISSUES_FILENAME = (
+    "enterprise-mesh-certification-issues.json"
+)
 LIVE_CERTIFICATION_CODE_MAP = {
     "invalid_trust_telemetry": "invalid_telemetry",
     "freshness_not_current": "stale_telemetry",
@@ -57,10 +72,49 @@ BLOCKING_REQUIRED_PRODUCT_CODES = {
     "reconciliation_attention_required",
     "data_quality_attention_required",
     "lineage_not_materialized",
+    "mesh_slo_freshness_violation",
+    "mesh_slo_completeness_violation",
+    "mesh_slo_reconciliation_violation",
+    "mesh_slo_data_quality_violation",
+    "mesh_slo_lineage_violation",
+    "mesh_evidence_policy_drift",
+    "mesh_lifecycle_drift",
     "catalog_drift",
     "gateway_publication_drift",
     "workbench_consumption_drift",
 }
+ISSUE_FAMILY_BY_CODE = {
+    "missing_telemetry": "telemetry",
+    "invalid_telemetry": "telemetry",
+    "stale_telemetry": "telemetry",
+    "product_blocked": "telemetry",
+    "completeness_attention_required": "telemetry",
+    "reconciliation_attention_required": "telemetry",
+    "data_quality_attention_required": "telemetry",
+    "lineage_not_materialized": "telemetry",
+    "mesh_slo_policy_drift": "slo",
+    "mesh_slo_freshness_violation": "slo",
+    "mesh_slo_completeness_violation": "slo",
+    "mesh_slo_reconciliation_violation": "slo",
+    "mesh_slo_data_quality_violation": "slo",
+    "mesh_slo_lineage_violation": "slo",
+    "mesh_access_policy_drift": "access",
+    "mesh_evidence_policy_drift": "evidence",
+    "mesh_lifecycle_drift": "lifecycle",
+    "catalog_drift": "catalog",
+    "gateway_publication_drift": "gateway",
+    "workbench_consumption_drift": "workbench",
+}
+MATURITY_CHECK_FAMILIES = [
+    "telemetry",
+    "slo",
+    "access",
+    "lifecycle",
+    "evidence",
+    "catalog",
+    "gateway",
+    "workbench",
+]
 GateMode = Literal["advisory", "blocking"]
 
 
@@ -196,6 +250,50 @@ def _validate_required_products_in_catalog(
             )
 
 
+def _validate_required_product_lifecycle(
+    *,
+    products_by_id: dict[str, dict[str, Any]],
+    issues: list[MeshCertificationIssue],
+    catalog_path: Path,
+    gate_mode: GateMode,
+) -> None:
+    for product_id, producer_repository in REQUIRED_PRODUCTS.items():
+        product = products_by_id.get(product_id)
+        if product is None:
+            continue
+        deprecation_policy = product.get("deprecation_policy", {})
+        lifecycle_status = product.get("lifecycle_status")
+        deprecation_state = (
+            deprecation_policy.get("state")
+            if isinstance(deprecation_policy, dict)
+            else None
+        )
+        successor_product = (
+            deprecation_policy.get("successor_product")
+            if isinstance(deprecation_policy, dict)
+            else None
+        )
+        if (
+            lifecycle_status == "active"
+            and deprecation_state == "not_deprecated"
+            and successor_product is None
+        ):
+            continue
+        _issue(
+            issues,
+            code="mesh_lifecycle_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            producer_repository=producer_repository,
+            product_id=product_id,
+            remediation=(
+                "Restore the maturity-wave product to active/not-deprecated posture "
+                "or add a governed successor and consumer-impact migration plan before "
+                "allowing the product through enterprise certification."
+            ),
+            source_evidence_path=catalog_path,
+        )
+
+
 def _validate_required_products_in_graph(
     *,
     dependency_graph_path: Path,
@@ -291,7 +389,11 @@ def _issue_from_live_certification(
     code = LIVE_CERTIFICATION_CODE_MAP.get(raw_issue["code"], raw_issue["code"])
     required_product = product_id in REQUIRED_PRODUCTS
     severity: Literal["error", "warning", "info"] = "warning"
-    if required_product and gate_mode == "blocking" and code in BLOCKING_REQUIRED_PRODUCT_CODES:
+    if (
+        required_product
+        and gate_mode == "blocking"
+        and code in BLOCKING_REQUIRED_PRODUCT_CODES
+    ):
         severity = "error"
     return MeshCertificationIssue(
         code=code,
@@ -326,7 +428,84 @@ def _validate_required_telemetry(
                 "Add or refresh the first-wave RFC-0087 trust telemetry snapshot "
                 "for this required product."
             ),
-            source_evidence_path="../" + producer_repository + "/contracts/trust-telemetry",
+            source_evidence_path="../"
+            + producer_repository
+            + "/contracts/trust-telemetry",
+        )
+
+
+def _validate_mesh_slo_policy_and_telemetry(
+    *,
+    telemetry_payloads: dict[str, tuple[Path, dict[str, Any]]],
+    slo_policy_path: Path,
+    issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
+) -> None:
+    policy_issues = validate_mesh_slo_policies(slo_policy_path)
+    for policy_issue in policy_issues:
+        _issue(
+            issues,
+            code="mesh_slo_policy_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            remediation=policy_issue,
+            source_evidence_path=slo_policy_path,
+        )
+
+    for violation in evaluate_mesh_slo_violations(
+        telemetry_payloads=telemetry_payloads,
+        policy_path=slo_policy_path,
+    ):
+        severity: Literal["error", "warning", "info"] = (
+            "error"
+            if gate_mode == "blocking" and violation["severity"] == "blocking"
+            else "warning"
+        )
+        _issue(
+            issues,
+            code=violation["code"],
+            severity=severity,
+            producer_repository=violation["producer_repository"],
+            product_id=violation["product_id"],
+            remediation=violation["remediation"],
+            source_evidence_path=violation["policy_path"],
+        )
+
+
+def _validate_mesh_access_policy(
+    *,
+    access_policy_path: Path,
+    issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
+) -> None:
+    access_issues = validate_mesh_access_policies(access_policy_path)
+    for access_issue in access_issues:
+        _issue(
+            issues,
+            code="mesh_access_policy_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            remediation=access_issue,
+            source_evidence_path=access_policy_path,
+        )
+
+
+def _validate_mesh_evidence_policy(
+    *,
+    evidence_policy_path: Path,
+    catalog_path: Path,
+    issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
+) -> None:
+    evidence_issues = validate_mesh_evidence_policies(
+        evidence_policy_path,
+        catalog_path=catalog_path,
+    )
+    for evidence_issue in evidence_issues:
+        _issue(
+            issues,
+            code="mesh_evidence_policy_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            remediation=evidence_issue,
+            source_evidence_path=evidence_policy_path,
         )
 
 
@@ -457,7 +636,48 @@ def _certification_state(issues: list[MeshCertificationIssue]) -> str:
     return "certified"
 
 
-def _summary(issues: list[MeshCertificationIssue], required_products: list[dict[str, Any]]) -> dict[str, Any]:
+def _issue_family(issue: MeshCertificationIssue | dict[str, Any]) -> str:
+    code = issue.code if isinstance(issue, MeshCertificationIssue) else issue["code"]
+    return ISSUE_FAMILY_BY_CODE.get(code, "unknown")
+
+
+def _issue_family_summary(
+    issues: list[MeshCertificationIssue],
+) -> dict[str, dict[str, int]]:
+    family_summary = {
+        family: {"error_count": 0, "warning_count": 0, "info_count": 0}
+        for family in MATURITY_CHECK_FAMILIES
+    }
+    for issue in issues:
+        family = _issue_family(issue)
+        family_summary.setdefault(
+            family, {"error_count": 0, "warning_count": 0, "info_count": 0}
+        )
+        family_summary[family][f"{issue.severity}_count"] += 1
+    return family_summary
+
+
+def _maturity_check_status(
+    issues: list[MeshCertificationIssue],
+) -> list[dict[str, Any]]:
+    by_family = _issue_family_summary(issues)
+    statuses = []
+    for family in MATURITY_CHECK_FAMILIES:
+        counts = by_family[family]
+        if counts["error_count"]:
+            state = "failed"
+        elif counts["warning_count"]:
+            state = "attention_required"
+        else:
+            state = "passed"
+        statuses.append({"family": family, "state": state, **counts})
+    return statuses
+
+
+def _summary(
+    issues: list[MeshCertificationIssue], required_products: list[dict[str, Any]]
+) -> dict[str, Any]:
+    issue_family_summary = _issue_family_summary(issues)
     return {
         "certification_state": _certification_state(issues),
         "required_product_count": len(required_products),
@@ -484,6 +704,19 @@ def _summary(issues: list[MeshCertificationIssue], required_products: list[dict[
         "blocked_product_count": sum(
             1 for issue in issues if issue.code == "product_blocked"
         ),
+        "mesh_slo_violation_count": sum(
+            1 for issue in issues if issue.code.startswith("mesh_slo_")
+        ),
+        "mesh_access_issue_count": sum(
+            1 for issue in issues if _issue_family(issue) == "access"
+        ),
+        "mesh_evidence_issue_count": sum(
+            1 for issue in issues if _issue_family(issue) == "evidence"
+        ),
+        "mesh_lifecycle_issue_count": sum(
+            1 for issue in issues if _issue_family(issue) == "lifecycle"
+        ),
+        "issue_family_summary": issue_family_summary,
     }
 
 
@@ -523,6 +756,9 @@ def build_mesh_certification_status(
     catalog_path: Path = DEFAULT_CATALOG_PATH,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
     dependency_graph_path: Path = DEFAULT_GRAPH_PATH,
+    slo_policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
+    access_policy_path: Path = DEFAULT_ACCESS_POLICY_DIRECTORY,
+    evidence_policy_path: Path = DEFAULT_EVIDENCE_POLICY_DIRECTORY,
     gateway_root: Path = DEFAULT_GATEWAY_ROOT,
     workbench_root: Path = DEFAULT_WORKBENCH_ROOT,
     gate_mode: GateMode,
@@ -537,6 +773,7 @@ def build_mesh_certification_status(
     )
     issues.extend(telemetry_issues)
     context = _load_validation_context(catalog_path=catalog_path)
+    products_by_id = _catalog_products_by_id(catalog_path)
     live_report = build_live_trust_certification_report_from_paths(
         valid_telemetry_paths,
         source_telemetry_path="mesh-certification:first-wave-telemetry",
@@ -546,9 +783,15 @@ def build_mesh_certification_status(
 
     _validate_source_manifest(source_manifest_path=source_manifest_path, issues=issues)
     _validate_required_products_in_catalog(
-        products_by_id=_catalog_products_by_id(catalog_path),
+        products_by_id=products_by_id,
         issues=issues,
         catalog_path=catalog_path,
+    )
+    _validate_required_product_lifecycle(
+        products_by_id=products_by_id,
+        issues=issues,
+        catalog_path=catalog_path,
+        gate_mode=gate_mode,
     )
     _validate_required_products_in_graph(
         dependency_graph_path=dependency_graph_path,
@@ -556,6 +799,23 @@ def build_mesh_certification_status(
     )
     _validate_required_telemetry(
         telemetry_payloads=telemetry_payloads,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
+    _validate_mesh_slo_policy_and_telemetry(
+        telemetry_payloads=telemetry_payloads,
+        slo_policy_path=slo_policy_path,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
+    _validate_mesh_access_policy(
+        access_policy_path=access_policy_path,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
+    _validate_mesh_evidence_policy(
+        evidence_policy_path=evidence_policy_path,
+        catalog_path=catalog_path,
         issues=issues,
         gate_mode=gate_mode,
     )
@@ -592,18 +852,24 @@ def build_mesh_certification_status(
     return {
         "contract_id": "lotus-mesh-certification-status",
         "contract_version": "1.0.0",
-        "governed_by_rfcs": ["RFC-0089"],
+        "governed_by_rfcs": ["RFC-0089", "RFC-0091"],
         "generated_at_utc": generated_at_utc,
         "gate_mode": gate_mode,
         "certification_state": _certification_state(sorted_issues),
         "required_products": required_products,
+        "maturity_check_families": _maturity_check_status(sorted_issues),
         "summary": _summary(sorted_issues, required_products),
         "issues": [asdict(issue) for issue in sorted_issues],
         "source_artifacts": {
             "source_manifest": source_manifest_path.as_posix(),
             "catalog": catalog_path.as_posix(),
             "dependency_graph": dependency_graph_path.as_posix(),
-            "telemetry_inputs": [path.as_posix() for path in discovered_telemetry_paths],
+            "slo_policy_path": slo_policy_path.as_posix(),
+            "access_policy_path": access_policy_path.as_posix(),
+            "evidence_policy_path": evidence_policy_path.as_posix(),
+            "telemetry_inputs": [
+                path.as_posix() for path in discovered_telemetry_paths
+            ],
             "gateway_root": gateway_root.as_posix(),
             "workbench_root": workbench_root.as_posix(),
         },
@@ -631,14 +897,15 @@ def render_mesh_certification_markdown(status: dict[str, Any]) -> str:
         )
 
     issue_rows = [
-        "| Severity | Code | Producer | Product | Remediation | Evidence |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "| Severity | Family | Code | Producer | Product | Remediation | Evidence |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     if status["issues"]:
         for issue in status["issues"]:
             issue_rows.append(
                 "| "
                 f"`{issue['severity']}` | "
+                f"`{_issue_family(issue)}` | "
                 f"`{issue['code']}` | "
                 f"`{issue['producer_repository']}` | "
                 f"`{issue.get('product_id')}` | "
@@ -646,7 +913,24 @@ def render_mesh_certification_markdown(status: dict[str, Any]) -> str:
                 f"`{issue['source_evidence_path']}` |"
             )
     else:
-        issue_rows.append("| `none` | `none` | `none` | `none` | No mesh certification issues found. | `none` |")
+        issue_rows.append(
+            "| `none` | `none` | `none` | `none` | `none` | "
+            "No mesh certification issues found. | `none` |"
+        )
+
+    family_rows = [
+        "| Family | State | Errors | Warnings | Info |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for family in status["maturity_check_families"]:
+        family_rows.append(
+            "| "
+            f"`{family['family']}` | "
+            f"`{family['state']}` | "
+            f"`{family['error_count']}` | "
+            f"`{family['warning_count']}` | "
+            f"`{family['info_count']}` |"
+        )
 
     return "\n".join(
         [
@@ -663,6 +947,10 @@ def render_mesh_certification_markdown(status: dict[str, Any]) -> str:
             f"- Errors: `{summary['error_count']}`",
             f"- Warnings: `{summary['warning_count']}`",
             f"- Info: `{summary['info_count']}`",
+            "",
+            "## Maturity Check Families",
+            "",
+            *family_rows,
             "",
             "## Required Products",
             "",
@@ -696,6 +984,18 @@ def write_mesh_certification_status(
         encoding="utf-8",
     )
     (output_directory / MESH_CERTIFICATION_ISSUES_FILENAME).write_text(
+        json.dumps(status["issues"], indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (output_directory / ENTERPRISE_MESH_CERTIFICATION_STATUS_FILENAME).write_text(
+        json.dumps(status, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (output_directory / ENTERPRISE_MESH_CERTIFICATION_MARKDOWN_FILENAME).write_text(
+        render_mesh_certification_markdown(status),
+        encoding="utf-8",
+    )
+    (output_directory / ENTERPRISE_MESH_CERTIFICATION_ISSUES_FILENAME).write_text(
         json.dumps(status["issues"], indent=2) + "\n",
         encoding="utf-8",
     )
@@ -739,6 +1039,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Directory where mesh certification status artifacts should be written.",
     )
     parser.add_argument(
+        "--slo-policy-path",
+        type=Path,
+        default=DEFAULT_SLO_POLICY_DIRECTORY,
+        help="Mesh SLO policy file or directory used for RFC-0091 SLO drift checks.",
+    )
+    parser.add_argument(
+        "--access-policy-path",
+        type=Path,
+        default=DEFAULT_ACCESS_POLICY_DIRECTORY,
+        help="Mesh access policy file or directory used for RFC-0091 access governance checks.",
+    )
+    parser.add_argument(
+        "--evidence-policy-path",
+        type=Path,
+        default=DEFAULT_EVIDENCE_POLICY_DIRECTORY,
+        help="Mesh evidence policy file or directory used for RFC-0091 evidence drift checks.",
+    )
+    parser.add_argument(
         "--require-sibling-repos",
         action="store_true",
         help="Treat missing lotus-gateway or lotus-workbench sibling checkouts as errors.",
@@ -754,6 +1072,9 @@ def main(argv: list[str] | None = None) -> int:
         telemetry_paths=args.telemetry_path,
         gate_mode=args.mode,
         generated_at_utc=args.generated_at_utc,
+        slo_policy_path=args.slo_policy_path,
+        access_policy_path=args.access_policy_path,
+        evidence_policy_path=args.evidence_policy_path,
         require_sibling_repos=args.require_sibling_repos,
         check_publication_surfaces=not args.skip_publication_checks,
     )

@@ -62,7 +62,9 @@ def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> 
         assert expected in standard
 
 
-def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> None:
+def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
+    None
+):
     for rfc_name in CURRENT_IMPLEMENTATION_RFCS:
         text = _read(ROOT / "rfcs" / rfc_name)
 
@@ -130,5 +132,64 @@ def test_rfc_0090_preserves_cross_repo_ci_enforcement_contract() -> None:
         "step summary contract",
         "--require-sibling-repos",
         "if: always()",
+    ]:
+        assert expected in text
+
+
+def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md"
+    )
+
+    for expected in [
+        "enterprise mesh maturity definition",
+        "runtime telemetry emission and collection",
+        "self-service product onboarding kit",
+        "mesh slo policy",
+        "access governance and entitled discovery",
+        "certification history and customer evidence packs",
+        "broader product rollout and lifecycle governance",
+        "enterprise mesh certification gate",
+        "implementation boundary",
+        "done and not-done semantics",
+        "ownership map",
+        "implementation status and evidence",
+        "| status | implemented |",
+        "implemented on rfc-0091 branch; pr and merge hygiene pending",
+        "automation/generate_domain_product_onboarding.py",
+        "tests/unit/test_domain_product_onboarding_generator.py",
+        "automation/collect_trust_telemetry.py",
+        "tests/unit/test_trust_telemetry_collection.py",
+        "platform-contracts/mesh-slo/",
+        "automation/validate_mesh_slo_policies.py",
+        "tests/unit/test_mesh_slo_policies.py",
+        "platform-contracts/mesh-access/",
+        "automation/validate_mesh_access_policies.py",
+        "tests/unit/test_mesh_access_policies.py",
+        "platform-contracts/mesh-evidence/",
+        "automation/generate_mesh_evidence_pack.py",
+        "tests/unit/test_mesh_evidence_pack.py",
+        "lotus-report/contracts/domain-data-products/lotus-report-products.v1.json",
+        "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json",
+        "enterprise-mesh-certification-status.json",
+        "telemetry, slo, access, lifecycle, evidence, catalog, gateway, and workbench",
+        "automation/mesh_maturity_scope.py",
+        "tests/unit/test_mesh_maturity_scope.py",
+        "slice 9 review result",
+        "lotus-skill-routing-map.md",
+        "generated/enterprise-mesh-maturity-matrix.json",
+        "output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json",
+        "code review, api certification, and governance tightening",
+        "documentation, agent context, wiki update, skills review, and branch hygiene",
+        "lotus-gateway",
+        "lotus-workbench",
+        "platform-contracts/mesh-slo/",
+        "platform-contracts/mesh-access/",
+        "platform-contracts/mesh-evidence/",
+        "customer-ready versus operator-only",
+        "generate_enterprise_mesh_maturity_matrix.py --check",
+        "static fixture fallback is explicit and cannot masquerade as live runtime evidence",
     ]:
         assert expected in text

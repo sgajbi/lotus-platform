@@ -1,11 +1,12 @@
 # Mesh Certification Gate Runbook
 
-This runbook covers the RFC-0089 mesh certification gate and the RFC-0090 GitHub
-cross-repo PR Merge Gate workflow.
+This runbook covers the RFC-0089 mesh certification gate, the RFC-0090 GitHub
+cross-repo PR Merge Gate workflow, and the RFC-0091 enterprise maturity extensions.
 
 The gate turns Lotus domain-product mesh evidence into an operational control. It validates the
-first-wave product declarations, RFC-0087 trust telemetry snapshots, live trust certification,
-gateway publication posture, and Workbench discovery consumption posture.
+maturity-wave product declarations, RFC-0087 trust telemetry snapshots, live trust certification,
+SLO policy, access policy, evidence-pack policy, lifecycle posture, gateway publication posture,
+and Workbench discovery consumption posture.
 
 ## When To Run
 
@@ -15,10 +16,13 @@ Run the gate when any of these change:
 2. `platform-contracts/trust-telemetry/`
 3. `generated/domain-product-catalog.json`
 4. `generated/domain-product-dependency-graph.json`
-5. first-wave producer telemetry snapshots in `lotus-core`, `lotus-performance`, `lotus-risk`, or
-   `lotus-advise`
-6. `lotus-gateway` domain-product publication routes or contracts
-7. `lotus-workbench` `/data-products` discovery surface or BFF consumption code
+5. `platform-contracts/mesh-slo/`
+6. `platform-contracts/mesh-access/`
+7. `platform-contracts/mesh-evidence/`
+8. maturity-wave producer telemetry snapshots in `lotus-core`, `lotus-performance`, `lotus-risk`,
+   `lotus-advise`, `lotus-report`, or `lotus-manage`
+9. `lotus-gateway` domain-product publication routes or contracts
+10. `lotus-workbench` `/data-products` discovery surface or BFF consumption code
 
 ## Commands
 
@@ -40,8 +44,10 @@ The blocking command expects these sibling checkouts next to `lotus-platform`:
 2. `lotus-performance`
 3. `lotus-risk`
 4. `lotus-advise`
-5. `lotus-gateway`
-6. `lotus-workbench`
+5. `lotus-report`
+6. `lotus-manage`
+7. `lotus-gateway`
+8. `lotus-workbench`
 
 ## GitHub Cross-Repo Gate
 
@@ -61,10 +67,14 @@ Automatic pull-request runs cover:
 3. `automation/Invoke-PlatformRepoChecks.ps1`
 4. `platform-contracts/domain-data-products/**`
 5. `platform-contracts/trust-telemetry/**`
-6. `generated/domain-product-catalog.json`
-7. `generated/domain-product-dependency-graph.json`
-8. `rfcs/RFC-0089-*`
-9. `rfcs/RFC-0090-*`
+6. `platform-contracts/mesh-slo/**`
+7. `platform-contracts/mesh-access/**`
+8. `platform-contracts/mesh-evidence/**`
+9. `generated/domain-product-catalog.json`
+10. `generated/domain-product-dependency-graph.json`
+11. `rfcs/RFC-0089-*`
+12. `rfcs/RFC-0090-*`
+13. `rfcs/RFC-0091-*`
 
 The workflow checks out these repositories in sibling layout:
 
@@ -75,6 +85,8 @@ The workflow checks out these repositories in sibling layout:
 | `sgajbi/lotus-performance` | `main` | `lotus-performance` |
 | `sgajbi/lotus-risk` | `main` | `lotus-risk` |
 | `sgajbi/lotus-advise` | `main` | `lotus-advise` |
+| `sgajbi/lotus-report` | `main` | `lotus-report` |
+| `sgajbi/lotus-manage` | `main` | `lotus-manage` |
 | `sgajbi/lotus-gateway` | `main` | `lotus-gateway` |
 | `sgajbi/lotus-workbench` | `main` | `lotus-workbench` |
 
@@ -84,8 +96,10 @@ Manual runs support explicit branch or SHA override inputs:
 2. `lotus_performance_ref`
 3. `lotus_risk_ref`
 4. `lotus_advise_ref`
-5. `lotus_gateway_ref`
-6. `lotus_workbench_ref`
+5. `lotus_report_ref`
+6. `lotus_manage_ref`
+7. `lotus_gateway_ref`
+8. `lotus_workbench_ref`
 
 Use overrides for coordinated cross-repo validation only. Empty inputs mean `main`.
 
@@ -96,6 +110,8 @@ lotus_core_ref=feature/rfc0087-telemetry-refresh
 lotus_performance_ref=main
 lotus_risk_ref=main
 lotus_advise_ref=main
+lotus_report_ref=feature/rfc0091-report-product-rollout
+lotus_manage_ref=feature/rfc0091-manage-product-rollout
 lotus_gateway_ref=feature/rfc0085-domain-product-publication
 lotus_workbench_ref=feature/rfc0088-self-serve-discovery
 ```
@@ -111,8 +127,13 @@ The gate writes operator artifacts to `output/mesh-certification/`:
 1. `mesh-certification-status.json`
 2. `mesh-certification-status.md`
 3. `mesh-certification-issues.json`
+4. `enterprise-mesh-certification-status.json`
+5. `enterprise-mesh-certification-status.md`
+6. `enterprise-mesh-certification-issues.json`
 
-Use JSON for automation and Markdown for human review. They are rendered from the same status object.
+Use JSON for automation and Markdown for human review. The `enterprise-*` files are compatibility
+aliases for RFC-0091 evidence-pack and workflow consumers; they are rendered from the same status
+object as the original RFC-0089 files.
 
 The GitHub workflow uploads the same files as an artifact named:
 
@@ -127,7 +148,7 @@ Download that artifact from the workflow run when the gate fails. Inspect
 If the artifact is missing, the failure happened before the gate could write status. Check the
 checkout, Python setup, and workflow infrastructure steps first.
 
-## Required First-Wave Products
+## Required Maturity-Wave Products
 
 Blocking mode applies to:
 
@@ -135,9 +156,26 @@ Blocking mode applies to:
 2. `lotus-performance:ReturnsSeriesBundle:v1`
 3. `lotus-risk:RiskMetricsReport:v1`
 4. `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
+5. `lotus-report:ClientReportEvidencePack:v1`
+6. `lotus-manage:PortfolioActionRegister:v1`
 
 Other catalog products may be reported as advisory posture until they are deliberately promoted into
 the blocking certification set.
+
+## Maturity Check Families
+
+The status object and Markdown summary classify issues into these operator-facing families:
+
+| Family | What it means |
+| --- | --- |
+| `telemetry` | Missing, invalid, stale, blocked, incomplete, unreconciled, failed-quality, or missing-lineage telemetry. |
+| `slo` | SLO policy drift or runtime SLO violation for freshness, completeness, reconciliation, quality, or lineage. |
+| `access` | Mesh access-policy drift, including missing policy files or invalid gateway-only publication posture. |
+| `lifecycle` | Required product lifecycle is no longer active/not-deprecated without governed successor and consumer-impact migration evidence. |
+| `evidence` | Evidence-pack policy drift that would make customer/operator evidence incomplete or unsafe to export. |
+| `catalog` | Source manifest, generated catalog, or dependency graph drift. |
+| `gateway` | Gateway publication route or service drift. |
+| `workbench` | Workbench discovery route or gateway/BFF-only consumption drift. |
 
 ## Fix-Forward Guide
 
@@ -151,6 +189,15 @@ the blocking certification set.
 | `reconciliation_attention_required` | Reconciliation is stale, unreconciled, break-open, or unknown. | Fix reconciliation evidence or keep the gate blocked. |
 | `data_quality_attention_required` | Data quality failed, blocked, or unknown. | Fix data-quality evidence before marking the product certified. |
 | `lineage_not_materialized` | Required lineage evidence is not materialized. | Materialize lineage evidence or document why the product cannot be certified. |
+| `mesh_slo_policy_drift` | Required SLO policy is missing or invalid. | Restore the platform SLO policy for the required product. |
+| `mesh_slo_freshness_violation` | Runtime freshness exceeds the product SLO. | Refresh producer evidence or correct the freshness calculation. |
+| `mesh_slo_completeness_violation` | Runtime completeness violates the product SLO. | Fix producer completeness evidence before certification. |
+| `mesh_slo_reconciliation_violation` | Runtime reconciliation violates the product SLO. | Fix reconciliation evidence or keep certification blocked. |
+| `mesh_slo_data_quality_violation` | Runtime data-quality posture violates the product SLO. | Fix data-quality evidence before certification. |
+| `mesh_slo_lineage_violation` | Runtime lineage posture violates the product SLO. | Materialize lineage evidence or correct the policy/snapshot. |
+| `mesh_access_policy_drift` | Required access policy is missing or invalid. | Restore the platform access policy for the required product. |
+| `mesh_evidence_policy_drift` | Required evidence-pack policy is missing or invalid. | Restore evidence-pack policy before producing customer/operator evidence. |
+| `mesh_lifecycle_drift` | Required maturity-wave product is not active/not-deprecated. | Restore active posture or add governed successor and consumer-impact migration evidence. |
 | `catalog_drift` | Required product identity, source-manifest posture, or dependency-graph posture drifted. | Regenerate discovery artifacts or restore the repo-native declaration/source manifest. |
 | `gateway_publication_drift` | Gateway no longer exposes the required discovery/trust route family. | Restore the gateway route/contract evidence and run gateway repo-native tests. |
 | `workbench_consumption_drift` | Workbench discovery is missing or bypasses gateway/BFF. | Restore `/data-products` and gateway/BFF-only consumption. |

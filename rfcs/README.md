@@ -129,6 +129,7 @@ Reference baseline:
 - `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented and merged for generated discovery plus Workbench UI)
 - `RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md` (implemented for first-wave mesh certification enforcement)
 - `RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md` (implemented for GitHub cross-repo mesh certification gate enforcement)
+- `RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md` (implemented; enterprise maturity matrix, self-service onboarding, telemetry collection, mesh SLO enforcement, access governance, evidence packs, broader product rollout, enterprise certification gate, governance tightening, and final docs/context/wiki/skills review complete)
 
 ## RFC Closure Governance
 

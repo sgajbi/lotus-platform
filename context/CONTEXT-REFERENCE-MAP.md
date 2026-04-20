@@ -118,6 +118,51 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Workbench self-serve discovery route that must consume gateway/BFF APIs only.
 28. `../../lotus-workbench/src/features/domain-products/`
     Workbench client/API module for catalog, graph, trust, and degraded discovery states.
+29. `../automation/generate_enterprise_mesh_maturity_matrix.py`
+    Generates and checks the RFC-0091 Slice 0 maturity matrix for repository participation,
+    first-wave products, candidate products, support roles, and explicit non-participants.
+30. [Enterprise Mesh Maturity Matrix](../generated/enterprise-mesh-maturity-matrix.json)
+    Machine-readable RFC-0091 Slice 0 matrix. Generated evidence, not source truth.
+31. [Enterprise Mesh Maturity Matrix Markdown](../generated/enterprise-mesh-maturity-matrix.md)
+    Human-readable RFC-0091 Slice 0 matrix for implementation planning and operator review.
+32. `../automation/generate_domain_product_onboarding.py`
+    Generates and validates RFC-0091 self-service onboarding bundles for repo-native product
+    declarations, trust telemetry, SLO, access, evidence, README, and onboarding checklist files.
+    The generated bundle is an onboarding aid for owning repositories, not platform product truth.
+33. `../automation/collect_trust_telemetry.py`
+    Collects RFC-0087 trust telemetry snapshots for RFC-0091 certification. Runtime snapshots from
+    sibling repository `output/trust-telemetry/runtime/` directories are preferred; static fixtures
+    from `contracts/trust-telemetry/` are explicit fallback evidence in the generated manifest.
+34. [Mesh SLO Policies](../platform-contracts/mesh-slo/README.md)
+    RFC-0091 first-wave SLO policies for freshness, completeness, reconciliation, data quality,
+    lineage, escalation owner, and remediation.
+35. `../automation/validate_mesh_slo_policies.py`
+    Validates mesh SLO policy identity against the generated catalog and evaluates trust telemetry
+    drift for mesh certification.
+36. [Mesh Access Policies](../platform-contracts/mesh-access/README.md)
+    RFC-0091 first-wave access policies for tenant scope, roles, use cases, denial posture, audit
+    owner, and gateway-only publication.
+37. `../automation/validate_mesh_access_policies.py`
+    Validates mesh access policy identity against the generated catalog and evaluates usable versus
+    restricted caller-context posture.
+38. [Mesh Evidence Policies](../platform-contracts/mesh-evidence/README.md)
+    RFC-0091 first-wave evidence-pack policies and field access classes for public customer,
+    restricted customer, operator-only, and internal-only evidence.
+39. `../automation/generate_mesh_evidence_pack.py`
+    Generates certification-history records and audience-filtered evidence-pack manifests from
+    derived mesh certification, catalog, SLO, access, and live trust artifacts.
+40. `../../lotus-report/contracts/domain-data-products/lotus-report-products.v1.json`
+    RFC-0091 promoted producer declaration for `ClientReportEvidencePack`.
+41. `../../lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json`
+    RFC-0091 promoted producer declaration for `PortfolioActionRegister`.
+42. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+    RFC-0091 operator taxonomy for telemetry, SLO, access, lifecycle, evidence, catalog, gateway,
+    and Workbench certification failures.
+43. `../output/mesh-certification/enterprise-mesh-certification-status.json`
+    RFC-0091 generated enterprise maturity status artifact. Generated evidence, not source truth.
+44. `../automation/mesh_maturity_scope.py`
+    Shared RFC-0091 maturity-wave product scope used by telemetry collection, SLO, access,
+    evidence, maturity matrix, and certification-gate automation.
 
 ## Task Routing
 
