@@ -169,6 +169,14 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 46. `../output/mesh-certification/enterprise-mesh-operating-report.json`
     RFC-0092 generated operator evidence for production-ready versus limited-history posture,
     drift trend, regression detection, product operating posture, and escalation ownership.
+47. [Enterprise Mesh Completion Handoff](../docs/operations/enterprise-mesh-completion-handoff.md)
+    Durable completion handoff for RFC-0084 through RFC-0092, including product wave, PR evidence,
+    wiki publication commits, proof commands, and future-work boundary.
+48. [Enterprise Mesh Closure Ledger](../generated/enterprise-mesh-closure-ledger.json)
+    Machine-readable closure ledger for completed mesh RFCs, repo roles, product IDs, source PRs,
+    published wiki commits, validation commands, and future-work boundary.
+49. [Enterprise Mesh Status Wiki Source](../wiki/Enterprise-Mesh-Status.md)
+    Authored wiki landing page for human-readable mesh status and restart guidance.
 
 ## Task Routing
 

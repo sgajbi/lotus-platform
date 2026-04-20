@@ -8,6 +8,7 @@
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
+- [Enterprise Mesh Status](Enterprise-Mesh-Status)
 - [Troubleshooting](Troubleshooting)
 - [Security and Governance](Security-and-Governance)
 - [RFC Index](RFC-Index)
