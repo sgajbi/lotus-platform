@@ -138,13 +138,15 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
 9. RFC-0091 is in progress for enterprise mesh maturity. Slice 0 provides the generated maturity
    matrix, Slice 1 provides `automation/generate_domain_product_onboarding.py` for
    scaffold-and-check onboarding bundles, Slice 2 provides
-   `automation/collect_trust_telemetry.py` for runtime-preferred telemetry collection, and Slice 3
-   provides `platform-contracts/mesh-slo/` plus `automation/validate_mesh_slo_policies.py`.
+   `automation/collect_trust_telemetry.py` for runtime-preferred telemetry collection, Slice 3
+   provides `platform-contracts/mesh-slo/` plus `automation/validate_mesh_slo_policies.py`, and
+   Slice 4 provides `platform-contracts/mesh-access/` plus
+   `automation/validate_mesh_access_policies.py`.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
    emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
-   evidence and must not masquerade as runtime telemetry. Mesh SLO policy drift is certification
-   evidence and must not be handled as a separate decorative report.
+   evidence and must not masquerade as runtime telemetry. Mesh SLO and access-policy drift are
+   certification evidence and must not be handled as separate decorative reports.
 
 For RFC governance:
 

@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-3 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-4 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -109,6 +109,14 @@ Implemented evidence:
     detection.
 13. `automation/mesh_certification_gate.py`
     Now consumes SLO policies and turns blocking or advisory drift into mesh certification issues.
+14. `platform-contracts/mesh-access/`
+    Defines first-wave product access policies for tenant scope, roles, use cases, denial posture,
+    and audit evidence.
+15. `automation/validate_mesh_access_policies.py`
+    Validates access policies against catalog identity and computes caller-context access posture.
+16. `tests/unit/test_mesh_access_policies.py`
+    Protects checked-in access policy validity, missing policy failures, gateway-only consumer
+    governance, and usable versus restricted caller posture.
 
 Slice 0 review result:
 
@@ -147,6 +155,16 @@ Slice 3 review result:
    evaluated by reusable automation,
 4. the mesh certification gate consumes SLO policies and emits SLO issues as certification drift,
 5. the current sibling first-wave telemetry set certifies cleanly against the SLO policies.
+
+Slice 4 review result:
+
+1. first-wave products now have explicit platform access policies,
+2. policies validate tenant scope, roles, use cases, denial posture, audit owner, and gateway-only
+   consumer publication,
+3. reusable access-posture evaluation distinguishes usable and restricted contexts,
+4. the mesh certification gate validates access-policy presence and shape,
+5. gateway and Workbench runtime entitlement behavior remains a downstream implementation concern
+   that must consume these policies without becoming product authority.
 
 ## Enterprise Mesh Maturity Definition
 

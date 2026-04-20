@@ -143,6 +143,9 @@ Boundary rules:
 24. RFC-0091 Slice 3 adds `platform-contracts/mesh-slo/` and
     `automation/validate_mesh_slo_policies.py`; the mesh certification gate now evaluates
     telemetry against first-wave SLO policies and reports policy drift as certification issues.
+25. RFC-0091 Slice 4 adds `platform-contracts/mesh-access/` and
+    `automation/validate_mesh_access_policies.py`; the mesh certification gate validates access
+    policy presence and shape before gateway or Workbench can present entitled discovery.
 
 ## Repo-Native Commands
 
@@ -186,6 +189,8 @@ Use these commands as the primary local contract:
    `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
 19. mesh SLO policy validation
    `python automation/validate_mesh_slo_policies.py`
+20. mesh access policy validation
+   `python automation/validate_mesh_access_policies.py`
 
 ## Validation And CI Expectations
 

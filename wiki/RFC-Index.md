@@ -40,4 +40,4 @@
   continues; Slice 1 adds the self-service onboarding scaffold and validation command for new
   repo-native product bundles; Slice 2 adds runtime-preferred trust telemetry collection with
   explicit static fixture fallback evidence; Slice 3 adds first-wave mesh SLO policy enforcement
-  into certification
+  into certification; Slice 4 adds first-wave access governance policies and certification checks

@@ -275,6 +275,17 @@ freshness, completeness, reconciliation, data quality, lineage, escalation owner
 The mesh certification gate consumes those policies and emits certification issues when telemetry
 drifts from the policy.
 
+Validate RFC-0091 mesh access policies:
+
+```powershell
+python automation/validate_mesh_access_policies.py
+```
+
+Mesh access policies live under `platform-contracts/mesh-access/`. They define first-wave tenant
+scope, allowed roles, allowed use cases, denial posture, audit owner, and gateway-only consumer
+publication. The mesh certification gate validates the policies so missing or malformed access
+governance fails certification before gateway or Workbench can present product access.
+
 Run the RFC-0089 mesh certification gate:
 
 ```powershell

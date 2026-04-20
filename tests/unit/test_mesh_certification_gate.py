@@ -208,6 +208,31 @@ def test_mesh_certification_gate_blocks_mesh_slo_violations(
     )
 
 
+def test_mesh_certification_gate_blocks_missing_access_policies(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    empty_access_policy_dir = tmp_path / "empty-access"
+    empty_access_policy_dir.mkdir()
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        access_policy_path=empty_access_policy_dir,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "failed"
+    assert any(
+        issue["code"] == "mesh_access_policy_drift" for issue in status["issues"]
+    )
+    assert status["source_artifacts"]["access_policy_path"] == (
+        empty_access_policy_dir.as_posix()
+    )
+
+
 def test_mesh_certification_gate_reports_invalid_json_snapshot(
     tmp_path: Path,
 ) -> None:

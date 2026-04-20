@@ -21,6 +21,10 @@ from validate_mesh_slo_policies import (
     evaluate_mesh_slo_violations,
     validate_mesh_slo_policies,
 )
+from validate_mesh_access_policies import (
+    DEFAULT_ACCESS_POLICY_DIRECTORY,
+    validate_mesh_access_policies,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -377,6 +381,23 @@ def _validate_mesh_slo_policy_and_telemetry(
         )
 
 
+def _validate_mesh_access_policy(
+    *,
+    access_policy_path: Path,
+    issues: list[MeshCertificationIssue],
+    gate_mode: GateMode,
+) -> None:
+    access_issues = validate_mesh_access_policies(access_policy_path)
+    for access_issue in access_issues:
+        _issue(
+            issues,
+            code="mesh_access_policy_drift",
+            severity="error" if gate_mode == "blocking" else "warning",
+            remediation=access_issue,
+            source_evidence_path=access_policy_path,
+        )
+
+
 def _check_gateway_publication(
     *,
     gateway_root: Path,
@@ -574,6 +595,7 @@ def build_mesh_certification_status(
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
     dependency_graph_path: Path = DEFAULT_GRAPH_PATH,
     slo_policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
+    access_policy_path: Path = DEFAULT_ACCESS_POLICY_DIRECTORY,
     gateway_root: Path = DEFAULT_GATEWAY_ROOT,
     workbench_root: Path = DEFAULT_WORKBENCH_ROOT,
     gate_mode: GateMode,
@@ -613,6 +635,11 @@ def build_mesh_certification_status(
     _validate_mesh_slo_policy_and_telemetry(
         telemetry_payloads=telemetry_payloads,
         slo_policy_path=slo_policy_path,
+        issues=issues,
+        gate_mode=gate_mode,
+    )
+    _validate_mesh_access_policy(
+        access_policy_path=access_policy_path,
         issues=issues,
         gate_mode=gate_mode,
     )
@@ -661,6 +688,7 @@ def build_mesh_certification_status(
             "catalog": catalog_path.as_posix(),
             "dependency_graph": dependency_graph_path.as_posix(),
             "slo_policy_path": slo_policy_path.as_posix(),
+            "access_policy_path": access_policy_path.as_posix(),
             "telemetry_inputs": [path.as_posix() for path in discovered_telemetry_paths],
             "gateway_root": gateway_root.as_posix(),
             "workbench_root": workbench_root.as_posix(),
@@ -803,6 +831,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Mesh SLO policy file or directory used for RFC-0091 SLO drift checks.",
     )
     parser.add_argument(
+        "--access-policy-path",
+        type=Path,
+        default=DEFAULT_ACCESS_POLICY_DIRECTORY,
+        help="Mesh access policy file or directory used for RFC-0091 access governance checks.",
+    )
+    parser.add_argument(
         "--require-sibling-repos",
         action="store_true",
         help="Treat missing lotus-gateway or lotus-workbench sibling checkouts as errors.",
@@ -819,6 +853,7 @@ def main(argv: list[str] | None = None) -> int:
         gate_mode=args.mode,
         generated_at_utc=args.generated_at_utc,
         slo_policy_path=args.slo_policy_path,
+        access_policy_path=args.access_policy_path,
         require_sibling_repos=args.require_sibling_repos,
         check_publication_surfaces=not args.skip_publication_checks,
     )

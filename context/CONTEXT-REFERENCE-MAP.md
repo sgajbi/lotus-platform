@@ -139,6 +139,12 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 35. `../automation/validate_mesh_slo_policies.py`
     Validates mesh SLO policy identity against the generated catalog and evaluates trust telemetry
     drift for mesh certification.
+36. [Mesh Access Policies](../platform-contracts/mesh-access/README.md)
+    RFC-0091 first-wave access policies for tenant scope, roles, use cases, denial posture, audit
+    owner, and gateway-only publication.
+37. `../automation/validate_mesh_access_policies.py`
+    Validates mesh access policy identity against the generated catalog and evaluates usable versus
+    restricted caller-context posture.
 
 ## Task Routing
 

@@ -1,0 +1,36 @@
+{
+  "contract_id": "lotus-mesh-access-policy",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0091"
+  ],
+  "product_id": "lotus-risk:RiskMetricsReport:v1",
+  "producer_repository": "lotus-risk",
+  "default_posture": "restricted",
+  "allowed_consumers": [
+    {
+      "consumer_repository": "lotus-gateway",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator",
+        "advisor"
+      ],
+      "use_cases": [
+        "discovery",
+        "risk_review"
+      ]
+    }
+  ],
+  "denial_posture": {
+    "customer_visible_state": "requestable",
+    "operator_visible_state": "restricted_with_reason",
+    "reason": "Risk metrics contain portfolio-sensitive analytics and require explicit tenant and role authorization."
+  },
+  "audit": {
+    "owner_repository": "lotus-risk",
+    "policy_owner": "risk-product-owner",
+    "decision_evidence": "access-policy:lotus-risk:risk-metrics-report:v1"
+  }
+}
