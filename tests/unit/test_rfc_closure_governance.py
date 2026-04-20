@@ -132,3 +132,30 @@ def test_rfc_0090_preserves_cross_repo_ci_enforcement_contract() -> None:
         "if: always()",
     ]:
         assert expected in text
+
+
+def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md"
+    )
+
+    for expected in [
+        "enterprise mesh maturity definition",
+        "runtime telemetry emission and collection",
+        "self-service product onboarding kit",
+        "mesh slo policy",
+        "access governance and entitled discovery",
+        "certification history and customer evidence packs",
+        "broader product rollout and lifecycle governance",
+        "enterprise mesh certification gate",
+        "code review, api certification, and governance tightening",
+        "documentation, agent context, wiki update, skills review, and branch hygiene",
+        "lotus-gateway",
+        "lotus-workbench",
+        "platform-contracts/mesh-slo/",
+        "platform-contracts/mesh-access/",
+        "platform-contracts/mesh-evidence/",
+    ]:
+        assert expected in text
