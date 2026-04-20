@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-1 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-2 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -93,6 +93,12 @@ Implemented evidence:
 7. `tests/unit/test_domain_product_onboarding_generator.py`
    Protects complete bundle generation, product identity preservation, incomplete bundle
    rejection, and CLI check failure behavior.
+8. `automation/collect_trust_telemetry.py`
+   Collects RFC-0087 trust telemetry snapshots for certification, prefers runtime snapshots when
+   present, and records static fixture fallback explicitly.
+9. `tests/unit/test_trust_telemetry_collection.py`
+   Protects runtime-over-fixture selection, explicit fixture fallback, missing required product
+   errors, and CLI manifest generation.
 
 Slice 0 review result:
 
@@ -112,6 +118,16 @@ Slice 1 review result:
 4. incomplete or drifted bundles fail with actionable errors,
 5. placeholder scaffolds remain outside platform product authority until the owning repository
    replaces placeholders, adds repo-native tests, and passes certification.
+
+Slice 2 review result:
+
+1. telemetry collection is now a governed platform automation step instead of an implicit directory
+   convention,
+2. runtime snapshots win over static fixtures for the same product,
+3. static fixture fallback is recorded per product and cannot masquerade as runtime evidence,
+4. missing first-wave telemetry produces explicit collection issues,
+5. collected snapshots are copied into a deterministic output directory with a machine-readable
+   manifest for downstream certification.
 
 ## Enterprise Mesh Maturity Definition
 

@@ -237,6 +237,27 @@ The generated live trust certification report classifies each telemetry snapshot
 `attention_required` using deterministic freshness, completeness, reconciliation, data-quality,
 lineage, and blocking rules.
 
+Collect trust telemetry for RFC-0091 certification:
+
+```powershell
+python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z
+```
+
+The collector prefers runtime snapshots from sibling repository
+`output/trust-telemetry/runtime/` directories. If runtime evidence is missing for a product, it
+falls back to the repo-native `contracts/trust-telemetry/` static fixture and records that fallback
+in the manifest. The manifest and copied snapshots are written to:
+
+- `output/trust-telemetry/collection/trust-telemetry-collection-manifest.json`
+- `output/trust-telemetry/collection/snapshots/`
+
+Use the collected snapshot directory as the input to live trust certification when proving the
+runtime-vs-fixture evidence boundary:
+
+```powershell
+python automation/generate_live_trust_certification.py output/trust-telemetry/collection/snapshots --generated-at-utc 2026-04-20T00:00:00Z
+```
+
 Run the RFC-0089 mesh certification gate:
 
 ```powershell

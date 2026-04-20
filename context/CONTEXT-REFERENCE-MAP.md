@@ -129,6 +129,10 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Generates and validates RFC-0091 self-service onboarding bundles for repo-native product
     declarations, trust telemetry, SLO, access, evidence, README, and onboarding checklist files.
     The generated bundle is an onboarding aid for owning repositories, not platform product truth.
+33. `../automation/collect_trust_telemetry.py`
+    Collects RFC-0087 trust telemetry snapshots for RFC-0091 certification. Runtime snapshots from
+    sibling repository `output/trust-telemetry/runtime/` directories are preferred; static fixtures
+    from `contracts/trust-telemetry/` are explicit fallback evidence in the generated manifest.
 
 ## Task Routing
 

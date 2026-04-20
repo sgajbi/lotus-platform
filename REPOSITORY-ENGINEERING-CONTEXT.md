@@ -137,6 +137,9 @@ Boundary rules:
     scaffold-and-check tool for repo-native product onboarding bundles. The tool writes product
     declaration, telemetry, SLO, access, evidence, README, and checklist files to a caller-directed
     output directory; generated bundles are onboarding aids, not platform-owned product truth.
+23. RFC-0091 Slice 2 adds `automation/collect_trust_telemetry.py`, a collection step that prefers
+    runtime snapshots from sibling repository `output/trust-telemetry/runtime/` directories and
+    records static fixture fallback explicitly in `output/trust-telemetry/collection/`.
 
 ## Repo-Native Commands
 
@@ -176,6 +179,8 @@ Use these commands as the primary local contract:
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
 17. domain-product onboarding bundle check
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
+18. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
+   `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
 
 ## Validation And CI Expectations
 

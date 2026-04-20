@@ -136,10 +136,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    blocking mode, uploads mesh-certification artifacts, and keeps product authority in producer
    repositories and platform-generated evidence rather than gateway or Workbench.
 9. RFC-0091 is in progress for enterprise mesh maturity. Slice 0 provides the generated maturity
-   matrix, and Slice 1 provides `automation/generate_domain_product_onboarding.py` for
-   scaffold-and-check onboarding bundles. Generated onboarding bundles are starter artifacts for
-   owning repositories; they are not platform-owned product truth until the owner replaces
-   placeholders, adds repo-native tests, emits telemetry, and passes certification.
+   matrix, Slice 1 provides `automation/generate_domain_product_onboarding.py` for
+   scaffold-and-check onboarding bundles, and Slice 2 provides
+   `automation/collect_trust_telemetry.py` for runtime-preferred telemetry collection. Generated
+   onboarding bundles are starter artifacts for owning repositories; they are not platform-owned
+   product truth until the owner replaces placeholders, adds repo-native tests, emits telemetry,
+   and passes certification. Static telemetry fixtures remain explicit fallback evidence and must
+   not masquerade as runtime telemetry.
 
 For RFC governance:
 
