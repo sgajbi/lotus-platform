@@ -128,6 +128,7 @@ Reference baseline:
 - `RFC-0087-live-trust-telemetry-and-certification-plane.md` (implemented and merged for first-wave telemetry, certification, gateway, and Workbench consumption)
 - `RFC-0088-self-serve-discovery-and-dependency-catalog.md` (implemented and merged for generated discovery plus Workbench UI)
 - `RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md` (implemented for first-wave mesh certification enforcement)
+- `RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md` (proposed)
 
 ## RFC Closure Governance
 

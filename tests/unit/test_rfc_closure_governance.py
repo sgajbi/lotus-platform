@@ -14,6 +14,7 @@ CURRENT_IMPLEMENTATION_RFCS = [
     "RFC-0087-live-trust-telemetry-and-certification-plane.md",
     "RFC-0088-self-serve-discovery-and-dependency-catalog.md",
     "RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md",
+    "RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md",
 ]
 
 SECOND_LAST_TERMS = [
@@ -105,5 +106,29 @@ def test_rfc_0089_preserves_concrete_mesh_certification_contract() -> None:
         "evidence required before marking implemented",
         "gateway_publication_drift",
         "workbench_consumption_drift",
+    ]:
+        assert expected in text
+
+
+def test_rfc_0090_preserves_cross_repo_ci_enforcement_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md"
+    )
+
+    for expected in [
+        "repository checkout contract",
+        "sgajbi/lotus-core",
+        "sgajbi/lotus-performance",
+        "sgajbi/lotus-risk",
+        "sgajbi/lotus-advise",
+        "sgajbi/lotus-gateway",
+        "sgajbi/lotus-workbench",
+        "branch override inputs",
+        "artifact contract",
+        "permissions and security contract",
+        "failure semantics",
+        "step summary contract",
+        "--require-sibling-repos",
+        "if: always()",
     ]:
         assert expected in text
