@@ -187,6 +187,35 @@ Maturity artifacts are written to:
 - `generated/enterprise-mesh-maturity-matrix.json`
 - `generated/enterprise-mesh-maturity-matrix.md`
 
+Generate an RFC-0091 self-service onboarding bundle for a new or promoted domain product:
+
+```powershell
+python automation/generate_domain_product_onboarding.py `
+  --repository lotus-report `
+  --product-name ClientReportEvidencePack `
+  --product-version v1 `
+  --authoritative-domain reporting `
+  --product-family client_reporting `
+  --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack
+```
+
+Validate a generated onboarding bundle before copying completed files into an owning repository:
+
+```powershell
+python automation/generate_domain_product_onboarding.py `
+  --repository lotus-report `
+  --product-name ClientReportEvidencePack `
+  --product-version v1 `
+  --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack `
+  --check
+```
+
+The onboarding generator writes a producer declaration scaffold, telemetry scaffold, SLO policy,
+access policy, evidence-pack policy, README, and onboarding checklist. The generated bundle is a
+starting point for the owning repository; it is not platform-owned product truth until the domain
+team replaces placeholders, adds repo-native tests, emits runtime telemetry, and passes mesh
+certification.
+
 Validate live trust telemetry snapshots:
 
 ```powershell

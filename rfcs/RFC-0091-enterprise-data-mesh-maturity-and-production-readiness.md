@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slice 0 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-1 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -87,6 +87,12 @@ Implemented evidence:
    artifact detection.
 5. `automation/README.md`
    Documents the generator and `--check` command.
+6. `automation/generate_domain_product_onboarding.py`
+   Scaffolds and validates an RFC-0091 self-service product onboarding bundle for a target
+   repository without committing placeholder product truth into platform.
+7. `tests/unit/test_domain_product_onboarding_generator.py`
+   Protects complete bundle generation, product identity preservation, incomplete bundle
+   rejection, and CLI check failure behavior.
 
 Slice 0 review result:
 
@@ -95,6 +101,17 @@ Slice 0 review result:
 3. `lotus-ai` posture is explicit,
 4. generated artifacts are reproducible and test-protected,
 5. no gateway, Workbench, or platform-generated artifact becomes product authority.
+
+Slice 1 review result:
+
+1. onboarding is implemented as a repeatable scaffold-and-check tool instead of copied ad hoc
+   product declarations,
+2. generated bundles include product declaration, telemetry, SLO, access, evidence, README, and
+   checklist files,
+3. validation preserves governed product identity across all generated contract families,
+4. incomplete or drifted bundles fail with actionable errors,
+5. placeholder scaffolds remain outside platform product authority until the owning repository
+   replaces placeholders, adds repo-native tests, and passes certification.
 
 ## Enterprise Mesh Maturity Definition
 

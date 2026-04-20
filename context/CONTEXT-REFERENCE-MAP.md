@@ -125,6 +125,10 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Machine-readable RFC-0091 Slice 0 matrix. Generated evidence, not source truth.
 31. [Enterprise Mesh Maturity Matrix Markdown](../generated/enterprise-mesh-maturity-matrix.md)
     Human-readable RFC-0091 Slice 0 matrix for implementation planning and operator review.
+32. `../automation/generate_domain_product_onboarding.py`
+    Generates and validates RFC-0091 self-service onboarding bundles for repo-native product
+    declarations, trust telemetry, SLO, access, evidence, README, and onboarding checklist files.
+    The generated bundle is an onboarding aid for owning repositories, not platform product truth.
 
 ## Task Routing
 

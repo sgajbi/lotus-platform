@@ -133,6 +133,10 @@ Boundary rules:
     generated matrix artifacts that classify every Lotus repository, first-wave product,
     candidate expansion product, and explicit non-participant posture before maturity
     implementation continues.
+22. RFC-0091 Slice 1 adds `automation/generate_domain_product_onboarding.py`, a self-service
+    scaffold-and-check tool for repo-native product onboarding bundles. The tool writes product
+    declaration, telemetry, SLO, access, evidence, README, and checklist files to a caller-directed
+    output directory; generated bundles are onboarding aids, not platform-owned product truth.
 
 ## Repo-Native Commands
 
@@ -168,6 +172,10 @@ Use these commands as the primary local contract:
    `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
 15. enterprise mesh maturity matrix freshness check
    `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
+16. domain-product onboarding bundle scaffold
+   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
+17. domain-product onboarding bundle check
+   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
 
 ## Validation And CI Expectations
 

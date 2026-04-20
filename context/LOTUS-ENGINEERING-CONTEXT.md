@@ -135,6 +135,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    `lotus-gateway`, and `lotus-workbench` next to `lotus-platform`, runs the RFC-0089 gate in
    blocking mode, uploads mesh-certification artifacts, and keeps product authority in producer
    repositories and platform-generated evidence rather than gateway or Workbench.
+9. RFC-0091 is in progress for enterprise mesh maturity. Slice 0 provides the generated maturity
+   matrix, and Slice 1 provides `automation/generate_domain_product_onboarding.py` for
+   scaffold-and-check onboarding bundles. Generated onboarding bundles are starter artifacts for
+   owning repositories; they are not platform-owned product truth until the owner replaces
+   placeholders, adds repo-native tests, emits telemetry, and passes certification.
 
 For RFC governance:
 

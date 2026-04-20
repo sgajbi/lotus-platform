@@ -37,4 +37,5 @@
   producer, gateway, and Workbench checkouts
 - RFC-0091 governs the final enterprise mesh maturity program; Slice 0 adds the generated maturity
   matrix that classifies repository participation and candidate expansion before implementation
-  continues
+  continues; Slice 1 adds the self-service onboarding scaffold and validation command for new
+  repo-native product bundles
