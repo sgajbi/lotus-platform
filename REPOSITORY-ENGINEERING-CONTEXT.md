@@ -157,6 +157,9 @@ Boundary rules:
     now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
     evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
     and writes both RFC-0089 `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts.
+29. RFC-0091 Slice 8 centralizes the six-product maturity-wave scope in
+    `automation/mesh_maturity_scope.py`; platform automation must import that module rather than
+    copying required-product lists into new validators or generators.
 
 ## Repo-Native Commands
 

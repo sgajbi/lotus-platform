@@ -29,6 +29,10 @@ from generate_mesh_evidence_pack import (
     DEFAULT_EVIDENCE_POLICY_DIRECTORY,
     validate_mesh_evidence_policies,
 )
+from mesh_maturity_scope import (
+    REQUIRED_PRODUCTS,
+    default_static_telemetry_directories,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,14 +46,7 @@ DEFAULT_GRAPH_PATH = ROOT / "generated" / "domain-product-dependency-graph.json"
 DEFAULT_OUTPUT_DIRECTORY = ROOT / "output" / "mesh-certification"
 DEFAULT_GATEWAY_ROOT = ROOT.parent / "lotus-gateway"
 DEFAULT_WORKBENCH_ROOT = ROOT.parent / "lotus-workbench"
-DEFAULT_TELEMETRY_DIRECTORIES = [
-    ROOT.parent / "lotus-core" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-performance" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-risk" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-advise" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-report" / "contracts" / "trust-telemetry",
-    ROOT.parent / "lotus-manage" / "contracts" / "trust-telemetry",
-]
+DEFAULT_TELEMETRY_DIRECTORIES = default_static_telemetry_directories()
 MESH_CERTIFICATION_STATUS_FILENAME = "mesh-certification-status.json"
 MESH_CERTIFICATION_MARKDOWN_FILENAME = "mesh-certification-status.md"
 MESH_CERTIFICATION_ISSUES_FILENAME = "mesh-certification-issues.json"
@@ -62,14 +59,6 @@ ENTERPRISE_MESH_CERTIFICATION_MARKDOWN_FILENAME = (
 ENTERPRISE_MESH_CERTIFICATION_ISSUES_FILENAME = (
     "enterprise-mesh-certification-issues.json"
 )
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
-    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
-}
 LIVE_CERTIFICATION_CODE_MAP = {
     "invalid_trust_telemetry": "invalid_telemetry",
     "freshness_not_current": "stale_telemetry",

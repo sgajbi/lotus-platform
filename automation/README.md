@@ -295,6 +295,9 @@ RFC-0091 maturity-wave scope now includes six required products:
 - `lotus-report:ClientReportEvidencePack:v1`
 - `lotus-manage:PortfolioActionRegister:v1`
 
+The required product scope is centralized in `automation/mesh_maturity_scope.py`. Reuse that module
+for platform automation instead of copying the product list into new scripts.
+
 Generate RFC-0091 certification history and evidence-pack manifests:
 
 ```powershell

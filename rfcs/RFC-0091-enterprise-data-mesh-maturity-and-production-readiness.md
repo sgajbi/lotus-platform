@@ -72,7 +72,7 @@ Remaining maturity gaps:
 
 ## Implementation Status And Evidence
 
-Current implementation status: `Slices 0-7 implemented on RFC-0091 branch`
+Current implementation status: `Slices 0-8 implemented on RFC-0091 branch`
 
 Implemented evidence:
 
@@ -144,6 +144,11 @@ Implemented evidence:
     uploads both RFC-0089 and RFC-0091 enterprise certification artifacts.
 26. `docs/operations/mesh-certification-gate-runbook.md`
     Documents the RFC-0091 operator status taxonomy and fix-forward path.
+27. `automation/mesh_maturity_scope.py`
+    Centralizes the RFC-0091 six-product maturity-wave scope so telemetry collection, SLO,
+    access, evidence, maturity matrix, and certification gate automation cannot silently drift.
+28. `tests/unit/test_mesh_maturity_scope.py`
+    Protects the shared maturity-wave scope and default telemetry directory derivation.
 
 Slice 0 review result:
 
@@ -227,6 +232,19 @@ Slice 7 review result:
    Workbench, supports branch overrides for promoted products, and uploads enterprise artifacts,
 5. tests cover passing status, warning/blocking behavior, missing evidence policies, lifecycle
    drift, workflow checkout scope, artifact upload, and maturity-check summary rendering.
+
+Slice 8 review result:
+
+1. the code review found duplicated six-product maturity-wave scope across platform automation,
+2. `automation/mesh_maturity_scope.py` now owns the required product set and telemetry directory
+   derivation used by collection, SLO, access, evidence, maturity matrix, and certification gate
+   code,
+3. the enterprise mesh gate remains the certification-pattern API for platform governance evidence:
+   it certifies generated catalog identity, source-manifest posture, telemetry, SLO, access,
+   lifecycle, evidence, gateway publication, and Workbench consumption without making gateway or
+   Workbench product authorities,
+4. tests now fail if certification automation reintroduces divergent required-product scopes,
+5. no dead duplicate scope tables remain in the touched platform automation modules.
 
 ## Enterprise Mesh Maturity Definition
 

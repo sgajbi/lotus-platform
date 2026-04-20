@@ -7,19 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from domain_product_discovery import DEFAULT_CATALOG_PATH, load_catalog
+from mesh_maturity_scope import REQUIRED_PRODUCTS
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ACCESS_POLICY_DIRECTORY = ROOT / "platform-contracts" / "mesh-access"
 ACCESS_POLICY_GLOB = "*.access.v1.json"
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
-    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
-}
 VALID_DEFAULT_POSTURES = {"restricted", "internal", "public"}
 VALID_CUSTOMER_STATES = {"usable", "requestable", "restricted", "blocked"}
 VALID_OPERATOR_STATES = {
@@ -112,11 +105,17 @@ def validate_mesh_access_policies(
         if not isinstance(denial_posture, dict):
             issues.append(f"{path}: denial_posture must be an object")
         else:
-            if denial_posture.get("customer_visible_state") not in VALID_CUSTOMER_STATES:
+            if (
+                denial_posture.get("customer_visible_state")
+                not in VALID_CUSTOMER_STATES
+            ):
                 issues.append(
                     f"{path}: denial_posture.customer_visible_state must be governed"
                 )
-            if denial_posture.get("operator_visible_state") not in VALID_OPERATOR_STATES:
+            if (
+                denial_posture.get("operator_visible_state")
+                not in VALID_OPERATOR_STATES
+            ):
                 issues.append(
                     f"{path}: denial_posture.operator_visible_state must be governed"
                 )
@@ -156,8 +155,10 @@ def _validate_allowed_consumer(
         issues.append(f"{path}: {prefix}.consumer_repository must be lotus-gateway")
     for field_name in ("tenant_scope", "roles", "use_cases"):
         value = consumer.get(field_name)
-        if not isinstance(value, list) or not value or not all(
-            isinstance(item, str) and item for item in value
+        if (
+            not isinstance(value, list)
+            or not value
+            or not all(isinstance(item, str) and item for item in value)
         ):
             issues.append(f"{path}: {prefix}.{field_name} must be non-empty strings")
 
@@ -203,7 +204,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate RFC-0091 mesh access policies."
     )
-    parser.add_argument("--policy-path", type=Path, default=DEFAULT_ACCESS_POLICY_DIRECTORY)
+    parser.add_argument(
+        "--policy-path", type=Path, default=DEFAULT_ACCESS_POLICY_DIRECTORY
+    )
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG_PATH)
     args = parser.parse_args(argv)
 

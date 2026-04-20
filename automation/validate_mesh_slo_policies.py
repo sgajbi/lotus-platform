@@ -7,20 +7,13 @@ from pathlib import Path
 from typing import Any, Literal
 
 from domain_product_discovery import DEFAULT_CATALOG_PATH, load_catalog
+from mesh_maturity_scope import REQUIRED_PRODUCTS
 from validate_trust_telemetry import _iter_telemetry_paths
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SLO_POLICY_DIRECTORY = ROOT / "platform-contracts" / "mesh-slo"
 SLO_POLICY_GLOB = "*.slo.v1.json"
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
-    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
-}
 ViolationSeverity = Literal["blocking", "advisory"]
 
 
@@ -40,10 +33,16 @@ def _iter_policy_paths(policy_path: Path) -> list[Path]:
 
 
 def _severity(policy_section: dict[str, Any]) -> ViolationSeverity:
-    return "blocking" if policy_section.get("violation_severity") == "blocking" else "advisory"
+    return (
+        "blocking"
+        if policy_section.get("violation_severity") == "blocking"
+        else "advisory"
+    )
 
 
-def load_mesh_slo_policies(policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY) -> dict[str, tuple[Path, dict[str, Any]]]:
+def load_mesh_slo_policies(
+    policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
+) -> dict[str, tuple[Path, dict[str, Any]]]:
     policies: dict[str, tuple[Path, dict[str, Any]]] = {}
     for path in _iter_policy_paths(policy_path):
         payload = _load_json(path)
@@ -97,9 +96,11 @@ def validate_mesh_slo_policies(
             )
 
         freshness = payload.get("freshness", {})
-        if not isinstance(freshness, dict) or not isinstance(
-            freshness.get("max_allowed_age_seconds"), int
-        ) or freshness.get("max_allowed_age_seconds") < 1:
+        if (
+            not isinstance(freshness, dict)
+            or not isinstance(freshness.get("max_allowed_age_seconds"), int)
+            or freshness.get("max_allowed_age_seconds") < 1
+        ):
             issues.append(f"{path}: freshness.max_allowed_age_seconds must be >= 1")
 
         for section_name, field_name in (
@@ -108,7 +109,9 @@ def validate_mesh_slo_policies(
             ("data_quality", "required_status"),
         ):
             section = payload.get(section_name, {})
-            if not isinstance(section, dict) or not isinstance(section.get(field_name), str):
+            if not isinstance(section, dict) or not isinstance(
+                section.get(field_name), str
+            ):
                 issues.append(f"{path}: {section_name}.{field_name} must be a string")
             if section.get("violation_severity") not in {"blocking", "advisory"}:
                 issues.append(
@@ -130,7 +133,10 @@ def validate_mesh_slo_policies(
         escalation = payload.get("escalation", {})
         if not isinstance(escalation, dict) or not escalation.get("owner_repository"):
             issues.append(f"{path}: escalation.owner_repository is required")
-        if isinstance(escalation, dict) and escalation.get("owner_repository") != expected_repository:
+        if (
+            isinstance(escalation, dict)
+            and escalation.get("owner_repository") != expected_repository
+        ):
             issues.append(
                 f"{path}: escalation.owner_repository must match {expected_repository}"
             )
@@ -164,7 +170,9 @@ def evaluate_mesh_slo_violations(
 
         freshness = telemetry.get("freshness", {})
         freshness_policy = policy.get("freshness", {})
-        age_seconds = freshness.get("age_seconds") if isinstance(freshness, dict) else None
+        age_seconds = (
+            freshness.get("age_seconds") if isinstance(freshness, dict) else None
+        )
         max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
         if isinstance(age_seconds, int) and isinstance(max_allowed_age_seconds, int):
             if age_seconds > max_allowed_age_seconds:
@@ -262,7 +270,9 @@ def _append_status_violation(
     escalation: dict[str, Any],
 ) -> None:
     section = policy.get(section_name, {})
-    required_status = section.get("required_status") if isinstance(section, dict) else None
+    required_status = (
+        section.get("required_status") if isinstance(section, dict) else None
+    )
     observed_status = telemetry.get(telemetry_field)
     if isinstance(required_status, str) and observed_status != required_status:
         violations.append(
@@ -305,7 +315,9 @@ def _violation(
     }
 
 
-def _load_telemetry_payloads(telemetry_path: Path) -> dict[str, tuple[Path, dict[str, Any]]]:
+def _load_telemetry_payloads(
+    telemetry_path: Path,
+) -> dict[str, tuple[Path, dict[str, Any]]]:
     payloads: dict[str, tuple[Path, dict[str, Any]]] = {}
     for path in _iter_telemetry_paths(telemetry_path):
         payload = _load_json(path)
@@ -319,7 +331,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate and evaluate RFC-0091 mesh SLO policies."
     )
-    parser.add_argument("--policy-path", type=Path, default=DEFAULT_SLO_POLICY_DIRECTORY)
+    parser.add_argument(
+        "--policy-path", type=Path, default=DEFAULT_SLO_POLICY_DIRECTORY
+    )
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG_PATH)
     parser.add_argument("--telemetry-path", type=Path, default=None)
     args = parser.parse_args(argv)

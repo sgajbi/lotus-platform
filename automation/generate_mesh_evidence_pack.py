@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from domain_product_discovery import DEFAULT_CATALOG_PATH, load_catalog
+from mesh_maturity_scope import REQUIRED_PRODUCTS
 from validate_mesh_access_policies import (
     DEFAULT_ACCESS_POLICY_DIRECTORY,
     load_mesh_access_policies,
@@ -26,14 +27,6 @@ DEFAULT_MESH_CERTIFICATION_STATUS_PATH = (
 DEFAULT_EVIDENCE_POLICY_DIRECTORY = ROOT / "platform-contracts" / "mesh-evidence"
 DEFAULT_OUTPUT_DIRECTORY = ROOT / "output" / "mesh-evidence-packs"
 EVIDENCE_POLICY_GLOB = "*.evidence-pack-policy.v1.json"
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
-    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
-}
 Audience = Literal["customer-public", "customer-authorized", "operator"]
 ACCESS_LEVELS_BY_AUDIENCE: dict[Audience, set[str]] = {
     "customer-public": {"public_customer"},
@@ -218,7 +211,9 @@ def build_evidence_pack_manifest(
     audience: Audience,
 ) -> dict[str, Any]:
     policy_issues = [
-        *validate_mesh_evidence_policies(evidence_policy_path, catalog_path=catalog_path),
+        *validate_mesh_evidence_policies(
+            evidence_policy_path, catalog_path=catalog_path
+        ),
         *validate_mesh_slo_policies(slo_policy_path, catalog_path=catalog_path),
         *validate_mesh_access_policies(access_policy_path, catalog_path=catalog_path),
     ]
@@ -402,7 +397,10 @@ def write_mesh_evidence_pack(
     pack_id: str | None = None,
 ) -> dict[str, Any]:
     mesh_status = _load_json(mesh_status_path)
-    pack_id = pack_id or f"mesh-evidence-{generated_at_utc.replace(':', '').replace('-', '')}-{audience}"
+    pack_id = (
+        pack_id
+        or f"mesh-evidence-{generated_at_utc.replace(':', '').replace('-', '')}-{audience}"
+    )
     pack_directory = output_directory / pack_id
     manifest = build_evidence_pack_manifest(
         mesh_status=mesh_status,
@@ -439,7 +437,9 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=DEFAULT_MESH_CERTIFICATION_STATUS_PATH,
     )
-    parser.add_argument("--output-directory", type=Path, default=DEFAULT_OUTPUT_DIRECTORY)
+    parser.add_argument(
+        "--output-directory", type=Path, default=DEFAULT_OUTPUT_DIRECTORY
+    )
     parser.add_argument("--generated-at-utc", required=True)
     parser.add_argument(
         "--audience",

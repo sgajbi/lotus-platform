@@ -160,6 +160,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     and Workbench certification failures.
 43. `../output/mesh-certification/enterprise-mesh-certification-status.json`
     RFC-0091 generated enterprise maturity status artifact. Generated evidence, not source truth.
+44. `../automation/mesh_maturity_scope.py`
+    Shared RFC-0091 maturity-wave product scope used by telemetry collection, SLO, access,
+    evidence, maturity matrix, and certification-gate automation.
 
 ## Task Routing
 

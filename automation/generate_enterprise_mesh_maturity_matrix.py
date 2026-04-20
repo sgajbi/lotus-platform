@@ -6,6 +6,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from mesh_maturity_scope import REQUIRED_PRODUCT_IDS
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CATALOG_PATH = ROOT / "generated" / "domain-product-catalog.json"
@@ -27,14 +29,7 @@ LOTUS_REPOSITORIES = [
     "lotus-ai",
 ]
 
-FIRST_WAVE_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1",
-    "lotus-performance:ReturnsSeriesBundle:v1",
-    "lotus-risk:RiskMetricsReport:v1",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
-    "lotus-report:ClientReportEvidencePack:v1",
-    "lotus-manage:PortfolioActionRegister:v1",
-}
+FIRST_WAVE_PRODUCTS = set(REQUIRED_PRODUCT_IDS)
 
 CANDIDATE_PRODUCTS: list[dict[str, str]] = []
 
@@ -83,7 +78,9 @@ def _relative_path(path: Path) -> str:
         return path.resolve().as_posix()
 
 
-def _catalog_products_by_repo(catalog: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+def _catalog_products_by_repo(
+    catalog: dict[str, Any],
+) -> dict[str, list[dict[str, Any]]]:
     by_repo: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for product in catalog.get("products", []):
         by_repo[product["producer_repository"]].append(product)
@@ -141,11 +138,15 @@ def _repository_entry(
     elif products:
         classification = "deferred"
         mesh_role = "producer"
-        required_next_step = "Decide whether these non-first-wave products enter a later maturity wave."
+        required_next_step = (
+            "Decide whether these non-first-wave products enter a later maturity wave."
+        )
     else:
         classification = "deferred"
         mesh_role = "unclassified"
-        required_next_step = "Classify repository participation before implementation continues."
+        required_next_step = (
+            "Classify repository participation before implementation continues."
+        )
 
     return {
         "repository": repository,
@@ -162,7 +163,9 @@ def _repository_entry(
         "repo_native_status": (manifest_entry or {}).get(
             "repo_native_status", "not_in_source_manifest"
         ),
-        "source_mode": (manifest_entry or {}).get("source_mode", "not_in_source_manifest"),
+        "source_mode": (manifest_entry or {}).get(
+            "source_mode", "not_in_source_manifest"
+        ),
         "ambiguous_participation": False,
         "required_next_step": required_next_step,
     }
@@ -184,7 +187,9 @@ def _repository_rationale(
 
 def _product_entries(catalog: dict[str, Any]) -> list[dict[str, Any]]:
     product_entries: list[dict[str, Any]] = []
-    for product in sorted(catalog.get("products", []), key=lambda item: item["product_id"]):
+    for product in sorted(
+        catalog.get("products", []), key=lambda item: item["product_id"]
+    ):
         product_id = product["product_id"]
         if product_id in FIRST_WAVE_PRODUCTS:
             classification = "certified_first_wave"
@@ -193,7 +198,9 @@ def _product_entries(catalog: dict[str, Any]) -> list[dict[str, Any]]:
         else:
             classification = "deferred"
             maturity_wave = "future_wave"
-            required_next_step = "Keep outside blocking maturity gate until explicitly promoted."
+            required_next_step = (
+                "Keep outside blocking maturity gate until explicitly promoted."
+            )
         product_entries.append(
             {
                 "product_id": product_id,
@@ -238,7 +245,9 @@ def build_enterprise_mesh_maturity_matrix(
         REPO_NATIVE_PARTICIPATION_REPOSITORIES - set(manifest_by_repo)
     )
     catalog_product_ids = {
-        product["product_id"] for products in products_by_repo.values() for product in products
+        product["product_id"]
+        for products in products_by_repo.values()
+        for product in products
     }
     missing_required_products = sorted(FIRST_WAVE_PRODUCTS - catalog_product_ids)
 
@@ -260,7 +269,10 @@ def build_enterprise_mesh_maturity_matrix(
         }
         | set(unknown_repositories)
         | set(missing_manifest_repositories)
-        | {product_id.split(":", maxsplit=1)[0] for product_id in missing_required_products}
+        | {
+            product_id.split(":", maxsplit=1)[0]
+            for product_id in missing_required_products
+        }
     )
 
     return {

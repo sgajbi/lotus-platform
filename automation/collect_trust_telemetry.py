@@ -13,6 +13,11 @@ from validate_trust_telemetry import (
     _load_validation_context,
     validate_trust_telemetry_snapshot,
 )
+from mesh_maturity_scope import (
+    REQUIRED_PRODUCTS,
+    default_runtime_telemetry_directories,
+    default_static_telemetry_directories,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,22 +26,8 @@ SNAPSHOT_DIRECTORY_NAME = "snapshots"
 COLLECTION_MANIFEST_FILENAME = "trust-telemetry-collection-manifest.json"
 SourceMode = Literal["runtime", "static_fixture"]
 
-REQUIRED_PRODUCTS = {
-    "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
-    "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
-    "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
-    "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
-    "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
-    "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
-}
-DEFAULT_RUNTIME_DIRECTORIES = [
-    ROOT.parent / repository / "output" / "trust-telemetry" / "runtime"
-    for repository in sorted(set(REQUIRED_PRODUCTS.values()))
-]
-DEFAULT_FIXTURE_DIRECTORIES = [
-    ROOT.parent / repository / "contracts" / "trust-telemetry"
-    for repository in sorted(set(REQUIRED_PRODUCTS.values()))
-]
+DEFAULT_RUNTIME_DIRECTORIES = default_runtime_telemetry_directories()
+DEFAULT_FIXTURE_DIRECTORIES = default_static_telemetry_directories()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
