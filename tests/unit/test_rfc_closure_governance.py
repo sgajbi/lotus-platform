@@ -150,6 +150,11 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "certification history and customer evidence packs",
         "broader product rollout and lifecycle governance",
         "enterprise mesh certification gate",
+        "implementation boundary",
+        "done and not-done semantics",
+        "ownership map",
+        "generated/enterprise-mesh-maturity-matrix.json",
+        "output/mesh-evidence-packs/<pack-id>/evidence-pack-manifest.json",
         "code review, api certification, and governance tightening",
         "documentation, agent context, wiki update, skills review, and branch hygiene",
         "lotus-gateway",
@@ -157,5 +162,8 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "platform-contracts/mesh-slo/",
         "platform-contracts/mesh-access/",
         "platform-contracts/mesh-evidence/",
+        "customer-ready versus operator-only",
+        "generate_enterprise_mesh_maturity_matrix.py --check",
+        "static fixture fallback is explicit and cannot masquerade as live runtime evidence",
     ]:
         assert expected in text
