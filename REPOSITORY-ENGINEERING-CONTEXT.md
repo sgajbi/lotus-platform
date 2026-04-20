@@ -163,6 +163,12 @@ Boundary rules:
 30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and
     branch-hygiene readiness updates. The durable skills decision is to tighten
     `context/LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new dedicated mesh skill.
+31. RFC-0092 is implemented. `automation/generate_enterprise_mesh_operating_report.py` builds the
+    production mesh operating report from current enterprise certification status and optional
+    certification-history records. `automation/mesh_certification_gate.py` writes
+    `enterprise-mesh-operating-report.json` and `.md` on every gate run so operators can see
+    production-ready versus limited-history posture, drift trends, regressions, product operating
+    posture, escalation owners, and state-specific guidance.
 
 ## Repo-Native Commands
 
@@ -210,6 +216,8 @@ Use these commands as the primary local contract:
    `python automation/validate_mesh_access_policies.py`
 21. mesh evidence pack generation
    `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
+22. enterprise mesh operating report generation
+   `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
 
 ## Validation And CI Expectations
 

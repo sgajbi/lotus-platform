@@ -464,6 +464,14 @@ def test_mesh_certification_gate_writes_json_markdown_and_issues(
     assert "lotus-core:PortfolioStateSnapshot:v1" in markdown
     assert (output_dir / "enterprise-mesh-certification-status.md").exists()
     assert (output_dir / "enterprise-mesh-certification-issues.json").exists()
+    operating_report = json.loads(
+        (output_dir / "enterprise-mesh-operating-report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert operating_report["contract_id"] == "lotus-enterprise-mesh-operating-report"
+    assert operating_report["operating_state"] == "production_ready_limited_history"
+    assert (output_dir / "enterprise-mesh-operating-report.md").exists()
 
 
 def test_mesh_certification_gate_detects_gateway_and_workbench_drift(

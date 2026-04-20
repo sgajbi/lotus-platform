@@ -193,3 +193,27 @@ def test_rfc_0091_preserves_enterprise_mesh_maturity_contract() -> None:
         "static fixture fallback is explicit and cannot masquerade as live runtime evidence",
     ]:
         assert expected in text
+
+
+def test_rfc_0092_preserves_production_mesh_operations_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0092-production-mesh-operations-and-escalation-control.md"
+    )
+
+    for expected in [
+        "| status | implemented |",
+        "production mesh operations",
+        "enterprise-mesh-operating-report.json",
+        "enterprise-mesh-operating-report.md",
+        "production_ready_limited_history",
+        "regression since previous",
+        "escalation queue",
+        "owner repository",
+        "product operating posture",
+        "code review, api certification, and governance tightening",
+        "documentation, agent context, wiki, skills, and branch hygiene",
+        "no new dedicated mesh-operations skill",
+        "automation/generate_enterprise_mesh_operating_report.py",
+        "tests/unit/test_enterprise_mesh_operating_report.py",
+    ]:
+        assert expected in text
