@@ -20,6 +20,8 @@
 - [RFC-0074](../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
 - [RFC-0089](../rfcs/RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md)
   mesh certification merge gate and operational trust enforcement
+- [RFC-0090](../rfcs/RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md)
+  cross-repo mesh certification PR Merge Gate enforcement
 
 ## Local meaning
 
@@ -29,3 +31,5 @@
 - RFC-0074 governs onboarding, bootstrap, and skill distribution posture
 - RFC-0089 governs the first-wave mesh certification gate, operator artifacts, and
   fix-forward workflow for trust telemetry, gateway publication, and Workbench discovery drift
+- RFC-0090 governs the GitHub cross-repo workflow that runs RFC-0089 in blocking mode with sibling
+  producer, gateway, and Workbench checkouts

@@ -82,34 +82,41 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     first-wave telemetry validation, live trust certification, gateway publication drift checks,
     and Workbench gateway/BFF-only consumption checks.
 15. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
-    Operator commands and fix-forward guidance for advisory and blocking mesh certification runs.
-16. `../output/mesh-certification/`
+    Operator commands and fix-forward guidance for advisory, local blocking, and GitHub cross-repo
+    mesh certification runs.
+16. `../.github/workflows/mesh-certification-gate.yml`
+    RFC-0090 GitHub workflow that checks out first-wave sibling repositories and runs the
+    RFC-0089 gate in blocking mode with artifact upload and read-only permissions.
+17. `../output/mesh-certification/`
     Generated RFC-0089 operator artifacts:
     `mesh-certification-status.json`, `mesh-certification-status.md`, and
     `mesh-certification-issues.json`.
-17. `../../lotus-core/contracts/trust-telemetry/`
+18. `../../lotus-core/contracts/trust-telemetry/`
     First-wave producer telemetry snapshot for `PortfolioStateSnapshot`.
-18. `../../lotus-performance/contracts/trust-telemetry/`
+19. `../../lotus-performance/contracts/trust-telemetry/`
     First-wave producer telemetry snapshot for `ReturnsSeriesBundle`.
-19. `../../lotus-risk/contracts/trust-telemetry/`
+20. `../../lotus-risk/contracts/trust-telemetry/`
     First-wave producer telemetry snapshot for `RiskMetricsReport`.
-20. `../../lotus-advise/contracts/trust-telemetry/`
+21. `../../lotus-advise/contracts/trust-telemetry/`
     First-wave producer telemetry snapshot for `AdvisoryProposalLifecycleRecord`.
-21. `../tests/unit/test_domain_product_rollout_closure.py`
+22. `../tests/unit/test_domain_product_rollout_closure.py`
     Protects RFC-0086 closure posture: first-wave repo-native source ownership, active catalog source
     paths, `lotus-ai` exclusion rationale, and transitional platform mirror retention.
-22. `../tests/unit/test_mesh_certification_gate.py`
+23. `../tests/unit/test_mesh_certification_gate.py`
     Protects RFC-0089 certified, stale, missing, advisory, artifact rendering, gateway drift, and
     Workbench drift behavior.
-23. `../../lotus-gateway/src/app/routers/domain_products.py`
+24. `../tests/unit/test_mesh_certification_workflow.py`
+    Protects RFC-0090 workflow triggers, branch override inputs, checkout layout, artifact upload,
+    read-only posture, and no duplicated certification logic in workflow YAML.
+25. `../../lotus-gateway/src/app/routers/domain_products.py`
     Gateway API face for domain-product catalog, detail, dependency graph, and live trust
     certification.
-24. `../../lotus-gateway/src/app/services/domain_product_catalog_service.py`
+26. `../../lotus-gateway/src/app/services/domain_product_catalog_service.py`
     Gateway service that reads platform-generated discovery and trust artifacts without becoming the
     product authority.
-25. `../../lotus-workbench/src/app/data-products/page.tsx`
+27. `../../lotus-workbench/src/app/data-products/page.tsx`
     Workbench self-serve discovery route that must consume gateway/BFF APIs only.
-26. `../../lotus-workbench/src/features/domain-products/`
+28. `../../lotus-workbench/src/features/domain-products/`
     Workbench client/API module for catalog, graph, trust, and degraded discovery states.
 
 ## Task Routing

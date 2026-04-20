@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | Proposed |
+| Status | Implemented |
 | Created | 2026-04-20 |
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; CI governance; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers |
@@ -314,7 +314,23 @@ Exit gate:
 
 1. an operator can run and debug the GitHub cross-repo gate without chat history.
 
-### Slice 6: Code Review, API Certification, And Governance Tightening
+### Slice 6: GitHub Workflow Proof And Evidence Capture
+
+1. open the implementation PR from the feature branch,
+2. verify the GitHub **Cross-Repo Mesh Certification Gate** runs for workflow or mesh-impacting
+   platform changes,
+3. confirm the uploaded artifact name and certification state are visible in PR evidence,
+4. confirm checkout or setup failures are reported as CI infrastructure failures rather than mesh
+   product failures,
+5. fix-forward any workflow drift before marking the RFC implemented.
+
+Exit gate:
+
+1. GitHub can run the blocking cross-repo gate,
+2. evidence is captured in PR checks or explicitly documented if the proof boundary depends on a
+   pending GitHub run.
+
+### Slice 7: Code Review, API Certification, And Governance Tightening
 
 This slice is mandatory and second-last.
 
@@ -334,7 +350,7 @@ Exit gate:
 2. API certification and platform governance expectations are satisfied,
 3. no duplicate mesh certification logic exists outside `automation/mesh_certification_gate.py`.
 
-### Slice 7: Documentation, Agent Context, Wiki Update, Skills Review, And Branch Hygiene
+### Slice 8: Documentation, Agent Context, Wiki Update, Skills Review, And Branch Hygiene
 
 This slice is mandatory and final.
 
@@ -385,7 +401,7 @@ RFC-0090 is complete when:
 5. workflow structure is covered by meaningful contract tests,
 6. least-privilege workflow permissions are test-protected,
 7. checkout/setup failures are distinguishable from mesh certification failures,
-8. Slice 6 and Slice 7 are completed according to `RFC-GOVERNANCE-STANDARD.md`.
+8. Slice 7 and Slice 8 are completed according to `RFC-GOVERNANCE-STANDARD.md`.
 
 ## Non-Goals
 
@@ -425,16 +441,51 @@ Mitigation:
 
 ## Skills And Guidance Assessment
 
-Initial decision:
+Final decision:
 
-1. no new skill is created at RFC proposal time,
+1. no new skill is created for RFC-0090,
 2. `lotus-pr-premerge-gate`, `github:gh-fix-ci`, `lotus-backend-delivery-governance`, and
    `lotus-rfc-review-loop` are sufficient for the first implementation,
-3. `LOTUS-SKILL-ROUTING-MAP.md` should be tightened only if the implementation creates a repeated
-   GitHub mesh-certification failure workflow that future agents need to route directly.
+3. `LOTUS-SKILL-ROUTING-MAP.md` is tightened to route RFC-0089/RFC-0090 mesh gate failures to the
+   existing delivery, PR, RFC, and GitHub CI skills,
+4. this is a conscious no-add decision: a dedicated mesh-certification skill should be created only
+   if repeated GitHub failure patterns prove that the existing skill set is too broad.
+
+## Implementation Status And Evidence
+
+Implementation classification: `Implemented pending PR merge and GitHub check evidence`.
+
+Implemented artifacts:
+
+1. `.github/workflows/mesh-certification-gate.yml`
+   Runs the cross-repo blocking mesh certification gate with read-only permissions, explicit
+   sibling checkout layout, manual branch overrides, artifact upload, step summary, and delayed
+   failure after artifact preservation.
+2. `tests/unit/test_mesh_certification_workflow.py`
+   Protects trigger paths, branch override inputs, sibling checkout layout, blocking gate command,
+   absence of duplicated issue taxonomy in workflow YAML, artifact upload on failure, and summary
+   failure semantics.
+3. `tests/unit/test_workflow_security_validator.py` and
+   `tests/unit/test_workflow_action_runtime_validator.py`
+   Include the new workflow in platform workflow security and action-runtime baselines.
+4. `docs/operations/mesh-certification-gate-runbook.md`
+   Documents GitHub workflow usage, manual branch override examples, artifacts, and failure
+   classification.
+
+Local evidence captured before PR:
+
+1. `python -m pytest tests/unit/test_mesh_certification_workflow.py tests/unit/test_workflow_security_validator.py tests/unit/test_workflow_action_runtime_validator.py -q`
+2. `python automation/validate_workflow_security.py`
+3. `python automation/validate_workflow_action_runtime.py`
+4. `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
+   Certified in blocking mode with `0` errors, `0` warnings, and `0` info issues.
+5. `python -m pytest tests/unit/test_mesh_certification_gate.py tests/unit/test_mesh_certification_workflow.py tests/unit/test_workflow_security_validator.py tests/unit/test_workflow_action_runtime_validator.py tests/unit/test_rfc_closure_governance.py -q`
+
+Final implementation closure requires the RFC-0090 PR to run the GitHub
+**Cross-Repo Mesh Certification Gate** and the normal platform Feature Lane and PR Merge Gate.
 
 ## Next Actions
 
-1. approve RFC-0090 as the GitHub blocking enforcement program,
-2. implement Slice 0 and Slice 1 in `lotus-platform`,
-3. keep RFC-0089 closed and reference it as the gate implementation dependency.
+1. open and verify the RFC-0090 implementation PR,
+2. fix-forward any GitHub workflow, Feature Lane, or PR Merge Gate failures,
+3. merge only after required checks are green and branch hygiene is complete.

@@ -23,6 +23,8 @@
   `python automation\mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
 - mesh certification blocking proof with sibling repos:
   `python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
+- GitHub cross-repo mesh certification gate:
+  `.github/workflows/mesh-certification-gate.yml`
 
 ## What the gates protect
 
@@ -32,6 +34,7 @@
 - cross-repository governance posture
 - reusable platform validation entrypoints
 - RFC-0089 first-wave mesh certification posture for governed domain products
+- RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate
 
 ## Documentation contract posture
 
