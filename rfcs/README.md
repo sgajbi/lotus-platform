@@ -136,12 +136,12 @@ Reference baseline:
 - `RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md` (implemented; advisory heartbeat contract, runner, source adapters, workflow-pack attention adapter, deduplication, suppression, validator coverage, docs/context/wiki/skills review complete)
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
 - `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (implemented; first-wave advisor-brief task-flow runtime, gateway posture, Workbench rendering, clean-core live proof, wiki publication, and branch hygiene complete)
-- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (partially implemented; first `lotus-ai` source-truth queue policy, admission, queue-status, and queue-attention wave is merged and proven; durable queue-event history and optional downstream publication remain future slices)
+- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (partially implemented; first `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, and durable queue-event history waves are merged and proven; terminal timeout/cancellation/retry/replay semantics and optional downstream publication remain future work)
 
 ## Recommended Next Implementation Order
 
 1. `RFC-0098-per-pack-queue-and-concurrency-policy.md`
-   Implement durable queue-event history and persisted queue lifecycle in `lotus-ai`; keep gateway and Workbench adoption deferred until a supported operator or product surface needs bounded queue posture.
+   Implement terminal timeout, cancellation, retry, replay, and retry-cluster attention semantics in `lotus-ai`; keep gateway and Workbench adoption deferred until a supported operator or product surface needs bounded queue posture.
 
 ## RFC Closure Governance
 
