@@ -11,6 +11,7 @@ This map organizes the automation directory by responsibility without changing s
 ### Orchestration
 
 - `Platform-Pulse.ps1`
+- `Run-Heartbeat.ps1`
 - `Run-Agent.ps1`
 - `Run-Parallel-Tasks.ps1`
 - `Start-Background-Run.ps1`
@@ -83,6 +84,7 @@ This map organizes the automation directory by responsibility without changing s
 - `render_context_registries.py`
 - `validate_engineering_context_system.py`
 - `validate_heartbeat_contracts.py`
+- `run_heartbeat.py`
 - `validate_lotus_skill_alignment.py`
 - `validate_workflow_security.py`
 - `validate_workflow_action_runtime.py`
@@ -99,6 +101,7 @@ This map organizes the automation directory by responsibility without changing s
 - `qa-matrix.json`: runtime QA startup/API/log/monitoring checks per service
 - `service-map.json`: service refresh mapping
 - `repository-governance-policy.json`
+- `heartbeat-config.json`
 - `platform-validation-profiles.json`
 - `test-coverage-policy.json`
 

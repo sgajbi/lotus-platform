@@ -27,6 +27,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Detect-Stalled-PR-Checks.ps1`
 - `automation/Prune-MergedRemoteBranches.ps1`
 - `automation/Platform-Pulse.ps1`
+- `automation/Run-Heartbeat.ps1`
 - `automation/Run-Agent.ps1`
 - `automation/Service-Refresh.ps1`
 - `automation/Run-Parallel-Tasks.ps1`
@@ -70,7 +71,9 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Automation-Config.ps1`
 - `automation/Validate-Change-Test-Impact.ps1`
 - `automation/Preflight-PR.ps1`
+- `automation/run_heartbeat.py`
 - `automation/validate_heartbeat_contracts.py`
+- `automation/heartbeat-config.json`
 - `automation/service-map.json`
 - `automation/task-profiles.json`
 - `automation/repos.json`
@@ -191,6 +194,28 @@ python automation/validate_heartbeat_contracts.py
 The platform repo check lane runs this validator. Heartbeat artifacts are derived evidence; they do
 not replace GitHub, local automation ledgers, mesh certification, wiki source, or runtime APIs as
 source truth.
+
+Generate the current heartbeat artifacts with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Run-Heartbeat.ps1
+```
+
+For deterministic local or GitHub proof, pass explicit generation metadata:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Run-Heartbeat.ps1 -GeneratedAtUtc 2026-04-21T00:00:00Z -Branch feature/rfc0095-heartbeat-monitoring
+```
+
+The runner reads `automation/heartbeat-config.json` and writes:
+
+- `output/heartbeat/heartbeat-status.json`
+- `output/heartbeat/heartbeat-status.md`
+- `output/heartbeat/heartbeat-issues.json`
+
+The default configuration is read-only and advisory with no enabled source adapters. Enabling a
+source before its adapter is implemented produces an `action_required` heartbeat finding rather
+than a false healthy posture.
 
 Generate trust certification evidence for the generated catalog and dependency graph:
 

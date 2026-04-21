@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "lotus-platform:heartbeat-runner-config:v1",
+  "owner": "lotus-platform",
+  "source_rfc": "RFC-0095",
+  "repository": "lotus-platform",
+  "mode": "advisory",
+  "mutation_policy": "read_only",
+  "output_directory": "output/heartbeat",
+  "enabled_sources": [],
+  "thresholds": {
+    "stale_pr_check_hours": 24,
+    "stale_pr_review_hours": 48,
+    "stale_background_run_hours": 6,
+    "stale_workflow_pack_review_hours": 24,
+    "stale_mesh_evidence_hours": 24
+  }
+}

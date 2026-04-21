@@ -249,6 +249,8 @@ Review evidence:
 
 ### Slice 2: Platform Heartbeat Runner
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 1. Add `automation/Run-Heartbeat.ps1` or equivalent repo-native runner.
 2. Read configured checks from platform-owned configuration.
 3. Emit JSON and Markdown evidence.
@@ -261,6 +263,26 @@ Review gate:
 2. remove duplicate check logic when existing scripts can be called,
 3. test degraded and empty-state output.
 4. confirm command-line parameters are explicit and safe for GitHub runners and local machines.
+
+Review evidence:
+
+1. `automation/run_heartbeat.py` emits deterministic `heartbeat-status.json`,
+   `heartbeat-status.md`, and `heartbeat-issues.json` paths from a single implementation path.
+2. `automation/Run-Heartbeat.ps1` is a thin repo-native wrapper over the Python runner and does
+   not duplicate report logic.
+3. `automation/heartbeat-config.json` makes the first implementation read-only and advisory. Its
+   default source set is empty so local development does not require GitHub credentials or sibling
+   repositories.
+4. Configured-but-unimplemented source adapters produce `action_required` findings and source-read
+   errors, preventing false green posture before Slice 3 adapters exist.
+5. The emitted `task_ledger` metadata uses RFC-0094 `VALIDATION_RUN` shape, stable
+   `engineering_task_id`, repo-relative artifact refs when run from `lotus-platform`, and
+   `NOT_REQUIRED` cleanup posture.
+6. Focused tests in `tests/unit/test_heartbeat_runner.py` cover empty-state output, task-ledger
+   metadata, degraded configured-source behavior, unknown source rejection, and non-UTC generation
+   timestamp rejection.
+7. Slice review reduced portability risk by changing default task-ledger artifact refs from
+   absolute paths to repo-relative paths and retaining RFC-0094-compatible `path` evidence fields.
 
 ### Slice 3: First-Wave Source Checks
 
@@ -386,6 +408,20 @@ These decisions must be resolved in Slice 1 or Slice 2 before broad source adapt
    a separate small state file.
 4. Which stale-age thresholds are defaults versus required configuration.
 5. Whether GitHub-backed heartbeat runs are advisory-only or become blocking in any gate.
+
+Resolved implementation decisions so far:
+
+1. Slice 1 and Slice 2 use `VALIDATION_RUN`; no new RFC-0094 task kind is introduced without
+   operational evidence that a distinct lifecycle is needed.
+2. Source configuration is JSON-backed through `automation/heartbeat-config.json`; PowerShell
+   parameters provide safe deterministic overrides for output directory, generated timestamp, and
+   branch.
+3. First-seen and last-seen persistence remains open for Slice 5, where deduplication and
+   suppression are implemented together.
+4. Stale-age thresholds live in configuration and are not yet interpreted until source adapters are
+   introduced.
+5. Heartbeat output remains advisory-only until Slice 6 explicitly reviews whether any PR gate
+   integration is justified.
 
 ## Acceptance Criteria
 
