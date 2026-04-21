@@ -16,6 +16,9 @@ These playbooks turn recurring delivery practice into durable operating guidance
    Repeatable responses to CI, validation, runtime, and contract failures.
 5. [TWR Investigation Playbook](./playbooks/TWR-INVESTIGATION-PLAYBOOK.md)
    How to investigate implausible TWR numbers across API math, source economics, reconciliation, and documentation.
+6. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
+   How to assemble scoped context, preserve identifiers through compaction, and track detached
+   engineering work with governed ledger evidence.
 
 ## When To Use This Layer
 
@@ -26,3 +29,5 @@ Use these playbooks when:
 3. you are preparing PR evidence or merge readiness,
 4. you are debugging a repeated failure pattern,
 5. you want to turn a repeated workflow into a reusable practice instead of improvising again.
+6. you are resuming or handing off long-running work and need exact repository, branch, PR, commit,
+   RFC, file, endpoint, contract, portfolio, or task-status identifiers preserved.

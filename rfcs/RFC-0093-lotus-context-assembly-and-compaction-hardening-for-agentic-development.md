@@ -169,8 +169,8 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation and Slice 4 background-run artifact
-alignment implemented on the active RFC branch**.
+Current status: **Draft; Slice 1 contract foundation, Slice 2 context guidance adoption, and
+Slice 4 background-run artifact alignment implemented on the active RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -180,10 +180,11 @@ RFC-0093 and RFC-0094:
 3. `tests/unit/test_agent_engineering_contracts.py`.
 
 That contract establishes RFC-0093's identifier-preservation, decision-state, and promotion-target
-requirements in machine-readable form. The first automation adoption slice also makes detached
-background-run state preserve task identity and evidence references for resumed sessions. The
-broader context, AGENTS, onboarding, skill, wiki, and remaining automation adoption slices remain
-open.
+requirements in machine-readable form. The first context adoption slice adds a governed agent
+context and task-ledger playbook plus context-system validation. The first automation adoption
+slice also makes detached background-run state preserve task identity and evidence references for
+resumed sessions. The broader AGENTS, onboarding, skill, wiki, and remaining automation adoption
+slices remain open.
 
 No implementation slice may mark RFC-0093 as fully implemented until the platform can point to:
 
@@ -628,6 +629,8 @@ Deliverables:
 | `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required identifiers, decision states, promotion targets, task lifecycle, and delegation guardrails |
 | `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Preserve deterministic task identity, lifecycle status, and evidence references across detached background-run monitoring |
 | `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade and failed-artifact truthfulness |
+| `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Provides governed operating guidance for scoped context assembly, identifier preservation, task ledgers, delegation, and promotion decisions |
+| `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0093/RFC-0094 playbook is registered in procedural memory and central engineering context |
 
 ## Validation Posture
 

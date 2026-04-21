@@ -62,7 +62,8 @@
     "change_playbooks": "context/playbooks/CHANGE-PLAYBOOKS.md",
     "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
     "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
-    "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md"
+    "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
+    "agent_context_and_task_ledger": "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md"
   },
   "applications": [
     {
@@ -374,6 +375,18 @@
       "title": "Repeatable developer and agent bootstrap system",
       "status": "active",
       "implementation_posture": "implemented and governed"
+    },
+    {
+      "id": "RFC-0093",
+      "title": "Lotus context assembly and compaction hardening for agentic development",
+      "status": "active",
+      "implementation_posture": "in progress; contract foundation and context playbook adoption implemented"
+    },
+    {
+      "id": "RFC-0094",
+      "title": "Durable background engineering task ledger and governed delegation model",
+      "status": "active",
+      "implementation_posture": "in progress; contract foundation, background-run ledger state, and context playbook adoption implemented"
     }
   ]
 }

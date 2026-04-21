@@ -140,12 +140,21 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "Platform Integration Architecture Bible" in standard_names
 
     active_rfcs = {entry["id"] for entry in manifest["active_rfc_registry"]}
-    assert active_rfcs == {"RFC-0071", "RFC-0072", "RFC-0073", "RFC-0074"}
+    assert active_rfcs == {
+        "RFC-0071",
+        "RFC-0072",
+        "RFC-0073",
+        "RFC-0074",
+        "RFC-0093",
+        "RFC-0094",
+    }
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
     assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
     assert implementation_postures["RFC-0074"] == "implemented and governed"
+    assert "in progress" in implementation_postures["RFC-0093"]
+    assert "in progress" in implementation_postures["RFC-0094"]
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -382,6 +391,9 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     pr_loop_playbook = (CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md").read_text(encoding="utf-8")
     validation_playbook = (CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md").read_text(encoding="utf-8")
     fix_forward_patterns = (CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md").read_text(encoding="utf-8")
+    agent_context_task_ledger = (
+        CONTEXT_DIR / "playbooks" / "AGENT-CONTEXT-AND-TASK-LEDGER.md"
+    ).read_text(encoding="utf-8")
     manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
 
     assert "- Status: Implemented" in rfc
@@ -396,6 +408,7 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "PR Loop Playbook" in procedural_memory_index
     assert "Validation Playbook" in procedural_memory_index
     assert "Fix-Forward Patterns" in procedural_memory_index
+    assert "Agent Context And Task Ledger Playbook" in procedural_memory_index
 
     assert "Backend API And Domain-Service Change Playbook" in change_playbooks
     assert "Frontend And Product-Surface Change Playbook" in change_playbooks
@@ -404,7 +417,11 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "GitHub-Backed Heavy Execution Rule" in pr_loop_playbook
     assert "Platform End-To-End Proof" in validation_playbook
     assert "Local-Only Assumption Pattern" in fix_forward_patterns
+    assert "Identifier Preservation" in agent_context_task_ledger
+    assert "Detached Task Ledger" in agent_context_task_ledger
+    assert "Promotion Decisions" in agent_context_task_ledger
     assert "Fix-Forward Patterns" in reference_map
+    assert "Agent Context And Task Ledger Playbook" in reference_map
     assert "PROCEDURAL-MEMORY-INDEX.md" in agents_contract
     assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
     assert "output/lotus-skill-alignment-validation.json" in automation_readme
@@ -416,6 +433,10 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert manifest["procedural_memory"]["pr_loop_playbook"] == "context/playbooks/PR-LOOP-PLAYBOOK.md"
     assert manifest["procedural_memory"]["validation_playbook"] == "context/playbooks/VALIDATION-PLAYBOOK.md"
     assert manifest["procedural_memory"]["fix_forward_patterns"] == "context/playbooks/FIX-FORWARD-PATTERNS.md"
+    assert (
+        manifest["procedural_memory"]["agent_context_and_task_ledger"]
+        == "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md"
+    )
 
 
 def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> None:

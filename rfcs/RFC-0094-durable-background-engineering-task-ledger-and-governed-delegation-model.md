@@ -158,8 +158,8 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation and Slice 4 background-run artifact
-alignment implemented on the active RFC branch**.
+Current status: **Draft; Slice 1 contract foundation, Slice 3 context/delegation guidance
+adoption, and Slice 4 background-run artifact alignment implemented on the active RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -169,10 +169,10 @@ RFC-0093 and RFC-0094:
 3. `tests/unit/test_agent_engineering_contracts.py`.
 
 That contract establishes RFC-0094's task identity, lifecycle, evidence, cleanup, authority, and
-delegation requirements in machine-readable form. The first automation adoption slice also aligns
+delegation requirements in machine-readable form. The first context/delegation adoption slice adds
+a governed playbook plus context-system validation. The first automation adoption slice also aligns
 detached background-run state with governed task identity, lifecycle, evidence, and cleanup
-semantics. The broader reporting, context, skills, wiki, and branch-hygiene adoption slices remain
-open.
+semantics. The broader reporting, skills, wiki, and branch-hygiene adoption slices remain open.
 
 No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
 
@@ -663,6 +663,8 @@ Deliverables:
 | `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required lifecycle states, ownership/evidence fields, cleanup posture, delegation guardrails, and identifier-preservation requirements |
 | `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Emit and refresh RFC-0094-compatible task identity, lifecycle, evidence, and cleanup fields for detached local automation |
 | `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade, durable evidence refs, `SUCCEEDED`, and `FAILED` semantics |
+| `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Documents governed detached-task, delegation, lifecycle, evidence, and promotion guidance |
+| `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0094 playbook is registered in procedural memory and central engineering context |
 
 ## Risks and Mitigations
 
