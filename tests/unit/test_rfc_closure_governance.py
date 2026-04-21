@@ -21,6 +21,10 @@ NEXT_AGENT_RUNTIME_RFCS = [
     "RFC-0098-per-pack-queue-and-concurrency-policy.md",
 ]
 
+NEXT_AGENT_RUNTIME_RFC_STATUS = {
+    "RFC-0098": "- status: partially implemented",
+}
+
 SECOND_LAST_TERMS = [
     "code review",
     "governance",
@@ -60,13 +64,11 @@ def test_next_agent_runtime_rfcs_are_ordered_and_closure_governed() -> None:
         rfc_id = rfc_name.split("-", 2)[0] + "-" + rfc_name.split("-", 2)[1]
         text = _read(ROOT / "rfcs" / rfc_name)
 
-        if rfc_id in {"RFC-0095", "RFC-0097"}:
-            assert "- status: implemented" in text, rfc_name
-        else:
-            assert "- status: draft" in text, rfc_name
+        expected_status = NEXT_AGENT_RUNTIME_RFC_STATUS.get(rfc_id, "- status: draft")
+        assert expected_status in text, rfc_name
         assert "## implementation plan" in text, rfc_name
         assert "## acceptance criteria" in text, rfc_name
-        assert "## initial priority" in text, rfc_name
+        assert "## initial priority" in text or "## current priority" in text, rfc_name
         for expected in SECOND_LAST_TERMS:
             assert expected in text, f"{rfc_name} missing {expected}"
         for expected in FINAL_SLICE_TERMS:
