@@ -87,6 +87,44 @@ def test_next_agent_runtime_rfcs_are_ordered_and_closure_governed() -> None:
     assert "next draft implementation sequence" in reference_map
 
 
+def test_rfc_0095_preserves_heartbeat_gold_standard_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md"
+    )
+
+    for expected in [
+        "source truth remains external",
+        "deterministic evidence before notifications",
+        "missing evidence is not green",
+        "output/heartbeat/heartbeat-status.json",
+        "output/heartbeat/heartbeat-status.md",
+        "stable derived id",
+        "deduplication_key",
+        "source adapter contract",
+        "read_status",
+        "healthy",
+        "degraded",
+        "missing",
+        "error",
+        "configuration model",
+        "read-only",
+        "schema examples for healthy, warning, action-required, blocking, suppressed, and",
+        "replacement-lineage, expired, superseded, and degraded states remain distinguishable",
+        "suppression expiry cannot hide blocking evidence indefinitely",
+        "github-runner compatibility",
+        "record a conscious context and skills decision",
+        "test plan",
+        "implementation boundaries",
+        "open implementation decisions",
+        "advisory or becomes gate-affecting",
+        "pre-implementation gold-standard review",
+        "repo index and wiki index: no change",
+        "central agent context: no change",
+        "skills: no change",
+    ]:
+        assert expected in text
+
+
 def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> None:
     standard = _read(STANDARD_PATH)
 

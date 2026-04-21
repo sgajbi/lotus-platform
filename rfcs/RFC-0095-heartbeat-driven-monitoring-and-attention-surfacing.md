@@ -25,6 +25,11 @@ This RFC introduces a heartbeat-driven monitoring model for platform and AI engi
 The heartbeat does not become a new source of truth. It reads governed sources, records evidence,
 classifies attention posture, and produces bounded notifications or work items.
 
+The first implementation must stay deliberately small: one platform-owned contract, one deterministic
+runner, one report format, and a bounded set of source adapters. Later product or banker-facing
+alerting is out of scope until the engineering/operator heartbeat proves that it can preserve source
+truth, avoid noise, and produce reviewable evidence.
+
 ## Problem
 
 The platform now has several durable truth sources:
@@ -81,13 +86,31 @@ Part of the foundation already exists:
 The missing layer is a scheduled, deduplicated, evidence-bearing heartbeat that ties these surfaces
 into one operator attention model.
 
+## Design Principles
+
+1. **Source truth remains external.** Heartbeat artifacts summarize source posture and link to
+   evidence; they do not redefine PR state, workflow-pack state, wiki state, or mesh certification
+   state.
+2. **Deterministic evidence before notifications.** The first implementation writes JSON and
+   Markdown artifacts before any chat, email, ticket, or external notification integration.
+3. **Adapters are small and replaceable.** Each monitored source is read through a narrow adapter
+   with tests for healthy, stale, missing, and degraded evidence.
+4. **Missing evidence is not green.** Absent, unreadable, or schema-invalid source evidence must be
+   represented as `action_required` or `blocking`, depending on the surface.
+5. **Deduplication is explicit.** Repeated findings use stable deduplication keys and preserve
+   first-seen/last-seen posture when prior evidence exists.
+6. **Operator posture is bounded.** The heartbeat recommends the next action and owner; it does not
+   auto-close PRs, auto-merge branches, mutate workflow-pack state, or suppress findings without an
+   auditable suppression rule.
+
 ## Proposed Model
 
 ### Heartbeat Run
 
 Each heartbeat run is a governed background engineering task:
 
-1. `task_kind`: `VALIDATION_RUN` or a future `HEARTBEAT_MONITOR`
+1. `task_kind`: `VALIDATION_RUN` for the first slice unless the implementation extends the
+   RFC-0094 contract with `HEARTBEAT_MONITOR`,
 2. durable `engineering_task_id`,
 3. owner,
 4. source refs,
@@ -97,6 +120,18 @@ Each heartbeat run is a governed background engineering task:
 
 If this RFC needs a new task kind, it must extend
 `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` with tests.
+
+### Evidence Artifacts
+
+First-wave platform output should be deterministic:
+
+1. `output/heartbeat/heartbeat-status.json`
+2. `output/heartbeat/heartbeat-status.md`
+3. optional `output/heartbeat/heartbeat-issues.json` if issue-ready records are generated later
+
+These artifacts are derived evidence. They must include a generated timestamp, source inventory,
+summary counts, attention items, suppression decisions, and source read errors. They must be safe to
+regenerate locally or in GitHub Actions without relying on wall-clock mutable filenames.
 
 ### Attention Item
 
@@ -116,6 +151,22 @@ Each item must carry:
 12. recommended next action,
 13. suppression or deduplication key.
 
+Recommended initial attention-item fields:
+
+| Field | Requirement |
+| --- | --- |
+| `attention_item_id` | Stable derived id, not random UUID-only identity |
+| `condition` | Machine-readable condition such as `stale_pr_check`, `wiki_drift`, or `workflow_pack_review_stale` |
+| `source_system` | Controlled vocabulary, for example `github`, `background_run_ledger`, `lotus_ai`, `mesh_certification`, `wiki_publication`, `agent_context` |
+| `source_ref` | Exact source identifier: PR URL, check name, file path, artifact path, run id, or workflow-pack run id |
+| `repository` | Exact repository name when applicable |
+| `severity` | One of `info`, `warning`, `action_required`, `blocking` |
+| `owner` | Owning repo, team, or explicit `unassigned` when owner cannot be inferred |
+| `evidence_refs` | One or more exact file paths, URLs, run IDs, or command references |
+| `recommended_next_action` | Short operator action, not a generic description |
+| `deduplication_key` | Stable key based on source system, source ref, and condition |
+| `suppression` | Optional structured suppression decision with reason, owner, and expiry |
+
 ### Source Ownership
 
 Heartbeat output may summarize and route; it must not redefine source truth.
@@ -130,6 +181,35 @@ Heartbeat output may summarize and route; it must not redefine source truth.
 | mesh certification | platform generated artifacts | read and classify |
 | wiki publication | repo `wiki/` and `*.wiki.git` remote | run check and classify |
 
+## Source Adapter Contract
+
+Each first-wave source adapter must expose the same internal shape before report rendering:
+
+1. `source_system`,
+2. `source_ref`,
+3. `read_status`: `healthy`, `degraded`, `missing`, or `error`,
+4. zero or more attention items,
+5. source errors with evidence paths or command output references,
+6. source freshness timestamp when available.
+
+Adapters must not share mutable global state. If a source needs credentials, branch names, or
+workspace paths, those values must come from explicit runner configuration and must be redacted in
+artifacts where needed.
+
+## Configuration Model
+
+The runner should use a small platform-owned configuration file or command parameters for:
+
+1. repositories to inspect,
+2. stale-age thresholds,
+3. enabled source adapters,
+4. output directory,
+5. optional GitHub branch or PR filters,
+6. suppression file path if suppressions are implemented in Slice 5.
+
+Default configuration must be safe for local development: read-only, no mutation, and no broad
+cross-repo checkout requirement unless the adapter explicitly needs sibling repos.
+
 ## Implementation Plan
 
 ### Slice 1: Heartbeat Contract And Attention Schema
@@ -137,12 +217,15 @@ Heartbeat output may summarize and route; it must not redefine source truth.
 1. Add a platform contract for heartbeat runs and attention items.
 2. Define severity, source-system, evidence-ref, owner, and suppression fields.
 3. Add validator and unit tests.
+4. Add schema examples for healthy, warning, action-required, blocking, suppressed, and
+   source-degraded cases.
 
 Review gate:
 
 1. confirm the schema does not duplicate RFC-0094 task-ledger fields,
 2. confirm source-of-truth language is explicit,
 3. confirm attention IDs preserve operational identifiers.
+4. confirm generated artifacts are derived evidence and cannot masquerade as source truth.
 
 ### Slice 2: Platform Heartbeat Runner
 
@@ -150,12 +233,14 @@ Review gate:
 2. Read configured checks from platform-owned configuration.
 3. Emit JSON and Markdown evidence.
 4. Record RFC-0094-compatible task-ledger metadata.
+5. Keep the runner read-only unless a later RFC explicitly approves mutation.
 
 Review gate:
 
 1. confirm deterministic output paths,
 2. remove duplicate check logic when existing scripts can be called,
 3. test degraded and empty-state output.
+4. confirm command-line parameters are explicit and safe for GitHub runners and local machines.
 
 ### Slice 3: First-Wave Source Checks
 
@@ -172,6 +257,7 @@ Review gate:
 1. ensure each check reads the strongest available evidence,
 2. ensure no check silently treats missing evidence as success,
 3. add focused tests for stale, missing, and healthy cases.
+4. confirm each adapter has one owner and one documented source of truth.
 
 ### Slice 4: Workflow-Pack Attention Inputs
 
@@ -193,6 +279,7 @@ Review gate:
 1. verify runtime state and review state remain separate,
 2. verify gateway/workbench are not treated as source of ledger truth,
 3. add contract tests against representative run/review states.
+4. verify replacement-lineage, expired, superseded, and degraded states remain distinguishable.
 
 ### Slice 5: Operator Output And Deduplication
 
@@ -206,6 +293,7 @@ Review gate:
 1. test repeat-run behavior,
 2. confirm suppressions are explicit and auditable,
 3. confirm no noisy one-off output becomes blocking by default.
+4. confirm suppression expiry cannot hide blocking evidence indefinitely.
 
 ### Slice 6: Code Review, API Certification, And Governance Tightening
 
@@ -217,6 +305,10 @@ Second-last mandatory slice.
 3. Confirm OpenAPI/vocabulary impact is either tested or explicitly not applicable.
 4. Confirm task-ledger and context-preservation rules are still aligned with RFC-0093/RFC-0094.
 5. Remove dead or stale monitoring paths discovered during implementation.
+6. Confirm platform governance checks cover schema validation, artifact determinism, source adapter
+   failure behavior, and GitHub-runner compatibility.
+7. Review whether heartbeat output should be included in any PR Merge Gate, and record the decision
+   explicitly rather than enabling blocking behavior by default.
 
 ### Slice 7: Documentation, Context, Wiki, Skills, And Branch Hygiene
 
@@ -228,6 +320,52 @@ Final mandatory slice.
 4. Assess whether `platform-automation-ops` or a new skill needs heartbeat guidance.
 5. Run `Sync-RepoWikis.ps1 -CheckOnly` before merge and publish after merge if wiki changed.
 6. Record final validation evidence, PR checks, and branch cleanup.
+7. Record a conscious context and skills decision:
+   - update existing skills when heartbeat operation becomes routine agent workflow,
+   - add a new skill only if heartbeat operation requires a distinct workflow that does not fit
+     `platform-automation-ops` or `platform-pulse-monitor`,
+   - remove or deprecate stale guidance if heartbeat replaces an older polling pattern,
+   - record `no change` only with rationale.
+8. Record whether wiki updates were required. If no wiki page changed, state that operator-facing
+   truth did not change enough to require publication.
+
+## Test Plan
+
+Minimum implementation proof:
+
+1. Schema validator tests for valid/invalid heartbeat artifacts and attention items.
+2. Runner tests for empty, healthy, warning, action-required, blocking, degraded-source, and
+   malformed-source cases.
+3. Adapter tests for each first-wave source.
+4. Deduplication tests that preserve stable item identity across repeated runs.
+5. Suppression tests with explicit owner, reason, expiry, and non-suppressible blocking cases.
+6. Markdown rendering tests that prove operator output does not drop exact identifiers.
+7. RFC-0094 ledger compatibility tests when task-ledger records are emitted.
+8. GitHub Actions compatibility proof for shallow checkout, missing sibling repos, missing deployed
+   Codex files, and absent optional credentials.
+
+## Implementation Boundaries
+
+The implementation must not:
+
+1. mutate GitHub PRs, branches, checks, or comments in the first wave,
+2. mutate `lotus-ai` workflow-pack run or review state,
+3. create banker-facing UI or notifications,
+4. require all sibling repositories for platform-only checks,
+5. classify missing evidence as `healthy`,
+6. create ad hoc source-specific output formats outside the heartbeat artifact contract.
+
+## Open Implementation Decisions
+
+These decisions must be resolved in Slice 1 or Slice 2 before broad source adapters are added:
+
+1. Whether `HEARTBEAT_MONITOR` becomes a new RFC-0094 `task_kind` or the first implementation uses
+   `VALIDATION_RUN`.
+2. Whether source configuration is JSON, PowerShell parameters, or both.
+3. Whether persisted first-seen/last-seen posture lives only in the previous heartbeat artifact or in
+   a separate small state file.
+4. Which stale-age thresholds are defaults versus required configuration.
+5. Whether GitHub-backed heartbeat runs are advisory-only or become blocking in any gate.
 
 ## Acceptance Criteria
 
@@ -238,6 +376,37 @@ Final mandatory slice.
 5. Workflow-pack review/run posture is consumed without collapsing runtime state and review state.
 6. The heartbeat runner can be executed locally and in GitHub-backed automation.
 7. Final docs, context, wiki, skills, and branch hygiene are complete.
+8. Source adapters have focused tests and do not duplicate existing platform check logic.
+9. Suppression and deduplication behavior is deterministic and auditable.
+10. The implementation records a conscious decision about skill updates, agent-context updates, wiki
+    publication, and whether heartbeat output remains advisory or becomes gate-affecting.
+
+## Pre-Implementation Gold-Standard Review
+
+Reviewed on 2026-04-21 before implementation begins.
+
+Tightening applied:
+
+1. narrowed the first implementation to one contract, one runner, one report format, and bounded
+   source adapters,
+2. added design principles to prevent heartbeat output from redefining source truth,
+3. added deterministic output artifact names,
+4. added an explicit attention-item field contract,
+5. added source adapter and configuration contracts,
+6. expanded every slice review gate with source-truth, GitHub-runner, suppression, lineage, and
+   governance checks,
+7. added a concrete test plan and implementation boundaries,
+8. added open implementation decisions that must be resolved before broad adapter work starts.
+
+Documentation, context, wiki, and skills decision for this pre-implementation pass:
+
+1. RFC document: updated because implementation requirements were too implicit.
+2. Repo index and wiki index: no change; RFC-0095 was already listed as draft in the correct order,
+   and the operator-facing index truth did not change.
+3. Central agent context: no change; heartbeat is still unimplemented, so operating guidance should
+   not instruct agents to run it yet.
+4. Skills: no change; implementation should first try to extend `platform-automation-ops` or
+   `platform-pulse-monitor` in the final slice if heartbeat operation becomes routine.
 
 ## Initial Priority
 
