@@ -13,6 +13,7 @@ if str(AUTOMATION_DIR) not in sys.path:
 
 from validate_agent_engineering_contracts import (  # noqa: E402
     REQUIRED_DELEGATION_OUTPUT_FIELDS,
+    REQUIRED_EVIDENCE_REF_TYPES,
     REQUIRED_MAIN_AGENT_REVIEW_STATUSES,
     REQUIRED_TASK_STATES,
     validate_delegation_record,
@@ -249,6 +250,26 @@ def validate_delegation_output(
     evidence_refs = output.get("evidence_refs")
     if not isinstance(evidence_refs, list) or not evidence_refs:
         errors.append("delegation output evidence_refs must be a non-empty list")
+    else:
+        for index, evidence_ref in enumerate(evidence_refs):
+            if not isinstance(evidence_ref, dict):
+                errors.append(f"delegation output evidence_refs[{index}] must be an object")
+                continue
+            ref_type = evidence_ref.get("type")
+            if ref_type not in REQUIRED_EVIDENCE_REF_TYPES:
+                errors.append(
+                    f"delegation output evidence_refs[{index}].type must be governed"
+                )
+            if not (
+                isinstance(evidence_ref.get("ref"), str)
+                and evidence_ref["ref"].strip()
+            ) and not (
+                isinstance(evidence_ref.get("path"), str)
+                and evidence_ref["path"].strip()
+            ):
+                errors.append(
+                    f"delegation output evidence_refs[{index}] must include ref or path"
+                )
 
     follow_up = output.get("follow_up_required")
     if not isinstance(follow_up, str) or not follow_up.strip():
@@ -326,6 +347,8 @@ def record_main_agent_review(
         entry["ended_at"] = reviewed_at
         if review_status != "ACCEPTED":
             entry["error_summary"] = review_summary
+        else:
+            entry["error_summary"] = None
         _write_json(ledger_path, ledger)
         return entry
     raise ValueError(f"delegated task not found: {engineering_task_id}")

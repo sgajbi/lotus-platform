@@ -146,6 +146,16 @@ REQUIRED_HEARTBEAT_CONDITIONS = {
     "delegated_task_write_scope_overlap",
     "delegated_task_unresolved_blocker",
 }
+REQUIRED_EVIDENCE_REF_TYPES = {
+    "LOCAL_JSON_ARTIFACT",
+    "LOCAL_MARKDOWN_ARTIFACT",
+    "LOG_FILE",
+    "TEST_COMMAND",
+    "CHANGED_FILE_LIST",
+    "BRANCH_AUDIT",
+    "GITHUB_ACTIONS_RUN",
+    "GITHUB_PR",
+}
 
 
 def _load_contract(path: Path = CONTRACT_PATH) -> dict[str, Any]:
@@ -379,6 +389,12 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
         "required_forbidden_actions",
         contract.get("required_forbidden_actions"),
         REQUIRED_FORBIDDEN_ACTIONS,
+    )
+    _require_set(
+        errors,
+        "required_evidence_ref_types",
+        contract.get("required_evidence_ref_types"),
+        REQUIRED_EVIDENCE_REF_TYPES,
     )
     _require_set(
         errors,
