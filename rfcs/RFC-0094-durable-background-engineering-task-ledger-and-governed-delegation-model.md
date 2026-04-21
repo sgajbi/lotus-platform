@@ -158,10 +158,20 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; implementation not started**.
+Current status: **Draft; Slice 1 contract foundation implemented on the active RFC branch**.
 
-This RFC is intentionally being tightened before implementation. No implementation slice may mark
-RFC-0094 as implemented until the platform can point to:
+The first implementation slice adds the shared agent-engineering contract foundation used by
+RFC-0093 and RFC-0094:
+
+1. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`,
+2. `automation/validate_agent_engineering_contracts.py`,
+3. `tests/unit/test_agent_engineering_contracts.py`.
+
+That contract establishes RFC-0094's task identity, lifecycle, evidence, cleanup, authority, and
+delegation requirements in machine-readable form. The broader automation, reporting, context,
+skills, wiki, and branch-hygiene adoption slices remain open.
+
+No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
 
 1. a concrete task-ledger contract or artifact shape,
 2. automation, skill, context, or onboarding changes that consume that contract,
@@ -640,6 +650,14 @@ Deliverables:
 | Executable governance checks | Slice 5 | Repo-native validator/test evidence and PR lane evidence |
 | Review and governance closure | Slice 6 | Review findings, fixes, API-certification/platform-governance checklist evidence |
 | Final docs/context/wiki/skills/branch hygiene | Slice 7 | Final documentation/context/wiki/skills assessment and branch cleanup evidence |
+
+### Current Evidence
+
+| Evidence | Status | Notes |
+| --- | --- | --- |
+| `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures task identity, lifecycle, evidence, cleanup, authority, delegation, and context-preservation contract requirements |
+| `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
+| `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required lifecycle states, ownership/evidence fields, cleanup posture, delegation guardrails, and identifier-preservation requirements |
 
 ## Risks and Mitigations
 

@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "lotus-platform:engineering-task-ledger-contract:v1",
+  "owner": "lotus-platform",
+  "source_rfc": "RFC-0094",
+  "related_rfc": "RFC-0093",
+  "status": "draft",
+  "authority": {
+    "github_actions": "GitHub remains the source of truth for GitHub check status.",
+    "local_automation": "Local platform automation artifacts remain the source of truth for locally launched background runs.",
+    "task_ledger": "The ledger records detached engineering task identity, lifecycle, ownership, evidence, and cleanup posture without replacing runtime sources of truth.",
+    "session_summary": "Compacted session summaries are working context only and must not become durable task truth."
+  },
+  "task_kinds": [
+    "GITHUB_CHECK_MONITOR",
+    "LOCAL_BACKGROUND_RUN",
+    "VALIDATION_RUN",
+    "DELEGATED_EXPLORATION",
+    "DELEGATED_IMPLEMENTATION",
+    "DELEGATED_REVIEW",
+    "MERGE_CLEANUP_WATCHER"
+  ],
+  "lifecycle_states": [
+    "QUEUED",
+    "RUNNING",
+    "SUCCEEDED",
+    "FAILED",
+    "TIMED_OUT",
+    "CANCELLED",
+    "LOST",
+    "SUPERSEDED"
+  ],
+  "required_identity_fields": [
+    "engineering_task_id",
+    "task_kind",
+    "repository",
+    "branch",
+    "owner",
+    "requested_at",
+    "origin",
+    "correlation_ref"
+  ],
+  "required_metadata_fields": [
+    "summary",
+    "status",
+    "runtime",
+    "scope",
+    "artifacts",
+    "evidence_refs",
+    "cleanup_state"
+  ],
+  "conditional_fields": {
+    "pr_number": "Required when the detached task is tied to a pull request.",
+    "write_scope": "Required when the detached task may edit code, docs, contracts, or generated artifacts.",
+    "started_at": "Required once a task leaves QUEUED.",
+    "ended_at": "Required for terminal states.",
+    "error_summary": "Required for FAILED, TIMED_OUT, LOST, and CANCELLED states."
+  },
+  "terminal_states": [
+    "SUCCEEDED",
+    "FAILED",
+    "TIMED_OUT",
+    "CANCELLED",
+    "LOST",
+    "SUPERSEDED"
+  ],
+  "cleanup_states": [
+    "NOT_REQUIRED",
+    "PENDING",
+    "DONE",
+    "BLOCKED",
+    "SUPERSEDED"
+  ],
+  "evidence_ref_types": [
+    "GITHUB_ACTIONS_RUN",
+    "GITHUB_PR",
+    "LOCAL_JSON_ARTIFACT",
+    "LOCAL_MARKDOWN_ARTIFACT",
+    "LOG_FILE",
+    "TEST_COMMAND",
+    "CHANGED_FILE_LIST",
+    "BRANCH_AUDIT"
+  ],
+  "delegation_contract": {
+    "required_fields": [
+      "problem_statement",
+      "expected_output",
+      "read_scope",
+      "task_mode"
+    ],
+    "task_modes": [
+      "EXPLORATORY",
+      "IMPLEMENTATION",
+      "VALIDATION",
+      "DOCUMENTATION",
+      "REVIEW_SUPPORT"
+    ],
+    "code_change_requirements": [
+      "explicit_write_scope",
+      "do_not_revert_unrelated_work",
+      "changed_files_returned",
+      "outcome_summary_returned"
+    ]
+  },
+  "context_preservation_contract": {
+    "source_rfc": "RFC-0093",
+    "required_identifiers": [
+      "repository",
+      "branch",
+      "pr_number",
+      "commit_sha",
+      "check_name",
+      "rfc_id",
+      "file_path",
+      "endpoint",
+      "contract_name",
+      "portfolio_id",
+      "task_status"
+    ],
+    "decision_states": [
+      "ACCEPTED",
+      "REJECTED",
+      "DEFERRED",
+      "OPEN"
+    ],
+    "promotion_targets": [
+      "repository_docs",
+      "central_context",
+      "onboarding_docs",
+      "wiki_source",
+      "skill_guidance",
+      "validator_or_contract_test",
+      "rfc_follow_up"
+    ]
+  },
+  "invariants": [
+    "Each task has one durable owner.",
+    "Terminal tasks carry evidence or explicit failure context.",
+    "LOST is an operational problem and must not be silently treated as success.",
+    "GitHub status is referenced, not redefined.",
+    "Delegated code changes require explicit write scope.",
+    "Compaction must preserve operationally relevant identifiers exactly."
+  ]
+}

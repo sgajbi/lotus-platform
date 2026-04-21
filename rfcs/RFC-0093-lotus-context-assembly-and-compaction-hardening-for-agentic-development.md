@@ -169,10 +169,20 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; implementation not started**.
+Current status: **Draft; Slice 1 contract foundation implemented on the active RFC branch**.
 
-This RFC is intentionally being tightened before implementation. No implementation slice may mark
-RFC-0093 as implemented until the platform can point to:
+The first implementation slice adds the shared agent-engineering contract foundation used by
+RFC-0093 and RFC-0094:
+
+1. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`,
+2. `automation/validate_agent_engineering_contracts.py`,
+3. `tests/unit/test_agent_engineering_contracts.py`.
+
+That contract establishes RFC-0093's identifier-preservation, decision-state, and promotion-target
+requirements in machine-readable form. The broader context, AGENTS, onboarding, skill, wiki, and
+automation adoption slices remain open.
+
+No implementation slice may mark RFC-0093 as fully implemented until the platform can point to:
 
 1. concrete context, AGENTS, onboarding, skill, or validator changes,
 2. tests or contract checks for any executable governance that was added,
@@ -605,6 +615,14 @@ Deliverables:
 | Executable governance checks | Slice 5 | Repo-native validator/test evidence and PR lane evidence |
 | Review and governance closure | Slice 6 | Review findings, fixes, API-certification/platform-governance checklist evidence |
 | Final docs/context/wiki/skills/branch hygiene | Slice 7 | Final documentation/context/wiki/skills assessment and branch cleanup evidence |
+
+### Current Evidence
+
+| Evidence | Status | Notes |
+| --- | --- | --- |
+| `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures RFC-0093 identifier-preservation, decision-state, and promotion-target requirements |
+| `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
+| `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required identifiers, decision states, promotion targets, task lifecycle, and delegation guardrails |
 
 ## Validation Posture
 
