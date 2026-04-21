@@ -23,6 +23,7 @@
   "source_systems": [
     "github",
     "background_run_ledger",
+    "delegated_task_ledger",
     "lotus_ai",
     "mesh_certification",
     "wiki_publication",

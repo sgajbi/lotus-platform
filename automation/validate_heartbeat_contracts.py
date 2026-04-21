@@ -82,6 +82,7 @@ def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
         "source_systems": {
             "github",
             "background_run_ledger",
+            "delegated_task_ledger",
             "lotus_ai",
             "mesh_certification",
             "wiki_publication",
