@@ -156,6 +156,22 @@ Specifically:
 4. completion handling should be push-oriented where possible, not poll-loop-oriented by default,
 5. skills, onboarding, and automation must reinforce this operating posture.
 
+## Implementation Status
+
+Current status: **Draft; implementation not started**.
+
+This RFC is intentionally being tightened before implementation. No implementation slice may mark
+RFC-0094 as implemented until the platform can point to:
+
+1. a concrete task-ledger contract or artifact shape,
+2. automation, skill, context, or onboarding changes that consume that contract,
+3. tests or validators for any machine-readable task-ledger output introduced,
+4. explicit review evidence for the second-last tightening slice,
+5. final documentation, context, wiki, skills/guidance, and branch-hygiene evidence.
+
+GitHub Actions remains the source of truth for GitHub check status. The RFC-0094 ledger may record
+and summarize GitHub status, but it must not become a weaker duplicate of GitHub truth.
+
 ## Design Principles
 
 ### 1. Detached work is still part of one truthful delivery program
@@ -493,6 +509,14 @@ platform automation reality.
 
 ## Implementation Plan
 
+Every implementation slice must end with:
+
+1. focused validation appropriate to the files changed,
+2. a review pass for simplification, stale guidance, duplicate policy, and test quality,
+3. a small truthful commit,
+4. updated PR evidence,
+5. updated shared-memory or handoff state when detached work crosses sessions.
+
 ### Slice 1: Engineering Task Ledger Contract
 
 1. define task kinds, lifecycle states, and required identity fields,
@@ -554,21 +578,68 @@ Deliverables:
 2. targeted tests,
 3. local and CI evidence expectations.
 
-### Slice 6: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
+### Slice 6: Code Review, Loose-End Tightening, API Certification Pattern, and Platform Governance
+
+1. review all RFC-0094 implementation changes for duplicated task-state vocabulary, stale async
+   guidance, ambiguous task ownership, missing cleanup semantics, and avoidable complexity,
+2. verify any API-like or machine-readable contract introduced under this RFC follows the Lotus API
+   certification pattern where applicable:
+   - stable identity,
+   - explicit schema or contract,
+   - source-of-truth ownership,
+   - validation evidence,
+   - degraded, stale, cancelled, lost, and superseded states,
+   - OpenAPI or generated-contract alignment when an HTTP endpoint is involved,
+3. verify platform governance requirements:
+   - RFC-0072 lane evidence,
+   - GitHub remains CI truth,
+   - local automation remains local-run truth,
+   - AGENTS synchronization when the operating contract changes,
+   - no unconstrained autonomous delegation,
+   - branch and PR cleanup state is explicit,
+4. remove stale or conflicting guidance discovered during implementation,
+5. decide whether any remaining work must become a follow-up issue before the final slice.
+
+Deliverables:
+
+1. explicit review findings and fixes,
+2. targeted validation rerun after review fixes,
+3. platform governance checklist evidence,
+4. updated gap or follow-up list if the RFC is not yet fully implemented.
+
+### Slice 7: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
 
 1. update docs that now own durable truth under this RFC,
 2. update context artifacts where the async and delegation model changes platform behavior,
 3. update wiki-source guidance where operator or onboarding posture changes,
-4. update skills where the implementation changes durable agent workflow guidance,
-5. keep PR evidence, branch cleanup, and implementation status truthful.
+4. explicitly assess whether skills, guidance, documentation, wiki, or context should be updated
+   for future agent effectiveness,
+5. update skills where the implementation changes durable agent workflow guidance,
+6. record a conscious "no change needed" decision when a reviewed skill, guidance file, wiki page,
+   or context artifact does not need modification,
+7. keep PR evidence, branch cleanup, and implementation status truthful.
 
 Deliverables:
 
 1. updated docs and wiki-source pages,
 2. updated context files,
 3. updated skills where needed,
-4. PR and branch-hygiene evidence,
-5. no stale guidance that implies implementation beyond what was actually delivered.
+4. explicit skills/guidance/context/wiki assessment, including "no change needed" decisions,
+5. PR and branch-hygiene evidence,
+6. no stale guidance that implies implementation beyond what was actually delivered.
+
+## Requirement Traceability
+
+| Requirement | Primary implementation slice | Required evidence before closure |
+| --- | --- | --- |
+| Durable background engineering task ledger model | Slice 1 | Contract/artifact shape and validation evidence where machine-readable |
+| Shared lifecycle vocabulary | Slice 1 | Task-state documentation plus tests/validators where executable |
+| Async operating guidance | Slice 2 | AGENTS/onboarding/skill updates or explicit no-change rationale |
+| Governed delegation model | Slice 3 | Delegation rules with write-scope and return-contract evidence |
+| Automation/reporting alignment | Slice 4 | Background-run or PR-loop artifact updates with evidence refs |
+| Executable governance checks | Slice 5 | Repo-native validator/test evidence and PR lane evidence |
+| Review and governance closure | Slice 6 | Review findings, fixes, API-certification/platform-governance checklist evidence |
+| Final docs/context/wiki/skills/branch hygiene | Slice 7 | Final documentation/context/wiki/skills assessment and branch cleanup evidence |
 
 ## Risks and Mitigations
 
@@ -635,7 +706,12 @@ The platform should prefer governed prose rather than brittle automation for:
    4. skill guidance.
 5. The implementation plan includes a final slice for documentation, agent context, wiki update,
    skill update if needed, and branch hygiene.
-6. No slice under this RFC creates unconstrained autonomous delegation or ambiguous write ownership.
+6. The implementation plan includes a second-last review and governance slice covering loose-end
+   tightening, API certification pattern checks where applicable, and platform governance
+   conformance.
+7. The final slice includes an explicit skills, guidance, documentation, wiki, and context
+   assessment, including conscious "no change needed" decisions when appropriate.
+8. No slice under this RFC creates unconstrained autonomous delegation or ambiguous write ownership.
 
 ## Final Position
 

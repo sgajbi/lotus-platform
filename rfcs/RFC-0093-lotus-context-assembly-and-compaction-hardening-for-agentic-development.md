@@ -167,6 +167,22 @@ Specifically:
 4. skills, AGENTS guidance, onboarding docs, and validation rules must reinforce this model,
 5. OpenClaw-like ideas may inform the pattern, but implementation remains Lotus-native and governed.
 
+## Implementation Status
+
+Current status: **Draft; implementation not started**.
+
+This RFC is intentionally being tightened before implementation. No implementation slice may mark
+RFC-0093 as implemented until the platform can point to:
+
+1. concrete context, AGENTS, onboarding, skill, or validator changes,
+2. tests or contract checks for any executable governance that was added,
+3. explicit review evidence for the second-last tightening slice,
+4. final documentation, context, wiki, skills/guidance, and branch-hygiene evidence.
+
+The RFC may remain valuable as approved design before all automation exists, but implementation
+status must stay truthful and must not imply that compaction behavior is enforced before it is
+actually enforced by docs, skills, validators, or operating contracts.
+
 ## Design Principles
 
 ### 1. Assemble only the smallest correct working set
@@ -461,6 +477,14 @@ work.
 
 ## Implementation Plan
 
+Every implementation slice must end with:
+
+1. focused validation appropriate to the files changed,
+2. a review pass for simplification, stale guidance, duplicate policy, and test quality,
+3. a small truthful commit,
+4. updated PR evidence,
+5. updated shared-memory or handoff state when the work is cross-session.
+
 ### Slice 1: Context-Assembly Standard
 
 1. document the governed Lotus context-assembly model,
@@ -521,21 +545,66 @@ Deliverables:
 2. targeted tests,
 3. truthful repo-native validation evidence.
 
-### Slice 6: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
+### Slice 6: Code Review, Loose-End Tightening, API Certification Pattern, and Platform Governance
+
+1. review all RFC-0093 implementation changes for duplicated guidance, stale context, overbroad
+   prose, missing validation, and avoidable complexity,
+2. verify any API-like or machine-readable contract introduced under this RFC follows the Lotus API
+   certification pattern where applicable:
+   - stable identity,
+   - explicit schema or contract,
+   - source-of-truth ownership,
+   - validation evidence,
+   - degraded or unsupported-state behavior,
+   - OpenAPI or generated-contract alignment when an HTTP endpoint is involved,
+3. verify platform governance requirements:
+   - RFC-0072 lane evidence,
+   - RFC-0073/RFC-0074 context ownership,
+   - skill-routing consistency,
+   - AGENTS synchronization when the operating contract changes,
+   - no hidden second source of engineering truth,
+4. remove stale or conflicting guidance discovered during implementation,
+5. decide whether any remaining work must become a follow-up issue before the final slice.
+
+Deliverables:
+
+1. explicit review findings and fixes,
+2. targeted validation rerun after review fixes,
+3. platform governance checklist evidence,
+4. updated gap or follow-up list if the RFC is not yet fully implemented.
+
+### Slice 7: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
 
 1. update docs that now own durable truth under this RFC,
 2. update central and repo-local context artifacts where implemented truth changed,
 3. update wiki-source guidance where operator or onboarding behavior changed,
-4. update skills where the implementation changes durable agent workflow guidance,
-5. keep PR evidence, branch cleanup, and implementation status truthful.
+4. explicitly assess whether skills, guidance, documentation, wiki, or context should be updated
+   for future agent effectiveness,
+5. update skills where the implementation changes durable agent workflow guidance,
+6. record a conscious "no change needed" decision when a reviewed skill, guidance file, wiki page,
+   or context artifact does not need modification,
+7. keep PR evidence, branch cleanup, and implementation status truthful.
 
 Deliverables:
 
 1. updated docs and wiki-source pages,
 2. updated context files,
 3. updated skills where needed,
-4. PR and branch-hygiene evidence,
-5. no stale guidance that implies implementation beyond what was actually delivered.
+4. explicit skills/guidance/context/wiki assessment, including "no change needed" decisions,
+5. PR and branch-hygiene evidence,
+6. no stale guidance that implies implementation beyond what was actually delivered.
+
+## Requirement Traceability
+
+| Requirement | Primary implementation slice | Required evidence before closure |
+| --- | --- | --- |
+| Governed context-assembly model | Slice 1 | Context standard plus validator or documentation-contract evidence where feasible |
+| Identifier-preserving compaction policy | Slice 2 | Skill/onboarding updates and targeted identifier-preservation validation where feasible |
+| Bounded durable note capture and promotion | Slice 3 | Promotion rules with clear source-of-truth ownership and no hidden memory store |
+| Skills, AGENTS, and onboarding alignment | Slice 4 | Updated guidance or explicit no-change rationale with AGENTS sync validation when applicable |
+| Executable governance checks | Slice 5 | Repo-native validator/test evidence and PR lane evidence |
+| Review and governance closure | Slice 6 | Review findings, fixes, API-certification/platform-governance checklist evidence |
+| Final docs/context/wiki/skills/branch hygiene | Slice 7 | Final documentation/context/wiki/skills assessment and branch cleanup evidence |
 
 ## Validation Posture
 
@@ -603,7 +672,12 @@ Mitigation:
    4. ephemeral session context.
 5. The implementation plan includes a final slice for documentation, agent context, wiki update,
    skill update if needed, and branch hygiene.
-6. No slice under this RFC creates an uncontrolled durable memory system outside the governed Lotus
+6. The implementation plan includes a second-last review and governance slice covering loose-end
+   tightening, API certification pattern checks where applicable, and platform governance
+   conformance.
+7. The final slice includes an explicit skills, guidance, documentation, wiki, and context
+   assessment, including conscious "no change needed" decisions when appropriate.
+8. No slice under this RFC creates an uncontrolled durable memory system outside the governed Lotus
    documentation and skill model.
 
 ## Final Position
