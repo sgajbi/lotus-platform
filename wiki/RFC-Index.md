@@ -45,12 +45,12 @@
 - [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, and terminal timeout/cancellation posture waves are merged and proven
+  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, and retry/replay recovery-decision posture waves are implemented
 
 ## Recommended next implementation order
 
 1. `RFC-0098`
-   Implement retry/replay semantics and repeated-failure clustering in `lotus-ai`; keep
+   Implement retry/replay execution or repeated-failure clustering in `lotus-ai`; keep
    gateway and Workbench adoption deferred until a supported operator or product surface needs
    bounded queue posture.
 
@@ -92,6 +92,6 @@
   `lotus-gateway`, and `lotus-workbench`, with clean-core live proof recorded and repo wikis
   published.
 - RFC-0098 is partially implemented: first-wave `lotus-ai` queue policy, admission, source API,
-  queue-attention posture, durable queue-event history, and terminal timeout/cancellation posture
-  are merged and proven; retry/replay semantics, repeated-failure clustering, and downstream queue
-  posture remain future work.
+  queue-attention posture, durable queue-event history, terminal timeout/cancellation posture, and
+  retry/replay recovery-decision posture are implemented; retry/replay execution,
+  repeated-failure clustering, and downstream queue posture remain future work.

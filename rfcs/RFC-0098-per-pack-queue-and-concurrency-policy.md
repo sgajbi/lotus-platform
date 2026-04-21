@@ -128,11 +128,32 @@ Implemented in the terminal queue-event posture wave merged through
 5. docs, wiki source, and repo-local context updates, with `lotus-ai` wiki publication completed at
    wiki commit `3e6378a`.
 
+Implemented in the retry/replay recovery-decision posture wave merged through
+`sgajbi/lotus-ai#49`:
+
+1. durable retry and replay queue-event vocabulary:
+   `RETRY_RECORDED`, `RETRY_BLOCKED`, `REPLAY_RECORDED`, and `REPLAY_BLOCKED`,
+2. bounded retry and replay decision APIs under
+   `/platform/workflow-packs/queue-events/{queue_item_id}/retry-decisions` and
+   `/platform/workflow-packs/queue-events/{queue_item_id}/replay-decisions`,
+3. recovery decision evidence fields on queue-event descriptors:
+   `source_queue_item_id`, `recovery_action_type`, `recovery_attempt_number`, `requested_by`, and
+   `evidence_ref`,
+4. retry amplification blocking when failure codes are non-retryable, max-attempt policy would be
+   exceeded, or completed handoff posture is incorrectly retried,
+5. replay amplification blocking after one governed replay decision exists for the queue item,
+6. runtime-status `queue_attention` for blocked retry and blocked replay posture,
+7. API contract, OpenAPI, unit, and integration tests proving recovery metadata is preserved and
+   that decision responses do not claim workflow re-execution,
+8. repo-local docs, wiki source, and context updates describing recovery decisions as evidence
+   posture rather than execution posture, with `lotus-ai` wiki publication completed at wiki commit
+   `d2feff3`.
+
 Explicitly deferred because source behavior does not yet exist:
 
 1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
    history,
-2. retry execution, replay execution, retry-cluster attention, repeated-timeout clustering, and
+2. retry execution, replay execution, retry-cluster aggregation, repeated-timeout clustering, and
    repeated-cancellation clustering,
 3. gateway publication of queue posture,
 4. Workbench rendering of queue posture.
@@ -274,9 +295,14 @@ state.
 2. `GET /platform/workflow-packs/queue-policies/{pack_id}/{version}`
 3. `GET /platform/workflow-packs/queue-status`
 4. `GET /platform/workflow-packs/queue-status/{queue_item_id}`
+5. `GET /platform/workflow-packs/queue-events`
+6. `GET /platform/workflow-packs/queue-events/{queue_item_id}`
+7. `POST /platform/workflow-packs/queue-events/{queue_item_id}/retry-decisions`
+8. `POST /platform/workflow-packs/queue-events/{queue_item_id}/replay-decisions`
 
-Mutating queue APIs should not be added unless the implementation proves they are needed. Initial
-mutation should prefer existing workflow-pack execution and review-action seams.
+Mutating queue APIs should not be added unless the implementation proves they are needed. The
+current bounded retry/replay decision APIs record recovery evidence only and must not be treated as
+replacement workflow execution.
 
 Gateway publication is optional. If added, it must:
 
@@ -534,10 +560,10 @@ For the first `lotus-ai` source-truth wave:
 4. Capacity, explicit lane selection, rejection, stale active admission, saturation, missing policy,
    unsupported lane, and degraded readiness are tested.
 5. Operator posture explains queue delay or rejection truthfully without leaking internal mechanics.
-6. Heartbeat detects source-backed saturated, stale active-admission, timeout, and cancellation
-   posture; repeated-timeout clustering, repeated-cancellation clustering, retry-blocked, and
-   durable degraded queue-source attention remain deferred until retry/replay execution semantics
-   exist.
+6. Heartbeat detects source-backed saturated, stale active-admission, timeout, cancellation, blocked
+   retry, and blocked replay posture; repeated-timeout clustering, repeated-cancellation
+   clustering, retry-cluster aggregation, and durable degraded queue-source attention remain
+   deferred.
 7. API certification, OpenAPI examples, vocabulary, no-alias, migration, security, and CI governance
    are satisfied for every implemented served surface.
 8. Supported-features wording is implementation-backed and excludes aspirational features.
@@ -567,16 +593,18 @@ Resolved for the first `lotus-ai` source-truth wave:
    `twr_inspection_support_brief.pack@v1`,
 2. queue policy is a separate declared policy catalog attached to registry catalog/detail posture,
    not a separate SQL table in this wave,
-3. queue state is current in-process active-admission posture; durable queue-event history is
-   deferred,
-4. source API shape is the four read-only `lotus-ai` routes under
-   `/platform/workflow-packs/queue-policies` and `/platform/workflow-packs/queue-status`,
+3. queue state is current in-process active-admission posture plus durable queue-event history for
+   admission, release, timeout, cancellation, and recovery-decision evidence; actual queued-item
+   execution remains deferred,
+4. source API shape now includes read-only policy/status/event routes plus bounded retry/replay
+   decision routes under `/platform/workflow-packs/queue-events/{queue_item_id}`,
 5. gateway publication is deferred until an operator or product surface has a concrete supported
    need,
 6. Workbench rendering is deferred because no banker-facing queue posture is supported yet,
 7. saturation and stale thresholds are policy fields per executable pack version,
-8. retryable and non-retryable failure vocabulary is declared in policy descriptors, but runtime
-   retry execution and retry-cluster attention require durable queue-event history,
+8. retryable and non-retryable failure vocabulary is declared in policy descriptors and bounded
+   recovery-decision evidence is now recordable; runtime retry/replay execution and retry-cluster
+   aggregation remain future work,
 9. a dedicated queue-policy skill is not needed yet; the implementation is still narrow enough to
    be governed by backend delivery, API certification, pre-merge, and RFC review skills.
 
@@ -642,9 +670,9 @@ Review findings:
 Additional slices needed for full RFC completion:
 
 1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
-2. retry, replay, and persisted queued-item execution semantics backed by durable evidence,
-3. RFC-0095 heartbeat expansion for repeated timeout/cancellation clustering, retry-blocked, and
-   durable degraded queue-source attention,
+2. retry/replay execution and persisted queued-item execution semantics backed by durable evidence,
+3. RFC-0095 heartbeat expansion for repeated timeout/cancellation clustering, retry-cluster
+   aggregation, and durable degraded queue-source attention,
 4. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
 5. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
@@ -662,8 +690,9 @@ Skills, guidance, documentation, and context decision:
 
 ## Current Priority
 
-Keep RFC-0098 open as partially implemented. Durable queue-event history plus terminal timeout and
-cancellation queue-event posture are now merged, and the `lotus-ai` wiki source has been published.
-The next high-value implementation slice is retry/replay semantics and repeated-failure clustering
-backed by durable queue evidence. Gateway or Workbench adoption should remain deferred until a
-supported operator or product surface needs it.
+Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
+cancellation posture, and bounded retry/replay recovery-decision posture are now implemented in
+`lotus-ai` source truth. The next high-value implementation slice is actual retry/replay execution
+or repeated-failure clustering, depending on whether operators need repair execution or better
+attention aggregation first. Gateway or Workbench adoption should remain deferred until a supported
+operator or product surface needs it.
