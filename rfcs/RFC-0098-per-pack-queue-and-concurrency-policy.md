@@ -1,6 +1,6 @@
 # RFC-0098: Per-Pack Queue And Concurrency Policy
 
-- Status: Draft
+- Status: In Implementation
 - Date: 2026-04-21
 - Owners:
   - `lotus-ai` runtime owners
@@ -72,21 +72,41 @@ tasks. Without explicit queue policy:
 
 ## Supported Features
 
-No RFC-0098 product features are implemented yet.
+The supported-features list is implementation-backed and must not include aspirational posture.
 
-The supported-features list must remain explicit throughout implementation. A feature can move from
-future work into supported posture only after source code, tests, docs, and proof exist. Initial
-candidate supported features are:
+Implemented in the first `lotus-ai` source-truth wave on
+`feature/rfc0098-queue-policy-contract`:
 
-1. queue policy descriptors attached to executable workflow-pack versions,
-2. finite queue lane vocabulary and validation,
-3. queue-admission preflight that runs after registry/caller/readiness checks and before execution,
-4. per-pack and per-lane capacity enforcement,
-5. explicit queued, rejected, cancelled, timed-out, and degraded posture,
-6. bounded operator queue summary in `lotus-ai`,
-7. RFC-0095 heartbeat attention for queue saturation and stuck queues,
-8. optional gateway publication of source queue posture,
-9. optional Workbench rendering of gateway-backed queue posture.
+1. finite queue lane vocabulary and validation,
+2. queue policy descriptors for all current executable Phase-1 workflow-pack versions:
+   `advisor_brief.pack@v1`, `workspace_rationale.pack@v1`, and
+   `twr_inspection_support_brief.pack@v1`,
+3. registry catalog/detail queue-policy publication for executable pack versions, while
+   discovery-only versions remain without executable queue posture,
+4. queue-admission preflight after registry/caller/readiness checks and before audit, run-ledger,
+   and task-flow side effects,
+5. per-pack and per-lane active-admission capacity enforcement for explicit
+   `/platform/workflow-packs/execute` and implicit pack-backed `/ai/tasks/execute`,
+6. explicit `queue_lane` selection for `/platform/workflow-packs/execute`, with unsupported lanes
+   rejected before side effects,
+7. bounded `lotus-ai` queue policy and queue status source APIs:
+   `/platform/workflow-packs/queue-policies`,
+   `/platform/workflow-packs/queue-policies/{pack_id}/{version}`,
+   `/platform/workflow-packs/queue-status`, and
+   `/platform/workflow-packs/queue-status/{queue_item_id}`,
+8. queue status payloads that expose active-admission posture, per-lane saturation posture, and
+   queue admission timestamps without raw worker or lock internals,
+9. runtime-status `queue_attention` for source-backed lane saturation and stale active admissions,
+10. degraded readiness behavior for queue policy/status routes when the registry source store is
+    not ready.
+
+Explicitly deferred because source evidence does not yet exist:
+
+1. durable queue-event history,
+2. persisted queued-item lifecycle beyond the current active in-process admission lease,
+3. timeout, cancellation, retry-cluster, and repeated-cancellation heartbeat attention,
+4. gateway publication of queue posture,
+5. Workbench rendering of queue posture.
 
 Unsupported unless explicitly implemented by this RFC:
 
@@ -476,14 +496,18 @@ Minimum implementation proof:
 
 ## Acceptance Criteria
 
+For the first `lotus-ai` source-truth wave:
+
 1. Queue policy is explicit for every executable pack version in scope.
 2. Queue admission cannot bypass registry activation, caller policy, rollout, run-ledger readiness,
    or task-flow readiness where applicable.
 3. Queue state, run state, task-flow state, and review state remain separate in contracts and tests.
-4. Capacity, fairness, timeout, cancellation, retry, rejection, and degraded readiness are tested.
+4. Capacity, explicit lane selection, rejection, stale active admission, saturation, missing policy,
+   unsupported lane, and degraded readiness are tested.
 5. Operator posture explains queue delay or rejection truthfully without leaking internal mechanics.
-6. Heartbeat detects stuck, saturated, repeated-timeout, repeated-cancellation, retry-blocked, and
-   degraded queue posture.
+6. Heartbeat detects source-backed saturated and stale active-admission posture; repeated-timeout,
+   repeated-cancellation, retry-blocked, and durable degraded queue-source attention remain deferred
+   until queue-event history exists.
 7. API certification, OpenAPI examples, vocabulary, no-alias, migration, security, and CI governance
    are satisfied for every implemented served surface.
 8. Supported-features wording is implementation-backed and excludes aspirational features.
@@ -506,17 +530,25 @@ The implementation must not:
 
 ## Open Implementation Decisions
 
-Resolve before implementation closure:
+Resolved for the first `lotus-ai` source-truth wave:
 
-1. first executable pack families in scope,
-2. whether queue policy is embedded in registry records or stored in a separate policy store,
-3. whether queue state is in-memory only for the first slice or migration-backed from the start,
-4. exact source API shape for queue policy and queue status,
-5. whether gateway publication is needed for first-wave operator posture,
-6. whether Workbench needs user-facing queue posture or should defer,
-7. saturation and stale thresholds per lane,
-8. retryable and non-retryable failure vocabulary,
-9. whether a dedicated queue-policy skill is useful after implementation evidence exists.
+1. first executable pack families in scope are the three current Phase-1 executable versions:
+   `advisor_brief.pack@v1`, `workspace_rationale.pack@v1`, and
+   `twr_inspection_support_brief.pack@v1`,
+2. queue policy is a separate declared policy catalog attached to registry catalog/detail posture,
+   not a separate SQL table in this wave,
+3. queue state is current in-process active-admission posture; durable queue-event history is
+   deferred,
+4. source API shape is the four read-only `lotus-ai` routes under
+   `/platform/workflow-packs/queue-policies` and `/platform/workflow-packs/queue-status`,
+5. gateway publication is deferred until an operator or product surface has a concrete supported
+   need,
+6. Workbench rendering is deferred because no banker-facing queue posture is supported yet,
+7. saturation and stale thresholds are policy fields per executable pack version,
+8. retryable and non-retryable failure vocabulary is declared in policy descriptors, but runtime
+   retry execution and retry-cluster attention require durable queue-event history,
+9. a dedicated queue-policy skill is not needed yet; the implementation is still narrow enough to
+   be governed by backend delivery, API certification, pre-merge, and RFC review skills.
 
 ## Pre-Implementation Gold-Standard Review
 
