@@ -17,6 +17,13 @@ CURRENT_IMPLEMENTATION_RFCS = [
     "RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md",
 ]
 
+NEXT_AGENT_RUNTIME_RFCS = [
+    "RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md",
+    "RFC-0096-governed-multi-agent-delegation-model.md",
+    "RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md",
+    "RFC-0098-per-pack-queue-and-concurrency-policy.md",
+]
+
 SECOND_LAST_TERMS = [
     "code review",
     "governance",
@@ -42,6 +49,42 @@ def test_rfc_readme_points_to_closure_governance_standard() -> None:
     assert "second-last" in readme
     assert "final slice" in readme
     assert "legacy rfcs" in readme
+
+
+def test_next_agent_runtime_rfcs_are_ordered_and_closure_governed() -> None:
+    readme = _read(README_PATH)
+    wiki_index = _read(ROOT / "wiki" / "RFC-Index.md")
+    reference_map = _read(ROOT / "context" / "CONTEXT-REFERENCE-MAP.md")
+
+    previous_readme_position = -1
+    previous_wiki_position = -1
+    previous_reference_position = -1
+    for rfc_name in NEXT_AGENT_RUNTIME_RFCS:
+        rfc_id = rfc_name.split("-", 2)[0] + "-" + rfc_name.split("-", 2)[1]
+        text = _read(ROOT / "rfcs" / rfc_name)
+
+        assert "- status: draft" in text, rfc_name
+        assert "## implementation plan" in text, rfc_name
+        assert "## acceptance criteria" in text, rfc_name
+        assert "## initial priority" in text, rfc_name
+        for expected in SECOND_LAST_TERMS:
+            assert expected in text, f"{rfc_name} missing {expected}"
+        for expected in FINAL_SLICE_TERMS:
+            assert expected in text, f"{rfc_name} missing {expected}"
+
+        readme_position = readme.index(rfc_name.lower())
+        wiki_position = wiki_index.index(rfc_id.lower())
+        reference_position = reference_map.index(rfc_id.lower())
+        assert readme_position > previous_readme_position
+        assert wiki_position > previous_wiki_position
+        assert reference_position > previous_reference_position
+        previous_readme_position = readme_position
+        previous_wiki_position = wiki_position
+        previous_reference_position = reference_position
+
+    assert "recommended next implementation order" in readme
+    assert "recommended next implementation order" in wiki_index
+    assert "next draft implementation sequence" in reference_map
 
 
 def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> None:
