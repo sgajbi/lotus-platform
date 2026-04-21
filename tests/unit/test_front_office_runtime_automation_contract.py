@@ -48,8 +48,27 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
         "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp"
         in qa_profile_commands
     )
+    clean_core_profile_commands = {
+        task["command"] for task in profiles["qa-platform-readiness-clean-core"]["tasks"]
+    }
+    assert (
+        "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 "
+        "-BringUp -CleanCoreState -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
+        in clean_core_profile_commands
+    )
+    clean_core_build_profile_commands = {
+        task["command"] for task in profiles["qa-platform-readiness-clean-core-build"]["tasks"]
+    }
+    assert (
+        "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 "
+        "-BringUp -CleanCoreState -BuildImages -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
+        in clean_core_build_profile_commands
+    )
 
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_readme
+    assert "`qa-platform-readiness-clean-core`" in automation_readme
+    assert "`qa-platform-readiness-clean-core-build`" in automation_readme
+    assert "-LotusAiEnvFile .env.example" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 `" in automation_readme
     assert "-ScreenshotDirectory C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots" in automation_readme
     assert "canonical contract identity and version" in automation_readme
@@ -63,6 +82,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Docker cleanup scope" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
     assert "`qa-platform-readiness`" in profile_reference
+    assert "`qa-platform-readiness-clean-core`" in profile_reference
+    assert "`qa-platform-readiness-clean-core-build`" in profile_reference
     assert "Governed front-office runtime bring-up and populated UI proof" in profile_reference
 
 

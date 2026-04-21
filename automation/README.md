@@ -1065,6 +1065,8 @@ Profiles currently defined in `automation/task-profiles.json`:
 - `pr-lifecycle`
 - `platform-alignment`
 - `qa-platform-readiness`
+- `qa-platform-readiness-clean-core`
+- `qa-platform-readiness-clean-core-build`
 - `autonomous-foundation`
 
 New repo included in shared automation:
