@@ -33,6 +33,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Start-Background-Run.ps1`
 - `automation/Check-Background-Runs.ps1`
 - `automation/Summarize-Task-Failures.ps1`
+- `automation/Sync-RepoWikis.ps1`
 - `automation/Bootstrap-Repo-Env.ps1`
 - `automation/Bootstrap-LotusDeveloperEnvironment.ps1`
 - `automation/Validate-LotusDeveloperEnvironment.ps1`
@@ -109,6 +110,30 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 
 `Run-Agent.ps1` now executes five checks per iteration: repo sync, PR monitor, backend standards conformance validation, OpenAPI conformance validation, and domain vocabulary conformance validation.
 It also validates RFC-0068 shared infrastructure ownership on every iteration, emits machine-readable status to `output/agent-status.json`, runs metadata validation every iteration, and performs full coverage + dependency rollup every N iterations (`-FullAuditEvery`, default `5`).
+
+## Wiki Publication
+
+Repo-local `wiki/` directories are the authored source of truth for GitHub wiki publication.
+The `*.wiki.git` repositories are publication targets only.
+
+Before merging wiki-relevant documentation, RFC, context, runbook, or operator-facing changes:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform
+```
+
+PR checks use `-AllowUnpublishedSourceChanges` so branches that intentionally edit `wiki/` can pass
+before publication. That warning is a post-merge publish obligation, not a reason to hand-edit the
+GitHub wiki directly.
+
+After merge, publish the source to the live GitHub wiki:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-RepoWikis.ps1 -Publish -Repository lotus-platform
+```
+
+For coordinated cross-repo sweeps, add `-AllRepositories`. The platform repo check lane enforces
+`-CheckOnly -Repository lotus-platform` so platform wiki drift is visible before PR merge.
 
 ## Domain-Product Discovery
 

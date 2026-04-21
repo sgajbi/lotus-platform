@@ -20,6 +20,7 @@ Canonical source: `lotus-platform/automation`
 12. Need a reusable seeded cross-app attribution scenario: run `Invoke-CrossApp-CorePerformance-Attribution.ps1`.
 13. Need the whole cross-app baseline in one run: run `Invoke-CrossApp-CorePerformance-Baseline.ps1`.
 14. Need to classify the current RFC-0071 local ingress rollout state: run `Explain-Dev-Ingress-Status.ps1`.
+15. Need to verify or publish GitHub wiki content from repo source: run `Sync-RepoWikis.ps1`.
 
 ## Decision Matrix (When To Use What)
 
@@ -34,6 +35,9 @@ Canonical source: `lotus-platform/automation`
 | Full governance sweep | `automation/Start-Background-Run.ps1 -Profile autonomous-foundation -MaxParallel 1` | Deeper standards/governance evidence |
 | Detect stalled checks | `automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20` | Investigate PR check deadlocks |
 | Queue auto-merge + cleanup merged branches | `automation/Close-PR-Loop.ps1` | PR lifecycle automation |
+| Check repo wiki publication drift | `automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>` | Fail when repo-local `wiki/` source differs from the published GitHub wiki and the branch is not intentionally changing `wiki/` |
+| Publish repo wiki after merge | `automation/Sync-RepoWikis.ps1 -Publish -Repository <repo-name>` | Push repo-authored `wiki/` source to the live `*.wiki.git` publication target |
+| Audit or publish all repo wikis | `automation/Sync-RepoWikis.ps1 -CheckOnly -AllRepositories` or `-Publish -AllRepositories` | Coordinated platform-wide wiki source/publication sweeps |
 | Validate automation config integrity | `automation/Validate-Automation-Config.ps1` | Keep repos/profiles/refs consistent |
 | Enforce local-vs-CI scope parity (fail on gap) | `automation/Validate-Local-CI-Parity.ps1` | Prevent PR failures caused by missing local checks |
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |

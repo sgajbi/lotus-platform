@@ -21,6 +21,7 @@ try {
     & $toolingPython automation/validate_platform_validation_coverage.py
     & $toolingPython automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
     & (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -CheckOnly
+    & (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
         & (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")

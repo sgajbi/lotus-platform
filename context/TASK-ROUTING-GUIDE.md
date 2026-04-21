@@ -115,8 +115,10 @@ Operating rule:
 
 1. keep README concise and truthful
 2. keep repo-local `wiki/` as the authored source when a GitHub wiki exists
-3. keep deep technical truth in `docs/`
-4. update `context/` only when the lesson becomes platform-wide guidance
+3. run `lotus-platform/automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>` before
+   merge when wiki-relevant truth changed, then publish with `-Publish` after merge
+4. keep deep technical truth in `docs/`
+5. update `context/` only when the lesson becomes platform-wide guidance
 
 ## Async Execution And Heavy Validation Routing
 

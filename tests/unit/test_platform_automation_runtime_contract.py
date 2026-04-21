@@ -26,6 +26,7 @@ def test_platform_automation_python_runtime_is_locked_and_reused() -> None:
 
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in validation_lane
+    assert "Sync-RepoWikis.ps1" in repo_checks
     assert "python -m pip install pytest requests PyYAML" not in repo_checks
     assert "python -m pip install requests" not in validation_lane
 

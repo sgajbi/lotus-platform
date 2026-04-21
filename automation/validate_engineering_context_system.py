@@ -204,6 +204,7 @@ def validate_engineering_context_system() -> list[str]:
         "Mandatory Reading Order",
         "Mandatory Operating Rules",
         "Context Maintenance Rule",
+        "Wiki Publication Rule",
         "Skills, Automation, And Async Execution",
         "Front-Office Runtime Routing Rule",
     ):
@@ -217,6 +218,10 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
     if "output/background-runs.json" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
+    if "Sync-RepoWikis.ps1" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
+    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
     if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
     for text in (
