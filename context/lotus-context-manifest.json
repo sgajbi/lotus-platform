@@ -380,13 +380,13 @@
       "id": "RFC-0093",
       "title": "Lotus context assembly and compaction hardening for agentic development",
       "status": "active",
-      "implementation_posture": "in progress; contract foundation and context playbook adoption implemented"
+      "implementation_posture": "implemented on active branch; awaiting merge to main"
     },
     {
       "id": "RFC-0094",
       "title": "Durable background engineering task ledger and governed delegation model",
       "status": "active",
-      "implementation_posture": "in progress; contract foundation, background-run ledger state, and context playbook adoption implemented"
+      "implementation_posture": "implemented on active branch; awaiting merge to main"
     }
   ]
 }

@@ -211,6 +211,12 @@ def validate_engineering_context_system() -> list[str]:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
     if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
+    if "engineering_task_id" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
+    if "output/background-runs.json" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
     if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
     for text in (

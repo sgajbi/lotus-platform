@@ -169,9 +169,7 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation, Slice 2 context guidance adoption, Slice 4
-background-run artifact alignment, and targeted skill-routing adoption implemented on the active
-RFC branch**.
+Current status: **Implemented on active branch; awaiting PR merge to `main`**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -181,11 +179,11 @@ RFC-0093 and RFC-0094:
 3. `tests/unit/test_agent_engineering_contracts.py`.
 
 That contract establishes RFC-0093's identifier-preservation, decision-state, and promotion-target
-requirements in machine-readable form. The first context adoption slice adds a governed agent
-context and task-ledger playbook plus context-system validation. The first automation adoption
-slice also makes detached background-run state preserve task identity and evidence references for
-resumed sessions. The targeted skill slice aligns `platform-automation-ops` with the new contract.
-The broader AGENTS, onboarding, wiki, and remaining automation adoption slices remain open.
+requirements in machine-readable form. The context adoption slice adds a governed agent context and
+task-ledger playbook plus context-system validation. The automation adoption slice makes detached
+background-run state preserve task identity and evidence references for resumed sessions. The
+targeted skill slice aligns `platform-automation-ops` with the new contract. The final slice updates
+AGENTS guidance, wiki source, final closure evidence, and branch/PR hygiene.
 
 No implementation slice may mark RFC-0093 as fully implemented until the platform can point to:
 
@@ -635,6 +633,7 @@ Deliverables:
 | `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs async platform automation work to the context/task-ledger playbook and preserves governed task identifiers |
 | `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
 | `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
+| `rfcs/RFC-0093-0094-final-closure-evidence.md` | Implemented on active branch | Records final docs/context/wiki/skills/AGENTS/branch-hygiene decisions and final proof |
 
 ## Validation Posture
 

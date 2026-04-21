@@ -153,8 +153,8 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "partially implemented" in implementation_postures["RFC-0072"]
     assert implementation_postures["RFC-0073"] == "implemented and governed"
     assert implementation_postures["RFC-0074"] == "implemented and governed"
-    assert "in progress" in implementation_postures["RFC-0093"]
-    assert "in progress" in implementation_postures["RFC-0094"]
+    assert "implemented on active branch" in implementation_postures["RFC-0093"]
+    assert "implemented on active branch" in implementation_postures["RFC-0094"]
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -423,6 +423,9 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "Fix-Forward Patterns" in reference_map
     assert "Agent Context And Task Ledger Playbook" in reference_map
     assert "PROCEDURAL-MEMORY-INDEX.md" in agents_contract
+    assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in agents_contract
+    assert "engineering_task_id" in agents_contract
+    assert "output/background-runs.json" in agents_contract
     assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
     assert "output/lotus-skill-alignment-validation.json" in automation_readme
     assert "validate_lotus_skill_alignment.py" in directory_map

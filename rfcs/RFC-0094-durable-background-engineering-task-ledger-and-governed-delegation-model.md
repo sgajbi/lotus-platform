@@ -158,9 +158,7 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation, Slice 3 context/delegation guidance
-adoption, Slice 4 background-run artifact alignment, and targeted skill-routing adoption
-implemented on the active RFC branch**.
+Current status: **Implemented on active branch; awaiting PR merge to `main`**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -174,7 +172,7 @@ delegation requirements in machine-readable form. The first context/delegation a
 a governed playbook plus context-system validation. The first automation adoption slice also aligns
 detached background-run state with governed task identity, lifecycle, evidence, and cleanup
 semantics. The targeted skill slice aligns `platform-automation-ops` with the task-ledger contract.
-The broader reporting, wiki, and branch-hygiene adoption slices remain open.
+The final slice updates AGENTS guidance, wiki source, final closure evidence, and branch/PR hygiene.
 
 No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
 
@@ -670,6 +668,7 @@ Deliverables:
 | `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs detached platform automation to the RFC-0094 contract and lifecycle vocabulary |
 | `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
 | `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
+| `rfcs/RFC-0093-0094-final-closure-evidence.md` | Implemented on active branch | Records final docs/context/wiki/skills/AGENTS/branch-hygiene decisions and final proof |
 
 ## Risks and Mitigations
 
