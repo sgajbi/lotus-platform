@@ -56,6 +56,12 @@ def _heartbeat_run_id(generated_at_utc: str) -> str:
 def _validate_generated_at_utc(generated_at_utc: str) -> None:
     if not generated_at_utc.endswith("Z"):
         raise ValueError("generated_at_utc must be an RFC-3339 UTC string ending with Z")
+    try:
+        datetime.fromisoformat(f"{generated_at_utc[:-1]}+00:00")
+    except ValueError:
+        raise ValueError("generated_at_utc must be an RFC-3339 UTC string ending with Z")
+    if generated_at_utc != generated_at_utc.strip():
+        raise ValueError("generated_at_utc must be an RFC-3339 UTC string ending with Z")
 
 
 def _git_branch(root: Path = ROOT) -> str:
@@ -70,7 +76,6 @@ def _git_branch(root: Path = ROOT) -> str:
     except (FileNotFoundError, subprocess.CalledProcessError):
         return "unknown"
     return result.stdout.strip() or "unknown"
-
 
 
 def _task_ledger_metadata(
