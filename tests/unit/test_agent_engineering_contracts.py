@@ -57,6 +57,9 @@ def test_agent_engineering_contract_captures_task_ledger_authority_and_lifecycle
     }
     assert "GITHUB_CHECK_MONITOR" in contract["task_kinds"]
     assert "MERGE_CLEANUP_WATCHER" in contract["task_kinds"]
+    assert "DELEGATED_VALIDATION" in contract["task_kinds"]
+    assert "DELEGATED_DOCUMENTATION" in contract["task_kinds"]
+    assert "DELEGATED_CI_TRIAGE" in contract["task_kinds"]
     assert "evidence_refs" in contract["required_metadata_fields"]
     assert "cleanup_state" in contract["required_metadata_fields"]
 
