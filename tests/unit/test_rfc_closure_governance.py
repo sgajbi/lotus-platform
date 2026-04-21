@@ -182,6 +182,48 @@ def test_rfc_0096_preserves_delegation_gold_standard_contract() -> None:
         assert expected in text
 
 
+def test_rfc_0097_preserves_task_flow_gold_standard_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md"
+    )
+
+    for expected in [
+        "- status: draft",
+        "source truth stays layered",
+        "flow state, run state, and review state remain separate",
+        "checkpoint evidence is durable",
+        "replacement lineage is explicit",
+        "bounded transitions only",
+        "domain handoff is explicit",
+        "degraded is not green",
+        "minimum contract fields",
+        "`task_flow_id`",
+        "`workflow_pack_id`",
+        "`run_refs`",
+        "`review_refs`",
+        "`replacement_lineage`",
+        "transition rules",
+        "cross-repo boundary rules",
+        "`lotus-ai` owns task-flow contracts",
+        "`lotus-gateway` owns external api shape",
+        "`lotus-workbench` consumes gateway/bff apis only",
+        "api certification pattern",
+        "openapi schema and example accuracy",
+        "heartbeat and operational attention",
+        "stale active flows",
+        "replacement-lineage inconsistencies",
+        "slice 7: code review, api certification, and governance tightening",
+        "slice 8: documentation, context, wiki, skills, and branch hygiene",
+        "required final-slice decisions",
+        "implementation boundaries",
+        "open implementation decisions",
+        "pre-implementation gold-standard review",
+        "skills: no change yet",
+        "wiki: no publication required",
+    ]:
+        assert expected in text
+
+
 def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> None:
     standard = _read(STANDARD_PATH)
 
