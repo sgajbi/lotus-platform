@@ -65,7 +65,7 @@ Reviewed the active RFC-0093/RFC-0094 implementation branch across:
 | GitHub remains CI truth | RFC-0094 authority language and skill guidance preserve GitHub Actions as check source of truth. |
 | Local automation remains local-run truth | `output/background-runs.json` is explicitly local automation evidence, refreshed by platform scripts. |
 | Hidden second source of truth | No new hidden memory store was introduced; durable knowledge lands in contracts, context, skills, docs, or RFC evidence. |
-| Branch and PR hygiene | Draft PR `#163` is open and checks are being monitored asynchronously. |
+| Branch and PR hygiene | PR `#163` was later marked ready, merged to `main`, and cleaned up in the final closure slice. |
 
 ## Validation Evidence
 
@@ -98,11 +98,11 @@ Observed result before this evidence file was added:
 
 GitHub PR checks for PR `#163` were also monitored asynchronously. At the Slice 6 review point,
 earlier runs were green and the latest pushed run was still pending on the longer platform contract
-and mesh certification jobs.
+and mesh certification jobs. The final closure slice later confirmed green checks before merge.
 
 ## Remaining Before Closure
 
-The final slice must still:
+The final slice later completed these items:
 
 1. update final RFC status from in-progress to implemented only if final proof remains green,
 2. update wiki source if operator guidance changed enough to require publication,

@@ -4,7 +4,7 @@
   "owner": "lotus-platform",
   "source_rfc": "RFC-0094",
   "related_rfc": "RFC-0093",
-  "status": "draft",
+  "status": "active",
   "authority": {
     "github_actions": "GitHub remains the source of truth for GitHub check status.",
     "local_automation": "Local platform automation artifacts remain the source of truth for locally launched background runs.",
