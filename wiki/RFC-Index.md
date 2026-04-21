@@ -34,6 +34,25 @@
   context assembly, compaction, and durable promotion rules for agentic development
 - [RFC-0094](../rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md)
   background engineering task ledger, lifecycle, evidence, and delegation governance
+- [RFC-0095](../rfcs/RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md)
+  heartbeat-driven monitoring and deduplicated attention surfacing
+- [RFC-0096](../rfcs/RFC-0096-governed-multi-agent-delegation-model.md)
+  governed multi-agent delegation profiles, evidence, and review discipline
+- [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
+  task-flow runtime for long-running workflow packs
+- [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
+  per-pack queue, lane, timeout, and concurrency policy
+
+## Recommended next implementation order
+
+1. `RFC-0095`
+   Establish heartbeat visibility before more long-running work expands.
+2. `RFC-0096`
+   Make delegated work bounded, observable, and evidence-bearing.
+3. `RFC-0097`
+   Add multi-step workflow-pack runtime support after monitoring and delegation governance are in place.
+4. `RFC-0098`
+   Add explicit queue and concurrency policy as task-flow capacity needs become concrete.
 
 ## Local meaning
 
@@ -64,3 +83,6 @@
   promotion decisions for long-running agentic development work.
 - RFC-0094 governs detached engineering task identity, lifecycle states, local automation evidence,
   bounded delegation, and the separation between GitHub check truth and local background-run truth.
+- RFC-0095 through RFC-0098 are draft implementation RFCs. They are ordered so monitoring lands
+  before expanded delegation, delegation governance lands before multi-step workflow-pack runtime,
+  and queue/concurrency policy lands when task-flow capacity needs are concrete.
