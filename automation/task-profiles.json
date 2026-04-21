@@ -625,6 +625,17 @@
       ]
     },
     {
+      "name": "qa-platform-readiness-clean-core-build",
+      "description": "Rebuild local service images, reset lotus-core state, and validate governed canonical front-office surfaces",
+      "tasks": [
+        {
+          "id": "qa-platform-readiness-clean-core-build",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -SeedWaitSeconds 1200"
+        }
+      ]
+    },
+    {
       "name": "autonomous-foundation",
       "description": "Autonomous foundation governance sweep with machine-readable evidence artifacts",
       "tasks": [
