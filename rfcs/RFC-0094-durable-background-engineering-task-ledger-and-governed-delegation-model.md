@@ -669,6 +669,7 @@ Deliverables:
 | `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0094 playbook is registered in procedural memory and central engineering context |
 | `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs detached platform automation to the RFC-0094 contract and lifecycle vocabulary |
 | `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
+| `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
 
 ## Risks and Mitigations
 
@@ -716,12 +717,19 @@ The platform should prefer governed prose rather than brittle automation for:
 
 ## Open Questions
 
-1. How much of the task-ledger contract should be materialized in existing `output/*.json` artifacts
-   versus new dedicated summary files?
-2. Which delegated-work patterns should be platform-standard first:
-   documentation, validation, code implementation, or review support?
-3. Should `Close-PR-Loop.ps1` and similar automation become the first concrete task-ledger
-   consumers under this RFC?
+Resolved by the active implementation branch:
+
+1. The first concrete task-ledger materialization is the existing
+   `output/background-runs.json` local automation state file, not a separate summary file.
+2. The first platform-standard delegated-work guidance is bounded task design with explicit
+   read/write scope, changed-file return, and outcome-summary return.
+3. `Close-PR-Loop.ps1` is not the first task-ledger consumer. It remains governed by GitHub PR and
+   check truth until repeated evidence shows it needs task-ledger fields.
+
+Remaining open question:
+
+1. Which additional automation surfaces should adopt the task-ledger shape after background-run
+   evidence proves the model over time?
 
 ## Acceptance Criteria
 

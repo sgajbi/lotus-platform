@@ -634,6 +634,7 @@ Deliverables:
 | `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0093/RFC-0094 playbook is registered in procedural memory and central engineering context |
 | `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs async platform automation work to the context/task-ledger playbook and preserves governed task identifiers |
 | `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
+| `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
 
 ## Validation Posture
 
@@ -681,11 +682,20 @@ Mitigation:
 
 ## Open Questions
 
-1. Which parts of the compaction and promotion model can be validated automatically now, and which
-   should remain governed guidance first?
-2. Should Lotus introduce a dedicated procedural-memory artifact for agentic development programs, or
-   is the current context plus skill system sufficient once hardened?
-3. Which skills should become the first required consumers of these rules after approval?
+Resolved by the active implementation branch:
+
+1. Lotus now has a dedicated procedural-memory artifact for agentic context and task-ledger work:
+   `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md`.
+2. The first required skill consumer is `platform-automation-ops`, because it directly owns
+   detached local automation launched through `Start-Background-Run.ps1`.
+3. The first executable validation targets are contract shape, required context/playbook
+   registration, skill routing, and background-run state shape. Nuanced compaction quality remains
+   governed guidance rather than brittle automation.
+
+Remaining open question:
+
+1. Which additional skills should become required consumers after repeated evidence shows the
+   context-preservation rules are used outside async platform automation?
 
 ## Acceptance Criteria
 
