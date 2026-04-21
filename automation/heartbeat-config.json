@@ -27,6 +27,9 @@
     },
     "mesh_certification": {
       "operating_report_path": "output/mesh-certification/enterprise-mesh-operating-report.json"
+    },
+    "lotus_ai": {
+      "runtime_status_path": "../lotus-ai/output/workflow-pack-runtime-status.json"
     }
   },
   "thresholds": {

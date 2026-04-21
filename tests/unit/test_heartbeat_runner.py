@@ -370,3 +370,187 @@ def test_mesh_certification_adapter_reports_stale_blocked_operating_report(
         "mesh_certification_attention",
     }
     assert any(item["severity"] == "blocking" for item in status["attention_items"])
+
+
+def test_lotus_ai_adapter_reports_review_backlog_without_collapsing_run_states(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    runtime_status = tmp_path / "workflow-pack-runtime-status.json"
+    runtime_status.write_text(
+        json.dumps(
+            {
+                "workflow_pack_runtime": {
+                    "run_summary": {
+                        "run_count": 2,
+                        "awaiting_review_count": 1,
+                        "failed_count": 1,
+                        "expired_count": 0,
+                        "action_required_count": 2,
+                        "status_summary": [
+                            "Run-ledger-backed activity posture is available."
+                        ],
+                    },
+                    "attention_queue": {
+                        "queue_depth": 2,
+                        "queue_limit": 5,
+                        "items": [
+                            {
+                                "run_id": "run-awaiting",
+                                "registration_ref": "advisor_brief.pack@v1",
+                                "pack_id": "advisor_brief.pack",
+                                "workflow_authority_owner": "lotus-advise",
+                                "review_state": "AWAITING_REVIEW",
+                                "runtime_state": "COMPLETED",
+                                "supportability_status": "ACTION_REQUIRED",
+                                "created_at": "2026-04-19T00:00:00Z",
+                            },
+                            {
+                                "run_id": "run-failed",
+                                "registration_ref": "advisor_brief.pack@v1",
+                                "pack_id": "advisor_brief.pack",
+                                "workflow_authority_owner": "lotus-advise",
+                                "review_state": "AWAITING_REVIEW",
+                                "runtime_state": "FAILED",
+                                "supportability_status": "ACTION_REQUIRED",
+                                "created_at": "2026-04-21T00:00:00Z",
+                            },
+                        ],
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["lotus_ai"],
+        source_config={"lotus_ai": {"runtime_status_path": str(runtime_status)}},
+        thresholds={"stale_workflow_pack_review_hours": 24},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    conditions = {item["condition"] for item in status["attention_items"]}
+    assert "workflow_pack_attention_queue_backlog" in conditions
+    assert "workflow_pack_action_required_runs" in conditions
+    assert "workflow_pack_failed_runs" in conditions
+    assert "workflow_pack_run_action_required" in conditions
+    assert "workflow_pack_review_stale" in conditions
+    assert "workflow_pack_run_terminal_failure" in conditions
+    run_items = [
+        item
+        for item in status["attention_items"]
+        if item["source_ref"] == "workflow_pack_run:run-awaiting"
+    ]
+    assert all(item["run_id"] == "run-awaiting" for item in run_items)
+    assert all(item["workflow_pack_id"] == "advisor_brief.pack" for item in run_items)
+    assert any(ref["type"] == "WORKFLOW_PACK_RUN" for ref in run_items[0]["evidence_refs"])
+
+
+def test_lotus_ai_adapter_flags_superseded_runs_that_are_not_historical(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    runtime_status = tmp_path / "workflow-pack-runtime-status.json"
+    runtime_status.write_text(
+        json.dumps(
+            {
+                "workflow_pack_runtime": {
+                    "run_summary": {
+                        "run_count": 1,
+                        "awaiting_review_count": 0,
+                        "failed_count": 0,
+                        "expired_count": 0,
+                        "action_required_count": 1,
+                    },
+                    "attention_queue": {
+                        "queue_depth": 1,
+                        "queue_limit": 5,
+                        "items": [
+                            {
+                                "run_id": "run-superseded",
+                                "registration_ref": "advisor_brief.pack@v1",
+                                "pack_id": "advisor_brief.pack",
+                                "workflow_authority_owner": "lotus-ai",
+                                "review_state": "SUPERSEDED",
+                                "runtime_state": "SUPERSEDED",
+                                "supportability_status": "READY",
+                                "created_at": GENERATED_AT_UTC,
+                            }
+                        ],
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["lotus_ai"],
+        source_config={"lotus_ai": {"runtime_status_path": str(runtime_status)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert "workflow_pack_lineage_conflict" in {
+        item["condition"] for item in status["attention_items"]
+    }
+
+
+def test_lotus_ai_adapter_reports_runtime_readiness_degradation(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    runtime_status = tmp_path / "workflow-pack-runtime-status.json"
+    runtime_status.write_text(
+        json.dumps(
+            {
+                "workflow_pack_runtime": {
+                    "run_summary": {
+                        "run_count": 0,
+                        "awaiting_review_count": 0,
+                        "failed_count": 0,
+                        "expired_count": 0,
+                        "action_required_count": 0,
+                        "status_summary": [
+                            "Workflow-pack run posture summary is unavailable until the configured run ledger store is ready.",
+                            "Current workflow-pack run store status is `DEGRADED`.",
+                        ],
+                    },
+                    "attention_queue": {
+                        "queue_depth": 0,
+                        "queue_limit": 5,
+                        "items": [],
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["lotus_ai"],
+        source_config={"lotus_ai": {"runtime_status_path": str(runtime_status)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["source_inventory"][0]["read_status"] == "degraded"
+    assert status["attention_items"][0]["condition"] == "workflow_pack_runtime_degraded"

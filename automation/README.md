@@ -222,8 +222,10 @@ The default configuration is read-only and advisory. It enables local artifact-b
 
 GitHub PR monitor and wiki publication adapters are implemented but not enabled by default because
 they require explicit upstream evidence (`output/pr-monitor.json` and `output/wiki-sync-status.json`)
-from their owning automation. Missing, malformed, stale, degraded, or failed evidence produces
-attention items rather than a false healthy posture.
+from their owning automation. The `lotus_ai` workflow-pack adapter is also implemented but not
+enabled by default until a governed runtime-status artifact or API capture is provided at the
+configured path. Missing, malformed, stale, degraded, or failed evidence produces attention items
+rather than a false healthy posture.
 
 Generate trust certification evidence for the generated catalog and dependency graph:
 

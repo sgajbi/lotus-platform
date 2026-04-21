@@ -325,6 +325,8 @@ Review evidence:
 
 ### Slice 4: Workflow-Pack Attention Inputs
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 Add bounded workflow-pack checks for:
 
 1. failed or degraded run ledger posture,
@@ -344,6 +346,26 @@ Review gate:
 2. verify gateway/workbench are not treated as source of ledger truth,
 3. add contract tests against representative run/review states.
 4. verify replacement-lineage, expired, superseded, and degraded states remain distinguishable.
+
+Review evidence:
+
+1. `automation/heartbeat_sources.py` implements the `lotus_ai` source adapter against a bounded
+   workflow-pack runtime-status artifact shape. It accepts either a full platform runtime-status
+   payload containing `workflow_pack_runtime` or the nested workflow-pack runtime summary directly.
+2. The adapter reads `run_summary` and `attention_queue` without treating gateway or Workbench as
+   workflow-pack ledger truth.
+3. The adapter keeps runtime, review, supportability, and lineage posture distinct:
+   - failed and expired runtime counts become terminal-runtime attention,
+   - `AWAITING_REVIEW` queue items can become stale-review attention based on configured age,
+   - `ACTION_REQUIRED` supportability remains separate from runtime failure,
+   - superseded or revised runs that are not `HISTORICAL` become lineage-conflict attention,
+   - readiness-degraded status summaries become runtime-degraded attention.
+4. Attention items preserve `run_id`, `workflow_pack_id`, `workflow_authority_owner`, and
+   `WORKFLOW_PACK_RUN` evidence refs when item-level run evidence exists.
+5. The adapter is not enabled by default because `lotus-platform` does not own live `lotus-ai`
+   runtime truth; callers must provide an explicit governed artifact/API capture path.
+6. Focused tests prove review backlog, terminal failure, stale review, superseded-not-historical
+   lineage conflict, and run-ledger readiness degradation behavior.
 
 ### Slice 5: Operator Output And Deduplication
 
