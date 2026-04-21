@@ -155,6 +155,8 @@ def test_delegation_policy_contract_captures_rfc0096_governance() -> None:
     assert "do_everything" in policy["disallowed_profiles"]
     assert "delegation_task_id" in policy["required_input_fields"]
     assert "unrelated_work_preserved" in policy["required_output_fields"]
+    assert "TEST_COMMAND" in policy["required_evidence_ref_types"]
+    assert "GITHUB_ACTIONS_RUN" in policy["required_evidence_ref_types"]
     assert set(policy["main_agent_review_statuses"]) == {
         "PENDING",
         "ACCEPTED",

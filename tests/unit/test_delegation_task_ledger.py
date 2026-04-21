@@ -295,6 +295,25 @@ def test_delegation_output_rejects_no_write_changes() -> None:
     assert "no-write delegated work must not return changed files" in errors
 
 
+def test_delegation_output_rejects_malformed_evidence_refs() -> None:
+    ledger = _load_module()
+    output = _valid_implementation_output()
+    output["evidence_refs"] = [
+        {"type": "CHAT_MEMORY", "ref": "not-durable"},
+        {"type": "TEST_COMMAND"},
+        "not-an-object",
+    ]
+
+    errors = ledger.validate_delegation_output(
+        output,
+        write_scope=["automation/delegation_task_ledger.py"],
+    )
+
+    assert "delegation output evidence_refs[0].type must be governed" in errors
+    assert "delegation output evidence_refs[1] must include ref or path" in errors
+    assert "delegation output evidence_refs[2] must be an object" in errors
+
+
 def test_record_delegation_return_requires_main_agent_review(tmp_path: Path) -> None:
     ledger = _load_module()
     ledger_path = tmp_path / "delegated-tasks.json"
@@ -347,6 +366,7 @@ def test_main_agent_review_accepts_returned_delegation_output(tmp_path: Path) ->
 
     assert reviewed["status"] == "SUCCEEDED"
     assert reviewed["scope"]["main_agent_review_status"] == "ACCEPTED"
+    assert reviewed["error_summary"] is None
     assert reviewed["ended_at"] == "2026-04-21T01:15:00Z"
     assert reviewed["main_agent_review"]["review_summary"] == (
         "Diff reviewed and focused tests passed."
