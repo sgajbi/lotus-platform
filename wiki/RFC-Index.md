@@ -45,15 +45,14 @@
 - [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth wave is in implementation
+  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth wave is merged and proven, with durable queue-event history still future work
 
 ## Recommended next implementation order
 
-1. `RFC-0097`
-   Add multi-step workflow-pack runtime support after monitoring and delegation governance are in place.
-2. `RFC-0098`
-   Finish hardening the first `lotus-ai` queue policy wave, then decide whether durable
-   queue-event history or downstream gateway publication is required before closure.
+1. `RFC-0098`
+   Implement durable queue-event history and persisted queue lifecycle in `lotus-ai`; keep
+   gateway and Workbench adoption deferred until a supported operator or product surface needs
+   bounded queue posture.
 
 ## Local meaning
 
@@ -92,5 +91,6 @@
 - RFC-0097 is implemented for the first-wave advisor-brief task-flow runtime across `lotus-ai`,
   `lotus-gateway`, and `lotus-workbench`, with clean-core live proof recorded and repo wikis
   published.
-- RFC-0098 is in implementation for first-wave `lotus-ai` queue policy, admission,
-  source API, and queue-attention posture.
+- RFC-0098 is partially implemented: first-wave `lotus-ai` queue policy, admission, source API,
+  and queue-attention posture are merged and proven; durable queue-event history remains future
+  work.

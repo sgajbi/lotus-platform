@@ -1,6 +1,6 @@
 # RFC-0098: Per-Pack Queue And Concurrency Policy
 
-- Status: In Implementation
+- Status: Partially Implemented
 - Date: 2026-04-21
 - Owners:
   - `lotus-ai` runtime owners
@@ -74,8 +74,8 @@ tasks. Without explicit queue policy:
 
 The supported-features list is implementation-backed and must not include aspirational posture.
 
-Implemented in the first `lotus-ai` source-truth wave on
-`feature/rfc0098-queue-policy-contract`:
+Implemented in the first `lotus-ai` source-truth wave merged through
+`sgajbi/lotus-ai#46`:
 
 1. finite queue lane vocabulary and validation,
 2. queue policy descriptors for all current executable Phase-1 workflow-pack versions:
@@ -580,7 +580,60 @@ Documentation, context, wiki, and skills decision for this pre-implementation pa
 5. Wiki: no publication required for this pre-implementation tightening because operator-facing
    behavior has not changed yet.
 
-## Initial Priority
+## Post-Merge Implementation Review
 
-Implement next. RFC-0097 is implemented, so explicit per-pack queue and concurrency policy is the
-next governed workflow-pack runtime control before broader long-running pack families expand.
+Reviewed again on 2026-04-21 after the first `lotus-ai` source-truth wave was merged and published.
+
+Implementation evidence:
+
+1. `sgajbi/lotus-ai#46` merged the first-wave source contracts, policy catalog, registry posture,
+   queue-admission checks, read-only source APIs, runtime-status queue attention, docs, wiki source,
+   and repo-local context updates.
+2. `sgajbi/lotus-platform#179` merged the RFC and index posture update for this first wave.
+3. `lotus-ai` GitHub CI passed Feature Lane lint/typecheck/unit, PR Merge Gate lint/typecheck,
+   unit, integration, e2e, runtime-mode smoke, combined coverage, and Docker build validation.
+4. `lotus-platform` GitHub CI passed Cross-App Vocabulary Gate, Feature Lane workflow/contracts, and
+   PR Merge Gate workflow/contracts.
+5. Repo-authored wiki source was published after merge for `lotus-ai` and `lotus-platform`, and
+   `Sync-RepoWikis.ps1 -CheckOnly` reported no publication drift for those changed repos.
+
+Review findings:
+
+1. The first `lotus-ai` source-truth wave satisfies the first-wave acceptance criteria: executable
+   Phase-1 pack versions have explicit bounded queue policies; queue admission happens after
+   registry/caller/readiness checks and before audit, run-ledger, or task-flow side effects; queue
+   posture remains separate from run, review, and task-flow state; and source APIs expose bounded
+   operator posture without worker internals.
+2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
+3. The full RFC remains partially implemented, not complete, because durable queue-event history,
+   persisted queued-item lifecycle, runtime timeout/cancellation/retry execution, repeated
+   timeout/cancellation/retry-cluster heartbeat attention, and any downstream gateway or Workbench
+   queue posture are intentionally deferred.
+
+Additional slices needed for full RFC completion:
+
+1. durable queue-event history and persisted queued-item lifecycle in `lotus-ai`,
+2. timeout, cancellation, retry, replay, and terminal queue-state execution semantics backed by
+   durable evidence,
+3. RFC-0095 heartbeat expansion for repeated timeout, cancellation, retry-blocked, and durable
+   degraded queue-source attention,
+4. optional `lotus-gateway` publication only when an operator or product contract needs bounded
+   queue posture,
+5. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
+6. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
+   are proven.
+
+Skills, guidance, documentation, and context decision:
+
+1. Existing backend delivery, API certification, pre-merge, RFC review, async-task, and platform
+   automation guidance is sufficient for the first wave.
+2. A dedicated queue-policy skill is still not justified; create one only after durable queue-event
+   history introduces repeatable operational commands, investigation patterns, and validation
+   artifacts that are broader than ordinary backend delivery governance.
+3. No `AGENTS.md` change is needed for this review because the operating model did not change.
+
+## Current Priority
+
+Keep RFC-0098 open as partially implemented. The next high-value implementation slice is durable
+queue-event history in `lotus-ai`; gateway or Workbench adoption should remain deferred until a
+supported operator or product surface needs it.
