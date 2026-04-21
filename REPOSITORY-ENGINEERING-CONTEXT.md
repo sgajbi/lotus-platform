@@ -172,6 +172,15 @@ Boundary rules:
 32. The final durable mesh handoff is `docs/operations/enterprise-mesh-completion-handoff.md`.
     The machine-readable closure ledger is `generated/enterprise-mesh-closure-ledger.json`, and
     the published wiki landing page is `wiki/Enterprise-Mesh-Status.md`.
+33. RFC-0095 is implemented for first-wave heartbeat-driven monitoring and attention surfacing.
+    `automation/Run-Heartbeat.ps1` and `automation/run_heartbeat.py` generate advisory derived
+    heartbeat artifacts under `output/heartbeat/`; `automation/heartbeat_sources.py` consumes
+    configured source artifacts for GitHub PR monitor, RFC-0094 background-run ledger, wiki
+    publication posture, agent-context validation, enterprise mesh operating posture, and bounded
+    `lotus-ai` workflow-pack runtime status; `automation/heartbeat_state.py` preserves first-seen
+    posture and explicit non-blocking suppressions. `automation/validate_heartbeat_contracts.py`
+    certifies the contract, examples, runner config, and suppression policy in the platform repo
+    check lane. Heartbeat output remains advisory and does not replace source truth.
 
 ## Repo-Native Commands
 

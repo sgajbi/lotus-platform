@@ -1,6 +1,6 @@
 # RFC-0095: Heartbeat-Driven Monitoring And Attention Surfacing
 
-- Status: Draft
+- Status: Implemented
 - Date: 2026-04-21
 - Owners:
   - lotus-platform governance
@@ -443,6 +443,8 @@ Review evidence:
 
 ### Slice 7: Documentation, Context, Wiki, Skills, And Branch Hygiene
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 Final mandatory slice.
 
 1. Update runbooks and automation docs.
@@ -459,6 +461,30 @@ Final mandatory slice.
    - record `no change` only with rationale.
 8. Record whether wiki updates were required. If no wiki page changed, state that operator-facing
    truth did not change enough to require publication.
+
+Review evidence:
+
+1. Documentation updated:
+   - `automation/README.md`
+   - `automation/docs/Directory-Map.md`
+   - `platform-contracts/heartbeat/README.md`
+   - `rfcs/README.md`
+2. Central context updated:
+   - `context/LOTUS-ENGINEERING-CONTEXT.md`
+   - `context/LOTUS-SKILL-ROUTING-MAP.md`
+   - `REPOSITORY-ENGINEERING-CONTEXT.md`
+3. Wiki source updated because operator-facing heartbeat behavior changed:
+   - `wiki/RFC-Index.md`
+   - `wiki/Operations-Runbook.md`
+4. Skill guidance updated:
+   - `codex/skills/platform-automation-ops/SKILL.md`
+5. Durable skill decision: update `platform-automation-ops`; do not create a new heartbeat skill.
+   Heartbeat is an automation evidence flow under the existing platform automation skill.
+6. Branch-hygiene decision: heartbeat output remains ignored derived evidence under `output/`; no
+   generated heartbeat artifacts are committed.
+7. Final implementation posture: RFC-0095 is implemented for first-wave advisory heartbeat
+   monitoring and attention surfacing. It is not a banker-facing alerting system, not a source of
+   truth, and not a PR-blocking generated heartbeat gate.
 
 ## Test Plan
 
@@ -546,12 +572,13 @@ Tightening applied:
 Documentation, context, wiki, and skills decision for this pre-implementation pass:
 
 1. RFC document: updated because implementation requirements were too implicit.
-2. Repo index and wiki index: no change; RFC-0095 was already listed as draft in the correct order,
-   and the operator-facing index truth did not change.
-3. Central agent context: no change; heartbeat is still unimplemented, so operating guidance should
-   not instruct agents to run it yet.
-4. Skills: no change; implementation should first try to extend `platform-automation-ops` or
-   `platform-pulse-monitor` in the final slice if heartbeat operation becomes routine.
+2. Repo index and wiki index: updated in the final implementation slice once heartbeat became a
+   real advisory platform automation path.
+3. Central agent context: updated in the final implementation slice so agents know when heartbeat
+   output is useful and that it remains derived advisory evidence.
+4. Skills: `platform-automation-ops` was updated in the final implementation slice. No new
+   heartbeat-specific skill was created because the workflow remains a platform automation evidence
+   flow.
 
 ## Initial Priority
 

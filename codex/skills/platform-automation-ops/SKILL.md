@@ -61,6 +61,10 @@ powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -Project
 
 Read and summarize:
 - `output/background-runs.json`
+- `output/heartbeat/heartbeat-status.json`
+- `output/heartbeat/heartbeat-status.md`
+- `output/heartbeat/heartbeat-issues.json`
+- `output/heartbeat/heartbeat-state.json`
 - `output/task-runs/*.json`
 - `output/task-runs/*.md`
 - `output/task-runs/*.out.log`
@@ -75,6 +79,27 @@ For `output/background-runs.json`, report the governed lifecycle status without 
 
 Treat `LOST` as an operational finding that needs cleanup or rerun evidence. GitHub Actions remains
 the source of truth for GitHub check status; the background-run ledger is local automation evidence.
+
+## Generate Heartbeat Attention Artifacts
+
+Use this for an advisory RFC-0095 attention snapshot across configured local evidence sources:
+
+```powershell
+cd <lotus-platform>
+powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
+```
+
+Use deterministic metadata when preserving proof in an RFC, PR, or handoff:
+
+```powershell
+cd <lotus-platform>
+powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1 -GeneratedAtUtc 2026-04-21T00:00:00Z -Branch <branch>
+```
+
+Heartbeat output is derived advisory evidence. It does not replace GitHub, the RFC-0094
+background-run ledger, mesh certification, wiki source, context validators, or `lotus-ai`
+workflow-pack runtime APIs as source truth. Suppressed items remain visible; blocking findings are
+not suppressible.
 
 ## Close PR Loop
 
@@ -102,6 +127,7 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
   - `automation/README.md`
   - `Local Development Runbook.md`
   - this skill reference file if command flow changed
+  - heartbeat context/wiki guidance when RFC-0095 operator behavior changes
 - Do not summarize detached work from chat memory alone when a task-ledger or GitHub evidence source
   exists.
 

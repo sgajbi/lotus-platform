@@ -18,7 +18,6 @@ CURRENT_IMPLEMENTATION_RFCS = [
 ]
 
 NEXT_AGENT_RUNTIME_RFCS = [
-    "RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md",
     "RFC-0096-governed-multi-agent-delegation-model.md",
     "RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md",
     "RFC-0098-per-pack-queue-and-concurrency-policy.md",
@@ -63,7 +62,10 @@ def test_next_agent_runtime_rfcs_are_ordered_and_closure_governed() -> None:
         rfc_id = rfc_name.split("-", 2)[0] + "-" + rfc_name.split("-", 2)[1]
         text = _read(ROOT / "rfcs" / rfc_name)
 
-        assert "- status: draft" in text, rfc_name
+        if rfc_id == "RFC-0095":
+            assert "- status: implemented" in text, rfc_name
+        else:
+            assert "- status: draft" in text, rfc_name
         assert "## implementation plan" in text, rfc_name
         assert "## acceptance criteria" in text, rfc_name
         assert "## initial priority" in text, rfc_name
@@ -118,9 +120,9 @@ def test_rfc_0095_preserves_heartbeat_gold_standard_contract() -> None:
         "open implementation decisions",
         "advisory or becomes gate-affecting",
         "pre-implementation gold-standard review",
-        "repo index and wiki index: no change",
-        "central agent context: no change",
-        "skills: no change",
+            "repo index and wiki index: updated",
+            "central agent context: updated",
+            "platform-automation-ops",
     ]:
         assert expected in text
 
