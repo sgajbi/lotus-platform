@@ -136,12 +136,12 @@ Reference baseline:
 - `RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md` (implemented; advisory heartbeat contract, runner, source adapters, workflow-pack attention adapter, deduplication, suppression, validator coverage, docs/context/wiki/skills review complete)
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
 - `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (implemented; first-wave advisor-brief task-flow runtime, gateway posture, Workbench rendering, clean-core live proof, wiki publication, and branch hygiene complete)
-- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (partially implemented; first `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, durable queue-event history, terminal timeout/cancellation posture, and retry/replay recovery-decision posture waves are implemented; retry/replay execution, repeated-failure clustering, and optional downstream publication remain future work)
+- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (partially implemented; first `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, and repeated-failure cluster attention waves are implemented; retry/replay execution and optional downstream publication remain future work)
 
 ## Recommended Next Implementation Order
 
 1. `RFC-0098-per-pack-queue-and-concurrency-policy.md`
-   Implement retry/replay execution or repeated-failure clustering in `lotus-ai`; keep gateway and Workbench adoption deferred until a supported operator or product surface needs bounded queue posture.
+   Implement retry/replay execution or persisted queued-item lifecycle in `lotus-ai`; keep gateway and Workbench adoption deferred until a supported operator or product surface needs bounded queue posture.
 
 ## RFC Closure Governance
 
