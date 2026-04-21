@@ -1,0 +1,21 @@
+{
+  "delegation_task_id": "delegation-invalid-broad",
+  "parent_task_id": "rfc-0096-slice-1",
+  "profile": "do_everything",
+  "repository": "lotus-platform",
+  "branch": "feature/rfc0096-delegation-implementation",
+  "problem_statement": "Fix anything related to delegation.",
+  "expected_output": "Make it work.",
+  "read_scope": [
+    "."
+  ],
+  "write_scope": [
+    "."
+  ],
+  "forbidden_actions": [
+    "no_pr_merge"
+  ],
+  "evidence_requirements": [],
+  "coordination_notes": "",
+  "return_envelope": []
+}

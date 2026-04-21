@@ -1,0 +1,41 @@
+{
+  "delegation_task_id": "delegation-rfc0096-slice1-validator",
+  "parent_task_id": "rfc-0096-slice-1",
+  "profile": "implementation",
+  "repository": "lotus-platform",
+  "branch": "feature/rfc0096-delegation-implementation",
+  "problem_statement": "Implement focused validation for the RFC-0096 delegation policy contract.",
+  "expected_output": "Edit only the validator and tests, then return changed files and proof commands.",
+  "read_scope": [
+    "automation/validate_agent_engineering_contracts.py",
+    "tests/unit/test_agent_engineering_contracts.py",
+    "platform-contracts/agent-engineering/delegation-policy-contract.v1.json"
+  ],
+  "write_scope": [
+    "automation/validate_agent_engineering_contracts.py",
+    "tests/unit/test_agent_engineering_contracts.py"
+  ],
+  "forbidden_actions": [
+    "no_unrelated_reverts",
+    "no_broad_cleanup",
+    "no_pr_merge",
+    "no_wiki_publish_without_main_agent_review"
+  ],
+  "evidence_requirements": [
+    "python -m pytest tests/unit/test_agent_engineering_contracts.py -q",
+    "python automation/validate_agent_engineering_contracts.py",
+    "git diff --check"
+  ],
+  "coordination_notes": "This write scope is exclusive to the validator slice.",
+  "return_envelope": [
+    "outcome_summary",
+    "files_changed",
+    "checks_run",
+    "evidence_refs",
+    "blockers_or_assumptions",
+    "remaining_risks",
+    "follow_up_required",
+    "unrelated_work_preserved",
+    "patch_summary_by_write_scope"
+  ]
+}
