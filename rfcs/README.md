@@ -136,12 +136,12 @@ Reference baseline:
 - `RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md` (implemented; advisory heartbeat contract, runner, source adapters, workflow-pack attention adapter, deduplication, suppression, validator coverage, docs/context/wiki/skills review complete)
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
 - `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (implemented; first-wave advisor-brief task-flow runtime, gateway posture, Workbench rendering, clean-core live proof, wiki publication, and branch hygiene complete)
-- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (draft; implement after or alongside RFC-0097 when workflow-pack queue policy becomes large enough to require a separate delivery track)
+- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (in implementation; first `lotus-ai` source-truth queue policy, admission, queue-status, and queue-attention wave is on `feature/rfc0098-queue-policy-contract`)
 
 ## Recommended Next Implementation Order
 
 1. `RFC-0098-per-pack-queue-and-concurrency-policy.md`
-   Adds explicit per-pack queue, lane, timeout, and concurrency controls as task-flow runtime capacity needs become concrete.
+   Continue hardening the first `lotus-ai` queue policy wave, then decide whether durable queue-event history or downstream gateway publication is required before closure.
 
 ## RFC Closure Governance
 
