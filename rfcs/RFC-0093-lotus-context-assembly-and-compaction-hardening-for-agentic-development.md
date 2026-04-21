@@ -1,6 +1,6 @@
 # RFC-0093: Lotus Context Assembly and Compaction Hardening for Agentic Development
 
-- Status: Draft
+- Status: Implemented
 - Date: 2026-04-18
 - Owners:
   - lotus-platform governance
@@ -169,7 +169,7 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Implemented on active branch; awaiting PR merge to `main`**.
+Current status: **Implemented on `main` via PR `#163`**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -623,17 +623,17 @@ Deliverables:
 
 | Evidence | Status | Notes |
 | --- | --- | --- |
-| `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures RFC-0093 identifier-preservation, decision-state, and promotion-target requirements |
-| `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
-| `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required identifiers, decision states, promotion targets, task lifecycle, and delegation guardrails |
-| `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Preserve deterministic task identity, lifecycle status, and evidence references across detached background-run monitoring |
-| `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade and failed-artifact truthfulness |
-| `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Provides governed operating guidance for scoped context assembly, identifier preservation, task ledgers, delegation, and promotion decisions |
-| `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0093/RFC-0094 playbook is registered in procedural memory and central engineering context |
-| `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs async platform automation work to the context/task-ledger playbook and preserves governed task identifiers |
-| `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
-| `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
-| `rfcs/RFC-0093-0094-final-closure-evidence.md` | Implemented on active branch | Records final docs/context/wiki/skills/AGENTS/branch-hygiene decisions and final proof |
+| `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on `main` | Captures RFC-0093 identifier-preservation, decision-state, and promotion-target requirements |
+| `automation/validate_agent_engineering_contracts.py` | Implemented on `main` | Validates the shared RFC-0093/RFC-0094 contract shape |
+| `tests/unit/test_agent_engineering_contracts.py` | Implemented on `main` | Proves the contract preserves required identifiers, decision states, promotion targets, task lifecycle, and delegation guardrails |
+| `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on `main` | Preserve deterministic task identity, lifecycle status, and evidence references across detached background-run monitoring |
+| `tests/unit/test_agent_engineering_background_runs.py` | Implemented on `main` | Executes the monitor against synthetic state to prove legacy-state upgrade and failed-artifact truthfulness |
+| `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on `main` | Provides governed operating guidance for scoped context assembly, identifier preservation, task ledgers, delegation, and promotion decisions |
+| `automation/validate_engineering_context_system.py` | Implemented on `main` | Validates that the RFC-0093/RFC-0094 playbook is registered in procedural memory and central engineering context |
+| `codex/skills/platform-automation-ops/SKILL.md` | Implemented on `main` | Directs async platform automation work to the context/task-ledger playbook and preserves governed task identifiers |
+| `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on `main` | Protects skill routing and task-ledger skill guidance |
+| `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on `main` | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
+| `rfcs/RFC-0093-0094-final-closure-evidence.md` | Implemented on `main` | Records final docs/context/wiki/skills/AGENTS/branch-hygiene decisions and final proof |
 
 ## Validation Posture
 

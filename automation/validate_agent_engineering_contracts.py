@@ -113,6 +113,8 @@ def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str
         errors.append("related_rfc must be RFC-0093")
     if contract.get("owner") != "lotus-platform":
         errors.append("owner must be lotus-platform")
+    if contract.get("status") != "active":
+        errors.append("status must be active")
 
     authority = contract.get("authority")
     if not isinstance(authority, dict):

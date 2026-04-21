@@ -2,13 +2,13 @@
 
 Date: 2026-04-21
 
-Branch: `feature/rfc0093-0094-gold-standard-tightening`
+Branch: merged to `main`
 
-PR: `#163`
+PR: `#163` merged
 
 ## Final Scope
 
-RFC-0093 and RFC-0094 are implemented on the active branch. The implementation is intentionally
+RFC-0093 and RFC-0094 are implemented on `main` via PR `#163`. The implementation is intentionally
 platform-scoped and does not introduce a new runtime service or HTTP endpoint.
 
 Implemented artifacts:
@@ -42,7 +42,7 @@ Implemented artifacts:
 
 | Area | Decision |
 | --- | --- |
-| RFC docs | Updated RFC-0093 and RFC-0094 status to implemented on the active branch with evidence tables. |
+| RFC docs | Updated RFC-0093 and RFC-0094 status to implemented on `main` with evidence tables. |
 | Central context | Updated because the RFCs change platform-wide agent operating posture. |
 | Repo-local context | No repo-local `REPOSITORY-ENGINEERING-CONTEXT.md` update is needed; the change is platform-wide and owned by central context. |
 | AGENTS operating contract | Updated and synchronized locally because long-running async/context-compacted work now has mandatory identifier-preservation guidance. |
@@ -74,22 +74,23 @@ Observed local final proof before committing this slice:
    passed with `268 passed`,
 5. AGENTS sync check passed for 11 local targets after the operating-contract update.
 
-GitHub PR checks must be checked again after this final commit is pushed.
+GitHub PR checks were checked again after this final commit was pushed.
 
-## Branch Hygiene Plan
+## Branch Hygiene
 
-1. Commit this final closure slice.
-2. Push the branch.
-3. Confirm PR `#163` checks are green.
-4. Mark the PR ready for review.
-5. Merge the PR after required checks pass.
-6. Delete the remote feature branch if GitHub does not delete it automatically.
-7. Return local `lotus-platform` to `main` and pull the merged state.
+Completed after merge:
+
+1. PR `#163` was marked ready for review and merged after required checks passed.
+2. The remote feature branch was deleted.
+3. Local `lotus-platform` was returned to `main` and fast-forwarded to the merged state.
+4. Sibling `AGENTS.md` synchronization PRs were opened, validated, merged, and cleaned up.
+5. Local and remote RFC/sync branches were deleted or confirmed absent.
 
 ## Closure Assessment
 
-No additional pre-closure implementation slice is required for RFC-0093 or RFC-0094 after this final
-slice, provided the final validation commands and GitHub PR checks pass.
+No additional implementation slice is required for RFC-0093 or RFC-0094 after this final
+slice. Local validation passed, GitHub PR checks passed, PR `#163` was merged, and post-merge
+branch hygiene completed.
 
 Known intentional future work:
 

@@ -32,6 +32,7 @@ def test_agent_engineering_contract_captures_task_ledger_authority_and_lifecycle
     assert contract["contract_id"] == "lotus-platform:engineering-task-ledger-contract:v1"
     assert contract["source_rfc"] == "RFC-0094"
     assert contract["related_rfc"] == "RFC-0093"
+    assert contract["status"] == "active"
     assert "source of truth" in contract["authority"]["github_actions"].lower()
     assert "working context" in contract["authority"]["session_summary"].lower()
 

@@ -52,5 +52,5 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `RFC-0072` | `active` | partially implemented; continuation resumes after current fix-forward and RFC-0074 proposal work | Platform-wide multi-lane CI, validation, and release governance |
 | `RFC-0073` | `active` | implemented and governed | Lotus ecosystem engineering context and agent guidance system |
 | `RFC-0074` | `active` | implemented and governed | Repeatable developer and agent bootstrap system |
-| `RFC-0093` | `active` | implemented on active branch; awaiting merge to main | Lotus context assembly and compaction hardening for agentic development |
-| `RFC-0094` | `active` | implemented on active branch; awaiting merge to main | Durable background engineering task ledger and governed delegation model |
+| `RFC-0093` | `active` | implemented on main | Lotus context assembly and compaction hardening for agentic development |
+| `RFC-0094` | `active` | implemented on main | Durable background engineering task ledger and governed delegation model |
