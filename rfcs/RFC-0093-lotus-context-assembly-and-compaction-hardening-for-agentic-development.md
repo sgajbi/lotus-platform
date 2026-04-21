@@ -169,8 +169,9 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation, Slice 2 context guidance adoption, and
-Slice 4 background-run artifact alignment implemented on the active RFC branch**.
+Current status: **Draft; Slice 1 contract foundation, Slice 2 context guidance adoption, Slice 4
+background-run artifact alignment, and targeted skill-routing adoption implemented on the active
+RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -183,8 +184,8 @@ That contract establishes RFC-0093's identifier-preservation, decision-state, an
 requirements in machine-readable form. The first context adoption slice adds a governed agent
 context and task-ledger playbook plus context-system validation. The first automation adoption
 slice also makes detached background-run state preserve task identity and evidence references for
-resumed sessions. The broader AGENTS, onboarding, skill, wiki, and remaining automation adoption
-slices remain open.
+resumed sessions. The targeted skill slice aligns `platform-automation-ops` with the new contract.
+The broader AGENTS, onboarding, wiki, and remaining automation adoption slices remain open.
 
 No implementation slice may mark RFC-0093 as fully implemented until the platform can point to:
 
@@ -631,6 +632,8 @@ Deliverables:
 | `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade and failed-artifact truthfulness |
 | `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Provides governed operating guidance for scoped context assembly, identifier preservation, task ledgers, delegation, and promotion decisions |
 | `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0093/RFC-0094 playbook is registered in procedural memory and central engineering context |
+| `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs async platform automation work to the context/task-ledger playbook and preserves governed task identifiers |
+| `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
 
 ## Validation Posture
 

@@ -159,7 +159,8 @@ Specifically:
 ## Implementation Status
 
 Current status: **Draft; Slice 1 contract foundation, Slice 3 context/delegation guidance
-adoption, and Slice 4 background-run artifact alignment implemented on the active RFC branch**.
+adoption, Slice 4 background-run artifact alignment, and targeted skill-routing adoption
+implemented on the active RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -172,7 +173,8 @@ That contract establishes RFC-0094's task identity, lifecycle, evidence, cleanup
 delegation requirements in machine-readable form. The first context/delegation adoption slice adds
 a governed playbook plus context-system validation. The first automation adoption slice also aligns
 detached background-run state with governed task identity, lifecycle, evidence, and cleanup
-semantics. The broader reporting, skills, wiki, and branch-hygiene adoption slices remain open.
+semantics. The targeted skill slice aligns `platform-automation-ops` with the task-ledger contract.
+The broader reporting, wiki, and branch-hygiene adoption slices remain open.
 
 No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
 
@@ -665,6 +667,8 @@ Deliverables:
 | `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade, durable evidence refs, `SUCCEEDED`, and `FAILED` semantics |
 | `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Documents governed detached-task, delegation, lifecycle, evidence, and promotion guidance |
 | `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0094 playbook is registered in procedural memory and central engineering context |
+| `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs detached platform automation to the RFC-0094 contract and lifecycle vocabulary |
+| `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
 
 ## Risks and Mitigations
 

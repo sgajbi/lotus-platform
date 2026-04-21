@@ -40,6 +40,14 @@ REQUIRED_SKILL_REFERENCES = {
         "PR-LOOP-PLAYBOOK.md",
         "FIX-FORWARD-PATTERNS.md",
     ],
+    "platform-automation-ops": [
+        "AGENT-CONTEXT-AND-TASK-LEDGER.md",
+        "engineering-task-ledger-contract.v1.json",
+        "Start-Background-Run.ps1",
+        "Check-Background-Runs.ps1",
+        "engineering_task_id",
+        "LOST",
+    ],
 }
 
 

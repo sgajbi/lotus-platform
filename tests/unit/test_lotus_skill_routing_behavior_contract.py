@@ -37,6 +37,25 @@ def test_async_github_posture_is_reinforced_across_guidance() -> None:
     assert "gh pr checks <pr-number> --watch=false" in ramp_up
 
 
+def test_platform_automation_ops_uses_task_ledger_contract() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    skill = _read(ROOT / "codex" / "skills" / "platform-automation-ops" / "SKILL.md")
+    profile_guide = _read(
+        ROOT / "codex" / "skills" / "platform-automation-ops" / "references" / "profile-guide.md"
+    )
+    validator = _read(ROOT / "automation" / "validate_lotus_skill_alignment.py")
+
+    assert "Launch or monitor detached platform automation profiles" in routing_map
+    assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in skill
+    assert "engineering-task-ledger-contract.v1.json" in skill
+    assert "engineering_task_id" in skill
+    assert "Do not summarize detached work from chat memory alone" in skill
+    assert "cleanup_state" in profile_guide
+    assert "Do not translate `LOST` into success" in profile_guide.replace("\n", " ")
+    assert '"platform-automation-ops"' in validator
+    assert '"engineering_task_id"' in validator
+
+
 def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
