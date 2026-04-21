@@ -39,7 +39,7 @@ use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAY
 6. [ECOSYSTEM-REGISTRIES.md](./ECOSYSTEM-REGISTRIES.md)
    Human-readable registry view generated from the manifest.
 7. [PROCEDURAL-MEMORY-INDEX.md](./PROCEDURAL-MEMORY-INDEX.md)
-   Governed playbooks for change execution, PR loops, validation, and fix-forward patterns.
+   Governed playbooks for change execution, PR loops, validation, fix-forward patterns, agent context preservation, and detached task ledgers.
 8. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md)
    Source-of-truth content for the deployed global `AGENTS.md`.
 9. [Repository-Engineering-Context-Contract.md](./Repository-Engineering-Context-Contract.md)

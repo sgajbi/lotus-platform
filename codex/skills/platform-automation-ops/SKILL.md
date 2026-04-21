@@ -9,6 +9,13 @@ Use `lotus-platform/automation` as the system of record for operational automati
 
 Execute scripts from the local `lotus-platform` workspace root, not from `automation/`.
 
+Before launching or summarizing detached work, use
+`lotus-platform/context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` and the contract in
+`lotus-platform/platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`.
+Preserve `engineering_task_id`, repository, branch, PR number, commit SHA, check name, RFC id, file
+path, endpoint, contract name, portfolio id, and task status exactly when those identifiers are
+present.
+
 ## Execute Background Profiles
 
 1. Run detached tasks:
@@ -59,6 +66,16 @@ Read and summarize:
 - `output/task-runs/*.out.log`
 - `output/task-runs/*.err.log`
 
+For `output/background-runs.json`, report the governed lifecycle status without translation:
+
+- `RUNNING`: launched process is still active,
+- `SUCCEEDED`: expected result artifact exists and all child task exit codes are zero,
+- `FAILED`: result artifact exists but failed or could not be parsed,
+- `LOST`: process ended before expected result evidence was written.
+
+Treat `LOST` as an operational finding that needs cleanup or rerun evidence. GitHub Actions remains
+the source of truth for GitHub check status; the background-run ledger is local automation evidence.
+
 ## Close PR Loop
 
 Use this when asked to monitor PRs, queue merges, and clean branches without manual repetition:
@@ -85,5 +102,7 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
   - `automation/README.md`
   - `Local Development Runbook.md`
   - this skill reference file if command flow changed
+- Do not summarize detached work from chat memory alone when a task-ledger or GitHub evidence source
+  exists.
 
 For profile definitions and expected behavior, read `references/profile-guide.md`.

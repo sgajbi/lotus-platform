@@ -11,7 +11,7 @@
 
 This memo is not a fifth RFC.
 
-It exists to keep the four approved RFC tracks aligned during implementation planning and early
+It exists to keep the four active RFC tracks aligned during implementation planning and early
 slices.
 
 The memo is intentionally short and operational.

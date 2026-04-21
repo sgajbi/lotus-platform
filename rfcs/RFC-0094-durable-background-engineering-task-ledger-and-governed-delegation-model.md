@@ -156,6 +156,35 @@ Specifically:
 4. completion handling should be push-oriented where possible, not poll-loop-oriented by default,
 5. skills, onboarding, and automation must reinforce this operating posture.
 
+## Implementation Status
+
+Current status: **Implemented on active branch; awaiting PR merge to `main`**.
+
+The first implementation slice adds the shared agent-engineering contract foundation used by
+RFC-0093 and RFC-0094:
+
+1. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`,
+2. `automation/validate_agent_engineering_contracts.py`,
+3. `tests/unit/test_agent_engineering_contracts.py`.
+
+That contract establishes RFC-0094's task identity, lifecycle, evidence, cleanup, authority, and
+delegation requirements in machine-readable form. The first context/delegation adoption slice adds
+a governed playbook plus context-system validation. The first automation adoption slice also aligns
+detached background-run state with governed task identity, lifecycle, evidence, and cleanup
+semantics. The targeted skill slice aligns `platform-automation-ops` with the task-ledger contract.
+The final slice updates AGENTS guidance, wiki source, final closure evidence, and branch/PR hygiene.
+
+No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
+
+1. a concrete task-ledger contract or artifact shape,
+2. automation, skill, context, or onboarding changes that consume that contract,
+3. tests or validators for any machine-readable task-ledger output introduced,
+4. explicit review evidence for the second-last tightening slice,
+5. final documentation, context, wiki, skills/guidance, and branch-hygiene evidence.
+
+GitHub Actions remains the source of truth for GitHub check status. The RFC-0094 ledger may record
+and summarize GitHub status, but it must not become a weaker duplicate of GitHub truth.
+
 ## Design Principles
 
 ### 1. Detached work is still part of one truthful delivery program
@@ -493,6 +522,14 @@ platform automation reality.
 
 ## Implementation Plan
 
+Every implementation slice must end with:
+
+1. focused validation appropriate to the files changed,
+2. a review pass for simplification, stale guidance, duplicate policy, and test quality,
+3. a small truthful commit,
+4. updated PR evidence,
+5. updated shared-memory or handoff state when detached work crosses sessions.
+
 ### Slice 1: Engineering Task Ledger Contract
 
 1. define task kinds, lifecycle states, and required identity fields,
@@ -554,21 +591,84 @@ Deliverables:
 2. targeted tests,
 3. local and CI evidence expectations.
 
-### Slice 6: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
+### Slice 6: Code Review, Loose-End Tightening, API Certification Pattern, and Platform Governance
+
+1. review all RFC-0094 implementation changes for duplicated task-state vocabulary, stale async
+   guidance, ambiguous task ownership, missing cleanup semantics, and avoidable complexity,
+2. verify any API-like or machine-readable contract introduced under this RFC follows the Lotus API
+   certification pattern where applicable:
+   - stable identity,
+   - explicit schema or contract,
+   - source-of-truth ownership,
+   - validation evidence,
+   - degraded, stale, cancelled, lost, and superseded states,
+   - OpenAPI or generated-contract alignment when an HTTP endpoint is involved,
+3. verify platform governance requirements:
+   - RFC-0072 lane evidence,
+   - GitHub remains CI truth,
+   - local automation remains local-run truth,
+   - AGENTS synchronization when the operating contract changes,
+   - no unconstrained autonomous delegation,
+   - branch and PR cleanup state is explicit,
+4. remove stale or conflicting guidance discovered during implementation,
+5. decide whether any remaining work must become a follow-up issue before the final slice.
+
+Deliverables:
+
+1. explicit review findings and fixes,
+2. targeted validation rerun after review fixes,
+3. platform governance checklist evidence,
+4. updated gap or follow-up list if the RFC is not yet fully implemented.
+
+### Slice 7: Documentation, Agent Context, Wiki Update, Skill Update if Needed, and Branch Hygiene
 
 1. update docs that now own durable truth under this RFC,
 2. update context artifacts where the async and delegation model changes platform behavior,
 3. update wiki-source guidance where operator or onboarding posture changes,
-4. update skills where the implementation changes durable agent workflow guidance,
-5. keep PR evidence, branch cleanup, and implementation status truthful.
+4. explicitly assess whether skills, guidance, documentation, wiki, or context should be updated
+   for future agent effectiveness,
+5. update skills where the implementation changes durable agent workflow guidance,
+6. record a conscious "no change needed" decision when a reviewed skill, guidance file, wiki page,
+   or context artifact does not need modification,
+7. keep PR evidence, branch cleanup, and implementation status truthful.
 
 Deliverables:
 
 1. updated docs and wiki-source pages,
 2. updated context files,
 3. updated skills where needed,
-4. PR and branch-hygiene evidence,
-5. no stale guidance that implies implementation beyond what was actually delivered.
+4. explicit skills/guidance/context/wiki assessment, including "no change needed" decisions,
+5. PR and branch-hygiene evidence,
+6. no stale guidance that implies implementation beyond what was actually delivered.
+
+## Requirement Traceability
+
+| Requirement | Primary implementation slice | Required evidence before closure |
+| --- | --- | --- |
+| Durable background engineering task ledger model | Slice 1 | Contract/artifact shape and validation evidence where machine-readable |
+| Shared lifecycle vocabulary | Slice 1 | Task-state documentation plus tests/validators where executable |
+| Async operating guidance | Slice 2 | AGENTS/onboarding/skill updates or explicit no-change rationale |
+| Governed delegation model | Slice 3 | Delegation rules with write-scope and return-contract evidence |
+| Automation/reporting alignment | Slice 4 | Background-run or PR-loop artifact updates with evidence refs |
+| Executable governance checks | Slice 5 | Repo-native validator/test evidence and PR lane evidence |
+| Review and governance closure | Slice 6 | Review findings, fixes, API-certification/platform-governance checklist evidence |
+| Final docs/context/wiki/skills/branch hygiene | Slice 7 | Final documentation/context/wiki/skills assessment and branch cleanup evidence |
+
+### Current Evidence
+
+| Evidence | Status | Notes |
+| --- | --- | --- |
+| `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures task identity, lifecycle, evidence, cleanup, authority, delegation, and context-preservation contract requirements |
+| `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
+| `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required lifecycle states, ownership/evidence fields, cleanup posture, delegation guardrails, and identifier-preservation requirements |
+| `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Emit and refresh RFC-0094-compatible task identity, lifecycle, evidence, and cleanup fields for detached local automation |
+| `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade, durable evidence refs, `SUCCEEDED`, and `FAILED` semantics |
+| `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` | Implemented on active branch | Documents governed detached-task, delegation, lifecycle, evidence, and promotion guidance |
+| `automation/validate_engineering_context_system.py` | Implemented on active branch | Validates that the RFC-0094 playbook is registered in procedural memory and central engineering context |
+| `codex/skills/platform-automation-ops/SKILL.md` | Implemented on active branch | Directs detached platform automation to the RFC-0094 contract and lifecycle vocabulary |
+| `tests/unit/test_lotus_skill_routing_behavior_contract.py` | Implemented on active branch | Protects skill routing and task-ledger skill guidance |
+| `rfcs/RFC-0093-0094-slice-6-review-and-governance-evidence.md` | Implemented on active branch | Records the Slice 6 code-review, API-certification-pattern, platform-governance, and remaining-gap assessment |
+| `rfcs/RFC-0093-0094-final-closure-evidence.md` | Implemented on active branch | Records final docs/context/wiki/skills/AGENTS/branch-hygiene decisions and final proof |
 
 ## Risks and Mitigations
 
@@ -616,12 +716,19 @@ The platform should prefer governed prose rather than brittle automation for:
 
 ## Open Questions
 
-1. How much of the task-ledger contract should be materialized in existing `output/*.json` artifacts
-   versus new dedicated summary files?
-2. Which delegated-work patterns should be platform-standard first:
-   documentation, validation, code implementation, or review support?
-3. Should `Close-PR-Loop.ps1` and similar automation become the first concrete task-ledger
-   consumers under this RFC?
+Resolved by the active implementation branch:
+
+1. The first concrete task-ledger materialization is the existing
+   `output/background-runs.json` local automation state file, not a separate summary file.
+2. The first platform-standard delegated-work guidance is bounded task design with explicit
+   read/write scope, changed-file return, and outcome-summary return.
+3. `Close-PR-Loop.ps1` is not the first task-ledger consumer. It remains governed by GitHub PR and
+   check truth until repeated evidence shows it needs task-ledger fields.
+
+Remaining open question:
+
+1. Which additional automation surfaces should adopt the task-ledger shape after background-run
+   evidence proves the model over time?
 
 ## Acceptance Criteria
 
@@ -635,7 +742,12 @@ The platform should prefer governed prose rather than brittle automation for:
    4. skill guidance.
 5. The implementation plan includes a final slice for documentation, agent context, wiki update,
    skill update if needed, and branch hygiene.
-6. No slice under this RFC creates unconstrained autonomous delegation or ambiguous write ownership.
+6. The implementation plan includes a second-last review and governance slice covering loose-end
+   tightening, API certification pattern checks where applicable, and platform governance
+   conformance.
+7. The final slice includes an explicit skills, guidance, documentation, wiki, and context
+   assessment, including conscious "no change needed" decisions when appropriate.
+8. No slice under this RFC creates unconstrained autonomous delegation or ambiguous write ownership.
 
 ## Final Position
 

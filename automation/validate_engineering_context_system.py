@@ -43,6 +43,9 @@ def validate_engineering_context_system() -> list[str]:
         "pr loop playbook": CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md",
         "validation playbook": CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md",
         "fix-forward patterns": CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md",
+        "agent context and task ledger playbook": CONTEXT_DIR
+        / "playbooks"
+        / "AGENT-CONTEXT-AND-TASK-LEDGER.md",
         "manifest": CONTEXT_DIR / "lotus-context-manifest.json",
         "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
@@ -76,6 +79,9 @@ def validate_engineering_context_system() -> list[str]:
     pr_loop_playbook = _read_text(required_files["pr loop playbook"])
     validation_playbook = _read_text(required_files["validation playbook"])
     fix_forward_patterns = _read_text(required_files["fix-forward patterns"])
+    agent_context_task_ledger = _read_text(
+        required_files["agent context and task ledger playbook"]
+    )
     agents_contract = _read_text(required_files["agents contract"])
     repo_context_contract = _read_text(required_files["repository context contract"])
     repo_context_template = _read_text(required_files["repository context template"])
@@ -132,6 +138,15 @@ def validate_engineering_context_system() -> list[str]:
     ):
         if text not in engineering:
             errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing front-office runtime guidance `{text}`")
+    for text in (
+        "For RFC-0093/RFC-0094 agent engineering governance:",
+        "AGENT-CONTEXT-AND-TASK-LEDGER.md",
+        "platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json",
+        "output/background-runs.json",
+        "repository, branch, PR",
+    ):
+        if text not in engineering:
+            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing agent engineering guidance `{text}`")
 
     if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
         errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
@@ -156,6 +171,8 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Validation Playbook reference")
     if "Fix-Forward Patterns" not in procedural_memory_index:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
+    if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
 
     for text, label in (
         ("Backend API And Domain-Service Change Playbook", "CHANGE-PLAYBOOKS.md"),
@@ -169,12 +186,16 @@ def validate_engineering_context_system() -> list[str]:
         ("Stale Expectation Pattern", "FIX-FORWARD-PATTERNS.md"),
         ("Validator Overreach Pattern", "FIX-FORWARD-PATTERNS.md"),
         ("Local-Only Assumption Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Identifier Preservation", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
+        ("Detached Task Ledger", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
+        ("Promotion Decisions", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
     ):
         target_doc = {
             "CHANGE-PLAYBOOKS.md": change_playbooks,
             "PR-LOOP-PLAYBOOK.md": pr_loop_playbook,
             "VALIDATION-PLAYBOOK.md": validation_playbook,
             "FIX-FORWARD-PATTERNS.md": fix_forward_patterns,
+            "AGENT-CONTEXT-AND-TASK-LEDGER.md": agent_context_task_ledger,
         }[label]
         if text not in target_doc:
             errors.append(f"{label}: missing required content `{text}`")
@@ -190,6 +211,12 @@ def validate_engineering_context_system() -> list[str]:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
     if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
+    if "engineering_task_id" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
+    if "output/background-runs.json" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
     if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
         errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
     for text in (
@@ -316,6 +343,7 @@ def validate_engineering_context_system() -> list[str]:
         "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
         "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
         "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
+        "agent_context_and_task_ledger": "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md",
     }.items():
         if procedural_memory.get(key) != expected_path:
             errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")

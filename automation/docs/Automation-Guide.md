@@ -144,7 +144,7 @@ Primary outputs are written to `lotus-platform/output/`:
 - `pr-monitor.*`
 - `agent-status.*`
 - `pr-lifecycle.*`
-- `background-runs.json`
+- `background-runs.json` with RFC-0094 `engineering_task_id`, `task_kind`, lifecycle status, cleanup state, and evidence references for detached runs
 - `task-runs/*`
 - `cross-app/core-performance-twr-benchmark-validation.*`
 - `cross-app/core-performance-mwr-validation.*`

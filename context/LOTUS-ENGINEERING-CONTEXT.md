@@ -183,6 +183,21 @@ For RFC governance:
    and branch-hygiene slice,
 3. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
 
+For RFC-0093/RFC-0094 agent engineering governance:
+
+1. use `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` when resuming long-running work,
+   delegating bounded subtasks, monitoring detached checks, or recovering after context compaction,
+2. preserve operational identifiers exactly in handoffs and summaries: repository, branch, PR
+   number, commit SHA, check name, RFC id, file path, endpoint, contract name, portfolio id, and
+   task status,
+3. use `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` as the
+   contract for detached engineering task identity, lifecycle, cleanup, evidence, delegation, and
+   context-preservation fields,
+4. treat `output/background-runs.json` as local automation evidence for background runs and GitHub
+   Actions as the source of truth for GitHub check status,
+5. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
+   follow-ups instead of relying on chat history.
+
 ## Front-Office Runtime Governance
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:

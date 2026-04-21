@@ -201,6 +201,9 @@ For RFC-0084 work, the highest-signal machine-readable files are:
    Repeatable response patterns for CI and runtime failures.
 6. [TWR Investigation Playbook](./playbooks/TWR-INVESTIGATION-PLAYBOOK.md)
    Investigation sequence for time-weighted return defects, implausible economics, and upstream reconciliation issues.
+7. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
+   RFC-0093/RFC-0094 sequence for scoped context assembly, exact identifier preservation,
+   detached task ledger evidence, delegation guardrails, and durable promotion decisions.
 
 ## Platform Standards
 
@@ -224,6 +227,8 @@ The most operationally important current RFCs are:
 2. [RFC-0072](../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
 3. [RFC-0073](../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
 4. [RFC-0074](../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
+5. [RFC-0093](../rfcs/RFC-0093-lotus-context-assembly-and-compaction-hardening-for-agentic-development.md)
+6. [RFC-0094](../rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md)
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 

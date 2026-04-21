@@ -13,6 +13,7 @@ try {
 
     & $toolingPython -m pytest tests/unit -q
     & $toolingPython automation/validate_engineering_context_system.py
+    & $toolingPython automation/validate_agent_engineering_contracts.py
     & $toolingPython automation/validate_lotus_skill_alignment.py
     & $toolingPython automation/validate_workflow_security.py
     & $toolingPython automation/validate_workflow_action_runtime.py
