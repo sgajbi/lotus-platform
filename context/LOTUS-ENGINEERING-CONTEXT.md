@@ -300,7 +300,11 @@ Repository-local docs own repo truth.
 
 When a repository uses a GitHub wiki, the repo-local `wiki/` directory should be treated as the
 canonical authored source and the `*.wiki.git` repository should be treated as publication
-transport only.
+transport only. PR validation now runs
+`automation/Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform` for platform wiki drift, and
+agents should run the same command with the target repository name before merging wiki-affecting
+changes. After merge, publish with `automation/Sync-RepoWikis.ps1 -Publish -Repository <repo-name>`;
+use `-AllRepositories` for coordinated platform-wide audits or publication sweeps.
 
 Do not duplicate central policy prose into every repo unless repo-local interpretation is required.
 

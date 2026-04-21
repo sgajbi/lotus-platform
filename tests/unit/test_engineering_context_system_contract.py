@@ -426,10 +426,15 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in agents_contract
     assert "engineering_task_id" in agents_contract
     assert "output/background-runs.json" in agents_contract
+    assert "Wiki Publication Rule" in agents_contract
+    assert "Sync-RepoWikis.ps1" in agents_contract
+    assert "Repo-local `wiki/` is the authored source of truth" in agents_contract
+    assert "Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform" in engineering
     assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
     assert "output/lotus-skill-alignment-validation.json" in automation_readme
     assert "validate_lotus_skill_alignment.py" in directory_map
     assert "& $toolingPython automation/validate_lotus_skill_alignment.py" in repo_checks
+    assert 'Sync-RepoWikis.ps1") -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges' in repo_checks
 
     assert manifest["context_documents"]["procedural_memory_index"] == "context/PROCEDURAL-MEMORY-INDEX.md"
     assert manifest["procedural_memory"]["change_playbooks"] == "context/playbooks/CHANGE-PLAYBOOKS.md"
