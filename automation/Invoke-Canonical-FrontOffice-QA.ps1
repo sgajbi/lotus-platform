@@ -5,8 +5,10 @@ param(
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
   [string]$OutputDirectory = "output/front-office-qa",
   [string]$ScreenshotDirectory = "",
+  [int]$SeedWaitSeconds = 900,
   [switch]$BringUp,
   [switch]$Clean,
+  [switch]$CleanCoreState,
   [switch]$BuildImages,
   [switch]$RemoveImages,
   [switch]$KeepRunning
@@ -149,9 +151,11 @@ $summary = [ordered]@{
   workbench_repo_path = $WorkbenchRepoPath
   bring_up = [bool]$BringUp
   clean = [bool]$Clean
+  clean_core_state = [bool]$CleanCoreState
   build_images = [bool]$BuildImages
   remove_images = [bool]$RemoveImages
   keep_running = [bool]$KeepRunning
+  seed_wait_seconds = $SeedWaitSeconds
   portfolio_id = $PortfolioId
   benchmark_code = $BenchmarkCode
   governed_runbook = (Join-Path $WorkbenchRepoPath "docs\operations\canonical-front-office-local-runtime.md")
@@ -199,6 +203,10 @@ try {
     if ($BuildImages) {
       $bringUpArguments.BuildImages = $true
     }
+    if ($CleanCoreState) {
+      $bringUpArguments.CleanCoreState = $true
+    }
+    $bringUpArguments.SeedWaitSeconds = $SeedWaitSeconds
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
   } elseif (-not $Clean) {
@@ -248,9 +256,11 @@ $markdown += "- Generated: $($summary.generated_at)"
 $markdown += "- Status: $($summary.status)"
 $markdown += "- Bring up: $($summary.bring_up)"
 $markdown += "- Clean: $($summary.clean)"
+$markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Remove images: $($summary.remove_images)"
 $markdown += "- Keep running: $($summary.keep_running)"
+$markdown += "- Seed wait seconds: $($summary.seed_wait_seconds)"
 $markdown += "- Portfolio: $PortfolioId"
 $markdown += "- Benchmark: $BenchmarkCode"
 $markdown += "- Canonical contract: $($summary.canonical_contract.contractId) $($summary.canonical_contract.contractVersion)"

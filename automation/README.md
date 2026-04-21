@@ -637,13 +637,19 @@ Clean stale Lotus Docker containers and volumes before the governed bring-up:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages
 ```
 
+Reset only `lotus-core` Docker state before reseeding the governed portfolio when stale core state blocks validation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -SeedWaitSeconds 1200
+```
+
 Run full explicit Lotus cleanup, including matching local Lotus images, without starting the stack:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
 ```
 
-`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts before cleanup, after cleanup, and after the run.
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, seed wait, and run status.
 
 For a clean demo rebuild from stale local state:
 

@@ -44,6 +44,7 @@ Canonical source: `lotus-platform/automation`
 | Canonical front-office readiness validation | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` | Bring up the governed `lotus-workbench` runtime and validate populated UI/product surfaces |
 | Canonical front-office screenshot pack | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` | Validate canonical endpoints, calculations, and panels before writing demo screenshots, `SHOT-INDEX.md`, and structured screenshot evidence |
 | Canonical front-office clean rebuild | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages` | Clean stale Lotus containers and volumes, rebuild images through the governed workbench runtime, and validate populated UI/product surfaces |
+| Canonical front-office clean core reseed | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState` | Reset only `lotus-core` Docker state before reseeding the governed front-office portfolio when stale core state blocks validation |
 | Canonical front-office full cleanup | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages` | Remove stale Lotus containers, volumes, and matching local Lotus images without starting the stack |
 | Backend/runtime QA readiness validation | `automation/Invoke-Platform-QA.ps1 -BringUp` | Bring up backend services and validate API/log/observability/standards |
 | Backend/runtime QA + issue creation | `automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues` | File backend/runtime defects with evidence in each repo |
@@ -56,7 +57,7 @@ Canonical source: `lotus-platform/automation`
 | Reuse the full cross-app baseline | `automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 -SkipSeed` | Revalidate the full core -> performance engine family using the latest stable scenario artifacts |
 | Explain local dev ingress rollout state | `automation/Explain-Dev-Ingress-Status.ps1` | Determine whether DNS is missing, staged hosts need to be applied, or services are unhealthy, and emit the exact compose refresh command when service routing is the problem |
 
-Canonical front-office QA writes Docker cleanup scope and before/after artifact counts to `output/front-office-qa/latest.json` and `output/front-office-qa/latest.md`. Use `-Clean` for stale-container and stale-volume ambiguity, and add `-RemoveImages` only when image freshness matters more than startup speed. Use `-ScreenshotDirectory <path>` when a demo pack must be written outside the default Workbench artifact folder.
+Canonical front-office QA writes Docker cleanup scope, clean-core posture, seed wait, and before/after artifact counts to `output/front-office-qa/latest.json` and `output/front-office-qa/latest.md`. Use `-Clean` for stale-container and stale-volume ambiguity, `-CleanCoreState` when only `lotus-core` reseeding state is stale, and add `-RemoveImages` only when image freshness matters more than startup speed. Use `-SeedWaitSeconds <seconds>` for long canonical reseeds and `-ScreenshotDirectory <path>` when a demo pack must be written outside the default Workbench artifact folder.
 
 ## Dev Ingress Operator Loop
 

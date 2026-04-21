@@ -614,6 +614,17 @@
       ]
     },
     {
+      "name": "qa-platform-readiness-clean-core",
+      "description": "Bring up the governed canonical front-office runtime after resetting lotus-core state for a fresh front-office reseed",
+      "tasks": [
+        {
+          "id": "qa-platform-readiness-clean-core",
+          "repo": "lotus-platform",
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -SeedWaitSeconds 1200"
+        }
+      ]
+    },
+    {
       "name": "autonomous-foundation",
       "description": "Autonomous foundation governance sweep with machine-readable evidence artifacts",
       "tasks": [
