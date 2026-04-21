@@ -149,12 +149,25 @@ Implemented in the retry/replay recovery-decision posture wave merged through
    posture rather than execution posture, with `lotus-ai` wiki publication completed at wiki commit
    `d2feff3`.
 
+Implemented in the repeated queue-failure cluster attention wave merged through
+`sgajbi/lotus-ai#50`:
+
+1. cluster attention types for repeated timeout, repeated cancellation, and repeated blocked
+   recovery posture,
+2. explicit `event_count` on queue attention items so event-derived cluster counts do not overload
+   active-admission counts,
+3. runtime-status `queue_attention` clusters derived from durable queue events while preserving
+   queue source truth in the event catalog/detail surfaces,
+4. unit and OpenAPI tests proving repeated failure clusters are reported as bounded derived
+   attention,
+5. repo-local docs, wiki source, and context updates describing cluster attention as operator
+   posture, with `lotus-ai` wiki publication completed at wiki commit `582fc97`.
+
 Explicitly deferred because source behavior does not yet exist:
 
 1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
    history,
-2. retry execution, replay execution, retry-cluster aggregation, repeated-timeout clustering, and
-   repeated-cancellation clustering,
+2. retry execution, replay execution, and persisted queued-item execution semantics,
 3. gateway publication of queue posture,
 4. Workbench rendering of queue posture.
 
@@ -561,9 +574,8 @@ For the first `lotus-ai` source-truth wave:
    unsupported lane, and degraded readiness are tested.
 5. Operator posture explains queue delay or rejection truthfully without leaking internal mechanics.
 6. Heartbeat detects source-backed saturated, stale active-admission, timeout, cancellation, blocked
-   retry, and blocked replay posture; repeated-timeout clustering, repeated-cancellation
-   clustering, retry-cluster aggregation, and durable degraded queue-source attention remain
-   deferred.
+   retry, blocked replay, and repeated failure cluster posture; durable degraded queue-source
+   attention remains deferred.
 7. API certification, OpenAPI examples, vocabulary, no-alias, migration, security, and CI governance
    are satisfied for every implemented served surface.
 8. Supported-features wording is implementation-backed and excludes aspirational features.
@@ -671,8 +683,7 @@ Additional slices needed for full RFC completion:
 
 1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
 2. retry/replay execution and persisted queued-item execution semantics backed by durable evidence,
-3. RFC-0095 heartbeat expansion for repeated timeout/cancellation clustering, retry-cluster
-   aggregation, and durable degraded queue-source attention,
+3. RFC-0095 heartbeat expansion for durable degraded queue-source attention,
 4. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
 5. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
@@ -691,8 +702,7 @@ Skills, guidance, documentation, and context decision:
 ## Current Priority
 
 Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
-cancellation posture, and bounded retry/replay recovery-decision posture are now implemented in
-`lotus-ai` source truth. The next high-value implementation slice is actual retry/replay execution
-or repeated-failure clustering, depending on whether operators need repair execution or better
-attention aggregation first. Gateway or Workbench adoption should remain deferred until a supported
-operator or product surface needs it.
+cancellation posture, bounded retry/replay recovery-decision posture, and repeated failure-cluster
+attention are now implemented in `lotus-ai` source truth. The next high-value implementation slice
+is actual retry/replay execution or persisted queued-item lifecycle. Gateway or Workbench adoption
+should remain deferred until a supported operator or product surface needs it.
