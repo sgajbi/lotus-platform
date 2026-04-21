@@ -584,3 +584,25 @@ Documentation, context, wiki, and skills decision for this pre-implementation pa
 
 Implement first. This RFC should precede governed multi-agent delegation and task-flow runtime
 because those later efforts create more long-running work that needs heartbeat visibility.
+
+## Post-Implementation Gold-Standard Review
+
+Reviewed again after merge on 2026-04-21.
+
+Additional tightening found and implemented:
+
+1. Heartbeat generated timestamps and suppression expiries were previously checked for a trailing
+   `Z`, but malformed strings such as `not-a-dateZ` could pass some validation paths.
+2. The runner now parses deterministic `generated_at_utc` values as RFC-3339 UTC before writing
+   heartbeat artifacts.
+3. The heartbeat contract validator now parses generated, first-seen, last-seen, suppression, and
+   suppression-decision timestamps as RFC-3339 UTC strings ending in `Z`.
+4. Regression tests now prove malformed UTC-looking strings are rejected by both the runner and the
+   contract validator.
+
+Review outcome:
+
+1. No additional first-wave feature slice is needed for RFC-0095.
+2. The implementation remains advisory, read-only, and artifact-backed.
+3. No new wiki or skill update is required for this tightening because operator behavior did not
+   change; the existing guidance already says heartbeat artifacts are governed derived evidence.

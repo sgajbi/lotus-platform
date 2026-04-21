@@ -125,6 +125,26 @@ def test_heartbeat_status_rejects_summary_count_drift() -> None:
     assert "summary_counts.warning must equal attention item count 1" in errors
 
 
+def test_heartbeat_status_rejects_malformed_utc_timestamps() -> None:
+    validator = _load_validator()
+    status = _load_json(EXAMPLES_DIR / "warning-heartbeat-status.json")
+    status["generated_at_utc"] = "not-a-dateZ"
+    status["attention_items"][0]["first_seen_at_utc"] = "also-not-a-dateZ"
+    status["attention_items"][0]["last_seen_at_utc"] = "2026-04-21T00:00:00+08:00"
+
+    errors = validator.validate_heartbeat_status(status)
+
+    assert "generated_at_utc must be an RFC-3339 UTC string ending with Z" in errors
+    assert (
+        "attention_items[0].first_seen_at_utc must be an RFC-3339 UTC string ending with Z"
+        in errors
+    )
+    assert (
+        "attention_items[0].last_seen_at_utc must be an RFC-3339 UTC string ending with Z"
+        in errors
+    )
+
+
 def test_heartbeat_config_rejects_unknown_enabled_source(tmp_path: Path) -> None:
     validator = _load_validator()
     config = _load_json(ROOT / "automation" / "heartbeat-config.json")
@@ -163,4 +183,36 @@ def test_heartbeat_suppressions_reject_invalid_expiry(tmp_path: Path) -> None:
 
     errors = validator.validate_heartbeat_suppressions(path)
 
-    assert "heartbeat suppressions[0].expires_at_utc must end with Z" in errors
+    assert (
+        "heartbeat suppressions[0].expires_at_utc must be an RFC-3339 UTC string ending with Z"
+        in errors
+    )
+
+
+def test_heartbeat_suppressions_reject_malformed_utc_expiry(tmp_path: Path) -> None:
+    validator = _load_validator()
+    path = tmp_path / "heartbeat-suppressions.json"
+    path.write_text(
+        json.dumps(
+            {
+                "contract_id": "lotus-platform:heartbeat-suppressions:v1",
+                "source_rfc": "RFC-0095",
+                "suppressions": [
+                    {
+                        "deduplication_key": "github:pr:stale",
+                        "owner": "lotus-platform",
+                        "reason": "temporary",
+                        "expires_at_utc": "not-a-dateZ",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    errors = validator.validate_heartbeat_suppressions(path)
+
+    assert (
+        "heartbeat suppressions[0].expires_at_utc must be an RFC-3339 UTC string ending with Z"
+        in errors
+    )

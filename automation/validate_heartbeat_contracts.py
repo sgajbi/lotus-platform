@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,16 @@ def _require_keys(errors: list[str], label: str, data: object, required: set[str
     missing = sorted(required - set(data))
     if missing:
         errors.append(f"{label} missing required fields: {', '.join(missing)}")
+
+
+def _is_rfc3339_utc(value: object) -> bool:
+    if not isinstance(value, str) or value != value.strip() or not value.endswith("Z"):
+        return False
+    try:
+        datetime.fromisoformat(f"{value[:-1]}+00:00")
+    except ValueError:
+        return False
+    return True
 
 
 def _validate_evidence_refs(
@@ -154,7 +165,7 @@ def validate_heartbeat_status(
         errors.append("run_status must be a governed heartbeat run status")
     if not str(status.get("heartbeat_run_id", "")).strip():
         errors.append("heartbeat_run_id must be non-empty")
-    if not str(status.get("generated_at_utc", "")).endswith("Z"):
+    if not _is_rfc3339_utc(status.get("generated_at_utc")):
         errors.append("generated_at_utc must be an RFC-3339 UTC string ending with Z")
 
     source_systems = _as_set(contract.get("source_systems"))
@@ -212,17 +223,19 @@ def validate_heartbeat_status(
             errors.append(f"{label}.deduplication_key must be non-empty")
         if item.get("deduplication_key") == item.get("attention_item_id"):
             errors.append(f"{label}.deduplication_key must be distinct from attention_item_id")
-        if not str(item.get("first_seen_at_utc", "")).endswith("Z"):
-            errors.append(f"{label}.first_seen_at_utc must end with Z")
-        if not str(item.get("last_seen_at_utc", "")).endswith("Z"):
-            errors.append(f"{label}.last_seen_at_utc must end with Z")
+        if not _is_rfc3339_utc(item.get("first_seen_at_utc")):
+            errors.append(f"{label}.first_seen_at_utc must be an RFC-3339 UTC string ending with Z")
+        if not _is_rfc3339_utc(item.get("last_seen_at_utc")):
+            errors.append(f"{label}.last_seen_at_utc must be an RFC-3339 UTC string ending with Z")
         _validate_evidence_refs(errors, label, item.get("evidence_refs"), evidence_ref_types)
 
         suppression = item.get("suppression")
         if suppression is not None:
             _require_keys(errors, f"{label}.suppression", suppression, required_suppression_fields - {"deduplication_key"})
-            if isinstance(suppression, dict) and not str(suppression.get("expires_at_utc", "")).endswith("Z"):
-                errors.append(f"{label}.suppression.expires_at_utc must end with Z")
+            if isinstance(suppression, dict) and not _is_rfc3339_utc(suppression.get("expires_at_utc")):
+                errors.append(
+                    f"{label}.suppression.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+                )
 
     summary_counts = status.get("summary_counts")
     if not isinstance(summary_counts, dict):
@@ -261,8 +274,10 @@ def validate_heartbeat_status(
         for index, decision in enumerate(suppression_decisions):
             label = f"suppression_decisions[{index}]"
             _require_keys(errors, label, decision, required_suppression_fields)
-            if isinstance(decision, dict) and not str(decision.get("expires_at_utc", "")).endswith("Z"):
-                errors.append(f"{label}.expires_at_utc must end with Z")
+            if isinstance(decision, dict) and not _is_rfc3339_utc(decision.get("expires_at_utc")):
+                errors.append(
+                    f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+                )
 
     unhealthy_source = any(
         isinstance(source, dict) and source.get("read_status") in {"missing", "error"}
@@ -374,8 +389,8 @@ def validate_heartbeat_suppressions(path: Path = SUPPRESSIONS_PATH) -> list[str]
         for key in required:
             if not isinstance(suppression.get(key), str) or not suppression[key].strip():
                 errors.append(f"{label}.{key} must be a non-empty string")
-        if not str(suppression.get("expires_at_utc", "")).endswith("Z"):
-            errors.append(f"{label}.expires_at_utc must end with Z")
+        if not _is_rfc3339_utc(suppression.get("expires_at_utc")):
+            errors.append(f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z")
     return errors
 
 

@@ -204,6 +204,24 @@ def test_heartbeat_runner_rejects_non_utc_generation_timestamp(tmp_path: Path) -
         raise AssertionError("expected non-UTC generated_at_utc to be rejected")
 
 
+def test_heartbeat_runner_rejects_malformed_utc_generation_timestamp(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(config_path, enabled_sources=[])
+
+    try:
+        runner.run_heartbeat(
+            config_path=config_path,
+            output_dir=tmp_path / "heartbeat",
+            generated_at_utc="not-a-dateZ",
+            branch="main",
+        )
+    except ValueError as exc:
+        assert "generated_at_utc must be an RFC-3339 UTC string ending with Z" in str(exc)
+    else:
+        raise AssertionError("expected malformed generated_at_utc to be rejected")
+
+
 def test_github_adapter_reports_failing_checks_and_stale_prs(tmp_path: Path) -> None:
     runner = _load_module(RUNNER_PATH, "run_heartbeat")
     pr_monitor = tmp_path / "pr-monitor.json"
