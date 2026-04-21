@@ -8,6 +8,8 @@ Profiles are defined in `automation/task-profiles.json`.
 |---|---|---|
 | `platform-alignment` | Fast sync + PR health + core standards checks + shared infra ownership guard | Daily alignment pass |
 | `qa-platform-readiness` | Governed front-office runtime bring-up and populated UI proof | Pre-release demo and product-surface readiness gate |
+| `qa-platform-readiness-clean-core` | Governed front-office runtime proof after targeted lotus-core state reset and deterministic lotus-ai provider-disabled posture | Stale core state after load/performance data runs |
+| `qa-platform-readiness-clean-core-build` | Clean-core front-office proof with local service image rebuilds and deterministic lotus-ai provider-disabled posture | RFC proof when local branch changes must be in Docker images |
 | `fast-feedback` | Fast lint/type/test checks in parallel | Developer inner loop |
 | `ci-parity` | Host-based CI parity checks | Pre-PR confidence |
 | `docker-ci-parity` | Dockerized parity checks | Reduce host env drift |

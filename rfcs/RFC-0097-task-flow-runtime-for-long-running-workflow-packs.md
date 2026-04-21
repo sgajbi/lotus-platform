@@ -1,6 +1,6 @@
 # RFC-0097: Task-Flow Runtime For Long-Running Workflow Packs
 
-- Status: Draft
+- Status: In Implementation
 - Date: 2026-04-21
 - Owners:
   - `lotus-ai` runtime owners
@@ -62,9 +62,10 @@ risk that intermediate AI output is mistaken for authoritative domain truth.
 | --- | --- | --- |
 | `lotus-ai` workflow-pack registry | RFC-0031/RFC-0032 registry, activation, caller authorization, rollout posture, and runtime readiness have been materially implemented | Task-flow creation must require an active, authorized pack and must not bypass registry posture |
 | `lotus-ai` run ledger and review contracts | RFC-0033 run ledger, review state, replacement lineage, supportability, and degraded readiness behavior are materially implemented | Task flows must reference run-ledger records rather than redefining run or review state |
-| `lotus-gateway` | Gateway is the API face for product surfaces, not product or AI source truth | Gateway task-flow endpoints must proxy source posture and preserve degraded/unsupported states truthfully |
-| `lotus-workbench` | Workbench consumes gateway/BFF contracts and must not read platform or `lotus-ai` files directly | UI adoption must wait for gateway contracts and render flow, run, and review states distinctly |
-| RFC-0095 heartbeat | Advisory attention surfacing exists for local artifacts and selected runtime posture | Stale or blocked task flows should become heartbeat attention only after source artifacts or runtime APIs exist |
+| `lotus-ai` task-flow runtime | First-wave implementation exists on `feature/rfc0097-task-flow-contract`: task-flow contracts, bounded transitions, memory/SQL stores, readiness, read-only inspection APIs, Phase-1 execution binding, review synchronization, handoff-readiness posture, and runtime-status heartbeat attention | Remaining `lotus-ai` work is final governance/live proof and future domain handoff execution |
+| `lotus-gateway` | Gateway is the API face for product surfaces, not product or AI source truth. First-wave advisor-brief task-flow posture publication exists on `feature/rfc0097-task-flow-posture` | Gateway preserves task-flow state, replacement lineage, and handoff posture from `lotus-ai` without becoming source truth |
+| `lotus-workbench` | Workbench consumes gateway/BFF contracts and must not read platform or `lotus-ai` files directly. First-wave advisor-brief task-flow rendering exists on `feature/rfc0097-task-flow-posture` | UI renders flow, run, review, lineage, and handoff-readiness posture from gateway only |
+| RFC-0095 heartbeat | Advisory attention surfacing exists for local artifacts and selected runtime posture | `lotus-ai` runtime status now emits task-flow heartbeat attention for waiting, blocked, stale, and action-required flows |
 | RFC-0096 delegation | Bounded delegated engineering work is now governed | Multi-repo implementation can use delegation, but source code still needs main-agent review and PR checks |
 
 ## Goals
@@ -432,6 +433,43 @@ Minimum implementation proof:
 7. Final docs/context/wiki/skills/branch hygiene is complete.
 8. Implementation evidence proves behavior across the owning repositories before status changes to
    Implemented.
+
+## Implementation Evidence
+
+As of 2026-04-21, RFC-0097 is implemented for the first-wave advisor-brief workflow-pack path across
+three feature branches:
+
+1. `lotus-ai`: `feature/rfc0097-task-flow-contract`
+   - task-flow descriptor, checkpoint, blocking-condition, replacement-lineage, handoff, and
+     source-evidence contracts,
+   - bounded transition validation,
+   - memory and SQL-backed task-flow/checkpoint stores with readiness-aware degradation,
+   - read-only task-flow catalog, detail, and checkpoint APIs,
+   - Phase-1 workflow-pack execution records task-flow/checkpoint state,
+   - review actions synchronize task-flow review state and replacement lineage,
+   - accepted flows record `READY_FOR_HANDOFF` posture for the workflow authority owner,
+   - `/platform/runtime-status` emits bounded heartbeat-style task-flow attention.
+2. `lotus-gateway`: `feature/rfc0097-task-flow-posture`
+   - advisor-brief responses preserve gateway-shaped task-flow posture from `lotus-ai`,
+   - replacement lineage and handoff refs are forwarded without inferring state locally,
+   - tests cover client forwarding, service parsing, router serialization, OpenAPI schema, and typecheck.
+3. `lotus-workbench`: `feature/rfc0097-task-flow-posture`
+   - gateway `workflow_pack_task_flow` payloads are typed,
+   - advisor-brief view model renders task-flow supportability, provenance, lineage, and handoff
+     posture,
+   - fallback previews remain excluded from RFC-0097 proof.
+
+Local proof already recorded in repository slice-review files:
+
+1. `lotus-ai`: 106 focused RFC-0097 tests passed after heartbeat and handoff-readiness slices.
+2. `lotus-gateway`: 95 focused advisor-brief/gateway contract tests passed after task-flow and
+   handoff-posture preservation; `make typecheck` passed.
+3. `lotus-workbench`: 44 focused advisor-brief tests passed, `npm run typecheck`, `npm run lint`,
+   and `npm run build` passed.
+
+RFC-0097 should move to `Implemented` only after the three feature branches merge, GitHub checks are
+green, wiki publication is complete, and a final live end-to-end advisor-brief validation proves the
+same flow through `lotus-ai` -> `lotus-gateway` -> `lotus-workbench`.
 
 ## Implementation Boundaries
 

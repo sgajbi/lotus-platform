@@ -88,5 +88,7 @@
   RFC-0094-compatible delegated task ledger records, main-agent review discipline, and optional
   RFC-0095 heartbeat attention for stale, failed, lost, missing-evidence, unresolved-review, and
   overlapping-write-scope delegated work.
-- RFC-0097 and RFC-0098 remain the next implementation RFCs, ordered so multi-step workflow-pack
-  runtime lands before queue/concurrency policy becomes binding.
+- RFC-0097 is in implementation for the first-wave advisor-brief task-flow runtime across
+  `lotus-ai`, `lotus-gateway`, and `lotus-workbench`; final status remains pending until the
+  feature branches merge, live proof is recorded, and repo wikis are published.
+- RFC-0098 remains the next queue/concurrency RFC after RFC-0097 closure.

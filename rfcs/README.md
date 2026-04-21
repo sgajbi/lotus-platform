@@ -135,7 +135,7 @@ Reference baseline:
 - `RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md` (implemented on `main`; task-ledger contract, background-run ledger state, lifecycle vocabulary, skill guidance, AGENTS guidance, wiki source, and validation evidence complete)
 - `RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md` (implemented; advisory heartbeat contract, runner, source adapters, workflow-pack attention adapter, deduplication, suppression, validator coverage, docs/context/wiki/skills review complete)
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
-- `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (draft; implement after RFC-0095/RFC-0096 because task flows create longer-lived operational state and may benefit from bounded delegation)
+- `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (in implementation; first-wave task-flow runtime, gateway posture, and Workbench rendering branches exist and require merge/live proof before final implemented status)
 - `RFC-0098-per-pack-queue-and-concurrency-policy.md` (draft; implement after or alongside RFC-0097 when workflow-pack queue policy becomes large enough to require a separate delivery track)
 
 ## Recommended Next Implementation Order
