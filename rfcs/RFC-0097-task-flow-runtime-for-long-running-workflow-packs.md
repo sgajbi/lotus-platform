@@ -81,6 +81,44 @@ risk that intermediate AI output is mistaken for authoritative domain truth.
 8. Define API certification, OpenAPI, vocabulary, migration, and heartbeat expectations before
    implementation begins.
 
+## Supported Features
+
+The following RFC-0097 features are implementation-backed and supported for the first-wave
+advisor-brief workflow-pack path:
+
+1. `lotus-ai` task-flow source contracts for flow identity, steps, checkpoints, blocking
+   conditions, replacement lineage, handoff refs, runtime-state snapshots, review-state snapshots,
+   supportability posture, and source evidence.
+2. Memory and SQL-backed `lotus-ai` task-flow plus checkpoint stores with readiness-aware
+   degradation and migration-backed restart safety.
+3. Read-only `lotus-ai` task-flow inspection APIs:
+   - `GET /platform/workflow-packs/task-flows`
+   - `GET /platform/workflow-packs/task-flows/{task_flow_id}`
+   - `GET /platform/workflow-packs/task-flows/{task_flow_id}/checkpoints`
+4. Phase-1 advisor-brief workflow-pack execution recording into task-flow and checkpoint posture.
+5. Review-action synchronization from workflow-pack run review state into task-flow posture for
+   `ACCEPT`, `REJECT`, `REVISE`, `SUPERSEDE`, and `ABANDON`, including replacement lineage where
+   required.
+6. Accepted task-flow handoff readiness posture through explicit `READY_FOR_HANDOFF` refs owned by
+   the workflow authority owner.
+7. Runtime-status heartbeat-style task-flow attention for waiting, blocked, stale, action-required,
+   and degraded task-flow posture.
+8. `lotus-gateway` advisor-brief publication of task-flow posture from `lotus-ai` without becoming
+   task-flow source truth.
+9. `lotus-workbench` advisor-brief rendering and live validation of gateway-backed task-flow
+   posture, replacement lineage, review state, supportability state, and handoff readiness.
+10. Canonical clean-core live proof through `lotus-ai` -> `lotus-gateway` -> `lotus-workbench` for
+    initial posture, `ACCEPT`, `SUPERSEDE`, and `REVISE`.
+
+The following are not supported by RFC-0097 and remain future work:
+
+1. public task-flow mutation APIs outside the existing workflow-pack execution and review-action
+   seams,
+2. arbitrary DAG orchestration or a generic workflow engine,
+3. domain workflow execution or consequence-bearing handoff after `READY_FOR_HANDOFF`,
+4. task-flow source truth in gateway, Workbench, heartbeat, or delegated-agent records,
+5. per-pack queue and concurrency policy, which is tracked by RFC-0098.
+
 ## Non-Goals
 
 1. Replacing domain workflow engines.
@@ -362,7 +400,29 @@ Review gate:
    complete,
 3. ensure deduplication keys preserve the exact flow and step identifiers.
 
-### Slice 7: Code Review, API Certification, And Governance Tightening
+### Slice 7: Cleanup, Structure, And Documentation Shape
+
+Dedicated cleanup and structure slice.
+
+1. Remove dead code and stale task-flow assumptions found in touched paths.
+2. Improve repository structure only where the implementation has created real local complexity.
+3. Improve document structure and reduce sprawl by keeping durable operator/user material in the
+   wiki source and keeping implementation-slice evidence in repo docs.
+4. Move the right long-lived operator material to repo-local `wiki/` pages.
+5. Avoid duplicate documentation across repo docs and wiki pages; use docs for implementation
+   evidence and wiki for operator-facing navigation and usage.
+6. Ensure changed repo wikis are published and usable after merge.
+7. Update the supported-features list when a feature is proven, and remove or demote aspirational
+   wording that is not backed by implementation.
+
+Review gate:
+
+1. compare repo docs and wiki pages for stale duplicated claims,
+2. verify no generated evidence artifacts are accidentally committed,
+3. verify wiki source and published wiki are synchronized for changed repos,
+4. record any deferred cleanup as future work rather than silently broadening this RFC.
+
+### Slice 8: Code Review, API Certification, And Governance Tightening
 
 Second-last mandatory slice.
 
@@ -381,7 +441,7 @@ Review gate:
 3. prove invalid transitions and degraded stores fail truthfully,
 4. verify code review found no unreviewed generated or delegated changes.
 
-### Slice 8: Documentation, Context, Wiki, Skills, And Branch Hygiene
+### Slice 9: Documentation, Context, Wiki, Supported Features, Skills, And Branch Hygiene
 
 Final mandatory slice.
 
@@ -389,11 +449,12 @@ Final mandatory slice.
 2. Update docs, runbooks, OpenAPI docs, and operator guidance where task-flow truth changed.
 3. Update central agent context or repo-local context where operating truth changed.
 4. Update wiki source if operator-facing behavior changed and publish after merge.
-5. Assess whether existing skills or guidance should be updated for task-flow implementation and
+5. Update the supported-features list so it reflects implementation-backed product material only.
+6. Assess whether existing skills or guidance should be updated for task-flow implementation and
    validation.
-6. Record an explicit no-change decision for AGENTS, context, wiki, and skills if no updates are
-   needed.
-7. Run focused and repo-native checks, push PRs, monitor CI, merge only when green, and clean local
+7. Record an explicit no-change decision for AGENTS, context, wiki, supported-features material,
+   and skills if no updates are needed.
+8. Run focused and repo-native checks, push PRs, monitor CI, merge only when green, and clean local
    and remote branches.
 
 Required final-slice decisions:
@@ -401,9 +462,11 @@ Required final-slice decisions:
 1. `AGENTS.md`: update, no change, or defer with rationale.
 2. `context/`: update, no change, or defer with rationale.
 3. `wiki/`: update and publish, or record no-wiki-change rationale.
-4. skills/guidance: update existing skills, add a new skill, remove stale guidance, or record
+4. supported features: update the supported-features list or explicitly record why no feature
+   support posture changed.
+5. skills/guidance: update existing skills, add a new skill, remove stale guidance, or record
    no-change rationale.
-5. branch hygiene: record local clean state, remote branch cleanup, generated artifact posture, and
+6. branch hygiene: record local clean state, remote branch cleanup, generated artifact posture, and
    open follow-ups.
 
 ## Test Plan
@@ -526,20 +589,21 @@ Tightening applied:
 5. added transition rules and terminal-state constraints,
 6. added API certification pattern requirements,
 7. added heartbeat attention requirements and advisory posture,
-8. split implementation into eight slices with explicit review gates,
-9. added final-slice decisions for AGENTS, context, wiki, skills, and branch hygiene,
+8. split implementation into governed slices with explicit review gates,
+9. added final-slice decisions for AGENTS, context, wiki, supported features, skills, and branch hygiene,
 10. expanded test plan, acceptance criteria, boundaries, and open decisions.
 
-Documentation, context, wiki, and skills decision for this pre-implementation pass:
+Documentation, context, wiki, and skills decision for this pre-implementation pass
+(historical; final closure decisions are recorded in Implementation Evidence):
 
 1. RFC document: updated because the previous draft was too implicit for cross-repo implementation.
-2. Repo RFC index and wiki index: no status change required; RFC-0097 remains draft and already
-   appears as the next implementation item.
-3. Central agent context: no behavior change yet, so no context update is required before
+2. Repo RFC index and wiki index: no status change was required at draft time because RFC-0097
+   already appeared as the next implementation item.
+3. Central agent context: no behavior change existed yet, so no context update was required before
    implementation.
-4. Skills: no change yet. A task-flow-specific skill should be considered only after implementation
-   proves repeatable commands and review patterns.
-5. Wiki: no publication required for this pre-implementation tightening because operator-facing
+4. Skills: no change was made at draft time. Final closure reassessed this after implementation
+   evidence existed.
+5. Wiki: no publication was required for this pre-implementation tightening because operator-facing
    behavior did not change.
 
 ## Initial Priority
