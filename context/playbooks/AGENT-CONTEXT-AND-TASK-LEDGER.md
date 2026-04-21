@@ -7,9 +7,11 @@ Governed sources:
 
 1. `rfcs/RFC-0093-lotus-context-assembly-and-compaction-hardening-for-agentic-development.md`
 2. `rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md`
-3. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`
-4. `automation/Start-Background-Run.ps1`
-5. `automation/Check-Background-Runs.ps1`
+3. `rfcs/RFC-0096-governed-multi-agent-delegation-model.md`
+4. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`
+5. `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`
+6. `automation/Start-Background-Run.ps1`
+7. `automation/Check-Background-Runs.ps1`
 
 ## Context Assembly
 
@@ -70,16 +72,52 @@ rerun evidence.
 
 ## Delegated Work
 
-When delegating or resuming delegated work, record:
+Delegation is allowed only when the delegated task is bounded, reviewable, and not the immediate
+critical-path blocker for the main agent.
+
+Use one governed profile from the delegation policy contract:
+
+1. `exploration`,
+2. `implementation`,
+3. `validation`,
+4. `review_support`,
+5. `documentation`,
+6. `ci_triage`.
+
+Do not use broad helper profiles such as `general_helper`, `best_effort_worker`, or
+`do_everything`.
+
+When delegating or resuming delegated work, record the required input envelope:
 
 1. problem statement,
 2. expected output,
 3. read scope,
-4. task mode,
-5. explicit write scope when edits are allowed.
+4. task mode or delegation profile,
+5. explicit write scope when edits are allowed, or `none` for no-write work,
+6. forbidden actions,
+7. evidence requirements,
+8. coordination notes,
+9. required return envelope.
 
-Delegated code changes must return changed files and an outcome summary. Delegated workers must not
-revert unrelated work.
+Delegated work must return:
+
+1. outcome summary,
+2. files changed, if any,
+3. tests or checks run,
+4. evidence refs,
+5. blockers or assumptions,
+6. remaining risks,
+7. follow-up required or `none`,
+8. confirmation that unrelated work was not reverted,
+9. patch summary grouped by owned write scope when implementation changed files.
+
+Delegated code changes are evidence, not review. The main agent must review returned diffs, reject
+out-of-scope edits, run focused checks after integration, and preserve one accountable owner for PR
+posture, wiki publication, merge readiness, and final communication.
+
+Treat overlapping active write scopes as a coordination problem. Pause, cancel, or supersede one
+task before integrating conflicting changes. Treat `LOST`, `TIMED_OUT`, and `FAILED` delegated work
+as findings that need fix-forward, explicit cancellation, or supersession evidence.
 
 ## Promotion Decisions
 

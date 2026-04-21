@@ -12,6 +12,8 @@ Execute scripts from the local `lotus-platform` workspace root, not from `automa
 Before launching or summarizing detached work, use
 `lotus-platform/context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md` and the contract in
 `lotus-platform/platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`.
+For governed multi-agent delegation, also use
+`lotus-platform/platform-contracts/agent-engineering/delegation-policy-contract.v1.json`.
 Preserve `engineering_task_id`, repository, branch, PR number, commit SHA, check name, RFC id, file
 path, endpoint, contract name, portfolio id, and task status exactly when those identifiers are
 present.
@@ -101,6 +103,23 @@ background-run ledger, mesh certification, wiki source, context validators, or `
 workflow-pack runtime APIs as source truth. Suppressed items remain visible; blocking findings are
 not suppressible.
 
+## Govern Delegated Work
+
+Use the RFC-0096 delegation policy before launching, resuming, or summarizing delegated work:
+
+1. choose one governed profile: `exploration`, `implementation`, `validation`, `review_support`,
+   `documentation`, or `ci_triage`,
+2. record read scope and explicit write scope, or `none` for no-write profiles,
+3. include forbidden actions: no unrelated reverts, no broad cleanup, no PR merge, and no wiki
+   publication without main-agent review,
+4. require returned evidence: files changed, checks run, evidence refs, blockers, remaining risks,
+   follow-up posture, unrelated-work preservation, and patch summary by write scope,
+5. keep the main agent accountable for diff review, integration, tests, PR posture, wiki
+   publication, and final communication.
+
+Do not delegate immediate critical-path blockers, broad repo cleanup, overlapping write scopes, or
+hidden-state work that cannot be reconstructed from contracts, ledgers, files, tests, or GitHub.
+
 ## Close PR Loop
 
 Use this when asked to monitor PRs, queue merges, and clean branches without manual repetition:
@@ -128,6 +147,7 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
   - `Local Development Runbook.md`
   - this skill reference file if command flow changed
   - heartbeat context/wiki guidance when RFC-0095 operator behavior changes
+  - delegation context/wiki guidance when RFC-0096 operating behavior changes
 - Do not summarize detached work from chat memory alone when a task-ledger or GitHub evidence source
   exists.
 

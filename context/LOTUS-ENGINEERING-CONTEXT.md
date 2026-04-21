@@ -200,7 +200,14 @@ For RFC-0093/RFC-0094 agent engineering governance:
 6. treat heartbeat output under `output/heartbeat/` as derived advisory evidence only; it does not
    replace GitHub, local background-run ledgers, mesh certification, wiki source, context
    validators, or `lotus-ai` runtime APIs as source truth,
-7. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
+7. use `platform-contracts/agent-engineering/delegation-policy-contract.v1.json` for governed
+   RFC-0096 delegation profiles, input envelopes, output envelopes, write-scope rules, and
+   heartbeat attention identifiers,
+8. keep delegated implementation work accountable to the main agent: returned patches are evidence,
+   not review, and require main-agent diff review plus focused tests before integration,
+9. do not delegate immediate critical-path blockers, broad repo cleanup, overlapping write scopes,
+   PR merge, or wiki publication without explicit main-agent ownership and review,
+10. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
    follow-ups instead of relying on chat history.
 
 ## Front-Office Runtime Governance

@@ -419,6 +419,9 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "Local-Only Assumption Pattern" in fix_forward_patterns
     assert "Identifier Preservation" in agent_context_task_ledger
     assert "Detached Task Ledger" in agent_context_task_ledger
+    assert "delegation-policy-contract.v1.json" in agent_context_task_ledger
+    assert "Delegated code changes are evidence, not review" in agent_context_task_ledger
+    assert "overlapping active write scopes" in agent_context_task_ledger
     assert "Promotion Decisions" in agent_context_task_ledger
     assert "Fix-Forward Patterns" in reference_map
     assert "Agent Context And Task Ledger Playbook" in reference_map
@@ -426,6 +429,9 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in agents_contract
     assert "engineering_task_id" in agents_contract
     assert "output/background-runs.json" in agents_contract
+    assert "delegation-policy-contract.v1.json" in agents_contract
+    assert "Delegate only bounded non-blocking work" in agents_contract
+    assert "Do not delegate broad" in agents_contract
     assert "Wiki Publication Rule" in agents_contract
     assert "Sync-RepoWikis.ps1" in agents_contract
     assert "Repo-local `wiki/` is the authored source of truth" in agents_contract

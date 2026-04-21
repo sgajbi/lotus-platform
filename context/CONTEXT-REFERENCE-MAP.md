@@ -203,7 +203,10 @@ For RFC-0084 work, the highest-signal machine-readable files are:
    Investigation sequence for time-weighted return defects, implausible economics, and upstream reconciliation issues.
 7. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
    RFC-0093/RFC-0094 sequence for scoped context assembly, exact identifier preservation,
-   detached task ledger evidence, delegation guardrails, and durable promotion decisions.
+   detached task ledger evidence, RFC-0096 delegation guardrails, and durable promotion decisions.
+8. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
+   RFC-0096 governed profiles, input envelopes, output envelopes, write-scope rules, and heartbeat
+   attention identifiers for bounded multi-agent work.
 
 ## Platform Standards
 
