@@ -5,6 +5,7 @@ param(
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
   [string]$OutputDirectory = "output/front-office-qa",
   [string]$ScreenshotDirectory = "",
+  [string]$LotusAiEnvFile = "",
   [int]$SeedWaitSeconds = 900,
   [switch]$BringUp,
   [switch]$Clean,
@@ -155,6 +156,7 @@ $summary = [ordered]@{
   build_images = [bool]$BuildImages
   remove_images = [bool]$RemoveImages
   keep_running = [bool]$KeepRunning
+  lotus_ai_env_file = $LotusAiEnvFile
   seed_wait_seconds = $SeedWaitSeconds
   portfolio_id = $PortfolioId
   benchmark_code = $BenchmarkCode
@@ -200,6 +202,9 @@ try {
 
   if ($BringUp) {
     $bringUpArguments = $commonArguments.Clone()
+    if (-not [string]::IsNullOrWhiteSpace($LotusAiEnvFile)) {
+      $bringUpArguments.LotusAiEnvFile = $LotusAiEnvFile
+    }
     if ($BuildImages) {
       $bringUpArguments.BuildImages = $true
     }
@@ -261,6 +266,7 @@ $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Remove images: $($summary.remove_images)"
 $markdown += "- Keep running: $($summary.keep_running)"
+$markdown += "- Lotus AI env file: $($summary.lotus_ai_env_file)"
 $markdown += "- Seed wait seconds: $($summary.seed_wait_seconds)"
 $markdown += "- Portfolio: $PortfolioId"
 $markdown += "- Benchmark: $BenchmarkCode"

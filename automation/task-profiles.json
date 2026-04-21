@@ -620,7 +620,7 @@
         {
           "id": "qa-platform-readiness-clean-core",
           "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -SeedWaitSeconds 1200"
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
         }
       ]
     },
@@ -631,7 +631,7 @@
         {
           "id": "qa-platform-readiness-clean-core-build",
           "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -SeedWaitSeconds 1200"
+          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
         }
       ]
     },
