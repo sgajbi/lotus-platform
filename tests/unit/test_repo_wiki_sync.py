@@ -189,6 +189,81 @@ def test_repo_wiki_sync_pr_gate_allows_committed_branch_wiki_changes(
     assert "Publish after merge" in result.stderr + result.stdout
 
 
+def test_repo_wiki_sync_publish_pushes_repo_source_to_wiki_remote(tmp_path: Path) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    source = workspace / repo_name / "wiki"
+    source.mkdir(parents=True)
+    (source / "Home.md").write_text("# Published Home\n", encoding="utf-8")
+    remote = _init_wiki_remote(tmp_path, repo_name, "# Stale Home\n")
+
+    result = subprocess.run(
+        _powershell_command(
+            "-Publish",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+
+    clone = tmp_path / "published-checkout"
+    _git(tmp_path, "clone", str(remote), str(clone))
+    assert (clone / "Home.md").read_text(encoding="utf-8") == "# Published Home\n"
+
+
+def test_repo_wiki_sync_publish_pushes_existing_local_wiki_commit(
+    tmp_path: Path,
+) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    source = workspace / repo_name / "wiki"
+    source.mkdir(parents=True)
+    (source / "Home.md").write_text("# Published Home\n", encoding="utf-8")
+    remote = _init_wiki_remote(tmp_path, repo_name, "# Stale Home\n")
+    published_clone = publish_root / f"{repo_name}-wiki"
+    _git(tmp_path, "clone", str(remote), str(published_clone))
+    _git(published_clone, "config", "user.email", "wiki-sync@example.com")
+    _git(published_clone, "config", "user.name", "Wiki Sync Test")
+    (published_clone / "Home.md").write_text("# Published Home\n", encoding="utf-8")
+    _git(published_clone, "add", "Home.md")
+    _git(published_clone, "commit", "-m", "local unpublished wiki commit")
+
+    result = subprocess.run(
+        _powershell_command(
+            "-Publish",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+
+    clone = tmp_path / "published-ahead-checkout"
+    _git(tmp_path, "clone", str(remote), str(clone))
+    assert (clone / "Home.md").read_text(encoding="utf-8") == "# Published Home\n"
+
+
 def test_platform_checks_include_repo_wiki_sync_gate() -> None:
     repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(
         encoding="utf-8"

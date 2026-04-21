@@ -166,7 +166,7 @@ function Ensure-WikiClone {
             $branch = "master"
             & git switch $branch
         }
-        & git pull --ff-only origin $branch
+        & git pull --ff-only origin $branch | Out-Null
         return $branch
     }
     finally {
@@ -194,8 +194,8 @@ foreach ($repositoryName in Get-RepositoryNames) {
             if ($status.Count -gt 0) {
                 & git add -A
                 & git commit -m "docs: publish wiki from repo source"
-                & git push origin $branch
             }
+            & git push origin $branch
         }
         finally {
             Pop-Location
