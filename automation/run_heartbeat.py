@@ -7,6 +7,21 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import sys
+
+AUTOMATION_DIR = Path(__file__).resolve().parent
+if str(AUTOMATION_DIR) not in sys.path:
+    sys.path.insert(0, str(AUTOMATION_DIR))
+
+from heartbeat_sources import (  # noqa: E402
+    display_path,
+    load_config,
+    read_source,
+    run_status,
+    severity_counts,
+    task_evidence_ref,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "platform-contracts" / "heartbeat" / "heartbeat-status.schema.json"
@@ -15,7 +30,6 @@ DEFAULT_OUTPUT_DIR = ROOT / "output" / "heartbeat"
 STATUS_FILENAME = "heartbeat-status.json"
 MARKDOWN_FILENAME = "heartbeat-status.md"
 ISSUES_FILENAME = "heartbeat-issues.json"
-
 RUNNER_CONFIG_CONTRACT_ID = "lotus-platform:heartbeat-runner-config:v1"
 HEARTBEAT_STATUS_CONTRACT_ID = "lotus-platform:heartbeat-status:v1"
 
@@ -57,114 +71,6 @@ def _git_branch(root: Path = ROOT) -> str:
     return result.stdout.strip() or "unknown"
 
 
-def _governed_source_systems() -> set[str]:
-    contract = _read_json(CONTRACT_PATH)
-    return set(contract["source_systems"])
-
-
-def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
-    config = _read_json(path)
-    errors: list[str] = []
-    if config.get("contract_id") != RUNNER_CONFIG_CONTRACT_ID:
-        errors.append(f"contract_id must be {RUNNER_CONFIG_CONTRACT_ID}")
-    if config.get("mutation_policy") != "read_only":
-        errors.append("mutation_policy must be read_only")
-    if config.get("mode") != "advisory":
-        errors.append("mode must be advisory")
-    enabled_sources = config.get("enabled_sources")
-    if not isinstance(enabled_sources, list):
-        errors.append("enabled_sources must be a list")
-    else:
-        governed_sources = _governed_source_systems()
-        unknown_sources = sorted(set(enabled_sources) - governed_sources)
-        if unknown_sources:
-            errors.append(f"enabled_sources contains unknown source systems: {', '.join(unknown_sources)}")
-    output_directory = config.get("output_directory")
-    if not isinstance(output_directory, str) or not output_directory.strip():
-        errors.append("output_directory must be a non-empty string")
-    if errors:
-        raise ValueError("; ".join(errors))
-    return config
-
-
-def _severity_counts(attention_items: list[dict[str, Any]]) -> dict[str, int]:
-    counts = {"info": 0, "warning": 0, "action_required": 0, "blocking": 0}
-    for item in attention_items:
-        severity = str(item.get("severity", ""))
-        if severity in counts:
-            counts[severity] += 1
-    return counts
-
-
-def _run_status(attention_items: list[dict[str, Any]], source_read_errors: list[dict[str, Any]]) -> str:
-    severities = {item.get("severity") for item in attention_items}
-    if "blocking" in severities:
-        return "blocked"
-    if "action_required" in severities:
-        return "attention_required"
-    if source_read_errors:
-        return "degraded"
-    if "warning" in severities:
-        return "attention_required"
-    return "healthy"
-
-
-def _evidence_ref(ref_type: str, ref: str) -> dict[str, str]:
-    return {"type": ref_type, "ref": ref}
-
-
-def _task_evidence_ref(ref_type: str, path: str) -> dict[str, str]:
-    return {"type": ref_type, "path": path, "ref": path}
-
-
-def _display_path(path: Path) -> str:
-    try:
-        return path.resolve().relative_to(ROOT).as_posix()
-    except ValueError:
-        return str(path)
-
-
-def _not_implemented_source(
-    *,
-    source_system: str,
-    config_path: Path,
-    repository: str,
-    generated_at_utc: str,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    source_ref = f"configured_source:{source_system}"
-    evidence_refs = [_evidence_ref("LOCAL_JSON_ARTIFACT", str(config_path))]
-    source = {
-        "source_system": source_system,
-        "source_ref": source_ref,
-        "read_status": "degraded",
-        "owner": repository,
-        "freshness_at_utc": generated_at_utc,
-        "evidence_refs": evidence_refs,
-    }
-    item = {
-        "attention_item_id": f"{source_system}:source_adapter_not_implemented",
-        "condition": "source_adapter_not_implemented",
-        "source_system": source_system,
-        "source_ref": source_ref,
-        "repository": repository,
-        "severity": "action_required",
-        "owner": repository,
-        "first_seen_at_utc": generated_at_utc,
-        "last_seen_at_utc": generated_at_utc,
-        "evidence_refs": evidence_refs,
-        "recommended_next_action": (
-            f"Implement the RFC-0095 heartbeat adapter for {source_system} before enabling it routinely."
-        ),
-        "deduplication_key": f"{source_system}:{source_ref}:source_adapter_not_implemented",
-    }
-    source_error = {
-        "source_system": source_system,
-        "source_ref": source_ref,
-        "error_summary": "Heartbeat source is configured but no read adapter is implemented yet.",
-        "evidence_refs": evidence_refs,
-    }
-    return source, item, source_error
-
 
 def _task_ledger_metadata(
     *,
@@ -178,9 +84,9 @@ def _task_ledger_metadata(
     run_status: str,
 ) -> dict[str, Any]:
     artifact_refs = [
-        _display_path(output_dir / STATUS_FILENAME),
-        _display_path(output_dir / MARKDOWN_FILENAME),
-        _display_path(output_dir / ISSUES_FILENAME),
+        display_path(output_dir / STATUS_FILENAME),
+        display_path(output_dir / MARKDOWN_FILENAME),
+        display_path(output_dir / ISSUES_FILENAME),
     ]
     return {
         "engineering_task_id": f"eng-task-{heartbeat_run_id}",
@@ -199,14 +105,14 @@ def _task_ledger_metadata(
         },
         "scope": {
             "enabled_sources": enabled_sources,
-            "output_directory": _display_path(output_dir),
+            "output_directory": display_path(output_dir),
             "run_status": run_status,
         },
         "artifacts": artifact_refs,
         "evidence_refs": [
-            _task_evidence_ref("LOCAL_JSON_ARTIFACT", artifact_refs[0]),
-            _task_evidence_ref("LOCAL_MARKDOWN_ARTIFACT", artifact_refs[1]),
-            _task_evidence_ref("LOCAL_JSON_ARTIFACT", artifact_refs[2]),
+            task_evidence_ref("LOCAL_JSON_ARTIFACT", artifact_refs[0]),
+            task_evidence_ref("LOCAL_MARKDOWN_ARTIFACT", artifact_refs[1]),
+            task_evidence_ref("LOCAL_JSON_ARTIFACT", artifact_refs[2]),
         ],
         "cleanup_state": "NOT_REQUIRED",
         "started_at": generated_at_utc,
@@ -231,18 +137,19 @@ def build_heartbeat_status(
     attention_items: list[dict[str, Any]] = []
     source_read_errors: list[dict[str, Any]] = []
     for source_system in enabled_sources:
-        source, item, source_error = _not_implemented_source(
+        source, items, source_errors = read_source(
             source_system=source_system,
+            config=config,
             config_path=config_path,
             repository=repository,
             generated_at_utc=generated_at_utc,
         )
         source_inventory.append(source)
-        attention_items.append(item)
-        source_read_errors.append(source_error)
+        attention_items.extend(items)
+        source_read_errors.extend(source_errors)
 
-    summary_counts = _severity_counts(attention_items)
-    run_status = _run_status(attention_items, source_read_errors)
+    summary_counts = severity_counts(attention_items)
+    heartbeat_run_status = run_status(attention_items, source_read_errors)
     heartbeat_run_id = _heartbeat_run_id(generated_at_utc)
 
     status: dict[str, Any] = {
@@ -250,7 +157,7 @@ def build_heartbeat_status(
         "contract_version": "1.0",
         "heartbeat_run_id": heartbeat_run_id,
         "generated_at_utc": generated_at_utc,
-        "run_status": run_status,
+        "run_status": heartbeat_run_status,
         "source_truth": "external",
         "mode": str(config.get("mode", "advisory")),
         "mutation_policy": str(config.get("mutation_policy", "read_only")),
@@ -269,7 +176,7 @@ def build_heartbeat_status(
         generated_at_utc=generated_at_utc,
         output_dir=output_dir,
         enabled_sources=enabled_sources,
-        run_status=run_status,
+        run_status=heartbeat_run_status,
     )
     return status
 

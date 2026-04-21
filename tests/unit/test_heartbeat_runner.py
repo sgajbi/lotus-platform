@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER_PATH = ROOT / "automation" / "run_heartbeat.py"
 VALIDATOR_PATH = ROOT / "automation" / "validate_heartbeat_contracts.py"
+DEFAULT_CONFIG_PATH = ROOT / "automation" / "heartbeat-config.json"
 
 GENERATED_AT_UTC = "2026-04-21T00:00:00Z"
 
@@ -21,7 +22,13 @@ def _load_module(path: Path, name: str):
     return module
 
 
-def _write_config(path: Path, *, enabled_sources: list[str]) -> None:
+def _write_config(
+    path: Path,
+    *,
+    enabled_sources: list[str],
+    source_config: dict | None = None,
+    thresholds: dict | None = None,
+) -> None:
     path.write_text(
         json.dumps(
             {
@@ -34,9 +41,12 @@ def _write_config(path: Path, *, enabled_sources: list[str]) -> None:
                 "mutation_policy": "read_only",
                 "output_directory": "output/heartbeat",
                 "enabled_sources": enabled_sources,
-                "thresholds": {
+                "source_config": source_config or {},
+                "thresholds": thresholds or {
                     "stale_pr_check_hours": 24,
                     "stale_pr_review_hours": 48,
+                    "stale_background_run_hours": 6,
+                    "stale_mesh_evidence_hours": 24,
                 },
             }
         ),
@@ -70,6 +80,20 @@ def test_heartbeat_runner_writes_valid_empty_state_artifacts(tmp_path: Path) -> 
     assert json.loads((output_dir / "heartbeat-issues.json").read_text(encoding="utf-8")) == []
 
 
+def test_default_heartbeat_config_enables_only_local_artifact_sources() -> None:
+    config = json.loads(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8"))
+
+    assert config["mutation_policy"] == "read_only"
+    assert config["mode"] == "advisory"
+    assert config["enabled_sources"] == [
+        "background_run_ledger",
+        "mesh_certification",
+        "agent_context",
+    ]
+    assert "github" not in config["enabled_sources"]
+    assert "wiki_publication" not in config["enabled_sources"]
+
+
 def test_heartbeat_runner_records_rfc0094_compatible_task_metadata(tmp_path: Path) -> None:
     runner = _load_module(RUNNER_PATH, "run_heartbeat")
     config_path = tmp_path / "heartbeat-config.json"
@@ -100,14 +124,18 @@ def test_heartbeat_runner_records_rfc0094_compatible_task_metadata(tmp_path: Pat
     }
 
 
-def test_heartbeat_runner_reports_configured_but_unimplemented_source_as_degraded(
+def test_heartbeat_runner_reports_missing_configured_source_artifact_as_attention_required(
     tmp_path: Path,
 ) -> None:
     runner = _load_module(RUNNER_PATH, "run_heartbeat")
     validator = _load_module(VALIDATOR_PATH, "validate_heartbeat_contracts")
     config_path = tmp_path / "heartbeat-config.json"
     output_dir = tmp_path / "heartbeat"
-    _write_config(config_path, enabled_sources=["github"])
+    _write_config(
+        config_path,
+        enabled_sources=["github"],
+        source_config={"github": {"pr_monitor_path": str(tmp_path / "missing-pr-monitor.json")}},
+    )
 
     status = runner.run_heartbeat(
         config_path=config_path,
@@ -118,15 +146,13 @@ def test_heartbeat_runner_reports_configured_but_unimplemented_source_as_degrade
 
     assert status["run_status"] == "attention_required"
     assert status["source_inventory"][0]["source_system"] == "github"
-    assert status["source_inventory"][0]["read_status"] == "degraded"
-    assert status["attention_items"][0]["condition"] == "source_adapter_not_implemented"
+    assert status["source_inventory"][0]["read_status"] == "missing"
+    assert status["attention_items"][0]["condition"] == "source_evidence_missing"
     assert status["source_read_errors"][0]["error_summary"] == (
-        "Heartbeat source is configured but no read adapter is implemented yet."
+        "Expected heartbeat source evidence artifact is missing."
     )
     assert validator.validate_heartbeat_status(status) == []
-    assert "github:configured_source:github:source_adapter_not_implemented" in (
-        output_dir / "heartbeat-status.md"
-    ).read_text(encoding="utf-8")
+    assert "Generate " in (output_dir / "heartbeat-status.md").read_text(encoding="utf-8")
 
 
 def test_heartbeat_runner_rejects_unknown_source_system(tmp_path: Path) -> None:
@@ -163,3 +189,184 @@ def test_heartbeat_runner_rejects_non_utc_generation_timestamp(tmp_path: Path) -
         assert "generated_at_utc must be an RFC-3339 UTC string ending with Z" in str(exc)
     else:
         raise AssertionError("expected non-UTC generated_at_utc to be rejected")
+
+
+def test_github_adapter_reports_failing_checks_and_stale_prs(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    pr_monitor = tmp_path / "pr-monitor.json"
+    pr_monitor.write_text(
+        json.dumps(
+            [
+                {
+                    "repo": "sgajbi/lotus-platform",
+                    "pulls": [
+                        {
+                            "number": 95,
+                            "url": "https://github.com/sgajbi/lotus-platform/pull/95",
+                            "updatedAt": "2026-04-18T00:00:00Z",
+                            "hasFailingChecks": True,
+                            "checks": [{"name": "feature", "state": "FAILURE"}],
+                        }
+                    ],
+                    "query_error": None,
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["github"],
+        source_config={"github": {"pr_monitor_path": str(pr_monitor)}},
+        thresholds={"stale_pr_review_hours": 24},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert {item["condition"] for item in status["attention_items"]} == {
+        "github_pr_check_failed",
+        "github_pr_stale",
+    }
+    assert all(item["pr_number"] == 95 for item in status["attention_items"])
+
+
+def test_background_run_ledger_adapter_reports_lost_and_stale_runs(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    ledger = tmp_path / "background-runs.json"
+    ledger.write_text(
+        json.dumps(
+            [
+                {
+                    "engineering_task_id": "eng-task-lost",
+                    "status": "LOST",
+                    "repository": "lotus-platform",
+                    "owner": "lotus-platform",
+                },
+                {
+                    "engineering_task_id": "eng-task-running",
+                    "status": "RUNNING",
+                    "started_at": "2026-04-20T00:00:00Z",
+                    "repository": "lotus-platform",
+                    "owner": "lotus-platform",
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["background_run_ledger"],
+        source_config={"background_run_ledger": {"ledger_path": str(ledger)}},
+        thresholds={"stale_background_run_hours": 6},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["run_status"] == "blocked"
+    assert {item["condition"] for item in status["attention_items"]} == {
+        "background_run_failed",
+        "background_run_stale",
+    }
+    assert any(item["severity"] == "blocking" for item in status["attention_items"])
+
+
+def test_wiki_publication_adapter_reports_publication_drift(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    wiki_status = tmp_path / "wiki-sync-status.json"
+    wiki_status.write_text(
+        json.dumps([{"Repository": "lotus-platform", "DiffCount": 2}]),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["wiki_publication"],
+        source_config={"wiki_publication": {"wiki_sync_status_path": str(wiki_status)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["attention_items"][0]["condition"] == "wiki_publication_drift"
+    assert status["attention_items"][0]["severity"] == "action_required"
+
+
+def test_agent_context_adapter_reports_context_validation_errors(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    context_status = tmp_path / "engineering-context-system-validation.json"
+    context_status.write_text(
+        json.dumps({"status": "failed", "errors": ["missing context link"]}),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["agent_context"],
+        source_config={"agent_context": {"validation_status_path": str(context_status)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["source_inventory"][0]["read_status"] == "degraded"
+    assert status["attention_items"][0]["condition"] == "agent_context_validation_failed"
+
+
+def test_mesh_certification_adapter_reports_stale_blocked_operating_report(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    operating_report = tmp_path / "enterprise-mesh-operating-report.json"
+    operating_report.write_text(
+        json.dumps(
+            {
+                "generated_at_utc": "2026-04-19T00:00:00Z",
+                "operating_state": "blocked",
+                "escalation_queue": [{"owner": "lotus-platform"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["mesh_certification"],
+        source_config={
+            "mesh_certification": {"operating_report_path": str(operating_report)}
+        },
+        thresholds={"stale_mesh_evidence_hours": 24},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["run_status"] == "blocked"
+    assert {item["condition"] for item in status["attention_items"]} == {
+        "mesh_certification_stale",
+        "mesh_certification_attention",
+    }
+    assert any(item["severity"] == "blocking" for item in status["attention_items"])

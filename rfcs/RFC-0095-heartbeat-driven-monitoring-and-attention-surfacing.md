@@ -286,6 +286,8 @@ Review evidence:
 
 ### Slice 3: First-Wave Source Checks
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 Implement first-wave checks for:
 
 1. stale PR checks,
@@ -300,6 +302,26 @@ Review gate:
 2. ensure no check silently treats missing evidence as success,
 3. add focused tests for stale, missing, and healthy cases.
 4. confirm each adapter has one owner and one documented source of truth.
+
+Review evidence:
+
+1. `automation/heartbeat_sources.py` now has artifact-backed adapters for `github`,
+   `background_run_ledger`, `wiki_publication`, `agent_context`, and `mesh_certification`.
+   `automation/run_heartbeat.py` remains the orchestration and rendering entrypoint.
+2. The runner reads existing evidence artifacts instead of mutating or re-querying source systems.
+   GitHub PR truth remains in GitHub/`PR-Monitor.ps1`, wiki truth remains in
+   `Sync-RepoWikis.ps1` and repo-authored `wiki/`, context truth remains in
+   `validate_engineering_context_system.py`, background-run truth remains in
+   `output/background-runs.json`, and mesh truth remains in the enterprise mesh operating report.
+3. Default config enables only local artifact-backed checks that are safe for local and GitHub
+   runners: `background_run_ledger`, `mesh_certification`, and `agent_context`.
+4. GitHub PR and wiki publication adapters are implemented but require explicit upstream evidence
+   paths before routine use.
+5. Missing or malformed artifacts produce `action_required` source-read errors. Stale PRs, failing
+   PR checks, stalled background runs, lost background runs, wiki drift, context validation errors,
+   stale mesh evidence, and blocked mesh posture produce stable attention items.
+6. Focused tests cover healthy empty-state output plus missing, stale, failed, blocked, and drift
+   cases across every first-wave adapter.
 
 ### Slice 4: Workflow-Pack Attention Inputs
 

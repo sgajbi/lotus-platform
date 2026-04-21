@@ -72,6 +72,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Change-Test-Impact.ps1`
 - `automation/Preflight-PR.ps1`
 - `automation/run_heartbeat.py`
+- `automation/heartbeat_sources.py`
 - `automation/validate_heartbeat_contracts.py`
 - `automation/heartbeat-config.json`
 - `automation/service-map.json`
@@ -213,9 +214,16 @@ The runner reads `automation/heartbeat-config.json` and writes:
 - `output/heartbeat/heartbeat-status.md`
 - `output/heartbeat/heartbeat-issues.json`
 
-The default configuration is read-only and advisory with no enabled source adapters. Enabling a
-source before its adapter is implemented produces an `action_required` heartbeat finding rather
-than a false healthy posture.
+The default configuration is read-only and advisory. It enables local artifact-backed checks for:
+
+- RFC-0094 background-run ledger evidence,
+- RFC-0093/RFC-0073 agent-context validation evidence,
+- enterprise mesh operating-report evidence.
+
+GitHub PR monitor and wiki publication adapters are implemented but not enabled by default because
+they require explicit upstream evidence (`output/pr-monitor.json` and `output/wiki-sync-status.json`)
+from their owning automation. Missing, malformed, stale, degraded, or failed evidence produces
+attention items rather than a false healthy posture.
 
 Generate trust certification evidence for the generated catalog and dependency graph:
 

@@ -85,6 +85,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_engineering_context_system.py`
 - `validate_heartbeat_contracts.py`
 - `run_heartbeat.py`
+- `heartbeat_sources.py`
 - `validate_lotus_skill_alignment.py`
 - `validate_workflow_security.py`
 - `validate_workflow_action_runtime.py`

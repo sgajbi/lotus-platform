@@ -7,7 +7,28 @@
   "mode": "advisory",
   "mutation_policy": "read_only",
   "output_directory": "output/heartbeat",
-  "enabled_sources": [],
+  "enabled_sources": [
+    "background_run_ledger",
+    "mesh_certification",
+    "agent_context"
+  ],
+  "source_config": {
+    "github": {
+      "pr_monitor_path": "output/pr-monitor.json"
+    },
+    "background_run_ledger": {
+      "ledger_path": "output/background-runs.json"
+    },
+    "wiki_publication": {
+      "wiki_sync_status_path": "output/wiki-sync-status.json"
+    },
+    "agent_context": {
+      "validation_status_path": "output/engineering-context-system-validation.json"
+    },
+    "mesh_certification": {
+      "operating_report_path": "output/mesh-certification/enterprise-mesh-operating-report.json"
+    }
+  },
   "thresholds": {
     "stale_pr_check_hours": 24,
     "stale_pr_review_hours": 48,
