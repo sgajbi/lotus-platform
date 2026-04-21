@@ -108,6 +108,17 @@ Explicitly deferred because source evidence does not yet exist:
 4. gateway publication of queue posture,
 5. Workbench rendering of queue posture.
 
+In-flight source-truth evidence under review:
+
+1. `sgajbi/lotus-ai#47` implements durable admission-event history for queue admission requested,
+   granted, rejected, and released posture; memory and SQLAlchemy queue-event stores; migration
+   `0032_add_workflow_pack_queue_event_tables`; readiness-aware status; bounded source APIs under
+   `/platform/workflow-packs/queue-events`; and docs, wiki source, and repo-local context updates.
+2. Until that PR is merged and wiki publication is complete, durable queue-event history remains
+   an in-flight implementation slice rather than supported mainline product material.
+3. The PR intentionally does not close terminal timeout, cancellation, retry, replay, or downstream
+   gateway/Workbench queue posture.
+
 Unsupported unless explicitly implemented by this RFC:
 
 1. a generic arbitrary queueing platform,
@@ -634,6 +645,8 @@ Skills, guidance, documentation, and context decision:
 
 ## Current Priority
 
-Keep RFC-0098 open as partially implemented. The next high-value implementation slice is durable
-queue-event history in `lotus-ai`; gateway or Workbench adoption should remain deferred until a
-supported operator or product surface needs it.
+Keep RFC-0098 open as partially implemented. The current asynchronous validation focus is
+`sgajbi/lotus-ai#47`, the durable queue-event history source-truth slice. If that PR merges cleanly,
+the next high-value implementation slice is terminal timeout, cancellation, retry, replay, and
+retry-cluster attention semantics backed by durable queue evidence. Gateway or Workbench adoption
+should remain deferred until a supported operator or product surface needs it.
