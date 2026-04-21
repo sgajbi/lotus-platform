@@ -163,6 +163,16 @@ Implemented in the repeated queue-failure cluster attention wave merged through
 5. repo-local docs, wiki source, and context updates describing cluster attention as operator
    posture, with `lotus-ai` wiki publication completed at wiki commit `582fc97`.
 
+Implemented in the degraded queue-source attention wave through `sgajbi/lotus-ai#51`:
+
+1. explicit `degraded_source_count` on workflow-pack queue attention summaries,
+2. runtime-status `queue_attention` posture for configured queue source dependencies that prevent
+   queue attention computation,
+3. OpenAPI and runtime-status tests proving degraded queue-source posture is part of the public
+   contract rather than only free-text status,
+4. repo-local docs, wiki source, and context updates describing degraded source posture as operator
+   triage evidence, with `lotus-ai` wiki publication completed at wiki commit `647dc06`.
+
 Explicitly deferred because source behavior does not yet exist:
 
 1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
@@ -574,8 +584,7 @@ For the first `lotus-ai` source-truth wave:
    unsupported lane, and degraded readiness are tested.
 5. Operator posture explains queue delay or rejection truthfully without leaking internal mechanics.
 6. Heartbeat detects source-backed saturated, stale active-admission, timeout, cancellation, blocked
-   retry, blocked replay, and repeated failure cluster posture; durable degraded queue-source
-   attention remains deferred.
+   retry, blocked replay, repeated failure cluster, and degraded queue-source posture.
 7. API certification, OpenAPI examples, vocabulary, no-alias, migration, security, and CI governance
    are satisfied for every implemented served surface.
 8. Supported-features wording is implementation-backed and excludes aspirational features.
@@ -606,8 +615,8 @@ Resolved for the first `lotus-ai` source-truth wave:
 2. queue policy is a separate declared policy catalog attached to registry catalog/detail posture,
    not a separate SQL table in this wave,
 3. queue state is current in-process active-admission posture plus durable queue-event history for
-   admission, release, timeout, cancellation, and recovery-decision evidence; actual queued-item
-   execution remains deferred,
+   admission, release, timeout, cancellation, recovery-decision evidence, and degraded source
+   posture; actual queued-item execution remains deferred,
 4. source API shape now includes read-only policy/status/event routes plus bounded retry/replay
    decision routes under `/platform/workflow-packs/queue-events/{queue_item_id}`,
 5. gateway publication is deferred until an operator or product surface has a concrete supported
@@ -676,18 +685,17 @@ Review findings:
    operator posture without worker internals.
 2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
 3. The full RFC remains partially implemented, not complete, because persisted queued-item lifecycle,
-   retry/replay execution, repeated timeout/cancellation clustering, retry-cluster heartbeat
-   attention, and any downstream gateway or Workbench queue posture are intentionally deferred.
+   retry/replay execution, and any downstream gateway or Workbench queue posture are intentionally
+   deferred.
 
 Additional slices needed for full RFC completion:
 
 1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
 2. retry/replay execution and persisted queued-item execution semantics backed by durable evidence,
-3. RFC-0095 heartbeat expansion for durable degraded queue-source attention,
-4. optional `lotus-gateway` publication only when an operator or product contract needs bounded
+3. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
-5. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
-6. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
+4. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
+5. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
    are proven.
 
 Skills, guidance, documentation, and context decision:
@@ -702,7 +710,8 @@ Skills, guidance, documentation, and context decision:
 ## Current Priority
 
 Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
-cancellation posture, bounded retry/replay recovery-decision posture, and repeated failure-cluster
-attention are now implemented in `lotus-ai` source truth. The next high-value implementation slice
-is actual retry/replay execution or persisted queued-item lifecycle. Gateway or Workbench adoption
-should remain deferred until a supported operator or product surface needs it.
+cancellation posture, bounded retry/replay recovery-decision posture, repeated failure-cluster
+attention, and degraded queue-source attention are now implemented in `lotus-ai` source truth. The
+next high-value implementation slice is actual retry/replay execution or persisted queued-item
+lifecycle. Gateway or Workbench adoption should remain deferred until a supported operator or
+product surface needs it.
