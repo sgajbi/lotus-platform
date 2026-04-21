@@ -1,0 +1,64 @@
+{
+  "contract_id": "lotus-platform:heartbeat-status:v1",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-04-21T00:00:00Z",
+  "heartbeat_run_id": "heartbeat-20260421T000000Z",
+  "run_status": "attention_required",
+  "source_inventory": [
+    {
+      "source_system": "github",
+      "source_ref": "sgajbi/lotus-platform#168",
+      "read_status": "healthy",
+      "owner": "lotus-platform",
+      "freshness_observed_at_utc": "2026-04-21T00:00:00Z",
+      "evidence_refs": [
+        {
+          "type": "GITHUB_PR",
+          "ref": "https://github.com/sgajbi/lotus-platform/pull/168"
+        }
+      ]
+    }
+  ],
+  "summary_counts": {
+    "info": 0,
+    "warning": 1,
+    "action_required": 0,
+    "blocking": 0
+  },
+  "attention_items": [
+    {
+      "attention_item_id": "heartbeat:github:sgajbi-lotus-platform-168:stale_pr_check",
+      "condition": "stale_pr_check",
+      "source_system": "github",
+      "source_ref": "sgajbi/lotus-platform#168",
+      "repository": "lotus-platform",
+      "pr_number": 168,
+      "severity": "warning",
+      "owner": "lotus-platform",
+      "first_seen_at_utc": "2026-04-21T00:00:00Z",
+      "last_seen_at_utc": "2026-04-21T00:00:00Z",
+      "evidence_refs": [
+        {
+          "type": "GITHUB_PR",
+          "ref": "https://github.com/sgajbi/lotus-platform/pull/168"
+        }
+      ],
+      "recommended_next_action": "Review the stale PR check after the approved maintenance window.",
+      "deduplication_key": "github|sgajbi/lotus-platform#168|stale_pr_check",
+      "suppression": {
+        "owner": "lotus-platform",
+        "reason": "Approved short maintenance window for GitHub-hosted runner backlog.",
+        "expires_at_utc": "2026-04-22T00:00:00Z"
+      }
+    }
+  ],
+  "source_read_errors": [],
+  "suppression_decisions": [
+    {
+      "deduplication_key": "github|sgajbi/lotus-platform#168|stale_pr_check",
+      "owner": "lotus-platform",
+      "reason": "Approved short maintenance window for GitHub-hosted runner backlog.",
+      "expires_at_utc": "2026-04-22T00:00:00Z"
+    }
+  ]
+}

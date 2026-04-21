@@ -195,7 +195,12 @@ For RFC-0093/RFC-0094 agent engineering governance:
    context-preservation fields,
 4. treat `output/background-runs.json` as local automation evidence for background runs and GitHub
    Actions as the source of truth for GitHub check status,
-5. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
+5. use `automation/Run-Heartbeat.ps1` when a governed advisory attention snapshot is needed across
+   background-run, mesh, context, workflow-pack, wiki, or PR-monitor evidence,
+6. treat heartbeat output under `output/heartbeat/` as derived advisory evidence only; it does not
+   replace GitHub, local background-run ledgers, mesh certification, wiki source, context
+   validators, or `lotus-ai` runtime APIs as source truth,
+7. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
    follow-ups instead of relying on chat history.
 
 ## Front-Office Runtime Governance

@@ -10,6 +10,7 @@
 - mesh certification gate
 - enterprise mesh operating report
 - PR and background-run monitoring
+- advisory heartbeat attention report
 
 ## Useful commands
 
@@ -21,6 +22,7 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice
 python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
+powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
 ```
 
 ## Operational rules
@@ -31,6 +33,9 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 4. capture demo-ready product evidence only after canonical validation passes
 5. do not claim seasoned production mesh posture from a single clean certification run; use the
    RFC-0092 operating report state and history count
+6. treat heartbeat output as advisory derived evidence, not as replacement truth for GitHub,
+   background-run ledgers, mesh certification, wiki source, context validators, or `lotus-ai`
+   workflow-pack runtime APIs
 
 ## First-response sequence
 
@@ -45,6 +50,9 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 5. if mesh posture is questioned, run the blocking mesh certification gate and inspect
    `enterprise-mesh-operating-report.md`
 6. only after the category is clear should you start deeper repo-level debugging
+7. if multiple operational surfaces may be stale or degraded, run `Run-Heartbeat.ps1` and inspect
+   `output/heartbeat/heartbeat-status.md` for deduplicated attention items before jumping between
+   tools manually
 
 ## Mesh operations
 

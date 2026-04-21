@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "lotus-platform:heartbeat-runner-config:v1",
+  "owner": "lotus-platform",
+  "source_rfc": "RFC-0095",
+  "repository": "lotus-platform",
+  "mode": "advisory",
+  "mutation_policy": "read_only",
+  "output_directory": "output/heartbeat",
+  "state_path": "output/heartbeat/heartbeat-state.json",
+  "suppression_file_path": "platform-contracts/heartbeat/heartbeat-suppressions.json",
+  "enabled_sources": [
+    "background_run_ledger",
+    "mesh_certification",
+    "agent_context"
+  ],
+  "source_config": {
+    "github": {
+      "pr_monitor_path": "output/pr-monitor.json"
+    },
+    "background_run_ledger": {
+      "ledger_path": "output/background-runs.json"
+    },
+    "wiki_publication": {
+      "wiki_sync_status_path": "output/wiki-sync-status.json"
+    },
+    "agent_context": {
+      "validation_status_path": "output/engineering-context-system-validation.json"
+    },
+    "mesh_certification": {
+      "operating_report_path": "output/mesh-certification/enterprise-mesh-operating-report.json"
+    },
+    "lotus_ai": {
+      "runtime_status_path": "../lotus-ai/output/workflow-pack-runtime-status.json"
+    }
+  },
+  "thresholds": {
+    "stale_pr_check_hours": 24,
+    "stale_pr_review_hours": 48,
+    "stale_background_run_hours": 6,
+    "stale_workflow_pack_review_hours": 24,
+    "stale_mesh_evidence_hours": 24
+  }
+}

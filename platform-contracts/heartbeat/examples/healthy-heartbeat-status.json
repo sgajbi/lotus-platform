@@ -1,0 +1,31 @@
+{
+  "contract_id": "lotus-platform:heartbeat-status:v1",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-04-21T00:00:00Z",
+  "heartbeat_run_id": "heartbeat-20260421T000000Z",
+  "run_status": "healthy",
+  "source_inventory": [
+    {
+      "source_system": "wiki_publication",
+      "source_ref": "lotus-platform/wiki",
+      "read_status": "healthy",
+      "owner": "lotus-platform",
+      "freshness_observed_at_utc": "2026-04-21T00:00:00Z",
+      "evidence_refs": [
+        {
+          "type": "WIKI_SYNC_CHECK",
+          "ref": "automation/Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform"
+        }
+      ]
+    }
+  ],
+  "summary_counts": {
+    "info": 0,
+    "warning": 0,
+    "action_required": 0,
+    "blocking": 0
+  },
+  "attention_items": [],
+  "source_read_errors": [],
+  "suppression_decisions": []
+}

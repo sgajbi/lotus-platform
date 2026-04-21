@@ -1,6 +1,6 @@
 # RFC-0095: Heartbeat-Driven Monitoring And Attention Surfacing
 
-- Status: Draft
+- Status: Implemented
 - Date: 2026-04-21
 - Owners:
   - lotus-platform governance
@@ -212,7 +212,11 @@ cross-repo checkout requirement unless the adapter explicitly needs sibling repo
 
 ## Implementation Plan
 
+Current implementation branch: `feature/rfc0095-heartbeat-monitoring`.
+
 ### Slice 1: Heartbeat Contract And Attention Schema
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 1. Add a platform contract for heartbeat runs and attention items.
 2. Define severity, source-system, evidence-ref, owner, and suppression fields.
@@ -227,7 +231,25 @@ Review gate:
 3. confirm attention IDs preserve operational identifiers.
 4. confirm generated artifacts are derived evidence and cannot masquerade as source truth.
 
+Review evidence:
+
+1. `platform-contracts/heartbeat/heartbeat-status.schema.json` keeps source truth external,
+   first-wave mutation read-only, and missing evidence non-healthy.
+2. `platform-contracts/heartbeat/examples/` covers healthy, warning, action-required, blocking,
+   suppressed, and degraded-source postures.
+3. `automation/validate_heartbeat_contracts.py` validates the contract and examples without adding
+   a new dependency.
+4. `tests/unit/test_heartbeat_contracts.py` proves required fields, governed vocabularies,
+   missing-evidence behavior, blocked suppression rejection, and summary-count consistency.
+5. `automation/Invoke-PlatformRepoChecks.ps1` now runs the validator so the contract is protected by
+   the platform repo check lane.
+6. Slice review found no duplicate RFC-0094 task-ledger fields in the heartbeat schema. The first
+   implementation intentionally remains `VALIDATION_RUN`-compatible; `HEARTBEAT_MONITOR` remains an
+   open decision for a later slice only if implementation evidence justifies extending RFC-0094.
+
 ### Slice 2: Platform Heartbeat Runner
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 1. Add `automation/Run-Heartbeat.ps1` or equivalent repo-native runner.
 2. Read configured checks from platform-owned configuration.
@@ -242,7 +264,29 @@ Review gate:
 3. test degraded and empty-state output.
 4. confirm command-line parameters are explicit and safe for GitHub runners and local machines.
 
+Review evidence:
+
+1. `automation/run_heartbeat.py` emits deterministic `heartbeat-status.json`,
+   `heartbeat-status.md`, and `heartbeat-issues.json` paths from a single implementation path.
+2. `automation/Run-Heartbeat.ps1` is a thin repo-native wrapper over the Python runner and does
+   not duplicate report logic.
+3. `automation/heartbeat-config.json` makes the first implementation read-only and advisory. Its
+   default source set is empty so local development does not require GitHub credentials or sibling
+   repositories.
+4. Configured-but-unimplemented source adapters produce `action_required` findings and source-read
+   errors, preventing false green posture before Slice 3 adapters exist.
+5. The emitted `task_ledger` metadata uses RFC-0094 `VALIDATION_RUN` shape, stable
+   `engineering_task_id`, repo-relative artifact refs when run from `lotus-platform`, and
+   `NOT_REQUIRED` cleanup posture.
+6. Focused tests in `tests/unit/test_heartbeat_runner.py` cover empty-state output, task-ledger
+   metadata, degraded configured-source behavior, unknown source rejection, and non-UTC generation
+   timestamp rejection.
+7. Slice review reduced portability risk by changing default task-ledger artifact refs from
+   absolute paths to repo-relative paths and retaining RFC-0094-compatible `path` evidence fields.
+
 ### Slice 3: First-Wave Source Checks
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 Implement first-wave checks for:
 
@@ -259,7 +303,29 @@ Review gate:
 3. add focused tests for stale, missing, and healthy cases.
 4. confirm each adapter has one owner and one documented source of truth.
 
+Review evidence:
+
+1. `automation/heartbeat_sources.py` now has artifact-backed adapters for `github`,
+   `background_run_ledger`, `wiki_publication`, `agent_context`, and `mesh_certification`.
+   `automation/run_heartbeat.py` remains the orchestration and rendering entrypoint.
+2. The runner reads existing evidence artifacts instead of mutating or re-querying source systems.
+   GitHub PR truth remains in GitHub/`PR-Monitor.ps1`, wiki truth remains in
+   `Sync-RepoWikis.ps1` and repo-authored `wiki/`, context truth remains in
+   `validate_engineering_context_system.py`, background-run truth remains in
+   `output/background-runs.json`, and mesh truth remains in the enterprise mesh operating report.
+3. Default config enables only local artifact-backed checks that are safe for local and GitHub
+   runners: `background_run_ledger`, `mesh_certification`, and `agent_context`.
+4. GitHub PR and wiki publication adapters are implemented but require explicit upstream evidence
+   paths before routine use.
+5. Missing or malformed artifacts produce `action_required` source-read errors. Stale PRs, failing
+   PR checks, stalled background runs, lost background runs, wiki drift, context validation errors,
+   stale mesh evidence, and blocked mesh posture produce stable attention items.
+6. Focused tests cover healthy empty-state output plus missing, stale, failed, blocked, and drift
+   cases across every first-wave adapter.
+
 ### Slice 4: Workflow-Pack Attention Inputs
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 Add bounded workflow-pack checks for:
 
@@ -281,7 +347,29 @@ Review gate:
 3. add contract tests against representative run/review states.
 4. verify replacement-lineage, expired, superseded, and degraded states remain distinguishable.
 
+Review evidence:
+
+1. `automation/heartbeat_sources.py` implements the `lotus_ai` source adapter against a bounded
+   workflow-pack runtime-status artifact shape. It accepts either a full platform runtime-status
+   payload containing `workflow_pack_runtime` or the nested workflow-pack runtime summary directly.
+2. The adapter reads `run_summary` and `attention_queue` without treating gateway or Workbench as
+   workflow-pack ledger truth.
+3. The adapter keeps runtime, review, supportability, and lineage posture distinct:
+   - failed and expired runtime counts become terminal-runtime attention,
+   - `AWAITING_REVIEW` queue items can become stale-review attention based on configured age,
+   - `ACTION_REQUIRED` supportability remains separate from runtime failure,
+   - superseded or revised runs that are not `HISTORICAL` become lineage-conflict attention,
+   - readiness-degraded status summaries become runtime-degraded attention.
+4. Attention items preserve `run_id`, `workflow_pack_id`, `workflow_authority_owner`, and
+   `WORKFLOW_PACK_RUN` evidence refs when item-level run evidence exists.
+5. The adapter is not enabled by default because `lotus-platform` does not own live `lotus-ai`
+   runtime truth; callers must provide an explicit governed artifact/API capture path.
+6. Focused tests prove review backlog, terminal failure, stale review, superseded-not-historical
+   lineage conflict, and run-ledger readiness degradation behavior.
+
 ### Slice 5: Operator Output And Deduplication
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 1. Produce a stable attention report.
 2. Deduplicate repeated items by source ref and condition.
@@ -295,7 +383,25 @@ Review gate:
 3. confirm no noisy one-off output becomes blocking by default.
 4. confirm suppression expiry cannot hide blocking evidence indefinitely.
 
+Review evidence:
+
+1. `automation/heartbeat_state.py` preserves repeated attention posture in
+   `output/heartbeat/heartbeat-state.json`, carrying `deduplication_key`, `first_seen_at_utc`,
+   `last_seen_at_utc`, severity, source ref, and condition.
+2. `automation/heartbeat-config.json` now declares a deterministic `state_path` and explicit
+   `suppression_file_path`.
+3. `platform-contracts/heartbeat/heartbeat-suppressions.json` is the default governed suppression
+   policy file and starts empty.
+4. Active suppressions attach structured `suppression` metadata to matching non-blocking attention
+   items and emit `suppression_decisions`; they do not remove evidence from the attention report.
+5. Blocking findings are never suppressed even when a matching suppression rule exists.
+6. Markdown output now shows whether each attention item is suppressed and until when.
+7. Focused tests prove repeated-run first-seen preservation, explicit suppression behavior, and
+   blocking suppression rejection.
+
 ### Slice 6: Code Review, API Certification, And Governance Tightening
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 Second-last mandatory slice.
 
@@ -310,7 +416,34 @@ Second-last mandatory slice.
 7. Review whether heartbeat output should be included in any PR Merge Gate, and record the decision
    explicitly rather than enabling blocking behavior by default.
 
+Review evidence:
+
+1. Source adapters remain read-only artifact consumers. No adapter mutates GitHub, wiki,
+   workflow-pack, mesh, context, or background-run source truth.
+2. Machine-readable heartbeat surfaces now have certification coverage through
+   `automation/validate_heartbeat_contracts.py`:
+   - heartbeat status contract,
+   - example artifacts,
+   - runner configuration,
+   - suppression policy.
+3. Platform repo checks already execute the validator, so config/source vocabulary drift and invalid
+   suppression expiry are now covered by the feature lane and PR gate.
+4. OpenAPI impact is explicitly not applicable in `lotus-platform`; this RFC introduces local JSON
+   artifacts and automation entrypoints, not a service endpoint. If `lotus-gateway` later publishes
+   heartbeat output as an API, that must go through the endpoint certification pattern.
+5. `HEARTBEAT_MONITOR` remains intentionally unintroduced. `VALIDATION_RUN` still matches the
+   emitted task-ledger shape and avoids unnecessary RFC-0094 vocabulary growth.
+6. Heartbeat output remains advisory-only for this RFC. The validator is gate-covered, but generated
+   runtime heartbeat status is not made PR-blocking until operators have enough signal quality
+   history to avoid noisy gate failures.
+7. Code review split source adapters and repeated-run state into separate modules before this slice:
+   - `automation/run_heartbeat.py` for runner orchestration/rendering,
+   - `automation/heartbeat_sources.py` for source adapters,
+   - `automation/heartbeat_state.py` for deduplication and suppression.
+
 ### Slice 7: Documentation, Context, Wiki, Skills, And Branch Hygiene
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 Final mandatory slice.
 
@@ -328,6 +461,30 @@ Final mandatory slice.
    - record `no change` only with rationale.
 8. Record whether wiki updates were required. If no wiki page changed, state that operator-facing
    truth did not change enough to require publication.
+
+Review evidence:
+
+1. Documentation updated:
+   - `automation/README.md`
+   - `automation/docs/Directory-Map.md`
+   - `platform-contracts/heartbeat/README.md`
+   - `rfcs/README.md`
+2. Central context updated:
+   - `context/LOTUS-ENGINEERING-CONTEXT.md`
+   - `context/LOTUS-SKILL-ROUTING-MAP.md`
+   - `REPOSITORY-ENGINEERING-CONTEXT.md`
+3. Wiki source updated because operator-facing heartbeat behavior changed:
+   - `wiki/RFC-Index.md`
+   - `wiki/Operations-Runbook.md`
+4. Skill guidance updated:
+   - `codex/skills/platform-automation-ops/SKILL.md`
+5. Durable skill decision: update `platform-automation-ops`; do not create a new heartbeat skill.
+   Heartbeat is an automation evidence flow under the existing platform automation skill.
+6. Branch-hygiene decision: heartbeat output remains ignored derived evidence under `output/`; no
+   generated heartbeat artifacts are committed.
+7. Final implementation posture: RFC-0095 is implemented for first-wave advisory heartbeat
+   monitoring and attention surfacing. It is not a banker-facing alerting system, not a source of
+   truth, and not a PR-blocking generated heartbeat gate.
 
 ## Test Plan
 
@@ -367,6 +524,20 @@ These decisions must be resolved in Slice 1 or Slice 2 before broad source adapt
 4. Which stale-age thresholds are defaults versus required configuration.
 5. Whether GitHub-backed heartbeat runs are advisory-only or become blocking in any gate.
 
+Resolved implementation decisions so far:
+
+1. Slice 1 and Slice 2 use `VALIDATION_RUN`; no new RFC-0094 task kind is introduced without
+   operational evidence that a distinct lifecycle is needed.
+2. Source configuration is JSON-backed through `automation/heartbeat-config.json`; PowerShell
+   parameters provide safe deterministic overrides for output directory, generated timestamp, and
+   branch.
+3. First-seen and last-seen persistence remains open for Slice 5, where deduplication and
+   suppression are implemented together.
+4. Stale-age thresholds live in configuration and are not yet interpreted until source adapters are
+   introduced.
+5. Heartbeat output remains advisory-only until Slice 6 explicitly reviews whether any PR gate
+   integration is justified.
+
 ## Acceptance Criteria
 
 1. Heartbeat output has a stable contract and validator.
@@ -401,12 +572,13 @@ Tightening applied:
 Documentation, context, wiki, and skills decision for this pre-implementation pass:
 
 1. RFC document: updated because implementation requirements were too implicit.
-2. Repo index and wiki index: no change; RFC-0095 was already listed as draft in the correct order,
-   and the operator-facing index truth did not change.
-3. Central agent context: no change; heartbeat is still unimplemented, so operating guidance should
-   not instruct agents to run it yet.
-4. Skills: no change; implementation should first try to extend `platform-automation-ops` or
-   `platform-pulse-monitor` in the final slice if heartbeat operation becomes routine.
+2. Repo index and wiki index: updated in the final implementation slice once heartbeat became a
+   real advisory platform automation path.
+3. Central agent context: updated in the final implementation slice so agents know when heartbeat
+   output is useful and that it remains derived advisory evidence.
+4. Skills: `platform-automation-ops` was updated in the final implementation slice. No new
+   heartbeat-specific skill was created because the workflow remains a platform automation evidence
+   flow.
 
 ## Initial Priority
 

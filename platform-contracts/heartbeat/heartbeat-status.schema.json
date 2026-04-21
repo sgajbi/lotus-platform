@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "lotus-platform:heartbeat-status:v1",
+  "owner": "lotus-platform",
+  "source_rfc": "RFC-0095",
+  "status": "active",
+  "artifact_paths": {
+    "json": "output/heartbeat/heartbeat-status.json",
+    "markdown": "output/heartbeat/heartbeat-status.md",
+    "issues": "output/heartbeat/heartbeat-issues.json"
+  },
+  "authority": {
+    "source_truth": "Heartbeat artifacts summarize governed source truth posture and never replace GitHub, runtime APIs, wiki source, mesh certification, or local automation evidence.",
+    "first_wave_mutation_policy": "The first-wave heartbeat runner is read-only and must not mutate GitHub, workflow-pack, wiki, or runtime state.",
+    "missing_evidence_policy": "Missing, unreadable, or malformed source evidence is never healthy and must become action_required or blocking."
+  },
+  "run_statuses": [
+    "healthy",
+    "attention_required",
+    "blocked",
+    "degraded"
+  ],
+  "source_systems": [
+    "github",
+    "background_run_ledger",
+    "lotus_ai",
+    "mesh_certification",
+    "wiki_publication",
+    "agent_context"
+  ],
+  "read_statuses": [
+    "healthy",
+    "degraded",
+    "missing",
+    "error"
+  ],
+  "severities": [
+    "info",
+    "warning",
+    "action_required",
+    "blocking"
+  ],
+  "evidence_ref_types": [
+    "GITHUB_ACTIONS_RUN",
+    "GITHUB_PR",
+    "LOCAL_JSON_ARTIFACT",
+    "LOCAL_MARKDOWN_ARTIFACT",
+    "LOG_FILE",
+    "TEST_COMMAND",
+    "CHANGED_FILE_LIST",
+    "BRANCH_AUDIT",
+    "WIKI_SYNC_CHECK",
+    "MESH_CERTIFICATION_ARTIFACT",
+    "WORKFLOW_PACK_RUN"
+  ],
+  "required_top_level_fields": [
+    "contract_id",
+    "contract_version",
+    "generated_at_utc",
+    "heartbeat_run_id",
+    "run_status",
+    "source_inventory",
+    "summary_counts",
+    "attention_items",
+    "source_read_errors",
+    "suppression_decisions"
+  ],
+  "required_source_fields": [
+    "source_system",
+    "source_ref",
+    "read_status",
+    "owner",
+    "evidence_refs"
+  ],
+  "required_attention_item_fields": [
+    "attention_item_id",
+    "condition",
+    "source_system",
+    "source_ref",
+    "repository",
+    "severity",
+    "owner",
+    "first_seen_at_utc",
+    "last_seen_at_utc",
+    "evidence_refs",
+    "recommended_next_action",
+    "deduplication_key"
+  ],
+  "required_suppression_fields": [
+    "deduplication_key",
+    "owner",
+    "reason",
+    "expires_at_utc"
+  ],
+  "required_invariants": [
+    "attention_item_id is stable and derived from source_system, source_ref, and condition",
+    "deduplication_key is stable and excludes generated_at_utc",
+    "blocking findings cannot be indefinitely suppressed",
+    "missing evidence is not healthy",
+    "source_truth remains external",
+    "heartbeat artifacts are derived evidence"
+  ]
+}
