@@ -48,6 +48,15 @@ def _utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def _validate_utc_timestamp(value: str, field_name: str) -> None:
+    if value != value.strip() or not value.endswith("Z"):
+        raise ValueError(f"{field_name} must be an RFC-3339 UTC string ending with Z")
+    try:
+        datetime.fromisoformat(f"{value[:-1]}+00:00")
+    except ValueError:
+        raise ValueError(f"{field_name} must be an RFC-3339 UTC string ending with Z")
+
+
 def _read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -97,6 +106,7 @@ def build_delegated_task_entry(
         raise ValueError("; ".join(errors))
     if status not in REQUIRED_TASK_STATES:
         raise ValueError(f"status must be a governed task state: {status}")
+    _validate_utc_timestamp(requested_at, "requested_at")
 
     delegation_task_id = delegation_record["delegation_task_id"]
     profile = delegation_record["profile"]
@@ -177,6 +187,8 @@ def update_delegated_task_status(
 ) -> dict[str, Any]:
     if status not in REQUIRED_TASK_STATES:
         raise ValueError(f"status must be a governed task state: {status}")
+    if ended_at is not None:
+        _validate_utc_timestamp(ended_at, "ended_at")
     ledger = _load_ledger(ledger_path)
     for entry in ledger:
         if entry.get("engineering_task_id") != engineering_task_id:
@@ -296,6 +308,7 @@ def record_main_agent_review(
     if not reviewed_by.strip() or not review_summary.strip():
         raise ValueError("reviewed_by and review_summary are required")
     reviewed_at = reviewed_at or _utc_now()
+    _validate_utc_timestamp(reviewed_at, "reviewed_at")
     ledger = _load_ledger(ledger_path)
     for entry in ledger:
         if entry.get("engineering_task_id") != engineering_task_id:
@@ -365,31 +378,30 @@ def main() -> int:
                 requested_at=args.requested_at,
                 status=args.status,
             )
+        elif args.command == "record-return":
+            entry = record_delegation_return(
+                ledger_path=args.ledger_path,
+                engineering_task_id=args.engineering_task_id,
+                output_path=args.output,
+            )
+        elif args.command == "record-review":
+            entry = record_main_agent_review(
+                ledger_path=args.ledger_path,
+                engineering_task_id=args.engineering_task_id,
+                review_status=args.review_status,
+                reviewed_by=args.reviewed_by,
+                review_summary=args.review_summary,
+                reviewed_at=args.reviewed_at,
+            )
         else:
-            if args.command == "record-return":
-                entry = record_delegation_return(
-                    ledger_path=args.ledger_path,
-                    engineering_task_id=args.engineering_task_id,
-                    output_path=args.output,
-                )
-            elif args.command == "record-review":
-                entry = record_main_agent_review(
-                    ledger_path=args.ledger_path,
-                    engineering_task_id=args.engineering_task_id,
-                    review_status=args.review_status,
-                    reviewed_by=args.reviewed_by,
-                    review_summary=args.review_summary,
-                    reviewed_at=args.reviewed_at,
-                )
-            else:
-                entry = update_delegated_task_status(
-                    ledger_path=args.ledger_path,
-                    engineering_task_id=args.engineering_task_id,
-                    status=args.status,
-                    ended_at=args.ended_at,
-                    error_summary=args.error_summary,
-                    superseded_by_task_id=args.superseded_by_task_id,
-                )
+            entry = update_delegated_task_status(
+                ledger_path=args.ledger_path,
+                engineering_task_id=args.engineering_task_id,
+                status=args.status,
+                ended_at=args.ended_at,
+                error_summary=args.error_summary,
+                superseded_by_task_id=args.superseded_by_task_id,
+            )
     except ValueError as exc:
         print(f"delegated task ledger error: {exc}")
         return 2

@@ -122,6 +122,22 @@ def test_delegated_task_status_requires_error_context_for_lost(tmp_path: Path) -
         raise AssertionError("expected LOST delegated task to require error_summary")
 
 
+def test_delegated_task_entry_rejects_malformed_requested_timestamp() -> None:
+    ledger = _load_module()
+    record = _example("delegation-exploration-valid.json")
+
+    try:
+        ledger.build_delegated_task_entry(
+            delegation_record=record,
+            owner="lotus-platform",
+            requested_at="not-a-dateZ",
+        )
+    except ValueError as exc:
+        assert "requested_at must be an RFC-3339 UTC string ending with Z" in str(exc)
+    else:
+        raise AssertionError("expected malformed requested_at to be rejected")
+
+
 def test_delegated_task_status_records_terminal_failure_context(tmp_path: Path) -> None:
     ledger = _load_module()
     ledger_path = tmp_path / "delegated-tasks.json"
@@ -144,6 +160,31 @@ def test_delegated_task_status_records_terminal_failure_context(tmp_path: Path) 
     assert updated["status"] == "LOST"
     assert updated["ended_at"] == "2026-04-21T00:30:00Z"
     assert updated["error_summary"] == "Delegated agent result was not returned."
+
+
+def test_delegated_task_status_rejects_malformed_ended_timestamp(tmp_path: Path) -> None:
+    ledger = _load_module()
+    ledger_path = tmp_path / "delegated-tasks.json"
+    record = _example("delegation-exploration-valid.json")
+    entry = ledger.upsert_delegated_task(
+        ledger_path=ledger_path,
+        delegation_record=record,
+        owner="lotus-platform",
+        requested_at="2026-04-21T00:00:00Z",
+    )
+
+    try:
+        ledger.update_delegated_task_status(
+            ledger_path=ledger_path,
+            engineering_task_id=entry["engineering_task_id"],
+            status="CANCELLED",
+            ended_at="2026-04-21T01:00:00+08:00",
+            error_summary="Cancelled.",
+        )
+    except ValueError as exc:
+        assert "ended_at must be an RFC-3339 UTC string ending with Z" in str(exc)
+    else:
+        raise AssertionError("expected malformed ended_at to be rejected")
 
 
 def test_delegated_task_status_records_superseded_replacement_link(tmp_path: Path) -> None:
@@ -335,3 +376,35 @@ def test_main_agent_review_requires_return_envelope_first(tmp_path: Path) -> Non
         assert "return envelope must be recorded before review" in str(exc)
     else:
         raise AssertionError("expected review without return envelope to fail")
+
+
+def test_main_agent_review_rejects_malformed_review_timestamp(tmp_path: Path) -> None:
+    ledger = _load_module()
+    ledger_path = tmp_path / "delegated-tasks.json"
+    output_path = tmp_path / "delegation-output.json"
+    output_path.write_text(json.dumps(_valid_implementation_output()), encoding="utf-8")
+    entry = ledger.upsert_delegated_task(
+        ledger_path=ledger_path,
+        delegation_record=_example("delegation-implementation-valid.json"),
+        owner="lotus-platform",
+        requested_at="2026-04-21T00:00:00Z",
+    )
+    ledger.record_delegation_return(
+        ledger_path=ledger_path,
+        engineering_task_id=entry["engineering_task_id"],
+        output_path=output_path,
+    )
+
+    try:
+        ledger.record_main_agent_review(
+            ledger_path=ledger_path,
+            engineering_task_id=entry["engineering_task_id"],
+            review_status="ACCEPTED",
+            reviewed_by="lotus-platform",
+            reviewed_at="not-a-dateZ",
+            review_summary="Diff reviewed.",
+        )
+    except ValueError as exc:
+        assert "reviewed_at must be an RFC-3339 UTC string ending with Z" in str(exc)
+    else:
+        raise AssertionError("expected malformed reviewed_at to be rejected")
