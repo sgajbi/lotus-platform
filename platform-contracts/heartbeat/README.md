@@ -23,3 +23,7 @@ Validate examples and future artifacts with:
 ```powershell
 python automation/validate_heartbeat_contracts.py
 ```
+
+The validator also certifies `automation/heartbeat-config.json` and
+`heartbeat-suppressions.json`, so runner mode, mutation policy, governed source names, thresholds,
+and suppression expiry shape stay under the platform repo check lane.

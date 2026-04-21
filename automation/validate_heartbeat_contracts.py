@@ -9,6 +9,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "platform-contracts" / "heartbeat" / "heartbeat-status.schema.json"
 EXAMPLES_DIR = ROOT / "platform-contracts" / "heartbeat" / "examples"
+CONFIG_PATH = ROOT / "automation" / "heartbeat-config.json"
+SUPPRESSIONS_PATH = (
+    ROOT / "platform-contracts" / "heartbeat" / "heartbeat-suppressions.json"
+)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -288,9 +292,98 @@ def validate_heartbeat_examples(examples_dir: Path = EXAMPLES_DIR) -> list[str]:
     return errors
 
 
+def validate_heartbeat_runner_config(path: Path = CONFIG_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        return [f"missing heartbeat runner config: {path}"]
+    try:
+        config = _load_json(path)
+    except json.JSONDecodeError as exc:
+        return [f"{path}: invalid JSON: {exc}"]
+
+    if config.get("contract_id") != "lotus-platform:heartbeat-runner-config:v1":
+        errors.append("heartbeat config contract_id must be lotus-platform:heartbeat-runner-config:v1")
+    if config.get("source_rfc") != "RFC-0095":
+        errors.append("heartbeat config source_rfc must be RFC-0095")
+    if config.get("mode") != "advisory":
+        errors.append("heartbeat config mode must be advisory")
+    if config.get("mutation_policy") != "read_only":
+        errors.append("heartbeat config mutation_policy must be read_only")
+
+    for key in ("output_directory", "state_path", "suppression_file_path"):
+        if not isinstance(config.get(key), str) or not config[key].strip():
+            errors.append(f"heartbeat config {key} must be a non-empty string")
+
+    contract = _load_json(CONTRACT_PATH)
+    source_systems = _as_set(contract.get("source_systems"))
+    enabled_sources = config.get("enabled_sources")
+    if not isinstance(enabled_sources, list):
+        errors.append("heartbeat config enabled_sources must be a list")
+    else:
+        unknown_sources = sorted(set(enabled_sources) - source_systems)
+        if unknown_sources:
+            errors.append(
+                "heartbeat config enabled_sources contains unknown source systems: "
+                + ", ".join(unknown_sources)
+            )
+
+    source_config = config.get("source_config")
+    if not isinstance(source_config, dict):
+        errors.append("heartbeat config source_config must be an object")
+    else:
+        unknown_config_sources = sorted(set(source_config) - source_systems)
+        if unknown_config_sources:
+            errors.append(
+                "heartbeat config source_config contains unknown source systems: "
+                + ", ".join(unknown_config_sources)
+            )
+
+    thresholds = config.get("thresholds")
+    if not isinstance(thresholds, dict):
+        errors.append("heartbeat config thresholds must be an object")
+    else:
+        for key, value in thresholds.items():
+            if not isinstance(value, int | float) or value <= 0:
+                errors.append(f"heartbeat config thresholds.{key} must be a positive number")
+
+    return errors
+
+
+def validate_heartbeat_suppressions(path: Path = SUPPRESSIONS_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        return [f"missing heartbeat suppressions policy: {path}"]
+    try:
+        payload = _load_json(path)
+    except json.JSONDecodeError as exc:
+        return [f"{path}: invalid JSON: {exc}"]
+    if payload.get("contract_id") != "lotus-platform:heartbeat-suppressions:v1":
+        errors.append("heartbeat suppressions contract_id must be lotus-platform:heartbeat-suppressions:v1")
+    if payload.get("source_rfc") != "RFC-0095":
+        errors.append("heartbeat suppressions source_rfc must be RFC-0095")
+    suppressions = payload.get("suppressions")
+    if not isinstance(suppressions, list):
+        errors.append("heartbeat suppressions must be a list")
+        return errors
+    required = {"deduplication_key", "owner", "reason", "expires_at_utc"}
+    for index, suppression in enumerate(suppressions):
+        label = f"heartbeat suppressions[{index}]"
+        _require_keys(errors, label, suppression, required)
+        if not isinstance(suppression, dict):
+            continue
+        for key in required:
+            if not isinstance(suppression.get(key), str) or not suppression[key].strip():
+                errors.append(f"{label}.{key} must be a non-empty string")
+        if not str(suppression.get("expires_at_utc", "")).endswith("Z"):
+            errors.append(f"{label}.expires_at_utc must end with Z")
+    return errors
+
+
 def validate_heartbeat_contracts() -> list[str]:
     errors = validate_heartbeat_contract(CONTRACT_PATH)
     errors.extend(validate_heartbeat_examples(EXAMPLES_DIR))
+    errors.extend(validate_heartbeat_runner_config(CONFIG_PATH))
+    errors.extend(validate_heartbeat_suppressions(SUPPRESSIONS_PATH))
     return errors
 
 

@@ -193,7 +193,8 @@ Validate the contract and first-wave example artifacts with:
 python automation/validate_heartbeat_contracts.py
 ```
 
-The platform repo check lane runs this validator. Heartbeat artifacts are derived evidence; they do
+The platform repo check lane runs this validator. It validates the heartbeat status contract,
+examples, runner config, and suppression policy. Heartbeat artifacts are derived evidence; they do
 not replace GitHub, local automation ledgers, mesh certification, wiki source, or runtime APIs as
 source truth.
 

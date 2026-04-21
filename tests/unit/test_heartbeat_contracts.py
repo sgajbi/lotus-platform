@@ -57,6 +57,13 @@ def test_heartbeat_contract_validator_accepts_contract_and_examples() -> None:
     assert validator.validate_heartbeat_contracts() == []
 
 
+def test_heartbeat_validator_accepts_default_config_and_suppressions() -> None:
+    validator = _load_validator()
+
+    assert validator.validate_heartbeat_runner_config() == []
+    assert validator.validate_heartbeat_suppressions() == []
+
+
 def test_heartbeat_examples_cover_required_first_wave_postures() -> None:
     examples = {
         path.name: _load_json(path)
@@ -116,3 +123,44 @@ def test_heartbeat_status_rejects_summary_count_drift() -> None:
     errors = validator.validate_heartbeat_status(status)
 
     assert "summary_counts.warning must equal attention item count 1" in errors
+
+
+def test_heartbeat_config_rejects_unknown_enabled_source(tmp_path: Path) -> None:
+    validator = _load_validator()
+    config = _load_json(ROOT / "automation" / "heartbeat-config.json")
+    config["enabled_sources"] = ["not_a_source"]
+    path = tmp_path / "heartbeat-config.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+
+    errors = validator.validate_heartbeat_runner_config(path)
+
+    assert (
+        "heartbeat config enabled_sources contains unknown source systems: not_a_source"
+        in errors
+    )
+
+
+def test_heartbeat_suppressions_reject_invalid_expiry(tmp_path: Path) -> None:
+    validator = _load_validator()
+    path = tmp_path / "heartbeat-suppressions.json"
+    path.write_text(
+        json.dumps(
+            {
+                "contract_id": "lotus-platform:heartbeat-suppressions:v1",
+                "source_rfc": "RFC-0095",
+                "suppressions": [
+                    {
+                        "deduplication_key": "github:pr:stale",
+                        "owner": "lotus-platform",
+                        "reason": "temporary",
+                        "expires_at_utc": "2026-04-22T00:00:00+08:00",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    errors = validator.validate_heartbeat_suppressions(path)
+
+    assert "heartbeat suppressions[0].expires_at_utc must end with Z" in errors

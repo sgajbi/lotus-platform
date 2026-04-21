@@ -401,6 +401,8 @@ Review evidence:
 
 ### Slice 6: Code Review, API Certification, And Governance Tightening
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 Second-last mandatory slice.
 
 1. Review all heartbeat code for duplicated polling logic.
@@ -413,6 +415,31 @@ Second-last mandatory slice.
    failure behavior, and GitHub-runner compatibility.
 7. Review whether heartbeat output should be included in any PR Merge Gate, and record the decision
    explicitly rather than enabling blocking behavior by default.
+
+Review evidence:
+
+1. Source adapters remain read-only artifact consumers. No adapter mutates GitHub, wiki,
+   workflow-pack, mesh, context, or background-run source truth.
+2. Machine-readable heartbeat surfaces now have certification coverage through
+   `automation/validate_heartbeat_contracts.py`:
+   - heartbeat status contract,
+   - example artifacts,
+   - runner configuration,
+   - suppression policy.
+3. Platform repo checks already execute the validator, so config/source vocabulary drift and invalid
+   suppression expiry are now covered by the feature lane and PR gate.
+4. OpenAPI impact is explicitly not applicable in `lotus-platform`; this RFC introduces local JSON
+   artifacts and automation entrypoints, not a service endpoint. If `lotus-gateway` later publishes
+   heartbeat output as an API, that must go through the endpoint certification pattern.
+5. `HEARTBEAT_MONITOR` remains intentionally unintroduced. `VALIDATION_RUN` still matches the
+   emitted task-ledger shape and avoids unnecessary RFC-0094 vocabulary growth.
+6. Heartbeat output remains advisory-only for this RFC. The validator is gate-covered, but generated
+   runtime heartbeat status is not made PR-blocking until operators have enough signal quality
+   history to avoid noisy gate failures.
+7. Code review split source adapters and repeated-run state into separate modules before this slice:
+   - `automation/run_heartbeat.py` for runner orchestration/rendering,
+   - `automation/heartbeat_sources.py` for source adapters,
+   - `automation/heartbeat_state.py` for deduplication and suppression.
 
 ### Slice 7: Documentation, Context, Wiki, Skills, And Branch Hygiene
 
