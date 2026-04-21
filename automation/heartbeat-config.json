@@ -21,6 +21,9 @@
     "background_run_ledger": {
       "ledger_path": "output/background-runs.json"
     },
+    "delegated_task_ledger": {
+      "ledger_path": "output/delegated-tasks.json"
+    },
     "wiki_publication": {
       "wiki_sync_status_path": "output/wiki-sync-status.json"
     },
@@ -38,6 +41,7 @@
     "stale_pr_check_hours": 24,
     "stale_pr_review_hours": 48,
     "stale_background_run_hours": 6,
+    "stale_delegated_task_hours": 6,
     "stale_workflow_pack_review_hours": 24,
     "stale_mesh_evidence_hours": 24
   }

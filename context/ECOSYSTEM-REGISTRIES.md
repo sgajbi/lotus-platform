@@ -54,3 +54,5 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `RFC-0074` | `active` | implemented and governed | Repeatable developer and agent bootstrap system |
 | `RFC-0093` | `active` | implemented on main | Lotus context assembly and compaction hardening for agentic development |
 | `RFC-0094` | `active` | implemented on main | Durable background engineering task ledger and governed delegation model |
+| `RFC-0095` | `active` | implemented | Heartbeat-driven monitoring and attention surfacing |
+| `RFC-0096` | `active` | implemented | Governed multi-agent delegation model |

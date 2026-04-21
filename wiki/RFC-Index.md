@@ -16,6 +16,8 @@
   durable background engineering task ledger and governed delegation model
 - `RFC-0095`
   advisory heartbeat-driven monitoring and attention surfacing
+- `RFC-0096`
+  governed multi-agent delegation profiles, task ledgers, and review discipline
 
 ## Important repo-specific references
 
@@ -47,11 +49,9 @@
 
 ## Recommended next implementation order
 
-1. `RFC-0096`
-   Make delegated work bounded, observable, and evidence-bearing.
-2. `RFC-0097`
+1. `RFC-0097`
    Add multi-step workflow-pack runtime support after monitoring and delegation governance are in place.
-3. `RFC-0098`
+2. `RFC-0098`
    Add explicit queue and concurrency policy as task-flow capacity needs become concrete.
 
 ## Local meaning
@@ -83,7 +83,10 @@
   promotion decisions for long-running agentic development work.
 - RFC-0094 governs detached engineering task identity, lifecycle states, local automation evidence,
   bounded delegation, and the separation between GitHub check truth and local background-run truth.
-- RFC-0095 is implemented for advisory heartbeat attention surfacing. RFC-0096 through RFC-0098
-  remain the next implementation RFCs, ordered so delegation governance lands before multi-step
-  workflow-pack runtime and queue/concurrency policy lands when task-flow capacity needs are
-  concrete.
+- RFC-0095 is implemented for advisory heartbeat attention surfacing.
+- RFC-0096 is implemented for bounded multi-agent delegation. It adds governed delegation profiles,
+  RFC-0094-compatible delegated task ledger records, main-agent review discipline, and optional
+  RFC-0095 heartbeat attention for stale, failed, lost, missing-evidence, unresolved-review, and
+  overlapping-write-scope delegated work.
+- RFC-0097 and RFC-0098 remain the next implementation RFCs, ordered so multi-step workflow-pack
+  runtime lands before queue/concurrency policy becomes binding.

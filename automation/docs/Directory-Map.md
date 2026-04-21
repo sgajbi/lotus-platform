@@ -17,6 +17,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Start-Background-Run.ps1`
 - `Check-Background-Runs.ps1`
 - `Summarize-Task-Failures.ps1`
+- `delegation_task_ledger.py`
 
 ### Repo and PR Operations
 

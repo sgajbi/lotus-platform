@@ -11,6 +11,7 @@
 - enterprise mesh operating report
 - PR and background-run monitoring
 - advisory heartbeat attention report
+- delegated engineering task ledger and review evidence
 
 ## Useful commands
 
@@ -23,6 +24,8 @@ python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 
 python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
+python automation\validate_agent_engineering_contracts.py
+python automation\delegation_task_ledger.py --help
 ```
 
 ## Operational rules
@@ -36,6 +39,8 @@ powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
 6. treat heartbeat output as advisory derived evidence, not as replacement truth for GitHub,
    background-run ledgers, mesh certification, wiki source, context validators, or `lotus-ai`
    workflow-pack runtime APIs
+7. treat delegated-agent output as evidence for the accountable main agent, not as review, PR
+   approval, wiki publication, or merge authority
 
 ## First-response sequence
 
@@ -53,6 +58,24 @@ powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
 7. if multiple operational surfaces may be stale or degraded, run `Run-Heartbeat.ps1` and inspect
    `output/heartbeat/heartbeat-status.md` for deduplicated attention items before jumping between
    tools manually
+
+## Delegated engineering tasks
+
+RFC-0096 delegated work uses governed profiles and evidence envelopes from
+`platform-contracts/agent-engineering/delegation-policy-contract.v1.json`.
+
+Use `automation/delegation_task_ledger.py` when delegated work needs durable source truth:
+
+1. `create` records the delegated task under the RFC-0094 engineering task ledger shape.
+2. `update-status` records terminal failure, cancellation, timeout, lost, or superseded posture.
+3. `record-return` attaches a returned delegation output artifact and validates changed files
+   against the declared write scope.
+4. `record-review` records explicit main-agent review and is the only helper path that marks
+   returned delegated work as accepted.
+
+If the `delegated_task_ledger` heartbeat source is explicitly enabled, heartbeat can surface stale,
+failed, lost, missing-evidence, unresolved-review, or overlapping-write-scope delegated tasks from
+the ledger artifact. That attention remains advisory.
 
 ## Mesh operations
 

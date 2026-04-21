@@ -562,6 +562,33 @@ artifact paths, and RFC-0094 task-ledger metadata. `Check-Background-Runs.ps1` r
 The monitor also preserves evidence references for logs, JSON results, and Markdown summaries so
 resumed sessions can inspect durable artifacts instead of relying on chat history.
 
+Record a governed RFC-0096 delegated task:
+
+```powershell
+python automation/delegation_task_ledger.py create --record platform-contracts/agent-engineering/examples/delegation-exploration-valid.json --ledger-path output/delegated-tasks.json --owner lotus-platform --requested-at 2026-04-21T00:00:00Z
+```
+
+Update delegated task posture:
+
+```powershell
+python automation/delegation_task_ledger.py update-status --ledger-path output/delegated-tasks.json --engineering-task-id <engineering_task_id> --status CANCELLED --ended-at 2026-04-21T01:00:00Z --error-summary "Main agent handled the work locally."
+```
+
+Delegated task records use the RFC-0094 task-ledger shape plus the RFC-0096 delegation policy
+contract. They are ledger evidence for bounded agent work, not a replacement for main-agent review,
+GitHub checks, repository files, or test results.
+
+Record a delegated worker return envelope and main-agent review:
+
+```powershell
+python automation/delegation_task_ledger.py record-return --ledger-path output/delegated-tasks.json --engineering-task-id <engineering_task_id> --output output/delegation-return.json
+python automation/delegation_task_ledger.py record-review --ledger-path output/delegated-tasks.json --engineering-task-id <engineering_task_id> --review-status ACCEPTED --reviewed-by <owner> --review-summary "Diff reviewed and focused checks passed."
+```
+
+`record-return` validates returned files against the delegated write scope. `record-review` is the
+only helper path that marks returned delegated implementation as accepted; review remains a
+main-agent responsibility.
+
 Watch mode (refresh every 20s):
 
 ```powershell

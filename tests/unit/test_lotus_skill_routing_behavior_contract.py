@@ -46,9 +46,14 @@ def test_platform_automation_ops_uses_task_ledger_contract() -> None:
     validator = _read(ROOT / "automation" / "validate_lotus_skill_alignment.py")
 
     assert "Launch or monitor detached platform automation profiles" in routing_map
+    assert "RFC-0096 governed delegation evidence" in routing_map
     assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in skill
     assert "engineering-task-ledger-contract.v1.json" in skill
+    assert "delegation-policy-contract.v1.json" in skill
+    assert "Govern Delegated Work" in skill
     assert "engineering_task_id" in skill
+    assert "no PR merge" in skill
+    assert "no wiki" in skill
     assert "Do not summarize detached work from chat memory alone" in skill
     assert "cleanup_state" in profile_guide
     assert "Do not translate `LOST` into success" in profile_guide.replace("\n", " ")

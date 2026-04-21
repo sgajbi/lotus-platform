@@ -48,6 +48,7 @@ def test_heartbeat_contract_is_governed_and_source_truth_preserving() -> None:
     }
     assert set(contract["read_statuses"]) == {"healthy", "degraded", "missing", "error"}
     assert "WORKFLOW_PACK_RUN" in contract["evidence_ref_types"]
+    assert "delegated_task_ledger" in contract["source_systems"]
     assert "deduplication_key" in contract["required_attention_item_fields"]
 
 

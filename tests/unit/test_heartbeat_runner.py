@@ -105,6 +105,11 @@ def test_default_heartbeat_config_enables_only_local_artifact_sources() -> None:
     ]
     assert "github" not in config["enabled_sources"]
     assert "wiki_publication" not in config["enabled_sources"]
+    assert "delegated_task_ledger" not in config["enabled_sources"]
+    assert (
+        config["source_config"]["delegated_task_ledger"]["ledger_path"]
+        == "output/delegated-tasks.json"
+    )
 
 
 def test_heartbeat_runner_records_rfc0094_compatible_task_metadata(tmp_path: Path) -> None:
@@ -311,6 +316,213 @@ def test_background_run_ledger_adapter_reports_lost_and_stale_runs(tmp_path: Pat
         "background_run_stale",
     }
     assert any(item["severity"] == "blocking" for item in status["attention_items"])
+
+
+def test_delegated_task_ledger_adapter_reports_lost_and_stale_tasks(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    ledger = tmp_path / "delegated-tasks.json"
+    ledger.write_text(
+        json.dumps(
+            [
+                {
+                    "engineering_task_id": "eng-task-lost",
+                    "task_kind": "DELEGATED_IMPLEMENTATION",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": "2026-04-20T00:00:00Z",
+                    "status": "LOST",
+                    "scope": {
+                        "delegation_profile": "implementation",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": ["automation/heartbeat_sources.py"],
+                        "return_envelope_received": False,
+                        "main_agent_review_status": "PENDING",
+                    },
+                },
+                {
+                    "engineering_task_id": "eng-task-stale",
+                    "task_kind": "DELEGATED_REVIEW",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": "2026-04-20T00:00:00Z",
+                    "status": "RUNNING",
+                    "scope": {
+                        "delegation_profile": "review_support",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": "none",
+                        "return_envelope_received": False,
+                        "main_agent_review_status": "PENDING",
+                    },
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["delegated_task_ledger"],
+        source_config={"delegated_task_ledger": {"ledger_path": str(ledger)}},
+        thresholds={"stale_delegated_task_hours": 6},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["run_status"] == "blocked"
+    assert {item["condition"] for item in status["attention_items"]} == {
+        "delegated_task_lost",
+        "delegated_task_stale",
+    }
+    lost_item = next(
+        item
+        for item in status["attention_items"]
+        if item["condition"] == "delegated_task_lost"
+    )
+    assert lost_item["severity"] == "blocking"
+    assert lost_item["engineering_task_id"] == "eng-task-lost"
+    assert lost_item["parent_engineering_task_id"] == "rfc-0096-slice-5"
+    assert lost_item["delegation_profile"] == "implementation"
+
+
+def test_delegated_task_ledger_adapter_reports_missing_return_and_review_blockers(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    ledger = tmp_path / "delegated-tasks.json"
+    ledger.write_text(
+        json.dumps(
+            [
+                {
+                    "engineering_task_id": "eng-task-missing-return",
+                    "task_kind": "DELEGATED_IMPLEMENTATION",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": GENERATED_AT_UTC,
+                    "status": "SUCCEEDED",
+                    "scope": {
+                        "delegation_profile": "implementation",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": ["automation/heartbeat_sources.py"],
+                        "return_envelope_received": False,
+                        "main_agent_review_status": "PENDING",
+                    },
+                },
+                {
+                    "engineering_task_id": "eng-task-needs-changes",
+                    "task_kind": "DELEGATED_IMPLEMENTATION",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": GENERATED_AT_UTC,
+                    "status": "FAILED",
+                    "scope": {
+                        "delegation_profile": "implementation",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": ["tests/unit/test_heartbeat_runner.py"],
+                        "return_envelope_received": True,
+                        "main_agent_review_status": "NEEDS_CHANGES",
+                    },
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["delegated_task_ledger"],
+        source_config={"delegated_task_ledger": {"ledger_path": str(ledger)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert {
+        "delegated_task_missing_evidence",
+        "delegated_task_failed",
+        "delegated_task_unresolved_blocker",
+    }.issubset({item["condition"] for item in status["attention_items"]})
+
+
+def test_delegated_task_ledger_adapter_reports_overlapping_active_write_scopes(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    ledger = tmp_path / "delegated-tasks.json"
+    ledger.write_text(
+        json.dumps(
+            [
+                {
+                    "engineering_task_id": "eng-task-left",
+                    "task_kind": "DELEGATED_IMPLEMENTATION",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": GENERATED_AT_UTC,
+                    "status": "RUNNING",
+                    "scope": {
+                        "delegation_profile": "implementation",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": ["automation"],
+                        "return_envelope_received": False,
+                        "main_agent_review_status": "PENDING",
+                    },
+                },
+                {
+                    "engineering_task_id": "eng-task-right",
+                    "task_kind": "DELEGATED_IMPLEMENTATION",
+                    "repository": "lotus-platform",
+                    "branch": "main",
+                    "owner": "lotus-platform",
+                    "requested_at": GENERATED_AT_UTC,
+                    "status": "QUEUED",
+                    "scope": {
+                        "delegation_profile": "implementation",
+                        "parent_engineering_task_id": "rfc-0096-slice-5",
+                        "write_scope": ["automation/heartbeat_sources.py"],
+                        "return_envelope_received": False,
+                        "main_agent_review_status": "PENDING",
+                    },
+                },
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["delegated_task_ledger"],
+        source_config={"delegated_task_ledger": {"ledger_path": str(ledger)}},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    overlap = next(
+        item
+        for item in status["attention_items"]
+        if item["condition"] == "delegated_task_write_scope_overlap"
+    )
+    assert overlap["engineering_task_id"] == "eng-task-left"
+    assert overlap["related_engineering_task_id"] == "eng-task-right"
 
 
 def test_wiki_publication_adapter_reports_publication_drift(tmp_path: Path) -> None:

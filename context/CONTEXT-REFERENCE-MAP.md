@@ -203,7 +203,10 @@ For RFC-0084 work, the highest-signal machine-readable files are:
    Investigation sequence for time-weighted return defects, implausible economics, and upstream reconciliation issues.
 7. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
    RFC-0093/RFC-0094 sequence for scoped context assembly, exact identifier preservation,
-   detached task ledger evidence, delegation guardrails, and durable promotion decisions.
+   detached task ledger evidence, RFC-0096 delegation guardrails, and durable promotion decisions.
+8. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
+   RFC-0096 governed profiles, input envelopes, output envelopes, write-scope rules, and heartbeat
+   attention identifiers for bounded multi-agent work.
 
 ## Platform Standards
 
@@ -231,14 +234,14 @@ The most operationally important current RFCs are:
 6. [RFC-0094](../rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md)
 7. [RFC-0095](../rfcs/RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md)
    advisory heartbeat-driven monitoring and attention surfacing
-
-The next draft implementation sequence for agent and workflow-pack runtime governance is:
-
-1. [RFC-0096](../rfcs/RFC-0096-governed-multi-agent-delegation-model.md)
+8. [RFC-0096](../rfcs/RFC-0096-governed-multi-agent-delegation-model.md)
    governed multi-agent delegation model
-2. [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
+
+The next draft implementation sequence for workflow-pack runtime governance is:
+
+1. [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
    task-flow runtime for long-running workflow packs
-3. [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
+2. [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
    per-pack queue and concurrency policy
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

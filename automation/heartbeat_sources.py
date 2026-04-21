@@ -14,6 +14,7 @@ RUNNER_CONFIG_CONTRACT_ID = "lotus-platform:heartbeat-runner-config:v1"
 IMPLEMENTED_SOURCE_ADAPTERS = {
     "github",
     "background_run_ledger",
+    "delegated_task_ledger",
     "wiki_publication",
     "agent_context",
     "mesh_certification",
@@ -537,6 +538,164 @@ def _background_run_ledger_adapter(
     )
 
 
+def _write_scopes_overlap(left: object, right: object) -> bool:
+    if not isinstance(left, list) or not isinstance(right, list):
+        return False
+    left_values = [item.rstrip("/") for item in left if isinstance(item, str)]
+    right_values = [item.rstrip("/") for item in right if isinstance(item, str)]
+    for left_value in left_values:
+        for right_value in right_values:
+            if (
+                left_value == right_value
+                or left_value.startswith(f"{right_value}/")
+                or right_value.startswith(f"{left_value}/")
+            ):
+                return True
+    return False
+
+
+def _delegated_task_ledger_adapter(
+    *,
+    config: dict[str, Any],
+    repository: str,
+    generated_at_utc: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    path = _source_path(
+        config, "delegated_task_ledger", "ledger_path", "output/delegated-tasks.json"
+    )
+    payload, missing_source, missing_items, missing_errors = _load_source_json(
+        source_system="delegated_task_ledger",
+        path=path,
+        repository=repository,
+        generated_at_utc=generated_at_utc,
+    )
+    if missing_source is not None:
+        return missing_source, missing_items, missing_errors
+
+    evidence_refs = [_evidence_ref("LOCAL_JSON_ARTIFACT", _display_path(path))]
+    attention_items: list[dict[str, Any]] = []
+    stale_hours = _threshold(config, "stale_delegated_task_hours", 6)
+    tasks = payload if isinstance(payload, list) else []
+    active_tasks: list[dict[str, Any]] = []
+
+    for task in tasks:
+        if not isinstance(task, dict):
+            continue
+        status = str(task.get("status") or "").upper()
+        task_id = str(task.get("engineering_task_id") or "unknown-task")
+        source_ref = f"delegated_task:{task_id}"
+        task_repository = str(task.get("repository") or repository)
+        scope = task.get("scope") if isinstance(task.get("scope"), dict) else {}
+        profile = str(scope.get("delegation_profile") or task.get("task_kind") or "")
+        owner = str(task.get("owner") or task_repository)
+        task_evidence = [
+            *evidence_refs,
+            _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(path)}#{task_id}"),
+        ]
+
+        def add_attention(condition: str, severity: str, action: str) -> None:
+            item = _attention_item(
+                source_system="delegated_task_ledger",
+                source_ref=source_ref,
+                repository=task_repository,
+                condition=condition,
+                severity=severity,
+                owner=owner,
+                generated_at_utc=generated_at_utc,
+                evidence_refs=task_evidence,
+                recommended_next_action=action,
+            )
+            item["engineering_task_id"] = task_id
+            item["parent_engineering_task_id"] = str(
+                scope.get("parent_engineering_task_id") or ""
+            )
+            item["delegation_profile"] = profile
+            if "write_scope" in scope:
+                item["write_scope"] = scope["write_scope"]
+            attention_items.append(item)
+
+        if status in {"FAILED", "TIMED_OUT"}:
+            add_attention(
+                "delegated_task_failed",
+                "action_required",
+                f"Review delegated task `{task_id}` failure before using its output.",
+            )
+        elif status == "LOST":
+            add_attention(
+                "delegated_task_lost",
+                "blocking",
+                f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
+            )
+
+        if status in {"QUEUED", "RUNNING"}:
+            active_tasks.append(task)
+            age = _age_hours(
+                generated_at_utc,
+                task.get("started_at") or task.get("requested_at"),
+            )
+            if age is not None and age > stale_hours:
+                add_attention(
+                    "delegated_task_stale",
+                    "warning",
+                    f"Refresh or cancel stale delegated task `{task_id}`.",
+                )
+
+        if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
+            add_attention(
+                "delegated_task_missing_evidence",
+                "action_required",
+                f"Record return-envelope evidence for delegated task `{task_id}`.",
+            )
+
+        if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
+            add_attention(
+                "delegated_task_unresolved_blocker",
+                "action_required",
+                f"Resolve main-agent review blocker for delegated task `{task_id}`.",
+            )
+
+    for index, left in enumerate(active_tasks):
+        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
+        left_write_scope = left_scope.get("write_scope")
+        if left_write_scope == "none":
+            continue
+        for right in active_tasks[index + 1 :]:
+            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
+            if _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
+                left_id = str(left.get("engineering_task_id") or "unknown-task")
+                right_id = str(right.get("engineering_task_id") or "unknown-task")
+                item = _attention_item(
+                    source_system="delegated_task_ledger",
+                    source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
+                    repository=str(left.get("repository") or repository),
+                    condition="delegated_task_write_scope_overlap",
+                    severity="action_required",
+                    owner=str(left.get("owner") or repository),
+                    generated_at_utc=generated_at_utc,
+                    evidence_refs=evidence_refs,
+                    recommended_next_action=(
+                        f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
+                    ),
+                )
+                item["engineering_task_id"] = left_id
+                item["related_engineering_task_id"] = right_id
+                item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
+                item["write_scope"] = left_write_scope
+                attention_items.append(item)
+
+    return (
+        _source_inventory(
+            source_system="delegated_task_ledger",
+            source_ref=_display_path(path),
+            read_status="healthy" if not attention_items else "degraded",
+            owner=repository,
+            evidence_refs=evidence_refs,
+        ),
+        attention_items,
+        [],
+    )
+
+
 def _wiki_publication_adapter(
     *,
     config: dict[str, Any],
@@ -971,6 +1130,7 @@ def _read_source(
     adapters = {
         "github": _github_adapter,
         "background_run_ledger": _background_run_ledger_adapter,
+        "delegated_task_ledger": _delegated_task_ledger_adapter,
         "wiki_publication": _wiki_publication_adapter,
         "agent_context": _agent_context_adapter,
         "mesh_certification": _mesh_certification_adapter,

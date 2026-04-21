@@ -12,6 +12,15 @@ CONTRACT_PATH = (
     / "agent-engineering"
     / "engineering-task-ledger-contract.v1.json"
 )
+DELEGATION_POLICY_PATH = (
+    ROOT
+    / "platform-contracts"
+    / "agent-engineering"
+    / "delegation-policy-contract.v1.json"
+)
+DELEGATION_EXAMPLES_DIR = (
+    ROOT / "platform-contracts" / "agent-engineering" / "examples"
+)
 VALIDATOR_PATH = ROOT / "automation" / "validate_agent_engineering_contracts.py"
 
 
@@ -48,6 +57,9 @@ def test_agent_engineering_contract_captures_task_ledger_authority_and_lifecycle
     }
     assert "GITHUB_CHECK_MONITOR" in contract["task_kinds"]
     assert "MERGE_CLEANUP_WATCHER" in contract["task_kinds"]
+    assert "DELEGATED_VALIDATION" in contract["task_kinds"]
+    assert "DELEGATED_DOCUMENTATION" in contract["task_kinds"]
+    assert "DELEGATED_CI_TRIAGE" in contract["task_kinds"]
     assert "evidence_refs" in contract["required_metadata_fields"]
     assert "cleanup_state" in contract["required_metadata_fields"]
 
@@ -93,7 +105,7 @@ def test_agent_engineering_contract_preserves_context_and_delegation_requirement
 def test_agent_engineering_contract_validator_passes_for_governed_contract() -> None:
     validator = _load_validator()
 
-    assert validator.validate_agent_engineering_contracts(CONTRACT_PATH) == []
+    assert validator.validate_all_agent_engineering_contracts() == []
 
 
 def test_agent_engineering_contract_validator_rejects_missing_required_identifier(
@@ -111,3 +123,104 @@ def test_agent_engineering_contract_validator_rejects_missing_required_identifie
         "context_preservation_contract.required_identifiers missing required values: commit_sha"
         in errors
     )
+
+
+def test_delegation_policy_contract_captures_rfc0096_governance() -> None:
+    policy = json.loads(DELEGATION_POLICY_PATH.read_text(encoding="utf-8"))
+
+    assert policy["contract_id"] == "lotus-platform:delegation-policy-contract:v1"
+    assert policy["source_rfc"] == "RFC-0096"
+    assert (
+        policy["depends_on_contract"]
+        == "lotus-platform:engineering-task-ledger-contract:v1"
+    )
+    assert set(policy["delegation_profiles"]) == {
+        "exploration",
+        "implementation",
+        "validation",
+        "review_support",
+        "documentation",
+        "ci_triage",
+    }
+    assert set(policy["no_write_profiles"]) == {
+        "exploration",
+        "validation",
+        "review_support",
+        "ci_triage",
+    }
+    assert set(policy["write_scope_required_profiles"]) == {
+        "implementation",
+        "documentation",
+    }
+    assert "do_everything" in policy["disallowed_profiles"]
+    assert "delegation_task_id" in policy["required_input_fields"]
+    assert "unrelated_work_preserved" in policy["required_output_fields"]
+    assert set(policy["main_agent_review_statuses"]) == {
+        "PENDING",
+        "ACCEPTED",
+        "REJECTED",
+        "NEEDS_CHANGES",
+    }
+    assert "no_wiki_publish_without_main_agent_review" in policy[
+        "required_forbidden_actions"
+    ]
+    assert "delegated_task_lost" in policy["heartbeat_attention_conditions"]
+    assert "parent_engineering_task_id" in policy["required_heartbeat_identifiers"]
+    assert "Delegation output is evidence and not review." in policy["invariants"]
+
+
+def test_delegation_policy_validator_accepts_contract_and_examples() -> None:
+    validator = _load_validator()
+
+    assert validator.validate_delegation_policy_contract(DELEGATION_POLICY_PATH) == []
+    assert validator.validate_delegation_examples(DELEGATION_EXAMPLES_DIR) == []
+
+
+def test_delegation_record_validator_rejects_disallowed_broad_profile() -> None:
+    validator = _load_validator()
+    record = json.loads(
+        (DELEGATION_EXAMPLES_DIR / "delegation-broad-invalid.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    errors = validator.validate_delegation_record(record)
+
+    assert "profile do_everything is disallowed" in errors
+    assert "profile must be a governed delegation profile" in errors
+    assert "read_scope must not be broad repo root" in errors
+    assert "write_scope must not be broad repo root" in errors
+    assert "evidence_requirements must be a non-empty list" in errors
+    assert any(error.startswith("return_envelope missing required values") for error in errors)
+
+
+def test_delegation_record_validator_requires_no_write_scope_for_exploration(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator()
+    record = json.loads(
+        (DELEGATION_EXAMPLES_DIR / "delegation-exploration-valid.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    record["write_scope"] = ["automation/validate_agent_engineering_contracts.py"]
+    path = tmp_path / "delegation-exploration-invalid.json"
+    path.write_text(json.dumps(record), encoding="utf-8")
+
+    errors = validator.validate_delegation_record(record)
+
+    assert "no-write delegation profiles must declare write_scope as none" in errors
+
+
+def test_delegation_record_validator_requires_write_scope_for_implementation() -> None:
+    validator = _load_validator()
+    record = json.loads(
+        (DELEGATION_EXAMPLES_DIR / "delegation-implementation-valid.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    record["write_scope"] = "none"
+
+    errors = validator.validate_delegation_record(record)
+
+    assert "write delegation profiles require a non-empty write_scope list" in errors
