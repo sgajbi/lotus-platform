@@ -173,10 +173,21 @@ Implemented in the degraded queue-source attention wave through `sgajbi/lotus-ai
 4. repo-local docs, wiki source, and context updates describing degraded source posture as operator
    triage evidence, with `lotus-ai` wiki publication completed at wiki commit `647dc06`.
 
+Implemented in the persisted admission-lifecycle wave through `sgajbi/lotus-ai#52`:
+
+1. durable `ADMISSION_QUEUED` and `ADMISSION_ADMITTED` queue-event vocabulary,
+2. queue-event history that records admission request, queued posture, admitted posture, running
+   handoff, and terminal release or timeout posture,
+3. OpenAPI, unit, and integration tests proving the lifecycle vocabulary and queue-event detail
+   order are part of the served contract,
+4. repo-local docs, wiki source, and context updates describing persisted admission lifecycle
+   evidence without claiming distributed queued execution, with `lotus-ai` wiki publication
+   completed at wiki commit `7db54f9`.
+
 Explicitly deferred because source behavior does not yet exist:
 
-1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
-   history,
+1. persisted queued-item execution lifecycle beyond active in-process admission and durable
+   admission-lifecycle events,
 2. retry execution, replay execution, and persisted queued-item execution semantics,
 3. gateway publication of queue posture,
 4. Workbench rendering of queue posture.
@@ -615,8 +626,9 @@ Resolved for the first `lotus-ai` source-truth wave:
 2. queue policy is a separate declared policy catalog attached to registry catalog/detail posture,
    not a separate SQL table in this wave,
 3. queue state is current in-process active-admission posture plus durable queue-event history for
-   admission, release, timeout, cancellation, recovery-decision evidence, and degraded source
-   posture; actual queued-item execution remains deferred,
+   admission request, queued posture, admitted posture, running handoff, release, timeout,
+   cancellation, recovery-decision evidence, and degraded source posture; actual queued-item
+   execution remains deferred,
 4. source API shape now includes read-only policy/status/event routes plus bounded retry/replay
    decision routes under `/platform/workflow-packs/queue-events/{queue_item_id}`,
 5. gateway publication is deferred until an operator or product surface has a concrete supported
@@ -684,13 +696,13 @@ Review findings:
    posture remains separate from run, review, and task-flow state; and source APIs expose bounded
    operator posture without worker internals.
 2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
-3. The full RFC remains partially implemented, not complete, because persisted queued-item lifecycle,
-   retry/replay execution, and any downstream gateway or Workbench queue posture are intentionally
-   deferred.
+3. The full RFC remains partially implemented, not complete, because persisted queued-item
+   execution lifecycle, retry/replay execution, and any downstream gateway or Workbench queue
+   posture are intentionally deferred.
 
 Additional slices needed for full RFC completion:
 
-1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
+1. persisted queued-item execution lifecycle beyond active in-process admission in `lotus-ai`,
 2. retry/replay execution and persisted queued-item execution semantics backed by durable evidence,
 3. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
@@ -711,7 +723,7 @@ Skills, guidance, documentation, and context decision:
 
 Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
 cancellation posture, bounded retry/replay recovery-decision posture, repeated failure-cluster
-attention, and degraded queue-source attention are now implemented in `lotus-ai` source truth. The
-next high-value implementation slice is actual retry/replay execution or persisted queued-item
-lifecycle. Gateway or Workbench adoption should remain deferred until a supported operator or
-product surface needs it.
+attention, degraded queue-source attention, and persisted admission-lifecycle events are now
+implemented in `lotus-ai` source truth. The next high-value implementation slice is actual
+retry/replay execution or persisted queued-item execution semantics. Gateway or Workbench adoption
+should remain deferred until a supported operator or product surface needs it.
