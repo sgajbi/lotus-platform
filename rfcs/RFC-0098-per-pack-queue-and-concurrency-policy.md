@@ -100,24 +100,29 @@ Implemented in the first `lotus-ai` source-truth wave merged through
 10. degraded readiness behavior for queue policy/status routes when the registry source store is
     not ready.
 
-Explicitly deferred because source evidence does not yet exist:
+Implemented in the durable queue-event source-truth wave merged through
+`sgajbi/lotus-ai#47`:
 
-1. durable queue-event history,
-2. persisted queued-item lifecycle beyond the current active in-process admission lease,
-3. timeout, cancellation, retry-cluster, and repeated-cancellation heartbeat attention,
-4. gateway publication of queue posture,
-5. Workbench rendering of queue posture.
+1. durable admission-event history for queue admission requested, granted, rejected, and released
+   posture,
+2. memory and SQLAlchemy queue-event stores, with migration
+   `0032_add_workflow_pack_queue_event_tables`,
+3. readiness-aware metadata, runtime-status, startup-policy, and degraded-source behavior for the
+   configured queue-event store,
+4. bounded source APIs under `/platform/workflow-packs/queue-events` and
+   `/platform/workflow-packs/queue-events/{queue_item_id}`,
+5. execution and task-execution lineage preservation for caller app, correlation id, tenant id, and
+   workflow surface in queue events,
+6. repo-local docs, wiki source, and context updates, with `lotus-ai` wiki publication completed at
+   wiki commit `dc37eee`.
 
-In-flight source-truth evidence under review:
+Explicitly deferred because source behavior does not yet exist:
 
-1. `sgajbi/lotus-ai#47` implements durable admission-event history for queue admission requested,
-   granted, rejected, and released posture; memory and SQLAlchemy queue-event stores; migration
-   `0032_add_workflow_pack_queue_event_tables`; readiness-aware status; bounded source APIs under
-   `/platform/workflow-packs/queue-events`; and docs, wiki source, and repo-local context updates.
-2. Until that PR is merged and wiki publication is complete, durable queue-event history remains
-   an in-flight implementation slice rather than supported mainline product material.
-3. The PR intentionally does not close terminal timeout, cancellation, retry, replay, or downstream
-   gateway/Workbench queue posture.
+1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
+   history,
+2. timeout, cancellation, retry-cluster, replay, and repeated-cancellation heartbeat attention,
+3. gateway publication of queue posture,
+4. Workbench rendering of queue posture.
 
 Unsupported unless explicitly implemented by this RFC:
 
@@ -623,7 +628,7 @@ Review findings:
 
 Additional slices needed for full RFC completion:
 
-1. durable queue-event history and persisted queued-item lifecycle in `lotus-ai`,
+1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
 2. timeout, cancellation, retry, replay, and terminal queue-state execution semantics backed by
    durable evidence,
 3. RFC-0095 heartbeat expansion for repeated timeout, cancellation, retry-blocked, and durable
@@ -645,8 +650,8 @@ Skills, guidance, documentation, and context decision:
 
 ## Current Priority
 
-Keep RFC-0098 open as partially implemented. The current asynchronous validation focus is
-`sgajbi/lotus-ai#47`, the durable queue-event history source-truth slice. If that PR merges cleanly,
-the next high-value implementation slice is terminal timeout, cancellation, retry, replay, and
-retry-cluster attention semantics backed by durable queue evidence. Gateway or Workbench adoption
-should remain deferred until a supported operator or product surface needs it.
+Keep RFC-0098 open as partially implemented. Durable queue-event history is now merged and the
+`lotus-ai` wiki source has been published. The next high-value implementation slice is terminal
+timeout, cancellation, retry, replay, and retry-cluster attention semantics backed by durable queue
+evidence. Gateway or Workbench adoption should remain deferred until a supported operator or product
+surface needs it.
