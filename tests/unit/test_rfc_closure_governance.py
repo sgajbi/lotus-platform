@@ -127,6 +127,55 @@ def test_rfc_0095_preserves_heartbeat_gold_standard_contract() -> None:
         assert expected in text
 
 
+def test_rfc_0096_preserves_delegation_gold_standard_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0096-governed-multi-agent-delegation-model.md"
+    )
+
+    for expected in [
+        "- status: draft",
+        "one accountable owner",
+        "disjoint write scopes",
+        "delegation output is not review",
+        "lost delegated work is a finding",
+        "delegation profiles",
+        "`exploration`",
+        "`implementation`",
+        "`validation`",
+        "`review_support`",
+        "`documentation`",
+        "`ci_triage`",
+        "disallowed profiles",
+        "delegation eligibility rules",
+        "required delegation input envelope",
+        "`delegation_task_id`",
+        "`read_scope`",
+        "`write_scope`",
+        "`forbidden_actions`",
+        "required delegation output envelope",
+        "confirmation that unrelated work was not reverted",
+        "task ledger integration",
+        "`lost`",
+        "`superseded`",
+        "conflict and integration rules",
+        "heartbeat integration",
+        "engineering_task_id",
+        "parent_engineering_task_id",
+        "machine-readable contract boundary",
+        "companion delegation policy contract",
+        "slice 6: code review, api certification, and governance tightening",
+        "slice 7: documentation, context, wiki, skills, and branch hygiene",
+        "api certification posture is explicit",
+        "implementation boundaries",
+        "open implementation decisions",
+        "pre-implementation gold-standard review",
+        "central agent context: no change yet because behavior is not implemented",
+        "skills: no change yet because delegation guidance should be updated with the implementation",
+        "wiki: no publication required for this tightening",
+    ]:
+        assert expected in text
+
+
 def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> None:
     standard = _read(STANDARD_PATH)
 
