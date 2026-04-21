@@ -45,7 +45,7 @@
 - [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, and persisted admission-lifecycle event waves are implemented
+  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, and governed queue request-snapshot artifact refs are implemented
 
 ## Recommended next implementation order
 
@@ -94,5 +94,6 @@
 - RFC-0098 is partially implemented: first-wave `lotus-ai` queue policy, admission, source API,
   queue-attention posture, durable queue-event history, terminal timeout/cancellation posture, and
   retry/replay recovery-decision posture, repeated-failure cluster attention, degraded
-  queue-source attention, and persisted admission-lifecycle events are implemented; retry/replay
-  execution and downstream queue posture remain future work.
+  queue-source attention, persisted admission-lifecycle events, and governed queue request-snapshot
+  artifact refs are implemented; retry/replay execution and downstream queue posture remain future
+  work.
