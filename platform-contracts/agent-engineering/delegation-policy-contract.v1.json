@@ -70,6 +70,12 @@
     "unrelated_work_preserved",
     "patch_summary_by_write_scope"
   ],
+  "main_agent_review_statuses": [
+    "PENDING",
+    "ACCEPTED",
+    "REJECTED",
+    "NEEDS_CHANGES"
+  ],
   "required_forbidden_actions": [
     "no_unrelated_reverts",
     "no_broad_cleanup",

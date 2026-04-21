@@ -155,6 +155,12 @@ def test_delegation_policy_contract_captures_rfc0096_governance() -> None:
     assert "do_everything" in policy["disallowed_profiles"]
     assert "delegation_task_id" in policy["required_input_fields"]
     assert "unrelated_work_preserved" in policy["required_output_fields"]
+    assert set(policy["main_agent_review_statuses"]) == {
+        "PENDING",
+        "ACCEPTED",
+        "REJECTED",
+        "NEEDS_CHANGES",
+    }
     assert "no_wiki_publish_without_main_agent_review" in policy[
         "required_forbidden_actions"
     ]

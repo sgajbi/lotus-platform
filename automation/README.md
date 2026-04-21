@@ -578,6 +578,17 @@ Delegated task records use the RFC-0094 task-ledger shape plus the RFC-0096 dele
 contract. They are ledger evidence for bounded agent work, not a replacement for main-agent review,
 GitHub checks, repository files, or test results.
 
+Record a delegated worker return envelope and main-agent review:
+
+```powershell
+python automation/delegation_task_ledger.py record-return --ledger-path output/delegated-tasks.json --engineering-task-id <engineering_task_id> --output output/delegation-return.json
+python automation/delegation_task_ledger.py record-review --ledger-path output/delegated-tasks.json --engineering-task-id <engineering_task_id> --review-status ACCEPTED --reviewed-by <owner> --review-summary "Diff reviewed and focused checks passed."
+```
+
+`record-return` validates returned files against the delegated write scope. `record-review` is the
+only helper path that marks returned delegated implementation as accepted; review remains a
+main-agent responsibility.
+
 Watch mode (refresh every 20s):
 
 ```powershell

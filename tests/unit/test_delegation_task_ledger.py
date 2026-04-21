@@ -25,6 +25,33 @@ def _example(name: str) -> dict:
     return json.loads((EXAMPLES_DIR / name).read_text(encoding="utf-8"))
 
 
+def _valid_implementation_output() -> dict:
+    return {
+        "outcome_summary": "Added delegation validator coverage.",
+        "files_changed": [
+            "automation/validate_agent_engineering_contracts.py",
+            "tests/unit/test_agent_engineering_contracts.py",
+        ],
+        "checks_run": [
+            "python -m pytest tests/unit/test_agent_engineering_contracts.py -q"
+        ],
+        "evidence_refs": [
+            {
+                "type": "TEST_COMMAND",
+                "ref": "python -m pytest tests/unit/test_agent_engineering_contracts.py -q",
+            }
+        ],
+        "blockers_or_assumptions": "none",
+        "remaining_risks": "none",
+        "follow_up_required": "none",
+        "unrelated_work_preserved": True,
+        "patch_summary_by_write_scope": {
+            "automation/validate_agent_engineering_contracts.py": "Added validation.",
+            "tests/unit/test_agent_engineering_contracts.py": "Added tests.",
+        },
+    }
+
+
 def test_delegated_task_entry_maps_profile_to_rfc0094_task_shape() -> None:
     ledger = _load_module()
     record = _example("delegation-implementation-valid.json")
@@ -197,3 +224,114 @@ def test_delegated_task_cli_create_and_update_status(tmp_path: Path) -> None:
     [updated] = json.loads(ledger_path.read_text(encoding="utf-8"))
     assert updated["status"] == "CANCELLED"
     assert updated["error_summary"] == "Main agent handled the work locally."
+
+
+def test_delegation_output_rejects_files_outside_write_scope() -> None:
+    ledger = _load_module()
+    output = _valid_implementation_output()
+    output["files_changed"] = [
+        "automation/validate_agent_engineering_contracts.py",
+        "rfcs/unowned.md",
+    ]
+
+    errors = ledger.validate_delegation_output(
+        output,
+        write_scope=[
+            "automation/validate_agent_engineering_contracts.py",
+            "tests/unit/test_agent_engineering_contracts.py",
+        ],
+    )
+
+    assert "changed file outside delegated write_scope: rfcs/unowned.md" in errors
+
+
+def test_delegation_output_rejects_no_write_changes() -> None:
+    ledger = _load_module()
+    output = _valid_implementation_output()
+
+    errors = ledger.validate_delegation_output(output, write_scope="none")
+
+    assert "no-write delegated work must not return changed files" in errors
+
+
+def test_record_delegation_return_requires_main_agent_review(tmp_path: Path) -> None:
+    ledger = _load_module()
+    ledger_path = tmp_path / "delegated-tasks.json"
+    output_path = tmp_path / "delegation-output.json"
+    output_path.write_text(json.dumps(_valid_implementation_output()), encoding="utf-8")
+    entry = ledger.upsert_delegated_task(
+        ledger_path=ledger_path,
+        delegation_record=_example("delegation-implementation-valid.json"),
+        owner="lotus-platform",
+        requested_at="2026-04-21T00:00:00Z",
+    )
+
+    returned = ledger.record_delegation_return(
+        ledger_path=ledger_path,
+        engineering_task_id=entry["engineering_task_id"],
+        output_path=output_path,
+    )
+
+    assert returned["scope"]["return_envelope_received"] is True
+    assert returned["scope"]["main_agent_review_status"] == "PENDING"
+    assert returned["delegation_output_ref"] == str(output_path)
+    assert returned["status"] == "QUEUED"
+
+
+def test_main_agent_review_accepts_returned_delegation_output(tmp_path: Path) -> None:
+    ledger = _load_module()
+    ledger_path = tmp_path / "delegated-tasks.json"
+    output_path = tmp_path / "delegation-output.json"
+    output_path.write_text(json.dumps(_valid_implementation_output()), encoding="utf-8")
+    entry = ledger.upsert_delegated_task(
+        ledger_path=ledger_path,
+        delegation_record=_example("delegation-implementation-valid.json"),
+        owner="lotus-platform",
+        requested_at="2026-04-21T00:00:00Z",
+    )
+    ledger.record_delegation_return(
+        ledger_path=ledger_path,
+        engineering_task_id=entry["engineering_task_id"],
+        output_path=output_path,
+    )
+
+    reviewed = ledger.record_main_agent_review(
+        ledger_path=ledger_path,
+        engineering_task_id=entry["engineering_task_id"],
+        review_status="ACCEPTED",
+        reviewed_by="lotus-platform",
+        reviewed_at="2026-04-21T01:15:00Z",
+        review_summary="Diff reviewed and focused tests passed.",
+    )
+
+    assert reviewed["status"] == "SUCCEEDED"
+    assert reviewed["scope"]["main_agent_review_status"] == "ACCEPTED"
+    assert reviewed["ended_at"] == "2026-04-21T01:15:00Z"
+    assert reviewed["main_agent_review"]["review_summary"] == (
+        "Diff reviewed and focused tests passed."
+    )
+
+
+def test_main_agent_review_requires_return_envelope_first(tmp_path: Path) -> None:
+    ledger = _load_module()
+    ledger_path = tmp_path / "delegated-tasks.json"
+    entry = ledger.upsert_delegated_task(
+        ledger_path=ledger_path,
+        delegation_record=_example("delegation-implementation-valid.json"),
+        owner="lotus-platform",
+        requested_at="2026-04-21T00:00:00Z",
+    )
+
+    try:
+        ledger.record_main_agent_review(
+            ledger_path=ledger_path,
+            engineering_task_id=entry["engineering_task_id"],
+            review_status="ACCEPTED",
+            reviewed_by="lotus-platform",
+            reviewed_at="2026-04-21T01:15:00Z",
+            review_summary="Diff reviewed.",
+        )
+    except ValueError as exc:
+        assert "return envelope must be recorded before review" in str(exc)
+    else:
+        raise AssertionError("expected review without return envelope to fail")

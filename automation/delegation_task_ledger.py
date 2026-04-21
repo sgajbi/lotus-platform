@@ -12,6 +12,8 @@ if str(AUTOMATION_DIR) not in sys.path:
     sys.path.insert(0, str(AUTOMATION_DIR))
 
 from validate_agent_engineering_contracts import (  # noqa: E402
+    REQUIRED_DELEGATION_OUTPUT_FIELDS,
+    REQUIRED_MAIN_AGENT_REVIEW_STATUSES,
     REQUIRED_TASK_STATES,
     validate_delegation_record,
 )
@@ -34,6 +36,11 @@ TERMINAL_STATES = {
     "CANCELLED",
     "LOST",
     "SUPERSEDED",
+}
+REVIEW_TERMINAL_STATUS = {
+    "ACCEPTED": "SUCCEEDED",
+    "REJECTED": "FAILED",
+    "NEEDS_CHANGES": "FAILED",
 }
 
 
@@ -69,6 +76,12 @@ def _load_ledger(path: Path) -> list[dict[str, Any]]:
 def _record_artifact_ref(path: Path) -> dict[str, str]:
     ref = _display_path(path)
     return {"type": "LOCAL_JSON_ARTIFACT", "path": ref, "ref": ref}
+
+
+def _as_string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
 
 
 def build_delegated_task_entry(
@@ -188,6 +201,123 @@ def update_delegated_task_status(
     raise ValueError(f"delegated task not found: {engineering_task_id}")
 
 
+def validate_delegation_output(
+    output: dict[str, Any],
+    *,
+    write_scope: object,
+) -> list[str]:
+    errors: list[str] = []
+    for field in REQUIRED_DELEGATION_OUTPUT_FIELDS:
+        if field not in output:
+            errors.append(f"delegation output missing {field}")
+
+    if output.get("unrelated_work_preserved") is not True:
+        errors.append("delegation output must confirm unrelated_work_preserved=true")
+
+    files_changed = output.get("files_changed")
+    if not isinstance(files_changed, list):
+        errors.append("delegation output files_changed must be a list")
+        files_changed = []
+
+    if write_scope == "none" and files_changed:
+        errors.append("no-write delegated work must not return changed files")
+    elif isinstance(write_scope, list):
+        allowed_prefixes = _as_string_list(write_scope)
+        for changed_file in _as_string_list(files_changed):
+            if changed_file not in allowed_prefixes and not any(
+                changed_file.startswith(f"{prefix.rstrip('/')}/")
+                for prefix in allowed_prefixes
+            ):
+                errors.append(f"changed file outside delegated write_scope: {changed_file}")
+
+    checks_run = output.get("checks_run")
+    if not isinstance(checks_run, list) or not checks_run:
+        errors.append("delegation output checks_run must be a non-empty list")
+
+    evidence_refs = output.get("evidence_refs")
+    if not isinstance(evidence_refs, list) or not evidence_refs:
+        errors.append("delegation output evidence_refs must be a non-empty list")
+
+    follow_up = output.get("follow_up_required")
+    if not isinstance(follow_up, str) or not follow_up.strip():
+        errors.append("delegation output follow_up_required must be a non-empty string")
+    return errors
+
+
+def record_delegation_return(
+    *,
+    ledger_path: Path,
+    engineering_task_id: str,
+    output_path: Path,
+) -> dict[str, Any]:
+    output = _read_json(output_path)
+    if not isinstance(output, dict):
+        raise ValueError("delegation output must be a JSON object")
+    ledger = _load_ledger(ledger_path)
+    for entry in ledger:
+        if entry.get("engineering_task_id") != engineering_task_id:
+            continue
+        errors = validate_delegation_output(
+            output,
+            write_scope=entry.get("scope", {}).get("write_scope"),
+        )
+        if errors:
+            raise ValueError("; ".join(errors))
+        entry["scope"]["return_envelope_received"] = True
+        entry["scope"]["main_agent_review_status"] = "PENDING"
+        entry["delegation_output_ref"] = _display_path(output_path)
+        entry["artifacts"] = sorted(
+            set(_as_string_list(entry.get("artifacts")) + [_display_path(output_path)])
+        )
+        entry["evidence_refs"] = [
+            *[
+                ref
+                for ref in entry.get("evidence_refs", [])
+                if isinstance(ref, dict)
+            ],
+            _record_artifact_ref(output_path),
+        ]
+        _write_json(ledger_path, ledger)
+        return entry
+    raise ValueError(f"delegated task not found: {engineering_task_id}")
+
+
+def record_main_agent_review(
+    *,
+    ledger_path: Path,
+    engineering_task_id: str,
+    review_status: str,
+    reviewed_by: str,
+    review_summary: str,
+    reviewed_at: str | None = None,
+) -> dict[str, Any]:
+    if review_status not in REQUIRED_MAIN_AGENT_REVIEW_STATUSES - {"PENDING"}:
+        raise ValueError("review_status must be ACCEPTED, REJECTED, or NEEDS_CHANGES")
+    if not reviewed_by.strip() or not review_summary.strip():
+        raise ValueError("reviewed_by and review_summary are required")
+    reviewed_at = reviewed_at or _utc_now()
+    ledger = _load_ledger(ledger_path)
+    for entry in ledger:
+        if entry.get("engineering_task_id") != engineering_task_id:
+            continue
+        if not entry.get("scope", {}).get("return_envelope_received"):
+            raise ValueError("delegation return envelope must be recorded before review")
+        entry["scope"]["main_agent_review_status"] = review_status
+        entry["main_agent_review"] = {
+            "review_status": review_status,
+            "reviewed_by": reviewed_by,
+            "reviewed_at": reviewed_at,
+            "review_summary": review_summary,
+        }
+        entry["status"] = REVIEW_TERMINAL_STATUS[review_status]
+        entry["ended_at"] = reviewed_at
+        if review_status != "ACCEPTED":
+            entry["error_summary"] = review_summary
+        _write_json(ledger_path, ledger)
+        return entry
+    raise ValueError(f"delegated task not found: {engineering_task_id}")
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Record RFC-0096 delegated task ledger entries."
@@ -208,6 +338,19 @@ def _parse_args() -> argparse.Namespace:
     update.add_argument("--ended-at", default=None)
     update.add_argument("--error-summary", default=None)
     update.add_argument("--superseded-by-task-id", default=None)
+
+    returned = subparsers.add_parser("record-return")
+    returned.add_argument("--ledger-path", type=Path, default=DEFAULT_LEDGER_PATH)
+    returned.add_argument("--engineering-task-id", required=True)
+    returned.add_argument("--output", type=Path, required=True)
+
+    review = subparsers.add_parser("record-review")
+    review.add_argument("--ledger-path", type=Path, default=DEFAULT_LEDGER_PATH)
+    review.add_argument("--engineering-task-id", required=True)
+    review.add_argument("--review-status", required=True)
+    review.add_argument("--reviewed-by", required=True)
+    review.add_argument("--review-summary", required=True)
+    review.add_argument("--reviewed-at", default=None)
     return parser.parse_args()
 
 
@@ -223,14 +366,30 @@ def main() -> int:
                 status=args.status,
             )
         else:
-            entry = update_delegated_task_status(
-                ledger_path=args.ledger_path,
-                engineering_task_id=args.engineering_task_id,
-                status=args.status,
-                ended_at=args.ended_at,
-                error_summary=args.error_summary,
-                superseded_by_task_id=args.superseded_by_task_id,
-            )
+            if args.command == "record-return":
+                entry = record_delegation_return(
+                    ledger_path=args.ledger_path,
+                    engineering_task_id=args.engineering_task_id,
+                    output_path=args.output,
+                )
+            elif args.command == "record-review":
+                entry = record_main_agent_review(
+                    ledger_path=args.ledger_path,
+                    engineering_task_id=args.engineering_task_id,
+                    review_status=args.review_status,
+                    reviewed_by=args.reviewed_by,
+                    review_summary=args.review_summary,
+                    reviewed_at=args.reviewed_at,
+                )
+            else:
+                entry = update_delegated_task_status(
+                    ledger_path=args.ledger_path,
+                    engineering_task_id=args.engineering_task_id,
+                    status=args.status,
+                    ended_at=args.ended_at,
+                    error_summary=args.error_summary,
+                    superseded_by_task_id=args.superseded_by_task_id,
+                )
     except ValueError as exc:
         print(f"delegated task ledger error: {exc}")
         return 2

@@ -132,6 +132,12 @@ REQUIRED_FORBIDDEN_ACTIONS = {
     "no_pr_merge",
     "no_wiki_publish_without_main_agent_review",
 }
+REQUIRED_MAIN_AGENT_REVIEW_STATUSES = {
+    "PENDING",
+    "ACCEPTED",
+    "REJECTED",
+    "NEEDS_CHANGES",
+}
 REQUIRED_HEARTBEAT_CONDITIONS = {
     "delegated_task_stale",
     "delegated_task_failed",
@@ -373,6 +379,12 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
         "required_forbidden_actions",
         contract.get("required_forbidden_actions"),
         REQUIRED_FORBIDDEN_ACTIONS,
+    )
+    _require_set(
+        errors,
+        "main_agent_review_statuses",
+        contract.get("main_agent_review_statuses"),
+        REQUIRED_MAIN_AGENT_REVIEW_STATUSES,
     )
     _require_set(
         errors,
