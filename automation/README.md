@@ -70,6 +70,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Validate-Automation-Config.ps1`
 - `automation/Validate-Change-Test-Impact.ps1`
 - `automation/Preflight-PR.ps1`
+- `automation/validate_heartbeat_contracts.py`
 - `automation/service-map.json`
 - `automation/task-profiles.json`
 - `automation/repos.json`
@@ -175,6 +176,21 @@ python automation/query_domain_product_discovery.py graph-neighborhood repo:lotu
 
 The query CLI reads generated artifacts only. It does not redefine product ownership, trust
 metadata, approved consumers, or dependency truth.
+
+## Heartbeat Contracts
+
+RFC-0095 heartbeat artifacts are governed by
+`platform-contracts/heartbeat/heartbeat-status.schema.json`.
+
+Validate the contract and first-wave example artifacts with:
+
+```powershell
+python automation/validate_heartbeat_contracts.py
+```
+
+The platform repo check lane runs this validator. Heartbeat artifacts are derived evidence; they do
+not replace GitHub, local automation ledgers, mesh certification, wiki source, or runtime APIs as
+source truth.
 
 Generate trust certification evidence for the generated catalog and dependency graph:
 

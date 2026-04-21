@@ -1,0 +1,62 @@
+{
+  "contract_id": "lotus-platform:heartbeat-status:v1",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-04-21T00:00:00Z",
+  "heartbeat_run_id": "heartbeat-20260421T000000Z",
+  "run_status": "degraded",
+  "source_inventory": [
+    {
+      "source_system": "background_run_ledger",
+      "source_ref": "output/background-runs.json",
+      "read_status": "missing",
+      "owner": "lotus-platform",
+      "evidence_refs": [
+        {
+          "type": "LOCAL_JSON_ARTIFACT",
+          "ref": "output/background-runs.json"
+        }
+      ]
+    }
+  ],
+  "summary_counts": {
+    "info": 0,
+    "warning": 0,
+    "action_required": 1,
+    "blocking": 0
+  },
+  "attention_items": [
+    {
+      "attention_item_id": "heartbeat:background_run_ledger:output-background-runs:missing_background_run_ledger",
+      "condition": "missing_background_run_ledger",
+      "source_system": "background_run_ledger",
+      "source_ref": "output/background-runs.json",
+      "repository": "lotus-platform",
+      "severity": "action_required",
+      "owner": "lotus-platform",
+      "first_seen_at_utc": "2026-04-21T00:00:00Z",
+      "last_seen_at_utc": "2026-04-21T00:00:00Z",
+      "evidence_refs": [
+        {
+          "type": "LOCAL_JSON_ARTIFACT",
+          "ref": "output/background-runs.json"
+        }
+      ],
+      "recommended_next_action": "Run Check-Background-Runs.ps1 or confirm no local detached tasks exist.",
+      "deduplication_key": "background_run_ledger|output/background-runs.json|missing_background_run_ledger"
+    }
+  ],
+  "source_read_errors": [
+    {
+      "source_system": "background_run_ledger",
+      "source_ref": "output/background-runs.json",
+      "error_summary": "Background run ledger was not present.",
+      "evidence_refs": [
+        {
+          "type": "LOCAL_JSON_ARTIFACT",
+          "ref": "output/background-runs.json"
+        }
+      ]
+    }
+  ],
+  "suppression_decisions": []
+}

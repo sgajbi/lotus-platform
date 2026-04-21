@@ -212,7 +212,11 @@ cross-repo checkout requirement unless the adapter explicitly needs sibling repo
 
 ## Implementation Plan
 
+Current implementation branch: `feature/rfc0095-heartbeat-monitoring`.
+
 ### Slice 1: Heartbeat Contract And Attention Schema
+
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
 
 1. Add a platform contract for heartbeat runs and attention items.
 2. Define severity, source-system, evidence-ref, owner, and suppression fields.
@@ -226,6 +230,22 @@ Review gate:
 2. confirm source-of-truth language is explicit,
 3. confirm attention IDs preserve operational identifiers.
 4. confirm generated artifacts are derived evidence and cannot masquerade as source truth.
+
+Review evidence:
+
+1. `platform-contracts/heartbeat/heartbeat-status.schema.json` keeps source truth external,
+   first-wave mutation read-only, and missing evidence non-healthy.
+2. `platform-contracts/heartbeat/examples/` covers healthy, warning, action-required, blocking,
+   suppressed, and degraded-source postures.
+3. `automation/validate_heartbeat_contracts.py` validates the contract and examples without adding
+   a new dependency.
+4. `tests/unit/test_heartbeat_contracts.py` proves required fields, governed vocabularies,
+   missing-evidence behavior, blocked suppression rejection, and summary-count consistency.
+5. `automation/Invoke-PlatformRepoChecks.ps1` now runs the validator so the contract is protected by
+   the platform repo check lane.
+6. Slice review found no duplicate RFC-0094 task-ledger fields in the heartbeat schema. The first
+   implementation intentionally remains `VALIDATION_RUN`-compatible; `HEARTBEAT_MONITOR` remains an
+   open decision for a later slice only if implementation evidence justifies extending RFC-0094.
 
 ### Slice 2: Platform Heartbeat Runner
 

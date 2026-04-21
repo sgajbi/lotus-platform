@@ -1,0 +1,62 @@
+{
+  "contract_id": "lotus-platform:heartbeat-status:v1",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-04-21T00:00:00Z",
+  "heartbeat_run_id": "heartbeat-20260421T000000Z",
+  "run_status": "blocked",
+  "source_inventory": [
+    {
+      "source_system": "mesh_certification",
+      "source_ref": "output/mesh-certification/enterprise-mesh-operating-report.json",
+      "read_status": "error",
+      "owner": "lotus-platform",
+      "evidence_refs": [
+        {
+          "type": "MESH_CERTIFICATION_ARTIFACT",
+          "ref": "output/mesh-certification/enterprise-mesh-operating-report.json"
+        }
+      ]
+    }
+  ],
+  "summary_counts": {
+    "info": 0,
+    "warning": 0,
+    "action_required": 0,
+    "blocking": 1
+  },
+  "attention_items": [
+    {
+      "attention_item_id": "heartbeat:mesh_certification:enterprise-operating-report:missing_mesh_operating_evidence",
+      "condition": "missing_mesh_operating_evidence",
+      "source_system": "mesh_certification",
+      "source_ref": "output/mesh-certification/enterprise-mesh-operating-report.json",
+      "repository": "lotus-platform",
+      "severity": "blocking",
+      "owner": "lotus-platform",
+      "first_seen_at_utc": "2026-04-21T00:00:00Z",
+      "last_seen_at_utc": "2026-04-21T00:00:00Z",
+      "evidence_refs": [
+        {
+          "type": "MESH_CERTIFICATION_ARTIFACT",
+          "ref": "output/mesh-certification/enterprise-mesh-operating-report.json"
+        }
+      ],
+      "recommended_next_action": "Regenerate mesh operating evidence before relying on heartbeat posture.",
+      "deduplication_key": "mesh_certification|output/mesh-certification/enterprise-mesh-operating-report.json|missing_mesh_operating_evidence"
+    }
+  ],
+  "source_read_errors": [
+    {
+      "source_system": "mesh_certification",
+      "source_ref": "output/mesh-certification/enterprise-mesh-operating-report.json",
+      "error_summary": "Mesh operating report was missing or unreadable.",
+      "evidence_refs": [
+        {
+          "type": "MESH_CERTIFICATION_ARTIFACT",
+          "ref": "output/mesh-certification/enterprise-mesh-operating-report.json"
+        }
+      ]
+    }
+  ],
+  "suppression_decisions": []
+}
