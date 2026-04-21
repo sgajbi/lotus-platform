@@ -207,6 +207,7 @@ try {
       $bringUpArguments.CleanCoreState = $true
     }
     $bringUpArguments.SeedWaitSeconds = $SeedWaitSeconds
+    $bringUpArguments.RunValidation = $true
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
   } elseif (-not $Clean) {
