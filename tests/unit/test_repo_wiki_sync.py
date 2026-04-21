@@ -147,6 +147,48 @@ def test_repo_wiki_sync_pr_gate_allows_unpublished_branch_wiki_changes(
     assert "Publish after merge" in result.stderr + result.stdout
 
 
+def test_repo_wiki_sync_pr_gate_allows_committed_branch_wiki_changes(
+    tmp_path: Path,
+) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    repo_root = workspace / repo_name
+    source = repo_root / "wiki"
+    source.mkdir(parents=True)
+    _init_wiki_remote(tmp_path, repo_name, "# Stale Home\n")
+    _git(repo_root, "init")
+    _git(repo_root, "config", "user.email", "wiki-sync@example.com")
+    _git(repo_root, "config", "user.name", "Wiki Sync Test")
+    (source / "Home.md").write_text("# Stale Home\n", encoding="utf-8")
+    _git(repo_root, "add", "wiki/Home.md")
+    _git(repo_root, "commit", "-m", "seed wiki source")
+    (source / "Home.md").write_text("# Updated Home\n", encoding="utf-8")
+    _git(repo_root, "add", "wiki/Home.md")
+    _git(repo_root, "commit", "-m", "update wiki source")
+
+    result = subprocess.run(
+        _powershell_command(
+            "-CheckOnly",
+            "-AllowUnpublishedSourceChanges",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    assert "Publish after merge" in result.stderr + result.stdout
+
+
 def test_platform_checks_include_repo_wiki_sync_gate() -> None:
     repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(
         encoding="utf-8"

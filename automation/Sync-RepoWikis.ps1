@@ -99,7 +99,27 @@ function Test-WikiSourceChanged {
             $changed = @()
         }
         if ($changed.Count -eq 0) {
+            try {
+                $null = & git rev-parse --verify origin/main 2>$null
+                if ($LASTEXITCODE -ne 0) {
+                    & git fetch --depth=1 origin main:refs/remotes/origin/main 2>$null
+                }
+                $changed = @(& git diff --name-only origin/main HEAD -- wiki 2>$null)
+            }
+            catch {
+                $changed = @()
+            }
+        }
+        if ($changed.Count -eq 0) {
             $changed = @(& git status --short -- wiki 2>$null)
+        }
+        if ($changed.Count -eq 0) {
+            try {
+                $changed = @(& git diff --name-only HEAD^ HEAD -- wiki 2>$null)
+            }
+            catch {
+                $changed = @()
+            }
         }
         return $changed.Count -gt 0
     }
