@@ -169,7 +169,8 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation implemented on the active RFC branch**.
+Current status: **Draft; Slice 1 contract foundation and Slice 4 background-run artifact
+alignment implemented on the active RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -179,8 +180,10 @@ RFC-0093 and RFC-0094:
 3. `tests/unit/test_agent_engineering_contracts.py`.
 
 That contract establishes RFC-0093's identifier-preservation, decision-state, and promotion-target
-requirements in machine-readable form. The broader context, AGENTS, onboarding, skill, wiki, and
-automation adoption slices remain open.
+requirements in machine-readable form. The first automation adoption slice also makes detached
+background-run state preserve task identity and evidence references for resumed sessions. The
+broader context, AGENTS, onboarding, skill, wiki, and remaining automation adoption slices remain
+open.
 
 No implementation slice may mark RFC-0093 as fully implemented until the platform can point to:
 
@@ -623,6 +626,8 @@ Deliverables:
 | `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures RFC-0093 identifier-preservation, decision-state, and promotion-target requirements |
 | `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
 | `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required identifiers, decision states, promotion targets, task lifecycle, and delegation guardrails |
+| `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Preserve deterministic task identity, lifecycle status, and evidence references across detached background-run monitoring |
+| `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade and failed-artifact truthfulness |
 
 ## Validation Posture
 

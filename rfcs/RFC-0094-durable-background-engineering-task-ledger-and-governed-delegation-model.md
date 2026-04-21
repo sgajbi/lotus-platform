@@ -158,7 +158,8 @@ Specifically:
 
 ## Implementation Status
 
-Current status: **Draft; Slice 1 contract foundation implemented on the active RFC branch**.
+Current status: **Draft; Slice 1 contract foundation and Slice 4 background-run artifact
+alignment implemented on the active RFC branch**.
 
 The first implementation slice adds the shared agent-engineering contract foundation used by
 RFC-0093 and RFC-0094:
@@ -168,8 +169,10 @@ RFC-0093 and RFC-0094:
 3. `tests/unit/test_agent_engineering_contracts.py`.
 
 That contract establishes RFC-0094's task identity, lifecycle, evidence, cleanup, authority, and
-delegation requirements in machine-readable form. The broader automation, reporting, context,
-skills, wiki, and branch-hygiene adoption slices remain open.
+delegation requirements in machine-readable form. The first automation adoption slice also aligns
+detached background-run state with governed task identity, lifecycle, evidence, and cleanup
+semantics. The broader reporting, context, skills, wiki, and branch-hygiene adoption slices remain
+open.
 
 No implementation slice may mark RFC-0094 as fully implemented until the platform can point to:
 
@@ -658,6 +661,8 @@ Deliverables:
 | `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json` | Implemented on active branch | Captures task identity, lifecycle, evidence, cleanup, authority, delegation, and context-preservation contract requirements |
 | `automation/validate_agent_engineering_contracts.py` | Implemented on active branch | Validates the shared RFC-0093/RFC-0094 contract shape |
 | `tests/unit/test_agent_engineering_contracts.py` | Implemented on active branch | Proves the contract preserves required lifecycle states, ownership/evidence fields, cleanup posture, delegation guardrails, and identifier-preservation requirements |
+| `automation/Start-Background-Run.ps1` and `automation/Check-Background-Runs.ps1` | Implemented on active branch | Emit and refresh RFC-0094-compatible task identity, lifecycle, evidence, and cleanup fields for detached local automation |
+| `tests/unit/test_agent_engineering_background_runs.py` | Implemented on active branch | Executes the monitor against synthetic state to prove legacy-state upgrade, durable evidence refs, `SUCCEEDED`, and `FAILED` semantics |
 
 ## Risks and Mitigations
 

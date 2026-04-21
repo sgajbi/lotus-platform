@@ -12,6 +12,14 @@ if (-not (Test-Path $scriptPath)) {
 }
 
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$correlationRef = "$timestamp-$Profile"
+$engineeringTaskId = "eng-task-$correlationRef"
+$branch = (git branch --show-current 2>$null)
+if ([string]::IsNullOrWhiteSpace($branch)) {
+  $branch = "unknown"
+}
+$owner = if ($env:USERNAME) { $env:USERNAME } elseif ($env:USER) { $env:USER } else { "unknown" }
+$requestedAt = (Get-Date).ToString("s")
 
 $args = @(
   "-NoProfile",
@@ -52,12 +60,39 @@ if (Test-Path $StatePath) {
 }
 
 $entry = [pscustomobject]@{
+  engineering_task_id = $engineeringTaskId
+  task_kind = "LOCAL_BACKGROUND_RUN"
+  repository = "lotus-platform"
+  branch = $branch
+  owner = $owner
+  requested_at = $requestedAt
+  origin = "automation/Start-Background-Run.ps1"
+  correlation_ref = $correlationRef
+  summary = "Background run for task profile '$Profile'"
   pid = $process.Id
   profile = $Profile
   maxParallel = $MaxParallel
   runId = $timestamp
-  startedAt = (Get-Date).ToString("s")
-  status = "running"
+  started_at = $requestedAt
+  startedAt = $requestedAt
+  status = "RUNNING"
+  runtime = [pscustomobject]@{
+    kind = "powershell"
+    runner = $scriptPath
+    pid = $process.Id
+  }
+  scope = [pscustomobject]@{
+    profile = $Profile
+    maxParallel = $MaxParallel
+  }
+  artifacts = @($outLogPath, $errLogPath, $expectedJsonPath, $expectedMdPath)
+  evidence_refs = @(
+    [pscustomobject]@{ type = "LOG_FILE"; path = $outLogPath },
+    [pscustomobject]@{ type = "LOG_FILE"; path = $errLogPath },
+    [pscustomobject]@{ type = "LOCAL_JSON_ARTIFACT"; path = $expectedJsonPath },
+    [pscustomobject]@{ type = "LOCAL_MARKDOWN_ARTIFACT"; path = $expectedMdPath }
+  )
+  cleanup_state = "PENDING"
   outLogPath = $outLogPath
   errLogPath = $errLogPath
   expectedResultPath = $expectedJsonPath
@@ -66,7 +101,7 @@ $entry = [pscustomobject]@{
 
 $state = @($state | Where-Object { $_.pid -ne $process.Id })
 $state += $entry
-$state | ConvertTo-Json -Depth 5 | Set-Content $StatePath
+ConvertTo-Json -InputObject @($state) -Depth 5 | Set-Content $StatePath
 
 Write-Host ("Started background run. PID={0}, Profile={1}" -f $process.Id, $Profile)
 Write-Host "Monitor status with: powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1"

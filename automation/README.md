@@ -467,7 +467,17 @@ Check background run status:
 powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1
 ```
 
-`Start-Background-Run.ps1` now assigns a deterministic `runId` and expected result artifact paths, and `Check-Background-Runs.ps1` marks runs as completed based on artifact existence to avoid stale `running` status from PID reuse.
+`Start-Background-Run.ps1` assigns a deterministic `runId`, `engineering_task_id`, expected result
+artifact paths, and RFC-0094 task-ledger metadata. `Check-Background-Runs.ps1` refreshes
+`output/background-runs.json` with governed lifecycle states:
+
+- `RUNNING` while the launched process is still active,
+- `SUCCEEDED` only when the expected result artifact exists and all child task exit codes are zero,
+- `FAILED` when the result artifact exists but contains failed task results or cannot be parsed,
+- `LOST` when the process ended before the expected result artifact was written.
+
+The monitor also preserves evidence references for logs, JSON results, and Markdown summaries so
+resumed sessions can inspect durable artifacts instead of relying on chat history.
 
 Watch mode (refresh every 20s):
 
