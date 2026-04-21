@@ -18,7 +18,6 @@ CURRENT_IMPLEMENTATION_RFCS = [
 ]
 
 NEXT_AGENT_RUNTIME_RFCS = [
-    "RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md",
     "RFC-0098-per-pack-queue-and-concurrency-policy.md",
 ]
 
@@ -61,7 +60,7 @@ def test_next_agent_runtime_rfcs_are_ordered_and_closure_governed() -> None:
         rfc_id = rfc_name.split("-", 2)[0] + "-" + rfc_name.split("-", 2)[1]
         text = _read(ROOT / "rfcs" / rfc_name)
 
-        if rfc_id == "RFC-0095":
+        if rfc_id in {"RFC-0095", "RFC-0097"}:
             assert "- status: implemented" in text, rfc_name
         else:
             assert "- status: draft" in text, rfc_name
@@ -188,7 +187,8 @@ def test_rfc_0097_preserves_task_flow_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: draft",
+        "- status: implemented",
+        "## supported features",
         "source truth stays layered",
         "flow state, run state, and review state remain separate",
         "checkpoint evidence is durable",
@@ -212,14 +212,15 @@ def test_rfc_0097_preserves_task_flow_gold_standard_contract() -> None:
         "heartbeat and operational attention",
         "stale active flows",
         "replacement-lineage inconsistencies",
-        "slice 7: code review, api certification, and governance tightening",
-        "slice 8: documentation, context, wiki, skills, and branch hygiene",
+        "slice 7: cleanup, structure, and documentation shape",
+        "slice 8: code review, api certification, and governance tightening",
+        "slice 9: documentation, context, wiki, supported features, skills, and branch hygiene",
         "required final-slice decisions",
         "implementation boundaries",
-        "open implementation decisions",
+        "resolved for first-wave implementation closure",
         "pre-implementation gold-standard review",
-        "skills: no change yet",
-        "wiki: no publication required",
+        "task-flow-specific skill assessment: no new skill is needed yet",
+        "repo wikis for `lotus-platform`, `lotus-ai`, `lotus-gateway`, and `lotus-workbench` were",
     ]:
         assert expected in text
 
