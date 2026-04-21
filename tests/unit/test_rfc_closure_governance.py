@@ -18,7 +18,6 @@ CURRENT_IMPLEMENTATION_RFCS = [
 ]
 
 NEXT_AGENT_RUNTIME_RFCS = [
-    "RFC-0096-governed-multi-agent-delegation-model.md",
     "RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md",
     "RFC-0098-per-pack-queue-and-concurrency-policy.md",
 ]
@@ -133,7 +132,7 @@ def test_rfc_0096_preserves_delegation_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: draft",
+        "- status: implemented",
         "one accountable owner",
         "disjoint write scopes",
         "delegation output is not review",
@@ -168,6 +167,13 @@ def test_rfc_0096_preserves_delegation_gold_standard_contract() -> None:
         "api certification posture is explicit",
         "implementation boundaries",
         "open implementation decisions",
+        "resolved implementation decisions",
+        "implementation status and evidence",
+        "delegation policy contract and governed examples",
+        "rfc-0094-compatible delegated task ledger helper",
+        "optional rfc-0095 heartbeat source adapter",
+        "openapi certification is not applicable",
+        "artifact certification is applicable",
         "pre-implementation gold-standard review",
         "central agent context: no change yet because behavior is not implemented",
         "skills: no change yet because delegation guidance should be updated with the implementation",

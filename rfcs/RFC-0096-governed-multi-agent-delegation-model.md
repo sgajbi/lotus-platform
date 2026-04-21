@@ -1,6 +1,6 @@
 # RFC-0096: Governed Multi-Agent Delegation Model
 
-- Status: Draft
+- Status: Implemented
 - Date: 2026-04-21
 - Owners:
   - lotus-platform governance
@@ -438,6 +438,58 @@ These decisions must be resolved before implementation closure:
 4. whether `platform-automation-ops` is sufficient skill guidance or a new delegation-specific skill
    is justified,
 5. which default stale thresholds apply to delegated work.
+
+## Resolved Implementation Decisions
+
+Resolved on 2026-04-21:
+
+1. A companion delegation policy contract was added at
+   `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`. The RFC-0094 task
+   ledger contract remains the lifecycle source, while the RFC-0096 policy contract owns profile,
+   envelope, write-scope, review, and heartbeat-attention vocabulary.
+2. Delegated task records are created and reviewed through
+   `automation/delegation_task_ledger.py`. The helper is intentionally separate from background-run
+   launch automation so delegated work can be recorded without coupling every runner to subagent
+   mechanics.
+3. Stale delegated task heartbeat findings are advisory in this implementation. The contracts and
+   validators are PR-checkable, but generated delegated-task posture should not block merges until
+   signal quality is proven over real usage.
+4. `platform-automation-ops` is sufficient skill guidance for this slice. A dedicated delegation
+   skill is not justified yet because the durable rules now live in AGENTS, the context playbook,
+   the routing map, and machine-readable contracts.
+5. The default stale delegated-task threshold is six hours when the `delegated_task_ledger` heartbeat
+   source is explicitly enabled.
+
+## Implementation Status And Evidence
+
+Implemented on 2026-04-21 in `lotus-platform`.
+
+Delivered implementation:
+
+1. delegation policy contract and governed examples,
+2. contract validator coverage for profiles, input envelopes, output envelopes, write scope,
+   disallowed broad delegation, lifecycle mapping, review statuses, and heartbeat identifiers,
+3. RFC-0094-compatible delegated task ledger helper for create, status update, return recording,
+   and main-agent review,
+4. explicit handling for `LOST`, `FAILED`, `TIMED_OUT`, `CANCELLED`, and `SUPERSEDED` delegated
+   task posture,
+5. write-scope enforcement for returned implementation/documentation output,
+6. parseable RFC-3339 UTC timestamp validation for delegated task lifecycle and review timestamps,
+7. optional RFC-0095 heartbeat source adapter for stale, failed, lost, missing-evidence,
+   unresolved-review, and overlapping-write-scope delegated task attention,
+8. AGENTS, central context, playbook, skill-routing, and `platform-automation-ops` guidance updates,
+9. docs and wiki source updates for operator and future-agent discovery,
+10. slice-by-slice review artifacts and final closure evidence in
+    `rfcs/RFC-0096-final-closure-evidence.md`.
+
+API certification posture:
+
+1. OpenAPI certification is not applicable because RFC-0096 introduced no served HTTP endpoint.
+2. Artifact certification is applicable and covered by
+   `automation/validate_agent_engineering_contracts.py`,
+   `automation/validate_heartbeat_contracts.py`, focused unit tests, and platform repo checks.
+3. If delegated task posture is later exposed through a service API, that endpoint must go through
+   the Lotus endpoint certification pattern before being treated as product or operator API truth.
 
 ## Pre-Implementation Gold-Standard Review
 

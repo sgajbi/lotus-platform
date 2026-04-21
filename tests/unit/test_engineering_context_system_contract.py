@@ -147,6 +147,8 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "RFC-0074",
         "RFC-0093",
         "RFC-0094",
+        "RFC-0095",
+        "RFC-0096",
     }
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
@@ -155,6 +157,8 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert implementation_postures["RFC-0074"] == "implemented and governed"
     assert implementation_postures["RFC-0093"] == "implemented on main"
     assert implementation_postures["RFC-0094"] == "implemented on main"
+    assert implementation_postures["RFC-0095"] == "implemented"
+    assert implementation_postures["RFC-0096"] == "implemented"
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:

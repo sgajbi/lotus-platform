@@ -181,6 +181,11 @@ Boundary rules:
     posture and explicit non-blocking suppressions. `automation/validate_heartbeat_contracts.py`
     certifies the contract, examples, runner config, and suppression policy in the platform repo
     check lane. Heartbeat output remains advisory and does not replace source truth.
+34. RFC-0096 is implemented for governed multi-agent delegation. The platform owns the delegation
+    policy contract, delegated task ledger helper, return-envelope and main-agent review discipline,
+    optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
+    guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
+    approval, wiki publication, or merge authority.
 
 ## Repo-Native Commands
 
@@ -230,6 +235,12 @@ Use these commands as the primary local contract:
    `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
 22. enterprise mesh operating report generation
    `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
+23. agent engineering contract validation
+   `python automation/validate_agent_engineering_contracts.py`
+24. delegated task ledger create/update/review helper
+   `python automation/delegation_task_ledger.py --help`
+25. heartbeat contract validation
+   `python automation/validate_heartbeat_contracts.py`
 
 ## Validation And CI Expectations
 
