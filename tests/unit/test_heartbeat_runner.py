@@ -28,6 +28,8 @@ def _write_config(
     enabled_sources: list[str],
     source_config: dict | None = None,
     thresholds: dict | None = None,
+    state_path: Path | None = None,
+    suppression_file_path: Path | None = None,
 ) -> None:
     path.write_text(
         json.dumps(
@@ -40,6 +42,12 @@ def _write_config(
                 "mode": "advisory",
                 "mutation_policy": "read_only",
                 "output_directory": "output/heartbeat",
+                "state_path": str(state_path) if state_path is not None else str(path.parent / "heartbeat-state.json"),
+                "suppression_file_path": (
+                    str(suppression_file_path)
+                    if suppression_file_path is not None
+                    else str(path.parent / "heartbeat-suppressions.json")
+                ),
                 "enabled_sources": enabled_sources,
                 "source_config": source_config or {},
                 "thresholds": thresholds or {
@@ -85,6 +93,11 @@ def test_default_heartbeat_config_enables_only_local_artifact_sources() -> None:
 
     assert config["mutation_policy"] == "read_only"
     assert config["mode"] == "advisory"
+    assert config["state_path"] == "output/heartbeat/heartbeat-state.json"
+    assert (
+        config["suppression_file_path"]
+        == "platform-contracts/heartbeat/heartbeat-suppressions.json"
+    )
     assert config["enabled_sources"] == [
         "background_run_ledger",
         "mesh_certification",
@@ -554,3 +567,144 @@ def test_lotus_ai_adapter_reports_runtime_readiness_degradation(tmp_path: Path) 
 
     assert status["source_inventory"][0]["read_status"] == "degraded"
     assert status["attention_items"][0]["condition"] == "workflow_pack_runtime_degraded"
+
+
+def test_heartbeat_state_preserves_first_seen_across_repeated_runs(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    config_path = tmp_path / "heartbeat-config.json"
+    state_path = tmp_path / "heartbeat-state.json"
+    _write_config(
+        config_path,
+        enabled_sources=["github"],
+        source_config={"github": {"pr_monitor_path": str(tmp_path / "missing.json")}},
+        state_path=state_path,
+    )
+
+    first = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc="2026-04-20T00:00:00Z",
+        branch="main",
+    )
+    second = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert first["attention_items"][0]["first_seen_at_utc"] == "2026-04-20T00:00:00Z"
+    assert second["attention_items"][0]["first_seen_at_utc"] == "2026-04-20T00:00:00Z"
+    assert second["attention_items"][0]["last_seen_at_utc"] == GENERATED_AT_UTC
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["attention_items"][0]["first_seen_at_utc"] == "2026-04-20T00:00:00Z"
+
+
+def test_heartbeat_suppression_is_explicit_and_does_not_remove_attention_item(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    config_path = tmp_path / "heartbeat-config.json"
+    suppression_path = tmp_path / "heartbeat-suppressions.json"
+    missing_pr_monitor = tmp_path / "missing-pr-monitor.json"
+    deduplication_key = f"github:{missing_pr_monitor}:source_evidence_missing"
+    suppression_path.write_text(
+        json.dumps(
+            {
+                "suppressions": [
+                    {
+                        "deduplication_key": deduplication_key,
+                        "owner": "lotus-platform",
+                        "reason": "Temporary upstream PR monitor outage.",
+                        "expires_at_utc": "2026-04-22T00:00:00Z",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    _write_config(
+        config_path,
+        enabled_sources=["github"],
+        source_config={"github": {"pr_monitor_path": str(missing_pr_monitor)}},
+        suppression_file_path=suppression_path,
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    item = status["attention_items"][0]
+    assert item["deduplication_key"] == deduplication_key
+    assert item["suppression"]["reason"] == "Temporary upstream PR monitor outage."
+    assert status["suppression_decisions"] == [
+        {
+            "deduplication_key": deduplication_key,
+            "owner": "lotus-platform",
+            "reason": "Temporary upstream PR monitor outage.",
+            "expires_at_utc": "2026-04-22T00:00:00Z",
+        }
+    ]
+    assert "Suppressed until: `2026-04-22T00:00:00Z`" in (
+        tmp_path / "heartbeat" / "heartbeat-status.md"
+    ).read_text(encoding="utf-8")
+
+
+def test_heartbeat_suppression_cannot_hide_blocking_items(tmp_path: Path) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    ledger = tmp_path / "background-runs.json"
+    ledger.write_text(
+        json.dumps(
+            [
+                {
+                    "engineering_task_id": "eng-task-lost",
+                    "status": "LOST",
+                    "repository": "lotus-platform",
+                    "owner": "lotus-platform",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    source_ref = f"{ledger}#eng-task-lost"
+    deduplication_key = (
+        f"background_run_ledger:{source_ref}:background_run_failed"
+    )
+    suppression_path = tmp_path / "heartbeat-suppressions.json"
+    suppression_path.write_text(
+        json.dumps(
+            {
+                "suppressions": [
+                    {
+                        "deduplication_key": deduplication_key,
+                        "owner": "lotus-platform",
+                        "reason": "Cannot hide blocking evidence.",
+                        "expires_at_utc": "2026-04-22T00:00:00Z",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["background_run_ledger"],
+        source_config={"background_run_ledger": {"ledger_path": str(ledger)}},
+        suppression_file_path=suppression_path,
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["run_status"] == "blocked"
+    assert status["attention_items"][0]["severity"] == "blocking"
+    assert "suppression" not in status["attention_items"][0]
+    assert status["suppression_decisions"] == []

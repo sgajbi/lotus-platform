@@ -369,6 +369,8 @@ Review evidence:
 
 ### Slice 5: Operator Output And Deduplication
 
+Status: Complete on branch `feature/rfc0095-heartbeat-monitoring`.
+
 1. Produce a stable attention report.
 2. Deduplicate repeated items by source ref and condition.
 3. Preserve first-seen and last-seen posture where evidence exists.
@@ -380,6 +382,22 @@ Review gate:
 2. confirm suppressions are explicit and auditable,
 3. confirm no noisy one-off output becomes blocking by default.
 4. confirm suppression expiry cannot hide blocking evidence indefinitely.
+
+Review evidence:
+
+1. `automation/heartbeat_state.py` preserves repeated attention posture in
+   `output/heartbeat/heartbeat-state.json`, carrying `deduplication_key`, `first_seen_at_utc`,
+   `last_seen_at_utc`, severity, source ref, and condition.
+2. `automation/heartbeat-config.json` now declares a deterministic `state_path` and explicit
+   `suppression_file_path`.
+3. `platform-contracts/heartbeat/heartbeat-suppressions.json` is the default governed suppression
+   policy file and starts empty.
+4. Active suppressions attach structured `suppression` metadata to matching non-blocking attention
+   items and emit `suppression_decisions`; they do not remove evidence from the attention report.
+5. Blocking findings are never suppressed even when a matching suppression rule exists.
+6. Markdown output now shows whether each attention item is suppressed and until when.
+7. Focused tests prove repeated-run first-seen preservation, explicit suppression behavior, and
+   blocking suppression rejection.
 
 ### Slice 6: Code Review, API Certification, And Governance Tightening
 

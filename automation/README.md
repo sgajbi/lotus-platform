@@ -73,6 +73,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Preflight-PR.ps1`
 - `automation/run_heartbeat.py`
 - `automation/heartbeat_sources.py`
+- `automation/heartbeat_state.py`
 - `automation/validate_heartbeat_contracts.py`
 - `automation/heartbeat-config.json`
 - `automation/service-map.json`
@@ -213,6 +214,7 @@ The runner reads `automation/heartbeat-config.json` and writes:
 - `output/heartbeat/heartbeat-status.json`
 - `output/heartbeat/heartbeat-status.md`
 - `output/heartbeat/heartbeat-issues.json`
+- `output/heartbeat/heartbeat-state.json`
 
 The default configuration is read-only and advisory. It enables local artifact-backed checks for:
 
@@ -226,6 +228,10 @@ from their owning automation. The `lotus_ai` workflow-pack adapter is also imple
 enabled by default until a governed runtime-status artifact or API capture is provided at the
 configured path. Missing, malformed, stale, degraded, or failed evidence produces attention items
 rather than a false healthy posture.
+
+Repeated runs preserve attention `first_seen_at_utc` and update `last_seen_at_utc` through
+`output/heartbeat/heartbeat-state.json`. Suppression policy is explicit and defaults to
+`platform-contracts/heartbeat/heartbeat-suppressions.json`; blocking items are never suppressed.
 
 Generate trust certification evidence for the generated catalog and dependency graph:
 

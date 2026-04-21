@@ -7,6 +7,8 @@
   "mode": "advisory",
   "mutation_policy": "read_only",
   "output_directory": "output/heartbeat",
+  "state_path": "output/heartbeat/heartbeat-state.json",
+  "suppression_file_path": "platform-contracts/heartbeat/heartbeat-suppressions.json",
   "enabled_sources": [
     "background_run_ledger",
     "mesh_certification",

@@ -21,6 +21,7 @@ from heartbeat_sources import (  # noqa: E402
     severity_counts,
     task_evidence_ref,
 )
+from heartbeat_state import apply_attention_state, write_attention_state  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -223,6 +224,12 @@ def render_markdown(status: dict[str, Any]) -> str:
                     f"- Owner: `{item['owner']}`",
                     f"- Deduplication key: `{item['deduplication_key']}`",
                     f"- Recommended next action: {item['recommended_next_action']}",
+                    (
+                        f"- Suppressed until: `{item['suppression']['expires_at_utc']}` "
+                        f"by `{item['suppression']['owner']}`"
+                        if item.get("suppression")
+                        else "- Suppressed until: `not suppressed`"
+                    ),
                     "",
                 ]
             )
@@ -272,7 +279,9 @@ def run_heartbeat(
         generated_at_utc=generated_at,
         branch=branch,
     )
+    apply_attention_state(status, config)
     write_heartbeat_artifacts(status, resolved_output_dir)
+    write_attention_state(status, config)
     return status
 
 
