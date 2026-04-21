@@ -116,11 +116,24 @@ Implemented in the durable queue-event source-truth wave merged through
 6. repo-local docs, wiki source, and context updates, with `lotus-ai` wiki publication completed at
    wiki commit `dc37eee`.
 
+Implemented in the terminal queue-event posture wave merged through
+`sgajbi/lotus-ai#48`:
+
+1. durable timeout and cancellation queue-event vocabulary,
+2. timeout posture recorded when an active queue admission is released after its policy execution
+   timeout,
+3. bounded internal queue-admission cancellation that requires actor, reason, and evidence before
+   it records cancellation posture and releases capacity,
+4. runtime-status queue attention for durable timeout and cancellation queue events,
+5. docs, wiki source, and repo-local context updates, with `lotus-ai` wiki publication completed at
+   wiki commit `3e6378a`.
+
 Explicitly deferred because source behavior does not yet exist:
 
 1. persisted queued-item lifecycle beyond active in-process admission and durable admission-event
    history,
-2. timeout, cancellation, retry-cluster, replay, and repeated-cancellation heartbeat attention,
+2. retry execution, replay execution, retry-cluster attention, repeated-timeout clustering, and
+   repeated-cancellation clustering,
 3. gateway publication of queue posture,
 4. Workbench rendering of queue posture.
 
@@ -521,9 +534,10 @@ For the first `lotus-ai` source-truth wave:
 4. Capacity, explicit lane selection, rejection, stale active admission, saturation, missing policy,
    unsupported lane, and degraded readiness are tested.
 5. Operator posture explains queue delay or rejection truthfully without leaking internal mechanics.
-6. Heartbeat detects source-backed saturated and stale active-admission posture; repeated-timeout,
-   repeated-cancellation, retry-blocked, and durable degraded queue-source attention remain deferred
-   until queue-event history exists.
+6. Heartbeat detects source-backed saturated, stale active-admission, timeout, and cancellation
+   posture; repeated-timeout clustering, repeated-cancellation clustering, retry-blocked, and
+   durable degraded queue-source attention remain deferred until retry/replay execution semantics
+   exist.
 7. API certification, OpenAPI examples, vocabulary, no-alias, migration, security, and CI governance
    are satisfied for every implemented served surface.
 8. Supported-features wording is implementation-backed and excludes aspirational features.
@@ -621,18 +635,16 @@ Review findings:
    posture remains separate from run, review, and task-flow state; and source APIs expose bounded
    operator posture without worker internals.
 2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
-3. The full RFC remains partially implemented, not complete, because durable queue-event history,
-   persisted queued-item lifecycle, runtime timeout/cancellation/retry execution, repeated
-   timeout/cancellation/retry-cluster heartbeat attention, and any downstream gateway or Workbench
-   queue posture are intentionally deferred.
+3. The full RFC remains partially implemented, not complete, because persisted queued-item lifecycle,
+   retry/replay execution, repeated timeout/cancellation clustering, retry-cluster heartbeat
+   attention, and any downstream gateway or Workbench queue posture are intentionally deferred.
 
 Additional slices needed for full RFC completion:
 
 1. persisted queued-item lifecycle beyond active admission in `lotus-ai`,
-2. timeout, cancellation, retry, replay, and terminal queue-state execution semantics backed by
-   durable evidence,
-3. RFC-0095 heartbeat expansion for repeated timeout, cancellation, retry-blocked, and durable
-   degraded queue-source attention,
+2. retry, replay, and persisted queued-item execution semantics backed by durable evidence,
+3. RFC-0095 heartbeat expansion for repeated timeout/cancellation clustering, retry-blocked, and
+   durable degraded queue-source attention,
 4. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
 5. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
@@ -650,8 +662,8 @@ Skills, guidance, documentation, and context decision:
 
 ## Current Priority
 
-Keep RFC-0098 open as partially implemented. Durable queue-event history is now merged and the
-`lotus-ai` wiki source has been published. The next high-value implementation slice is terminal
-timeout, cancellation, retry, replay, and retry-cluster attention semantics backed by durable queue
-evidence. Gateway or Workbench adoption should remain deferred until a supported operator or product
-surface needs it.
+Keep RFC-0098 open as partially implemented. Durable queue-event history plus terminal timeout and
+cancellation queue-event posture are now merged, and the `lotus-ai` wiki source has been published.
+The next high-value implementation slice is retry/replay semantics and repeated-failure clustering
+backed by durable queue evidence. Gateway or Workbench adoption should remain deferred until a
+supported operator or product surface needs it.
