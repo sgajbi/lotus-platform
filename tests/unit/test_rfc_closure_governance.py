@@ -22,7 +22,7 @@ NEXT_AGENT_RUNTIME_RFCS = [
 ]
 
 NEXT_AGENT_RUNTIME_RFC_STATUS = {
-    "RFC-0098": "- status: partially implemented",
+    "RFC-0098": "- status: implemented",
 }
 
 SECOND_LAST_TERMS = [

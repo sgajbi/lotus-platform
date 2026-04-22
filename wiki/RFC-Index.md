@@ -45,14 +45,13 @@
 - [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker execution through the existing async runtime are implemented
+  per-pack queue, lane, timeout, and concurrency policy; `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete
 
 ## Recommended next implementation order
 
-1. `RFC-0098`
-   Complete the second-last implementation review, API certification, and governance tightening
-   pass; keep gateway and Workbench adoption deferred until a supported operator or product surface
-   needs bounded queue posture.
+1. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+   Future gateway or Workbench queue-posture work should start only from a concrete supported
+   operator or product need.
 
 ## Local meaning
 
@@ -91,10 +90,10 @@
 - RFC-0097 is implemented for the first-wave advisor-brief task-flow runtime across `lotus-ai`,
   `lotus-gateway`, and `lotus-workbench`, with clean-core live proof recorded and repo wikis
   published.
-- RFC-0098 is partially implemented: first-wave `lotus-ai` queue policy, admission, source API,
-  queue-attention posture, durable queue-event history, terminal timeout/cancellation posture, and
-  retry/replay recovery-decision posture, repeated-failure cluster attention, degraded
-  queue-source attention, persisted admission-lifecycle events, and governed queue request-snapshot
+- RFC-0098 is implemented for its supported scope: `lotus-ai` queue policy, admission, source API,
+  queue-attention posture, durable queue-event history, terminal timeout/cancellation/degraded
+  posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded
+  queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot
   artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker
-  execution through the existing async runtime are implemented; downstream queue posture remains
+  execution through the existing async runtime are complete; downstream queue posture remains
   future work unless a concrete gateway/operator or Workbench product need appears.

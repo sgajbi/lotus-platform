@@ -136,14 +136,13 @@ Reference baseline:
 - `RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md` (implemented; advisory heartbeat contract, runner, source adapters, workflow-pack attention adapter, deduplication, suppression, validator coverage, docs/context/wiki/skills review complete)
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
 - `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (implemented; first-wave advisor-brief task-flow runtime, gateway posture, Workbench rendering, clean-core live proof, wiki publication, and branch hygiene complete)
-- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (partially implemented; first `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker execution through the existing async runtime are implemented; optional downstream publication remains future work)
+- `RFC-0098-per-pack-queue-and-concurrency-policy.md` (implemented for supported scope; `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete; optional downstream publication remains future work only if a concrete supported need appears)
 
 ## Recommended Next Implementation Order
 
-1. `RFC-0098-per-pack-queue-and-concurrency-policy.md`
-   Complete the second-last implementation review, API certification, and governance tightening
-   pass; keep gateway and Workbench adoption deferred until a supported operator or product surface
-   needs bounded queue posture.
+1. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+   Future gateway or Workbench queue-posture work should start only from a concrete supported
+   operator or product need.
 
 ## RFC Closure Governance
 
