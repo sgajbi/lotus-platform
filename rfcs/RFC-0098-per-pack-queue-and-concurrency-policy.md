@@ -196,13 +196,28 @@ Implemented in the queue request-snapshot artifact wave through `sgajbi/lotus-ai
 5. repo-local docs, wiki source, and context updates describing request snapshots as recovery
    evidence for future retry/replay execution without claiming that retry/replay execution exists.
 
+Implemented in the bounded queue recovery execution wave through `sgajbi/lotus-ai#54`:
+
+1. explicit retry and replay execution routes:
+   `/platform/workflow-packs/queue-events/{queue_item_id}/retry-executions` and
+   `/platform/workflow-packs/queue-events/{queue_item_id}/replay-executions`,
+2. retained request snapshots now preserve explicit workflow-pack `environment` and
+   `caller_identity_class` so recovery execution can reconstruct the governed execution request,
+3. retry/replay execution preflights the retained request snapshot before recording an execution
+   decision, so queue items without executable snapshots fail truthfully without creating a
+   misleading recovery event,
+4. recovery execution reuses the normal workflow-pack execution seam, including eligibility,
+   queue admission, run ledger, and task-flow recording,
+5. API, OpenAPI, and integration tests proving retry and replay execution produce new
+   workflow-pack runs from retained request snapshots while decision-only routes remain evidence
+   posture.
+
 Explicitly deferred because source behavior does not yet exist:
 
-1. persisted queued-item execution lifecycle beyond active in-process admission and durable
+1. persisted queued-worker execution lifecycle beyond active in-process admission and durable
    admission-lifecycle events,
-2. retry execution, replay execution, and persisted queued-item execution semantics,
-3. gateway publication of queue posture,
-4. Workbench rendering of queue posture.
+2. gateway publication of queue posture,
+3. Workbench rendering of queue posture.
 
 Unsupported unless explicitly implemented by this RFC:
 
@@ -639,8 +654,9 @@ Resolved for the first `lotus-ai` source-truth wave:
    not a separate SQL table in this wave,
 3. queue state is current in-process active-admission posture plus durable queue-event history for
    admission request, queued posture, admitted posture, running handoff, release, timeout,
-   cancellation, retained request-snapshot artifact refs, recovery-decision evidence, and degraded
-   source posture; actual queued-item execution remains deferred,
+   cancellation, retained request-snapshot artifact refs, recovery-decision evidence, bounded
+   snapshot-backed retry/replay execution, and degraded source posture; persisted queued-worker
+   execution remains deferred,
 4. source API shape now includes read-only policy/status/event routes plus bounded retry/replay
    decision routes under `/platform/workflow-packs/queue-events/{queue_item_id}`,
 5. gateway publication is deferred until an operator or product surface has a concrete supported
@@ -708,18 +724,17 @@ Review findings:
    posture remains separate from run, review, and task-flow state; and source APIs expose bounded
    operator posture without worker internals.
 2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
-3. The full RFC remains partially implemented, not complete, because persisted queued-item
-   execution lifecycle, retry/replay execution, and any downstream gateway or Workbench queue
-   posture are intentionally deferred.
+3. The full RFC remains partially implemented, not complete, because persisted queued-worker
+   execution lifecycle and any downstream gateway or Workbench queue posture are intentionally
+   deferred.
 
 Additional slices needed for full RFC completion:
 
-1. persisted queued-item execution lifecycle beyond active in-process admission in `lotus-ai`,
-2. retry/replay execution and persisted queued-item execution semantics backed by durable evidence,
-3. optional `lotus-gateway` publication only when an operator or product contract needs bounded
+1. persisted queued-worker execution lifecycle beyond active in-process admission in `lotus-ai`,
+2. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
-4. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
-5. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
+3. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
+4. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
    are proven.
 
 Skills, guidance, documentation, and context decision:
@@ -736,7 +751,8 @@ Skills, guidance, documentation, and context decision:
 Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
 cancellation posture, bounded retry/replay recovery-decision posture, repeated failure-cluster
 attention, degraded queue-source attention, persisted admission-lifecycle events, and governed
-queue request-snapshot artifact refs are now implemented in `lotus-ai` source truth. The next
-high-value implementation slice is actual retry/replay execution or persisted queued-item
-execution semantics. Gateway or Workbench adoption should remain deferred until a supported
-operator or product surface needs it.
+queue request-snapshot artifact refs, plus bounded snapshot-backed retry/replay execution, are now
+implemented in `lotus-ai` source truth. The next high-value implementation slice is persisted
+queued-worker execution semantics or, if a concrete operator/product need appears first, bounded
+gateway publication. Workbench adoption should remain deferred until gateway has a supported
+queue-posture contract.
