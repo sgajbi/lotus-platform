@@ -45,14 +45,14 @@
 - [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, and bounded snapshot-backed retry/replay execution are implemented
+  per-pack queue, lane, timeout, and concurrency policy; first `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker execution through the existing async runtime are implemented
 
 ## Recommended next implementation order
 
 1. `RFC-0098`
-   Implement persisted queued-worker execution semantics in `lotus-ai`; keep
-   gateway and Workbench adoption deferred until a supported operator or product surface needs
-   bounded queue posture.
+   Complete the second-last implementation review, API certification, and governance tightening
+   pass; keep gateway and Workbench adoption deferred until a supported operator or product surface
+   needs bounded queue posture.
 
 ## Local meaning
 
@@ -95,5 +95,6 @@
   queue-attention posture, durable queue-event history, terminal timeout/cancellation posture, and
   retry/replay recovery-decision posture, repeated-failure cluster attention, degraded
   queue-source attention, persisted admission-lifecycle events, and governed queue request-snapshot
-  artifact refs, plus bounded snapshot-backed retry/replay execution, are implemented; persisted
-  queued-worker execution and downstream queue posture remain future work.
+  artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker
+  execution through the existing async runtime are implemented; downstream queue posture remains
+  future work unless a concrete gateway/operator or Workbench product need appears.

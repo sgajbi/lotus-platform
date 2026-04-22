@@ -212,12 +212,34 @@ Implemented in the bounded queue recovery execution wave through `sgajbi/lotus-a
    workflow-pack runs from retained request snapshots while decision-only routes remain evidence
    posture.
 
+Implemented in the persisted queued-worker execution wave through `sgajbi/lotus-ai#55`:
+
+1. explicit durable async execution submission route:
+   `/platform/workflow-packs/execute-async`,
+2. workflow-pack async jobs persisted through the existing async runtime job, attempt, lease, and
+   delivery-queue contracts with job type `workflow_pack_execution`,
+3. retained `queue_request_snapshot` artifacts used as the executable worker input instead of
+   embedding raw task payloads in queue events or generic async job payloads,
+4. generic `/platform/async/jobs/submit` submissions rejected for `workflow_pack_execution` so
+   callers cannot bypass workflow-pack eligibility, queue policy, readiness, and snapshot evidence,
+5. active duplicate submission blocking by caller app, correlation id, pack id, and version,
+6. queued capacity enforcement for persisted workflow-pack async jobs using retained snapshot
+   metadata for pack and lane identity,
+7. dedicated worker dispatch that records `ADMISSION_ADMITTED`, `ADMISSION_GRANTED`, and
+   `ADMISSION_RELEASED` queue events, then reuses the normal workflow-pack execution seam so
+   run-ledger and task-flow state remain separate source-truth records,
+8. terminal `ADMISSION_DEGRADED` queue-event posture and runtime-status queue attention when a
+   persisted worker execution fails before completed handoff, including corrupt or missing snapshot
+   evidence,
+9. memory and SQL-backed async runtime proof that a queued workflow-pack execution can survive
+   async runtime store restart and still complete through the dedicated worker path,
+10. API, OpenAPI, runtime-status, worker-dispatch, and integration tests proving the submission,
+    worker, restart, duplicate, generic-bypass rejection, and degraded-snapshot paths.
+
 Explicitly deferred because source behavior does not yet exist:
 
-1. persisted queued-worker execution lifecycle beyond active in-process admission and durable
-   admission-lifecycle events,
-2. gateway publication of queue posture,
-3. Workbench rendering of queue posture.
+1. gateway publication of queue posture,
+2. Workbench rendering of queue posture.
 
 Unsupported unless explicitly implemented by this RFC:
 
@@ -655,17 +677,17 @@ Resolved for the first `lotus-ai` source-truth wave:
 3. queue state is current in-process active-admission posture plus durable queue-event history for
    admission request, queued posture, admitted posture, running handoff, release, timeout,
    cancellation, retained request-snapshot artifact refs, recovery-decision evidence, bounded
-   snapshot-backed retry/replay execution, and degraded source posture; persisted queued-worker
-   execution remains deferred,
+   snapshot-backed retry/replay execution, degraded source posture, and persisted queued-worker
+   execution through the existing async runtime,
 4. source API shape now includes read-only policy/status/event routes plus bounded retry/replay
    decision routes under `/platform/workflow-packs/queue-events/{queue_item_id}`,
 5. gateway publication is deferred until an operator or product surface has a concrete supported
    need,
 6. Workbench rendering is deferred because no banker-facing queue posture is supported yet,
 7. saturation and stale thresholds are policy fields per executable pack version,
-8. retryable and non-retryable failure vocabulary is declared in policy descriptors and bounded
-   recovery-decision evidence is now recordable; runtime retry/replay execution and retry-cluster
-   aggregation remain future work,
+8. retryable and non-retryable failure vocabulary is declared in policy descriptors, bounded
+   recovery-decision evidence is recordable, and snapshot-backed retry/replay execution is
+   implemented,
 9. a dedicated queue-policy skill is not needed yet; the implementation is still narrow enough to
    be governed by backend delivery, API certification, pre-merge, and RFC review skills.
 
@@ -730,11 +752,10 @@ Review findings:
 
 Additional slices needed for full RFC completion:
 
-1. persisted queued-worker execution lifecycle beyond active in-process admission in `lotus-ai`,
-2. optional `lotus-gateway` publication only when an operator or product contract needs bounded
+1. optional `lotus-gateway` publication only when an operator or product contract needs bounded
    queue posture,
-3. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
-4. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
+2. optional `lotus-workbench` rendering only after gateway has a supported queue-posture contract,
+3. a final full-RFC closure slice after the durable queue wave and any required downstream adoption
    are proven.
 
 Skills, guidance, documentation, and context decision:
@@ -746,13 +767,47 @@ Skills, guidance, documentation, and context decision:
    artifacts that are broader than ordinary backend delivery governance.
 3. No `AGENTS.md` change is needed for this review because the operating model did not change.
 
+## Persisted Queued-Worker Execution Review
+
+Reviewed on 2026-04-22 after the `lotus-ai` persisted queued-worker execution slice was implemented
+and locally proven.
+
+Implementation evidence:
+
+1. `sgajbi/lotus-ai#55` implements durable workflow-pack async execution submission and dedicated
+   worker dispatch using the existing async runtime rather than introducing a second scheduler.
+2. The public source route is `/platform/workflow-packs/execute-async`; generic
+   `/platform/async/jobs/submit` is deliberately blocked for `workflow_pack_execution` so callers
+   cannot bypass queue policy, workflow-pack eligibility, readiness, and request-snapshot evidence.
+3. Worker execution records queue events on the original queue item and reuses the normal
+   workflow-pack execution seam for run ledger and task-flow state, preserving source-truth
+   separation.
+4. Missing or corrupt retained request snapshots fail terminally with async-job failure evidence and
+   `ADMISSION_DEGRADED` queue posture instead of leaving a claimed worker item stranded.
+5. Local proof included focused API/worker integration tests, OpenAPI contract tests, runtime-status
+   attention tests, async catalog/readiness tests, async worker dispatch tests, async submission
+   tests, queue-policy API tests, targeted mypy, ruff, and `git diff --check`.
+
+Review findings:
+
+1. The slice materially closes the prior persisted queued-worker execution gap in `lotus-ai`.
+2. The implementation intentionally uses the existing async runtime job, attempt, lease, and
+   delivery-queue model. That is simpler and safer than creating a workflow-pack-specific worker
+   platform.
+3. Gateway and Workbench queue-posture adoption remains deferred. No supported operator or banker
+   product flow currently requires exposing queue posture outside `lotus-ai`, and downstream UI must
+   not invent it.
+4. The next slice should be the mandatory full implementation review, API certification, and
+   platform governance tightening pass before final RFC closure.
+
 ## Current Priority
 
 Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
 cancellation posture, bounded retry/replay recovery-decision posture, repeated failure-cluster
 attention, degraded queue-source attention, persisted admission-lifecycle events, and governed
 queue request-snapshot artifact refs, plus bounded snapshot-backed retry/replay execution, are now
-implemented in `lotus-ai` source truth. The next high-value implementation slice is persisted
-queued-worker execution semantics or, if a concrete operator/product need appears first, bounded
-gateway publication. Workbench adoption should remain deferred until gateway has a supported
-queue-posture contract.
+implemented in `lotus-ai` source truth. Persisted queued-worker execution semantics are now also
+implemented in `lotus-ai` through the existing async runtime. The next high-value slice is the
+second-last full implementation review, API certification, and governance tightening pass; bounded
+gateway publication should be added only if a concrete operator or product contract needs it.
+Workbench adoption should remain deferred until gateway has a supported queue-posture contract.
