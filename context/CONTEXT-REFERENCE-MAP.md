@@ -242,9 +242,11 @@ The next draft implementation sequence for workflow-pack runtime governance is:
 1. [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
    task-flow runtime for long-running workflow packs
 2. [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
-   per-pack queue and concurrency policy; source-truth `lotus-ai` queue policy, queue events,
-   recovery execution, and persisted queued-worker execution are implemented, with downstream
-   gateway/Workbench publication deferred until a supported product or operator need exists
+   per-pack queue and concurrency policy; implemented for the supported `lotus-ai` source-truth
+   scope including queue policy, queue events, recovery execution, persisted queued-worker
+   execution, final review, docs/context/wiki posture, and branch hygiene; downstream
+   gateway/Workbench publication remains future work only if a supported product or operator need
+   exists
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 

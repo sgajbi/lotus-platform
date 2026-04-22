@@ -1,6 +1,6 @@
 # RFC-0098: Per-Pack Queue And Concurrency Policy
 
-- Status: Partially Implemented
+- Status: Implemented
 - Date: 2026-04-21
 - Owners:
   - `lotus-ai` runtime owners
@@ -236,7 +236,7 @@ Implemented in the persisted queued-worker execution wave through `sgajbi/lotus-
 10. API, OpenAPI, runtime-status, worker-dispatch, and integration tests proving the submission,
     worker, restart, duplicate, generic-bypass rejection, and degraded-snapshot paths.
 
-Explicitly deferred because source behavior does not yet exist:
+Explicitly deferred because no supported downstream product or operator contract needs it yet:
 
 1. gateway publication of queue posture,
 2. Workbench rendering of queue posture.
@@ -746,9 +746,9 @@ Review findings:
    posture remains separate from run, review, and task-flow state; and source APIs expose bounded
    operator posture without worker internals.
 2. No additional `lotus-ai` hotfix slice is required before closing this first wave.
-3. The full RFC remains partially implemented, not complete, because persisted queued-worker
-   execution lifecycle and any downstream gateway or Workbench queue posture are intentionally
-   deferred.
+3. At this review point, the full RFC remained incomplete because persisted queued-worker
+   execution lifecycle had not yet been implemented and any downstream gateway or Workbench queue
+   posture was intentionally deferred.
 
 Additional slices needed for full RFC completion:
 
@@ -800,14 +800,95 @@ Review findings:
 4. The next slice should be the mandatory full implementation review, API certification, and
    platform governance tightening pass before final RFC closure.
 
+## Final Hardening And Governance Review
+
+Reviewed on 2026-04-22 after `sgajbi/lotus-ai#55` and `sgajbi/lotus-platform#189` merged.
+
+Review scope:
+
+1. `lotus-ai` source APIs and contracts:
+   `/platform/workflow-packs/queue-policies`,
+   `/platform/workflow-packs/queue-status`,
+   `/platform/workflow-packs/queue-events`,
+   `/platform/workflow-packs/queue-events/{queue_item_id}/retry-decisions`,
+   `/platform/workflow-packs/queue-events/{queue_item_id}/replay-decisions`,
+   `/platform/workflow-packs/queue-events/{queue_item_id}/retry-executions`,
+   `/platform/workflow-packs/queue-events/{queue_item_id}/replay-executions`,
+   `/platform/workflow-packs/execute`, and `/platform/workflow-packs/execute-async`,
+2. queue state, run state, task-flow state, review state, async runtime state, and retained
+   request-snapshot artifact boundaries,
+3. OpenAPI operation ids, response schemas, error behavior, and runtime-status queue attention,
+4. wiki, runbook, repo-local context, platform RFC index, and central context reference posture,
+5. downstream gateway and Workbench adoption posture.
+
+Hardening result:
+
+1. A direct endpoint-certification pass found one meaningful gap: persisted async queue-capacity
+   enforcement existed but was not directly proven at the endpoint. `sgajbi/lotus-ai#55` was
+   tightened before merge with a capacity-saturation test that proves the second queued execution
+   fails with HTTP 429 before admission.
+2. The same review tightened failure coverage for missing queue events, corrupt or missing
+   snapshots, missing policy after claim, unsupported claimed jobs, execution conflicts,
+   unexpected worker errors, non-snapshot artifacts, invalid internal transitions, and missing
+   queue-event identity.
+3. Combined GitHub coverage, lint/typecheck/security, unit, integration, e2e, runtime-mode smoke,
+   and Docker build gates passed on `sgajbi/lotus-ai#55`.
+4. Platform RFC/index/context governance checks passed on `sgajbi/lotus-platform#189`.
+5. No extra gateway or Workbench slice is required for RFC-0098 closure because source queue
+   posture is inspectable in `lotus-ai`, no supported downstream contract currently consumes it,
+   and adding UI or gateway posture without a real product/operator need would create speculative
+   surface area.
+
+API certification posture:
+
+1. Implemented queue endpoints use explicit operation ids and response models, and the OpenAPI
+   quality gate passed.
+2. Queue source endpoints expose bounded source-truth posture and do not expose worker internals,
+   locks, raw queue implementation details, or raw task payloads.
+3. The async execution endpoint explicitly rejects generic async submission bypass, validates
+   workflow-pack eligibility and binding, checks run-ledger and task-flow readiness, preserves
+   request-snapshot evidence, enforces active duplicate/capacity posture, and returns degraded or
+   failed posture truthfully.
+
+Platform governance posture:
+
+1. Source behavior, supported features, RFC status, repo-local docs, authored wiki source, and
+   central context references are aligned.
+2. `lotus-ai` wiki was published after `sgajbi/lotus-ai#55` at wiki commit `57ea635`.
+3. `lotus-platform` wiki was published after `sgajbi/lotus-platform#189` at wiki commit `61ff089`.
+4. `Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-ai` and
+   `Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform` reported no drift after publication.
+5. Feature branches for the merged work were cleaned locally and remotely where applicable.
+
+## Final Closure Decisions
+
+RFC-0098 is implemented for its supported scope: source-truth per-pack queue policy, queue
+admission, durable queue-event history, terminal timeout/cancellation/degraded posture,
+retry/replay decisions, snapshot-backed retry/replay execution, queue attention, and persisted
+queued-worker execution through the existing async runtime.
+
+Conscious closure decisions:
+
+1. Gateway publication: no implementation in this RFC. Deferred until a concrete operator or product
+   contract needs bounded queue posture outside `lotus-ai`.
+2. Workbench rendering: no implementation in this RFC. Deferred until gateway exposes a supported
+   queue-posture contract and a banker-facing workflow needs it.
+3. `AGENTS.md`: no change. Existing operating contract already covers wiki publication,
+   async execution, multi-agent discipline, and final-slice governance.
+4. Central context: updated through `CONTEXT-REFERENCE-MAP.md`; no broader architecture-context
+   rewrite is needed because repository ownership and platform operating rules did not change.
+5. Repo-local context: updated in `lotus-ai` because its supported workflow-pack runtime posture
+   changed.
+6. Wiki: updated and published for `lotus-ai` and `lotus-platform`.
+7. Supported features: updated in this RFC and in the RFC index. Unsupported downstream surfaces
+   remain excluded from supported posture.
+8. Skills and guidance: no new queue-specific skill is needed. The repeatable path remains covered
+   by backend delivery governance, endpoint certification, PR pre-merge governance, async
+   automation, and RFC review guidance.
+9. Branch hygiene: merged PR branches were cleaned; local working trees were returned to `main`.
+
 ## Current Priority
 
-Keep RFC-0098 open as partially implemented. Durable queue-event history, terminal timeout and
-cancellation posture, bounded retry/replay recovery-decision posture, repeated failure-cluster
-attention, degraded queue-source attention, persisted admission-lifecycle events, and governed
-queue request-snapshot artifact refs, plus bounded snapshot-backed retry/replay execution, are now
-implemented in `lotus-ai` source truth. Persisted queued-worker execution semantics are now also
-implemented in `lotus-ai` through the existing async runtime. The next high-value slice is the
-second-last full implementation review, API certification, and governance tightening pass; bounded
-gateway publication should be added only if a concrete operator or product contract needs it.
-Workbench adoption should remain deferred until gateway has a supported queue-posture contract.
+No active RFC-0098 implementation slice remains. Future gateway or Workbench queue-posture work
+should be opened only when a concrete supported operator or product need appears, and should cite
+this RFC as source-truth context rather than reopening the completed `lotus-ai` source scope.
