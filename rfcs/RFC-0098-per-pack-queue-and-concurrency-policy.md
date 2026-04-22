@@ -855,7 +855,9 @@ Platform governance posture:
 1. Source behavior, supported features, RFC status, repo-local docs, authored wiki source, and
    central context references are aligned.
 2. `lotus-ai` wiki was published after `sgajbi/lotus-ai#55` at wiki commit `57ea635`.
-3. `lotus-platform` wiki was published after `sgajbi/lotus-platform#189` at wiki commit `61ff089`.
+3. `lotus-platform` wiki was published after `sgajbi/lotus-platform#189` at wiki commit `61ff089`,
+   then republished after the final closure PR `sgajbi/lotus-platform#190` at wiki commit
+   `ff752a0`.
 4. `Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-ai` and
    `Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform` reported no drift after publication.
 5. Feature branches for the merged work were cleaned locally and remotely where applicable.
