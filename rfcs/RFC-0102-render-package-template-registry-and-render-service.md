@@ -168,6 +168,10 @@ Two boundary rules are especially important:
 1. render completion is not archive completion,
 2. retaining enough evidence to support future rerender is not the same thing as implementing a
    rerender command.
+3. RFC-0102 may hand off render evidence to RFC-0103, but it does not create archive identity,
+   archived-document truth, or retrieval semantics.
+4. RFC-0102 may retain evidence that later enables RFC-0105 replay or rerender decisions, but it
+   does not expose replay, rerender, regenerate, or operator mutation workflows.
 
 ## Architecture Direction
 
@@ -208,6 +212,8 @@ Design rules:
 5. the first implementation must be extraction-ready even if a separate repository is deferred,
 6. render engine determinism claims must be explicitly bounded to a supported runtime envelope when
    byte-for-byte determinism is not practical across all environments.
+7. render output metadata must be sufficient for later archive handoff, but archive ownership must
+   remain entirely outside the render boundary.
 
 ## Platform Governance And Enterprise Mesh Requirements
 
@@ -308,6 +314,10 @@ that can express:
 10. failure message or operator-safe diagnostic summary,
 11. correlation and trace identifiers.
 
+RFC-0102 may also define archive-ready handoff fields such as output size, MIME type, completion
+timestamp, and template/runtime identity, but those fields remain render evidence only until
+RFC-0103 turns them into archive-owned document metadata.
+
 First-wave render statuses should cover:
 
 1. `accepted`,
@@ -341,6 +351,12 @@ Required posture:
    changed,
 5. diagnostics must make it clear whether a difference came from package data, template/version
    drift, engine/runtime drift, or a failure path.
+
+The first proof must also state whether determinism is being claimed as:
+
+1. byte-identical output within the supported runtime envelope, or
+2. bounded deterministic output where visual equivalence and artifact metadata remain stable even if
+   byte identity is not guaranteed outside that envelope.
 
 ## API Direction
 
@@ -477,7 +493,9 @@ Acceptance criteria:
 1. `lotus-report` can submit a complete render package to the renderer,
 2. render outcomes are reflected in reporting state truthfully,
 3. failure posture is explicit and operator-safe,
-4. no archive or replay semantics are introduced accidentally.
+4. no archive or replay semantics are introduced accidentally,
+5. no render outcome is described as archived, retrievable, reissued, replayed, or rerenderable by
+   command unless a later RFC has explicitly implemented that behavior.
 
 ### Slice 5: Implementation Proof
 
@@ -537,6 +555,8 @@ Specific review lenses:
 6. engine/runtime packaging reliability,
 7. support query performance and status clarity,
 8. avoidance of archive/replay scope leakage.
+9. archive-handoff evidence clarity without archive-ownership leakage,
+10. replay/rerender readiness evidence without replay/rerender command leakage.
 
 Acceptance criteria:
 
@@ -592,7 +612,9 @@ Minimum proof scenarios:
 5. package-validation failure path,
 6. artifact-metadata lookup,
 7. visual-regression comparison,
-8. support-safe operator response without sensitive leakage.
+8. support-safe operator response without sensitive leakage,
+9. explicit proof that render evidence exists without implying archive retrieval or replay command
+   support.
 
 ## Validation Expectations
 
@@ -606,7 +628,9 @@ Required validation:
 5. platform validation for service topology, docs/wiki consistency, and any contract or context
    updates,
 6. security review of template loading, render package handling, and logging,
-7. live evidence review against the final accepted scope.
+7. live evidence review against the final accepted scope,
+8. cross-RFC validation that RFC-0103 archive semantics and RFC-0105 replay semantics are not
+   accidentally claimed in APIs, docs, supported-features text, or proof artifacts.
 
 Execution expectations:
 
