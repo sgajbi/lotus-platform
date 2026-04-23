@@ -98,6 +98,22 @@ For cross-domain governed data products:
 9. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
+## Domain Vocabulary Governance
+
+For analytics period naming:
+
+1. `lotus-platform/platform-contracts/domain-vocabulary/canonical-performance-periods.v1.json`
+   is the platform-owned vocabulary for performance, risk, reporting, and front-office period
+   values,
+2. new or materially changed APIs should expose canonical period codes such as `YTD`, `1Y`, `3Y`,
+   `5Y`, `SI`, `YEAR`, and `EXPLICIT`,
+3. legacy service values such as `ONE_YEAR`, `THREE_YEAR`, `FIVE_YEAR`, and `ITD` may be accepted
+   only when listed as aliases in the platform contract and normalized internally,
+4. Swagger/OpenAPI examples should use canonical period codes unless they are explicitly
+   documenting a legacy compatibility path,
+5. services should not introduce local period enum values without first updating the platform
+   vocabulary with semantics, required fields, ownership, and migration posture.
+
 For RFC-0087 live trust telemetry:
 
 1. `platform-contracts/trust-telemetry/` owns the governed telemetry snapshot contract,
