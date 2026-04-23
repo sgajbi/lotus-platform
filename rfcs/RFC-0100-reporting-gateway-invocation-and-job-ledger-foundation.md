@@ -1,6 +1,6 @@
 # RFC-0100: Reporting Gateway Invocation And Job Ledger Foundation
 
-- Status: Proposed
+- Status: Implemented
 - Date: 2026-04-23
 - Owners:
   - `lotus-report` owners
@@ -30,6 +30,31 @@ rendering, archive, and batch production are added.
 
 This RFC is implementation-bearing once accepted. It must be delivered slice by slice and must not
 start PDF rendering, archive storage, or batch execution work.
+
+## Implementation Outcome
+
+RFC-0100 is implemented and merged.
+
+Merged delivery:
+
+1. `lotus-report` PR `#62` merged the PostgreSQL-backed report request/job/event ledger, operator
+   search/list API, OpenAPI hardening, supported-features updates, and proof-oriented coverage
+   improvements.
+2. `lotus-gateway` PR `#148` merged the product-facing report job submit/status/list/events/cancel
+   boundary, certified gateway contracts, and OpenAPI/operator documentation hardening.
+3. Fresh end-to-end live evidence for the expanded operational surface was captured at
+   `lotus-report/output/rfc-0100-live-evidence-20260423-165911/`, including submit, replay,
+   status, list, events, cancel, conflict, PostgreSQL rows, indexes, constraints, and runtime
+   logs.
+
+Deliberate non-outcomes:
+
+1. no rendering or PDF production,
+2. no archive/document retrieval,
+3. no retention or legal-hold semantics,
+4. no replay/rerender/reissue operator mutations.
+
+Those remain in later RFCs and must not be inferred from RFC-0100 completion.
 
 ## Problem
 
@@ -66,6 +91,9 @@ In scope:
 13. PostgreSQL-backed `lotus-report` ledger persistence for local/dev and deployable runtime,
 14. separate local/dev Postgres container or governed shared Postgres service for `lotus-report`,
 15. SQL migration, index, uniqueness, readiness, and live DB evidence for the ledger tables.
+16. operator-facing report job search/list APIs for support and diagnostics,
+17. grouped and certified OpenAPI surfaces with explicit what/when/how guidance,
+18. full success and error examples for every RFC-100 API.
 
 Out of scope:
 
@@ -283,16 +311,72 @@ Gateway product APIs:
 
 ```text
 POST /api/v1/reports/portfolio-reviews
+GET  /api/v1/report-jobs
 GET  /api/v1/report-jobs/{job_id}
+GET  /api/v1/report-jobs/{job_id}/events
+POST /api/v1/report-jobs/{job_id}/cancel
 ```
 
 `lotus-report` internal APIs:
 
 ```text
 POST /reports/portfolio-reviews
+GET  /reports/jobs
 GET  /reports/jobs/{job_id}
+GET  /reports/jobs/{job_id}/events
 POST /reports/jobs/{job_id}/cancel
 ```
+
+### API Grouping And Certification Direction
+
+The API surface must be grouped so consumers can distinguish:
+
+1. `Reports` command/data endpoints,
+2. `Report Jobs` operational lifecycle endpoints.
+
+Swagger/OpenAPI for every RFC-100 endpoint must include:
+
+1. a concise summary,
+2. a description that explicitly says what the endpoint does, when to call it, and how callers
+   should use it safely,
+3. full request examples for command endpoints,
+4. full success-response examples,
+5. explicit error responses with machine-readable codes and full example payloads,
+6. description, type, and example coverage for every public request and response attribute,
+7. no RFC names or implementation-roadmap wording in public API text.
+
+### Operator Search/List Direction
+
+RFC-100 must expose first-wave operator-safe search/list APIs so support and operations teams can:
+
+1. find jobs without already knowing a `report_job_id`,
+2. isolate tenant/region-specific failures,
+3. search by portfolio scope and as-of date,
+4. inspect current lifecycle state for recent work,
+5. correlate user-reported duplicates through idempotency key and correlation identifiers.
+
+First-wave supported filters:
+
+1. `tenant_id`,
+2. `region`,
+3. `status`,
+4. `report_type`,
+5. `portfolio_id`,
+6. `as_of_date`,
+7. `idempotency_key`,
+8. `correlation_id`,
+9. `created_from`,
+10. `created_to`,
+11. `limit`.
+
+The first wave may use cursorless bounded pagination if:
+
+1. sort order is deterministic,
+2. the limit is capped,
+3. docs state that later RFCs may introduce cursor pagination for large-scale operations.
+
+The list/search response must return support-safe summaries only. It must not expose stack traces,
+worker topology, SQL fragments, or raw internal payload blobs.
 
 ### Request/Response Direction
 
@@ -411,27 +495,51 @@ Acceptance criteria:
 
 1. Add report initiation and status APIs.
 2. Preserve existing portfolio review JSON contract.
-3. Add OpenAPI examples with full request/response examples and no RFC names in Swagger.
-4. Add deterministic error contracts for missing idempotency key, idempotency conflict, unknown job,
-   invalid status transition, and unauthorized or missing caller context.
-5. Add support-facing event-history retrieval for append-only job lifecycle diagnostics.
-6. Add integration tests for submit/status/events/cancel, idempotent duplicate, idempotency
-   conflict, and validation failures.
-7. Ensure APIs return product-safe payloads without raw internals.
-8. Ensure internal APIs read/write the PostgreSQL ledger through the governed repository/service
+3. Add grouped internal API tags so report commands and job operations are distinct in Swagger.
+4. Add OpenAPI examples with full request/response examples and no RFC names in Swagger.
+5. Add deterministic error contracts for missing idempotency key, idempotency conflict, unknown job,
+   invalid status transition, invalid filters, and unauthorized or missing caller context.
+6. Add support-facing event-history retrieval for append-only job lifecycle diagnostics.
+7. Add operator-safe job search/list retrieval with bounded filters for tenant, region, status,
+   report type, portfolio id, as-of date, idempotency key, correlation id, and created-at window.
+8. Add integration tests for submit/status/list/events/cancel, idempotent duplicate, idempotency
+   conflict, validation failures, and filter behavior.
+9. Ensure APIs return product-safe payloads without raw internals.
+10. Ensure internal APIs read/write the PostgreSQL ledger through the governed repository/service
    layer and do not bypass migrations or DB readiness.
-9. Ensure Swagger documents when to use submit, status, events, and cancel; what each endpoint
-   returns; and how idempotency/caller-context headers are used.
+11. Ensure Swagger documents when to use submit, list, status, events, and cancel; what each
+    endpoint returns; and how idempotency/caller-context headers are used.
+
+Acceptance criteria:
+
+1. `/reports/jobs` exists and is backed by indexed PostgreSQL filters,
+2. `/reports/jobs`, `/reports/jobs/{job_id}`, `/reports/jobs/{job_id}/events`, and
+   `/reports/jobs/{job_id}/cancel` are grouped under a dedicated `Report Jobs` Swagger tag,
+3. every internal RFC-100 endpoint publishes success and error examples,
+4. every internal request/response attribute exposed in Swagger has type, description, and example
+   coverage,
+5. integration tests prove list/search and error handling behavior.
 
 ### Slice 3: Gateway Boundary
 
 1. Add gateway report initiation/status routes.
 2. Pass identity, tenant, region, role, correlation, trace, and idempotency context.
 3. Reject missing required product-facing caller context before forwarding job create/status/cancel.
-4. Normalize gateway errors into product-safe errors.
-5. Add gateway tests proving Workbench-facing contract does not expose internal service topology.
-6. Add contract tests proving gateway does not bypass `lotus-report` job ownership or ledger
+4. Add gateway-first operator-safe job list/search route aligned with the internal support filters.
+5. Group gateway `Reports` and `Report Jobs` APIs cleanly in Swagger.
+6. Normalize gateway errors into product-safe errors.
+7. Add gateway tests proving Workbench-facing contract does not expose internal service topology.
+8. Add contract tests proving gateway does not bypass `lotus-report` job ownership or ledger
    persistence.
+
+Acceptance criteria:
+
+1. `/api/v1/report-jobs` exists and forwards only the governed filter surface,
+2. gateway rewrites internal status URLs to gateway-relative URLs,
+3. gateway OpenAPI for RFC-100 endpoints includes what/when/how descriptions, full examples, and
+   explicit error contracts,
+4. gateway tags separate `Reports` from `Report Jobs`,
+5. contract and integration tests prove grouped and certified operational APIs.
 
 ### Slice 4: Workbench Adoption Path
 
@@ -448,13 +556,15 @@ Acceptance criteria:
 3. Check API certification pattern compliance for every report and gateway API touched.
 4. Verify OpenAPI/Swagger examples, request/response models, errors, and examples are production
    quality, with type, description, and example coverage for public attributes.
-5. Verify platform governance and data mesh enterprise standards requirements are met.
-6. Verify RFC-0071, RFC-0072, RFC-0084, RFC-0091, and repo-local standards.
-7. Verify idempotency, cancellation, authorization context, observability identifiers, and status
+5. Verify route grouping, tag naming, and operator-facing API discoverability are coherent and
+   consistent.
+6. Verify platform governance and data mesh enterprise standards requirements are met.
+7. Verify RFC-0071, RFC-0072, RFC-0084, RFC-0091, and repo-local standards.
+8. Verify idempotency, cancellation, authorization context, observability identifiers, and status
    transition semantics.
-8. Verify PostgreSQL persistence, schema constraints, indexes, migrations, readiness, local/dev
+9. Verify PostgreSQL persistence, schema constraints, indexes, migrations, readiness, local/dev
    container posture, partition-readiness, and housekeeping posture.
-9. Make final quality improvements before closure.
+10. Make final quality improvements before closure.
 
 Acceptance criteria:
 
@@ -496,22 +606,25 @@ Acceptance criteria:
 4. Status and failure vocabulary is explicit and tested.
 5. OpenAPI examples are complete, public attributes carry type/description/example coverage, and
    customer/product wording does not mention RFC names.
-6. Workbench does not call `lotus-report` directly for supported product flows.
-7. Supported-features entries are added only for implemented and validated behavior.
-8. Durable migrations exist for request, job, and status-event records.
-9. Idempotent duplicate and idempotency conflict behavior are tested.
-10. Gateway routes carry identity, tenant, region, role, correlation, trace, and idempotency context.
-11. Cancellation semantics are bounded and tested for pre-render/pre-archive jobs.
-12. Operator-safe job diagnostics and append-only event history are available without raw internals.
-13. Docs, wiki, context, and supported-features material are implementation-backed and aligned.
-14. `lotus-report` ledger persistence uses PostgreSQL for runtime, integration, Docker parity, and
+6. Operational APIs are grouped coherently and expose list/search, status, events, and cancel with
+   explicit success and error contracts.
+7. Workbench does not call `lotus-report` directly for supported product flows.
+8. Supported-features entries are added only for implemented and validated behavior.
+9. Durable migrations exist for request, job, and status-event records.
+10. Idempotent duplicate and idempotency conflict behavior are tested.
+11. Gateway routes carry identity, tenant, region, role, correlation, trace, and idempotency context.
+12. Cancellation semantics are bounded and tested for pre-render/pre-archive jobs.
+13. Operator-safe job diagnostics, bounded list/search retrieval, and append-only event history are
+    available without raw internals.
+14. Docs, wiki, context, and supported-features material are implementation-backed and aligned.
+15. `lotus-report` ledger persistence uses PostgreSQL for runtime, integration, Docker parity, and
     live evidence.
-15. A separate local/dev Postgres container or governed shared Postgres database/schema exists for
+16. A separate local/dev Postgres container or governed shared Postgres database/schema exists for
     the `lotus-report` ledger.
-16. Database readiness and schema readiness are part of service readiness.
-17. Live evidence includes gateway request/response, report logs, gateway logs, and PostgreSQL table
+17. Database readiness and schema readiness are part of service readiness.
+18. Live evidence includes gateway request/response, report logs, gateway logs, and PostgreSQL table
     rows for `report_request`, `report_job`, and `report_status_event`.
-18. Indexing, partition-readiness, and housekeeping posture are documented and validated by schema
+19. Indexing, partition-readiness, and housekeeping posture are documented and validated by schema
     smoke checks where implementation-backed.
 
 ## Risks
@@ -563,6 +676,7 @@ When implemented, supported-features material may mention only:
 4. bounded job cancellation before render/archive phases,
 5. product-safe job status retrieval,
 6. PostgreSQL-backed report job ledger persistence.
+7. operator-safe report job list/search for support diagnostics.
 
 It must not claim PDF rendering, archive retrieval, batch production, rerender, regenerate, replay,
 or production certification. Those belong to later RFCs.
