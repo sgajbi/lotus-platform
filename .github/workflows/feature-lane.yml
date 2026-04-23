@@ -25,27 +25,33 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-core
-          path: ../lotus-core
+          path: _federated/lotus-core
       - uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-performance
-          path: ../lotus-performance
+          path: _federated/lotus-performance
       - uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-risk
-          path: ../lotus-risk
+          path: _federated/lotus-risk
       - uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-advise
-          path: ../lotus-advise
+          path: _federated/lotus-advise
       - uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-report
-          path: ../lotus-report
+          path: _federated/lotus-report
       - uses: actions/checkout@v6
         with:
           repository: sgajbi/lotus-manage
-          path: ../lotus-manage
+          path: _federated/lotus-manage
+      - name: Link governed source repositories into federated workspace
+        shell: bash
+        run: |
+          for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-manage; do
+            ln -s "$GITHUB_WORKSPACE/_federated/$repo" "$GITHUB_WORKSPACE/../$repo"
+          done
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
