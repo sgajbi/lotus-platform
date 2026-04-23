@@ -1,6 +1,6 @@
 # RFC-0100: Reporting Gateway Invocation And Job Ledger Foundation
 
-- Status: Proposed
+- Status: Implemented
 - Date: 2026-04-23
 - Owners:
   - `lotus-report` owners

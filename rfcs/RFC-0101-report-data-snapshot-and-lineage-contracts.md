@@ -1,6 +1,6 @@
 # RFC-0101: Report Data Snapshot And Lineage Contracts
 
-- Status: Proposed
+- Status: Implemented
 - Date: 2026-04-23
 - Owners:
   - `lotus-report` owners
