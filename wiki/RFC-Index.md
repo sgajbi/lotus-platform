@@ -46,10 +46,18 @@
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
   per-pack queue, lane, timeout, and concurrency policy; `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete
+- [RFC-0099](../rfcs/RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md)
+  proposed target-state architecture for enterprise reporting, future `lotus-renderer`, future
+  `lotus-docvault`, batch reporting, durable lineage, rendering, archival, observability, security,
+  and ordered follow-up RFC sequence
 
 ## Recommended next implementation order
 
-1. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
+   batch production, or document archival.
+2. After RFC-0099 is accepted, open the follow-up RFCs in its ordered sequence, starting with
+   `RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation`.
+3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
 
@@ -97,3 +105,8 @@
   artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker
   execution through the existing async runtime are complete; downstream queue posture remains
   future work unless a concrete gateway/operator or Workbench product need appears.
+- RFC-0099 is proposed for enterprise reporting target architecture. It records `lotus-report` as
+  the reporting orchestration and report-data owner, future `lotus-renderer` as deterministic
+  rendering owner, future `lotus-docvault` as document archive and retrieval owner, and
+  `lotus-gateway` as the front-office invocation and retrieval boundary. It is not implementation
+  evidence and should not be treated as proof that renderer or DocVault services exist.

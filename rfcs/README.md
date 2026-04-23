@@ -137,10 +137,16 @@ Reference baseline:
 - `RFC-0096-governed-multi-agent-delegation-model.md` (implemented; governed delegation policy contract, RFC-0094-compatible delegated task ledger records, return-envelope review discipline, optional RFC-0095 heartbeat attention, AGENTS/context/wiki/skills guidance, and validation evidence complete)
 - `RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md` (implemented; first-wave advisor-brief task-flow runtime, gateway posture, Workbench rendering, clean-core live proof, wiki publication, and branch hygiene complete)
 - `RFC-0098-per-pack-queue-and-concurrency-policy.md` (implemented for supported scope; `lotus-ai` source-truth queue policy, admission, queue-status, queue-attention, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete; optional downstream publication remains future work only if a concrete supported need appears)
+- `RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md` (proposed; target-state architecture for enterprise reporting, future `lotus-renderer`, future `lotus-docvault`, batch reporting, lineage, rendering, archival, observability, security, and ordered follow-up RFC sequence)
 
 ## Recommended Next Implementation Order
 
-1. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+1. Review and approve `RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md`
+   before implementation starts for enterprise reporting, rendering, batch production, or document
+   archival.
+2. After RFC-0099 is accepted, open the follow-up RFCs in its ordered sequence, starting with
+   `RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation`.
+3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
 
