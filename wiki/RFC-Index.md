@@ -46,10 +46,35 @@
   task-flow runtime for long-running workflow packs
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
   per-pack queue, lane, timeout, and concurrency policy; `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete
+- [RFC-0099](../rfcs/RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md)
+  proposed target-state architecture for enterprise reporting, future `lotus-render`, future
+  `lotus-archive`, batch reporting, durable lineage, rendering, archival, observability, security,
+  and ordered follow-up RFC sequence
+- [RFC-0100](../rfcs/RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md)
+  proposed gateway-first report initiation and durable report job ledger foundation
+- [RFC-0101](../rfcs/RFC-0101-report-data-snapshot-and-lineage-contracts.md)
+  proposed report data snapshot and upstream lineage contract
+- [RFC-0102](../rfcs/RFC-0102-render-package-template-registry-and-render-service.md)
+  proposed `lotus-render` render package, template registry, and Typst rendering service
+- [RFC-0103](../rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md)
+  proposed `lotus-archive` document metadata, retrieval, retention, legal hold, and supersession
+- [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
+  proposed batch reporting scheduler, concurrency, retry, resume, and recovery
+- [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
+  proposed reporting observability, operator APIs, replay, rerender, regenerate, stuck-job, and SLA
+  monitoring
+- [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
+  proposed reporting security, entitlements, region/tenant segregation, and document access control
+- [RFC-0107](../rfcs/RFC-0107-enterprise-reporting-production-certification.md)
+  proposed end-to-end enterprise reporting production certification
 
 ## Recommended next implementation order
 
-1. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
+   batch production, or document archival.
+2. After RFC-0099 is accepted, implement the follow-up RFCs in order:
+   RFC-0100, RFC-0101, RFC-0102, RFC-0103, RFC-0104, RFC-0105, RFC-0106, then RFC-0107.
+3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
 
@@ -97,3 +122,12 @@
   artifact refs, bounded snapshot-backed retry/replay execution, and persisted queued-worker
   execution through the existing async runtime are complete; downstream queue posture remains
   future work unless a concrete gateway/operator or Workbench product need appears.
+- RFC-0099 is proposed for enterprise reporting target architecture. It records `lotus-report` as
+  the reporting orchestration and report-data owner, future `lotus-render` as deterministic
+  rendering owner, future `lotus-archive` as generated-document archive and retrieval owner, and
+  `lotus-gateway` as the front-office invocation and retrieval boundary. It is not implementation
+  evidence and should not be treated as proof that render or archive services exist.
+- RFC-0100 through RFC-0107 are proposed implementation-planning RFCs for the RFC-0099 target
+  architecture. They are not implementation evidence. They sequence the work into gateway/job
+  ledger, snapshot lineage, render, archive, batch, observability/operations, security, and final
+  production certification.
