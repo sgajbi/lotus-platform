@@ -6,15 +6,15 @@
   - lotus-platform architecture
   - `lotus-report` owners
   - `lotus-gateway` owners
-  - future `lotus-renderer` owners
-  - future `lotus-docvault` owners
+  - future `lotus-render` owners
+  - future `lotus-archive` owners
 - Target repositories:
   - `lotus-platform`
   - `lotus-report`
   - `lotus-gateway`
   - `lotus-workbench`
-  - future `lotus-renderer`
-  - future `lotus-docvault`
+  - future `lotus-render`
+  - future `lotus-archive`
   - upstream data authorities: `lotus-core`, `lotus-performance`, `lotus-risk`,
     `lotus-advise`, `lotus-manage`
 - Depends on:
@@ -39,7 +39,7 @@ portfolios and data snapshots were used, which template version rendered the doc
 document is archived, whether it was regenerated or superseded, and why any report failed.
 
 This RFC defines the target-state architecture, service names, service boundaries, technology
-choices, asynchronous interaction model, lineage model, rendering model, document vault model,
+choices, asynchronous interaction model, lineage model, rendering model, document archive model,
 batch-production model, security posture, observability posture, and the ordered follow-up RFC
 sequence. It is intentionally documentation-first. No implementation should begin until this
 target architecture and sequence are accepted.
@@ -74,12 +74,12 @@ and operate.
 | --- | --- | --- |
 | `lotus-report` | Owns reporting and aggregation APIs, including first-class portfolio review JSON | Should remain report orchestration and report-data authority, not become a permanent document vault |
 | `lotus-gateway` | Governs product-facing access for Workbench | UI report initiation and document retrieval should go through gateway |
-| `lotus-workbench` | Product UI consumes gateway/BFF contracts | Should not call `lotus-report`, renderer, or archive services directly |
+| `lotus-workbench` | Product UI consumes gateway/BFF contracts | Should not call `lotus-report`, render, or archive services directly |
 | `lotus-core` | Portfolio, transaction, reference, and portfolio-management source truth | Must provide source-backed snapshots and identifiers consumed by reporting lineage |
 | `lotus-performance` | Performance and contribution analytics source truth | Must provide certifiable return, benchmark, and contribution inputs |
 | `lotus-risk` | Risk, concentration, and risk-metric source truth | Must provide certifiable risk inputs, including source-backed rate and benchmark posture when available |
 | `lotus-advise` / `lotus-manage` | Advisory and management workflow authorities | Future sources for suitability, mandate checks, review approvals, and advisor workflows |
-| Document storage | Not yet first-class as an enterprise archive capability | Requires a DocVault service boundary with metadata, binary storage, retention, legal hold, and access audit |
+| Document storage | Not yet first-class as an enterprise archive capability | Requires an archive service boundary with metadata, binary storage, retention, legal hold, and access audit |
 | Rendering | Not yet defined as a governed scalable capability | Requires deterministic render package, template versioning, and render diagnostics |
 | Batch production | Not yet first-class | Requires durable orchestration, concurrency, retries, resumability, progress, and idempotency |
 
@@ -90,7 +90,7 @@ and operate.
 3. Define the canonical invocation model for ad hoc and batch report generation.
 4. Define the internal separation of concerns inside `lotus-report`.
 5. Define the rendering, template-governance, and output-format strategy.
-6. Define the DocVault and document archival target state.
+6. Define the generated-document archive target state.
 7. Define lineage, audit, supportability, tracing, metrics, and operator tooling requirements.
 8. Define security, entitlement, retention, region, tenant, and legal-hold expectations.
 9. Define performance, scalability, back-pressure, and cost-control expectations.
@@ -114,20 +114,21 @@ The target-state service names are:
 | Name | Type | Ownership |
 | --- | --- | --- |
 | `lotus-report` | Existing application/service | Report request APIs, orchestration, report-data assembly, lineage ledger ownership, batch reporting control plane |
-| `lotus-renderer` | New application/service | Deterministic rendering from governed render packages into PDF and future human-readable formats |
-| `lotus-docvault` | New application/service | Document archival, metadata, retention, retrieval, reissue, legal hold, purge, and document-access audit |
+| `lotus-render` | New application/service | Deterministic rendering from governed render packages into PDF and future human-readable formats |
+| `lotus-archive` | New application/service | Generated-document archival, metadata, retention, retrieval, reissue, legal hold, purge, and document-access audit |
 | `report-orchestrator` | `lotus-report` module/component | Ad hoc job lifecycle, idempotency, orchestration, upstream fan-out coordination |
 | `report-data-assembler` | `lotus-report` module/component | Machine-readable report payload assembly from authoritative upstream services |
 | `report-batch-orchestrator` | `lotus-report` module/component | Batch selection, scheduling, chunking, concurrency, retry, resume, and progress |
 | `report-lineage-ledger` | `lotus-report` module/component | Durable request, job, data snapshot, upstream call, render attempt, archive, and status-event records |
-| `report-template-registry` | `lotus-renderer` component | Template manifest, version, allowed report types, locale/brand variants, and compatibility |
-| `document-vault-ledger` | `lotus-docvault` component | Document metadata, retention policy, access audit, legal hold, and supersession graph |
+| `report-template-registry` | `lotus-render` component | Template manifest, version, allowed report types, locale/brand variants, and compatibility |
+| `document-archive-ledger` | `lotus-archive` component | Document metadata, retention policy, access audit, legal hold, and supersession graph |
 
 Names intentionally use the existing Lotus repository convention: `lotus-*` for applications and
-plain descriptive module names inside services. `lotus-docvault` is preferred over `lotus-archive`
-because private-banking documents need controlled retrieval, retention, legal hold, reissue, and
-access audit, not only storage. `lotus-renderer` is preferred over `lotus-pdf` because the rendering
-boundary should support future non-PDF human-readable formats.
+plain descriptive module names inside services. `lotus-render` reads as a product capability rather
+than a worker implementation, and it is not PDF-specific. `lotus-archive` is simple,
+enterprise-neutral, and broad enough for generated PDFs, statements, evidence packs, signed JSON,
+and future client communications while still owning retention, legal hold, reissue, retrieval, and
+access audit.
 
 ## Target Service Boundaries
 
@@ -144,8 +145,8 @@ Responsibilities:
 5. orchestrate upstream data collection through service APIs,
 6. assemble machine-readable report data,
 7. persist durable report lineage and supportability records,
-8. submit render packages to `lotus-renderer`,
-9. submit generated documents and metadata to `lotus-docvault`,
+8. submit render packages to `lotus-render`,
+9. submit generated documents and metadata to `lotus-archive`,
 10. own batch reporting schedules, selection, chunking, concurrency, retry, resume, and progress,
 11. expose operator-facing job and batch diagnostic APIs.
 
@@ -157,16 +158,16 @@ Non-responsibilities:
 4. exposing product-facing UI contracts directly to Workbench,
 5. allowing templates to fetch business data.
 
-### `lotus-renderer`
+### `lotus-render`
 
-`lotus-renderer` is the deterministic document rendering service.
+`lotus-render` is the deterministic document rendering service.
 
 Responsibilities:
 
 1. accept complete render packages from `lotus-report`,
 2. validate report data contract version, template ID, template version, locale, and brand variant,
 3. render PDF from structured report data,
-4. record render diagnostics, duration, template version, renderer version, and failure reason,
+4. record render diagnostics, duration, template version, render service version, and failure reason,
 5. support controlled template registry and template compatibility checks,
 6. support visual regression and golden-sample rendering tests,
 7. prepare for future human-readable output formats such as HTML preview or DOCX.
@@ -178,9 +179,9 @@ Non-responsibilities:
 3. archiving documents or enforcing retention policy,
 4. exposing product-facing report-generation APIs directly to Workbench.
 
-### `lotus-docvault`
+### `lotus-archive`
 
-`lotus-docvault` is the Lotus-generated document archive and retrieval service.
+`lotus-archive` is the Lotus-generated document archive and retrieval service.
 
 Responsibilities:
 
@@ -210,10 +211,10 @@ Responsibilities:
 1. expose Workbench-facing report initiation, status, and document retrieval APIs,
 2. enforce user/session entitlement before forwarding report requests,
 3. pass caller, role, tenant, region, correlation, and trace context,
-4. shield Workbench from internal report, renderer, and DocVault service topology,
+4. shield Workbench from internal report, render, and archive service topology,
 5. expose only supported product-facing status and download metadata.
 
-`lotus-workbench` must not call `lotus-report`, `lotus-renderer`, or `lotus-docvault` directly for
+`lotus-workbench` must not call `lotus-report`, `lotus-render`, or `lotus-archive` directly for
 front-office flows.
 
 ## Canonical Interaction Model
@@ -227,8 +228,8 @@ lotus-workbench
   -> lotus-gateway
   -> lotus-report
   -> upstream domain services
-  -> lotus-renderer
-  -> lotus-docvault
+  -> lotus-render
+  -> lotus-archive
 ```
 
 For portfolio review:
@@ -239,9 +240,9 @@ For portfolio review:
    idempotency key, correlation ID, and trace context.
 4. `lotus-report` creates or returns the durable report job.
 5. `lotus-report` assembles report data and lineage.
-6. For PDF output, `lotus-report` submits a render package to `lotus-renderer`.
-7. `lotus-renderer` returns a render artifact and diagnostics.
-8. `lotus-report` archives the document through `lotus-docvault`.
+6. For PDF output, `lotus-report` submits a render package to `lotus-render`.
+7. `lotus-render` returns a render artifact and diagnostics.
+8. `lotus-report` archives the document through `lotus-archive`.
 9. Gateway exposes status and retrieval to Workbench.
 
 Machine-readable JSON report data may remain synchronous when it can meet front-office latency
@@ -344,9 +345,9 @@ Failure categories:
 6. `report_upstream_call`
    Upstream service, endpoint, request hash, response hash/reference, status, latency, and trace.
 7. `report_render_attempt`
-   Renderer request, template version, renderer version, output hash, status, duration, diagnostics.
+   Render request, template version, render service version, output hash, status, duration, diagnostics.
 8. `report_archive_attempt`
-   DocVault request, document ID, storage metadata, status, duration, diagnostics.
+   Archive request, document ID, storage metadata, status, duration, diagnostics.
 9. `report_document_ref`
    Link from report job to archived document metadata.
 10. `report_status_event`
@@ -366,7 +367,7 @@ Every report, whether ad hoc or batch, must answer:
 4. which report type and output format were requested,
 5. which as-of date, period, frequency, locale, and region were used,
 6. which template ID and template version were used,
-7. which renderer version was used,
+7. which render service version was used,
 8. which report-data contract version was used,
 9. which upstream services, endpoints, request hashes, response hashes, and snapshot references were
    used,
@@ -381,7 +382,7 @@ render artifact, archived document metadata, status timeline, and access audit.
 
 ## Rendering Architecture
 
-The renderer must consume a complete render package. It must not fetch business data.
+The render service must consume a complete render package. It must not fetch business data.
 
 Target render package:
 
@@ -419,9 +420,9 @@ Business-owned content changes should be handled through governed configuration 
 approved disclosure text, localized labels, and branding metadata. Business users should not edit
 production templates directly without repository review, test rendering, and approval evidence.
 
-## Document Vault Architecture
+## Document Archive Architecture
 
-`lotus-docvault` should own Lotus-generated document archival and retrieval.
+`lotus-archive` should own Lotus-generated document archival and retrieval.
 
 Target storage:
 
@@ -440,7 +441,7 @@ Document metadata must include:
 6. frequency,
 7. generation timestamp,
 8. template ID/version,
-9. renderer version,
+9. render service version,
 10. report-data contract version,
 11. lineage references,
 12. object storage URI or opaque storage key,
@@ -453,7 +454,7 @@ Document metadata must include:
 19. supersession/correction references,
 20. access-control metadata.
 
-DocVault APIs should support:
+Archive APIs should support:
 
 1. create/archive generated document,
 2. get document metadata,
@@ -466,7 +467,7 @@ DocVault APIs should support:
 9. purge eligible documents through governed housekeeping,
 10. retrieve access-audit history for support/compliance.
 
-DocVault must enforce encryption at rest, encryption in transit, per-document access audit,
+`lotus-archive` must enforce encryption at rest, encryption in transit, per-document access audit,
 retention, purge, legal hold, and tenant/region segregation where required.
 
 ## API Pattern
@@ -497,14 +498,14 @@ POST /reports/batches/{batch_id}/resume
 POST /reports/batches/{batch_id}/retry-failed
 ```
 
-Internal renderer APIs:
+Internal render APIs:
 
 ```text
 POST /render-jobs
 GET  /render-jobs/{render_job_id}
 ```
 
-Internal DocVault APIs:
+Internal archive APIs:
 
 ```text
 POST /documents
@@ -524,8 +525,8 @@ The target state must enforce authorization at multiple layers:
 
 1. Gateway enforces product-facing user/session entitlement.
 2. `lotus-report` enforces service-level authorization and portfolio/report-type scope.
-3. `lotus-renderer` accepts only authorized service-to-service render packages.
-4. `lotus-docvault` enforces document-level retrieval entitlement and access audit.
+3. `lotus-render` accepts only authorized service-to-service render packages.
+4. `lotus-archive` enforces document-level retrieval entitlement and access audit.
 
 Security requirements:
 
@@ -543,8 +544,8 @@ Security requirements:
 
 ## Observability And Operations
 
-The reporting platform must be observable across gateway, report, upstream services, renderer, and
-DocVault.
+The reporting platform must be observable across gateway, report, upstream services, render, and
+archive services.
 
 Required trace identifiers:
 
@@ -628,8 +629,8 @@ The target platform must support:
 
 1. per-report-type concurrency controls,
 2. per-upstream-service fan-out limits,
-3. renderer worker pool scaling,
-4. DocVault upload and download throttling,
+3. render worker pool scaling,
+4. archive upload and download throttling,
 5. batch back-pressure,
 6. cost-aware render scheduling,
 7. object storage lifecycle policies,
@@ -640,7 +641,7 @@ Non-functional evidence required before production enablement:
 1. ad hoc latency tests,
 2. batch throughput tests,
 3. concurrency/back-pressure tests,
-4. renderer saturation tests,
+4. render saturation tests,
 5. archive failure/recovery tests,
 6. idempotency and duplicate-request tests,
 7. rerender/regenerate/supersession tests,
@@ -671,17 +672,17 @@ production report generation.
 
 ## Design Trade-Offs
 
-### Keep rendering inside `lotus-report` vs create `lotus-renderer`
+### Keep rendering inside `lotus-report` vs create `lotus-render`
 
 Keeping rendering inside `lotus-report` is faster initially, but it mixes API orchestration,
 business data assembly, template governance, PDF runtime dependencies, and CPU-heavy rendering in
-one service. The target state should separate rendering as `lotus-renderer`. A temporary internal
+one service. The target state should separate rendering as `lotus-render`. A temporary internal
 module is acceptable only if its API and data model are designed for extraction.
 
-### Keep document archive inside `lotus-report` vs create `lotus-docvault`
+### Keep document archive inside `lotus-report` vs create `lotus-archive`
 
 Archival has different security, retention, legal, housekeeping, access-audit, and storage
-requirements from report assembly. `lotus-docvault` should be a separate target service. A
+requirements from report assembly. `lotus-archive` should be a separate target service. A
 temporary module inside `lotus-report` is acceptable only for early bootstrapping and must not own
 long-term document governance.
 
@@ -703,13 +704,13 @@ changed.
 | --- | --- |
 | `lotus-report` becomes a monolith | Hard target service boundaries and extraction-ready modules |
 | PDF exists without lineage | Make ledger write mandatory before render/archive completion |
-| Renderer fetches business data | Renderer accepts only complete render packages |
+| Render service fetches business data | Render service accepts only complete render packages |
 | Duplicate batch documents | DB-backed idempotency and document supersession model |
-| Weak document access control | Gateway, report, and DocVault layered authorization plus access audit |
+| Weak document access control | Gateway, report, and archive layered authorization plus access audit |
 | Template changes break production reports | Template manifest, golden renders, visual regression evidence, PR review |
 | Batch overloads upstream services | Per-upstream concurrency, back-pressure, schedules, and retry policy |
 | Reports are unreproducible | Store report data snapshots or immutable snapshot references and hashes |
-| Legal hold conflicts with purge | DocVault legal-hold state overrides lifecycle purge |
+| Legal hold conflicts with purge | Archive legal-hold state overrides lifecycle purge |
 | Operators cannot diagnose failures | Standard failure categories, status events, traces, metrics, and support APIs |
 
 ## Ordered RFC Sequence
@@ -723,11 +724,11 @@ this order:
 2. `RFC-0101-report-data-snapshot-and-lineage-contracts`
    Define report data snapshot contracts, upstream call evidence, hash/reference semantics,
    supportability fields, and replay-safe data capture for portfolio review and future reports.
-3. `RFC-0102-render-package-template-registry-and-renderer-service`
-   Define `lotus-renderer`, Typst adoption, render package schema, template manifest, template
+3. `RFC-0102-render-package-template-registry-and-render-service`
+   Define `lotus-render`, Typst adoption, render package schema, template manifest, template
    versioning, render diagnostics, and golden/visual regression test evidence.
-4. `RFC-0103-docvault-archive-retrieval-retention-and-legal-hold`
-   Define `lotus-docvault`, document metadata, object storage, retrieval APIs, access audit,
+4. `RFC-0103-document-archive-retrieval-retention-and-legal-hold`
+   Define `lotus-archive`, document metadata, object storage, retrieval APIs, access audit,
    retention, purge, legal hold, reissue, and supersession.
 5. `RFC-0104-batch-reporting-scheduler-concurrency-and-recovery`
    Define batch selectors, schedules, frequencies, chunking, concurrency, retry, resume,
@@ -739,23 +740,180 @@ this order:
    Define report and document entitlement model, role matrix, tenant/region segregation, download
    authorization, audit obligations, sensitive logging policy, and certification tests.
 8. `RFC-0107-enterprise-reporting-production-certification`
-   Define end-to-end certification across gateway, report, renderer, DocVault, upstream services,
+   Define end-to-end certification across gateway, report, render, archive, upstream services,
    Workbench, batch, failure recovery, non-functional tests, docs, wiki, context, and branch hygiene.
 
-Each implementation-bearing RFC must include the current closure governance: a second-last
-hardening/review/API-certification/platform-governance slice and a final documentation, wiki,
-agent-context, supported-features, and branch-hygiene slice.
+## Mandatory Delivery Model For Follow-Up RFCs
+
+Each implementation-bearing follow-up RFC must be delivered slice by slice. Do not move to the next
+slice until the current slice has been implemented, locally validated, reviewed for unnecessary
+complexity, and committed with a meaningful scope. Every slice must leave the touched repositories
+cleaner, more modular, and easier to support than they were before the slice.
+
+The implementation RFCs must not use broad "platform work" wording. Each must name:
+
+1. owning repository or repositories,
+2. target branch,
+3. exact APIs, contracts, modules, migrations, docs, wiki pages, and context files in scope,
+4. explicitly out-of-scope repositories and surfaces,
+5. acceptance criteria,
+6. validation commands and expected CI lanes,
+7. supported-features updates required only after implementation-backed behavior exists,
+8. residual risks and follow-up RFC dependencies.
+
+### Required Slice 0: Cleanup And Structure
+
+Every implementation RFC in the RFC-0100 through RFC-0107 sequence must start with a dedicated
+cleanup and structure slice.
+
+Required activities:
+
+1. remove dead code made obsolete by the slice,
+2. remove duplicate or stale documentation that conflicts with the new architecture,
+3. improve repository structure where the current layout would make the new feature hard to
+   maintain,
+4. split large monolithic files only where it materially improves ownership, testing, or future
+   extension,
+5. improve document structure and reduce sprawl,
+6. move the right long-lived operator or architecture material into repo-local `wiki/` source,
+7. avoid duplicate long-lived documentation across repo docs and wiki,
+8. document explicitly when no wiki change is needed and why,
+9. run the applicable wiki check before merge,
+10. after merge, publish the wiki if repo-local wiki source changed.
+
+Acceptance criteria:
+
+1. cleanup changes are specific and justified by the implementation path,
+2. no unrelated aesthetic refactor is bundled into the slice,
+3. docs and wiki have a clear source-of-truth split,
+4. duplicate documentation is removed or converted into links,
+5. repo-local wiki source is publishable.
+
+### Required Slice 1-N: Capability Delivery Slices
+
+Each capability slice must implement one coherent increment, such as job ledger foundation, report
+snapshot lineage, render package contract, archive metadata, batch scheduling, or operator replay.
+
+Required activities:
+
+1. implement the narrow capability,
+2. add meaningful tests around real risks and failure modes,
+3. update OpenAPI/Swagger where API surfaces change,
+4. update contracts and vocabulary references where domain terms change,
+5. update docs only where behavior or operator truth changes,
+6. add migration tests or smoke checks where durable storage changes,
+7. validate downstream consumers when a public or gateway-facing contract changes,
+8. record supported features only when the behavior is implemented and validated.
+
+Acceptance criteria:
+
+1. capability works through the intended boundary,
+2. tests prove behavior, failure handling, idempotency, and governance requirements relevant to the
+   slice,
+3. no unsupported product wording appears in README, wiki, Swagger, or supported-features lists,
+4. branch is pushed so GitHub checks can run asynchronously,
+5. failed checks are investigated and fixed promptly.
+
+### Required Second-Last Slice: Hardening, Review, And Certification
+
+Every implementation RFC must include a second-last hardening and review slice before closure.
+
+Required activities:
+
+1. perform a proper code review of the full implementation,
+2. tighten loose ends and remove temporary scaffolding,
+3. verify API certification pattern compliance for every new or changed API,
+4. verify OpenAPI/Swagger examples, request/response models, errors, and examples are production
+   quality,
+5. verify platform governance requirements from RFC-0071, RFC-0072, RFC-0084, RFC-0091, and
+   repo-local standards,
+6. verify data mesh enterprise standards where report, lineage, archive, or evidence products are
+   declared or consumed,
+7. verify security, entitlement, observability, idempotency, and failure semantics,
+8. validate upstream and downstream integration posture,
+9. make final quality improvements before closure.
+
+Acceptance criteria:
+
+1. code review findings are either fixed or explicitly deferred with rationale,
+2. API certification evidence is current and specific,
+3. platform governance and data mesh checks are satisfied or governed as explicit deviations,
+4. CI health is green or failures are explained with active fix-forward ownership,
+5. implementation is ready for final documentation and closure.
+
+### Required Final Slice: Closure, Documentation, And Branch Hygiene
+
+Every implementation RFC must end with a closure slice.
+
+Required activities:
+
+1. update implementation-backed documentation,
+2. update repo-local wiki source and publish it after merge when wiki truth changed,
+3. update supported-features lists with only delivered behavior,
+4. update agent context and repository engineering context where operating truth changed,
+5. consciously review whether skills, guidance, documentation, or agent context should be improved
+   to support better future work, faster ramp-up, and stronger agent effectiveness,
+6. explicitly state what should be added, removed, tightened, or clarified,
+7. if no skills, guidance, documentation, or context changes are needed, state that as a deliberate
+   outcome with rationale,
+8. ensure branch hygiene: no untracked implementation artifacts, no stale generated files, no
+   accidental output commits, no unrelated changes,
+9. ensure PR summary and evidence match actual implementation,
+10. complete merge-readiness checks before requesting merge or enabling auto-merge.
+
+Acceptance criteria:
+
+1. docs, wiki, supported-features, context, and agent guidance are aligned with implementation
+   truth,
+2. wiki source has been checked before merge and published after merge if changed,
+3. branch is clean except intentionally untracked local evidence that is not part of the PR,
+4. PR evidence lists real commands and GitHub check posture,
+5. no implementation-backed feature is missing from supported-features material,
+6. no aspirational feature appears as if it is already supported.
+
+## Branching, PR, And CI Expectations
+
+The implementation RFCs must use GitHub intentionally:
+
+1. create a remote feature branch if one does not already exist,
+2. continue on an existing active branch for the same work if one exists,
+3. keep commits small, meaningful, and well-scoped,
+4. push after each validated slice so GitHub checks run asynchronously,
+5. monitor PR checks at regular intervals while continuing non-conflicting local work,
+6. fix failures promptly,
+7. do not allow CI health or branch quality to drift,
+8. keep PR descriptions aligned with the actual slices delivered,
+9. do not merge with unresolved failing checks unless a platform owner explicitly records a
+   governed deviation,
+10. publish wiki source after merge when required by the wiki publication rule.
+
+## Supported-Features Discipline
+
+RFC-0099 itself does not add implementation-backed product features. Follow-up RFCs must maintain a
+clear supported-features list in the owning repository and, when the feature is product-facing, in
+the relevant wiki or product material.
+
+Supported-features entries must:
+
+1. describe only behavior that has been implemented and validated,
+2. name the API, job, document, render, archive, batch, or operator capability that backs it,
+3. name the validation evidence or PR that delivered it,
+4. distinguish `ready`, `partial`, `unavailable`, and `not_supported` behavior where relevant,
+5. avoid roadmap, aspiration, or planned-service wording.
+
+If an implementation slice creates infrastructure that is not yet product-supported, the
+supported-features list must say that explicitly rather than presenting it as a customer feature.
 
 ## Acceptance Criteria For This RFC
 
 1. Target service names and boundaries are explicit.
 2. Ad hoc and batch invocation patterns are explicit.
 3. Gateway-first front-office access is explicit.
-4. `lotus-report`, `lotus-renderer`, and `lotus-docvault` responsibilities and
+4. `lotus-report`, `lotus-render`, and `lotus-archive` responsibilities and
    non-responsibilities are explicit.
 5. Rendering technology direction and template-governance expectations are explicit.
 6. Durable lineage, audit, and data model expectations are explicit.
-7. DocVault storage, metadata, retrieval, retention, purge, legal hold, and access-control
+7. Archive storage, metadata, retrieval, retention, purge, legal hold, and access-control
    expectations are explicit.
 8. Async boundaries and status/failure vocabulary are explicit.
 9. Security, observability, operator tooling, performance, scale, and cost expectations are
@@ -763,6 +921,13 @@ agent-context, supported-features, and branch-hygiene slice.
 10. Versioning, rerender, regenerate, reissue, correction, supersession, and idempotent rerun
     semantics are explicit.
 11. Ordered follow-up RFC sequence is explicit and implementation has not started.
+12. Mandatory cleanup/structure, capability, hardening/review/certification, and final closure
+    slices are explicit for follow-up implementation RFCs.
+13. Branch, PR, CI, wiki publication, and supported-features delivery expectations are explicit.
+14. The RFC distinguishes proposed target architecture from current implementation-backed runtime
+    truth.
+15. The RFC is sharp enough for a follow-up RFC author to produce implementation RFCs with minimal
+    ambiguity.
 
 ## Supported Features
 
@@ -777,16 +942,16 @@ documentation, and validation evidence exist.
 
 This RFC changes target architecture direction, not current runtime truth. Platform RFC index and
 wiki RFC index should link to it. Central context should be updated only after the architecture is
-accepted or implementation begins, so agents do not treat proposed `lotus-renderer` or
-`lotus-docvault` services as already available.
+accepted or implementation begins, so agents do not treat proposed `lotus-render` or
+`lotus-archive` services as already available.
 
 ## Open Questions
 
 1. Should Temporal be adopted immediately for reporting workflows, or should phase one use a
    simpler DB-backed worker while preserving Temporal-compatible lifecycle semantics?
-2. Should `lotus-renderer` be created as a separate repository from the first rendering slice, or
+2. Should `lotus-render` be created as a separate repository from the first rendering slice, or
    should it begin as an extraction-ready module inside `lotus-report`?
-3. Should `lotus-docvault` be created before the first PDF archive flow, or should early archive
+3. Should `lotus-archive` be created before the first PDF archive flow, or should early archive
    metadata begin in `lotus-report` and migrate before production use?
 4. Which jurisdictions and retention classes are in first-wave scope for private-banking reports?
 5. Which non-PDF output formats should be first-class after PDF: HTML preview, DOCX, XLSX, or
