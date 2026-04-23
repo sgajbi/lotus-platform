@@ -51,6 +51,11 @@ Important machine-readable platform contract families now include:
 4. `../generated/domain-product-catalog.json`
 5. `../generated/domain-product-dependency-graph.json`
 
+For governed analytics period naming, use:
+
+1. [Domain Vocabulary Contracts](../platform-contracts/domain-vocabulary/README.md)
+2. [Canonical Performance Periods](../platform-contracts/domain-vocabulary/canonical-performance-periods.v1.json)
+
 For RFC-0084 work, the highest-signal machine-readable files are:
 
 1. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)

@@ -1,71 +1,252 @@
 {
   "contractVersion": "v1",
   "domain": "performance_periods",
-  "description": "Platform-governed canonical business period vocabulary shared across Lotus analytics and workbench applications.",
-  "periods": [
+  "owner": "lotus-platform",
+  "status": "active",
+  "description": "Platform-governed canonical business period vocabulary shared across Lotus performance, risk, reporting, and front-office applications.",
+  "governance": {
+    "newApiRule": "New or materially changed APIs must expose canonical codes in request and response contracts. Existing non-canonical wire values may remain only when listed in accepted_aliases and must normalize internally to canonical_code.",
+    "casePolicy": "Period codes are uppercase ASCII tokens. Lowercase, camelCase, and prose period values are not supported wire values.",
+    "documentationRule": "Swagger/OpenAPI examples must use canonical_code unless the endpoint is explicitly documenting legacy alias compatibility.",
+    "responseRule": "Machine-readable response keys should use canonical_code. If an upstream legacy alias is preserved, the response must carry source/system lineage or a normalization note."
+  },
+  "canonicalPeriods": [
     {
-      "code": "MTD",
+      "canonical_code": "1D",
+      "label": "Trailing one business day",
+      "semantics": "trailing_business_day_window",
+      "start_rule": "anchor_minus_0_business_days",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "2D",
+      "label": "Trailing two business days",
+      "semantics": "trailing_business_day_window",
+      "start_rule": "anchor_minus_1_business_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "5D",
+      "label": "Trailing five business days",
+      "semantics": "trailing_business_day_window",
+      "start_rule": "anchor_minus_4_business_days",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "10D",
+      "label": "Trailing ten business days",
+      "semantics": "trailing_business_day_window",
+      "start_rule": "anchor_minus_9_business_days",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "1M",
+      "label": "Trailing one month",
+      "semantics": "trailing_calendar_month_window",
+      "start_rule": "anchor_minus_1_month_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["ONE_MONTH"],
+      "used_by": ["lotus-performance.workspace", "lotus-report.portfolio_review"]
+    },
+    {
+      "canonical_code": "3M",
+      "label": "Trailing three months",
+      "semantics": "trailing_calendar_month_window",
+      "start_rule": "anchor_minus_3_months_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["THREE_MONTHS", "THREE_MONTH"],
+      "used_by": ["lotus-performance.workspace", "lotus-report.portfolio_review"]
+    },
+    {
+      "canonical_code": "6M",
+      "label": "Trailing six months",
+      "semantics": "trailing_calendar_month_window",
+      "start_rule": "anchor_minus_6_months_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["SIX_MONTHS", "SIX_MONTH"],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "MTD",
       "label": "Month to date",
       "semantics": "calendar_to_date",
       "start_rule": "first_day_of_anchor_month",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
     },
     {
-      "code": "QTD",
+      "canonical_code": "QTD",
       "label": "Quarter to date",
       "semantics": "calendar_to_date",
       "start_rule": "first_day_of_anchor_quarter",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
     },
     {
-      "code": "YTD",
+      "canonical_code": "YTD",
       "label": "Year to date",
       "semantics": "calendar_to_date",
       "start_rule": "first_day_of_anchor_year",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report", "lotus-workbench"]
     },
     {
-      "code": "1Y",
+      "canonical_code": "1Y",
       "label": "Trailing one year",
-      "semantics": "trailing_window",
+      "semantics": "trailing_calendar_year_window",
       "start_rule": "anchor_minus_1_year_plus_1_day",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["ONE_YEAR"],
+      "used_by": ["lotus-performance", "lotus-risk"]
     },
     {
-      "code": "3Y",
+      "canonical_code": "2Y",
+      "label": "Trailing two years",
+      "semantics": "trailing_calendar_year_window",
+      "start_rule": "anchor_minus_2_years_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["TWO_YEARS", "TWO_YEAR"],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "3Y",
       "label": "Trailing three years",
-      "semantics": "trailing_window",
+      "semantics": "trailing_calendar_year_window",
       "start_rule": "anchor_minus_3_years_plus_1_day",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["THREE_YEARS", "THREE_YEAR"],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
     },
     {
-      "code": "5Y",
+      "canonical_code": "5Y",
       "label": "Trailing five years",
-      "semantics": "trailing_window",
+      "semantics": "trailing_calendar_year_window",
       "start_rule": "anchor_minus_5_years_plus_1_day",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["FIVE_YEARS", "FIVE_YEAR"],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
     },
     {
-      "code": "SI",
+      "canonical_code": "10Y",
+      "label": "Trailing ten years",
+      "semantics": "trailing_calendar_year_window",
+      "start_rule": "anchor_minus_10_years_plus_1_day",
+      "end_rule": "anchor_date",
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date"],
+      "accepted_aliases": ["TEN_YEARS", "TEN_YEAR"],
+      "used_by": ["lotus-performance.workspace"]
+    },
+    {
+      "canonical_code": "SI",
       "label": "Since inception",
       "semantics": "since_inception",
       "start_rule": "resolved_inception_date",
       "end_rule": "anchor_date",
-      "category": "relative"
+      "category": "relative",
+      "minimum_required_fields": ["anchor_date", "inception_date"],
+      "accepted_aliases": ["ITD", "INCEPTION_TO_DATE", "SINCE_INCEPTION"],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
     },
     {
-      "code": "EXPLICIT",
-      "label": "Explicit range",
+      "canonical_code": "YEAR",
+      "label": "Calendar year",
+      "semantics": "calendar_year",
+      "start_rule": "first_day_of_requested_year",
+      "end_rule": "last_day_of_requested_year_or_anchor_date_when_current_year",
+      "category": "relative",
+      "minimum_required_fields": ["year"],
+      "accepted_aliases": [],
+      "used_by": ["lotus-performance.returns_series", "lotus-risk"]
+    },
+    {
+      "canonical_code": "EXPLICIT",
+      "label": "Explicit date range",
       "semantics": "explicit_window",
       "start_rule": "caller_supplied_start_date",
       "end_rule": "caller_supplied_end_date",
-      "category": "explicit"
+      "category": "explicit",
+      "minimum_required_fields": ["from_date", "to_date"],
+      "accepted_aliases": ["CUSTOM"],
+      "used_by": ["lotus-performance", "lotus-risk", "lotus-report"]
+    }
+  ],
+  "normalizationExamples": [
+    {
+      "input": "THREE_YEAR",
+      "canonical_code": "3Y",
+      "reason": "risk legacy alias for trailing three years"
+    },
+    {
+      "input": "ITD",
+      "canonical_code": "SI",
+      "reason": "legacy performance alias for since inception"
+    },
+    {
+      "input": "YTD",
+      "canonical_code": "YTD",
+      "reason": "already canonical"
+    }
+  ],
+  "deprecatedOrRejectedValues": [
+    {
+      "value": "Y1",
+      "replacement": "1Y",
+      "reason": "non-standard year shorthand"
+    },
+    {
+      "value": "Y3",
+      "replacement": "3Y",
+      "reason": "non-standard year shorthand"
+    },
+    {
+      "value": "Y5",
+      "replacement": "5Y",
+      "reason": "non-standard year shorthand"
+    },
+    {
+      "value": "ROLLING",
+      "replacement": "EXPLICIT",
+      "reason": "rolling-window analytics should express window length separately from period identity"
     }
   ]
 }
