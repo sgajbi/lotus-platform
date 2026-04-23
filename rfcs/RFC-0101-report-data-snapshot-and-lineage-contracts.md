@@ -5,8 +5,7 @@
 - Owners:
   - `lotus-report` owners
   - upstream domain service owners
-  - `lotus-gateway` owners for governed operator read surfaces
-  - lotus-platform governance
+  - `lotus-gateway` owners for any product-facing support surface
   - lotus-platform data mesh governance
 - Target repositories:
   - `lotus-report`
@@ -20,307 +19,213 @@
 - Depends on:
   - `RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md`
   - `RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md`
+  - `RFC-0102-render-package-template-registry-and-render-service.md`
+  - `RFC-0103-document-archive-and-retrieval-contracts.md`
+  - `RFC-0105-report-operations-replay-rerender-and-reissue-controls.md`
   - `RFC-0084-mesh-governance.md`
   - `RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md`
-  - `RFC-0026-synchronous-vs-asynchronous-integration-patterns.md`
-  - `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
-  - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-- Followed by:
-  - `RFC-0102-render-package-template-registry-and-render-service.md`
-  - `RFC-0103-document-archive-retrieval-retention-and-legal-hold.md`
-  - `RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md`
-  - `RFC-0105-reporting-observability-operations-and-replay-tooling.md`
 
 ## Summary
 
-This RFC defines the first durable report-input snapshot and lineage foundation for Lotus
-enterprise reporting.
+This RFC defines the durable report input snapshot and upstream lineage contracts that sit on top of
+the RFC-0100 report job ledger. The goal is to make report generation reproducible, supportable,
+auditable, and explainable before rendering, archive storage, replay, rerender, or reissue flows
+are introduced.
 
-RFC-0100 created durable report request and job identity. RFC-0101 adds the next mandatory layer:
+RFC-0101 is the contract and persistence foundation for answering these questions with evidence:
 
-1. immutable report-input snapshots,
-2. append-only upstream-call lineage records,
-3. canonical hashing and redaction rules,
-4. supportability and completeness posture for every sourced input,
-5. governed operator read APIs for snapshot and lineage diagnostics,
-6. portfolio-review first-wave adoption with live proof.
+1. what exact data inputs produced a report-ready payload,
+2. when that input set was captured,
+3. which upstream calls and contract versions were used,
+4. whether each upstream input was complete, partial, unavailable, or unsupported,
+5. whether a later rerender or regenerate request is acting on the same input state or a changed
+   input state.
 
-The goal is to make every generated report explainable and supportable before Lotus adds rendering,
-archive, replay, rerender, correction, or large-scale batch production.
+This RFC is implementation-bearing once accepted. It must be delivered slice by slice. It must not
+absorb render-package behavior, archive/document lifecycle behavior, or operator replay/rerender
+mutation flows owned by later RFCs.
 
-This RFC is implementation-bearing once accepted. It must be delivered slice by slice and must not
-start PDF rendering, archive storage, batch scheduling, legal hold, or replay tooling work.
-It must also not move into implementation until this RFC itself is reviewed, tightened, and
-accepted as the execution contract for the work.
+## Critical Review Outcome
+
+The prior draft described the core idea correctly but was not yet an execution-grade RFC. It was
+too ambiguous in the areas that mattered most in RFC-0100 delivery:
+
+1. slice gating was too light,
+2. cross-RFC ownership boundaries were too easy to misread,
+3. proof and evidence expectations were under-specified,
+4. support and operational API expectations were not explicit enough,
+5. API certification and Swagger quality requirements were not written tightly enough,
+6. supported-features discipline was present in spirit but not yet specific enough to prevent
+   aspirational drift.
+
+This revision closes those gaps and makes RFC-0101 implementation-ready.
 
 ## Problem
 
-Generated reports cannot be certified from final PDFs or final JSON alone.
-
-A banking-grade reporting platform must preserve enough durable evidence to answer:
-
-1. which inputs were used,
-2. which upstream services and contracts were called,
-3. whether those inputs were complete, partial, unavailable, or not supported,
-4. whether the report can be rerendered identically,
-5. why a rerun or corrected report would produce different numbers,
-6. whether a support incident is a data issue, orchestration issue, render issue, or archive issue.
+Generated reports cannot be certified from final PDFs or rendered documents alone. A banking-grade
+reporting platform must preserve the machine-readable input state and the upstream lineage that
+explains how the report-ready payload was formed.
 
 Without explicit snapshot and lineage contracts:
 
-1. rerender cannot prove numbers stayed unchanged,
+1. rerender cannot prove that numbers stayed unchanged,
 2. regenerate cannot explain changed numbers,
-3. support teams cannot distinguish upstream-data issues from later render/archive issues,
-4. audit cannot verify source inputs and lineage,
-5. archive metadata in RFC-0103 would have weak evidence references,
-6. replay and correction tooling in RFC-0105 would be unsafe or non-certifiable.
+3. support teams cannot distinguish source-data issues from render or archive issues,
+4. audit cannot verify source inputs and supportability posture,
+5. downstream archive metadata cannot carry meaningful evidence references,
+6. later replay, rerender, and reissue controls will be forced to guess at source state instead of
+   operating on durable evidence.
+
+## Implementation Prerequisites
+
+Do not begin RFC-0101 implementation until these conditions are true:
+
+1. RFC-0100 is merged and clean in `lotus-report`, `lotus-gateway`, and `lotus-platform`,
+2. the RFC-0100 PostgreSQL-backed job ledger and operator APIs are the current truth,
+3. current wiki publication is in sync for touched repositories,
+4. no open architectural objection remains about whether snapshot storage is row-backed, object-ref
+   backed, or hybrid for the first wave.
 
 ## Target Scope
 
 In scope:
 
-1. `report_input_snapshot` durable contract and PostgreSQL storage,
-2. `report_upstream_call` append-only durable contract and PostgreSQL storage,
-3. canonical request hash, response hash, and snapshot hash semantics,
-4. supportability and completeness posture for snapshot and upstream-call records,
-5. snapshot redaction and sensitive-payload handling rules,
-6. report data contract versioning captured with the snapshot,
-7. portfolio-review first-wave adoption,
-8. `lotus-report` internal operator read APIs for snapshot and lineage retrieval,
-9. `lotus-gateway` product-safe operator read APIs for snapshot and lineage retrieval,
-10. OpenAPI/Swagger documentation and examples for every API added or changed,
-11. wiki, supported-features, and context updates only after implementation-backed behavior exists,
-12. data mesh declaration updates only where lineage evidence becomes an actual governed product.
+1. durable `report_input_snapshot` contract,
+2. durable `report_upstream_call` contract,
+3. canonical snapshot hashing and upstream request/response hashing rules,
+4. supportability, completeness, and evidence-quality fields,
+5. first-wave storage and retention posture for snapshots and lineage metadata,
+6. first-wave portfolio review adoption,
+7. support and operator read APIs for snapshot and lineage lookup,
+8. OpenAPI and error-contract certification for any RFC-0101 APIs,
+9. mesh declaration and evidence alignment where the implementation materially changes product
+   evidence posture,
+10. implementation-backed supported-features updates only after proof passes.
 
 Out of scope:
 
-1. rendering templates and rendering execution,
-2. PDF binary generation,
-3. archive binary storage,
-4. batch scheduling and batch replay,
-5. user-facing document download,
-6. legal hold and retention enforcement,
-7. changing upstream domain ownership,
-8. production replay/rerender/reissue APIs beyond the first read-only lineage foundation,
-9. introducing a new archive or object-store application.
+1. render-package structure, template registry behavior, or render job orchestration,
+2. archive/document binary storage, retrieval, legal hold, or retention semantics,
+3. replay, rerender, regenerate, reissue, supersession, or operator mutation workflows,
+4. broad upstream contract redesign,
+5. customer-facing document download surfaces,
+6. changing domain ownership away from upstream authoritative services.
 
-## Architecture Direction
+## Cross-RFC Ownership Boundaries
 
-`lotus-report` owns the durable report snapshot ledger. Upstream domain services remain
-authoritative for their own data.
+RFC-0100 still owns:
 
-RFC-0101 must make lineage durable enough to support later render, archive, replay, and audit use
-cases without forcing those later RFCs to reverse-engineer missing evidence.
-
-Canonical first-wave path:
-
-```mermaid
-flowchart LR
-    GW[lotus-gateway] --> REPORT[lotus-report]
-    REPORT --> JOB[(report_job)]
-    JOB --> SNAP[(report_input_snapshot)]
-    SNAP --> CALLS[(report_upstream_call)]
-    CALLS --> CORE[lotus-core]
-    CALLS --> PERF[lotus-performance]
-    CALLS --> RISK[lotus-risk]
-    CALLS --> ADVISE[lotus-advise]
-    CALLS --> MANAGE[lotus-manage]
-```
-
-The report job from RFC-0100 remains the parent.
-
-The snapshot becomes the immutable evidence envelope for one report-input capture. The upstream-call
-records become the append-only evidence trail for how that snapshot was assembled.
-
-### Design Principles
-
-1. prefer durable, queryable, supportable evidence over convenience payload dumps,
-2. preserve upstream domain authority instead of copying ownership into `lotus-report`,
-3. capture enough evidence to explain outcomes without leaking sensitive source payloads,
-4. make later render, archive, replay, correction, and audit RFCs consumers of this foundation
-   rather than owners of lineage logic,
-5. keep first-wave implementation operationally simple enough to prove locally, in CI, and in live
-   evidence packs.
-
-### Core Decisions
-
-1. The first-wave persistence target is PostgreSQL in `lotus-report`, not file storage and not a
-   separate archive service.
-2. The first-wave snapshot may store a redacted canonical JSON payload in PostgreSQL, plus hashes
-   and structured source references. It must not require object storage to function.
-3. Snapshot records are immutable after finalization. Corrections or regenerated inputs create a
-   new snapshot, not in-place mutation.
-4. Upstream-call lineage records are append-only.
-5. Gateway remains the product-facing boundary for operator read APIs.
-6. Public/operator APIs must expose support-safe lineage summaries and references, not raw
-   unredacted upstream payloads.
-
-### Why PostgreSQL First
-
-RFC-0100 already established PostgreSQL as the report job ledger persistence target. RFC-0101
-should extend that same operational model instead of splitting evidence across ad hoc stores before
-the archive layer exists.
-
-Benefits:
-
-1. transactional association with `report_job`,
-2. supportable indexed querying,
-3. consistent readiness and migration posture,
-4. simpler local and CI proof,
-5. no premature storage-service sprawl.
-
-Object storage may be introduced later if snapshot size or retention economics require it, but the
-first wave must be certifiable and operationally simple.
-
-## Service Boundaries And API Direction
-
-### `lotus-report`
-
-`lotus-report` owns:
-
-1. snapshot creation,
-2. upstream-call evidence capture,
-3. snapshot immutability enforcement,
-4. canonical hashing,
-5. redacted evidence payload preparation,
-6. internal operator lineage retrieval APIs.
-
-### `lotus-gateway`
-
-`lotus-gateway` owns:
-
-1. product-facing operator lineage read APIs,
-2. caller-context enforcement,
-3. product-safe response posture,
-4. error normalization,
-5. gateway-relative links and route grouping.
-
-### Upstream services
-
-`lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, and `lotus-manage` remain
-authoritative for their own domain payloads. This RFC does not move their ownership, but it does
-require `lotus-report` to capture lineage against their current governed APIs.
-
-### API Surfaces
-
-Gateway product-facing operator APIs:
-
-```text
-GET /api/v1/report-jobs/{job_id}/snapshot
-GET /api/v1/report-jobs/{job_id}/lineage
-```
-
-`lotus-report` internal APIs:
-
-```text
-GET /reports/jobs/{job_id}/snapshot
-GET /reports/jobs/{job_id}/lineage
-```
-
-This RFC does not introduce public mutation APIs for snapshots or lineage. Capture happens as part
-of the report-job orchestration path inside `lotus-report`.
-
-### Operator API Boundaries
-
-1. job submission and lifecycle commands remain governed by RFC-0100,
-2. RFC-0101 adds read-only evidence retrieval APIs only,
-3. raw unredacted payload retrieval is explicitly out of scope,
-4. any future replay, rerender, reissue, correction, or archive retrieval command surface belongs
-   to later RFCs and must consume the evidence foundation created here instead of bypassing it.
-
-## Adjacent RFC Alignment
-
-RFC-0101 sits between the job-ledger foundation and later render/archive/operations RFCs. The
-boundaries must remain explicit so implementation does not drift.
-
-### Relationship To RFC-0100
-
-RFC-0100 owns:
-
-1. gateway-first job submission,
-2. report request and job identity,
-3. report status and event history,
-4. job list/search, status, events, and cancel APIs,
-5. PostgreSQL request/job/event ledger posture.
-
-RFC-0101 extends, but does not replace, RFC-0100 by adding:
-
-1. `report_input_snapshot`,
-2. `report_upstream_call`,
-3. snapshot and lineage retrieval APIs,
-4. canonical hashing and redaction semantics,
-5. supportability and completeness evidence for sourced inputs.
-
-RFC-0101 must not redefine RFC-0100 job states, duplicate its list/search semantics, or move
-submission/status ownership away from the RFC-0100 APIs.
-
-### Relationship To RFC-0102
-
-RFC-0101 must produce the snapshot and lineage references required by render packages, but it does
-not own render execution or template governance.
+1. report job creation,
+2. idempotency,
+3. status, list, events, and cancel,
+4. the durable report request/job/event ledger.
 
 RFC-0101 owns:
 
-1. `snapshot_id`,
-2. `report_data_contract_version`,
-3. immutable or superseded snapshot semantics,
-4. source evidence references and hashes.
+1. the durable input snapshot,
+2. upstream call lineage,
+3. snapshot hashing and lineage query semantics,
+4. support-safe lookup APIs for that evidence.
 
 RFC-0102 owns:
 
-1. render package schema beyond the snapshot reference foundation,
+1. render package composition,
 2. template registry,
-3. render diagnostics and render attempts,
-4. render service behavior and determinism proof.
+3. render diagnostics and render determinism proof.
 
-RFC-0101 may reference future render-package needs, but must not introduce `render_job`,
-template-registry, or Typst runtime behavior.
+RFC-0103 owns:
 
-### Relationship To RFC-0103
+1. archived document identity,
+2. retrieval,
+3. retention,
+4. legal hold,
+5. archive metadata and document lifecycle.
 
-RFC-0101 must make archive lineage possible, but it does not own document metadata, object storage,
-retention, legal hold, purge, retrieval, reissue, or supersession graph at the document level.
+RFC-0105 owns:
 
-RFC-0101 may include snapshot supersession semantics only for corrected or regenerated input
-evidence. Document supersession remains RFC-0103 scope.
+1. replay,
+2. rerender,
+3. regenerate,
+4. reissue,
+5. operator mutation controls.
 
-### Relationship To RFC-0105
+RFC-0101 may produce the evidence those RFCs depend on, but it must not implement their behavior.
 
-RFC-0101 creates the durable evidence foundation that RFC-0105 will use for:
+## Architecture Direction
 
-1. rerender,
-2. regenerate,
-3. replay,
-4. deep operator diagnostics,
-5. stuck-job and SLA investigation.
+`lotus-report` owns the snapshot and lineage ledger. Upstream services remain authoritative for
+their domain data and contracts. Snapshot lineage must capture enough durable evidence to explain
+how a report-ready payload was derived without requiring later forensic reconstruction from logs.
 
-RFC-0101 must not introduce those mutation or replay commands. It owns only the durable evidence
-that makes them certifiable later.
+Canonical relationship:
 
-### Relationship To Workbench
+```mermaid
+flowchart LR
+    JOB[report_job]
+    SNAP[report_input_snapshot]
+    CALL[report_upstream_call]
+    HASH[snapshot_hash and call hashes]
+    REFS[snapshot_storage_ref and response refs]
+    CORE[lotus-core]
+    PERF[lotus-performance]
+    RISK[lotus-risk]
+    ADV[lotus-advise]
+    MANAGE[lotus-manage]
 
-Workbench remains outside RFC-0101 implementation scope unless a later product surface needs
-gateway-mediated snapshot or lineage diagnostics. No direct Workbench call to `lotus-report`
-snapshot or lineage APIs is allowed.
+    JOB --> SNAP
+    SNAP --> CALL
+    SNAP --> HASH
+    SNAP --> REFS
+    CALL --> CORE
+    CALL --> PERF
+    CALL --> RISK
+    CALL --> ADV
+    CALL --> MANAGE
+```
 
-## Platform Governance And Mesh Requirements
+Design rules:
 
-1. Snapshot and upstream-call evidence must preserve domain-authority boundaries from RFC-0050.
-2. Any report evidence product declaration must follow RFC-0084 source ownership and consumer
-   declaration rules.
-3. Any promoted reporting evidence product must satisfy RFC-0091 telemetry, SLO, access, lifecycle,
-   and evidence-pack requirements.
-4. Snapshot evidence must clearly distinguish `ready`, `partial`, `unavailable`, and
-   `not_supported` posture.
-5. Sensitive source payloads must be redacted before logs, public artifacts, operator APIs, wiki
-   examples, or live evidence are published.
-6. Job and snapshot APIs must follow RFC-0026 async command/status/result semantics where
-   applicable and must stay consistent with RFC-0100 route grouping and certification posture.
-7. Swagger/OpenAPI examples must use product names and must not leak RFC names.
-8. Every endpoint added or changed by this RFC must explain what it does, when to call it, and how
-   it should be used safely.
-9. Every public request and response attribute must carry type, description, and example coverage
-   in OpenAPI.
+1. one report job may have zero or one first-wave durable input snapshot,
+2. one snapshot may reference many upstream calls,
+3. the snapshot must be immutable once marked captured,
+4. lineage rows must be append-only from the application contract perspective,
+5. supportability posture must be explicit on both the snapshot and each upstream call,
+6. the snapshot contract must remain queryable without exposing sensitive raw upstream payloads by
+   default.
+
+## Persistence Direction
+
+The first-wave persistence target is PostgreSQL in `lotus-report`, colocated with the RFC-0100 job
+ledger but kept as clearly separate tables and modules.
+
+Required persistence posture:
+
+1. migrations create the snapshot and upstream-call tables with primary keys, foreign keys, check
+   constraints, and indexes,
+2. snapshot immutability is enforced through service behavior and validated through tests,
+3. canonical JSON serialization is used before hashing,
+4. request and response hash fields are deterministic and stable across retries,
+5. large or sensitive raw payloads may be stored by redacted object reference rather than inline
+   row storage when needed,
+6. readiness must fail when the lineage schema is not ready,
+7. support queries must be indexed by report job, snapshot id, service name, supportability status,
+   and creation time.
+
+Minimum indexes and constraints:
+
+1. primary key on `report_input_snapshot.snapshot_id`,
+2. unique foreign-key relationship from `report_input_snapshot.report_job_id` to `report_job` for
+   first-wave single-snapshot posture,
+3. index on `report_input_snapshot.created_at`,
+4. index on `report_input_snapshot.supportability_status`,
+5. index on `report_input_snapshot.report_type` and `created_at`,
+6. primary key on `report_upstream_call.upstream_call_id`,
+7. index on `report_upstream_call.snapshot_id`,
+8. index on `report_upstream_call.service_name` and `endpoint`,
+9. index on `report_upstream_call.supportability_status`,
+10. index on `report_upstream_call.created_at`,
+11. check constraints for snapshot and upstream-call supportability vocabulary,
+12. check constraints for failure-category vocabulary where present.
 
 ## Data Model Direction
 
@@ -330,24 +235,19 @@ Minimum fields:
 
 1. `snapshot_id`,
 2. `report_job_id`,
-3. `report_request_id`,
-4. `report_type`,
-5. `report_data_contract_version`,
-6. `portfolio_scope_json`,
-7. `as_of_date`,
-8. `reporting_currency`,
-9. `requested_output_formats_json`,
-10. `snapshot_status`,
-11. `supportability_status`,
-12. `completeness_status`,
-13. `snapshot_hash`,
-14. `canonical_snapshot_json`,
-15. `snapshot_storage_ref`,
-16. `source_ref_ids_json`,
-17. `redaction_policy_version`,
-18. `created_at`,
-19. `finalized_at`,
-20. `superseded_by_snapshot_id`.
+3. `report_type`,
+4. `report_data_contract_version`,
+5. `portfolio_scope`,
+6. `as_of_date`,
+7. `snapshot_hash`,
+8. `snapshot_storage_ref`,
+9. `supportability_status`,
+10. `completeness_status`,
+11. `captured_at`,
+12. `created_at`,
+13. `correlation_id`,
+14. `trace_id`,
+15. `lineage_summary`.
 
 ### `report_upstream_call`
 
@@ -361,531 +261,345 @@ Minimum fields:
 6. `contract_version`,
 7. `request_hash`,
 8. `response_hash`,
-9. `request_ref`,
-10. `response_ref`,
-11. `status_code`,
-12. `latency_ms`,
-13. `correlation_id`,
-14. `trace_id`,
-15. `supportability_status`,
-16. `completeness_status`,
-17. `failure_category`,
-18. `failure_message`,
-19. `captured_at`.
-
-The first wave must keep these records support-safe and queryable. It must not require raw request
-or raw response payload storage when hash-plus-reference or redacted inline-safe posture is the
-correct classified treatment.
+9. `response_ref`,
+10. `status_code`,
+11. `latency_ms`,
+12. `supportability_status`,
+13. `completeness_status`,
+14. `failure_category`,
+15. `failure_message`,
+16. `correlation_id`,
+17. `trace_id`,
+18. `captured_at`.
 
 ### Vocabulary Direction
 
-`snapshot_status` first wave:
-
-1. `collecting`,
-2. `finalized`,
-3. `failed`.
-
-`supportability_status` first wave:
-
-1. `ready`,
-2. `partial`,
-3. `unavailable`,
-4. `not_supported`.
-
-`completeness_status` first wave:
+Supportability and completeness values must be governed and stable. First-wave values should cover:
 
 1. `complete`,
 2. `partial`,
-3. `empty`,
-4. `not_applicable`.
+3. `unavailable`,
+4. `not_supported`,
+5. `redacted`,
+6. `error`.
 
-These vocabularies must be enforced in code, OpenAPI, and database constraints.
+If a later implementation wants finer states, it must first update the platform vocabulary or the
+repo-local contract and OpenAPI examples together.
 
-## Snapshot, Hashing, And Redaction Rules
+## API Direction
 
-### Canonical Hashing
+RFC-0101 must explicitly certify any new operational APIs it introduces. The first-wave expectation
+is support-safe read APIs in `lotus-report`, with gateway publication only if a product-facing or
+operator-facing caller truly needs that boundary in the same RFC.
 
-RFC-0101 must define deterministic canonical JSON hashing for:
+Minimum API surface expected for this RFC:
 
-1. the finalized report snapshot payload,
-2. upstream request payloads where present,
-3. upstream response payloads where present.
+1. `GET /reports/jobs/{job_id}/snapshot`
+2. `GET /reports/jobs/{job_id}/lineage`
+3. `GET /reports/snapshots/{snapshot_id}`
 
-Hashing rules:
+If gateway exposes corresponding routes, it must keep the grouping and caller-context rules aligned
+with RFC-0100 instead of inventing a different operational posture.
 
-1. sorted keys,
-2. deterministic separators,
-3. normalized dates/timestamps,
-4. canonical handling for nulls and omitted fields,
-5. explicit tests with golden vectors.
+Every RFC-0101 API must be certified with:
 
-### Redaction
+1. correct group/tag placement,
+2. explicit what/when/how guidance,
+3. full request and response examples where applicable,
+4. full error examples,
+5. type, description, and example for every attribute,
+6. support-safe redaction rules,
+7. caller-context and entitlement rules documented explicitly.
 
-The first wave must distinguish:
-
-1. payload stored inline and safe,
-2. payload stored only as hash plus supportability metadata because it is sensitive,
-3. payload unavailable because upstream did not return it,
-4. payload unsupported because the feature is not sourced.
-
-The redaction policy must be explicit and versioned via `redaction_policy_version`.
-
-The first wave must not expose:
-
-1. raw secrets,
-2. raw authentication headers,
-3. raw upstream host topology beyond governed service names,
-4. raw PII fields not already approved for support surfaces.
-
-## Persistence Direction
-
-RFC-0101 extends the RFC-0100 PostgreSQL ledger with new tables, foreign keys, and indexes.
-
-Required posture:
-
-1. `report_input_snapshot.report_job_id` references `report_job.report_job_id`,
-2. `report_upstream_call.snapshot_id` references `report_input_snapshot.snapshot_id`,
-3. snapshots are immutable after finalization from the application-contract perspective,
-4. upstream-call records are append-only,
-5. readiness fails if snapshot/lineage schema is missing after migration,
-6. indexing supports support lookups by job, snapshot, service, supportability status, and time.
-
-Minimum indexes:
-
-1. unique `report_input_snapshot.snapshot_id`,
-2. unique partial constraint ensuring one active finalized snapshot per `report_job_id` in the
-   first wave,
-3. index on `report_input_snapshot.report_job_id`,
-4. index on `report_input_snapshot.created_at`,
-5. index on `report_input_snapshot.snapshot_status`,
-6. index on `report_input_snapshot.supportability_status`,
-7. index on `report_upstream_call.snapshot_id`,
-8. index on `report_upstream_call.service_name` and `captured_at`,
-9. index on `report_upstream_call.supportability_status`,
-10. index on `report_upstream_call.failure_category`.
-
-### Operational Database Posture
-
-The first wave must be supportable as a production ledger, not just as a development store.
-
-Required posture:
-
-1. migrations are forward-only and repeatable,
-2. DDL and migration smoke prove clean bootstrap on PostgreSQL,
-3. indexes are intentionally chosen for operator lookup paths, not added opportunistically,
-4. housekeeping is limited to non-destructive operational maintenance in this RFC; retention and
-   purge policy remain for RFC-0103,
-5. any partitioning decision must preserve global job-to-snapshot lookup and idempotent support
-   semantics and therefore is not assumed by this RFC,
-6. readiness and diagnostics must fail loudly when schema drift or required index drift is present.
-
-## Sequencing And Dependency Rules
-
-This RFC must be implemented in order. A later slice must not begin until the current slice is
-implemented, validated, and reviewed.
-
-Mandatory sequencing:
-
-1. Cleanup And Structure
-2. Snapshot Contract And Storage Foundation
-3. Upstream Call Lineage Capture
-4. Operator Read APIs
-5. Portfolio-Review First-Wave Adoption
-6. Mesh And Governance Alignment
-7. Implementation Proof
-8. Second-Last Hardening, Review, And Certification
-9. Final Closure
-
-Rules:
-
-1. slice acceptance criteria are gating, not descriptive,
-2. proof and hardening slices are mandatory delivery work, not optional polish,
-3. any discovered cross-repository prerequisite must be resolved in the owning repository before
-   dependent slices can be called complete,
-4. if a slice exposes a missing upstream prerequisite, the RFC implementation must either close the
-   gap or record a governed, explicit dependency with owner, impact, and blocked acceptance
-   criterion,
-5. no later RFC work may be smuggled into this RFC under the label of "future-proofing".
-
-## Implementation Slices
-
-### Slice 0: Cleanup And Structure
-
-1. Review current `lotus-report` lineage, evidence, coverage, and report-data docs, code, tests,
-   and wiki.
-2. Remove dead code and stale lineage/evidence helpers made obsolete by the RFC-0101 direction.
-3. Improve repository structure where needed so snapshot and upstream-call evidence ownership is
-   clear.
-4. Improve document structure and reduce sprawl by converting duplicate long-lived docs into links.
-5. Move durable operator lineage truth to repo-local `wiki/` source where it belongs.
-6. Avoid duplicate documentation across repo docs and wiki.
-7. Ensure the wiki is published, usable, and reflects the true post-RFC state of the application.
-
-Acceptance criteria:
-
-1. snapshot and lineage ownership boundaries are clear in code and docs,
-2. stale or duplicate lineage material is removed or linked,
-3. no unrelated cleanup is bundled into this slice,
-4. wiki source is either updated and publishable or an explicit no-wiki-change decision is
-   recorded.
-
-### Slice 1: Snapshot Contract And Storage Foundation
-
-1. Add PostgreSQL-backed `report_input_snapshot` schema, migrations, models, and repository logic.
-2. Define snapshot finalization, immutability, and supersession semantics.
-3. Add canonical snapshot hashing and redaction policy versioning.
-4. Add readiness checks and migration smoke for the snapshot table.
-5. Add unit and integration tests for creation, immutability, supersession posture, and hash
-   determinism.
-
-Acceptance criteria:
-
-1. snapshots persist durably in PostgreSQL,
-2. finalized snapshots are immutable through application contracts,
-3. snapshot hashes are deterministic and covered by tests,
-4. readiness fails when snapshot schema is unavailable,
-5. snapshot semantics are clearly separated from RFC-0103 document semantics.
-
-### Slice 2: Upstream Call Lineage Capture
-
-1. Add PostgreSQL-backed `report_upstream_call` schema, migrations, models, and repository logic.
-2. Capture upstream service name, endpoint, method, contract version, request hash, response hash,
-   response posture, latency, trace, and supportability semantics for portfolio-review assembly.
-3. Add append-only write rules.
-4. Add tests for success, partial, unavailable, timeout, and not-supported upstream responses.
-
-Acceptance criteria:
-
-1. every finalized first-wave snapshot carries queryable upstream-call lineage,
-2. upstream-call rows are append-only,
-3. response posture is explicit for sourced, partial, unavailable, and not-supported inputs,
-4. hashes and status metadata are stored without leaking unsafe payloads,
-5. lineage capture extends RFC-0100 rather than duplicating request/job/event ownership.
-
-### Slice 3: Operator Read APIs
-
-1. Add `lotus-report` internal read APIs for job snapshot and lineage retrieval.
-2. Add `lotus-gateway` product-safe operator read APIs for job snapshot and lineage retrieval.
-3. Group APIs correctly under `Report Jobs` and ensure they are clearly distinguished from report
-   generation commands.
-4. Ensure Swagger is complete and high quality:
-   - grouped correctly,
-   - clear what/when/how guidance for each endpoint,
-   - full request and response examples,
-   - every attribute has description, type, and example value,
-   - complete error contracts and examples.
-5. Add tests for success, unknown job, missing caller context, and product-safe error handling.
-
-Acceptance criteria:
-
-1. both internal and gateway operator read surfaces are implemented,
-2. all APIs are properly certified,
-3. Swagger is complete and operator-usable,
-4. no RFC names leak into public API text,
-5. error handling is complete, correct, and properly tested,
-6. RFC-0101 APIs are clearly additive to RFC-0100 job APIs rather than overlapping with them.
-
-### Slice 4: Portfolio-Review First-Wave Adoption
-
-1. Wire portfolio-review job completion so the report-input snapshot and upstream-call lineage are
-   created as part of the first-wave reporting flow.
-2. Ensure snapshot creation is mandatory for the supported first-wave path rather than optional best
-   effort.
-3. Record supportability and completeness posture in the snapshot from actual upstream outcomes.
-4. Update `lotus-report` supported-features only after the behavior is implemented and validated.
-
-Acceptance criteria:
-
-1. first-wave portfolio review jobs create a durable finalized snapshot when successful,
-2. partial and unavailable upstream states are reflected truthfully in lineage,
-3. supported-features wording is implementation-backed, not aspirational,
-4. first-wave adoption proves RFC-0101 behavior without prematurely introducing RFC-0102 render or
-   RFC-0103 archive semantics.
-
-### Slice 5: Mesh And Governance Alignment
-
-1. Update report evidence product declarations only if the lineage surfaces now qualify as governed
-   products.
-2. Validate producer and consumer declarations where updated.
-3. Ensure data mesh certification does not treat placeholder lineage as certified evidence.
-
-Acceptance criteria:
-
-1. mesh declarations are updated only when implementation-backed,
-2. governance artifacts and runtime truth do not drift,
-3. any no-change decision is explicit and justified.
-
-### Implementation Proof Slice
-
-1. Prove the implementation end to end against this RFC.
-2. Capture evidence from the live application, including:
-   - gateway request and response for job snapshot retrieval,
-   - gateway request and response for job lineage retrieval,
-   - internal `lotus-report` request and response where useful,
-   - PostgreSQL rows for `report_input_snapshot` and `report_upstream_call`,
-   - logs proving trace and correlation continuity,
-   - evidence showing partial/unavailable or redacted posture where applicable.
-3. Verify that evidence critically, not superficially.
-4. Identify gaps, inconsistencies, and loose ends.
-5. Iterate until the implementation is genuinely gold standard.
-
-Minimum evidence pack contents:
-
-1. gateway submit request and response for a first-wave portfolio-review job,
-2. gateway snapshot retrieval request and response,
-3. gateway lineage retrieval request and response,
-4. internal `lotus-report` retrieval request and response where useful for diagnosis,
-5. PostgreSQL query output for the created `report_job`, `report_input_snapshot`, and
-   `report_upstream_call` rows,
-6. log excerpts proving correlation and trace continuity,
-7. evidence for at least one redacted field posture or hash-only payload posture,
-8. evidence for at least one non-perfect upstream posture such as `partial`, `unavailable`, or
-   `not_supported`, if the supported first-wave scenario can reproduce it truthfully,
-9. a written audit of the evidence explaining what is proven, what remains out of scope, and what
-   future RFCs still own.
-10. explicit confirmation that RFC-0100 job APIs still own submit/status/list/events/cancel and
-    that RFC-0102, RFC-0103, and RFC-0105 capabilities have not been implicitly implemented.
-
-Acceptance criteria:
-
-1. live evidence proves snapshot and lineage creation and retrieval end to end,
-2. evidence review explicitly calls out what is proven and what is not,
-3. any gaps found are fixed or deliberately deferred with rationale,
-4. proof artifacts are stored in a governed output location and referenced truthfully.
-
-### Second-Last Slice: Hardening, Review, And Certification
-
-1. Perform a proper code review of the full implementation.
-2. Tighten loose ends.
-3. Verify API certification pattern compliance.
-4. Verify platform governance and enterprise data mesh standards are met.
-5. Ensure all APIs are properly certified.
-6. Ensure Swagger is complete and high quality:
-   - grouped correctly,
-   - clear what/when/how guidance for each endpoint,
-   - full request and response examples,
-   - every attribute has description, type, and example value.
-7. Ensure error handling is complete, correct, and properly tested.
-8. Verify sensitive payload handling, redaction, hashing, and immutability semantics.
-9. Make final quality improvements before closure.
-
-Mandatory review lenses:
-
-1. architectural simplicity and module boundaries,
-2. database correctness, index quality, and operational query posture,
-3. API certification and OpenAPI completeness,
-4. sensitive-data handling and log safety,
-5. failure-mode correctness and error-contract fidelity,
-6. dead code, duplicate logic, and stale compatibility handling,
-7. test depth and realism,
-8. mesh-governance and platform-governance compliance.
-
-Acceptance criteria:
-
-1. review findings are fixed or explicitly deferred with rationale,
-2. API certification evidence is current and specific,
-3. governance and mesh checks are green or governed as explicit deviations,
-4. implementation is ready for final documentation and closure,
-5. ownership boundaries with RFC-0100, RFC-0102, RFC-0103, and RFC-0105 remain explicit in code,
-   docs, and Swagger.
-
-### Final Closure Slice
-
-1. Documentation updates.
-2. Agent context updates.
-3. Wiki updates.
-4. Supported-features updates.
-5. Branch hygiene and cleanup.
-6. Consciously review whether skills, guidance, documentation, or agent context should be improved
-   to support better future work, faster ramp-up, and stronger agent effectiveness.
-7. Identify what should be added, removed, tightened, or clarified.
-8. If no changes are needed, state that explicitly as a deliberate outcome.
-
-Acceptance criteria:
-
-1. docs, wiki, context, and supported-features material match implementation truth,
-2. wiki source has been checked before merge and published after merge if changed,
-3. branch is clean and PR evidence is truthful,
-4. future guidance and skill improvements are explicitly recorded, even if the outcome is
-   deliberate no change.
-
-## Branching And Delivery
+## Branching And Delivery Expectations
 
 Implementation must happen on a dedicated remote feature branch unless an active RFC-0101 branch
-already exists. If an active RFC-0101 branch exists, continue on it.
+already exists. If an active RFC-0101 branch already exists, continue on it.
 
 Required branch discipline:
 
-1. keep `lotus-report`, `lotus-gateway`, and any upstream adoption changes on separate repository
-   branches unless a repository already has an active RFC-0101 branch,
+1. keep one RFC-0101 branch per repository,
 2. commit each completed and validated slice separately,
 3. push after each validated slice so GitHub checks can run asynchronously,
 4. monitor PR checks regularly and fix failures promptly,
-5. do not start RFC-0102 or later work on the RFC-0101 branches,
-6. keep untracked local output and evidence files out of commits unless the RFC explicitly requires
-   them as source artifacts,
-7. keep PR descriptions aligned with the slices actually delivered.
+5. keep RFC-0101 changes out of RFC-0102, RFC-0103, and RFC-0105 branches,
+6. keep untracked evidence files out of commits unless they are repo-owned source truth,
+7. maintain truthful PR descriptions and evidence sections.
 
-Execution expectations:
+## Platform Governance And Enterprise Mesh Requirements
 
-1. use GitHub effectively so checks can run asynchronously while implementation continues,
-2. monitor pipelines at regular intervals,
-3. fix failures promptly and on the owning branch,
-4. keep moving forward without losing control of quality,
-5. do not allow CI health or branch quality to drift,
-6. keep evidence truthful; do not claim a slice is complete before its acceptance criteria and
-   proof are actually satisfied.
+1. Snapshot and lineage must preserve upstream domain authority boundaries from RFC-0050.
+2. Any report evidence product declaration must follow RFC-0084 source ownership and consumer
+   declaration rules.
+3. Any promoted reporting evidence product must satisfy RFC-0091 enterprise mesh telemetry, SLO,
+   access, lifecycle, and evidence-pack requirements.
+4. Sensitive source payloads must be classified and redacted before logs, public artifacts, or wiki
+   material reference them.
+5. Snapshot evidence must clearly distinguish source-backed, partial, unavailable, and
+   not-supported data.
+6. Any new APIs must follow the RFC-0067 and current Lotus OpenAPI certification posture.
 
-## Slice-to-Repository Responsibility
+## Delivery Sequence
 
-| Slice | Primary repositories | Notes |
-| --- | --- | --- |
-| Cleanup And Structure | `lotus-report`, `lotus-gateway`, `lotus-platform` | Only repositories materially changed by the slice should be touched |
-| Snapshot Contract And Storage Foundation | `lotus-report` | PostgreSQL schema, migrations, hashing, redaction, readiness |
-| Upstream Call Lineage Capture | `lotus-report` | May require coordination with upstream owners for contract version truth |
-| Operator Read APIs | `lotus-report`, `lotus-gateway` | Gateway is the product-facing boundary |
-| Portfolio-Review First-Wave Adoption | `lotus-report` | Upstream repos change only if contract corrections are truly required |
-| Mesh And Governance Alignment | `lotus-platform`, `lotus-report`, `lotus-gateway` | Only if lineage surfaces become implementation-backed governed products |
-| Implementation Proof | changed repositories plus local runtime dependencies | Evidence must be end to end |
-| Hardening And Review | all changed repositories | Review is cross-repository if the slice crossed repositories |
-| Final Closure | all changed repositories | Docs, wiki, supported-features, context, branch hygiene |
+Do not move to the next slice until the current slice is implemented, validated, and in a solid
+state.
 
-## Prerequisites For Implementation Start
+### Slice 0: Cleanup And Structure
 
-RFC-0101 implementation should not begin until:
+Required outcomes:
 
-1. RFC-0100 branch posture is sufficiently stable that request/job/event ownership is not still in
-   flux,
-2. the owning repositories agree that PostgreSQL remains the ledger and snapshot persistence target,
-3. there is explicit agreement that RFC-0101 will not introduce render, archive, replay, or
-   document-retrieval semantics,
-4. the implementation plan names the exact repositories and modules in scope for each slice,
-5. the required live evidence path is understood before coding begins.
+1. remove dead snapshot/lineage stubs, placeholder models, or obsolete doc fragments,
+2. improve repository structure where snapshot and lineage modules would otherwise sprawl,
+3. improve document structure and reduce duplicate lineage explanations,
+4. move long-lived operator material to repo wiki where appropriate,
+5. avoid duplicate documentation across repo and wiki,
+6. ensure the wiki publication target is usable and reflects the post-RFC truth,
+7. record an explicit no-wiki-change decision if wiki truth does not change.
 
-## Acceptance Criteria
+Acceptance criteria:
 
-1. Report-input snapshots are durable and immutable after finalization.
-2. Upstream-call lineage is queryable by report job and snapshot.
-3. Snapshot hashes make rerender and reproduce workflows auditable.
-4. Partial, unavailable, and not-supported upstream data is explicitly represented.
-5. Sensitive payloads are not leaked in logs, wiki examples, Swagger examples, or public evidence.
-6. Portfolio review uses the snapshot and lineage contract for first-wave proof.
-7. Gateway-first operator read APIs exist for snapshot and lineage diagnostics.
-8. All APIs introduced or changed by this RFC are properly certified.
-9. Swagger is grouped correctly and fully documented with type, description, and example coverage.
-10. Supported-features material reflects only implementation-backed behavior.
+1. module boundaries are clear,
+2. document ownership is clear,
+3. there is no duplicate authoritative explanation of snapshot behavior,
+4. repo structure is cleaner than before the slice.
+
+### Slice 1: Snapshot Contract And Storage
+
+Required outcomes:
+
+1. add snapshot models, persistence, and migration,
+2. define canonical JSON serialization and snapshot hashing rules,
+3. define storage-ref posture for large or sensitive payloads,
+4. ensure snapshot immutability after capture,
+5. add unit, migration, and integration tests for snapshot creation and lookup.
+
+Acceptance criteria:
+
+1. snapshots are durable,
+2. hashes are deterministic,
+3. first-wave storage posture is explicit,
+4. schema and indexes are proven against PostgreSQL.
+
+### Slice 2: Upstream Call Lineage
+
+Required outcomes:
+
+1. capture upstream call evidence for first-wave portfolio review generation,
+2. record request hash, response hash or response ref, status code, latency, and supportability
+   posture,
+3. distinguish complete, partial, unavailable, unsupported, redacted, and failed inputs,
+4. add tests for success, partial, failed, timeout, and unsupported upstream responses.
+
+Acceptance criteria:
+
+1. every first-wave upstream input path is represented in lineage,
+2. supportability posture is explicit,
+3. no required lineage field is inferred from logs alone,
+4. redaction behavior is tested.
+
+### Slice 3: Snapshot And Lineage Query APIs
+
+Required outcomes:
+
+1. add the RFC-0101 support-safe read APIs,
+2. document caller-context rules explicitly,
+3. certify OpenAPI and error contracts,
+4. ensure Swagger is complete and grouped correctly.
+
+Acceptance criteria:
+
+1. API grouping is correct,
+2. every attribute has description, type, and example,
+3. every endpoint has clear what/when/how guidance,
+4. success and error examples are complete,
+5. negative-path tests cover not-found, unsupported, unavailable, and redacted cases.
+
+### Slice 4: Data Mesh And Evidence Alignment
+
+Required outcomes:
+
+1. update report evidence declarations if and only if implementation-backed product truth changed,
+2. validate producer/consumer declarations where applicable,
+3. ensure certification does not treat placeholders as evidence truth,
+4. define how snapshot lineage participates in evidence-pack posture without leaking sensitive
+   source data.
+
+Acceptance criteria:
+
+1. mesh declarations are truthful,
+2. no placeholder evidence is promoted,
+3. evidence posture is aligned with RFC-0091 standards.
+
+### Slice 5: Implementation Proof
+
+Required outcomes:
+
+1. prove the implementation end to end against the RFC,
+2. capture evidence from the live application,
+3. verify that evidence critically, not superficially,
+4. identify gaps, inconsistencies, and loose ends,
+5. iterate until the implementation is genuinely gold standard.
+
+Required clean evidence pack contents:
+
+1. full request payloads and full responses,
+2. snapshot and upstream-call API responses,
+3. PostgreSQL row extracts for snapshot and lineage tables,
+4. index and constraint extracts,
+5. runtime logs from gateway and report processes where applicable,
+6. a short audit summary explaining what was proven and what was intentionally not in scope.
+
+Rules learned from RFC-0100 that are mandatory here:
+
+1. keep clean proof runs separate from diagnostic runs,
+2. do not mix harness failures into the final evidence pack,
+3. prove exact caller-context requirements with truthful request headers,
+4. if a filter/list API is in scope, prove it with exact filters that isolate the intended row set.
+
+Acceptance criteria:
+
+1. the final evidence directory contains one clean proof run,
+2. it proves both positive and negative behaviors,
+3. DB state and API responses agree,
+4. no unexplained drift remains between claimed and observed behavior.
+
+### Second-Last Slice: Hardening, Review, And Certification
+
+Required outcomes:
+
+1. perform a proper code review of the full implementation,
+2. tighten loose ends,
+3. verify API certification pattern compliance,
+4. verify platform governance and enterprise data mesh standards are met,
+5. ensure all APIs are properly certified,
+6. ensure Swagger is complete and high quality,
+7. ensure error handling is complete, correct, and properly tested,
+8. make final quality improvements before closure.
+
+Specific review lenses:
+
+1. canonical serialization consistency,
+2. redaction correctness,
+3. sensitive-data leakage prevention,
+4. hash stability,
+5. failure-category consistency,
+6. storage growth and housekeeping posture,
+7. support query performance,
+8. domain-authority boundary correctness.
+
+Acceptance criteria:
+
+1. no known significant loose end remains,
+2. OpenAPI quality gates pass,
+3. governance and mesh validators pass where applicable,
+4. code review findings are resolved or explicitly deferred with rationale.
+
+### Final Slice: Closure
+
+Required outcomes:
+
+1. documentation updates,
+2. agent context updates,
+3. wiki updates,
+4. supported-features updates,
+5. branch hygiene and cleanup.
+
+Additional required closure review:
+
+1. review whether skills, guidance, documentation, or agent context should be improved to support
+   better future work, faster ramp-up, and stronger agent effectiveness,
+2. identify what should be added, removed, tightened, or clarified,
+3. if no change is needed, state that explicitly as a deliberate outcome.
+
+Acceptance criteria:
+
+1. all implementation-bearing PRs are merged,
+2. CI is green,
+3. repo wiki publication is complete where required,
+4. local and remote branch hygiene is complete,
+5. supported-features material reflects only implemented behavior.
+
+## Evidence Expectations
+
+The implementation is not complete until live evidence proves:
+
+1. snapshot creation on report generation,
+2. durable linkage from job to snapshot,
+3. durable linkage from snapshot to upstream calls,
+4. complete and partial input posture,
+5. support-safe query APIs,
+6. deterministic hashes,
+7. redaction behavior,
+8. negative-path error handling.
+
+Minimum proof scenarios:
+
+1. complete upstream success,
+2. partial upstream success,
+3. unavailable upstream dependency,
+4. unsupported upstream input,
+5. snapshot lookup by job,
+6. lineage lookup by snapshot or job,
+7. redacted evidence path,
+8. not-found API behavior.
 
 ## Risks
 
 | Risk | Mitigation |
 | --- | --- |
-| Snapshot stores too much sensitive data | Use redaction, classification, inline-safe payload rules, and hash-only posture where needed |
-| Snapshot storage becomes fragmented too early | Keep first-wave storage in PostgreSQL and defer external object-store complexity |
-| Hashes are inconsistent across environments | Define canonical serialization and test golden vectors |
-| Lineage becomes optional or best effort | Make snapshot creation part of the supported report-job lifecycle |
-| Upstream services lack source refs | Capture request/response hashes and explicit unavailable posture first, then improve refs in later RFCs |
-| Operator APIs leak too much detail | Keep gateway responses support-safe and certify every field |
-| Mesh declarations get ahead of implementation | Update declarations only when lineage surfaces are actually delivered |
-| RFC-0102 or RFC-0103 are blocked by ambiguity | Define snapshot ownership, immutability, supersession, and retrieval semantics now |
+| Snapshot storage captures too much sensitive data | classify fields, prefer hashes and refs, test redaction, review logs and OpenAPI examples |
+| Hashes are inconsistent across retries or environments | define canonical serialization and add golden-vector tests |
+| Lineage becomes optional in success-only code paths | make snapshot and lineage capture part of the durable report workflow contract |
+| Support APIs expose raw internals or sensitive payloads | create support-safe response models and explicit redaction behavior |
+| Mesh declarations outrun implementation | update declarations only when implementation-backed product truth exists |
+| RFC scope drifts into render or archive concerns | keep the RFC-0102, RFC-0103, and RFC-0105 boundaries explicit in code and docs |
 
-## Validation
+## Validation Expectations
 
 Required validation:
 
 1. `lotus-report` repo-native lint, typecheck, unit, integration, migration, OpenAPI, and coverage
-   gates.
-2. `lotus-gateway` repo-native lint, typecheck, contract, integration, and OpenAPI gates.
-3. Data mesh validation if declarations change.
-4. Security review of snapshot storage, redaction, and logging posture.
-5. Live end-to-end validation proving:
-   - job creation through gateway,
-   - snapshot creation in `lotus-report`,
-   - lineage capture for upstream calls,
-   - snapshot retrieval through gateway,
-   - lineage retrieval through gateway,
-   - PostgreSQL evidence rows,
-   - trace and correlation continuity.
-6. GitHub PR checks monitored after each pushed slice.
+   gates,
+2. gateway validation if RFC-0101 introduces or changes gateway-facing APIs,
+3. PostgreSQL-backed migration and runtime proof,
+4. security review of snapshot storage, redaction, and logging,
+5. mesh validation if product declarations change,
+6. live evidence review against the final accepted scope.
 
-OpenAPI and API certification validation is mandatory for every changed endpoint:
+Execution expectations:
 
-1. endpoints are grouped correctly,
-2. each endpoint explains what it does, when it should be called, and how it should be used,
-3. every request and response model field has type, description, and example coverage,
-4. full request and response examples exist for success and relevant error cases,
-5. error handling is fully described, normalized, and tested,
-6. RFC names and internal design shorthand do not leak into public API descriptions.
+1. use GitHub effectively so checks can run asynchronously while work continues,
+2. monitor pipelines at regular intervals,
+3. fix failures promptly,
+4. keep moving forward without losing control of quality,
+5. do not allow CI health or branch quality to drift.
 
-Cross-RFC validation is also required:
+## Supported Features Discipline
 
-1. RFC-0101 examples and vocabulary remain compatible with RFC-0100 job terminology,
-2. snapshot fields required by RFC-0102 render packages are available or explicitly deferred,
-3. snapshot and lineage references needed by RFC-0103 archive metadata are available or explicitly
-   deferred,
-4. replay, rerender, and regenerate semantics are not accidentally implemented under RFC-0101
-   despite being reserved for RFC-0105.
+No supported feature is added until snapshot and lineage behavior is implemented, validated, and
+merged.
 
-## Supported Features
+When implementation is complete, supported-features material should reflect only implementation-
+backed entries such as:
 
-This RFC starts with no implementation-backed supported features.
+1. durable report input snapshot capture,
+2. durable upstream call lineage capture,
+3. support-safe snapshot lookup,
+4. support-safe lineage lookup,
+5. explicit supportability and completeness posture.
 
-Add supported-features entries only after snapshot and lineage behavior is implemented, validated,
-and reflected truthfully in repository product material.
+Those entries must be added only in the final closure slice after proof is complete.
 
-When implemented, supported-features material may mention only:
+## Acceptance Criteria
 
-1. durable report-input snapshots,
-2. append-only upstream-call lineage records,
-3. gateway-first snapshot retrieval,
-4. gateway-first lineage retrieval,
-5. canonical snapshot and response hashing,
-6. explicit supportability and completeness posture for first-wave portfolio review lineage.
+RFC-0101 is complete only when all of the following are true:
 
-It must not claim:
-
-1. PDF rendering,
-2. archive download,
-3. legal hold,
-4. batch replay,
-5. correction or reissue tooling,
-6. production certification beyond the actual implemented scope.
-
-## Evidence Expectations
-
-The implementation is not complete because tests pass alone. This RFC requires three evidence
-layers:
-
-1. code and test evidence,
-2. OpenAPI and documentation evidence,
-3. live end-to-end evidence.
-
-The proof standard is:
-
-1. the live evidence must be reproducible from documented commands,
-2. the evidence must match the actual code on the branch under review,
-3. logs, DB rows, requests, and responses must reconcile to one another,
-4. any negative or partial posture demonstrated in the evidence must be explained, not hand-waved,
-5. if a required proof path cannot be produced, the slice is not complete.
-
-## Open Questions
-
-1. Should snapshot supersession use a simple self-reference in the first wave, or should it reserve
-   space for a later explicit snapshot-relationship table if corrected/regenerated evidence chains
-   become more complex?
-2. Which upstream services can already return stable contract-version identifiers versus requiring
-   interim service-version or endpoint-version evidence?
-3. Is a separate support-privileged gateway surface needed for lineage retrieval in the first wave,
-   or is the existing gateway operator API posture sufficient?
-
-## Additional Risks And Watchpoints
-
-1. snapshot payload shape drifts from report data contract version semantics,
-2. gateway operator APIs accidentally become internal debug dumps instead of certified support
-   surfaces,
-3. first-wave lineage capture is implemented only for success paths and misses partial or failure
-   semantics,
-4. PostgreSQL evidence grows without any operator query discipline, causing support pain before
-   retention RFCs land,
-5. documentation and wiki drift away from the implemented route grouping and error contracts,
-6. future render or archive RFCs may try to bypass the lineage foundation if the ownership rules
-   are not explicit now.
+1. snapshots are durable and immutable after capture,
+2. upstream call lineage is durable and queryable,
+3. canonical hashes are deterministic and tested,
+4. partial, unavailable, unsupported, and redacted posture are explicit,
+5. support APIs are certified and support-safe,
+6. OpenAPI and error contracts are complete and high quality,
+7. live evidence proves the end-to-end implementation cleanly,
+8. mesh and governance posture is truthful,
+9. supported-features, docs, wiki, and branch hygiene are complete.
