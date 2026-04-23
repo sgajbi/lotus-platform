@@ -1042,6 +1042,22 @@ Scaffold a new standards-compliant Lotus backend and auto-register it in automat
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service"
 ```
 
+For a fuller governed bootstrap that also initializes git, creates the GitHub repository, makes it
+public, and applies baseline main-branch protection:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
+  -ServiceName lotus-foo `
+  -Description "New domain service" `
+  -BusinessRole "New domain service" `
+  -DevHostName foo `
+  -InitializeGit `
+  -CreateGithubRepo `
+  -GithubVisibility public `
+  -EnableGithubDefaults `
+  -ApplyMainBranchProtection
+```
+
 Profiles currently defined in `automation/task-profiles.json`:
 - `bootstrap-env`
 - `fast-feedback`
@@ -1072,8 +1088,9 @@ Profiles currently defined in `automation/task-profiles.json`:
 New repo included in shared automation:
 - `lotus-report`
 
-Note: profiles are Windows-native and do not require `make`.
-For `ci-parity`, coverage-scoped pytest steps use `set COVERAGE_FILE=... &&` syntax so they run correctly under `cmd /c` on Windows.
+Note: scaffolded backend services now default to repo-native `make` commands backed by a repo-local
+`.venv`, so bootstrap and CI-parity profiles do not need to mutate the shared user Python
+environment just to validate a new service.
 `ci-parity` also skips host-level `pip check` in lotus-manage/lotus-performance to avoid shared-environment false failures; use `docker-ci-parity` for strict isolated parity.
 For lotus-core, `bootstrap-env` intentionally installs a minimal local dependency set for query-service unit checks instead of full multi-service editable bootstrap.
 
@@ -1187,7 +1204,23 @@ When scaffolding a new service with `New-Lotus-Service.ps1`, automation registra
 - `automation/repos.json`
 - `automation/service-map.json`
 - `automation/repository-governance-policy.json`
-- `automation/validate_repository_governance.py`
 - `automation/test-coverage-policy.json`
+- `automation/qa-matrix.json` when `-DevHostName` is provided
+- `automation/task-profiles.json`
+- `context/lotus-context-manifest.json`
+- `context/ECOSYSTEM-REGISTRIES.md`
+- `context/LOTUS-QUICKSTART-CONTEXT.md`
+- `context/LOTUS-ENGINEERING-CONTEXT.md`
+- `context/CONTEXT-REFERENCE-MAP.md`
+- `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
+- `wiki/Integrations.md`
 
-This ensures new services inherit CI/CD, governance, and quality baselines without manual wiring.
+The scaffold now also creates repo-local `AGENTS.md`, `REPOSITORY-ENGINEERING-CONTEXT.md`, and
+`wiki/Home.md` by default. Optional Git/GitHub provisioning can initialize the repository, create
+the remote, configure baseline repository settings, and apply protected-`main` governance in the
+same workflow.
+
+Scaffolded backend repositories now also default to:
+- repo-local virtualenv bootstrap through `make install`
+- repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
+- baseline health, readiness, metrics, correlation-id, OpenAPI quality, coverage gate, and wiki-source posture from day one

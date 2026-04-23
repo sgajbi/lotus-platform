@@ -401,7 +401,32 @@ Required branch discipline:
 Do not move to the next slice until the current slice is implemented, validated, and in a solid
 state.
 
-### Slice 0: Cleanup And Structure
+### Slice 0: Platform Automation And Scaffolding Improvement
+
+Required outcomes:
+
+1. identify gaps in `lotus-platform` automation that should already have been handled as part of
+   service scaffolding,
+2. improve `lotus-platform` automation so those gaps are fixed at the platform level rather than
+   repeatedly solved inside individual apps,
+3. identify what cross-cutting concerns should be scaffolded by default for new Lotus applications,
+4. improve app scaffolding so new services start with stronger governance, documentation, CI, and
+   operator baselines on day one,
+5. cover repeatable platform concerns where applicable, including API certification pattern,
+   Swagger-quality baseline, observability, health endpoints, structured logging, error handling,
+   test scaffolding, CI defaults, documentation scaffolding, and governance hooks,
+6. validate the improved scaffold path through a fresh scaffold proof rather than treating the uplift
+   as theoretical,
+7. keep improving platform automation during later slices if more repeatable gaps are discovered.
+
+Acceptance criteria:
+
+1. the gaps discovered while bootstrapping `lotus-render` are fixed in `lotus-platform`,
+2. future new-service creation inherits a materially stronger governed baseline,
+3. the scaffold proof demonstrates the new defaults truthfully,
+4. RFC-0102 records this uplift explicitly so it is tracked as owned implementation work.
+
+### Slice 1: Cleanup And Structure
 
 Required outcomes:
 
@@ -421,7 +446,7 @@ Acceptance criteria:
 3. there is no duplicate authoritative explanation of rendering behavior,
 4. repository structure is cleaner than before the slice.
 
-### Slice 1: Render Service Foundation
+### Slice 2: Render Service Foundation
 
 Required outcomes:
 
@@ -438,7 +463,7 @@ Acceptance criteria:
 3. no business-data fetch path exists in the renderer,
 4. the service or module is governable through repo-native checks.
 
-### Slice 2: Render Package And Template Registry
+### Slice 3: Render Package And Template Registry
 
 Required outcomes:
 
@@ -456,7 +481,7 @@ Acceptance criteria:
 3. lifecycle posture is explicit and supportable,
 4. registry truth is PR-governed and machine-validated.
 
-### Slice 3: Typst PDF Rendering And Diagnostics
+### Slice 4: Typst PDF Rendering And Diagnostics
 
 Required outcomes:
 
@@ -473,7 +498,7 @@ Acceptance criteria:
 3. golden proof exists for the supported runtime envelope,
 4. no determinism claim is left vague.
 
-### Slice 4: `lotus-report` Integration
+### Slice 5: `lotus-report` Integration
 
 Required outcomes:
 
@@ -494,7 +519,7 @@ Acceptance criteria:
 5. no render outcome is described as archived, retrievable, reissued, replayed, or rerenderable by
    command unless a later RFC has explicitly implemented that behavior.
 
-### Slice 5: Implementation Proof
+### Slice 6: Implementation Proof
 
 Required outcomes:
 
