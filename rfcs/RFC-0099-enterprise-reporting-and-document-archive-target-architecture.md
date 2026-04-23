@@ -219,6 +219,46 @@ front-office flows.
 
 ## Canonical Interaction Model
 
+### Target Architecture Diagram
+
+```mermaid
+flowchart LR
+    WB[lotus-workbench] --> GW[lotus-gateway]
+    GW --> REPORT[lotus-report]
+    REPORT --> CORE[lotus-core]
+    REPORT --> PERF[lotus-performance]
+    REPORT --> RISK[lotus-risk]
+    REPORT --> ADVISE[lotus-advise]
+    REPORT --> MANAGE[lotus-manage]
+    REPORT --> RENDER[lotus-render]
+    RENDER --> REPORT
+    REPORT --> ARCHIVE[lotus-archive]
+    REPORT --> LEDGER[(Report lineage ledger)]
+    ARCHIVE --> STORE[(Object storage)]
+    ARCHIVE --> META[(Archive metadata)]
+```
+
+This is target-state architecture, not current runtime proof. `lotus-render` and `lotus-archive`
+remain proposed services until their implementation RFCs create them.
+
+## Platform Governance And Mesh Requirements
+
+The enterprise reporting architecture must comply with Lotus platform governance before any
+implementation RFC can be considered complete:
+
+1. RFC-0071 service addressing and ingress governance for every new service boundary.
+2. RFC-0072 multi-lane CI, PR merge-gate evidence, and truthful validation reporting for every
+   touched repository.
+3. RFC-0084 domain-data-product ownership rules when report lineage, archive metadata, or evidence
+   products are declared or consumed.
+4. RFC-0091 enterprise mesh maturity requirements for telemetry, SLO, access, lifecycle, evidence,
+   and production-readiness posture.
+5. Gateway-only Workbench consumption for product-facing report initiation and document retrieval.
+6. API certification-pattern checks for every new or changed API in report, gateway, render,
+   archive, and operator surfaces.
+7. Supported-features material must remain implementation-backed and must not describe proposed
+   services as available.
+
 ### Ad Hoc Report Generation
 
 Front-office report generation must follow this path:

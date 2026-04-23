@@ -63,6 +63,17 @@ Out of scope:
 
 ## Certification Scenarios
 
+```mermaid
+flowchart LR
+    CERT[platform certification runner] --> GW[lotus-gateway]
+    CERT --> REPORT[lotus-report]
+    CERT --> RENDER[lotus-render]
+    CERT --> ARCHIVE[lotus-archive]
+    CERT --> WB[lotus-workbench]
+    CERT --> UPSTREAM[core/performance/risk/advise/manage]
+    CERT --> EVIDENCE[(certification evidence pack)]
+```
+
 Required first-wave scenarios:
 
 1. ad hoc portfolio review JSON generation through gateway,
@@ -79,6 +90,17 @@ Required first-wave scenarios:
 12. unauthorized report generation denied,
 13. unauthorized document retrieval denied,
 14. trace from Workbench/gateway to archive.
+
+## Platform Governance And Mesh Requirements
+
+1. Certification must prove RFC-0072 repo-native and PR-gate posture for every touched repository.
+2. Certification must prove RFC-0084/RFC-0091 data mesh posture for report evidence, lineage,
+   archive metadata, access, SLO, telemetry, and evidence-pack material.
+3. Certification must verify gateway-only Workbench consumption for product-facing flows.
+4. Certification must verify docs, wiki, context, and supported-features truth before production
+   readiness is claimed.
+5. Certification evidence must preserve exact repository, branch, PR, commit, endpoint, report job,
+   batch, snapshot, render job, and document identifiers.
 
 ## Implementation Slices
 
@@ -170,4 +192,3 @@ Required validation:
 This RFC is the only RFC in the sequence allowed to certify the complete enterprise reporting
 platform as production-ready. It must not mark the platform production-ready until all required
 scenarios, documentation, wiki, context, and supported-features evidence are complete.
-

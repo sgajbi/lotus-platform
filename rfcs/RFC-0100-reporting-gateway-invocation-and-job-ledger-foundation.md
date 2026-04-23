@@ -70,8 +70,13 @@ Out of scope:
 
 Canonical front-office path:
 
-```text
-lotus-workbench -> lotus-gateway -> lotus-report
+```mermaid
+flowchart LR
+    WB[lotus-workbench] --> GW[lotus-gateway]
+    GW --> REPORT[lotus-report]
+    REPORT --> REQ[(report_request)]
+    REPORT --> JOB[(report_job)]
+    REPORT --> EVENTS[(report_status_event)]
 ```
 
 `lotus-gateway` is the product-facing boundary. `lotus-report` is the durable job owner.
@@ -85,6 +90,15 @@ lotus-workbench -> lotus-gateway -> lotus-report
 5. trigger identity and trigger type,
 6. caller context references,
 7. correlation and trace identifiers.
+
+## Platform Governance And Mesh Requirements
+
+1. Gateway-first invocation must follow RFC-0071 ingress and service-addressing posture.
+2. Job-creating APIs must follow RFC-0026 async command/status/result semantics.
+3. PR validation must follow RFC-0072 lane expectations for every touched repository.
+4. If report job or lineage data becomes a governed data/evidence product, RFC-0084 and RFC-0091
+   declaration, telemetry, SLO, access, and evidence requirements must be updated in the same slice.
+5. Swagger/OpenAPI examples must use supported product names and must not leak RFC names.
 
 ## API Direction
 
@@ -208,4 +222,3 @@ Required validation:
 
 This RFC starts with no implementation-backed supported features. Add supported-features entries
 only after the gateway-first initiation and durable job ledger behavior is implemented and validated.
-

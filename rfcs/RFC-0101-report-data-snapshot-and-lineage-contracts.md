@@ -74,6 +74,31 @@ domain data. Snapshot lineage must record enough evidence to answer:
 5. which trace/correlation identifiers connect the call,
 6. whether the data was complete, partial, unavailable, or not supported.
 
+```mermaid
+flowchart LR
+    JOB[report_job] --> SNAP[report_input_snapshot]
+    SNAP --> CALLS[report_upstream_call records]
+    CALLS --> CORE[lotus-core]
+    CALLS --> PERF[lotus-performance]
+    CALLS --> RISK[lotus-risk]
+    CALLS --> ADVISE[lotus-advise]
+    CALLS --> MANAGE[lotus-manage]
+    SNAP --> HASH[snapshot_hash]
+    SNAP --> REFS[immutable evidence refs]
+```
+
+## Platform Governance And Mesh Requirements
+
+1. Snapshot and upstream-call evidence must preserve domain authority boundaries from RFC-0050.
+2. Any report evidence product declaration must follow RFC-0084 source ownership and consumer
+   declaration rules.
+3. Any promoted reporting evidence product must satisfy RFC-0091 enterprise mesh telemetry, SLO,
+   access, lifecycle, and evidence-pack requirements.
+4. Snapshot evidence must clearly distinguish source-backed, partial, unavailable, and
+   not-supported data.
+5. Sensitive source payloads must be classified and redacted before logs, public artifacts, or wiki
+   material reference them.
+
 ## Contract Direction
 
 Minimum `report_input_snapshot` fields:
@@ -183,4 +208,3 @@ Required validation:
 
 No supported feature is added until report snapshots and upstream lineage are implemented, validated,
 and reflected in `lotus-report` supported-features material.
-

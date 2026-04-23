@@ -58,9 +58,27 @@ diagnostic. It must not call `lotus-core`, `lotus-performance`, `lotus-risk`, `l
 
 Target path:
 
-```text
-lotus-report -> lotus-render -> lotus-report -> lotus-archive
+```mermaid
+flowchart LR
+    REPORT[lotus-report] --> PACKAGE[render package]
+    PACKAGE --> RENDER[lotus-render]
+    REGISTRY[(template registry)] --> RENDER
+    RENDER --> ARTIFACT[render artifact + diagnostics]
+    ARTIFACT --> REPORT
+    REPORT --> ARCHIVE[lotus-archive]
 ```
+
+## Platform Governance And Mesh Requirements
+
+1. `lotus-render` must not become a data-product authority; it consumes complete render packages
+   from `lotus-report`.
+2. Template registry source must be governed through PR review, CI, golden renders, and ownership
+   metadata.
+3. Render APIs must follow platform OpenAPI quality and API certification expectations.
+4. Render evidence may be referenced by reporting evidence products, but it must not replace report
+   data lineage or upstream source evidence.
+5. Service creation or extraction must update platform service topology, context, wiki, and
+   repository engineering context in the implementation RFC that creates the service.
 
 ## Render Package Contract
 
@@ -172,4 +190,3 @@ Required validation:
 
 No supported rendering feature may be listed until a render package, template registry entry,
 render output, diagnostics, and validation evidence exist.
-

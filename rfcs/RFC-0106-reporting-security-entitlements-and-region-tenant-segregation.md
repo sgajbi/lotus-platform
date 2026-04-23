@@ -55,6 +55,18 @@ Out of scope:
 
 ## Role Model
 
+```mermaid
+flowchart LR
+    USER[advisor / assistant / supervisor / ops / compliance] --> GW[lotus-gateway]
+    GW --> REPORT[lotus-report]
+    REPORT --> RENDER[lotus-render]
+    REPORT --> ARCHIVE[lotus-archive]
+    ARCHIVE --> AUDIT[(document access audit)]
+    POLICY[(role + portfolio + tenant + region policy)] --> GW
+    POLICY --> REPORT
+    POLICY --> ARCHIVE
+```
+
 Initial roles:
 
 1. `advisor`,
@@ -67,6 +79,16 @@ Initial roles:
 
 Each role must declare allowed report types, portfolio scope, document actions, replay/rerender
 permissions, legal-hold permissions, and purge permissions.
+
+## Platform Governance And Mesh Requirements
+
+1. Security controls must be enforced at gateway, report, render, and archive boundaries.
+2. Access policy must align with RFC-0091 mesh access-policy concepts where reporting evidence
+   products are published or consumed.
+3. Region, tenant, and booking-center segregation must be part of metadata and authorization tests.
+4. Swagger examples, logs, metrics, and wiki material must use synthetic data only.
+5. Supported-features material must not claim customer document access until authorization and
+   access-audit tests exist.
 
 ## Enforcement Layers
 
@@ -149,4 +171,3 @@ Required validation:
 ## Supported Features
 
 Security features must be documented as supported only after enforcement and negative tests exist.
-

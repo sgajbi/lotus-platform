@@ -54,6 +54,17 @@ Out of scope:
 
 `lotus-report` owns batch control. Batch execution creates one durable `report_job` per report item.
 
+```mermaid
+flowchart LR
+    TRIGGER[Schedule or operator trigger] --> BATCH[report_batch]
+    BATCH --> ITEMS[report_batch_item]
+    ITEMS --> JOBS[report_job per portfolio/report]
+    JOBS --> DATA[report data + lineage]
+    JOBS --> RENDER[lotus-render]
+    JOBS --> ARCHIVE[lotus-archive]
+    BATCH --> PROGRESS[progress + failure summary]
+```
+
 Batch selectors:
 
 1. `all_active_portfolios`,
@@ -68,6 +79,18 @@ Frequencies:
 3. `semi_annual`,
 4. `yearly`,
 5. `explicit`.
+
+## Platform Governance And Mesh Requirements
+
+1. Batch orchestration must follow RFC-0026 async job/status/result semantics.
+2. Concurrency and retry policy must avoid overloading upstream data authorities and must preserve
+   RFC-0050 service ownership.
+3. Batch progress and failure summaries must use platform status/failure vocabulary and be
+   documented in OpenAPI.
+4. If batch production generates reporting evidence products at scale, RFC-0084/RFC-0091 telemetry,
+   SLO, access, and evidence posture must be updated.
+5. CI evidence must include retry, resume, idempotency, and concurrency tests before support is
+   listed.
 
 ## Implementation Slices
 
@@ -153,4 +176,3 @@ Required validation:
 
 Batch features must be listed only after the relevant selector, schedule, concurrency, retry, and
 progress behavior is implemented and validated.
-

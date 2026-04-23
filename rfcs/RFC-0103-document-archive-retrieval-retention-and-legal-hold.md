@@ -57,12 +57,30 @@ Out of scope:
 
 Target path:
 
-```text
-lotus-report -> lotus-archive
-lotus-workbench -> lotus-gateway -> lotus-archive
+```mermaid
+flowchart LR
+    REPORT[lotus-report] --> ARCHIVE[lotus-archive]
+    ARCHIVE --> META[(document metadata)]
+    ARCHIVE --> STORE[(object storage)]
+    WB[lotus-workbench] --> GW[lotus-gateway]
+    GW --> ARCHIVE
+    ARCHIVE --> AUDIT[(access audit)]
+    ARCHIVE --> RETENTION[(retention + legal hold)]
 ```
 
 `lotus-archive` owns archive metadata and binary storage. Gateway owns product-facing retrieval.
+
+## Platform Governance And Mesh Requirements
+
+1. `lotus-archive` owns generated-document records, not domain data truth.
+2. Archive metadata and access evidence must align with RFC-0084/RFC-0091 if promoted as a governed
+   reporting evidence product.
+3. Gateway remains the product-facing retrieval boundary; Workbench must not call archive APIs
+   directly.
+4. Document access, purge, legal hold, and supersession APIs must satisfy API certification and
+   platform security governance before publication.
+5. Wiki and supported-features material must distinguish archive infrastructure from
+   customer-supported document retrieval features.
 
 ## Storage Direction
 
@@ -181,4 +199,3 @@ Required validation:
 
 No archive feature may be listed as supported until metadata, storage, retrieval, audit, and
 retention behavior are implemented and validated.
-

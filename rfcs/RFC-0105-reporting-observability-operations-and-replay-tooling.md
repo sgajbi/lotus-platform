@@ -54,6 +54,19 @@ Out of scope:
 
 ## Observability Contract
 
+```mermaid
+flowchart LR
+    GW[lotus-gateway] --> REPORT[lotus-report]
+    REPORT --> UPSTREAM[upstream services]
+    REPORT --> RENDER[lotus-render]
+    REPORT --> ARCHIVE[lotus-archive]
+    REPORT --> TRACE[(OpenTelemetry traces)]
+    REPORT --> METRICS[(Prometheus metrics)]
+    REPORT --> LOGS[(structured logs)]
+    OPS[operators] --> SUPPORT[operator APIs]
+    SUPPORT --> REPORT
+```
+
 Required identifiers:
 
 1. `correlation_id`,
@@ -66,6 +79,17 @@ Required identifiers:
 8. `render_job_id`,
 9. `document_id`,
 10. `portfolio_id` where permitted.
+
+## Platform Governance And Mesh Requirements
+
+1. Observability must preserve exact report, batch, render, archive, document, and trace identifiers
+   without logging sensitive report content.
+2. Operator APIs must follow platform API certification, entitlement, and audit requirements.
+3. Rerender, regenerate, and replay operations must preserve RFC-0101 lineage semantics and
+   RFC-0103 archive supersession semantics.
+4. Any heartbeat or attention integration must use source evidence and must not invent reporting
+   posture.
+5. Metrics and dashboard names must be stable enough for platform operations and CI validation.
 
 Required metrics:
 
@@ -163,4 +187,3 @@ Required validation:
 
 Operator and observability features must be listed only after APIs, metrics, docs, and tests prove
 they are production-usable.
-
