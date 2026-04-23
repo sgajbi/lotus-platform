@@ -24,8 +24,7 @@
 
 This RFC defines the deterministic rendering boundary for Lotus reporting. It introduces:
 
-1. `lotus-render` as the rendering service or an extraction-ready first module if repository
-   creation is consciously deferred,
+1. `lotus-render` as the dedicated rendering service,
 2. the governed render package contract passed from `lotus-report` to the renderer,
 3. the governed template registry and template lifecycle rules,
 4. deterministic render-attempt and render-diagnostic contracts,
@@ -33,8 +32,8 @@ This RFC defines the deterministic rendering boundary for Lotus reporting. It in
 6. the first-wave `lotus-report` integration path for portfolio review rendering.
 
 The goal is to make rendering a separately governable, supportable, testable, and certifiable
-boundary before archive, document retrieval, rerender, replay, or batch orchestration behavior is
-implemented.
+service boundary before archive, document retrieval, rerender, replay, or batch orchestration
+behavior is implemented.
 
 This RFC is implementation-bearing once accepted. It must be delivered slice by slice. It must not
 absorb archive/document lifecycle behavior from RFC-0103 or replay/rerender/regenerate operator
@@ -88,8 +87,8 @@ Do not begin RFC-0102 implementation until these conditions are true:
 2. RFC-0101 is merged and clean, and durable snapshot and lineage capture is the current truth,
 3. current wiki publication is in sync for repositories whose reporting or render guidance would be
    affected,
-4. there is no unresolved architectural objection about whether the first implementation creates a
-   new `lotus-render` repository or uses an extraction-ready module in `lotus-report`,
+4. there is no unresolved architectural objection about `lotus-render` being a separate service
+   with its own repository, image, and independently scalable runtime,
 5. there is no unresolved architectural objection about the first-wave template engine and runtime
    packaging posture.
 
@@ -99,8 +98,7 @@ RFC-0102 may depend on RFC-0101 evidence, but it must not reopen RFC-0101 scope.
 
 In scope:
 
-1. `lotus-render` service creation or an explicitly extraction-ready first module if repository
-   creation is deferred,
+1. `lotus-render` service creation as a separate repository and deployable runtime,
 2. render package schema and versioning rules,
 3. template registry, template manifest, and template lifecycle governance,
 4. Typst-first PDF rendering direction for the first wave,
@@ -209,7 +207,8 @@ Design rules:
 3. template metadata must be versioned and governed through source-controlled manifests,
 4. render results must be support-safe and queryable without exposing full sensitive payloads or
    templates by default,
-5. the first implementation must be extraction-ready even if a separate repository is deferred,
+5. the first implementation must ship as a separate service with its own container image and
+   independently scalable runtime,
 6. render engine determinism claims must be explicitly bounded to a supported runtime envelope when
    byte-for-byte determinism is not practical across all environments.
 7. render output metadata must be sufficient for later archive handoff, but archive ownership must
@@ -299,8 +298,7 @@ Lifecycle rules:
 
 ## Render Attempt And Diagnostics Direction
 
-RFC-0102 must define a durable render-attempt record or equivalent extraction-ready module boundary
-that can express:
+RFC-0102 must define a durable render-attempt record and service boundary that can express:
 
 1. render attempt identity,
 2. render package version,
@@ -427,8 +425,7 @@ Acceptance criteria:
 
 Required outcomes:
 
-1. create `lotus-render` as a new repository or establish an extraction-ready module boundary with
-   a conscious service-creation decision,
+1. create `lotus-render` as a new repository and deployable service,
 2. add health, readiness, structured logging, and trace-context handling,
 3. define the render job and render attempt model,
 4. add repo-native CI posture and local runtime setup,
@@ -436,7 +433,7 @@ Required outcomes:
 
 Acceptance criteria:
 
-1. the rendering boundary is explicit and extraction-ready,
+1. the rendering boundary is explicit as a separate service,
 2. readiness reflects runtime availability,
 3. no business-data fetch path exists in the renderer,
 4. the service or module is governable through repo-native checks.

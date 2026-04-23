@@ -116,6 +116,22 @@
                          "coverage_command":  "python -m pytest --cov=app --cov=engine --cov=core --cov=adapters --cov-report=term --cov-fail-under=99"
                      },
                      {
+                         "name":  "lotus-render",
+                         "repo":  "lotus-render",
+                         "buckets":  {
+                                         "unit":  [
+                                                      "tests/unit"
+                                                  ],
+                                         "integration":  [
+                                                             "tests/integration"
+                                                         ],
+                                         "e2e":  [
+                                                     "tests/e2e"
+                                                 ]
+                                     },
+                         "coverage_command":  "python -m pytest --cov=src --cov-report=term --cov-fail-under=99"
+                     },
+                     {
                          "name":  "lotus-report",
                          "repo":  "lotus-report",
                          "buckets":  {

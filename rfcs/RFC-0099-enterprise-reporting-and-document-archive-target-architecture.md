@@ -6,14 +6,14 @@
   - lotus-platform architecture
   - `lotus-report` owners
   - `lotus-gateway` owners
-  - future `lotus-render` owners
+  - `lotus-render` owners
   - future `lotus-archive` owners
 - Target repositories:
   - `lotus-platform`
   - `lotus-report`
   - `lotus-gateway`
   - `lotus-workbench`
-  - future `lotus-render`
+  - `lotus-render`
   - future `lotus-archive`
   - upstream data authorities: `lotus-core`, `lotus-performance`, `lotus-risk`,
     `lotus-advise`, `lotus-manage`
@@ -43,6 +43,11 @@ choices, asynchronous interaction model, lineage model, rendering model, documen
 batch-production model, security posture, observability posture, and the ordered follow-up RFC
 sequence. It is intentionally documentation-first. No implementation should begin until this
 target architecture and sequence are accepted.
+
+## Implementation Reality Update
+
+Rendering is being implemented through RFC-0102 as a separate `lotus-render` service with its own
+repository, image, and independently scalable runtime. `lotus-archive` remains unimplemented.
 
 ## Problem
 
@@ -716,8 +721,8 @@ production report generation.
 
 Keeping rendering inside `lotus-report` is faster initially, but it mixes API orchestration,
 business data assembly, template governance, PDF runtime dependencies, and CPU-heavy rendering in
-one service. The target state should separate rendering as `lotus-render`. A temporary internal
-module is acceptable only if its API and data model are designed for extraction.
+one service. Lotus chooses a separate `lotus-render` service so rendering can scale, deploy, and
+operate independently from report orchestration.
 
 ### Keep document archive inside `lotus-report` vs create `lotus-archive`
 
@@ -989,8 +994,8 @@ accepted or implementation begins, so agents do not treat proposed `lotus-render
 
 1. Should Temporal be adopted immediately for reporting workflows, or should phase one use a
    simpler DB-backed worker while preserving Temporal-compatible lifecycle semantics?
-2. Should `lotus-render` be created as a separate repository from the first rendering slice, or
-   should it begin as an extraction-ready module inside `lotus-report`?
+2. What is the minimum first-wave scale and runtime envelope `lotus-render` must support as a
+   separate service?
 3. Should `lotus-archive` be created before the first PDF archive flow, or should early archive
    metadata begin in `lotus-report` and migrate before production use?
 4. Which jurisdictions and retention classes are in first-wave scope for private-banking reports?

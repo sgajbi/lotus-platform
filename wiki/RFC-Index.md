@@ -47,7 +47,7 @@
 - [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
   per-pack queue, lane, timeout, and concurrency policy; `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete
 - [RFC-0099](../rfcs/RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md)
-  proposed target-state architecture for enterprise reporting, future `lotus-render`, future
+  proposed target-state architecture for enterprise reporting, `lotus-render`, future
   `lotus-archive`, batch reporting, durable lineage, rendering, archival, observability, security,
   and ordered follow-up RFC sequence
 - [RFC-0100](../rfcs/RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md)
