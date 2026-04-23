@@ -31,6 +31,31 @@ rendering, archive, and batch production are added.
 This RFC is implementation-bearing once accepted. It must be delivered slice by slice and must not
 start PDF rendering, archive storage, or batch execution work.
 
+## Implementation Outcome
+
+RFC-0100 is implemented and merged.
+
+Merged delivery:
+
+1. `lotus-report` PR `#62` merged the PostgreSQL-backed report request/job/event ledger, operator
+   search/list API, OpenAPI hardening, supported-features updates, and proof-oriented coverage
+   improvements.
+2. `lotus-gateway` PR `#148` merged the product-facing report job submit/status/list/events/cancel
+   boundary, certified gateway contracts, and OpenAPI/operator documentation hardening.
+3. Fresh end-to-end live evidence for the expanded operational surface was captured at
+   `lotus-report/output/rfc-0100-live-evidence-20260423-165911/`, including submit, replay,
+   status, list, events, cancel, conflict, PostgreSQL rows, indexes, constraints, and runtime
+   logs.
+
+Deliberate non-outcomes:
+
+1. no rendering or PDF production,
+2. no archive/document retrieval,
+3. no retention or legal-hold semantics,
+4. no replay/rerender/reissue operator mutations.
+
+Those remain in later RFCs and must not be inferred from RFC-0100 completion.
+
 ## Problem
 
 `lotus-report` currently exposes report-data APIs, but enterprise report generation needs durable
