@@ -23,6 +23,17 @@
       ]
     },
     {
+      "name": "lotus-report",
+      "pathHint": "lotus-report",
+      "defaultServices": ["lotus-report"],
+      "rules": [
+        {
+          "pathPrefixes": ["src/", "tests/", "wiki/", "docs/", "requirements.txt", "requirements-dev.txt", "pyproject.toml", "Dockerfile", "docker-compose.yml", "migrations/"],
+          "services": ["lotus-report"]
+        }
+      ]
+    },
+    {
       "name": "lotus-advise",
       "pathHint": "lotus-advise",
       "defaultServices": ["lotus-advise"],
