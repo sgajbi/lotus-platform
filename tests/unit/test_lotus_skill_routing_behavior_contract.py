@@ -65,7 +65,12 @@ def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> Non
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
     ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
-    deployed_agents = Path(r"C:\Users\Sandeep\.codex\AGENTS.md").read_text(encoding="utf-8")
+    deployed_agents_path = Path(r"C:\Users\Sandeep\.codex\AGENTS.md")
+    deployed_agents = (
+        deployed_agents_path
+        if deployed_agents_path.exists()
+        else ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    ).read_text(encoding="utf-8")
     runtime_skill = _read(ROOT / "codex" / "skills" / "lotus-front-office-runtime" / "SKILL.md")
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
 

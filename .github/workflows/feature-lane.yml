@@ -21,6 +21,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Checkout governed domain-product source repositories
+        uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-core
+          path: ../lotus-core
+      - uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-performance
+          path: ../lotus-performance
+      - uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-risk
+          path: ../lotus-risk
+      - uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-advise
+          path: ../lotus-advise
+      - uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-report
+          path: ../lotus-report
+      - uses: actions/checkout@v6
+        with:
+          repository: sgajbi/lotus-manage
+          path: ../lotus-manage
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"

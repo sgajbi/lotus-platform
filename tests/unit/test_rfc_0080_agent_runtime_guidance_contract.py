@@ -210,7 +210,12 @@ def test_rfc_0080_slice_4_synchronizes_agents_and_context() -> None:
     ramp_up = (ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md").read_text(
         encoding="utf-8"
     )
-    deployed_agents = Path(r"C:\Users\Sandeep\.codex\AGENTS.md").read_text(encoding="utf-8")
+    deployed_agents_path = Path(r"C:\Users\Sandeep\.codex\AGENTS.md")
+    deployed_agents = (
+        deployed_agents_path
+        if deployed_agents_path.exists()
+        else ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    ).read_text(encoding="utf-8")
 
     for required_item in (
         "## Slice 4: AGENTS and Context Synchronization",
