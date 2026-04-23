@@ -35,6 +35,11 @@
           "command": "python -m pip install -e \".[dev]\""
         },
         {
+          "id": "bootstrap-render",
+          "repo": "lotus-render",
+          "command": "python -m pip install -e \".[dev]\""
+        },
+        {
           "id": "bootstrap-manage",
           "repo": "lotus-manage",
           "command": "python -m pip install -e \".[dev]\""
@@ -91,6 +96,11 @@
           "command": "python -m ruff check src tests && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests -q"
         },
         {
+          "id": "render-check",
+          "repo": "lotus-render",
+          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy --config-file mypy.ini && python scripts/openapi_quality_gate.py && python -m pytest tests/unit tests/integration -q"
+        },
+        {
           "id": "manage-check",
           "repo": "lotus-manage",
           "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
@@ -140,6 +150,11 @@
           "id": "ras-docker-up",
           "repo": "lotus-report",
           "command": "docker compose up -d --build lotus-report"
+        },
+        {
+          "id": "render-docker-up",
+          "repo": "lotus-render",
+          "command": "docker compose up -d --build lotus-render"
         },
         {
           "id": "manage-docker-up",
@@ -193,6 +208,11 @@
           "command": "python -m ruff check src tests && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && set COVERAGE_FILE=.coverage && python -m pytest tests --cov=src/app --cov-report=term-missing --cov-fail-under=99"
         },
         {
+          "id": "render-ci-local",
+          "repo": "lotus-render",
+          "command": "python -m ruff check . && python -m ruff format --check . && set COVERAGE_FILE=.coverage && python -m pytest tests/unit tests/integration tests/e2e --cov=src --cov-report=term-missing --cov-fail-under=99 && python -m mypy --config-file mypy.ini && python scripts/openapi_quality_gate.py"
+        },
+        {
           "id": "manage-ci-local",
           "repo": "lotus-manage",
           "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=75"
@@ -242,6 +262,11 @@
           "id": "ras-docker-build",
           "repo": "lotus-report",
           "command": "docker compose build lotus-report"
+        },
+        {
+          "id": "render-docker-build",
+          "repo": "lotus-render",
+          "command": "docker compose build lotus-render"
         },
         {
           "id": "manage-ci-docker",
@@ -328,6 +353,11 @@
         {
           "id": "ras-integration",
           "repo": "lotus-report",
+          "command": "python -m pytest tests/integration -q"
+        },
+        {
+          "id": "render-integration",
+          "repo": "lotus-render",
           "command": "python -m pytest tests/integration -q"
         },
         {

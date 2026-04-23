@@ -11,7 +11,7 @@ automation, and runtime support.
   canonical front-office runtime, QA wrapper support, panel and screenshot evidence governance
 - `lotus-gateway`
   ingress and platform validation support
-- `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`
+- `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-ai`
   standards validation, repo checks, automation registration, and cross-app validation support
 
 ## Integration surfaces

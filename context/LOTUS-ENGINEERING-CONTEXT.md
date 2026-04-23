@@ -49,7 +49,10 @@ The engineering goal is a premium, production-critical, banking-grade platform w
 6. `lotus-report`
    Reporting and document generation capability.
 
-7. `lotus-ai`
+7. `lotus-render`
+   Deterministic document rendering capability for governed reporting flows.
+
+8. `lotus-ai`
    Shared AI capability service used behind governed product and platform flows.
 
 ### Platform and governance
@@ -64,7 +67,8 @@ The canonical relationship model is:
 1. `lotus-workbench` consumes `lotus-gateway`,
 2. `lotus-gateway` consumes or aggregates domain-authoritative services,
 3. domain services remain authoritative for their business domain,
-4. `lotus-platform` governs how the ecosystem is run, validated, and standardized.
+4. `lotus-report` may orchestrate reporting flows across upstream domain services and `lotus-render`,
+5. `lotus-platform` governs how the ecosystem is run, validated, and standardized.
 
 ### Boundary rules
 

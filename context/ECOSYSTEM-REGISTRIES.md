@@ -17,6 +17,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `lotus-advise` | `domain-service` | Advisory workflow and recommendation service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-manage` | `domain-service` | Portfolio-management and operational workflow service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci-local` | Yes |
 | `lotus-report` | `domain-service` | Reporting and document-generation service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
+| `lotus-render` | `domain-service` | Deterministic document rendering service for Lotus reporting | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-ai` | `shared-capability-service` | Shared AI capability service for governed AI-backed flows | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 
 ## Domain Authority Map
@@ -28,7 +29,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `risk-analytics` | `lotus-risk` | lotus-gateway |
 | `advisory-workflows` | `lotus-advise` | lotus-gateway |
 | `management-and-operations` | `lotus-manage` | lotus-gateway |
-| `reporting-and-document-generation` | `lotus-report` | lotus-gateway |
+| `reporting-and-document-generation` | `lotus-report` | lotus-gateway, lotus-render |
 | `ai-capabilities` | `lotus-ai` | lotus-gateway |
 
 ## Standards Registry
