@@ -22,7 +22,7 @@
 ## Summary
 
 This RFC defines the first implementation step toward the RFC-0099 target architecture: gateway-first
-report initiation and a durable report request/job ledger in `lotus-report`.
+report initiation and a PostgreSQL-backed durable report request/job ledger in `lotus-report`.
 
 The goal is to make report generation a governed workflow with durable request identity,
 idempotency, status, failure categorization, traceability, and product-facing gateway posture before
@@ -34,9 +34,10 @@ start PDF rendering, archive storage, or batch execution work.
 ## Problem
 
 `lotus-report` currently exposes report-data APIs, but enterprise report generation needs durable
-job lifecycle records. Workbench must not call `lotus-report` directly for front-office report
+job lifecycle records backed by the same production-grade persistence posture used for supportable
+banking workflows. Workbench must not call `lotus-report` directly for front-office report
 generation. Gateway must become the product-facing initiation and status boundary, while
-`lotus-report` owns the durable job ledger and internal orchestration state.
+`lotus-report` owns the durable PostgreSQL job ledger and internal orchestration state.
 
 Without this foundation:
 
@@ -61,7 +62,10 @@ In scope:
 9. supported-features updates only after implementation-backed behavior exists.
 10. report job operator-safe diagnostics for status, failure category, and retry eligibility,
 11. exact cancellation semantics for pre-render/pre-archive report jobs,
-12. repo-local documentation, wiki source, context, and supported-features hygiene.
+12. repo-local documentation, wiki source, context, and supported-features hygiene,
+13. PostgreSQL-backed `lotus-report` ledger persistence for local/dev and deployable runtime,
+14. separate local/dev Postgres container or governed shared Postgres service for `lotus-report`,
+15. SQL migration, index, uniqueness, readiness, and live DB evidence for the ledger tables.
 
 Out of scope:
 
@@ -90,6 +94,10 @@ flowchart LR
 
 `lotus-gateway` is the product-facing boundary. `lotus-report` is the durable job owner.
 
+`lotus-report` must persist the report job ledger in PostgreSQL, not an application-local file
+database. SQLite may be used only as an explicitly isolated unit-test adapter if that keeps tests
+fast; integration, local runtime, Docker parity, and live evidence must prove the PostgreSQL path.
+
 `lotus-report` must persist:
 
 1. `report_request`,
@@ -99,6 +107,59 @@ flowchart LR
 5. trigger identity and trigger type,
 6. caller context references,
 7. correlation and trace identifiers.
+
+### Persistence Direction
+
+The ledger persistence target for this RFC is PostgreSQL.
+
+Required persistence posture:
+
+1. `lotus-report` owns the ledger schema, migrations, repository/service adapter, and DB readiness
+   checks,
+2. local/dev runtime uses a separate Postgres container or governed local Postgres service for
+   `lotus-report`,
+3. deployable configuration uses a connection string or structured DB settings, not a file path,
+4. migrations create `report_request`, `report_job`, and `report_status_event` with primary keys,
+   foreign keys, uniqueness constraints, check constraints, and indexes for support queries,
+5. idempotency uniqueness is enforced at the database layer, not only in application code,
+6. status-event history remains append-only from the application contract perspective,
+7. readiness checks fail when the ledger DB is unavailable or schema is not ready,
+8. local evidence must show rows in PostgreSQL tables and must not use SQLite as the proof path,
+9. operational support must have indexed access paths for job lookup by tenant/region/time,
+   portfolio-scope diagnostics, status queues, completion/housekeeping scans, and event history.
+
+Minimum indexes and constraints:
+
+1. unique `report_request.idempotency_key`,
+2. index on `report_request.created_at`,
+3. index on `report_request.tenant_id`, `region`, and `created_at`,
+4. index on `report_request.as_of_date`,
+5. GIN or equivalent index on `report_request.portfolio_scope_json`,
+6. index on `report_job.status` and `updated_at`,
+7. index on `report_job.created_at`,
+8. partial index on `report_job.completed_at` where completed,
+9. index on `report_job.report_request_id`,
+10. index on `report_status_event.report_job_id` and `created_at`,
+11. check constraints for public status and failure-category vocabulary,
+12. foreign key from `report_job.report_request_id` to `report_request.report_request_id`,
+13. foreign key from `report_status_event.report_job_id` to `report_job.report_job_id`.
+
+Partitioning and housekeeping direction:
+
+1. RFC-0100 must make the ledger partition-ready by using time-based created/completed indexes,
+   deterministic IDs, append-only events, and migration files that can evolve forward.
+2. Do not introduce native range partitioning in the first migration unless global idempotency
+   semantics are preserved. PostgreSQL partitioned-table uniqueness requires the partition key in
+   unique constraints; blindly partitioning `report_request` by `created_at` would weaken global
+   `idempotency_key` enforcement.
+3. The target partitioning pattern is monthly range partitioning on `created_at` with either a
+   separate global idempotency registry table or an idempotency key strategy that includes the
+   governed partition dimension. That belongs in a later scale/retention RFC before high-volume
+   batch production.
+4. RFC-0100 must document housekeeping posture: no destructive purge endpoint in the first wave,
+   no legal-hold/document-retention semantics before archive exists, and support scans must be
+   indexed so future retention, purge, and batch cleanup jobs can be added without rewriting the
+   ledger contract.
 
 ## Branching And Delivery
 
@@ -125,9 +186,12 @@ Required branch discipline:
 4. If report job or lineage data becomes a governed data/evidence product, RFC-0084 and RFC-0091
    declaration, telemetry, SLO, access, and evidence requirements must be updated in the same slice.
 5. Swagger/OpenAPI examples must use supported product names and must not leak RFC names.
-6. `lotus-gateway` must remain the only Workbench-facing report initiation/status boundary.
-7. `lotus-report` must not become a customer-facing UI contract owner.
-8. Mesh declarations must not be updated with placeholder reporting products; update them only if
+6. Certified operational endpoints must explain when to call the endpoint, what it returns, and how
+   callers should use it. Every public request/response attribute must carry type, description, and
+   example coverage in OpenAPI.
+7. `lotus-gateway` must remain the only Workbench-facing report initiation/status boundary.
+8. `lotus-report` must not become a customer-facing UI contract owner.
+9. Mesh declarations must not be updated with placeholder reporting products; update them only if
    durable job/lineage evidence becomes implementation-backed product material.
 
 ## Data Model Direction
@@ -310,16 +374,38 @@ Acceptance criteria:
 3. no unrelated cleanup is bundled into this slice,
 4. wiki source is either updated and publishable or a no-wiki-change decision is recorded.
 
-### Slice 1: Report Job Ledger
+### Slice 1: PostgreSQL Ledger Persistence Foundation
 
-1. Add durable report request/job/status-event models and migrations in `lotus-report`.
-2. Add idempotency key and request-hash handling.
-3. Add repository/service module APIs for creating requests, creating jobs, reading jobs, appending
-   status events, and resolving idempotent duplicates.
-4. Add unit and migration tests for idempotent create, duplicate request, conflict request, status
-   transition, append-only status history, cancellation flag, and
-   failure category behavior.
-5. Add migration smoke evidence and rollback/forward posture according to repo standards.
+1. Add PostgreSQL-backed durable report request/job/status-event tables in `lotus-report`.
+2. Add governed migration files and migration runner/check commands for the three ledger tables.
+3. Add local/dev Postgres runtime support for `lotus-report`, either as a dedicated container or as
+   a governed shared Postgres service with an isolated database/schema.
+4. Add repository/service module APIs for creating requests, creating jobs, reading jobs, appending
+   status events, and resolving idempotent duplicates through DB-backed transactional behavior.
+5. Enforce idempotency key uniqueness, request/job foreign keys, status-event foreign keys, and
+   support indexes in the database.
+6. Add connection configuration, connection pooling where appropriate, and readiness behavior that
+   fails when the ledger DB or expected schema is unavailable.
+7. Add unit and migration tests for idempotent create, duplicate request, conflict request, status
+   transition, append-only status history, cancellation flag, failure category behavior, schema
+   presence, and DB-level uniqueness.
+8. Add migration smoke evidence and rollback/forward posture according to repo standards.
+9. Add live local evidence proving rows are persisted in PostgreSQL, not SQLite.
+10. Document partition-readiness, housekeeping posture, and why native partitioning is deferred
+    until scale/retention semantics preserve global idempotency.
+
+Acceptance criteria:
+
+1. `lotus-report` can run locally against Postgres with the ledger schema applied,
+2. `report_request`, `report_job`, and `report_status_event` exist in Postgres with required
+   constraints and indexes,
+3. idempotent duplicate and idempotency conflict behavior are enforced under transactionally safe
+   DB access,
+4. health/readiness reflects database availability and schema readiness,
+5. SQLite is not used for integration, Docker parity, or live evidence paths,
+6. migration smoke and live DB evidence are captured before this slice is closed.
+7. operational indexes cover tenant/region/time diagnostics, as-of scans, portfolio-scope lookup,
+   status queues, completion housekeeping, request/job joins, and event history.
 
 ### Slice 2: `lotus-report` APIs
 
@@ -327,18 +413,25 @@ Acceptance criteria:
 2. Preserve existing portfolio review JSON contract.
 3. Add OpenAPI examples with full request/response examples and no RFC names in Swagger.
 4. Add deterministic error contracts for missing idempotency key, idempotency conflict, unknown job,
-   invalid status transition, and unauthorized caller context.
-5. Add integration tests for submit/status/cancel, idempotent duplicate, idempotency conflict, and
-   validation failures.
-6. Ensure APIs return product-safe payloads without raw internals.
+   invalid status transition, and unauthorized or missing caller context.
+5. Add support-facing event-history retrieval for append-only job lifecycle diagnostics.
+6. Add integration tests for submit/status/events/cancel, idempotent duplicate, idempotency
+   conflict, and validation failures.
+7. Ensure APIs return product-safe payloads without raw internals.
+8. Ensure internal APIs read/write the PostgreSQL ledger through the governed repository/service
+   layer and do not bypass migrations or DB readiness.
+9. Ensure Swagger documents when to use submit, status, events, and cancel; what each endpoint
+   returns; and how idempotency/caller-context headers are used.
 
 ### Slice 3: Gateway Boundary
 
 1. Add gateway report initiation/status routes.
 2. Pass identity, tenant, region, role, correlation, trace, and idempotency context.
-3. Normalize gateway errors into product-safe errors.
-4. Add gateway tests proving Workbench-facing contract does not expose internal service topology.
-5. Add contract tests proving gateway does not bypass `lotus-report` job ownership.
+3. Reject missing required product-facing caller context before forwarding job create/status/cancel.
+4. Normalize gateway errors into product-safe errors.
+5. Add gateway tests proving Workbench-facing contract does not expose internal service topology.
+6. Add contract tests proving gateway does not bypass `lotus-report` job ownership or ledger
+   persistence.
 
 ### Slice 4: Workbench Adoption Path
 
@@ -354,20 +447,23 @@ Acceptance criteria:
 2. Tighten loose ends, remove temporary scaffolding, and simplify overly coupled modules.
 3. Check API certification pattern compliance for every report and gateway API touched.
 4. Verify OpenAPI/Swagger examples, request/response models, errors, and examples are production
-   quality.
+   quality, with type, description, and example coverage for public attributes.
 5. Verify platform governance and data mesh enterprise standards requirements are met.
 6. Verify RFC-0071, RFC-0072, RFC-0084, RFC-0091, and repo-local standards.
 7. Verify idempotency, cancellation, authorization context, observability identifiers, and status
    transition semantics.
-8. Make final quality improvements before closure.
+8. Verify PostgreSQL persistence, schema constraints, indexes, migrations, readiness, local/dev
+   container posture, partition-readiness, and housekeeping posture.
+9. Make final quality improvements before closure.
 
 Acceptance criteria:
 
 1. review findings are fixed or explicitly deferred with rationale,
 2. API certification evidence is current and specific,
-3. platform governance and mesh checks are green or governed as explicit deviations,
-4. CI health is green or has active fix-forward ownership,
-5. implementation is ready for final documentation and closure.
+3. PostgreSQL live evidence proves gateway-to-report-to-database persistence,
+4. platform governance and mesh checks are green or governed as explicit deviations,
+5. CI health is green or has active fix-forward ownership,
+6. implementation is ready for final documentation and closure.
 
 ### Final Slice: Closure
 
@@ -398,15 +494,25 @@ Acceptance criteria:
 2. `lotus-report` owns durable report request/job/status state.
 3. Job-creating APIs are idempotent.
 4. Status and failure vocabulary is explicit and tested.
-5. OpenAPI examples are complete and customer/product wording does not mention RFC names.
+5. OpenAPI examples are complete, public attributes carry type/description/example coverage, and
+   customer/product wording does not mention RFC names.
 6. Workbench does not call `lotus-report` directly for supported product flows.
 7. Supported-features entries are added only for implemented and validated behavior.
 8. Durable migrations exist for request, job, and status-event records.
 9. Idempotent duplicate and idempotency conflict behavior are tested.
 10. Gateway routes carry identity, tenant, region, role, correlation, trace, and idempotency context.
 11. Cancellation semantics are bounded and tested for pre-render/pre-archive jobs.
-12. Operator-safe job diagnostics are available without raw internals.
+12. Operator-safe job diagnostics and append-only event history are available without raw internals.
 13. Docs, wiki, context, and supported-features material are implementation-backed and aligned.
+14. `lotus-report` ledger persistence uses PostgreSQL for runtime, integration, Docker parity, and
+    live evidence.
+15. A separate local/dev Postgres container or governed shared Postgres database/schema exists for
+    the `lotus-report` ledger.
+16. Database readiness and schema readiness are part of service readiness.
+17. Live evidence includes gateway request/response, report logs, gateway logs, and PostgreSQL table
+    rows for `report_request`, `report_job`, and `report_status_event`.
+18. Indexing, partition-readiness, and housekeeping posture are documented and validated by schema
+    smoke checks where implementation-backed.
 
 ## Risks
 
@@ -419,6 +525,12 @@ Acceptance criteria:
 | Status vocabulary drifts from later RFCs | Keep status names aligned with RFC-0099 and reserve render/archive states for later RFCs |
 | Cancellation is over-promised | Limit cancellation to pre-render/pre-archive jobs and document future revisits |
 | Documentation claims PDF support too early | Supported-features review blocks aspirational wording |
+| SQLite or file-local persistence is mistaken for production durability | Require PostgreSQL for runtime, integration, Docker parity, and live evidence; allow SQLite only for explicitly isolated unit tests |
+| DB uniqueness and idempotency rely only on application code | Enforce unique idempotency keys and foreign-key relationships in Postgres migrations |
+| Ledger DB unavailable but service appears ready | Include DB connectivity and schema checks in readiness |
+| Shared local database causes cross-test or cross-service contamination | Use an isolated `lotus-report` database/schema and resettable test database posture |
+| Native partitioning weakens idempotency uniqueness | Defer partitioning until a later scale/retention RFC introduces a global idempotency registry or a governed partition-aware idempotency strategy |
+| Ledger grows without supportable housekeeping path | Add completion/time indexes now, document first-wave no-purge posture, and require later archive/retention RFCs to add governed purge/legal-hold semantics |
 
 ## Validation
 
@@ -432,6 +544,11 @@ Required validation:
 6. Security/dependency checks where report/gateway APIs change.
 7. API certification checks for every new or changed API.
 8. GitHub PR checks monitored after each pushed slice.
+9. PostgreSQL-backed live validation that starts `lotus-report`, `lotus-gateway`, and the ledger DB,
+   submits a portfolio-review job through gateway, proves idempotent duplicate behavior, proves
+   conflict behavior, proves status/cancel behavior, and dumps PostgreSQL ledger rows.
+10. Docker/local parity validation proving the configured DB container/service is the ledger backing
+    store for runtime paths.
 
 ## Supported Features
 
@@ -444,7 +561,8 @@ When implemented, supported-features material may mention only:
 2. durable report request/job/status tracking,
 3. idempotent report job creation,
 4. bounded job cancellation before render/archive phases,
-5. product-safe job status retrieval.
+5. product-safe job status retrieval,
+6. PostgreSQL-backed report job ledger persistence.
 
 It must not claim PDF rendering, archive retrieval, batch production, rerender, regenerate, replay,
 or production certification. Those belong to later RFCs.
