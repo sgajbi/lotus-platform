@@ -30,7 +30,7 @@ This file is generated from governed domain-data-product declarations.
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /manage/portfolio-actions/{portfolio_id} |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
 | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/returns/series, /integration/returns/series/results/{calculation_id} |
-| `ClientReportEvidencePack` | `lotus-report` | `v1` | `client_reporting_evidence` | `active` | lotus-gateway | /reports/client-evidence-packs/{portfolio_id} |
+| `ClientReportEvidencePack` | `lotus-report` | `v1` | `client_reporting_evidence` | `active` | lotus-gateway | /reports/client-evidence-packs/{portfolio_id}, /reports/portfolios/{portfolio_id}/review |
 | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/concentration |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/drawdown |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/historical-attribution |
