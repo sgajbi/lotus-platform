@@ -188,6 +188,17 @@ RFC-0102 must not define:
 5. document download APIs,
 6. document supersession semantics.
 
+RFC-0102 must hand off enough archive-ready metadata to RFC-0103, but only as render output
+evidence:
+
+1. output hash,
+2. output size and MIME type where available,
+3. template identity and render service version,
+4. render completion timestamp,
+5. render-attempt identifier.
+
+RFC-0103 remains the owner of turning that evidence into a durable archived document record.
+
 ### Relationship To RFC-0105
 
 RFC-0102 must create the render-attempt evidence that later enables:
@@ -198,6 +209,13 @@ RFC-0102 must create the render-attempt evidence that later enables:
 4. render-latency observability.
 
 RFC-0102 must not introduce those mutation or replay commands itself.
+
+For avoidance of doubt:
+
+1. RFC-0102 may define the evidence needed for future rerender,
+2. RFC-0102 must not expose rerender APIs,
+3. RFC-0102 must not expose replay APIs,
+4. RFC-0102 must not define operator workflows that imply replay authority already exists.
 
 ## Service Boundaries And API Direction
 
@@ -222,6 +240,9 @@ RFC-0102 must not introduce those mutation or replay commands itself.
 3. correlating render work to `report_job_id` and `snapshot_id`,
 4. persisting render-attempt lineage,
 5. deciding whether a render failure should fail the report job or remain in a partial state.
+
+`lotus-report` must not take archive shortcuts in this RFC by treating a render artifact as an
+archived document. Render completion and archive completion remain distinct lifecycle steps.
 
 ### `lotus-gateway`
 
@@ -289,6 +310,10 @@ RFC-0102 must define deterministic hashing for:
 
 Golden-vector tests are required for canonical package hashing where feasible.
 
+Binary output hashing must be stable for the exact generated artifact bytes. If first-wave
+determinism is environment-bounded rather than universal, the RFC implementation must state the
+supported runtime envelope explicitly and prove determinism inside that envelope.
+
 ## Template Registry
 
 The registry must declare:
@@ -314,6 +339,13 @@ The first wave must also define:
 4. how disclosure fragments are versioned,
 5. how business-owned text changes are governed without bypassing code review,
 6. how template/runtime compatibility is certified in CI.
+
+The registry must also make it explicit whether a template is:
+
+1. active,
+2. deprecated-but-rerenderable,
+3. blocked for new rendering,
+4. blocked entirely due to compatibility or governance failure.
 
 ## Render Attempt And Diagnostics Direction
 
@@ -348,6 +380,10 @@ Failure categories should distinguish at least:
 5. `output_validation_failed`,
 6. `operator_intervention_required`.
 
+The first wave should also define whether a failed render-attempt can be retried automatically
+within the same report job or requires later RFC-0105 operator action. The implementation must not
+leave retry posture implicit.
+
 ## Sequencing And Dependency Rules
 
 This RFC must be implemented in order. A later slice must not begin until the current slice is
@@ -372,6 +408,13 @@ Rules:
    contract and evidence bar,
 4. no archive, replay, or batch semantics may be smuggled into this RFC under "future-proofing",
 5. any required cross-repository prerequisite must be resolved before dependent slices close.
+
+Render-service extraction, if deferred, must still preserve:
+
+1. a stable package contract,
+2. a stable diagnostics model,
+3. a stable render-attempt persistence contract,
+4. a documented extraction path that does not require redesigning first-wave callers.
 
 ## Implementation Slices
 
@@ -411,7 +454,8 @@ Acceptance criteria:
 1. the render boundary is concretely scaffolded,
 2. health and readiness are implementation-backed,
 3. trace and correlation identifiers flow into the render boundary,
-4. render-attempt ownership is explicit and durable.
+4. render-attempt ownership is explicit and durable,
+5. the service-vs-module decision does not leave future extraction ambiguous.
 
 ### Slice 2: Render Package And Template Registry
 
@@ -428,7 +472,8 @@ Acceptance criteria:
 1. render packages are versioned and validated deterministically,
 2. template compatibility checks are explicit and tested,
 3. unsafe or incomplete packages fail before rendering starts,
-4. package hashing and manifest identity are durable and supportable.
+4. package hashing and manifest identity are durable and supportable,
+5. template lifecycle posture is explicit enough for later rerender and archive reasoning.
 
 ### Slice 3: Typst PDF Rendering
 
@@ -443,7 +488,8 @@ Acceptance criteria:
 1. Typst rendering works through the governed render boundary,
 2. output hashes and diagnostics are durable,
 3. deterministic rendering is proven to the defined first-wave evidence standard,
-4. failures are classified and supportable.
+4. failures are classified and supportable,
+5. determinism claims are bounded truthfully to the supported runtime envelope when applicable.
 
 ### Slice 4: `lotus-report` Integration
 
@@ -459,7 +505,8 @@ Acceptance criteria:
 1. `lotus-report` can submit a supported first-wave render package,
 2. render-attempt records are correlated to `report_job_id` and `snapshot_id`,
 3. render failures are reflected truthfully without leaking archive or replay semantics,
-4. supported-features wording is implementation-backed, not aspirational.
+4. supported-features wording is implementation-backed, not aspirational,
+5. render completion remains clearly separate from archive completion.
 
 ### Implementation Proof Slice
 
@@ -483,7 +530,8 @@ Minimum evidence pack contents:
 4. template registry and compatibility evidence,
 5. logs showing trace and correlation continuity,
 6. at least one controlled render failure case with correct failure category,
-7. a written audit explaining what is proven and what later RFCs still own.
+7. explicit proof of the supported determinism envelope,
+8. a written audit explaining what is proven and what later RFCs still own.
 
 Acceptance criteria:
 
@@ -519,6 +567,7 @@ Mandatory review lenses:
 6. dead code, duplicate logic, and stale compatibility handling,
 7. test depth and realism,
 8. boundary clarity with RFC-0101, RFC-0103, and RFC-0105.
+9. archive-handoff clarity and non-overlap with document lifecycle ownership.
 
 Acceptance criteria:
 
@@ -655,7 +704,9 @@ Cross-RFC validation is also required:
 2. output and diagnostics required later by RFC-0103 archive flows are available or explicitly
    deferred,
 3. rerender and replay semantics are not accidentally implemented under RFC-0102 despite being
-   reserved for RFC-0105.
+   reserved for RFC-0105,
+4. render completion is not presented as document availability before RFC-0103 archive ownership
+   exists.
 
 ## Supported Features
 
@@ -671,6 +722,7 @@ When implemented, supported-features material may mention only:
 3. Typst PDF rendering for supported report types,
 4. durable render diagnostics and output hashing,
 5. `lotus-report` render submission and render-attempt recording.
+6. bounded deterministic rendering posture for the supported runtime envelope.
 
 It must not claim:
 
@@ -697,6 +749,17 @@ The proof standard is:
 3. logs, render-attempt rows, requests, and outputs must reconcile to one another,
 4. any determinism caveat must be explained explicitly rather than hand-waved,
 5. if a required proof path cannot be produced, the slice is not complete.
+
+## Additional Risks And Watchpoints
+
+1. template compatibility rules may be underspecified and later block rerender or archive
+   compatibility decisions,
+2. render success may be misinterpreted operationally as archive success if lifecycle boundaries are
+   not kept explicit,
+3. extraction-ready module posture may become a permanent ambiguous compromise if not governed
+   tightly,
+4. visual regression evidence may be noisy or non-actionable if the supported runtime envelope is
+   not controlled.
 
 ## Open Questions
 
