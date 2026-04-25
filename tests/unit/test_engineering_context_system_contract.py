@@ -114,6 +114,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "lotus-advise",
         "lotus-manage",
         "lotus-report",
+        "lotus-render",
         "lotus-ai",
     }
 
