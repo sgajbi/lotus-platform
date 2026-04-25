@@ -1,7 +1,7 @@
 # RFC-0102 Final Closure Evidence
 
 - RFC: `RFC-0102-render-package-template-registry-and-render-service.md`
-- Date: `2026-04-23`
+- Date: `2026-04-25`
 
 ## Closure Scope
 
@@ -45,32 +45,36 @@ Deliberate no-change decisions:
 3. no new central platform context artifact was required because RFC-0102 changes were repository
    and RFC local rather than platform-routing changes.
 
-## Residual Non-Closure Item
+## Presentation And Report-System Uplift
 
-The private-banking PDF presentation still needs a higher-quality final design pass.
+The private-banking PDF presentation uplift has been implemented on the `lotus-render` RFC-0102
+branch and is now part of the branch-level proof posture. The report template has a shared visual
+system, modular section families, deterministic SVG chart generation, source-backed attribute
+inventory, and improved portfolio-review page composition.
 
-That item is explicitly treated as:
-
-1. a remaining product-quality uplift,
-2. not a hidden render-boundary or proof defect,
-3. work to complete before claiming the first-wave template is at the final presentation bar the
-   user asked for.
+Remaining product/design work is limited to final review feedback and future source-gap decisions;
+it is no longer tracked as an unimplemented RFC-0102 render-boundary requirement.
 
 ## Branch And CI Posture
 
 At closure-write time:
 
-1. previously pushed PR heads were green,
-2. new proof-harness and documentation truth changes were local and still needed to be pushed,
-3. therefore RFC-0102 final merge/branch-hygiene acceptance was not yet complete.
+1. `lotus-render` draft PR #1 was green at commit `b60e2ec` with PR Merge Gate workflow run
+   `24923057048`,
+2. `lotus-report` draft PR #65 was green at commit `3367528` with PR Merge Gate workflow run
+   `24924520301`,
+3. `lotus-platform` RFC/source-gap updates were green on `feature/rfc-0102-gold-standard` at
+   commit `404908b`,
+4. this evidence update still needs to be committed, pushed, and checked,
+5. therefore RFC-0102 final merge/branch-hygiene acceptance is not yet complete.
 
 ## Acceptance Posture
 
-The final closure slice is complete locally for documentation and truth hygiene.
+Branch-level implementation proof is complete for the current RFC-0102 scope. The remaining closure
+steps are:
 
-The only remaining remote closure steps are:
-
-1. push the latest proof-harness and documentation updates,
-2. rerun GitHub checks on the new heads,
+1. push this latest RFC truth update and rerun GitHub checks,
+2. complete final review on the implementation PRs,
 3. merge the implementation PRs,
-4. run repo wiki sync checks and publish after merge where required.
+4. run repo wiki sync checks and publish after merge where required,
+5. complete local and remote branch hygiene.
