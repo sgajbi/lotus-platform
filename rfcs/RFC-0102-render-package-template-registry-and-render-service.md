@@ -676,7 +676,7 @@ wiki publication is complete, and branch hygiene is finished.
 | --- | --- | --- | --- |
 | `lotus-render` | `feature/rfc-0102-render-service-foundation`, draft PR #1 | Commit `a7bfed8`; PR Merge Gate workflow run `24924793750` passed | Render-service foundation, template registry, Typst portfolio-review rendering, deterministic SVG chart assets, golden PDF proof, support-safe diagnostics, and first-wave internal render APIs are branch-proven |
 | `lotus-report` | `feature/rfc-0102-render-boundary`, draft PR #65 | Commit `3a92a26`; PR Merge Gate workflow run `24924793963` passed | Render-package assembly, lotus-render submission, persisted render metadata, render-aware job status/failure mapping, and package-builder modularization are branch-proven |
-| `lotus-platform` | `feature/rfc-0102-gold-standard` | Commit `0b3e8dc`; Remote Feature Lane workflow run `24924793313` passed before this status-only refresh | RFC source-gap and report-attribute governance updates are branch-proven |
+| `lotus-platform` | `feature/rfc-0102-gold-standard`, draft PR #198 | Current PR checks pass on the branch head | RFC source-gap, proof-status, and report-attribute governance updates are branch-proven |
 
 Remaining closure work:
 
@@ -788,3 +788,71 @@ RFC-0102 is complete only when all of the following are true:
 8. OpenAPI and error contracts are complete and high quality,
 9. live evidence proves the end-to-end implementation cleanly,
 10. docs, wiki, context, supported-features, and branch hygiene are complete.
+
+## Gold-Pass Assessment
+
+This assessment records the slice-by-slice audit performed on 2026-04-25 after the first-wave
+implementation, presentation uplift, report integration hardening, and proof-refresh work. It is a
+branch-level production-readiness assessment, not a mainline closure claim. Final RFC completion
+still requires review, merge, wiki publication, and branch hygiene.
+
+| Slice | Completeness and correctness | Quality improvements and debt removed | Proof and evidence | Gold-pass judgment |
+| --- | --- | --- | --- | --- |
+| Slice 0: Platform automation and scaffolding improvement | Complete for RFC-0102 scope. `lotus-render` is represented as a governed service in platform automation and CI lane expectations. | Service-map drift was resolved during PR #198 rebase by preserving `main`'s `lotus-report` entry and retaining the RFC-0102 `lotus-render` entry. | `lotus-platform` PR #198 passed Feature Lane, PR Merge Gate, and Cross-App Vocabulary Gate after merge-conflict resolution. | Meets expected standard for this RFC. Broader scaffold evolution remains future platform work only when new repeatable gaps appear. |
+| Slice 1: Cleanup and structure | Complete for first-wave render/report scope. Render ownership, package assembly, template governance, and documentation boundaries are explicit. | Removed stale slice wording, corrected repository context, split `lotus-report` render-package construction into `package_builder.py`, and kept orchestration in `service.py`. | `lotus-render` PR #1 and `lotus-report` PR #65 are clean and green. Context updates are committed and pushed on both branches. | Meets expected standard. No known dead rendering stub or duplicate authoritative rendering guide remains in the supported path. |
+| Slice 2: Render service foundation | Complete. `lotus-render` is a separate deployable service with health/readiness, structured request posture, render attempt state, support-safe APIs, and CI. | Boundary remains pure: renderer consumes complete render packages and does not fetch domain business data. | `lotus-render` PR #1 passed workflow lint, lint/typecheck/security, unit, integration, e2e, coverage, and Docker build checks. | Meets expected standard for first-wave synchronous render service. |
+| Slice 3: Render package and template registry | Complete. Render packages are versioned and validated; template manifests govern compatibility, lifecycle status, locale, brand, output format, and contract version. | Template truth is registry-backed rather than hardcoded in page code. Unsupported, deprecated, and blocked postures are explicit. | `lotus-render` template registry gate and unit/integration coverage are included in PR #1 proof. Live proof pack includes template-registry evidence. | Meets expected standard. |
+| Slice 4: Typst PDF rendering and diagnostics | Complete for `portfolio-review v1`. The report uses a modular Typst system, deterministic SVG chart assets, golden PDF proof, artifact hashes, and bounded determinism. | Replaced the early plain/report-like PDF with a unified private-banking visual system, reusable components, section configurability, chart pipeline, and source-backed attribute inventory. Corrected determinism language from byte-stable PDF identity to bounded runtime-envelope determinism. | `lotus-render` PR #1 passed render tests, coverage, Docker build, golden proof checks, and chart governance tests. Slice 6 live proof explains raw PDF metadata drift and stable bounded fingerprint. | Meets expected standard for branch-level first-wave rendering. Further design changes are product iteration, not an RFC-0102 render-boundary defect. |
+| Slice 5: `lotus-report` integration | Complete. `lotus-report` assembles the governed render package, submits it to `lotus-render`, persists render metadata, and maps render failures into job status truthfully. | Reduced service complexity by moving package construction into `reporting_render/package_builder.py`; retained report data assembly in `lotus-report`; kept archive/replay semantics out of scope. | `lotus-report` PR #65 passed workflow lint, lint/typecheck/security, unit, integration, e2e, coverage, and Docker build checks. Local proof included focused render tests, full unit tests, and `make check`. | Meets expected standard for first-wave report-to-render handoff. |
+| Slice 6: Implementation proof | Complete for current supported scope. Clean evidence pack proves positive and negative render behavior, status and artifact metadata, report-to-render submission, logs, and bounded determinism. | Rejected superficial proof by separating clean evidence from diagnostic runs and correcting overbroad determinism claims. | `RFC-0102-slice-6-implementation-proof-evidence.md` records the clean evidence directory and exact proof harness commands. | Meets expected standard. |
+| Second-last slice: Hardening, review, and certification | Complete for branch-level readiness. Review lenses covered boundary purity, template governance, determinism, artifact hashes, diagnostics, runtime packaging, status clarity, and archive/replay leakage. | Resolved determinism overstatement, strengthened supported-features/wiki truth, modularized `lotus-report` package assembly, and refreshed proof references. | `RFC-0102-slice-7-review-and-governance-evidence.md`; green PR merge gates for `lotus-render` and `lotus-report`; green platform PR #198. | Meets expected standard. No significant supported-scope implementation defect is currently known. |
+| Final slice: Closure | Partially complete. Documentation, context, supported-features, wiki source updates, and proof-status PRs exist. Mainline merge, wiki publication after merge, and branch hygiene remain pending. | Updated RFC source-gap inventory, closure evidence, repository contexts, and RFC index so status is truthful and not overstated. | Draft PRs: `lotus-render` #1, `lotus-report` #65, `lotus-platform` #198 are clean and green at audit time. | Not final-complete until PRs are merged and wiki/branch hygiene is done. Branch-level readiness is acceptable for final review. |
+
+Completed capabilities:
+
+1. governed `lotus-render` service boundary and internal render APIs,
+2. versioned render package validation and template registry compatibility enforcement,
+3. real Typst PDF rendering for `portfolio-review v1`,
+4. deterministic SVG chart asset generation and modular portfolio-review Typst template system,
+5. artifact hashing, support-safe diagnostics, status, and artifact-metadata responses,
+6. `lotus-report` render-package assembly and render outcome persistence,
+7. source-backed portfolio-review attribute inventory with explicit source gaps and placement
+   questions,
+8. clean live evidence proving supported positive and negative behavior.
+
+Quality improvements made during the gold pass:
+
+1. reduced `lotus-report` render orchestration complexity by extracting package construction,
+2. removed stale context that described `lotus-report` integration as still pending,
+3. replaced vague presentation-uplift status with concrete branch-level proof and remaining
+   closure gates,
+4. corrected determinism claims to match observed Typst/PDF behavior,
+5. kept archive, retention, replay, rerender, regenerate, reissue, and document distribution out of
+   RFC-0102 client and operator claims,
+6. made attribute source gaps explicit rather than allowing invented client-facing fields.
+
+Testing and evidence proven:
+
+1. `lotus-render` PR #1: Remote Feature Lane and PR Merge Gate green, including lint,
+   typecheck/security, unit, integration, e2e, coverage, and Docker build,
+2. `lotus-report` PR #65: Remote Feature Lane and PR Merge Gate green, including lint,
+   typecheck/security, unit, integration, e2e, coverage, and Docker build,
+3. `lotus-platform` PR #198: Feature Lane, PR Merge Gate, and Cross-App Vocabulary Gate green,
+4. local focused proof for `lotus-report` render integration, full unit suite, and `make check`,
+5. live RFC-0102 evidence pack proving successful render, validation failure, engine failure,
+   status, artifact metadata, report-to-render handoff, and bounded determinism.
+
+Residual closure items:
+
+1. complete final human review of the three draft PRs,
+2. merge implementation-bearing PRs,
+3. run repo wiki sync checks and publish wiki updates after merge where required,
+4. complete local and remote branch hygiene,
+5. address source gaps in later upstream/data-contract work rather than hiding them in the template.
+
+Gold-pass conclusion:
+
+The RFC-0102 implementation has reached the expected branch-level production-readiness standard for
+the first-wave render package, template registry, portfolio-review PDF rendering, and
+`lotus-report` integration scope. It is not yet final-complete in governance terms because merge,
+wiki publication, and branch hygiene are deliberately still pending.
