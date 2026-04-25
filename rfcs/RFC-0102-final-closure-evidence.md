@@ -63,18 +63,16 @@ At closure-write time:
    `24924793750`,
 2. `lotus-report` draft PR #65 was green at commit `3a92a26` with PR Merge Gate workflow run
    `24924793963`,
-3. `lotus-platform` RFC/source-gap updates were green on `feature/rfc-0102-gold-standard` at
-   commit `0b3e8dc` with Remote Feature Lane workflow run `24924793313`,
-4. this evidence update still needs to be committed, pushed, and checked,
-5. therefore RFC-0102 final merge/branch-hygiene acceptance is not yet complete.
+3. `lotus-platform` RFC/source-gap updates are tracked in draft PR #198, with PR checks as the
+   live source of truth for status-only documentation refreshes,
+4. therefore RFC-0102 final merge/branch-hygiene acceptance is not yet complete.
 
 ## Acceptance Posture
 
 Branch-level implementation proof is complete for the current RFC-0102 scope. The remaining closure
 steps are:
 
-1. push this latest RFC truth update and rerun GitHub checks,
-2. complete final review on the implementation PRs,
-3. merge the implementation PRs,
-4. run repo wiki sync checks and publish after merge where required,
-5. complete local and remote branch hygiene.
+1. complete final review on the implementation PRs,
+2. merge the implementation PRs,
+3. run repo wiki sync checks and publish after merge where required,
+4. complete local and remote branch hygiene.
