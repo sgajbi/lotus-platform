@@ -69,12 +69,20 @@
         "preflight_fast_command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/check_monetary_float_usage.py \u0026\u0026 python -m pytest tests/unit",
         "preflight_full_command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m pip check \u0026\u0026 python -m pip_audit \u0026\u0026 COVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 COVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 COVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99"
     },
-      {
+    {
         "name":  "lotus-ai",
         "github":  "sgajbi/lotus-ai",
         "path":  "C:/Users/Sandeep/projects/lotus-ai",
         "default_branch":  "main",
         "preflight_fast_command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/check_monetary_float_usage.py \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -m pytest tests/unit",
         "preflight_full_command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m pip check \u0026\u0026 COVERAGE_FILE=.coverage.unit python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 COVERAGE_FILE=.coverage.integration python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 COVERAGE_FILE=.coverage.e2e python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
-      }
-  ]
+    },
+    {
+        "name":  "lotus-render",
+        "github":  "sgajbi/lotus-render",
+        "path":  "C:/Users/Sandeep/projects/lotus-render",
+        "default_branch":  "main",
+        "preflight_fast_command":  "make check",
+        "preflight_full_command":  "make ci"
+    }
+]

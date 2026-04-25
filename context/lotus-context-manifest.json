@@ -87,6 +87,7 @@
         "lotus-advise",
         "lotus-manage",
         "lotus-report",
+        "lotus-render",
         "lotus-ai"
       ],
       "requires_platform_end_to_end_validation": true
@@ -125,6 +126,7 @@
         "lotus-advise",
         "lotus-manage",
         "lotus-report",
+        "lotus-render",
         "lotus-ai"
       ],
       "downstream_dependencies": [
@@ -239,6 +241,22 @@
       "requires_platform_end_to_end_validation": true
     },
     {
+      "repository": "lotus-render",
+      "category": "domain-service",
+      "business_role": "Deterministic document rendering service for Lotus reporting",
+      "primary_runtime": "python-fastapi",
+      "canonical_commands": {
+        "quality": "make ci"
+      },
+      "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+      "status": "implemented",
+      "upstream_dependencies": [],
+      "downstream_dependencies": [
+        "lotus-report"
+      ],
+      "requires_platform_end_to_end_validation": true
+    },
+    {
       "repository": "lotus-ai",
       "category": "shared-capability-service",
       "business_role": "Shared AI capability service for governed AI-backed flows",
@@ -298,7 +316,8 @@
       "domain": "reporting-and-document-generation",
       "authoritative_repository": "lotus-report",
       "composition_layers": [
-        "lotus-gateway"
+        "lotus-gateway",
+        "lotus-render"
       ]
     },
     {

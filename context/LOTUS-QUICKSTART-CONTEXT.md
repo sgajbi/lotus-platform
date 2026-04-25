@@ -45,9 +45,11 @@ The core application and service landscape is:
    The management and operational workflow service for portfolio and mandate operations.
 8. `lotus-report`
    The reporting and document-generation service.
-9. `lotus-ai`
+9. `lotus-render`
+   The deterministic document rendering service for governed reporting artifacts.
+10. `lotus-ai`
    The shared AI capability service for governed AI-backed features.
-10. `lotus-platform`
+11. `lotus-platform`
     The owner of shared standards, automation, ingress, validation, CI governance, and ecosystem runbooks.
 
 ## Architecture In One Pass

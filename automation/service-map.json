@@ -28,7 +28,18 @@
       "defaultServices": ["lotus-report"],
       "rules": [
         {
-          "pathPrefixes": ["src/", "tests/", "wiki/", "docs/", "requirements.txt", "requirements-dev.txt", "pyproject.toml", "Dockerfile", "docker-compose.yml", "migrations/"],
+          "pathPrefixes": [
+            "src/",
+            "tests/",
+            "wiki/",
+            "docs/",
+            "requirements.txt",
+            "requirements-dev.txt",
+            "pyproject.toml",
+            "Dockerfile",
+            "docker-compose.yml",
+            "migrations/"
+          ],
           "services": ["lotus-report"]
         }
       ]
@@ -136,6 +147,17 @@
         {
           "pathPrefixes": ["src/", "tests/", "pyproject.toml", "Dockerfile"],
           "services": ["lotus-ai"]
+        }
+      ]
+    },
+    {
+      "name": "lotus-render",
+      "pathHint": "lotus-render",
+      "defaultServices": ["lotus-render"],
+      "rules": [
+        {
+          "pathPrefixes": ["src/", "tests/", "pyproject.toml", "Dockerfile"],
+          "services": ["lotus-render"]
         }
       ]
     }

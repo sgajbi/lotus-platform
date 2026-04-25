@@ -304,8 +304,8 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
 
     applications = manifest.get("applications", [])
-    if len(applications) != 10:
-        errors.append("lotus-context-manifest.json: applications registry must include 10 Lotus repositories")
+    if len(applications) != 11:
+        errors.append("lotus-context-manifest.json: applications registry must include 11 Lotus repositories")
     if any(entry.get("status") != "implemented" for entry in applications):
         errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
 

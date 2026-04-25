@@ -115,6 +115,27 @@
       }
     },
     {
+      "repo": "lotus-render",
+      "startup": {
+        "up_command": "docker compose up -d --build lotus-render",
+        "down_command": "docker compose down",
+        "log_command": "docker compose logs --tail=200 lotus-render"
+      },
+      "checks": {
+        "api": [
+          { "id": "health", "method": "GET", "url": "http://render.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
+          { "id": "docs", "method": "GET", "url": "http://render.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
+        ],
+        "monitoring": [
+          { "id": "metrics", "url": "http://render.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
+        ],
+        "observability": {
+          "require_response_headers": ["x-correlation-id"],
+          "required_log_patterns": ["correlation", "service", "render"]
+        }
+      }
+    },
+    {
       "repo": "lotus-risk",
       "startup": {
         "up_command": "docker compose up -d --build lotus-risk",
