@@ -59,12 +59,12 @@ it is no longer tracked as an unimplemented RFC-0102 render-boundary requirement
 
 At closure-write time:
 
-1. `lotus-render` draft PR #1 was green at commit `b60e2ec` with PR Merge Gate workflow run
-   `24923057048`,
-2. `lotus-report` draft PR #65 was green at commit `3367528` with PR Merge Gate workflow run
-   `24924520301`,
+1. `lotus-render` draft PR #1 was green at commit `a7bfed8` with PR Merge Gate workflow run
+   `24924793750`,
+2. `lotus-report` draft PR #65 was green at commit `3a92a26` with PR Merge Gate workflow run
+   `24924793963`,
 3. `lotus-platform` RFC/source-gap updates were green on `feature/rfc-0102-gold-standard` at
-   commit `404908b`,
+   commit `0b3e8dc` with Remote Feature Lane workflow run `24924793313`,
 4. this evidence update still needs to be committed, pushed, and checked,
 5. therefore RFC-0102 final merge/branch-hygiene acceptance is not yet complete.
 

@@ -672,11 +672,11 @@ This snapshot records the branch-level implementation state as of 2026-04-25. It
 handoff and closure planning; it is not a final completion claim until the listed PRs are merged,
 wiki publication is complete, and branch hygiene is finished.
 
-| Repository | Branch / PR | Latest proof | Status |
+| Repository | Branch / PR | Current proof | Status |
 | --- | --- | --- | --- |
-| `lotus-render` | `feature/rfc-0102-render-service-foundation`, draft PR #1 | Commit `b60e2ec`; PR Merge Gate workflow run `24923057048` passed | Render-service foundation, template registry, Typst portfolio-review rendering, deterministic SVG chart assets, golden PDF proof, support-safe diagnostics, and first-wave internal render APIs are branch-proven |
-| `lotus-report` | `feature/rfc-0102-render-boundary`, draft PR #65 | Commit `3367528`; PR Merge Gate workflow run `24924520301` passed | Render-package assembly, lotus-render submission, persisted render metadata, render-aware job status/failure mapping, and package-builder modularization are branch-proven |
-| `lotus-platform` | `feature/rfc-0102-gold-standard` | Commit `404908b`; Remote Feature Lane passed | RFC source-gap and report-attribute governance updates are branch-proven |
+| `lotus-render` | `feature/rfc-0102-render-service-foundation`, draft PR #1 | Commit `a7bfed8`; PR Merge Gate workflow run `24924793750` passed | Render-service foundation, template registry, Typst portfolio-review rendering, deterministic SVG chart assets, golden PDF proof, support-safe diagnostics, and first-wave internal render APIs are branch-proven |
+| `lotus-report` | `feature/rfc-0102-render-boundary`, draft PR #65 | Commit `3a92a26`; PR Merge Gate workflow run `24924793963` passed | Render-package assembly, lotus-render submission, persisted render metadata, render-aware job status/failure mapping, and package-builder modularization are branch-proven |
+| `lotus-platform` | `feature/rfc-0102-gold-standard` | Commit `0b3e8dc`; Remote Feature Lane workflow run `24924793313` passed before this status-only refresh | RFC source-gap and report-attribute governance updates are branch-proven |
 
 Remaining closure work:
 
