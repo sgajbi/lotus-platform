@@ -59,4 +59,4 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `RFC-0094` | `active` | implemented on main | Durable background engineering task ledger and governed delegation model |
 | `RFC-0095` | `active` | implemented | Heartbeat-driven monitoring and attention surfacing |
 | `RFC-0096` | `active` | implemented | Governed multi-agent delegation model |
-| `RFC-0103` | `active` | implementation in progress; Slice 0 scaffold and governance baseline | Document archive, retrieval, retention, and legal hold |
+| `RFC-0103` | `active` | implemented for supported first-wave archive scope; Workbench retrieval and production certification deferred | Document archive, retrieval, retention, and legal hold |

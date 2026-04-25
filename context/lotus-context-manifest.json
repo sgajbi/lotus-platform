@@ -464,7 +464,7 @@
                                     "id":  "RFC-0103",
                                     "title":  "Document archive, retrieval, retention, and legal hold",
                                     "status":  "active",
-                                    "implementation_posture":  "implementation in progress; Slice 0 scaffold and governance baseline"
+                                    "implementation_posture":  "implemented for supported first-wave archive scope; Workbench retrieval and production certification deferred"
                                 }
                             ]
 }
