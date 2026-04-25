@@ -52,6 +52,65 @@ This revision tightens the RFC in the following areas:
 
 Implementation must not start until this RFC is reviewed as the execution guide for RFC-0103.
 
+## Gold-Pass Readiness Assessment
+
+This section records the final pre-implementation review posture. It is not implementation
+evidence. It is the decision record that the RFC is now specific enough to drive implementation
+without relying on chat history or hidden assumptions.
+
+| Review area | Gold-pass finding | Required implementation posture |
+| --- | --- | --- |
+| Scope clarity | The RFC now separates archive ownership from report job, snapshot, render, batch, replay, and security-certification scopes. | Keep RFC-0103 branches focused on archive, report handoff, gateway retrieval only when included, and required platform scaffold uplift. |
+| Architecture direction | Separate `lotus-archive` service boundary, PostgreSQL metadata, S3-compatible binary storage, and gateway-first product access are explicit. | Do not start with local files as product architecture; local filesystem may only be an adapter-backed development path. |
+| Platform leverage | Slice 0 requires shared scaffold and automation improvements before local archive shortcuts become permanent. | Fix repeatable app-baseline gaps in `lotus-platform`; do not copy-paste one-off CI, Swagger, health, logging, or docs patterns into `lotus-archive`. |
+| API quality | Endpoint families, certification requirements, Swagger expectations, examples, error taxonomy, and audit side effects are explicit. | Every API must ship with certified OpenAPI, clear examples, safe errors, and tests for meaningful negative paths. |
+| Data model | The minimum archive metadata, legal-hold fields, and audit fields are explicit and source-mapped. | Missing upstream values become source gaps or deferred fields; no placeholder business facts or fake client-facing fields. |
+| Retention and legal hold | Retention, purge eligibility, purge execution, legal hold, and support-safe post-purge evidence are separated. | Legal hold must block purge in code and proof; purge eligibility must not be treated as deletion. |
+| Product boundary | Gateway is the product-facing boundary; Workbench is optional and gateway-backed only. | Do not add Workbench retrieval unless gateway support and product-supported behavior are implemented and proven. |
+| Evidence | Clean proof, negative paths, service versions, audit records, checksum evidence, and no-overclaim checks are required. | Treat diagnostic runs separately from final proof; do not close with only happy-path evidence. |
+| Closure | Second-last hardening and final closure slices follow the current RFC governance standard. | Complete code review, docs/context/wiki/supported-features, skills/guidance assessment, CI evidence, and branch hygiene before closure. |
+
+Gold-pass conclusion: RFC-0103 is implementation-ready as an execution guide after this revision.
+The implementation must still resolve or explicitly defer the open questions before the relevant
+slice begins, and it must not claim archive support until the implementation-backed
+supported-features criteria are met.
+
+## Locked First-Wave Decisions
+
+These decisions are settled for implementation unless the RFC is deliberately amended:
+
+1. `lotus-archive` is a separate governable service/repository, not a hidden `lotus-report`
+   submodule for production use,
+2. archive metadata is stored in PostgreSQL,
+3. document binaries are stored through an S3-compatible object-storage abstraction,
+4. MinIO or filesystem-backed local storage is allowed only behind the same abstraction for
+   development and tests,
+5. object storage is never directly exposed to Workbench or customer-facing clients,
+6. `lotus-report` submits archive-ready artifacts only after render success,
+7. `lotus-archive` owns archived document identity and lifecycle state,
+8. `lotus-gateway` is the product-facing retrieval boundary,
+9. Workbench retrieval is optional and must be gateway-backed,
+10. legal hold blocks purge regardless of retention eligibility,
+11. purge eligibility and purge execution are separate actions,
+12. supported-features entries are added only after implementation, validation, and proof.
+
+## Conditional Decisions
+
+These decisions are intentionally left conditional because they depend on implementation evidence,
+product approval, or legal/operational input:
+
+1. signed URL versus service-streamed download,
+2. exact first-wave retention classes,
+3. legal-hold authority and approval workflow,
+4. exact production object-storage provider and encryption configuration,
+5. first-wave document classification vocabulary,
+6. whether gateway document retrieval is shipped in RFC-0103 or deferred to later certification,
+7. whether Workbench document retrieval is shipped in RFC-0103 or deferred,
+8. which archive metadata becomes a future governed reporting evidence product.
+
+Conditional decisions must be resolved in the slice that needs them. If they are deferred, the
+defer decision must name the owner, reason, downstream impact, and supported-features posture.
+
 ## Problem
 
 Generated reports must not be treated as files written to a local output directory. Private-banking

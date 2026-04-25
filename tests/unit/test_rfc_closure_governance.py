@@ -255,6 +255,9 @@ def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
     for expected in [
         "- status: proposed",
         "critical review outcome",
+        "gold-pass readiness assessment",
+        "locked first-wave decisions",
+        "conditional decisions",
         "implementation prerequisites",
         "cross-rfc ownership boundaries",
         "document metadata contract",
@@ -275,6 +278,18 @@ def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
         "supported-features entries must name",
         "documentation, wiki, and context impact",
         "open questions",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-archive` is a separate governable service/repository",
+        "archive metadata is stored in postgresql",
+        "document binaries are stored through an s3-compatible object-storage abstraction",
+        "object storage is never directly exposed to workbench",
+        "legal hold blocks purge regardless of retention eligibility",
+        "signed url versus service-streamed download",
+        "exact first-wave retention classes",
+        "whether workbench document retrieval is shipped in rfc-0103 or deferred",
     ]:
         assert expected in text
 
