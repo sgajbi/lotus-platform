@@ -115,6 +115,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "lotus-manage",
         "lotus-report",
         "lotus-render",
+        "lotus-archive",
         "lotus-ai",
     }
 
@@ -129,6 +130,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "advisory-workflows",
         "management-and-operations",
         "reporting-and-document-generation",
+        "generated-document-archive-retrieval-retention-and-legal-hold",
         "ai-capabilities",
     }
 
@@ -150,6 +152,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "RFC-0094",
         "RFC-0095",
         "RFC-0096",
+        "RFC-0103",
     }
     implementation_postures = {entry["id"]: entry["implementation_posture"] for entry in manifest["active_rfc_registry"]}
     assert implementation_postures["RFC-0071"] == "implemented and governed"
@@ -160,6 +163,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert implementation_postures["RFC-0094"] == "implemented on main"
     assert implementation_postures["RFC-0095"] == "implemented"
     assert implementation_postures["RFC-0096"] == "implemented"
+    assert "implementation in progress" in implementation_postures["RFC-0103"]
 
 
 def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_linked() -> None:
@@ -217,6 +221,9 @@ def test_rfc_0073_slice_two_a_repo_root_agents_are_synchronized_and_validated() 
 
     assert platform_repo_agents == agents_contract
     assert "Repo-root `AGENTS.md` files across Lotus repositories" in agents_contract
+    assert "automation/repos.json" in validator
+    assert "application_repositories != registered_repositories" in validator
+    assert "applications registry must include 11 Lotus repositories" not in validator
 
     for required_item in (
         "[string[]]$Repository = @()",

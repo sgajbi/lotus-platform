@@ -25,6 +25,15 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         ROOT / "platform-standards" / "Repository-Hygiene-and-Dependency-Model-Standard.md"
     ).read_text(encoding="utf-8")
     scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    makefile_template = (
+        ROOT / "platform-standards" / "templates" / "Makefile.backend.template"
+    ).read_text(encoding="utf-8")
+    feature_lane_template = (
+        ROOT / "platform-standards" / "templates" / "workflows" / "feature-lane.backend.template.yml"
+    ).read_text(encoding="utf-8")
+    pr_merge_template = (
+        ROOT / "platform-standards" / "templates" / "workflows" / "pr-merge-gate.backend.template.yml"
+    ).read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
     assert ".editorconfig" in hygiene_standard
@@ -42,6 +51,19 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert 'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")' in scaffold_script
     assert 'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")' in scaffold_script
+    assert "Ensure-GitInitialCommit" in scaffold_script
+    assert "git -C $TargetRepoRoot push -u origin main" in scaffold_script
+    assert "monetary-float-guard:" in makefile_template
+    assert "$(MAKE) monetary-float-guard" in makefile_template
+    assert "coverage-gate:" in makefile_template
+    assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
+    assert (
+        "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
+        in makefile_template
+    )
+    assert "run: ./.venv/bin/python -m pytest tests/unit" in feature_lane_template
+    assert "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report=" in pr_merge_template
+    assert "./.venv/bin/python -m coverage combine coverage-data" in pr_merge_template
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
 
 
@@ -93,6 +115,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
+    makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -103,3 +126,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert result["gitattributes_missing_patterns"] == []
     assert result["gitignore_missing_patterns"] == []
     assert result["dockerignore_missing_patterns"] == []
+    assert "monetary-float-guard:" in makefile
+    assert "$(MAKE) monetary-float-guard" in makefile
+    assert "coverage-gate:" in makefile
+    assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
+    assert (
+        "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
+        in makefile
+    )
