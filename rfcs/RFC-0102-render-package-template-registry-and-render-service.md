@@ -381,6 +381,60 @@ Every RFC-0102 API must be certified with:
 6. support-safe error and diagnostic posture,
 7. explicit caller-context and authorization rules where relevant.
 
+## Portfolio Review Attribute Inventory And Source Gaps
+
+The first-wave `portfolio-review v1` report is governed as a source-backed client report. The
+renderer must not invent business facts and must not fetch business data directly. `lotus-report`
+owns render package assembly from Lotus domain applications, and `lotus-render` owns deterministic
+presentation of the complete render package.
+
+The detailed inventory is authored in
+`lotus-render/docs/portfolio-review-attribute-inventory.md`. That inventory records each report
+attribute, business meaning, report section, source application, source object or endpoint where
+known, current status, and required action.
+
+Current source-backed and rendered attribute groups:
+
+1. relationship identity, portfolio identity, review period, and reporting currency from
+   `lotus-core` and `lotus-report` job context,
+2. portfolio value, invested value, cash balance, and cash weight from `lotus-core` portfolio
+   valuation snapshots composed by `lotus-report`,
+3. mandate objective, risk exposure, booking center, and advisor context from `lotus-core` client
+   profile and portfolio detail context,
+4. allocation by asset class and currency from `lotus-core` allocation snapshots composed by
+   `lotus-report`,
+5. performance periods, monthly history, annual history, and contribution inputs from
+   `lotus-performance` through `lotus-report`,
+6. risk measures from `lotus-risk` through `lotus-report`,
+7. detailed positions from `lotus-core` holdings plus performance enrichment,
+8. transactions from `lotus-core` transaction ledger windows.
+
+Current attributes available upstream but not yet placed fully in the client report:
+
+1. mandate type, investment horizon, leverage permission, portfolio status, open date, base
+   currency, and cost-basis method,
+2. allocation by sector, region, country, product type, and rating,
+3. benchmark cumulative series when a benchmark is source-backed,
+4. performance contribution by asset class, sector, and position,
+5. governance/source-service evidence and readiness metadata.
+
+Current source gaps and placement questions:
+
+1. target allocation or strategic asset allocation gap needs a governed source contract, likely from
+   `lotus-manage` or `lotus-advise`,
+2. risk-free rate and benchmark supportability must be exposed explicitly instead of inferred from
+   zero-rate or missing benchmark behavior,
+3. position-level accrued interest, custody account, exchange rate, tax cost basis, price source,
+   and sustainability labels need clarified authoritative sources and client-facing placement,
+4. transaction-level tax, custody account, broker, place of execution, exchange rate, and settlement
+   status need clarified availability and priority,
+5. advisory recommendation, suitability rationale, and AI-assisted narrative require governed
+   provenance, approval, and wording controls before they appear in a client-facing PDF.
+
+No template may render a desired field as a placeholder business fact. Missing fields must degrade
+quietly, be captured in the inventory, and be represented as RFC source gaps or placement decisions
+before they become client-facing output.
+
 ## Branching And Delivery Expectations
 
 Implementation must happen on a dedicated remote feature branch unless an active RFC-0102 branch
