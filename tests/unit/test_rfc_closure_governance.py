@@ -245,6 +245,55 @@ def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> 
         assert expected in standard
 
 
+def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0103-document-archive-retrieval-retention-and-legal-hold.md"
+    )
+
+    for expected in [
+        "- status: proposed",
+        "critical review outcome",
+        "implementation prerequisites",
+        "cross-rfc ownership boundaries",
+        "document metadata contract",
+        "source and evidence mapping",
+        "api direction",
+        "error handling requirements",
+        "retention, purge, and legal hold direction",
+        "access audit direction",
+        "platform governance and enterprise data mesh requirements",
+        "branching and delivery expectations",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "supported features",
+        "no implementation-backed archive supported features",
+        "supported-features entries must name",
+        "documentation, wiki, and context impact",
+        "open questions",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
 def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
     None
 ):
