@@ -41,6 +41,7 @@ C:\Users\<user>\projects\
   lotus-manage\
   lotus-report\
   lotus-render\
+  lotus-archive\
   lotus-ai\
   lotus-gateway\
   lotus-workbench\
@@ -75,6 +76,7 @@ $repos = @(
   "lotus-manage",
   "lotus-report",
   "lotus-render",
+  "lotus-archive",
   "lotus-ai",
   "lotus-gateway",
   "lotus-workbench"

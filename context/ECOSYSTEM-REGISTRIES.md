@@ -19,6 +19,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `lotus-report` | `domain-service` | Reporting and document-generation service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-render` | `domain-service` | Deterministic document rendering service for Lotus reporting | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-ai` | `shared-capability-service` | Shared AI capability service for governed AI-backed flows | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
+| `lotus-archive` | `shared-capability-service` | Generated-document archive, retrieval, retention, legal hold, access audit, and document lifecycle service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 
 ## Domain Authority Map
 
@@ -30,6 +31,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `advisory-workflows` | `lotus-advise` | lotus-gateway |
 | `management-and-operations` | `lotus-manage` | lotus-gateway |
 | `reporting-and-document-generation` | `lotus-report` | lotus-gateway, lotus-render |
+| `generated-document-archive-retrieval-retention-and-legal-hold` | `lotus-archive` | lotus-gateway, lotus-report |
 | `ai-capabilities` | `lotus-ai` | lotus-gateway |
 
 ## Standards Registry
@@ -57,3 +59,4 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `RFC-0094` | `active` | implemented on main | Durable background engineering task ledger and governed delegation model |
 | `RFC-0095` | `active` | implemented | Heartbeat-driven monitoring and attention surfacing |
 | `RFC-0096` | `active` | implemented | Governed multi-agent delegation model |
+| `RFC-0103` | `active` | implementation in progress; Slice 0 scaffold and governance baseline | Document archive, retrieval, retention, and legal hold |
