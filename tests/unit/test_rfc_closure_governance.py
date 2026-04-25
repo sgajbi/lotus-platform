@@ -245,7 +245,7 @@ def test_rfc_governance_standard_requires_closure_slices_and_skills_review() -> 
         assert expected in standard
 
 
-def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
+def test_rfc_0103_records_supported_scope_closure_and_deferrals() -> None:
     text = _read(
         ROOT
         / "rfcs"
@@ -253,9 +253,12 @@ def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
     )
 
     for expected in [
-        "- status: proposed",
+        "- status: implemented for supported scope",
+        "- implemented: 2026-04-25",
         "critical review outcome",
         "gold-pass readiness assessment",
+        "implementation evidence and closure",
+        "gold-pass assessment",
         "locked first-wave decisions",
         "conditional decisions",
         "implementation prerequisites",
@@ -274,10 +277,10 @@ def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
         "second-last slice: hardening, review, and certification",
         "final slice: closure",
         "supported features",
-        "no implementation-backed archive supported features",
+        "started with no implementation-backed archive supported features",
         "supported-features entries must name",
         "documentation, wiki, and context impact",
-        "open questions",
+        "resolved or deferred questions",
     ]:
         assert expected in text
 
@@ -290,6 +293,10 @@ def test_rfc_0103_is_implementation_ready_before_archive_work_starts() -> None:
         "signed url versus service-streamed download",
         "exact first-wave retention classes",
         "whether workbench document retrieval is shipped in rfc-0103 or deferred",
+        "`lotus-report` hands successful rendered pdf artifacts to `lotus-archive`",
+        "`lotus-gateway` exposes the product-facing archived document metadata and download facade",
+        "workbench retrieval remains deliberately unsupported",
+        "no placeholder mesh product was added for",
     ]:
         assert expected in text
 

@@ -57,7 +57,8 @@
 - [RFC-0102](../rfcs/RFC-0102-render-package-template-registry-and-render-service.md)
   proposed `lotus-render` render package, template registry, and Typst rendering service
 - [RFC-0103](../rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md)
-  proposed `lotus-archive` document metadata, retrieval, retention, legal hold, and supersession
+  implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
+  lifecycle, `lotus-report` handoff, and gateway retrieval support
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
   proposed batch reporting scheduler, concurrency, retry, resume, and recovery
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
@@ -72,8 +73,8 @@
 
 1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
    batch production, or document archival.
-2. After RFC-0099 is accepted, implement the follow-up RFCs in order:
-   RFC-0100, RFC-0101, RFC-0102, RFC-0103, RFC-0104, RFC-0105, RFC-0106, then RFC-0107.
+2. RFC-0100 through RFC-0103 now have implementation-backed first-wave reporting, rendering, and
+   archival scope. Continue with RFC-0104, RFC-0105, RFC-0106, then RFC-0107.
 3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
@@ -127,7 +128,10 @@
   rendering owner, future `lotus-archive` as generated-document archive and retrieval owner, and
   `lotus-gateway` as the front-office invocation and retrieval boundary. It is not implementation
   evidence and should not be treated as proof that render or archive services exist.
-- RFC-0100 through RFC-0107 are proposed implementation-planning RFCs for the RFC-0099 target
-  architecture. They are not implementation evidence. They sequence the work into gateway/job
-  ledger, snapshot lineage, render, archive, batch, observability/operations, security, and final
+- RFC-0100 through RFC-0103 are implemented for first-wave reporting, rendering, and archival scope.
+  RFC-0103 establishes `lotus-archive` as the generated-document archive owner, with controlled
+  metadata and binary retrieval, access audit, retention, purge, legal hold, lifecycle
+  relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval remains
+  deferred until a concrete gateway-backed product surface is approved. RFC-0104 through RFC-0107
+  remain the next reporting architecture RFCs for batch, observability/operations, security, and
   production certification.

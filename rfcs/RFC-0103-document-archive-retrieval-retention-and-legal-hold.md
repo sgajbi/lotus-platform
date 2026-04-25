@@ -1,8 +1,9 @@
 # RFC-0103: Document Archive, Retrieval, Retention, And Legal Hold
 
-- Status: Proposed
+- Status: Implemented for supported scope
 - Date: 2026-04-23
 - Hardened: 2026-04-25
+- Implemented: 2026-04-25
 - Owners:
   - future `lotus-archive` owners
   - `lotus-report` owners
@@ -70,10 +71,12 @@ without relying on chat history or hidden assumptions.
 | Evidence | Clean proof, negative paths, service versions, audit records, checksum evidence, and no-overclaim checks are required. | Treat diagnostic runs separately from final proof; do not close with only happy-path evidence. |
 | Closure | Second-last hardening and final closure slices follow the current RFC governance standard. | Complete code review, docs/context/wiki/supported-features, skills/guidance assessment, CI evidence, and branch hygiene before closure. |
 
-Gold-pass conclusion: RFC-0103 is implementation-ready as an execution guide after this revision.
-The implementation must still resolve or explicitly defer the open questions before the relevant
-slice begins, and it must not claim archive support until the implementation-backed
-supported-features criteria are met.
+Gold-pass conclusion at pre-implementation review: RFC-0103 was implementation-ready as an
+execution guide after this revision. The implementation later resolved the first-wave scope as
+archive service foundation, metadata/storage, internal archive APIs, retention, purge, legal hold,
+lifecycle relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval,
+full reporting security certification, batch/replay/operations, and production certification remain
+deferred to later RFCs and must not be presented as supported RFC-0103 scope.
 
 ## Locked First-Wave Decisions
 
@@ -889,11 +892,10 @@ Execution expectations:
 
 ## Supported Features
 
-This RFC starts with no implementation-backed archive supported features.
-
-Supported-features material may be updated only after implementation, validation, documentation,
-and proof are complete. Eligible supported-feature entries after implementation may include only
-the behavior actually delivered, such as:
+This RFC started with no implementation-backed archive supported features. Supported-features
+material was updated only after implementation, validation, documentation, and proof existed.
+Eligible supported-feature entries after implementation include only the behavior actually
+delivered, such as:
 
 1. generated-document archival with durable metadata,
 2. object-backed binary storage with checksum verification,
@@ -993,19 +995,109 @@ RFC-0103 is complete only when all of the following are true:
 18. no unsupported archive, retrieval, batch, replay, rerender, or production-certification feature
     is described as supported.
 
-## Open Questions
+## Implementation Evidence And Closure
 
-These questions must be resolved or explicitly deferred before the relevant slice begins:
+RFC-0103 is implemented for the supported first-wave scope. The implementation was delivered through
+small repository-scoped PRs and validated through repo-native gates and GitHub PR checks.
 
-1. Which retention classes are first-wave scope for generated portfolio review reports?
-2. What legal authority model is required for legal hold set/release in first wave?
-3. Should signed URLs be used for binary download, or should all downloads stream through
-   `lotus-archive`?
-4. What is the first-wave production object-storage target and encryption posture?
-5. Which document classifications are required in first wave?
-6. Which gateway product-facing retrieval routes are required before RFC-0107?
-7. Is Workbench document retrieval part of RFC-0103 or deferred until a concrete product surface is
-   approved?
-8. What support-safe metadata remains queryable after purge?
-9. Which archive metadata should later be promoted into a governed domain-data-product evidence
-   declaration?
+| Slice / capability | Repository evidence | Status |
+| --- | --- | --- |
+| Platform scaffold and service baseline | `lotus-platform` scaffold uplift and generated `lotus-archive` repository baseline | Complete |
+| Archive service foundation | `lotus-archive` service, health/readiness, safe error envelope, caller context, structured logging, CI, docs, wiki source, and supported-features baseline | Complete |
+| Metadata and storage adapter | `lotus-archive` metadata model, migration contract, object-storage protocol, filesystem development adapter, checksum enforcement, and idempotent archive writer | Complete |
+| Archive create and retrieval APIs | `lotus-archive` `POST /documents`, `GET /documents/{document_id}`, `GET /documents/{document_id}/download`, access-event lookup, authorization, audit, OpenAPI, and negative-path tests | Complete |
+| Retention, purge, and legal hold | `lotus-archive` retention lookup, purge evaluation, purge execution, legal-hold set/release, legal-hold purge blocking, idempotent post-purge posture, audit, and tests | Complete |
+| Lifecycle relationships | `lotus-archive` supersession, correction, reissue, append-only relationship records, current-document resolution, conflict handling, audit, and tests | Complete |
+| Report handoff | `lotus-report` PR #66 (`feature/rfc-0103-slice-7-report-archive-handoff`) merged 2026-04-25; commit `255844e` implements archive client, render-success handoff, report ledger archive events, failure mapping, docs, and tests | Complete |
+| Gateway retrieval | `lotus-gateway` PR #150 (`feature/rfc-0103-slice-8-gateway-archive-retrieval`) merged 2026-04-25; merge commit `6d2b09f` implements gateway metadata/download facade, caller context propagation, safe errors, docs, wiki, and tests | Complete |
+| Archive support posture correction | `lotus-archive` PR #8 merged 2026-04-25 and PR #9 merged 2026-04-25; merge commit `e6fd046` aligns supported-features, service profile, docs, wiki source, and e2e metadata proof with gateway retrieval plus report handoff truth | Complete |
+| Workbench no-direct-archive posture | `lotus-workbench` search proof found no direct archive service calls for `lotus-archive`, archive service URLs, or gateway document-download bypass paths | Complete |
+
+Validation evidence recorded during implementation:
+
+1. `lotus-archive`: `make check` passed with lint, format check, monetary-float guard, mypy,
+   OpenAPI gate, migration gate, and 59 unit tests.
+2. `lotus-report`: PR #66 passed GitHub checks for report-to-archive handoff and carries
+   unit/integration tests for archive success, validation failure, conflict/storage/execution
+   failure mapping, archive status/event ledger behavior, and OpenAPI examples.
+3. `lotus-gateway`: PR #150 passed targeted tests, `make check`, `make ci`, and
+   `make ci-local-docker`; GitHub PR Merge Gate passed workflow lint, lint/typecheck/unit,
+   integration, coverage, Docker build, and CI-local Docker parity.
+4. `lotus-archive` PR #8 passed feature-lane and PR-merge GitHub checks after e2e posture proof
+   was corrected.
+5. `lotus-archive` PR #9 passed Feature Lane and PR Merge Gate after stale e2e metadata posture
+   proof was corrected.
+6. Archive and gateway wiki sources were published after merge and check-only validation reported
+   zero drift.
+
+## Gold-Pass Assessment
+
+What was completed:
+
+1. `lotus-archive` now exists as a separate governable service for Lotus-generated document
+   archival, retrieval, retention, legal hold, access audit, purge, and document lifecycle
+   relationships.
+2. `lotus-report` hands successful rendered PDF artifacts to `lotus-archive` and records archive
+   outcomes separately from render completion.
+3. `lotus-gateway` exposes the product-facing archived document metadata and download facade while
+   hiding storage internals and preserving caller-context and checksum posture.
+4. Workbench retrieval remains deliberately unsupported; no Workbench direct archive coupling was
+   introduced.
+
+Quality improvements made:
+
+1. Archive behavior is split into explicit module families: metadata, storage, audit, retention,
+   legal hold, and lifecycle.
+2. Archive support posture is guarded by service-profile and documentation-posture tests so support
+   claims cannot silently drift.
+3. Report handoff and gateway retrieval documentation distinguishes infrastructure support from
+   customer-facing product retrieval.
+4. Gateway download failures are mapped to support-safe product errors without leaking archive
+   storage internals.
+
+Debt removed or avoided:
+
+1. Generated documents are no longer treated as local output files for first-wave supported scope.
+2. Report render completion and archive completion are separate lifecycle facts.
+3. Gateway retrieval does not expose direct object-store paths or raw archive internals.
+4. Workbench direct archive access was avoided rather than implemented as a shortcut.
+
+Known deferrals:
+
+1. Workbench document retrieval surface is deferred until a concrete product surface is approved.
+2. Full document entitlement, tenant/region segregation certification, and security hardening remain
+   RFC-0106 scope.
+3. Batch scheduling, replay, rerender, regenerate, and broader operations tooling remain RFC-0104
+   and RFC-0105 scope.
+4. Final production certification remains RFC-0107 scope.
+5. Production object-store provider and encryption posture remain deployment decisions; first-wave
+   code uses the S3-compatible abstraction and filesystem development adapter behind that boundary.
+
+Gold-pass conclusion: RFC-0103 has reached the expected implementation standard for the supported
+first-wave scope. PR #9 is merged and the archive wiki publication has been completed. No
+unsupported archive, Workbench, batch, replay, rerender, or production-certification capability
+should be listed as supported before its owning RFC implements and proves it.
+
+## Resolved Or Deferred Questions
+
+The implementation resolved or explicitly deferred the original open questions as follows:
+
+1. First-wave retention classes: implemented as explicit archive retention-policy posture with
+   generated-document retention dates and purge eligibility. More granular product/legal retention
+   classes remain future policy extension.
+2. First-wave legal authority model: implemented with legal-hold reason and authority reference;
+   richer approval workflow remains future legal/operations scope.
+3. Download mode: implemented as service-mediated binary streaming through archive and gateway; signed
+   URLs are deferred until a concrete product or operations requirement exists.
+4. Production object-storage target and encryption: deferred to deployment architecture; code keeps an
+   S3-compatible abstraction and development adapter boundary.
+5. Document classifications: implemented with first-wave classification metadata; classification
+   vocabulary expansion remains future governance work.
+6. Gateway retrieval routes: implemented as `GET /api/v1/documents/{document_id}` and
+   `GET /api/v1/documents/{document_id}/download`.
+7. Workbench retrieval: deferred until a concrete product surface is approved; Workbench must remain
+   gateway-backed.
+8. Post-purge metadata: support-safe metadata and audit posture remain queryable; binary access is
+   blocked after purge.
+9. Archive metadata as data product: deferred. No placeholder mesh product was added for
+   `lotus-archive`.
