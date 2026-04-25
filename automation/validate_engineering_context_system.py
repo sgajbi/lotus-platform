@@ -47,6 +47,7 @@ def validate_engineering_context_system() -> list[str]:
         / "playbooks"
         / "AGENT-CONTEXT-AND-TASK-LEDGER.md",
         "manifest": CONTEXT_DIR / "lotus-context-manifest.json",
+        "repository registry": ROOT / "automation" / "repos.json",
         "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
         "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
@@ -93,6 +94,7 @@ def validate_engineering_context_system() -> list[str]:
     rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
     checklist = _read_text(required_files["rfc checklist"])
     manifest = json.loads(_read_text(required_files["manifest"]))
+    repository_registry = json.loads(_read_text(required_files["repository registry"]))
     normalized_agents_contract = _normalize_text(agents_contract)
 
     if "- Status: Implemented" not in rfc:
@@ -304,8 +306,15 @@ def validate_engineering_context_system() -> list[str]:
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
 
     applications = manifest.get("applications", [])
-    if len(applications) != 11:
-        errors.append("lotus-context-manifest.json: applications registry must include 11 Lotus repositories")
+    registered_repositories = {entry.get("name") for entry in repository_registry if entry.get("name")}
+    application_repositories = {entry.get("repository") for entry in applications if entry.get("repository")}
+    if application_repositories != registered_repositories:
+        missing_from_manifest = sorted(registered_repositories - application_repositories)
+        missing_from_registry = sorted(application_repositories - registered_repositories)
+        errors.append(
+            "lotus-context-manifest.json: applications registry must match automation/repos.json"
+            f" (missing_from_manifest={missing_from_manifest}, missing_from_registry={missing_from_registry})"
+        )
     if any(entry.get("status") != "implemented" for entry in applications):
         errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
 

@@ -1,760 +1,790 @@
 {
-  "profiles": [
-    {
-      "name": "bootstrap-env",
-      "description": "Install local dependencies across repositories before parallel checks",
-      "tasks": [
-        {
-          "id": "bootstrap-awb",
-          "repo": "lotus-workbench",
-          "command": "npm ci"
-        },
-        {
-          "id": "bootstrap-aea",
-          "repo": "lotus-gateway",
-          "command": "python -m pip install -e \".[dev]\""
-        },
-        {
-          "id": "bootstrap-dpm",
-          "repo": "lotus-advise",
-          "command": "python -m pip install -r requirements.txt && python -m pip install -r requirements-dev.txt"
-        },
-        {
-          "id": "bootstrap-pa",
-          "repo": "lotus-performance",
-          "command": "python -m pip install -r requirements.txt && python -m pip install -r requirements-dev.txt"
-        },
-        {
-          "id": "bootstrap-pas",
-          "repo": "lotus-core",
-          "command": "python -m pip install asyncpg==0.30.0 SQLAlchemy==2.0.46 pydantic==2.12.5 python-dotenv==1.0.1 python-json-logger==2.0.7 prometheus-client==0.20.0 tenacity==8.2.3"
-        },
-        {
-          "id": "bootstrap-ras",
-          "repo": "lotus-report",
-          "command": "python -m pip install -e \".[dev]\""
-        },
-        {
-          "id": "bootstrap-render",
-          "repo": "lotus-render",
-          "command": "python -m pip install -e \".[dev]\""
-        },
-        {
-          "id": "bootstrap-manage",
-          "repo": "lotus-manage",
-          "command": "python -m pip install -e \".[dev]\""
-        },
-        {
-          "id": "bootstrap-ai",
-          "repo": "lotus-ai",
-          "command": "python -m pip install -e \".[dev]\""
-        },
-        {
-          "id": "bootstrap-risk",
-          "repo": "lotus-risk",
-          "command": "python -m pip install -e \".[dev]\""
-        }
-      ]
-    },
-    {
-      "name": "fast-feedback",
-      "description": "Fast parallel quality checks for active development loops",
-      "tasks": [
-        {
-          "id": "awb-lint",
-          "repo": "lotus-workbench",
-          "command": "npm run lint"
-        },
-        {
-          "id": "awb-typecheck",
-          "repo": "lotus-workbench",
-          "command": "npm run typecheck"
-        },
-        {
-          "id": "aea-check",
-          "repo": "lotus-gateway",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy src && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests/unit tests/contract"
-        },
-        {
-          "id": "dpm-check",
-          "repo": "lotus-advise",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy --config-file mypy.ini && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python -m pytest tests/unit/shared/dependencies/test_postgres_migrations.py tests/unit/shared/dependencies/test_production_cutover_contract.py -q'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests/unit"
-        },
-        {
-          "id": "pa-check",
-          "repo": "lotus-performance",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy --config-file mypy.ini && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests/unit"
-        },
-        {
-          "id": "pas-check",
-          "repo": "lotus-core",
-          "command": "python -m ruff check src/services/query_service/app tests/unit/services/query_service --ignore E501,E701,I001 && python -m ruff format --check src/services/query_service/app tests/unit/services/query_service && python -m mypy --config-file mypy.ini && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests/unit/services/query_service -q"
-        },
-        {
-          "id": "ras-check",
-          "repo": "lotus-report",
-          "command": "python -m ruff check src tests && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python -m pytest tests -q"
-        },
-        {
-          "id": "render-check",
-          "repo": "lotus-render",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy --config-file mypy.ini && python scripts/openapi_quality_gate.py && python -m pytest tests/unit tests/integration -q"
-        },
-        {
-          "id": "manage-check",
-          "repo": "lotus-manage",
-          "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
-        },
-        {
-          "id": "ai-check",
-          "repo": "lotus-ai",
-          "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
-        },
-        {
-          "id": "risk-check",
-          "repo": "lotus-risk",
-          "command": "python -m ruff check . && python -m ruff format --check . && python scripts/check_monetary_float_usage.py && python -m mypy --config-file mypy.ini && python -m pytest tests/unit"
-        }
-      ]
-    },
-    {
-      "name": "docker-build",
-      "description": "Parallel docker image builds and service startup checks",
-      "tasks": [
-        {
-          "id": "awb-docker-up",
-          "repo": "lotus-workbench",
-          "command": "docker compose up -d --build lotus-workbench"
-        },
-        {
-          "id": "aea-docker-up",
-          "repo": "lotus-gateway",
-          "command": "docker compose up -d --build lotus-gateway"
-        },
-        {
-          "id": "dpm-docker-up",
-          "repo": "lotus-advise",
-          "command": "docker compose up -d --build lotus-advise"
-        },
-        {
-          "id": "pa-docker-up",
-          "repo": "lotus-performance",
-          "command": "docker compose up -d --build performance-analytics"
-        },
-        {
-          "id": "pas-docker-up",
-          "repo": "lotus-core",
-          "command": "docker compose up -d --build query_service ingestion_service demo_data_loader"
-        },
-        {
-          "id": "ras-docker-up",
-          "repo": "lotus-report",
-          "command": "docker compose up -d --build lotus-report"
-        },
-        {
-          "id": "render-docker-up",
-          "repo": "lotus-render",
-          "command": "docker compose up -d --build lotus-render"
-        },
-        {
-          "id": "manage-docker-up",
-          "repo": "lotus-manage",
-          "command": "docker compose up -d --build lotus-manage"
-        },
-        {
-          "id": "ai-docker-up",
-          "repo": "lotus-ai",
-          "command": "docker compose up -d --build lotus-ai"
-        },
-        {
-          "id": "risk-docker-up",
-          "repo": "lotus-risk",
-          "command": "docker compose up -d --build lotus-risk"
-        }
-      ]
-    },
-    {
-      "name": "ci-parity",
-      "description": "Run CI parity targets locally in parallel",
-      "tasks": [
-        {
-          "id": "aea-ci-local",
-          "repo": "lotus-gateway",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m mypy src && python -m pytest tests/unit tests/contract && python -m pytest tests/integration"
-        },
-        {
-          "id": "dpm-ci-local",
-          "repo": "lotus-advise",
-          "command": "python -m ruff check . && python -m ruff format --check . && python scripts/dependency_health_check.py --requirements requirements.txt && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
-        },
-        {
-          "id": "pa-ci-local",
-          "repo": "lotus-performance",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python scripts/dependency_health_check.py --requirements requirements.txt && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=app --cov=engine --cov=core --cov=adapters --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=app --cov=engine --cov=core --cov=adapters --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=app --cov=engine --cov=core --cov=adapters --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
-        },
-        {
-          "id": "pas-ci-local",
-          "repo": "lotus-core",
-          "command": "python -m ruff check src/services/query_service/app tests/unit/services/query_service --ignore E501,E701,I001 && python -m ruff format --check src/services/query_service/app tests/unit/services/query_service && python -m mypy --config-file mypy.ini && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && python scripts/coverage_gate.py"
-        },
-        {
-          "id": "awb-test",
-          "repo": "lotus-workbench",
-          "command": "npm run test"
-        },
-        {
-          "id": "ras-ci-local",
-          "repo": "lotus-report",
-          "command": "python -m ruff check src tests && python -c \"import shutil,subprocess,sys; cmd='make migration-smoke' if shutil.which('make') else 'python scripts/migration_contract_check.py'; sys.exit(subprocess.call(cmd, shell=True))\" && set COVERAGE_FILE=.coverage && python -m pytest tests --cov=src/app --cov-report=term-missing --cov-fail-under=99"
-        },
-        {
-          "id": "render-ci-local",
-          "repo": "lotus-render",
-          "command": "python -m ruff check . && python -m ruff format --check . && set COVERAGE_FILE=.coverage && python -m pytest tests/unit tests/integration tests/e2e --cov=src --cov-report=term-missing --cov-fail-under=99 && python -m mypy --config-file mypy.ini && python scripts/openapi_quality_gate.py"
-        },
-        {
-          "id": "manage-ci-local",
-          "repo": "lotus-manage",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=75"
-        },
-        {
-          "id": "ai-ci-local",
-          "repo": "lotus-ai",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=99 && python -m mypy --config-file mypy.ini"
-        },
-        {
-          "id": "risk-ci-local",
-          "repo": "lotus-risk",
-          "command": "python -m ruff check . && python -m ruff format --check . && python -m pip check && set COVERAGE_FILE=.coverage.unit && python -m pytest tests/unit --cov=src --cov-report= && set COVERAGE_FILE=.coverage.integration && python -m pytest tests/integration --cov=src --cov-report= && set COVERAGE_FILE=.coverage.e2e && python -m pytest tests/e2e --cov=src --cov-report= && python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e && python -m coverage report --fail-under=85 && python -m mypy --config-file mypy.ini"
-        }
-      ]
-    },
-    {
-      "name": "docker-ci-parity",
-      "description": "Run CI parity checks inside Dockerized workflows to avoid host env drift",
-      "tasks": [
-        {
-          "id": "aea-ci-docker",
-          "repo": "lotus-gateway",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        },
-        {
-          "id": "dpm-ci-docker",
-          "repo": "lotus-advise",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        },
-        {
-          "id": "pa-ci-docker",
-          "repo": "lotus-performance",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        },
-        {
-          "id": "pas-docker-build",
-          "repo": "lotus-core",
-          "command": "make docker-build"
-        },
-        {
-          "id": "awb-docker-build",
-          "repo": "lotus-workbench",
-          "command": "docker compose build lotus-workbench"
-        },
-        {
-          "id": "ras-docker-build",
-          "repo": "lotus-report",
-          "command": "docker compose build lotus-report"
-        },
-        {
-          "id": "render-docker-build",
-          "repo": "lotus-render",
-          "command": "docker compose build lotus-render"
-        },
-        {
-          "id": "manage-ci-docker",
-          "repo": "lotus-manage",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        },
-        {
-          "id": "ai-ci-docker",
-          "repo": "lotus-ai",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        },
-        {
-          "id": "risk-ci-docker",
-          "repo": "lotus-risk",
-          "command": "make ci-local-docker && make ci-local-docker-down"
-        }
-      ]
-    },
-    {
-      "name": "pas-data-smoke",
-      "description": "lotus-core data pipeline and UI-facing smoke checks",
-      "tasks": [
-        {
-          "id": "pas-demo-loader",
-          "repo": "lotus-core",
-          "command": "docker compose up -d --build demo_data_loader"
-        },
-        {
-          "id": "pas-query-health",
-          "repo": "lotus-core",
-          "command": "curl -sSf http://core-query.dev.lotus/health/ready"
-        },
-        {
-          "id": "pas-ingestion-health",
-          "repo": "lotus-core",
-          "command": "curl -sSf http://core-ingestion.dev.lotus/health/ready"
-        },
-        {
-          "id": "bff-health",
-          "repo": "lotus-gateway",
-          "command": "curl -sSf http://gateway.dev.lotus/health"
-        },
-        {
-          "id": "ui-health",
-          "repo": "lotus-workbench",
-          "command": "curl -sSf http://workbench.dev.lotus"
-        }
-      ]
-    },
-    {
-      "name": "migration-quality",
-      "description": "Strict migration quality checks with test-pyramid coverage focus",
-      "tasks": [
-        {
-          "id": "aea-unit-contract",
-          "repo": "lotus-gateway",
-          "command": "python -m pytest tests/unit tests/contract -q"
-        },
-        {
-          "id": "aea-integration",
-          "repo": "lotus-gateway",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "pa-unit",
-          "repo": "lotus-performance",
-          "command": "python -m pytest tests/unit -q"
-        },
-        {
-          "id": "pa-integration",
-          "repo": "lotus-performance",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "pas-unit",
-          "repo": "lotus-core",
-          "command": "python -m pytest tests/unit/services/query_service -q"
-        },
-        {
-          "id": "pas-integration-lite",
-          "repo": "lotus-core",
-          "command": "python -m pytest tests/integration/services/query_service/test_integration_router_dependency.py tests/integration/services/query_service/test_position_analytics_router.py tests/integration/services/query_service/test_performance_router.py tests/integration/services/query_service/test_risk_router_dependency.py -q"
-        },
-        {
-          "id": "ras-integration",
-          "repo": "lotus-report",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "render-integration",
-          "repo": "lotus-render",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "manage-integration",
-          "repo": "lotus-manage",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "ai-integration",
-          "repo": "lotus-ai",
-          "command": "python -m pytest tests/integration -q"
-        },
-        {
-          "id": "risk-integration",
-          "repo": "lotus-risk",
-          "command": "python -m pytest tests/integration -q"
-        }
-      ]
-    },
-    {
-      "name": "coverage-pyramid-baseline",
-      "description": "Generate cross-service pyramid and coverage baseline artifacts",
-      "tasks": [
-        {
-          "id": "validate-platform-contract",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Platform-Contract.ps1"
-        },
-        {
-          "id": "measure-test-pyramid",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Measure-Test-Pyramid.ps1 -RunCoverage"
-        },
-        {
-          "id": "dependency-vulnerability-rollup",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1"
-        }
-      ]
-    },
-    {
-      "name": "automation-integrity",
-      "description": "Validate automation config integrity (repos/profile references, command file refs, and task wiring)",
-      "tasks": [
-        {
-          "id": "validate-automation-config",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
-        },
-        {
-          "id": "validate-local-ci-parity",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
-        }
-      ]
-    },
-    {
-      "name": "change-test-impact",
-      "description": "Detect source changes without test updates across lotus repositories",
-      "tasks": [
-        {
-          "id": "validate-change-test-impact",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
-        }
-      ]
-    },
-    {
-      "name": "backend-standards-conformance",
-      "description": "Validate backend repositories against shared foundation standards",
-      "tasks": [
-        {
-          "id": "validate-backend-standards",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
-        }
-      ]
-    },
-    {
-      "name": "enforce-repository-governance",
-      "description": "Apply branch protection and auto-merge governance policy across governed Lotus repositories",
-      "tasks": [
-        {
-          "id": "apply-repository-governance",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply"
-        }
-      ]
-    },
-    {
-      "name": "openapi-conformance-baseline",
-      "description": "Validate backend OpenAPI contract quality conformance baseline",
-      "tasks": [
-        {
-          "id": "validate-openapi-conformance",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
-        }
-      ]
-    },
-    {
-      "name": "domain-vocabulary-conformance",
-      "description": "Validate backend repositories against domain vocabulary prohibited terms baseline",
-      "tasks": [
-        {
-          "id": "validate-domain-vocabulary",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
-        }
-      ]
-    },
-    {
-      "name": "lotus-naming-conformance",
-      "description": "Validate cross-repo legacy naming drift against Lotus canonical naming",
-      "tasks": [
-        {
-          "id": "validate-lotus-naming",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Lotus-Naming.ps1"
-        }
-      ]
-    },
-    {
-      "name": "repo-metadata-validation",
-      "description": "Validate cross-repo metadata (default branch and preflight command definitions)",
-      "tasks": [
-        {
-          "id": "verify-repo-metadata",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
-        }
-      ]
-    },
-    {
-      "name": "repository-governance-validation",
-      "description": "Validate GitHub branch protection and auto-merge posture against the Lotus repository governance policy",
-      "tasks": [
-        {
-          "id": "validate-repository-governance",
-          "repo": "lotus-platform",
-          "command": "python automation/validate_repository_governance.py"
-        }
-      ]
-    },
-    {
-      "name": "durability-consistency-baseline",
-      "description": "Validate cross-repo durability and consistency policy conformance baseline",
-      "tasks": [
-        {
-          "id": "validate-durability-consistency",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Durability-Consistency.ps1"
-        }
-      ]
-    },
-    {
-      "name": "enterprise-readiness-baseline",
-      "description": "Validate cross-repo enterprise readiness baseline conformance",
-      "tasks": [
-        {
-          "id": "validate-enterprise-readiness",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
-        }
-      ]
-    },
-    {
-      "name": "rfc-conformance-baseline",
-      "description": "Build cross-repo RFC conformance inventory and centralized alignment backlog",
-      "tasks": [
-        {
-          "id": "audit-rfc-conformance",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Audit-RFC-Conformance.ps1"
-        }
-      ]
-    },
-    {
-      "name": "pr-lifecycle",
-      "description": "Monitor PR checks, queue auto-merge, and clean merged feature branches",
-      "tasks": [
-        {
-          "id": "close-pr-loop",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Close-PR-Loop.ps1"
-        },
-        {
-          "id": "prune-merged-remote-branches",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -AllLotusRepos"
-        }
-      ]
-    },
-    {
-      "name": "platform-alignment",
-      "description": "Fast cross-repo alignment sweep (sync + PR/check health + core standards conformance)",
-      "tasks": [
-        {
-          "id": "sync-repos",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Sync-Repos.ps1"
-        },
-        {
-          "id": "pr-monitor-checks",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/PR-Monitor.ps1 -IncludeChecks"
-        },
-        {
-          "id": "detect-stalled-pr-checks",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
-        },
-        {
-          "id": "validate-backend-standards",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
-        },
-        {
-          "id": "validate-openapi",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
-        },
-        {
-          "id": "validate-vocabulary",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
-        },
-        {
-          "id": "validate-shared-infra-ownership",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
-        },
-        {
-          "id": "validate-service-addressing",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
-        },
-        {
-          "id": "validate-dev-ingress-smoke",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
-        },
-        {
-          "id": "validate-enterprise-readiness",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
-        },
-        {
-          "id": "verify-repo-metadata",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
-        },
-        {
-          "id": "validate-automation-config",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
-        },
-        {
-          "id": "validate-local-ci-parity",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
-        },
-        {
-          "id": "validate-change-test-impact",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
-        },
-        {
-          "id": "summarize-failures",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 5"
-        }
-      ]
-    },
-    {
-      "name": "qa-platform-readiness",
-      "description": "Bring up the governed canonical front-office runtime and validate populated product surfaces end-to-end",
-      "tasks": [
-        {
-          "id": "qa-platform-readiness",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp"
-        }
-      ]
-    },
-    {
-      "name": "qa-platform-readiness-clean-core",
-      "description": "Bring up the governed canonical front-office runtime after resetting lotus-core state for a fresh front-office reseed",
-      "tasks": [
-        {
-          "id": "qa-platform-readiness-clean-core",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
-        }
-      ]
-    },
-    {
-      "name": "qa-platform-readiness-clean-core-build",
-      "description": "Rebuild local service images, reset lotus-core state, and validate governed canonical front-office surfaces",
-      "tasks": [
-        {
-          "id": "qa-platform-readiness-clean-core-build",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
-        }
-      ]
-    },
-    {
-      "name": "autonomous-foundation",
-      "description": "Autonomous foundation governance sweep with machine-readable evidence artifacts",
-      "tasks": [
-        {
-          "id": "sync-repos",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Sync-Repos.ps1"
-        },
-        {
-          "id": "pr-monitor-checks",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/PR-Monitor.ps1 -IncludeChecks"
-        },
-        {
-          "id": "detect-stalled-pr-checks",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
-        },
-        {
-          "id": "validate-backend-standards",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
-        },
-        {
-          "id": "validate-openapi",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
-        },
-        {
-          "id": "validate-vocabulary",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
-        },
-        {
-          "id": "validate-shared-infra-ownership",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
-        },
-        {
-          "id": "validate-service-addressing",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
-        },
-        {
-          "id": "validate-dev-ingress-smoke",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
-        },
-        {
-          "id": "validate-enterprise-readiness",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
-        },
-        {
-          "id": "measure-pyramid",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Measure-Test-Pyramid.ps1"
-        },
-        {
-          "id": "verify-repo-metadata",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
-        },
-        {
-          "id": "validate-automation-config",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
-        },
-        {
-          "id": "validate-local-ci-parity",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
-        },
-        {
-          "id": "validate-change-test-impact",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
-        },
-        {
-          "id": "dependency-rollup",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1"
-        },
-        {
-          "id": "summarize-failures",
-          "repo": "lotus-platform",
-          "command": "powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 5"
-        }
-      ]
-    }
-  ]
+    "profiles":  [
+                     {
+                         "name":  "bootstrap-env",
+                         "description":  "Install local dependencies across repositories before parallel checks",
+                         "tasks":  [
+                                       {
+                                           "id":  "bootstrap-awb",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "npm ci"
+                                       },
+                                       {
+                                           "id":  "bootstrap-aea",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-dpm",
+                                           "repo":  "lotus-advise",
+                                           "command":  "python -m pip install -r requirements.txt \u0026\u0026 python -m pip install -r requirements-dev.txt"
+                                       },
+                                       {
+                                           "id":  "bootstrap-pa",
+                                           "repo":  "lotus-performance",
+                                           "command":  "python -m pip install -r requirements.txt \u0026\u0026 python -m pip install -r requirements-dev.txt"
+                                       },
+                                       {
+                                           "id":  "bootstrap-pas",
+                                           "repo":  "lotus-core",
+                                           "command":  "python -m pip install asyncpg==0.30.0 SQLAlchemy==2.0.46 pydantic==2.12.5 python-dotenv==1.0.1 python-json-logger==2.0.7 prometheus-client==0.20.0 tenacity==8.2.3"
+                                       },
+                                       {
+                                           "id":  "bootstrap-ras",
+                                           "repo":  "lotus-report",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-render",
+                                           "repo":  "lotus-render",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-manage",
+                                           "repo":  "lotus-manage",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-ai",
+                                           "repo":  "lotus-ai",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-risk",
+                                           "repo":  "lotus-risk",
+                                           "command":  "python -m pip install -e \".[dev]\""
+                                       },
+                                       {
+                                           "id":  "bootstrap-lotus-archive",
+                                           "repo":  "lotus-archive",
+                                           "command":  "make install"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "fast-feedback",
+                         "description":  "Fast parallel quality checks for active development loops",
+                         "tasks":  [
+                                       {
+                                           "id":  "awb-lint",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "npm run lint"
+                                       },
+                                       {
+                                           "id":  "awb-typecheck",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "npm run typecheck"
+                                       },
+                                       {
+                                           "id":  "aea-check",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy src \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit tests/contract"
+                                       },
+                                       {
+                                           "id":  "dpm-check",
+                                           "repo":  "lotus-advise",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python -m pytest tests/unit/shared/dependencies/test_postgres_migrations.py tests/unit/shared/dependencies/test_production_cutover_contract.py -q\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit"
+                                       },
+                                       {
+                                           "id":  "pa-check",
+                                           "repo":  "lotus-performance",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit"
+                                       },
+                                       {
+                                           "id":  "pas-check",
+                                           "repo":  "lotus-core",
+                                           "command":  "python -m ruff check src/services/query_service/app tests/unit/services/query_service --ignore E501,E701,I001 \u0026\u0026 python -m ruff format --check src/services/query_service/app tests/unit/services/query_service \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit/services/query_service -q"
+                                       },
+                                       {
+                                           "id":  "ras-check",
+                                           "repo":  "lotus-report",
+                                           "command":  "python -m ruff check src tests \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests -q"
+                                       },
+                                       {
+                                           "id":  "render-check",
+                                           "repo":  "lotus-render",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python scripts/openapi_quality_gate.py \u0026\u0026 python -m pytest tests/unit tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "manage-check",
+                                           "repo":  "lotus-manage",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/check_monetary_float_usage.py \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -m pytest tests/unit"
+                                       },
+                                       {
+                                           "id":  "ai-check",
+                                           "repo":  "lotus-ai",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/check_monetary_float_usage.py \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -m pytest tests/unit"
+                                       },
+                                       {
+                                           "id":  "risk-check",
+                                           "repo":  "lotus-risk",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/check_monetary_float_usage.py \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -m pytest tests/unit"
+                                       },
+                                       {
+                                           "id":  "lotus-archive-check",
+                                           "repo":  "lotus-archive",
+                                           "command":  "make check \u0026\u0026 .venv/Scripts/python.exe -m pytest tests/integration -q"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "docker-build",
+                         "description":  "Parallel docker image builds and service startup checks",
+                         "tasks":  [
+                                       {
+                                           "id":  "awb-docker-up",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "docker compose up -d --build lotus-workbench"
+                                       },
+                                       {
+                                           "id":  "aea-docker-up",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "docker compose up -d --build lotus-gateway"
+                                       },
+                                       {
+                                           "id":  "dpm-docker-up",
+                                           "repo":  "lotus-advise",
+                                           "command":  "docker compose up -d --build lotus-advise"
+                                       },
+                                       {
+                                           "id":  "pa-docker-up",
+                                           "repo":  "lotus-performance",
+                                           "command":  "docker compose up -d --build performance-analytics"
+                                       },
+                                       {
+                                           "id":  "pas-docker-up",
+                                           "repo":  "lotus-core",
+                                           "command":  "docker compose up -d --build query_service ingestion_service demo_data_loader"
+                                       },
+                                       {
+                                           "id":  "ras-docker-up",
+                                           "repo":  "lotus-report",
+                                           "command":  "docker compose up -d --build lotus-report"
+                                       },
+                                       {
+                                           "id":  "render-docker-up",
+                                           "repo":  "lotus-render",
+                                           "command":  "docker compose up -d --build lotus-render"
+                                       },
+                                       {
+                                           "id":  "manage-docker-up",
+                                           "repo":  "lotus-manage",
+                                           "command":  "docker compose up -d --build lotus-manage"
+                                       },
+                                       {
+                                           "id":  "ai-docker-up",
+                                           "repo":  "lotus-ai",
+                                           "command":  "docker compose up -d --build lotus-ai"
+                                       },
+                                       {
+                                           "id":  "risk-docker-up",
+                                           "repo":  "lotus-risk",
+                                           "command":  "docker compose up -d --build lotus-risk"
+                                       },
+                                       {
+                                           "id":  "lotus-archive-docker-up",
+                                           "repo":  "lotus-archive",
+                                           "command":  "docker compose up -d --build lotus-archive"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "ci-parity",
+                         "description":  "Run CI parity targets locally in parallel",
+                         "tasks":  [
+                                       {
+                                           "id":  "aea-ci-local",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy src \u0026\u0026 python -m pytest tests/unit tests/contract \u0026\u0026 python -m pytest tests/integration"
+                                       },
+                                       {
+                                           "id":  "dpm-ci-local",
+                                           "repo":  "lotus-advise",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/dependency_health_check.py --requirements requirements.txt \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
+                                       },
+                                       {
+                                           "id":  "pa-ci-local",
+                                           "repo":  "lotus-performance",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python scripts/dependency_health_check.py --requirements requirements.txt \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
+                                       },
+                                       {
+                                           "id":  "pas-ci-local",
+                                           "repo":  "lotus-core",
+                                           "command":  "python -m ruff check src/services/query_service/app tests/unit/services/query_service --ignore E501,E701,I001 \u0026\u0026 python -m ruff format --check src/services/query_service/app tests/unit/services/query_service \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python scripts/coverage_gate.py"
+                                       },
+                                       {
+                                           "id":  "awb-test",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "npm run test"
+                                       },
+                                       {
+                                           "id":  "ras-ci-local",
+                                           "repo":  "lotus-report",
+                                           "command":  "python -m ruff check src tests \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 set COVERAGE_FILE=.coverage \u0026\u0026 python -m pytest tests --cov=src/app --cov-report=term-missing --cov-fail-under=99"
+                                       },
+                                       {
+                                           "id":  "render-ci-local",
+                                           "repo":  "lotus-render",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 set COVERAGE_FILE=.coverage \u0026\u0026 python -m pytest tests/unit tests/integration tests/e2e --cov=src --cov-report=term-missing --cov-fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python scripts/openapi_quality_gate.py"
+                                       },
+                                       {
+                                           "id":  "manage-ci-local",
+                                           "repo":  "lotus-manage",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m pip check \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=75"
+                                       },
+                                       {
+                                           "id":  "ai-ci-local",
+                                           "repo":  "lotus-ai",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m pip check \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
+                                       },
+                                       {
+                                           "id":  "risk-ci-local",
+                                           "repo":  "lotus-risk",
+                                           "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m pip check \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=85 \u0026\u0026 python -m mypy --config-file mypy.ini"
+                                       },
+                                       {
+                                           "id":  "lotus-archive-ci-local",
+                                           "repo":  "lotus-archive",
+                                           "command":  "make ci"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "docker-ci-parity",
+                         "description":  "Run CI parity checks inside Dockerized workflows to avoid host env drift",
+                         "tasks":  [
+                                       {
+                                           "id":  "aea-ci-docker",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "dpm-ci-docker",
+                                           "repo":  "lotus-advise",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "pa-ci-docker",
+                                           "repo":  "lotus-performance",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "pas-docker-build",
+                                           "repo":  "lotus-core",
+                                           "command":  "make docker-build"
+                                       },
+                                       {
+                                           "id":  "awb-docker-build",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "docker compose build lotus-workbench"
+                                       },
+                                       {
+                                           "id":  "ras-docker-build",
+                                           "repo":  "lotus-report",
+                                           "command":  "docker compose build lotus-report"
+                                       },
+                                       {
+                                           "id":  "render-docker-build",
+                                           "repo":  "lotus-render",
+                                           "command":  "docker compose build lotus-render"
+                                       },
+                                       {
+                                           "id":  "manage-ci-docker",
+                                           "repo":  "lotus-manage",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "ai-ci-docker",
+                                           "repo":  "lotus-ai",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "risk-ci-docker",
+                                           "repo":  "lotus-risk",
+                                           "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
+                                       },
+                                       {
+                                           "id":  "lotus-archive-docker-build",
+                                           "repo":  "lotus-archive",
+                                           "command":  "docker compose build lotus-archive"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "pas-data-smoke",
+                         "description":  "lotus-core data pipeline and UI-facing smoke checks",
+                         "tasks":  [
+                                       {
+                                           "id":  "pas-demo-loader",
+                                           "repo":  "lotus-core",
+                                           "command":  "docker compose up -d --build demo_data_loader"
+                                       },
+                                       {
+                                           "id":  "pas-query-health",
+                                           "repo":  "lotus-core",
+                                           "command":  "curl -sSf http://core-query.dev.lotus/health/ready"
+                                       },
+                                       {
+                                           "id":  "pas-ingestion-health",
+                                           "repo":  "lotus-core",
+                                           "command":  "curl -sSf http://core-ingestion.dev.lotus/health/ready"
+                                       },
+                                       {
+                                           "id":  "bff-health",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "curl -sSf http://gateway.dev.lotus/health"
+                                       },
+                                       {
+                                           "id":  "ui-health",
+                                           "repo":  "lotus-workbench",
+                                           "command":  "curl -sSf http://workbench.dev.lotus"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "migration-quality",
+                         "description":  "Strict migration quality checks with test-pyramid coverage focus",
+                         "tasks":  [
+                                       {
+                                           "id":  "aea-unit-contract",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "python -m pytest tests/unit tests/contract -q"
+                                       },
+                                       {
+                                           "id":  "aea-integration",
+                                           "repo":  "lotus-gateway",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "pa-unit",
+                                           "repo":  "lotus-performance",
+                                           "command":  "python -m pytest tests/unit -q"
+                                       },
+                                       {
+                                           "id":  "pa-integration",
+                                           "repo":  "lotus-performance",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "pas-unit",
+                                           "repo":  "lotus-core",
+                                           "command":  "python -m pytest tests/unit/services/query_service -q"
+                                       },
+                                       {
+                                           "id":  "pas-integration-lite",
+                                           "repo":  "lotus-core",
+                                           "command":  "python -m pytest tests/integration/services/query_service/test_integration_router_dependency.py tests/integration/services/query_service/test_position_analytics_router.py tests/integration/services/query_service/test_performance_router.py tests/integration/services/query_service/test_risk_router_dependency.py -q"
+                                       },
+                                       {
+                                           "id":  "ras-integration",
+                                           "repo":  "lotus-report",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "render-integration",
+                                           "repo":  "lotus-render",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "manage-integration",
+                                           "repo":  "lotus-manage",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "ai-integration",
+                                           "repo":  "lotus-ai",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "risk-integration",
+                                           "repo":  "lotus-risk",
+                                           "command":  "python -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "lotus-archive-integration",
+                                           "repo":  "lotus-archive",
+                                           "command":  ".venv/Scripts/python.exe -m pytest tests/integration -q"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "coverage-pyramid-baseline",
+                         "description":  "Generate cross-service pyramid and coverage baseline artifacts",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-platform-contract",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Platform-Contract.ps1"
+                                       },
+                                       {
+                                           "id":  "measure-test-pyramid",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Measure-Test-Pyramid.ps1 -RunCoverage"
+                                       },
+                                       {
+                                           "id":  "dependency-vulnerability-rollup",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "automation-integrity",
+                         "description":  "Validate automation config integrity (repos/profile references, command file refs, and task wiring)",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-automation-config",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-local-ci-parity",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "change-test-impact",
+                         "description":  "Detect source changes without test updates across lotus repositories",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-change-test-impact",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "backend-standards-conformance",
+                         "description":  "Validate backend repositories against shared foundation standards",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-backend-standards",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "enforce-repository-governance",
+                         "description":  "Apply branch protection and auto-merge governance policy across governed Lotus repositories",
+                         "tasks":  [
+                                       {
+                                           "id":  "apply-repository-governance",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "openapi-conformance-baseline",
+                         "description":  "Validate backend OpenAPI contract quality conformance baseline",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-openapi-conformance",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "domain-vocabulary-conformance",
+                         "description":  "Validate backend repositories against domain vocabulary prohibited terms baseline",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-domain-vocabulary",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "lotus-naming-conformance",
+                         "description":  "Validate cross-repo legacy naming drift against Lotus canonical naming",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-lotus-naming",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Lotus-Naming.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "repo-metadata-validation",
+                         "description":  "Validate cross-repo metadata (default branch and preflight command definitions)",
+                         "tasks":  [
+                                       {
+                                           "id":  "verify-repo-metadata",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "repository-governance-validation",
+                         "description":  "Validate GitHub branch protection and auto-merge posture against the Lotus repository governance policy",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-repository-governance",
+                                           "repo":  "lotus-platform",
+                                           "command":  "python automation/validate_repository_governance.py"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "durability-consistency-baseline",
+                         "description":  "Validate cross-repo durability and consistency policy conformance baseline",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-durability-consistency",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Durability-Consistency.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "enterprise-readiness-baseline",
+                         "description":  "Validate cross-repo enterprise readiness baseline conformance",
+                         "tasks":  [
+                                       {
+                                           "id":  "validate-enterprise-readiness",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "rfc-conformance-baseline",
+                         "description":  "Build cross-repo RFC conformance inventory and centralized alignment backlog",
+                         "tasks":  [
+                                       {
+                                           "id":  "audit-rfc-conformance",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Audit-RFC-Conformance.ps1"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "pr-lifecycle",
+                         "description":  "Monitor PR checks, queue auto-merge, and clean merged feature branches",
+                         "tasks":  [
+                                       {
+                                           "id":  "close-pr-loop",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Close-PR-Loop.ps1"
+                                       },
+                                       {
+                                           "id":  "prune-merged-remote-branches",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Prune-MergedRemoteBranches.ps1 -AllLotusRepos"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "platform-alignment",
+                         "description":  "Fast cross-repo alignment sweep (sync + PR/check health + core standards conformance)",
+                         "tasks":  [
+                                       {
+                                           "id":  "sync-repos",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Sync-Repos.ps1"
+                                       },
+                                       {
+                                           "id":  "pr-monitor-checks",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/PR-Monitor.ps1 -IncludeChecks"
+                                       },
+                                       {
+                                           "id":  "detect-stalled-pr-checks",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
+                                       },
+                                       {
+                                           "id":  "validate-backend-standards",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-openapi",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-vocabulary",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-shared-infra-ownership",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-service-addressing",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-dev-ingress-smoke",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-enterprise-readiness",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
+                                       },
+                                       {
+                                           "id":  "verify-repo-metadata",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-automation-config",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-local-ci-parity",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-change-test-impact",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
+                                       },
+                                       {
+                                           "id":  "summarize-failures",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 5"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "qa-platform-readiness",
+                         "description":  "Bring up the governed canonical front-office runtime and validate populated product surfaces end-to-end",
+                         "tasks":  [
+                                       {
+                                           "id":  "qa-platform-readiness",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "qa-platform-readiness-clean-core",
+                         "description":  "Bring up the governed canonical front-office runtime after resetting lotus-core state for a fresh front-office reseed",
+                         "tasks":  [
+                                       {
+                                           "id":  "qa-platform-readiness-clean-core",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "qa-platform-readiness-clean-core-build",
+                         "description":  "Rebuild local service images, reset lotus-core state, and validate governed canonical front-office surfaces",
+                         "tasks":  [
+                                       {
+                                           "id":  "qa-platform-readiness-clean-core-build",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -LotusAiEnvFile .env.example -SeedWaitSeconds 1200"
+                                       }
+                                   ]
+                     },
+                     {
+                         "name":  "autonomous-foundation",
+                         "description":  "Autonomous foundation governance sweep with machine-readable evidence artifacts",
+                         "tasks":  [
+                                       {
+                                           "id":  "sync-repos",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Sync-Repos.ps1"
+                                       },
+                                       {
+                                           "id":  "pr-monitor-checks",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/PR-Monitor.ps1 -IncludeChecks"
+                                       },
+                                       {
+                                           "id":  "detect-stalled-pr-checks",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
+                                       },
+                                       {
+                                           "id":  "validate-backend-standards",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-openapi",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-vocabulary",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Domain-Vocabulary.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-shared-infra-ownership",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Shared-Infrastructure-Ownership.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-service-addressing",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Service-Addressing.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-dev-ingress-smoke",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-enterprise-readiness",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Enterprise-Readiness.ps1"
+                                       },
+                                       {
+                                           "id":  "measure-pyramid",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Measure-Test-Pyramid.ps1"
+                                       },
+                                       {
+                                           "id":  "verify-repo-metadata",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Verify-Repo-Metadata.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-automation-config",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Automation-Config.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-local-ci-parity",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Local-CI-Parity.ps1"
+                                       },
+                                       {
+                                           "id":  "validate-change-test-impact",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Change-Test-Impact.ps1"
+                                       },
+                                       {
+                                           "id":  "dependency-rollup",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1"
+                                       },
+                                       {
+                                           "id":  "summarize-failures",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Summarize-Task-Failures.ps1 -Latest 5"
+                                       }
+                                   ]
+                     }
+                 ]
 }

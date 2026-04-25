@@ -1,181 +1,470 @@
 {
-  "repositories": [
-    {
-      "repo": "lotus-gateway",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-gateway",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-gateway"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://gateway.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://gateway.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://gateway.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "latency_ms", "service"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-advise",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-advise",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-advise"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://advise.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://advise.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://advise.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "audit", "service"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-performance",
-      "startup": {
-        "up_command": "docker compose up -d --build performance-analytics",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 performance-analytics"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://performance.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://performance.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://performance.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "service", "duration"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-core",
-      "startup": {
-        "up_command": "docker compose up -d --build ingestion_service query_service",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 ingestion_service query_service"
-      },
-      "checks": {
-        "api": [
-          { "id": "ingestion-health", "method": "GET", "url": "http://core-ingestion.dev.lotus/health/ready", "expected_status": 200, "must_contain": ["ready"] },
-          { "id": "query-health", "method": "GET", "url": "http://core-query.dev.lotus/health/ready", "expected_status": 200, "must_contain": ["ready"] },
-          { "id": "query-docs", "method": "GET", "url": "http://core-query.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "query-metrics", "url": "http://core-query.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "service", "request"]
-        },
-        "custom_checks": [
-          {
-            "id": "seeded-analytics-maturity",
-            "type": "command",
-            "command": "python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus",
-            "expected_exit_code": 0
-          }
-        ]
-      }
-    },
-    {
-      "repo": "lotus-report",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-report",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-report"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://report.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://report.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://report.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "service", "audit"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-render",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-render",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-render"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://render.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://render.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://render.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "service", "render"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-risk",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-risk",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-risk"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://risk.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://risk.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://risk.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "service", "risk"]
-        }
-      }
-    },
-    {
-      "repo": "lotus-manage",
-      "startup": {
-        "up_command": "docker compose up -d --build lotus-manage",
-        "down_command": "docker compose down",
-        "log_command": "docker compose logs --tail=200 lotus-manage"
-      },
-      "checks": {
-        "api": [
-          { "id": "health", "method": "GET", "url": "http://manage.dev.lotus/health", "expected_status": 200, "must_contain": ["status"] },
-          { "id": "docs", "method": "GET", "url": "http://manage.dev.lotus/docs", "expected_status": 200, "must_contain": ["Swagger"] }
-        ],
-        "monitoring": [
-          { "id": "metrics", "url": "http://manage.dev.lotus/metrics", "expected_status": 200, "must_contain": ["http"] }
-        ],
-        "observability": {
-          "require_response_headers": ["x-correlation-id"],
-          "required_log_patterns": ["correlation", "audit", "service"]
-        }
-      }
-    }
-  ]
+    "repositories":  [
+                         {
+                             "repo":  "lotus-gateway",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-gateway",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-gateway"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://gateway.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://gateway.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://gateway.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "latency_ms",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-advise",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-advise",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-advise"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://advise.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://advise.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://advise.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "audit",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-performance",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build performance-analytics",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 performance-analytics"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://performance.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://performance.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://performance.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service",
+                                                                                                "duration"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-core",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build ingestion_service query_service",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 ingestion_service query_service"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "ingestion-health",
+                                                            "method":  "GET",
+                                                            "url":  "http://core-ingestion.dev.lotus/health/ready",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "ready"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "query-health",
+                                                            "method":  "GET",
+                                                            "url":  "http://core-query.dev.lotus/health/ready",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "ready"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "query-docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://core-query.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "query-metrics",
+                                                                   "url":  "http://core-query.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service",
+                                                                                                "request"
+                                                                                            ]
+                                                              },
+                                            "custom_checks":  [
+                                                                  {
+                                                                      "id":  "seeded-analytics-maturity",
+                                                                      "type":  "command",
+                                                                      "command":  "python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus",
+                                                                      "expected_exit_code":  0
+                                                                  }
+                                                              ]
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-report",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-report",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-report"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://report.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://report.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://report.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service",
+                                                                                                "audit"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-render",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-render",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-render"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://render.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://render.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://render.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service",
+                                                                                                "render"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-risk",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-risk",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-risk"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://risk.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://risk.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://risk.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service",
+                                                                                                "risk"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-manage",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-manage",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-manage"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://manage.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://manage.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://manage.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "audit",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-archive",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-archive",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-archive"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://archive.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://archive.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://archive.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
+                                        }
+                         }
+                     ]
 }

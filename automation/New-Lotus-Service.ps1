@@ -388,6 +388,25 @@ function Initialize-GitRepository {
   git -C $TargetRepoRoot init -b main | Out-Null
 }
 
+function Ensure-GitInitialCommit {
+  param(
+    [string]$TargetRepoRoot,
+    [string]$SvcName
+  )
+
+  $headExists = $true
+  git -C $TargetRepoRoot rev-parse --verify HEAD *> $null
+  if ($LASTEXITCODE -ne 0) {
+    $headExists = $false
+  }
+  if ($headExists) {
+    return
+  }
+
+  git -C $TargetRepoRoot add . | Out-Null
+  git -C $TargetRepoRoot commit -m "Scaffold $SvcName service baseline" | Out-Null
+}
+
 function Configure-GithubRepository {
   param(
     [string]$TargetRepoRoot,
@@ -402,6 +421,7 @@ function Configure-GithubRepository {
 
   $repoSlug = "$Org/$RepoName"
   gh repo create $repoSlug --source $TargetRepoRoot --remote origin --description $RepoDescription --$Visibility | Out-Null
+  git -C $TargetRepoRoot push -u origin main | Out-Null
 
   if ($EnableDefaults) {
     gh repo edit $repoSlug --enable-issues --enable-wiki --enable-auto-merge --enable-squash-merge --enable-rebase-merge --delete-branch-on-merge | Out-Null
@@ -998,6 +1018,10 @@ if ($InitializeGit) {
 }
 
 if ($CreateGithubRepo) {
+  if (-not $InitializeGit) {
+    throw "-CreateGithubRepo requires -InitializeGit so the remote can be seeded before branch protection is applied."
+  }
+  Ensure-GitInitialCommit -TargetRepoRoot $target -SvcName $ServiceName
   $requiredChecks = @(
     "PR Merge Gate / Workflow Lint",
     "PR Merge Gate / Lint Typecheck Security",
