@@ -333,6 +333,7 @@ services:
     image: prom/prometheus:v2.47.2
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
     command: ["--config.file=/etc/prometheus/prometheus.yml"]
     logging: *default-logging
 
