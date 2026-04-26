@@ -328,8 +328,9 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: proposed",
+        "- status: in progress",
         "gold-pass hardened: 2026-04-26",
+        "implementation started: 2026-04-26",
         "critical review outcome",
         "locked first-wave decisions",
         "conditional decisions",
@@ -362,7 +363,11 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "second-last slice: hardening, review, and certification",
         "final slice: closure",
         "supported features",
-        "starts with no implementation-backed batch reporting supported features",
+        "currently has no implementation-backed batch reporting supported features",
+        "implementation status and evidence",
+        "slice 0 is implemented in `lotus-platform`",
+        "generated openapi quality gate now checks every generated operation",
+        "does not claim any rfc-0104 batch reporting supported feature",
         "documentation, wiki, and context impact",
         "branching and delivery expectations",
         "gold-pass readiness assessment",
@@ -384,13 +389,13 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "every attribute described with type, meaning, allowed values, and example value",
         "full error examples for invalid selector, duplicate item, unsupported frequency",
         "if no wiki, context, or skills change is needed",
-        "implementation remains blocked until the rfc is approved for execution",
+        "implementation begins only after the rfc is approved for execution",
         "if a source contract is missing, the rfc implementation must record a source gap",
         "any implementation that cannot populate one of these fields must document whether the field is",
         "aggregate batch counts must reconcile exactly with item states",
         "no implementation may depend on in-memory state for correctness",
         "implementation closure must update this matrix with concrete evidence paths",
-        "`tbd` entries are acceptable while the rfc is proposed",
+        "`tbd` entries are acceptable while rfc-0104 is in progress",
     ]:
         assert expected in text
 

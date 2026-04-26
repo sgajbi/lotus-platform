@@ -1,8 +1,9 @@
 # RFC-0104: Batch Reporting Scheduler, Concurrency, And Recovery
 
-- Status: Proposed
+- Status: In Progress
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
+- Implementation started: 2026-04-26
 - Owners:
   - `lotus-report` owners
   - `lotus-platform` operations
@@ -52,8 +53,9 @@ main gaps were:
 7. insufficient closure guidance for docs, wiki, context, skills, and branch hygiene,
 8. insufficient evidence standards for concurrency, idempotency, and recovery.
 
-This gold pass tightens the RFC into an implementation guide. It deliberately does not begin code
-implementation.
+This gold pass tightened the RFC into an implementation guide. Implementation started on
+2026-04-26 with the platform scaffolding slice only. Batch runtime behavior remains unimplemented
+until later slices explicitly add and prove it.
 
 ## Problem
 
@@ -827,6 +829,64 @@ Required validation:
 Evidence must preserve repository, branch, PR number, commit SHA, command, endpoint, batch id, job
 id, archive document id, and artifact path wherever those identifiers exist.
 
+## Implementation Status And Evidence
+
+Current status: Slice 0 is implemented in `lotus-platform` on
+`feature/rfc-0104-slice-0-platform-scaffold`. No `lotus-report` batch scheduler, batch ledger,
+worker, API, or runtime behavior is implemented yet.
+
+### Slice 0: Platform Automation And Scaffolding Improvement Evidence
+
+Gap found:
+
+1. `automation/New-Lotus-Service.ps1` generated a service-local `scripts/openapi_quality_gate.py`
+   that only checked for the presence of OpenAPI paths.
+2. Generated health and metadata endpoints lacked the Swagger-quality baseline expected by current
+   Lotus API certification work: tags, summaries, descriptions, response descriptions, and success
+   examples.
+3. Generated `/metrics` schema exposure caused the strengthened gate to fail because the
+   instrumentator route is operational telemetry, not a client-facing API contract.
+
+Implemented improvement:
+
+1. Newly scaffolded Lotus FastAPI services now emit documented health, liveness, readiness, and
+   metadata endpoints with explicit tags, summaries, descriptions, response descriptions, and JSON
+   response examples.
+2. The generated OpenAPI quality gate now checks every generated operation for summary,
+   description, tags, response definitions, at least one 2xx response, response descriptions, and
+   success examples.
+3. The generated Prometheus metrics endpoint remains exposed operationally but is excluded from the
+   generated OpenAPI schema.
+4. `tests/unit/test_repository_hygiene_scaffold_contract.py` protects the scaffold contract so the
+   platform baseline cannot silently regress to path-only OpenAPI validation.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/test_repository_hygiene_scaffold_contract.py -q` passed with
+   2 tests.
+2. `python -m pytest tests/unit/test_repository_hygiene_scaffold_contract.py
+   tests/unit/test_rfc_closure_governance.py -q` passed with 16 tests.
+3. `python automation/validate_engineering_context_system.py` passed.
+4. `git diff --check` passed for the Slice 0 patch.
+5. `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane
+   feature` passed with 336 tests plus engineering context, agent engineering contracts, heartbeat
+   contracts, skill alignment, container baseline, platform validation coverage, mesh advisory, and
+   AGENTS synchronization checks.
+6. `powershell -ExecutionPolicy Bypass -File automation\Sync-RepoWikis.ps1 -CheckOnly -Repository
+   lotus-platform` reported expected `RFC-Index.md` drift because this branch intentionally changes
+   repo-authored wiki source. Publication must occur after merge.
+7. A fresh generated service scaffold ran its generated `scripts\openapi_quality_gate.py` and
+   printed `OpenAPI gate passed`.
+
+Review result:
+
+1. The improvement is deliberately centralized in `lotus-platform` instead of copied into
+   `lotus-report`, so future service scaffolds inherit the stronger Swagger-quality posture.
+2. This slice does not claim any RFC-0104 batch reporting supported feature. It only strengthens
+   the platform baseline required before batch runtime implementation begins.
+3. The next slice may start only after this platform Slice 0 branch is merged and required local
+   and GitHub evidence is green.
+
 ## Implementation Proof Ledger Template
 
 The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
@@ -845,12 +905,13 @@ this structure:
 | Swagger examples match runtime behavior | TBD | TBD | TBD | TBD |
 | Supported-features text is implementation-backed | TBD | TBD | TBD | TBD |
 
-`TBD` entries are acceptable while the RFC is proposed. They are not acceptable at implementation
-closure.
+`TBD` entries are acceptable while RFC-0104 is in progress. They are not acceptable at
+implementation closure.
 
 ## Supported Features
 
-RFC-0104 starts with no implementation-backed batch reporting supported features.
+RFC-0104 currently has no implementation-backed batch reporting supported features. Slice 0 only
+improves platform scaffolding and does not add an operator-facing batch capability.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 
@@ -903,7 +964,8 @@ This RFC is ready to guide implementation when this section is true:
 5. API certification and Swagger quality expectations are explicit,
 6. supported-features governance prevents aspirational claims,
 7. closure requires docs, wiki, context, skills/guidance, and branch hygiene decisions,
-8. implementation remains blocked until the RFC is approved for execution.
+8. implementation begins only after the RFC is approved for execution and each slice records its
+   evidence before the next slice starts.
 
 ## Second Gold-Pass Additions
 

@@ -53,6 +53,12 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert 'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")' in scaffold_script
     assert "Ensure-GitInitialCommit" in scaffold_script
     assert "git -C $TargetRepoRoot push -u origin main" in scaffold_script
+    assert "missing summary" in scaffold_script
+    assert "missing description" in scaffold_script
+    assert "missing success response example" in scaffold_script
+    assert "include_in_schema=False" in scaffold_script
+    assert 'tags=["Health"]' in scaffold_script
+    assert 'tags=["Metadata"]' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
     assert "coverage-gate:" in makefile_template
@@ -116,6 +122,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+    main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
+    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -130,6 +138,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) monetary-float-guard" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
+    assert "include_in_schema=False" in main_py
+    assert 'tags=["Health"]' in main_py
+    assert 'summary="Get service health"' in main_py
+    assert 'summary="Get readiness"' in main_py
+    assert 'tags=["Metadata"]' in main_py
+    assert "missing summary" in openapi_gate
+    assert "missing success response example" in openapi_gate
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile

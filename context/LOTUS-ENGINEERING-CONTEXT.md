@@ -184,16 +184,22 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    evidence-pack drift are certification evidence and must not be handled as separate decorative
    reports. Public customer evidence packs must not expose restricted telemetry paths, source
    artifacts, or consumer entitlement details.
-10. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
+10. RFC-0104 is in progress for batch reporting. Slice 0 strengthens
+   `automation/New-Lotus-Service.ps1` so newly scaffolded FastAPI services include
+   Swagger-quality health, liveness, readiness, and metadata endpoints plus a generated OpenAPI
+   quality gate that checks summaries, descriptions, tags, response descriptions, 2xx responses,
+   and success examples. This is a platform scaffold baseline only; `lotus-report` batch runtime
+   behavior remains pending later RFC-0104 slices.
+11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
-11. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
+12. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
     `enterprise-mesh-operating-report.json` and `.md` alongside certification status artifacts.
     The operating report consumes current certification status and optional certification-history
     records, then reports operating state, limited-history posture, drift trend, regression since
     prior certified posture, product operating posture, escalation ownership, and operator guidance.
     It is operational evidence, not product truth and not customer evidence export.
-12. The durable mesh completion handoff is
+13. The durable mesh completion handoff is
     `docs/operations/enterprise-mesh-completion-handoff.md`, with machine-readable closure evidence
     in `generated/enterprise-mesh-closure-ledger.json` and published human status in
     `wiki/Enterprise-Mesh-Status.md`. Use those artifacts instead of old chat history when

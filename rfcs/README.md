@@ -142,7 +142,7 @@ Reference baseline:
 - `RFC-0101-report-data-snapshot-and-lineage-contracts.md` (proposed; report data snapshots, upstream-call evidence, hash/reference semantics, supportability, and data mesh alignment)
 - `RFC-0102-render-package-template-registry-and-render-service.md` (in progress on feature branches; `lotus-render` service, render package contract, template registry, Typst rendering, render diagnostics, first-wave live proof, portfolio-review visual-system uplift, and `lotus-report` render-package integration are branch-proven, with final review, merge, wiki publication, and branch hygiene still pending)
 - `RFC-0103-document-archive-retrieval-retention-and-legal-hold.md` (implemented for supported first-wave scope; `lotus-archive` service, metadata, object-storage abstraction, controlled archive APIs, access audit, retention, purge, legal hold, lifecycle relationships, `lotus-report` handoff, and `lotus-gateway` retrieval are complete; Workbench retrieval, batch/replay/operations, full security certification, and production certification remain later RFC scope)
-- `RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md` (proposed; batch selectors, schedules, concurrency, retry, resume, progress, and recovery)
+- `RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md` (in progress; Slice 0 platform scaffold guardrails are implemented, with batch selectors, schedules, concurrency, retry, resume, progress, and recovery still pending)
 - `RFC-0105-reporting-observability-operations-and-replay-tooling.md` (proposed; traces, metrics, logs, dashboards, operator APIs, rerender, regenerate, replay, stuck-job, and SLA monitoring)
 - `RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md` (proposed; reporting and document entitlement model, role matrix, region/tenant segregation, download authorization, and security certification)
 - `RFC-0107-enterprise-reporting-production-certification.md` (proposed; end-to-end production certification across gateway, report, render, archive, upstream services, Workbench, batch, security, observability, docs, wiki, and supported-features)
@@ -153,7 +153,8 @@ Reference baseline:
    before implementation starts for enterprise reporting, rendering, batch production, or document
    archival.
 2. RFC-0100 through RFC-0103 have implementation-backed first-wave reporting, rendering, and
-   archival scope. Continue with RFC-0104, RFC-0105, RFC-0106, then RFC-0107.
+   archival scope. RFC-0104 is in progress with platform scaffold guardrails started; continue
+   RFC-0104 slice by slice before RFC-0105, RFC-0106, then RFC-0107.
 3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.

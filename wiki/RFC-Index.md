@@ -60,7 +60,8 @@
   implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
   lifecycle, `lotus-report` handoff, and gateway retrieval support
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
-  proposed batch reporting scheduler, concurrency, retry, resume, and recovery
+  in progress; Slice 0 platform scaffold guardrails are implemented, with batch scheduler,
+  concurrency, retry, resume, and recovery runtime behavior still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   proposed reporting observability, operator APIs, replay, rerender, regenerate, stuck-job, and SLA
   monitoring
@@ -74,7 +75,8 @@
 1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
    batch production, or document archival.
 2. RFC-0100 through RFC-0103 now have implementation-backed first-wave reporting, rendering, and
-   archival scope. Continue with RFC-0104, RFC-0105, RFC-0106, then RFC-0107.
+   archival scope. RFC-0104 is in progress with platform scaffold guardrails started; continue
+   RFC-0104 slice by slice before RFC-0105, RFC-0106, then RFC-0107.
 3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
@@ -132,6 +134,8 @@
   RFC-0103 establishes `lotus-archive` as the generated-document archive owner, with controlled
   metadata and binary retrieval, access audit, retention, purge, legal hold, lifecycle
   relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval remains
-  deferred until a concrete gateway-backed product surface is approved. RFC-0104 through RFC-0107
-  remain the next reporting architecture RFCs for batch, observability/operations, security, and
-  production certification.
+  deferred until a concrete gateway-backed product surface is approved. RFC-0104 is in progress:
+  Slice 0 improves platform service scaffolding and generated OpenAPI quality gates, while
+  `lotus-report` batch runtime behavior remains pending. RFC-0105 through RFC-0107 remain the next
+  reporting architecture RFCs for observability/operations, security, and production
+  certification.
