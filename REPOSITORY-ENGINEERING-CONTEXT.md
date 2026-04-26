@@ -189,11 +189,11 @@ Boundary rules:
     optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
     guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
     approval, wiki publication, or merge authority.
-35. RFC-0104 is in progress. Platform-owned evidence now tracks first-wave durable batch
+35. RFC-0104 is implemented for first-wave scope. Platform-owned evidence now tracks durable batch
     materialization/status/control, scheduler identity, dispatch/recovery, internal execution,
     bounded worker/runtime/scheduler processes, gateway batch APIs, scheduler selectors, and
-    Workbench gateway-backed explicit single-portfolio batch operation across the sibling repos.
-    Gateway-facing scheduler administration, RFC-0105 observability/replay, RFC-0106 security
+    gateway scheduler administration plus Workbench gateway-backed explicit single-portfolio batch
+    operation across the sibling repos. RFC-0105 observability/replay, RFC-0106 security
     certification, and RFC-0107 production certification remain pending.
 
 ## Repo-Native Commands

@@ -60,15 +60,15 @@
   implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
   lifecycle, `lotus-report` handoff, and gateway retrieval support
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
-  in progress; first-wave durable batch materialization/status/control APIs, deterministic
+  implemented for first-wave scope; durable batch materialization/status/control APIs, deterministic
   schedule-cycle identity, dispatch/lease/back-pressure, retry/recovery controls, internal
   execution bridge, bounded worker primitive, certified internal run-once operator API, and bounded
   internal runtime-pass primitive plus daemonized internal worker and scheduler processes,
   explicit/all-active/inline-manifest scheduler selectors, and gateway-facing batch
   materialization/status/control/operator-run APIs plus Workbench gateway-backed explicit
-  single-portfolio batch operation are implemented, with gateway-facing scheduler administration,
+  single-portfolio batch operation and gateway-facing scheduler administration are implemented.
   RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
-  certification still pending
+  certification remain pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
   rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
@@ -89,12 +89,9 @@
 
 1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
    batch production, or document archival.
-2. RFC-0100 through RFC-0103 now have implementation-backed first-wave reporting, rendering, and
-   archival scope. RFC-0104 is in progress with durable materialization/status/control,
-   deterministic schedule identity, dispatch/recovery, internal execution, bounded worker,
-   run-once operator API, runtime-pass, worker-process, scheduler-process, scheduler-selector, and
-   gateway API plus Workbench operation slices implemented; continue RFC-0104
-   scheduler-administration slices before RFC-0105, RFC-0106, then RFC-0107.
+2. RFC-0100 through RFC-0104 now have implementation-backed first-wave reporting, rendering,
+   archival, and batch scope. Continue by tightening RFC-0105 observability/operations/replay before
+   implementation, then RFC-0106 security certification, then RFC-0107 production certification.
 3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
@@ -152,12 +149,12 @@
   RFC-0103 establishes `lotus-archive` as the generated-document archive owner, with controlled
   metadata and binary retrieval, access audit, retention, purge, legal hold, lifecycle
   relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval remains
-  deferred until a concrete gateway-backed product surface is approved. RFC-0104 is in progress
-  with first-wave durable batch materialization/status/control, deterministic schedule identity,
-  dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, certified
-  internal run-once operator API, bounded internal runtime-pass primitive, and daemonized internal
-  worker and scheduler processes with explicit/all-active/inline-manifest scheduler selectors plus
-  gateway-facing batch materialization/status/control/operator-run APIs and Workbench
-  gateway-backed explicit single-portfolio batch operation implemented. Gateway-facing scheduler
-  administration, RFC-0105 observability/operations, RFC-0106 security, and RFC-0107 production
-  certification remain pending.
+  deferred until a concrete gateway-backed product surface is approved. RFC-0104 is implemented for
+  first-wave scope with durable batch materialization/status/control, deterministic schedule
+  identity, dispatch/recovery primitives, an internal execution bridge, bounded worker primitive,
+  certified internal run-once operator API, bounded internal runtime-pass primitive, daemonized
+  internal worker and scheduler processes with explicit/all-active/inline-manifest scheduler
+  selectors, gateway-facing batch materialization/status/control/operator-run APIs, gateway-facing
+  scheduler administration, and Workbench gateway-backed explicit single-portfolio batch operation.
+  RFC-0105 observability/operations, RFC-0106 security, and RFC-0107 production certification remain
+  pending.
