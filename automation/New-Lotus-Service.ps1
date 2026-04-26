@@ -11,7 +11,7 @@ param(
   [string[]]$UpstreamDependencies = @(),
   [string[]]$DownstreamDependencies = @(),
   [string]$DevHostName = "",
-  [string[]]$RequiredLogPatterns = @("correlation", "service"),
+  [string[]]$RequiredLogPatterns = @("correlation", "trace", "service"),
   [switch]$Force,
   [switch]$SkipAutomationRegistration,
   [switch]$InitializeGit,
@@ -260,7 +260,7 @@ function Register-PlatformContextAndAutomation {
             [pscustomobject]@{ id = "metrics"; url = "http://$RepoHostName.dev.lotus/metrics"; expected_status = 200; must_contain = @("http") }
           )
           observability = [pscustomobject]@{
-            require_response_headers = @("x-correlation-id")
+            require_response_headers = @("x-correlation-id", "x-trace-id")
             required_log_patterns = @($RepoLogPatterns)
           }
         }
@@ -710,11 +710,14 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         correlation_id = request.headers.get("X-Correlation-Id") or str(uuid.uuid4())
+        trace_id = request.headers.get("X-Trace-Id") or str(uuid.uuid4())
         request.state.correlation_id = correlation_id
+        request.state.trace_id = trace_id
         start = time.perf_counter()
         response = await call_next(request)
         duration_ms = (time.perf_counter() - start) * 1000.0
         response.headers["X-Correlation-Id"] = correlation_id
+        response.headers["X-Trace-Id"] = trace_id
         response.headers["X-Service-Name"] = self._service_name
         response.headers["X-Request-Duration-Ms"] = f"{duration_ms:.3f}"
         return response
@@ -879,11 +882,23 @@ def test_health_endpoints() -> None:
     assert client.get("/health/ready").status_code == 200
 
 
-def test_correlation_header_propagation() -> None:
+def test_correlation_and_trace_header_propagation() -> None:
     client = TestClient(app)
-    response = client.get("/health", headers={"X-Correlation-Id": "corr-123"})
+    response = client.get(
+        "/health",
+        headers={"X-Correlation-Id": "corr-123", "X-Trace-Id": "trace-123"},
+    )
     assert response.status_code == 200
     assert response.headers["X-Correlation-Id"] == "corr-123"
+    assert response.headers["X-Trace-Id"] == "trace-123"
+
+
+def test_correlation_and_trace_headers_are_generated() -> None:
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.headers["X-Correlation-Id"]
+    assert response.headers["X-Trace-Id"]
 
 
 def test_readiness_reports_draining_state() -> None:
