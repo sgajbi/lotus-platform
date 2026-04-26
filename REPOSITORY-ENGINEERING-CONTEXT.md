@@ -186,6 +186,11 @@ Boundary rules:
     optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
     guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
     approval, wiki publication, or merge authority.
+35. RFC-0104 is in progress. Slice 0 strengthens `automation/New-Lotus-Service.ps1` so newly
+    scaffolded FastAPI services emit Swagger-quality health, liveness, readiness, and metadata
+    endpoints and a generated OpenAPI quality gate that checks operation summaries, descriptions,
+    tags, response descriptions, 2xx responses, and success examples. No `lotus-report` batch
+    runtime behavior is implemented by this platform slice.
 
 ## Repo-Native Commands
 
@@ -284,6 +289,8 @@ Most relevant current governance:
 5. when harvesting legacy strategy or wiki material, reclassify it against current Lotus ownership
    boundaries before reusing it in `lotus-platform`; old ecosystem narrative can still help, but
    repo docs must speak in current Lotus vocabulary and current architecture.
+6. New-service scaffold changes should be centralized in `automation/New-Lotus-Service.ps1` and
+   protected by scaffold contract tests rather than copied into individual service repositories.
 
 ## Context Maintenance Rule
 

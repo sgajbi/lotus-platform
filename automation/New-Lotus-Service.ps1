@@ -592,20 +592,61 @@ ROUNDING_POLICY_VERSION = "v1"
 
 app = FastAPI(title=SERVICE_NAME, version=SERVICE_VERSION)
 app.add_middleware(CorrelationIdMiddleware, service_name=SERVICE_NAME)
-Instrumentator().instrument(app).expose(app)
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="Get service health",
+    description="Returns a lightweight service health response for diagnostics and platform smoke checks.",
+    responses={
+        200: {
+            "description": "Service health response.",
+            "content": {
+                "application/json": {
+                    "example": {"status": "ok", "service": SERVICE_NAME}
+                }
+            },
+        }
+    },
+)
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": SERVICE_NAME}
 
 
-@app.get("/health/live")
+@app.get(
+    "/health/live",
+    tags=["Health"],
+    summary="Get liveness",
+    description="Returns liveness status when the process is running.",
+    responses={
+        200: {
+            "description": "Process is live.",
+            "content": {"application/json": {"example": {"status": "live"}}},
+        }
+    },
+)
 async def health_live() -> dict[str, str]:
     return {"status": "live"}
 
 
-@app.get("/health/ready")
+@app.get(
+    "/health/ready",
+    tags=["Health"],
+    summary="Get readiness",
+    description="Returns readiness status and reports draining state with a 503 response.",
+    responses={
+        200: {
+            "description": "Service is ready to receive traffic.",
+            "content": {"application/json": {"example": {"status": "ready"}}},
+        },
+        503: {
+            "description": "Service is intentionally draining and should not receive new traffic.",
+            "content": {"application/json": {"example": {"status": "draining"}}},
+        },
+    },
+)
 async def health_ready(response: Response) -> dict[str, str]:
     if bool(getattr(app.state, "is_draining", False)):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -613,7 +654,26 @@ async def health_ready(response: Response) -> dict[str, str]:
     return {"status": "ready"}
 
 
-@app.get("/metadata")
+@app.get(
+    "/metadata",
+    tags=["Metadata"],
+    summary="Get service metadata",
+    description="Returns service identity and policy-version metadata for operators and validators.",
+    responses={
+        200: {
+            "description": "Service metadata response.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "service": SERVICE_NAME,
+                        "version": SERVICE_VERSION,
+                        "roundingPolicyVersion": ROUNDING_POLICY_VERSION,
+                    }
+                }
+            },
+        }
+    },
+)
 async def metadata() -> dict[str, str]:
     return {
         "service": SERVICE_NAME,
@@ -673,10 +733,62 @@ sys.path.insert(0, str(ROOT / "src"))
 from app.main import app  # noqa: E402
 
 
+def _operation_name(method: str, path: str) -> str:
+    return f"{method.upper()} {path}"
+
+
+def _has_example(response: dict) -> bool:
+    content = response.get("content")
+    if not isinstance(content, dict):
+        return False
+    for media in content.values():
+        if not isinstance(media, dict):
+            continue
+        if "example" in media or "examples" in media:
+            return True
+    return False
+
+
 def main() -> None:
     spec = app.openapi()
     if "paths" not in spec or not spec["paths"]:
         raise SystemExit("OpenAPI gate failed: no paths defined")
+    errors: list[str] = []
+    for path, path_item in spec["paths"].items():
+        if not isinstance(path_item, dict):
+            errors.append(f"{path}: path item must be an object")
+            continue
+        for method, operation in path_item.items():
+            if method.lower() not in {"get", "post", "put", "patch", "delete"}:
+                continue
+            name = _operation_name(method, path)
+            if not operation.get("summary"):
+                errors.append(f"{name}: missing summary")
+            if not operation.get("description"):
+                errors.append(f"{name}: missing description")
+            if not operation.get("tags"):
+                errors.append(f"{name}: missing tag")
+            responses = operation.get("responses")
+            if not isinstance(responses, dict) or not responses:
+                errors.append(f"{name}: missing responses")
+                continue
+            success_responses = [
+                response
+                for status_code, response in responses.items()
+                if str(status_code).startswith("2")
+            ]
+            if not success_responses:
+                errors.append(f"{name}: missing 2xx response")
+            for status_code, response in responses.items():
+                if not isinstance(response, dict):
+                    errors.append(f"{name}: response {status_code} must be an object")
+                    continue
+                if not response.get("description"):
+                    errors.append(f"{name}: response {status_code} missing description")
+            if not any(_has_example(response) for response in success_responses):
+                errors.append(f"{name}: missing success response example")
+    if errors:
+        raise SystemExit("OpenAPI gate failed:\n" + "\n".join(sorted(errors)))
     print("OpenAPI gate passed")
 
 
