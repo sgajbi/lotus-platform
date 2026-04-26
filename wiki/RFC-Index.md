@@ -70,10 +70,10 @@
   RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
   certification remain pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
-  gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
-  rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
-  requirements, supported-features governance, and live proof expectations are tightened before
-  implementation
+  tightened after RFC-0104 closure with implementation not started; reporting observability,
+  operator APIs, replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API
+  certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
+  observability inputs, and live proof expectations are tightened before implementation
 - [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
   gold-pass ready with implementation not started; reporting security, entitlements, role/action
   matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,

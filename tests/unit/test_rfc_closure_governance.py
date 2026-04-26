@@ -487,11 +487,13 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
     )
 
     for expected in [
-        "- status: gold-pass ready; implementation not started",
+        "- status: tightened after rfc-0104 closure; implementation not started",
         "gold-pass hardened: 2026-04-26",
+        "rfc-0104 closure alignment: 2026-04-26",
         "critical review outcome",
         "gold-pass readiness assessment",
         "second gold-pass additions",
+        "rfc-0104 closure alignment",
         "pre-implementation no-go gates",
         "mandatory data-protection proof",
         "slice exit discipline",
@@ -533,6 +535,9 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "rerender, regenerate, replay, retry, and recovery must have separate command paths",
         "operator apis require certification, complete swagger, examples, safe errors",
         "live proof must follow a report from gateway/job creation through snapshot, render, archive",
+        "first implementation wave must start with observability contracts/operator lookup before mutating",
+        "gateway-facing scheduler administration for schedule listing and bounded due-schedule",
+        "batch_schedule_run_correlation_id",
         "do not promote supported features until implementation-backed proof exists",
         "the next slice must not start until the current slice has a passing targeted validation set",
         "final role, entitlement, tenant, region, and document-access authorization to rfc-0106",

@@ -1,8 +1,9 @@
 # RFC-0105: Reporting Observability, Operations, And Replay Tooling
 
-- Status: Gold-Pass Ready; Implementation Not Started
+- Status: Tightened After RFC-0104 Closure; Implementation Not Started
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
+- RFC-0104 closure alignment: 2026-04-26
 - Owners:
   - `lotus-report` owners
   - `lotus-render` owners
@@ -23,8 +24,8 @@
   - `RFC-0101-report-data-snapshot-and-lineage-contracts.md`
   - `RFC-0102-render-package-template-registry-and-render-service.md`
   - `RFC-0103-document-archive-retrieval-retention-and-legal-hold.md`
-  - implementation-backed RFC-0104 first-wave primitives where batch replay or batch monitoring is
-    included
+  - implementation-backed RFC-0104 first-wave batch, worker, scheduler, gateway, Workbench, and
+    scheduler-administration primitives where batch replay or batch monitoring is included
 - Follow-on RFC boundaries:
   - `RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md` owns final
     entitlement, tenant, region, and document-access certification.
@@ -96,6 +97,35 @@ easy to under-prove during delivery:
 The RFC remains implementation-ready. These additions do not expand first-wave scope; they make the
 quality bar harder to bypass.
 
+## RFC-0104 Closure Alignment
+
+RFC-0104 is now implemented for first-wave batch scope across `lotus-report`, `lotus-gateway`,
+`lotus-workbench`, and `lotus-platform`. RFC-0105 implementation may consume, but must not
+redefine, these implementation-backed surfaces:
+
+1. durable `report_batch` and `report_batch_item` PostgreSQL state,
+2. batch materialization/status/control/operator-run APIs in `lotus-report`,
+3. gateway batch materialization/status/control/operator-run APIs,
+4. config-backed scheduler process materialization for explicit-list, all-active, and inline
+   manifest schedules,
+5. gateway-facing scheduler administration for schedule listing and bounded due-schedule
+   materialization,
+6. Workbench explicit single-portfolio batch operation through gateway/BFF,
+7. report-job, snapshot, render, archive, and document identifiers produced by the RFC-0100 through
+   RFC-0104 flow.
+
+This alignment changes the RFC-0105 implementation starting point:
+
+1. Batch monitoring and batch-item replay may be included only for those RFC-0104 paths that are
+   already implementation-backed.
+2. Scheduler CRUD, persisted schedule registry management, entitlement certification, and production
+   certification remain out of RFC-0105 scope.
+3. The first implementation wave should start with source-backed observability contracts and
+   support-safe operator lookup foundations before adding mutating rerender/regenerate/replay
+   commands.
+4. Any Workbench operations surface must remain deferred until a gateway-backed supported operator
+   or product workflow is explicitly approved.
+
 ## Pre-Implementation No-Go Gates
 
 Implementation must not begin until the implementer records a branch-local execution note covering:
@@ -108,6 +138,17 @@ Implementation must not begin until the implementer records a branch-local execu
 6. local live-stack strategy for `lotus-report`, `lotus-render`, and `lotus-archive`,
 7. data-protection validation command or test plan,
 8. CI lanes expected before merge.
+
+The first implementation branch must record these initial decisions before code changes:
+
+1. first-wave operator APIs are exposed through `lotus-report` first, with gateway exposure added
+   only after report contracts are certified,
+2. dashboard artifacts start as markdown/JSON contracts tied to implemented metric names; no
+   dashboard may claim a metric that is not emitted and tested,
+3. batch operations use RFC-0104 durable source state and do not introduce a second batch status
+   store,
+4. mutating rerender, regenerate, and replay commands remain planned until trace/log/operator lookup
+   and audit foundations are implemented and proven.
 
 If any of these are unknown, the first implementation commit must be limited to resolving the
 unknown rather than adding product behavior.
@@ -152,7 +193,8 @@ RFC-0105 implementation must hand off the following instead of solving them loca
 
 1. final role, entitlement, tenant, region, and document-access authorization to RFC-0106,
 2. full release evidence, production readiness, and cross-app certification to RFC-0107,
-3. new batch scheduler/runtime behavior to RFC-0104 unless RFC-0104 is explicitly amended,
+3. new batch scheduler/runtime behavior or scheduler registry management to a new RFC-0104 amendment
+   or RFC-0107 certification finding, not to RFC-0105,
 4. new report visual/template content to RFC-0102 unless the work is only observability metadata,
 5. retention, purge, and legal-hold semantics to RFC-0103.
 
@@ -339,6 +381,8 @@ Every relevant observability record must carry the identifiers available at that
 | `render_artifact_sha256` | Render artifact integrity | `lotus-render` / `lotus-report` | RFC-0102 render metadata | Available | Include in rerender and archive trace views. |
 | `archive_document_id` | Archived document identity | `lotus-archive` / `lotus-report` | RFC-0103 archive response | Available | Include in end-to-end trace. |
 | `batch_status_counts` | Batch progress summary | `lotus-report` | RFC-0104 batch status | Available for first-wave APIs | Include in operations dashboard and stuck-state detection. |
+| `batch_schedule_id` | Configured schedule identity used for scheduled materialization | `lotus-report` | RFC-0104 scheduler config and scheduler-admin response | Available for config-backed first-wave schedules | Include in scheduler operations lookup and scheduler-materialization trace views. |
+| `batch_schedule_run_correlation_id` | Correlates an operator-triggered scheduler pass to materialized batches | `lotus-report` / `lotus-gateway` | RFC-0104 scheduler-admin run response and batch record | Available for first-wave scheduler-admin API | Include in logs, operator lookup, and proof for scheduler-admin diagnostics. |
 | `operator_action_id` | Audit identity for an operator command | `lotus-report` or `lotus-archive` | New RFC-0105 audit record | Missing | Add source-backed audit model before replay/rerender/regenerate APIs are supported. |
 | `stuck_reason` | Why a job/item is considered stuck | `lotus-report` derived from durable state and thresholds | New RFC-0105 stuck-state scanner | Missing | Implement threshold-backed scanner and evidence. |
 | `sla_breach_status` | Whether a report flow breached an objective | `lotus-report` / platform metrics | New RFC-0105 SLA contract | Missing | Define objectives and prove metrics/alerts. |
@@ -532,7 +576,8 @@ Required work:
 2. add replay command path and audit event,
 3. enforce retry/replay ceilings and invalid-state rejection,
 4. ensure replay preserves idempotency and lineage,
-5. support batch-item replay only for implementation-backed RFC-0104 paths,
+5. support batch-item replay only for implementation-backed RFC-0104 paths, and exclude scheduler
+   CRUD/registry changes,
 6. test replay success, terminal failure, not eligible, already completed, cancelled, archived,
    lease conflict, and concurrent replay attempts.
 
@@ -575,8 +620,9 @@ Required work:
 4. prove rerender from snapshot,
 5. prove regenerate from upstream data,
 6. prove replay for a failed report job and a failed batch item where supported,
-7. prove stuck-state and SLA simulation,
-8. capture evidence with exact identifiers:
+7. prove scheduler-admin observability if scheduler operations are in scope,
+8. prove stuck-state and SLA simulation,
+9. capture evidence with exact identifiers:
    - repository,
    - branch,
    - PR number,
@@ -591,7 +637,8 @@ Required work:
    - `document_id`,
    - `batch_id`,
    - `batch_item_id`,
-9. critically review evidence for gaps before moving to hardening.
+   - `batch_schedule_id`,
+10. critically review evidence for gaps before moving to hardening.
 
 Acceptance criteria:
 
@@ -741,6 +788,7 @@ The proof ledger starts empty because implementation has not begun.
 | Slice | Evidence source | Command/API/artifact | Result | Follow-up |
 | --- | --- | --- | --- | --- |
 | Pre-implementation gold pass | This RFC revision | RFC tightened before implementation | Ready for implementation planning | Do not promote supported features until implementation-backed proof exists. |
+| RFC-0104 closure alignment | RFC-0104 closure evidence; report PR `sgajbi/lotus-report#78`; gateway PR `sgajbi/lotus-gateway#152`; platform PR `sgajbi/lotus-platform#219` | Reviewed after RFC-0104 first-wave closure | RFC-0105 may consume RFC-0104 batch, gateway, Workbench, and scheduler-admin identifiers as source-backed observability inputs | First implementation wave must start with observability contracts/operator lookup before mutating rerender/regenerate/replay commands. |
 
 ## Final Gold-Pass Assessment Placeholder
 
