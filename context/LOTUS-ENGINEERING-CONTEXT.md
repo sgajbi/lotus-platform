@@ -198,10 +198,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    control APIs, dispatch/lease/back-pressure, retry/recovery controls, internal item execution
    through report-job/snapshot/render/archive handoff, bounded run-once, bounded runtime-pass,
    daemonized worker-process execution, config-backed internal scheduler-process materialization
-   with explicit/all-active/inline-manifest scheduler selectors, and gateway-facing batch
-   materialization/status/control/operator-run APIs. Workbench UI, gateway-facing scheduler
-   administration, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107
-   production certification remain pending later work.
+   with explicit/all-active/inline-manifest scheduler selectors, gateway-facing batch
+   materialization/status/control/operator-run APIs, and Workbench gateway/BFF-backed explicit
+   single-portfolio batch operation. Gateway-facing scheduler administration, RFC-0105
+   dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification
+   remain pending later work.
 11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

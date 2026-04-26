@@ -189,11 +189,12 @@ Boundary rules:
     optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
     guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
     approval, wiki publication, or merge authority.
-35. RFC-0104 is in progress. Slice 0 strengthens `automation/New-Lotus-Service.ps1` so newly
-    scaffolded FastAPI services emit Swagger-quality health, liveness, readiness, and metadata
-    endpoints and a generated OpenAPI quality gate that checks operation summaries, descriptions,
-    tags, response descriptions, 2xx responses, and success examples. No `lotus-report` batch
-    runtime behavior is implemented by this platform slice.
+35. RFC-0104 is in progress. Platform-owned evidence now tracks first-wave durable batch
+    materialization/status/control, scheduler identity, dispatch/recovery, internal execution,
+    bounded worker/runtime/scheduler processes, gateway batch APIs, scheduler selectors, and
+    Workbench gateway-backed explicit single-portfolio batch operation across the sibling repos.
+    Gateway-facing scheduler administration, RFC-0105 observability/replay, RFC-0106 security
+    certification, and RFC-0107 production certification remain pending.
 
 ## Repo-Native Commands
 
