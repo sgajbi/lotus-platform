@@ -487,7 +487,7 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
     )
 
     for expected in [
-        "- status: tightened after rfc-0104 closure; implementation not started",
+        "- status: implementation in progress; slices 0-2 complete",
         "gold-pass hardened: 2026-04-26",
         "rfc-0104 closure alignment: 2026-04-26",
         "critical review outcome",
@@ -521,6 +521,10 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "evidence expectations",
         "implementation proof ledger",
         "final gold-pass assessment placeholder",
+        "slice 2 trace and structured logging",
+        "7af92f3577b34da6a3ce929d0e0e4736",
+        "corr-rfc0105-live-stdout",
+        "sha256:4c9fe01383d47b214a4a3894c284967ee3b3970570e4ad87e39b0d0402092948",
     ]:
         assert expected in text
 
