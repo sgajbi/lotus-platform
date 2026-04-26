@@ -600,6 +600,11 @@ def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> Non
         "gold-pass hardened: 2026-04-26",
         "critical review outcome",
         "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-certification branch and pr gates",
+        "live-stack evidence review requirements",
+        "blocker classification",
+        "clean-state and merge sequencing requirements",
         "entry criteria",
         "certification scenario matrix",
         "evidence pack contract",
@@ -635,6 +640,11 @@ def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> Non
         "unsupported operations are excluded rather than faked",
         "allow and deny paths are both proven",
         "thresholds are explicit before results are judged",
+        "production certification must not proceed with unknown branch state",
+        "the evidence must be reviewed critically",
+        "p0/p1 blockers cannot be papered over by documentation",
+        "before starting the next implementation rfc",
+        "ci health must be checked after merge, not only before merge",
         "do not claim production readiness until certification evidence exists",
     ]:
         assert expected in text

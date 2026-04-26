@@ -85,6 +85,91 @@ the certification scope explicitly excludes missing capabilities.
 Gold-pass conclusion: RFC-0107 is implementation-ready as a final certification guide once the
 capabilities being certified have landed. Implementation remains unstarted.
 
+## Second Gold-Pass Additions
+
+This final pre-implementation pass tightened the production certification guide in five areas that
+are easy to under-specify late in a cross-repo release:
+
+1. active branch and PR synchronization across every affected repository,
+2. mandatory live-stack evidence review across APIs, logs, database state, object/artifact state,
+   and GitHub checks,
+3. blocker classification so certification cannot bury failed scenarios as warnings,
+4. clean-state requirements before the next RFC starts,
+5. merge and wiki-publication sequencing after certification succeeds.
+
+These additions do not expand RFC-0107 into feature implementation. They make it clear that final
+production readiness is a cross-repo evidence and branch-hygiene decision, not a local test pass.
+
+## Pre-Certification Branch And PR Gates
+
+Before running production certification, the implementer must inventory every active branch and PR
+for:
+
+1. `lotus-core`,
+2. `lotus-report`,
+3. `lotus-render`,
+4. `lotus-archive`,
+5. `lotus-gateway`,
+6. `lotus-workbench` if product-surface proof is included,
+7. `lotus-platform`.
+
+The inventory must record repository, branch, PR number, commit SHA, CI status, merge state,
+expected merge order, and whether the branch is required for RFC-0104 through RFC-0107 proof.
+
+Production certification must not proceed with unknown branch state. If an active branch is not
+required, it must be explicitly parked or excluded. If it is required, its checks must be monitored
+and fixed-forward while certification continues.
+
+## Live-Stack Evidence Review Requirements
+
+Certification evidence must be captured from the live Docker or canonical stack that most closely
+matches the production contract. For each scenario, evidence must include the relevant subset of:
+
+1. API request and response,
+2. service logs with correlation/trace identifiers,
+3. database state for report job, snapshot, batch, batch item, archive metadata, audit, and
+   entitlement records where applicable,
+4. generated artifacts or hashes,
+5. object-storage or archive adapter state where applicable,
+6. metrics or trace output where RFC-0105 scope is included,
+7. access audit and denial evidence where RFC-0106 scope is included,
+8. GitHub check and local command evidence.
+
+The evidence must be reviewed critically. A scenario is not certified until the observed runtime
+state reconciles with API responses, logs, database records, archive metadata, and expected
+supported-features wording.
+
+## Blocker Classification
+
+Every failed or incomplete certification scenario must be classified before closure:
+
+| Class | Meaning | Required action |
+| --- | --- | --- |
+| P0 blocker | Security breach, data leak, cross-tenant/region access, corrupted lineage, duplicate archived document without supersession, or unsupported feature promoted as shipped | Stop certification and fix before merge. |
+| P1 blocker | Supported happy path, deny path, archive handoff, batch reconciliation, or critical operator proof fails | Fix before production-ready claim. |
+| P2 defect | Non-critical evidence gap or usability issue that does not invalidate certification | Fix or record with owner and no production-readiness impact. |
+| Deferred scope | Capability is not implemented by owning RFC and is not claimed as supported | Exclude from certification with explicit supported-features impact. |
+
+P0/P1 blockers cannot be papered over by documentation. They must be fixed in the owning
+repository and re-proven.
+
+## Clean-State And Merge Sequencing Requirements
+
+After RFC-0104 implementation and proof complete, and before starting the next implementation RFC:
+
+1. all affected application PRs required by RFC-0104 must be green,
+2. required PRs for `lotus-core`, `lotus-report`, `lotus-render`, `lotus-archive`, and
+   `lotus-platform` must be merged or deliberately closed/parked with rationale,
+3. branches must be deleted or left explicitly tracked only if follow-up work remains,
+4. repo-local wiki source must be published after merge where wiki changed,
+5. local worktrees must be clean or have only explicitly parked unrelated work,
+6. supported-features and RFC traceability must reflect only merged implementation-backed truth,
+7. CI health must be checked after merge, not only before merge.
+
+RFC-0107 final certification must consume clean merged baselines wherever possible. If certification
+must run against open PR branches, the evidence pack must record that and the final closure slice
+must verify the same evidence after merge.
+
 ## Problem
 
 Even if each earlier RFC is individually implemented, enterprise reporting is not production-ready
