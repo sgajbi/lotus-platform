@@ -831,10 +831,10 @@ id, archive document id, and artifact path wherever those identifiers exist.
 
 ## Implementation Status And Evidence
 
-Current status: Slices 0, 1, and 2 are implemented and merged. Slice 0 is implemented in
-`lotus-platform`; Slices 1 and 2 are implemented in `lotus-report`. No `lotus-report` batch
-scheduler, worker, API, retry, pause, resume, cancel, or recovery runtime behavior is implemented
-yet.
+Current status: Slices 0, 1, 2, and 3 are implemented and merged. Slice 0 is implemented in
+`lotus-platform`; Slices 1, 2, and 3 are implemented in `lotus-report`. No `lotus-report` batch
+scheduler loop, worker, API, retry, pause, resume, cancel, dispatch, or recovery runtime behavior
+is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -1000,6 +1000,62 @@ Review result:
 4. The next slice may start only after this platform evidence update is merged, platform checks are
    green, and the platform wiki is synchronized.
 
+### Slice 3: Scheduling And Frequency Materialization Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has deterministic schedule-cycle materialization in
+   `src/app/report_batch_orchestrator/schedule.py`.
+2. `BatchCycleRequest` and `BatchCycle` in `src/app/report_batch_orchestrator/models.py` define the
+   internal schedule contract for monthly, quarterly, semi-annual, yearly, and explicit cycles.
+3. Standard frequencies derive `period_start`, `period_end`, and `as_of_date` deterministically from
+   the business as-of date; explicit cycles require caller-provided period bounds and validate that
+   the as-of date falls inside the explicit period.
+4. Scheduled idempotency identity includes caller tenant, caller region, selector mode, frequency,
+   period start, period end, as-of date, template id, template version, and render package version.
+5. The all-active selector remains deliberately gated. Slice 3 does not create report jobs, does
+   not run a scheduler loop, and does not expose batch APIs.
+6. `docs/standards/batch-orchestration-source-map.md`, `docs/supported-features.md`,
+   `docs/standards/rfc-traceability.md`, README, repository context, and repo-authored wiki source
+   now record the schedule-cycle primitives without claiming shipped batch runtime support.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed with 32 tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 269 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 269 unit tests, 63 integration tests, 6 e2e tests, total 99%
+   coverage, and 100% coverage for `src/app/report_batch_orchestrator/schedule.py`.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `make security-audit` passed with no known vulnerabilities.
+6. `make docker-build` built `lotus-report:ci-test`.
+7. `git diff --check` passed for the Slice 3 branch.
+8. `sgajbi/lotus-report#69` passed Feature Lane checks and PR Merge Gate checks, including
+   workflow lint, lint/typecheck/security, unit tests, integration tests, e2e tests, combined
+   coverage, and Docker build.
+9. `sgajbi/lotus-report#69` merged at `28c43e8`.
+10. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -Publish -Repository lotus-report` published the `lotus-report` wiki source at wiki commit
+    `4062d0e`.
+11. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -CheckOnly -Repository lotus-report` reported zero wiki drift after publication.
+
+Review result:
+
+1. Slice 3 deliberately stops at deterministic cycle materialization and scheduled idempotency
+   identity. It does not leak unsupported scheduler, worker, API, dispatch, retry,
+   pause/resume/cancel, or recovery behavior into product documentation.
+2. The implementation is modular: schedule contracts, materialization, idempotency-key generation,
+   source mapping, and tests are separated from the batch ledger.
+3. The tests cover standard frequency semantics, explicit period validation, unsupported frequency
+   handling, vocabulary-drift defense, template/render-package sensitivity, idempotent scheduled
+   batch creation, and continued all-active selector gating.
+4. The next slice may start only after this platform evidence update is merged, platform checks are
+   green, and the platform wiki is synchronized.
+
 ## Implementation Proof Ledger Template
 
 The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
@@ -1025,8 +1081,9 @@ implementation closure.
 
 RFC-0104 currently has no implementation-backed batch reporting supported features exposed to
 operators. Slice 0 improves platform scaffolding, Slice 1 adds a `lotus-report` module boundary
-and planned batch vocabulary, and Slice 2 adds internal durable batch and batch-item materialization
-primitives. No slice so far adds an operator-facing batch capability.
+and planned batch vocabulary, Slice 2 adds internal durable batch and batch-item materialization
+primitives, and Slice 3 adds internal deterministic schedule-cycle materialization and scheduled
+idempotency identity. No slice so far adds an operator-facing batch capability.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 
