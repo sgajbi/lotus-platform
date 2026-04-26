@@ -81,6 +81,107 @@ Gold-pass conclusion: RFC-0106 is implementation-ready as a security execution g
 Implementation remains unstarted. Supported-features entries must remain planned or absent until
 enforcement, tests, API contracts, docs, and live evidence are complete.
 
+## Second Gold-Pass Additions
+
+This final pre-implementation pass tightened the security execution guide in five areas that are
+easy to under-prove:
+
+1. no-go gates before implementation starts,
+2. explicit allow/deny evidence requirements,
+3. break-glass and privileged-operator posture,
+4. source-gap handling for entitlement attributes,
+5. slice exit discipline for security and segregation work.
+
+The RFC remains implementation-ready. These additions do not expand first-wave scope; they make the
+security proof harder to bypass.
+
+## Pre-Implementation No-Go Gates
+
+Implementation must not begin until the implementer records a branch-local execution note covering:
+
+1. active branch and PR target,
+2. repositories expected to change,
+3. first-wave source for caller identity and role,
+4. first-wave source for portfolio entitlement,
+5. first-wave source for tenant, region, and booking-center metadata,
+6. whether Workbench surfaces are in scope or deliberately out of scope,
+7. service-to-service trust mechanism for local proof and production posture,
+8. live-stack strategy for gateway, report, render, archive, and any required upstream service,
+9. allow/deny evidence plan,
+10. CI lanes expected before merge.
+
+If any of these are unknown, the first implementation commit must resolve the unknown or record a
+source gap before adding behavior.
+
+## Mandatory Allow/Deny Evidence
+
+Every enforcement slice must prove both successful access and denied access. A slice cannot close
+with only positive-path tests.
+
+Required denial classes:
+
+1. missing caller context,
+2. malformed caller context,
+3. unauthorized role,
+4. unauthorized portfolio,
+5. cross-tenant access,
+6. cross-region access,
+7. cross-booking-center access when booking-center source data exists,
+8. invalid service caller,
+9. expired or revoked document access where that model exists,
+10. unsupported privileged action.
+
+Denied responses must be product-safe. They must not confirm the existence of out-of-scope
+documents, portfolios, report jobs, object-storage keys, or privileged operations beyond what the
+caller is entitled to know.
+
+## Break-Glass And Privileged Operator Posture
+
+Break-glass access is not supported by default. If implementation introduces break-glass,
+compliance override, or operations download authority, it must include:
+
+1. explicit role/action matrix row,
+2. reason capture,
+3. audit event with correlation id,
+4. time-bounded access where applicable,
+5. no-sensitive-content proof,
+6. docs and supported-features wording that distinguish normal access from exceptional access,
+7. live allow/deny proof.
+
+If break-glass is not implemented, the final closure slice must record that as a deliberate
+no-change/no-support decision.
+
+## Entitlement Source-Gap Handling
+
+Any entitlement field without a current source contract must be recorded as a source gap before the
+implementation can depend on it. Accepted gap outcomes:
+
+1. defer feature promotion until source exists,
+2. use a temporary synthetic/demo-only source explicitly marked unsupported for production,
+3. add or enhance the owning upstream source contract in the appropriate repository,
+4. narrow first-wave scope to fields that are source-backed today.
+
+No implementation may silently substitute hardcoded user, tenant, region, booking-center, or role
+rules and then promote the behavior as production security.
+
+## Security Slice Exit Discipline
+
+Each slice must record:
+
+1. what was enforced,
+2. what remains deliberately unsupported,
+3. source contracts used,
+4. allow tests,
+5. deny tests,
+6. audit evidence,
+7. OpenAPI/security documentation impact,
+8. no-sensitive-content proof,
+9. docs/wiki/supported-features/context/skills impact,
+10. whether the next slice is safe to start.
+
+The next slice must not start while any P0/P1 authorization, segregation, audit, data-leakage, or
+supported-features mismatch remains open.
+
 ## Problem
 
 Generated private-banking reports contain sensitive client, portfolio, performance, risk, advisory,

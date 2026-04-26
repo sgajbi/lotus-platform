@@ -75,7 +75,10 @@
   document access audit, sensitive-surface controls, API certification, supported-features
   governance, and live proof expectations are tightened before implementation
 - [RFC-0107](../rfcs/RFC-0107-enterprise-reporting-production-certification.md)
-  proposed end-to-end enterprise reporting production certification
+  gold-pass ready with implementation not started; final enterprise reporting production
+  certification across gateway, report, render, archive, upstream services, Workbench where
+  supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
+  docs, wiki, context, and supported-features is tightened before implementation
 
 ## Recommended next implementation order
 

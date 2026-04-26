@@ -530,6 +530,12 @@ def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
         "gold-pass hardened: 2026-04-26",
         "critical review outcome",
         "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-implementation no-go gates",
+        "mandatory allow/deny evidence",
+        "break-glass and privileged operator posture",
+        "entitlement source-gap handling",
+        "security slice exit discipline",
         "entitlement attribute inventory",
         "role and action matrix floor",
         "slice 0: platform automation and scaffolding improvement",
@@ -561,6 +567,9 @@ def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
         "security supported-features entries require positive and negative tests plus live proof",
         "cross-tenant, cross-region, cross-booking-center, unauthorized role, and unauthorized portfolio",
         "no-sensitive-content tests or review gates protect logs, metrics, traces, swagger, and docs",
+        "denied responses must be product-safe",
+        "break-glass access is not supported by default",
+        "no implementation may silently substitute hardcoded user, tenant, region, booking-center, or role",
         "do not promote supported features until implementation-backed proof exists",
     ]:
         assert expected in text
@@ -574,6 +583,71 @@ def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
         "slice 1: cleanup and structure"
     )
     assert text.index("slice 7: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0107-enterprise-reporting-production-certification.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "entry criteria",
+        "certification scenario matrix",
+        "evidence pack contract",
+        "architecture direction",
+        "slice 0: platform automation and certification scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: certification harness and evidence pack",
+        "slice 3: end-to-end functional certification",
+        "slice 4: batch, replay, rerender, regenerate, and supersession certification",
+        "slice 5: failure and recovery certification",
+        "slice 6: security, segregation, audit, and observability certification",
+        "slice 7: non-functional certification",
+        "slice 8: documentation, wiki, context, supported-features, and release posture",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "rfc-0107 certifies the complete enterprise reporting platform",
+        "missing capabilities must be blocked, excluded, or sent back to the owning rfc",
+        "no production-ready claim from docs-only, mocked-only, or single happy-path proof",
+        "certification uses real service apis and databases/object storage adapters",
+        "evidence must name repo, branch, pr, commit, check, endpoint, and operational identifiers",
+        "if a required upstream capability is missing, rfc-0107 must stop or narrow scope",
+        "evidence-pack schema is test-protected",
+        "unsupported operations are excluded rather than faked",
+        "allow and deny paths are both proven",
+        "thresholds are explicit before results are judged",
+        "do not claim production readiness until certification evidence exists",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
         "second-last slice: hardening"
     )
     assert text.index("second-last slice: hardening") < text.index(
