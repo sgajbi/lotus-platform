@@ -1,189 +1,678 @@
 # RFC-0105: Reporting Observability, Operations, And Replay Tooling
 
-- Status: Proposed
+- Status: Gold-Pass Ready; Implementation Not Started
 - Date: 2026-04-23
+- Gold-pass hardened: 2026-04-26
 - Owners:
   - `lotus-report` owners
   - `lotus-render` owners
   - `lotus-archive` owners
   - `lotus-gateway` owners
-  - lotus-platform operations
+  - `lotus-platform` operations
 - Target repositories:
   - `lotus-report`
   - `lotus-render`
   - `lotus-archive`
   - `lotus-gateway`
   - `lotus-platform`
+  - optionally `lotus-workbench` only after a gateway-backed supported operator or product surface
+    is approved
 - Depends on:
   - `RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md`
-  - `RFC-0100` through `RFC-0104`
+  - `RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md`
+  - `RFC-0101-report-data-snapshot-and-lineage-contracts.md`
+  - `RFC-0102-render-package-template-registry-and-render-service.md`
+  - `RFC-0103-document-archive-retrieval-retention-and-legal-hold.md`
+  - implementation-backed RFC-0104 first-wave primitives where batch replay or batch monitoring is
+    included
+- Follow-on RFC boundaries:
+  - `RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md` owns final
+    entitlement, tenant, region, and document-access certification.
+  - `RFC-0107-enterprise-reporting-production-certification.md` owns final release certification
+    after RFC-0104 through RFC-0106 are implemented and proven.
 
 ## Summary
 
-This RFC defines end-to-end observability and operator tooling for enterprise reporting. It covers
-OpenTelemetry traces, structured logs, metrics, dashboards, alerting, failure diagnosis, rerender,
-regenerate, replay, stuck-job handling, and SLA monitoring.
+This RFC defines the reporting observability, operations, and replay capability required to operate
+enterprise reporting safely across `lotus-gateway`, `lotus-report`, `lotus-render`, and
+`lotus-archive`.
+
+The implementation must give operators a source-backed, audit-safe view of report requests, report
+jobs, snapshots, render jobs, archive handoff, archived documents, batch progress, failures, stuck
+states, replay eligibility, rerender eligibility, regeneration eligibility, and service-level
+posture. It must avoid technical leakage into client-facing surfaces and must never log sensitive
+report content as a substitute for proper lineage or evidence.
+
+## Critical Review Outcome
+
+The original RFC-0105 draft identified the right broad topic but was not strong enough to guide
+implementation. The main gaps were:
+
+1. no platform automation and scaffolding improvement slice,
+2. no cleanup and structure slice,
+3. no implementation-proof slice with live evidence,
+4. no explicit second-last hardening/API-certification slice,
+5. no final documentation/context/wiki/supported-features/branch-hygiene slice,
+6. no precise distinction between rerender, regenerate, replay, retry, and recovery,
+7. no supported-features discipline,
+8. no API certification and Swagger quality checklist,
+9. no live evidence requirements for cross-service traceability,
+10. insufficient privacy and sensitive-content guardrails for logs, metrics, traces, and operator
+    APIs,
+11. insufficient platform-scaffolding feedback loop for observability defaults that future Lotus
+    services should inherit,
+12. insufficient dependency alignment with RFC-0104, RFC-0106, and RFC-0107.
+
+This gold pass tightens RFC-0105 into an implementation-ready execution guide. Implementation must
+not begin until this RFC is reviewed as the working plan for observability, operations, and replay.
+
+## Gold-Pass Readiness Assessment
+
+| Review area | Gold-pass finding | Required implementation posture |
+| --- | --- | --- |
+| Scope clarity | Observability, operator diagnostics, rerender, regenerate, replay, stuck-state handling, SLA monitoring, and dashboard contracts are separated from batch scheduling, security certification, and final production certification. | Keep RFC-0105 focused on source-backed operations. Do not reopen RFC-0100 through RFC-0104 data models unless a gap is proven and documented. |
+| Architecture direction | `lotus-report` remains reporting job and replay control owner; `lotus-render` remains render execution owner; `lotus-archive` remains document lifecycle owner; `lotus-gateway` is the product/operator access boundary when exposed. | Avoid hidden direct archive/render calls from Workbench. Gateway and service APIs must expose only certified, support-safe views. |
+| Platform leverage | Slice 0 requires platform scaffold and automation improvements for observability defaults. | Fix repeatable logging, OpenAPI, health, metrics, CI, and runbook gaps in `lotus-platform`, not as local one-off app code. |
+| Data protection | Identifier-only observability is the default; report payloads, rendered artifacts, client PII beyond permitted identifiers, and raw upstream payloads must not be logged or exposed in metrics. | Add tests and review checks for no sensitive content in logs, metrics, traces, and operator APIs. |
+| Replay semantics | Rerender, regenerate, replay, retry, and recovery are distinct operations with different lineage and archive consequences. | Model them separately in API names, docs, tests, and audit events. Do not use one generic "rerun" command. |
+| API quality | Operator APIs require certification, complete Swagger, examples, safe errors, audit side effects, and authorization posture. | Every new API must pass OpenAPI quality and endpoint certification before supported-features promotion. |
+| Evidence | Live proof must follow a report from gateway/job creation through snapshot, render, archive, and operator lookup; replay/rerender/regenerate proof must compare before/after evidence. | Do not close with unit tests only or a single happy-path curl. Capture live app evidence and verify it critically. |
+| Closure | Second-last hardening and final closure slices follow the current RFC governance standard. | Complete code review, docs/context/wiki/supported-features, skills/guidance assessment, CI evidence, and branch hygiene before closure. |
+
+Gold-pass conclusion: RFC-0105 is implementation-ready as an execution guide after this revision.
+Implementation remains unstarted. Supported-features entries must remain planned or absent until
+the corresponding code, tests, API contracts, docs, and live evidence are complete.
 
 ## Problem
 
-Enterprise reporting failures cross service boundaries: gateway, report, upstream services, render,
-archive, and batch orchestration. Operators need to identify whether a failure is caused by data,
-rendering, archive storage, entitlement, timeout, or platform infrastructure.
+Enterprise reporting failures cross service boundaries:
+
+1. `lotus-gateway` request and caller context,
+2. `lotus-report` request/job ledger, snapshot, lineage, render orchestration, archive handoff, and
+   batch orchestration,
+3. upstream domain services such as `lotus-core`, `lotus-performance`, `lotus-risk`, and
+   `lotus-advise`,
+4. `lotus-render` template/package validation and render execution,
+5. `lotus-archive` metadata, storage, retrieval, retention, legal hold, and access audit,
+6. platform infrastructure, CI, health, readiness, and local/live runtime posture.
+
+Without source-backed observability and operator tooling, operators cannot reliably answer:
+
+1. whether a report was accepted, captured, rendered, archived, retrieved, or failed,
+2. whether a failure belongs to data, render, archive, entitlement, timeout, infrastructure, or
+   operator action,
+3. whether rerender from the same snapshot is safe,
+4. whether regenerate from upstream data is required,
+5. whether replaying a failed job or batch item will preserve lineage and audit semantics,
+6. whether a report or batch is stuck,
+7. whether service-level objectives have breached,
+8. whether a support view is based on live source truth or stale derived evidence.
+
+## Business Outcome
+
+After implementation, support and operations should be able to:
+
+1. trace a report from gateway request to archived document,
+2. inspect a report job, snapshot, render attempt, archive handoff, document, batch, and batch item
+   without database access,
+3. classify failures safely,
+4. rerender from the same immutable snapshot when the report data is correct but rendering failed
+   or needs a corrected template/runtime,
+5. regenerate from upstream data when the report data itself must be refreshed,
+6. replay eligible failed jobs or batch items without blind whole-batch reruns,
+7. detect stuck states and SLA breaches,
+8. prove all operator actions and generated documents through audit-safe evidence.
 
 ## Target Scope
 
 In scope:
 
-1. trace propagation across report flows,
-2. structured logging fields,
-3. metrics vocabulary,
-4. dashboards and alerts,
-5. operator status APIs,
-6. rerender from snapshot,
+1. trace and correlation propagation across gateway, report, upstream calls, render, archive, and
+   batch paths,
+2. structured logging contracts and no-sensitive-content guardrails,
+3. metrics vocabulary and implementation for report, render, archive, and batch operations,
+4. dashboard and alert contract artifacts,
+5. operator status APIs for requests, jobs, snapshots, lineage, renders, archive handoff,
+   documents, batches, and batch items where those capabilities are already implemented,
+6. rerender from existing snapshot,
 7. regenerate from upstream data,
-8. replay failed jobs and batch items,
-9. stuck-job detection,
-10. SLA breach monitoring.
+8. replay eligible failed report jobs and batch items,
+9. stuck-state detection for report jobs, render jobs, archive handoffs, and batch items,
+10. SLA breach metrics and attention events,
+11. audit events for operator actions,
+12. API certification and Swagger quality for every new operator API,
+13. platform automation and scaffolding improvements discovered during implementation,
+14. supported-features entries only after implementation-backed proof exists.
 
 Out of scope:
 
-1. new report types,
-2. changing business report content,
-3. legal retention behavior,
-4. broad platform observability unrelated to reporting.
+1. new report templates or client-facing report content changes,
+2. changing document retention, purge, or legal-hold semantics owned by RFC-0103,
+3. batch scheduler/runtime implementation owned by RFC-0104,
+4. final entitlement, tenant, region, and document-access certification owned by RFC-0106,
+5. final release certification owned by RFC-0107,
+6. Workbench UI unless a gateway-backed supported operator/product surface is explicitly approved,
+7. raw database admin tooling,
+8. exporting sensitive report payloads, rendered documents, or raw upstream payloads through logs,
+   metrics, traces, or generic support APIs,
+9. replacing the RFC-0100 report job ledger, RFC-0101 snapshot lineage, RFC-0102 render package, or
+   RFC-0103 archive identity semantics.
 
-## Observability Contract
+## Locked First-Wave Decisions
+
+These decisions are fixed unless a committed RFC amendment changes them:
+
+1. `lotus-report` owns reporting operation control, replay requests, rerender requests, regenerate
+   requests, and report-job/batch status composition.
+2. `lotus-render` owns render attempt execution and render runtime metadata.
+3. `lotus-archive` owns archived document identity, retrieval, lifecycle, retention, legal hold,
+   and access audit.
+4. `lotus-gateway` is the access boundary for any product-facing or cross-service operator surface.
+5. Rerender uses an existing immutable RFC-0101 snapshot and must not call upstream domain data.
+6. Regenerate creates a new data snapshot from upstream sources and must preserve lineage from the
+   old job/snapshot when the action is a correction or replacement.
+7. Replay is an execution-control operation for failed or stuck work; it must be eligibility-gated,
+   idempotent, audited, and bounded.
+8. Retry is a narrower automated or operator-initiated repeat of a failed step that is known to be
+   retryable.
+9. Recovery repairs abandoned leases or stuck in-flight ownership without changing business data.
+10. No supported feature may be listed as implementation-backed before code, tests, API contract,
+    docs, and proof exist.
+
+## Conditional Decisions
+
+These decisions must be resolved in the slice that needs them:
+
+1. whether first-wave operator APIs are exposed only from `lotus-report` or also through
+   `lotus-gateway`,
+2. whether first-wave dashboards are committed as JSON dashboard artifacts, markdown dashboard
+   contracts, or both,
+3. the first-wave metrics backend naming convention and labels accepted by platform operations,
+4. first-wave stuck-state thresholds by status and service,
+5. first-wave SLA objectives for report acceptance, data capture, render, archive, and batch item
+   completion,
+6. first-wave rerender/archive supersession semantics when a rerender succeeds,
+7. first-wave regenerate/archive supersession semantics when a regenerated report succeeds,
+8. first-wave replay eligibility for report jobs that already produced archived documents,
+9. first-wave Workbench visibility, if any,
+10. whether RFC-0105 evidence updates any RFC-0084/RFC-0091 product declarations or remains local
+    until RFC-0107 certification.
+
+Deferred decisions must name the owner, reason, downstream impact, and supported-features posture.
+
+## Architecture Direction
+
+The target architecture is source-backed observability over existing durable identities, not a new
+shadow state store.
 
 ```mermaid
 flowchart LR
     GW[lotus-gateway] --> REPORT[lotus-report]
-    REPORT --> UPSTREAM[upstream services]
+    REPORT --> CORE[lotus-core]
+    REPORT --> PERF[lotus-performance]
+    REPORT --> RISK[lotus-risk]
     REPORT --> RENDER[lotus-render]
     REPORT --> ARCHIVE[lotus-archive]
-    REPORT --> TRACE[(OpenTelemetry traces)]
-    REPORT --> METRICS[(Prometheus metrics)]
-    REPORT --> LOGS[(structured logs)]
-    OPS[operators] --> SUPPORT[operator APIs]
-    SUPPORT --> REPORT
+    REPORT --> OPS[operator APIs]
+    REPORT --> METRICS[metrics]
+    REPORT --> LOGS[structured logs]
+    REPORT --> TRACES[traces]
+    OPS --> AUDIT[operator audit]
 ```
 
-Required identifiers:
+Core implementation rules:
 
-1. `correlation_id`,
-2. `trace_id`,
-3. `report_request_id`,
-4. `report_job_id`,
-5. `batch_id`,
-6. `batch_item_id`,
-7. `snapshot_id`,
-8. `render_job_id`,
-9. `document_id`,
-10. `portfolio_id` where permitted.
-
-## Platform Governance And Mesh Requirements
-
-1. Observability must preserve exact report, batch, render, archive, document, and trace identifiers
-   without logging sensitive report content.
-2. Operator APIs must follow platform API certification, entitlement, and audit requirements.
-3. Rerender, regenerate, and replay operations must preserve RFC-0101 lineage semantics and
-   RFC-0103 archive supersession semantics.
-4. Any heartbeat or attention integration must use source evidence and must not invent reporting
+1. Trace identifiers and correlation identifiers must be propagated, not regenerated per hop unless
+   a child span/id is explicitly modeled.
+2. Operator views must compose from durable source records: report request, report job, snapshot,
+   upstream-call lineage, render metadata, archive handoff, archive document metadata, batch, and
+   batch item.
+3. Metrics and logs must carry identifiers and categories, not report payloads.
+4. Rerender, regenerate, replay, retry, and recovery must have separate command paths, event types,
+   audit entries, Swagger docs, and tests.
+5. Dashboard and alert contracts must be generated or validated from stable metric names.
+6. Heartbeat or attention integration must consume source evidence and never invent reporting
    posture.
-5. Metrics and dashboard names must be stable enough for platform operations and CI validation.
 
-Required metrics:
+## Required Identifier Contract
 
-1. report requests by type/status,
-2. report jobs in progress,
-3. failures by category,
-4. upstream call latency,
-5. render latency,
-6. archive latency,
-7. batch progress,
-8. retry counts,
-9. stuck job counts,
-10. SLA breach counts.
+Every relevant observability record must carry the identifiers available at that point in the flow:
+
+| Identifier | Owner | Required where available |
+| --- | --- | --- |
+| `correlation_id` | Caller / gateway / service propagation | All logs, traces, operator APIs, job events, render/archive handoff |
+| `trace_id` | Caller / gateway / service propagation | All logs, traces, operator APIs, job events, render/archive handoff |
+| `report_request_id` | `lotus-report` | Request, job, replay, regenerate, operator lookup |
+| `report_job_id` | `lotus-report` | Job, snapshot, render, archive, replay, rerender, regenerate |
+| `snapshot_id` | `lotus-report` | Rerender, lineage, archive metadata, support lookup |
+| `render_job_id` | `lotus-render` / `lotus-report` | Render attempt, archive handoff, support lookup |
+| `archive_request_id` | `lotus-report` / `lotus-archive` | Archive handoff and archive diagnostics |
+| `document_id` | `lotus-archive` | Archive/document lookup, retrieval audit, supersession |
+| `batch_id` | `lotus-report` | Batch status, batch item, replay, stuck-state scan |
+| `batch_item_id` | `lotus-report` | Batch item execution, replay, stuck-state scan |
+| `portfolio_id` | `lotus-core` / report scope | Only where permitted by access policy and support-safe redaction |
+
+## Observability And Operations Attribute Inventory
+
+| Attribute | Business meaning | Source application | Source object / source contract | Status before implementation | Action required |
+| --- | --- | --- | --- | --- | --- |
+| `failure_category` | Product-safe failure reason | `lotus-report`, `lotus-render`, `lotus-archive` | Report job, render response, archive response | Partially available | Normalize and document taxonomy for all operator APIs and metrics. |
+| `current_step` | Current lifecycle step | `lotus-report` | Report job ledger | Available | Use as operator display input, not as the only stuck-state signal. |
+| `snapshot_hash` | Immutable report input integrity | `lotus-report` | RFC-0101 snapshot | Available | Include in rerender proof and support lookup. |
+| `render_artifact_sha256` | Render artifact integrity | `lotus-render` / `lotus-report` | RFC-0102 render metadata | Available | Include in rerender and archive trace views. |
+| `archive_document_id` | Archived document identity | `lotus-archive` / `lotus-report` | RFC-0103 archive response | Available | Include in end-to-end trace. |
+| `batch_status_counts` | Batch progress summary | `lotus-report` | RFC-0104 batch status | Available for first-wave APIs | Include in operations dashboard and stuck-state detection. |
+| `operator_action_id` | Audit identity for an operator command | `lotus-report` or `lotus-archive` | New RFC-0105 audit record | Missing | Add source-backed audit model before replay/rerender/regenerate APIs are supported. |
+| `stuck_reason` | Why a job/item is considered stuck | `lotus-report` derived from durable state and thresholds | New RFC-0105 stuck-state scanner | Missing | Implement threshold-backed scanner and evidence. |
+| `sla_breach_status` | Whether a report flow breached an objective | `lotus-report` / platform metrics | New RFC-0105 SLA contract | Missing | Define objectives and prove metrics/alerts. |
+| `dashboard_metric_name` | Stable metric used by dashboards/alerts | `lotus-platform` / service instrumentation | Metrics contract | Missing | Add metric contract validation before dashboard claims. |
+
+## Replay Semantics
+
+| Operation | Meaning | Source data | Creates new snapshot? | Creates new render? | Archive consequence | Required audit |
+| --- | --- | --- | --- | --- | --- | --- |
+| Rerender | Render again from the same immutable snapshot | Existing RFC-0101 snapshot | No | Yes | New archive document or supersession link if archived | Operator action, old/new render ids, snapshot id, reason |
+| Regenerate | Recollect data and generate a new report from upstream services | Current upstream domain data | Yes | Yes for PDF | New archive document with correction/supersession lineage when applicable | Operator action, old/new snapshot ids, source lineage, reason |
+| Replay | Resume/re-execute eligible failed or stuck workflow item | Existing durable job/item state | Depends on replay target | Depends on replay target | Must preserve or explicitly create lineage | Operator action, eligibility decision, before/after state |
+| Retry | Repeat a retryable failed step | Existing durable step state | No unless step is data capture and contract allows it | Depends on failed step | No archive change unless retried render/archive succeeds | Retry event, failure category, attempt count |
+| Recovery | Repair abandoned lease or stuck ownership | Existing durable lease/state | No | No | No archive change | Recovery event, expired owner/token, recovered item |
 
 ## Implementation Slices
 
-### Slice 0: Cleanup And Structure
+### Slice 0: Platform Automation And Scaffolding Improvement
 
-1. Review existing observability and operator docs.
-2. Remove duplicate reporting diagnostics guidance.
-3. Establish shared reporting observability vocabulary.
-4. Prepare wiki operator runbook source.
+Purpose: raise the platform baseline before solving observability locally in every app.
 
-### Slice 1: Trace And Log Propagation
+Required work:
 
-1. Ensure trace/correlation propagation across gateway, report, render, archive, and upstream calls.
-2. Add structured log fields.
-3. Add tests for identifier propagation.
+1. audit `lotus-platform` scaffolding and validation gaps discovered by RFC-0099 through RFC-0104,
+2. improve `automation/New-Lotus-Service.ps1` or related scaffold tooling where gaps are repeatable,
+3. identify default cross-cutting concerns new services must receive:
+   - API certification pattern,
+   - Swagger/OpenAPI quality gate,
+   - health, liveness, readiness, and metadata endpoints,
+   - structured logging fields,
+   - trace/correlation propagation helpers,
+   - metrics scaffolding,
+   - product-safe error handling,
+   - unit/integration/e2e test scaffolding,
+   - CI defaults,
+   - documentation and wiki scaffolding,
+   - governance hooks,
+4. add or update platform validators so service-level observability claims are checkable,
+5. document which improvements are implemented now and which are consciously deferred.
 
-### Slice 2: Metrics And Dashboards
+Acceptance criteria:
 
-1. Add metrics in report, render, and archive services.
-2. Add dashboard artifact or documented dashboard contract.
-3. Add alert thresholds for failure rate, stuck jobs, and SLA breach.
+1. repeatable platform gaps are fixed at the platform level, not only in one application,
+2. scaffolded services start with a stronger observability and API-quality baseline,
+3. tests or validation commands prove the scaffold/automation changes,
+4. RFC records explicit no-change decisions for any scaffold area reviewed but not changed.
 
-### Slice 3: Operator APIs
+### Slice 1: Cleanup And Structure
 
-1. Add support APIs to inspect request, job, batch, render, archive, and document posture.
-2. Add failure detail and lineage lookup.
-3. Add tests for operator authorization and redaction.
+Purpose: prepare the reporting repos for maintainable observability implementation.
 
-### Slice 4: Rerender, Regenerate, And Replay
+Required work:
 
-1. Add rerender from existing snapshot.
-2. Add regenerate from upstream data.
-3. Add replay failed job/batch item.
-4. Add tests proving semantics differ and are auditable.
+1. remove dead or duplicate diagnostics guidance,
+2. consolidate observability vocabulary into one source per repo,
+3. reduce document sprawl by moving durable operator guidance to wiki source where appropriate,
+4. avoid duplicating wiki truth and repo docs,
+5. ensure `lotus-report`, `lotus-render`, and `lotus-archive` have clear module boundaries for:
+   - observability contracts,
+   - operator views,
+   - replay/rerender/regenerate commands,
+   - audit events,
+6. preserve implementation-backed supported-features wording only.
 
-### Slice 5: Stuck Job And SLA Monitoring
+Acceptance criteria:
 
-1. Add stale state detection.
-2. Add SLA breach metrics and attention events.
-3. Integrate with heartbeat/attention only if source evidence exists.
+1. repository docs and wiki source do not conflict,
+2. cleanup removes real duplication or stale text,
+3. future implementation files have clear ownership boundaries,
+4. no supported-features claim is promoted in this slice unless behavior is already implemented and
+   proven.
+
+### Slice 2: Trace And Structured Logging
+
+Purpose: make every reporting flow traceable without leaking sensitive content.
+
+Required work:
+
+1. propagate `correlation_id` and `trace_id` across gateway, report, upstream calls, render, and
+   archive handoff,
+2. standardize structured log fields for report, render, archive, and batch operations,
+3. block report payloads, rendered artifact content, raw upstream payloads, and sensitive client
+   details from logs,
+4. add tests for identifier propagation and redaction,
+5. add live proof from a report job through render/archive with matching identifiers.
+
+Acceptance criteria:
+
+1. a live report can be traced by `correlation_id`, `trace_id`, and `report_job_id`,
+2. negative-path failures retain identifiers,
+3. tests prove sensitive content is not logged,
+4. documentation explains supported fields and redaction behavior.
+
+### Slice 3: Metrics, Dashboards, Alerts, And SLA Contracts
+
+Purpose: expose stable operational signals and alert criteria.
+
+Required work:
+
+1. define a metrics vocabulary for report, snapshot, render, archive, batch, replay, rerender, and
+   regenerate operations,
+2. implement metrics in owning services,
+3. add dashboard contract artifacts or dashboard definitions,
+4. add alert thresholds for failure rate, stuck jobs, SLA breaches, queue depth, render latency,
+   archive latency, and retry pressure,
+5. add contract tests for metric names, labels, and cardinality discipline,
+6. define initial SLA objectives and escalation owners.
+
+Acceptance criteria:
+
+1. metrics are stable, documented, and test-protected,
+2. dashboards reference implemented metrics only,
+3. alerts have clear thresholds, owner, runbook link, and severity,
+4. high-cardinality or sensitive labels are rejected by tests or validators.
+
+### Slice 4: Operator Status And Diagnostics APIs
+
+Purpose: give operators certified APIs for support-safe inspection.
+
+Required work:
+
+1. add or harden operator APIs for report request, job, snapshot, lineage, render, archive handoff,
+   document, batch, and batch item lookup where source systems support them,
+2. expose failure category, current step, lifecycle timestamps, source identifiers, and safe
+   lineage summaries,
+3. add privileged authorization and audit hooks appropriate for operator surfaces,
+4. ensure APIs are certified with complete Swagger:
+   - grouped correctly,
+   - clear what/when/how guidance,
+   - full request and response examples,
+   - every attribute has description, type, and example value,
+5. test authorization, redaction, not-found, conflict, invalid-state, and downstream-unavailable
+   behavior.
+
+Acceptance criteria:
+
+1. every new API has source-backed fields only,
+2. OpenAPI quality gates pass,
+3. negative paths are meaningful and product-safe,
+4. operator APIs do not expose raw database or sensitive payload internals.
+
+### Slice 5: Rerender From Snapshot
+
+Purpose: rerender a report from an existing immutable snapshot without recollecting upstream data.
+
+Required work:
+
+1. add rerender eligibility checks,
+2. add rerender command path and audit event,
+3. preserve old/new render attempt identity,
+4. preserve snapshot identity and snapshot hash,
+5. handle archive handoff and supersession/correction lineage when rerender produces a new archived
+   document,
+6. test successful rerender, invalid state, missing snapshot, render validation failure, archive
+   failure, idempotency, and audit behavior.
+
+Acceptance criteria:
+
+1. rerender never calls upstream domain services,
+2. rerender proof shows same snapshot id/hash and a new render id,
+3. archive consequence is explicit and auditable,
+4. supported-features wording stays absent/planned until all tests and live proof pass.
+
+### Slice 6: Regenerate From Upstream Data
+
+Purpose: generate a fresh report from current upstream data with new lineage.
+
+Required work:
+
+1. add regenerate eligibility checks,
+2. add regenerate command path and audit event,
+3. create a new snapshot and upstream-call lineage,
+4. link old and new jobs/snapshots/documents where regeneration is a correction or replacement,
+5. test successful regenerate, upstream failure, partial data, idempotency, archive handoff, and
+   audit behavior.
+
+Acceptance criteria:
+
+1. regenerate creates a new snapshot and lineage bundle,
+2. old/new identity relationships are explicit,
+3. operator docs explain when regenerate is appropriate instead of rerender,
+4. live proof compares old and new snapshot ids and lineage.
+
+### Slice 7: Replay Failed Jobs And Batch Items
+
+Purpose: safely re-execute eligible failed work without blind whole-batch reruns.
+
+Required work:
+
+1. define replay eligibility for report jobs and RFC-0104 batch items,
+2. add replay command path and audit event,
+3. enforce retry/replay ceilings and invalid-state rejection,
+4. ensure replay preserves idempotency and lineage,
+5. support batch-item replay only for implementation-backed RFC-0104 paths,
+6. test replay success, terminal failure, not eligible, already completed, cancelled, archived,
+   lease conflict, and concurrent replay attempts.
+
+Acceptance criteria:
+
+1. replay cannot duplicate completed archived documents without explicit supersession semantics,
+2. concurrent replay is safe,
+3. failed report and failed batch-item paths are proven separately,
+4. live proof captures before/after state and audit events.
+
+### Slice 8: Stuck-State Detection, Recovery Guidance, And SLA Monitoring
+
+Purpose: detect when report operations need attention and tell operators what to do next.
+
+Required work:
+
+1. implement stuck-state scanners over durable source state,
+2. define stuck thresholds per lifecycle state,
+3. emit stuck-job, stuck-render, stuck-archive, stuck-batch, and SLA breach metrics,
+4. generate or expose attention evidence only from source-backed state,
+5. integrate with heartbeat/attention if source evidence exists,
+6. document runbook guidance for each stuck reason.
+
+Acceptance criteria:
+
+1. stuck-state detection is deterministic and threshold-backed,
+2. false positives and stale evidence are called out in docs,
+3. heartbeat/attention uses source artifacts, not inferred status,
+4. simulation tests cover stuck and non-stuck states.
+
+### Slice 9: Implementation Proof
+
+Purpose: prove RFC-0105 end to end before hardening and closure.
+
+Required work:
+
+1. bring up live `lotus-report`, `lotus-render`, `lotus-archive`, and gateway path if included,
+2. trigger a report, render it, archive it, and inspect it through operator APIs,
+3. prove trace/log/metric linkage across services,
+4. prove rerender from snapshot,
+5. prove regenerate from upstream data,
+6. prove replay for a failed report job and a failed batch item where supported,
+7. prove stuck-state and SLA simulation,
+8. capture evidence with exact identifiers:
+   - repository,
+   - branch,
+   - PR number,
+   - commit SHA,
+   - check name,
+   - endpoint,
+   - `correlation_id`,
+   - `trace_id`,
+   - `report_job_id`,
+   - `snapshot_id`,
+   - `render_job_id`,
+   - `document_id`,
+   - `batch_id`,
+   - `batch_item_id`,
+9. critically review evidence for gaps before moving to hardening.
+
+Acceptance criteria:
+
+1. live proof demonstrates actual behavior, not mocked-only success,
+2. evidence includes failure paths and recovery/replay paths,
+3. discovered gaps are fixed or explicitly deferred before the second-last slice,
+4. RFC proof ledger is updated with exact evidence.
 
 ### Second-Last Slice: Hardening, Review, And Certification
 
-1. Review observability coverage and operator workflows.
-2. Verify no sensitive data leaks in logs/metrics.
-3. Verify API certification and platform governance.
+Purpose: tighten the full implementation before closure.
+
+Required work:
+
+1. perform a code review of the full implementation,
+2. remove dead code and duplicate logic,
+3. verify API certification pattern compliance,
+4. verify platform governance and enterprise data mesh standards,
+5. ensure all new APIs are certified,
+6. ensure Swagger is complete and high quality:
+   - grouped correctly,
+   - clear what/when/how guidance for each endpoint,
+   - full request and response examples,
+   - every attribute has description, type, and example value,
+7. verify error handling is complete, correct, and tested,
+8. verify privacy/no-sensitive-content controls,
+9. verify metrics cardinality and dashboard/alert consistency,
+10. make final quality improvements before closure.
+
+Acceptance criteria:
+
+1. hardening removes real debt rather than adding cosmetic churn,
+2. API, docs, tests, and supported-features claims are aligned,
+3. CI and local proof are green,
+4. no known P0/P1 issue remains untriaged.
 
 ### Final Slice: Closure
 
-1. Update docs, wiki, context, supported-features, and skills/guidance.
-2. Publish wiki after merge if changed.
-3. Ensure operational runbooks are complete.
+Purpose: close RFC-0105 with truthful product and operator documentation.
 
-## Acceptance Criteria
+Required work:
 
-1. Operators can trace a report from gateway request to archived document.
-2. Failures are categorized by data, render, archive, entitlement, timeout, or platform issue.
-3. Rerender, regenerate, and replay semantics are explicit and tested.
-4. Stuck jobs and SLA breaches are detectable.
-5. Sensitive report content is not logged.
+1. update docs,
+2. update agent context,
+3. update wiki source,
+4. update supported-features with implementation-backed rows only,
+5. publish wiki after merge where wiki changed,
+6. update RFC proof ledger and final gold-pass assessment,
+7. review whether skills, guidance, documentation, or agent context should be improved for future
+   work,
+8. record a deliberate keep/tighten/add/remove/no-change decision for relevant guidance,
+9. complete branch hygiene and cleanup,
+10. ensure PRs, checks, commits, and evidence are truthful.
+
+Acceptance criteria:
+
+1. supported-features entries match shipped behavior only,
+2. wiki source and published wiki are synchronized after merge,
+3. agent context is updated if operational truth changed,
+4. guidance/skills decision is explicit,
+5. branch and PR state are clean.
+
+## API Certification Requirements
+
+Every RFC-0105 API must satisfy:
+
+1. canonical path and vocabulary review,
+2. endpoint summary and description,
+3. operation tags grouped by operator workflow,
+4. clear what/when/how usage guidance,
+5. full request examples,
+6. full response examples,
+7. response descriptions for success and failure,
+8. every schema attribute has description, type, and example value,
+9. product-safe error taxonomy,
+10. authorization and audit behavior documented,
+11. unit, integration, negative-path, and live proof where applicable.
+
+## Supported Features Governance
+
+RFC-0105 must maintain a clear supported-features list. Candidate feature keys include:
+
+| Feature key | Planned surface | Promotion rule |
+| --- | --- | --- |
+| `lotus-report.reporting.observability.traceability.v1` | Trace/log identifier propagation | Promote only after code, tests, docs, and live cross-service proof. |
+| `lotus-report.reporting.operations.metrics.v1` | Metrics/dashboard/alert contract | Promote only after metrics are implemented, contract-tested, and dashboard/alert docs are aligned. |
+| `lotus-report.reporting.operations.status_api.v1` | Operator status and diagnostics APIs | Promote only after API certification, authorization/redaction tests, and live lookup proof. |
+| `lotus-report.reporting.operations.rerender.v1` | Rerender from snapshot | Promote only after same-snapshot proof, audit evidence, and archive consequence proof. |
+| `lotus-report.reporting.operations.regenerate.v1` | Regenerate from upstream data | Promote only after new-snapshot/new-lineage proof and correction/supersession docs. |
+| `lotus-report.reporting.operations.replay.v1` | Replay failed jobs/items | Promote only after eligibility, idempotency, concurrency, audit, and live failure-path proof. |
+| `lotus-report.reporting.operations.stuck_sla_monitoring.v1` | Stuck-state and SLA monitoring | Promote only after threshold tests, metrics, alert docs, and source-backed attention proof. |
+
+Rows must remain planned or absent until implementation-backed proof exists.
+
+## Evidence Expectations
+
+Every implementation PR must include:
+
+1. changed repositories and branches,
+2. local validation commands,
+3. GitHub check status,
+4. live proof commands where applicable,
+5. exact operational identifiers,
+6. API examples or OpenAPI evidence where APIs changed,
+7. metric/dashboard evidence where observability changed,
+8. no-sensitive-content validation evidence,
+9. docs/wiki/support-feature changes,
+10. explicit gaps or deferred scope.
 
 ## Risks
 
 | Risk | Mitigation |
 | --- | --- |
-| Observability emits sensitive content | Identifier-only logs and redacted details |
-| Replay changes data unexpectedly | Separate rerender and regenerate commands |
-| Dashboards drift from metrics | Test metric names and document dashboard contract |
-| Operator APIs become unsafe | Require privileged roles and access audit |
+| Observability emits sensitive content | Identifier-only logs, redaction tests, review gate, no raw payload metrics. |
+| Replay duplicates archived documents | Eligibility checks, idempotency, archive supersession semantics, audit proof. |
+| Rerender and regenerate are confused | Separate APIs, docs, tests, event types, and supported-features rows. |
+| Dashboards drift from metrics | Metrics contract tests and dashboard artifact validation. |
+| Operator APIs bypass entitlement | Gateway/service authorization, audit, and RFC-0106 dependency where final certification is required. |
+| Stuck-state scanners create false positives | Threshold-backed tests, explicit limited-history posture, runbook guidance. |
+| Platform gaps are solved locally only | Slice 0 requires platform automation/scaffold review and reusable fixes. |
+| Supported-features overclaim | Promotion requires code, tests, API contract, docs, and proof. |
 
-## Validation
+## Validation Plan
 
-Required validation:
+Required validation includes:
 
-1. Trace propagation tests.
-2. Metrics contract tests.
-3. Operator API authorization tests.
-4. Rerender/regenerate/replay integration tests.
-5. Stuck-job and SLA simulation tests.
+1. platform scaffold/automation tests,
+2. trace propagation tests,
+3. structured logging/redaction tests,
+4. metrics contract tests,
+5. dashboard/alert contract tests,
+6. operator API authorization and redaction tests,
+7. OpenAPI quality and endpoint certification tests,
+8. rerender integration tests,
+9. regenerate integration tests,
+10. replay integration and concurrency tests,
+11. stuck-state and SLA simulation tests,
+12. live Docker or canonical environment proof across `lotus-report`, `lotus-render`, and
+    `lotus-archive`,
+13. GitHub CI evidence,
+14. wiki synchronization check before merge and publication after merge where wiki changed.
 
-## Supported Features
+## Implementation Proof Ledger
 
-Operator and observability features must be listed only after APIs, metrics, docs, and tests prove
-they are production-usable.
+The proof ledger starts empty because implementation has not begun.
+
+| Slice | Evidence source | Command/API/artifact | Result | Follow-up |
+| --- | --- | --- | --- | --- |
+| Pre-implementation gold pass | This RFC revision | RFC tightened before implementation | Ready for implementation planning | Do not promote supported features until implementation-backed proof exists. |
+
+## Final Gold-Pass Assessment Placeholder
+
+This section must be completed in the final closure slice. It must state:
+
+1. what was truly completed,
+2. what quality improvements were made,
+3. what debt was removed,
+4. what was proven through tests and live evidence,
+5. which features were promoted to implementation-backed,
+6. which gaps remain deferred and why,
+7. whether the implementation reached the expected production standard.

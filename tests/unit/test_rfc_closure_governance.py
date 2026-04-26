@@ -328,9 +328,10 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: in progress",
+        "- status: first-wave implemented; scheduler runtime planned",
         "gold-pass hardened: 2026-04-26",
         "implementation started: 2026-04-26",
+        "first-wave implementation proof completed: 2026-04-26",
         "critical review outcome",
         "locked first-wave decisions",
         "conditional decisions",
@@ -363,7 +364,8 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "second-last slice: hardening, review, and certification",
         "final slice: closure",
         "supported features",
-        "currently has no implementation-backed batch reporting supported features",
+        "implementation-backed batch materialization/status/control apis",
+        "full scheduler/public-worker",
         "implementation status and evidence",
         "slices 0, 1, 2, and 3 are implemented and merged",
         "generated openapi quality gate now checks every generated operation",
@@ -382,6 +384,13 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "sgajbi/lotus-report#69",
         "28c43e8",
         "4062d0e",
+        "slice 4: dispatch, concurrency, back-pressure, and leases evidence",
+        "slice 5: retry, pause, resume, cancel, and recovery evidence",
+        "slice 8: documentation, runbook, and supportability floor evidence",
+        "bounded internal single-batch worker run primitive",
+        "sgajbi/lotus-report#70",
+        "sgajbi/lotus-platform#210",
+        "b312512cb2640018a825ac939d544fe4bf606095",
         "make test-coverage",
         "prevents a stuck docker build from occupying the pr merge gate indefinitely",
         "does not claim any rfc-0104 batch reporting supported feature",
@@ -389,6 +398,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "branching and delivery expectations",
         "gold-pass readiness assessment",
         "second gold-pass additions",
+        "final gold-pass assessment",
     ]:
         assert expected in text
 
@@ -412,7 +422,76 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "aggregate batch counts must reconcile exactly with item states",
         "no implementation may depend on in-memory state for correctness",
         "implementation closure must update this matrix with concrete evidence paths",
-        "`tbd` entries are acceptable while rfc-0104 is in progress",
+        "verified no unresolved `todo`, `fixme`, `hack`, or `tbd` markers remain",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0105-reporting-observability-operations-and-replay-tooling.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "locked first-wave decisions",
+        "conditional decisions",
+        "architecture direction",
+        "required identifier contract",
+        "observability and operations attribute inventory",
+        "replay semantics",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: trace and structured logging",
+        "slice 3: metrics, dashboards, alerts, and sla contracts",
+        "slice 4: operator status and diagnostics apis",
+        "slice 5: rerender from snapshot",
+        "slice 6: regenerate from upstream data",
+        "slice 7: replay failed jobs and batch items",
+        "slice 8: stuck-state detection, recovery guidance, and sla monitoring",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-report` owns reporting operation control",
+        "`lotus-render` remains render execution owner",
+        "`lotus-archive` owns archived document identity, retrieval, lifecycle, retention, legal hold",
+        "identifier-only observability is the default",
+        "rerender uses an existing immutable rfc-0101 snapshot",
+        "regenerate creates a new data snapshot from upstream sources",
+        "replay is an execution-control operation for failed or stuck work",
+        "rerender, regenerate, replay, retry, and recovery must have separate command paths",
+        "operator apis require certification, complete swagger, examples, safe errors",
+        "live proof must follow a report from gateway/job creation through snapshot, render, archive",
+        "do not promote supported features until implementation-backed proof exists",
     ]:
         assert expected in text
 
