@@ -60,10 +60,12 @@
   implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
   lifecycle, `lotus-report` handoff, and gateway retrieval support
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
-  in progress; Slice 0 platform scaffold guardrails, Slice 1 `lotus-report`
-  batch-orchestrator module boundary, Slice 2 internal durable batch/item materialization, and
-  Slice 3 deterministic schedule-cycle materialization are implemented, with scheduler loop, APIs,
-  concurrency, retry, resume, dispatch, and recovery runtime behavior still pending
+  in progress; first-wave durable batch materialization/status/control APIs, deterministic
+  schedule-cycle identity, dispatch/lease/back-pressure, retry/recovery controls, internal
+  execution bridge, bounded worker primitive, and certified internal run-once operator API are
+  implemented, with scheduler loop, background worker process, gateway exposure, Workbench surface,
+  RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
+  certification still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
   rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
@@ -145,9 +147,10 @@
   RFC-0103 establishes `lotus-archive` as the generated-document archive owner, with controlled
   metadata and binary retrieval, access audit, retention, purge, legal hold, lifecycle
   relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval remains
-  deferred until a concrete gateway-backed product surface is approved. RFC-0104 is in progress:
-  Slice 0 improves platform service scaffolding and generated OpenAPI quality gates, Slice 1 adds
-  the `lotus-report` batch-orchestrator boundary, Slice 2 adds internal durable batch/item
-  materialization, and Slice 3 adds deterministic schedule-cycle materialization. `lotus-report`
-  batch runtime behavior remains pending. RFC-0105 through RFC-0107 remain the next reporting
-  architecture RFCs for observability/operations, security, and production certification.
+  deferred until a concrete gateway-backed product surface is approved. RFC-0104 is in progress
+  with first-wave durable batch materialization/status/control, deterministic schedule identity,
+  dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, and
+  certified internal run-once operator API implemented. Continuous scheduler loop, background
+  worker process, gateway exposure, and Workbench batch UI remain pending. RFC-0105 through
+  RFC-0107 remain the next reporting architecture RFCs for observability/operations, security, and
+  production certification.
