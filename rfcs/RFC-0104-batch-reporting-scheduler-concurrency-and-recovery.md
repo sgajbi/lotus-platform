@@ -146,6 +146,23 @@ These must be resolved during implementation and recorded in the RFC before clos
 6. whether batch evidence should update any RFC-0084/RFC-0091 domain-data-product declaration in
    this RFC or remain local until RFC-0107 production certification.
 
+## Pre-Implementation Execution Decisions
+
+Before implementation begins, the first slice owner must make these decisions explicit in the first
+implementation PR description and then preserve them in the RFC before closure:
+
+1. the first-wave scheduler mechanism,
+2. the first-wave worker execution model,
+3. the first-wave portfolio selector source for each supported selector,
+4. the first-wave database tables, indexes, and uniqueness constraints,
+5. the first-wave retry limits and retryable failure taxonomy,
+6. the first-wave batch size and concurrency defaults,
+7. the first-wave operator API surface,
+8. whether any platform scaffolding change is implemented or consciously not needed.
+
+If any answer is not known at implementation start, the implementer must keep that behavior out of
+supported scope until the decision is made, implemented, tested, and documented.
+
 ## Architecture Direction
 
 `lotus-report` owns batch control. A batch materializes item records. Each item creates or references
@@ -180,6 +197,21 @@ Supported selector families:
 4. `batch_manifest`
    The request references a manifest with explicit portfolio/report entries and source metadata.
    Manifest validation must happen before any report job is created.
+
+### Selector Source Mapping
+
+Every selector must be backed by a real Lotus source. No selector may be implemented from ad hoc
+fixtures or local-only assumptions.
+
+| Selector | Source owner | Source contract requirement | First-wave posture |
+| --- | --- | --- | --- |
+| `explicit_portfolio_list` | `lotus-report` request payload plus portfolio eligibility source from owning domain service | Request must carry portfolio identifiers, report package, period, as-of date, tenant, and region; eligibility must be checked before item materialization | Required first-wave selector |
+| `selected_subset` | Owning portfolio/relationship management source, expected through `lotus-manage` or an approved report-side selector registry | Subset identity must resolve to deterministic portfolio membership with source timestamp and source reference | Required only after source contract is confirmed |
+| `all_active_portfolios` | Owning portfolio system of record, expected through `lotus-core` or an approved gateway/service facade | Must return active eligible portfolios with tenant, region, and entitlement-filterable scope | Deferred until explicit-list and subset paths are proven |
+| `batch_manifest` | Operator-authored or generated manifest stored with content hash and source metadata | Manifest schema must include portfolio/report entries, period, as-of date, report package, requester, and provenance | Optional first-wave if it reduces operational risk |
+
+If a source contract is missing, the RFC implementation must record a source gap instead of
+inventing selector behavior locally.
 
 ### Frequencies
 
@@ -229,6 +261,43 @@ Item states:
 State transitions must be bounded and tested. No implementation may update batch aggregate state
 without reconciling item and job state.
 
+### Data Contract Floor
+
+`report_batch` must include at least:
+
+1. stable `batch_id`,
+2. tenant and region scope,
+3. selector type and selector source reference,
+4. reporting period start and end,
+5. as-of date,
+6. report package or template version,
+7. idempotency key and request hash,
+8. requester/operator identity,
+9. state,
+10. aggregate counts by item state,
+11. concurrency policy snapshot,
+12. created, updated, started, completed, cancelled, and failed timestamps where applicable,
+13. correlation id,
+14. implementation version or migration/source marker.
+
+`report_batch_item` must include at least:
+
+1. stable `batch_item_id`,
+2. parent `batch_id`,
+3. portfolio identifier,
+4. report job identifier when created,
+5. archive document identifier when successfully archived,
+6. item state,
+7. attempt count,
+8. retry eligibility and next retry timestamp,
+9. lease owner, lease token, lease acquired timestamp, and lease expiry timestamp,
+10. last error category and safe error summary,
+11. source lineage references for selector membership,
+12. created, updated, started, completed, cancelled, and failed timestamps where applicable.
+
+Any implementation that cannot populate one of these fields must document whether the field is
+deferred, derived, or unavailable from upstream.
+
 ### Idempotency And Duplicate Prevention
 
 Batch creation must use a deterministic idempotency key derived from:
@@ -258,6 +327,38 @@ Concurrency must be enforced at multiple layers:
 In-flight items must carry a lease or heartbeat. A recovery scanner must detect expired leases and
 move recoverable items to `recovery_pending` or a retryable failure state. Recovery must be
 deterministic and must not create duplicate report jobs or archive records.
+
+### Non-Negotiable Invariants
+
+Implementation and tests must preserve these invariants:
+
+1. one batch item represents one portfolio/report package/reporting period/as-of-date tuple,
+2. one batch item may create at most one active report job for a given attempt,
+3. a terminal successful item must reference either a completed report job or documented completion
+   evidence,
+4. an archived successful item must reference the archive document id returned by `lotus-archive`,
+5. a cancelled item must not dispatch after cancellation is acknowledged,
+6. retry-failed-only must not retry terminal or cancelled failures,
+7. pause must prevent new dispatch while allowing already-running work to reach a documented
+   boundary,
+8. recovery must be safe to run more than once,
+9. aggregate batch counts must reconcile exactly with item states,
+10. supported-features text must never claim selector, schedule, API, or recovery behavior that has
+    not passed implementation proof.
+
+### Storage And Migration Direction
+
+Batch state must be persisted in the primary `lotus-report` database using migrations reviewed in
+the same slice that introduces the data model. The implementation must define:
+
+1. uniqueness constraints for batch idempotency and item idempotency,
+2. indexes needed for status lookup, dispatch scanning, retry scanning, and recovery scanning,
+3. retention posture for batch ledgers and operator evidence,
+4. migration rollback or forward-only posture,
+5. handling for legacy report jobs that predate batch support,
+6. test fixtures that represent realistic batch sizes without hiding performance risks.
+
+No implementation may depend on in-memory state for correctness.
 
 ## API Direction
 
@@ -320,6 +421,28 @@ tests, and live or integration evidence where the endpoint claims operational be
    `lotus-platform` automation rather than locally copied into `lotus-report`.
 7. Generated documentation, wiki, and supported-features text must distinguish implemented support
    from future RFC scope.
+8. Every implementation PR must state whether it changes platform scaffolding, service-local code,
+   docs/wiki/context, supported-features material, or API contracts.
+9. If multiple repositories change in one slice, each repository must have its own evidence block
+   with branch, PR, commit, checks, and remaining risk.
+
+## Requirement Traceability Matrix
+
+Implementation closure must update this matrix with concrete evidence paths before RFC status can
+move beyond proposed/in progress.
+
+| Requirement | Primary owner | Required evidence before support |
+| --- | --- | --- |
+| Batch ledger and item ledger | `lotus-report` | Models, migrations, repository/service tests, uniqueness constraints |
+| Explicit portfolio list selector | `lotus-report` plus portfolio source owner | Selector validation tests, source eligibility proof, idempotency tests |
+| Selected subset selector | `lotus-report` plus subset source owner | Source contract proof, deterministic materialization tests |
+| Schedule and frequency materialization | `lotus-report` | Period/as-of-date tests, unsupported frequency tests |
+| Dispatch and report job creation | `lotus-report` | Integration tests proving one item creates/reuses one report job |
+| Concurrency and back-pressure | `lotus-report` and platform automation where reused | Race/concurrency tests and policy snapshot evidence |
+| Retry, pause, resume, cancel, recovery | `lotus-report` | State-transition tests, expired-lease tests, no-duplicate-output tests |
+| Render/archive integration | `lotus-report`, `lotus-render`, `lotus-archive` | Cross-service tests or live proof with artifact ids |
+| API certification and Swagger | `lotus-report`, optionally `lotus-gateway` | OpenAPI validation, examples, endpoint tests, error-path tests |
+| Documentation, wiki, supported features | Owning repository plus `lotus-platform` if platform truth changes | Docs diff, wiki check or no-change decision, supported-features proof |
 
 ## Error Handling Requirements
 
@@ -704,6 +827,27 @@ Required validation:
 Evidence must preserve repository, branch, PR number, commit SHA, command, endpoint, batch id, job
 id, archive document id, and artifact path wherever those identifiers exist.
 
+## Implementation Proof Ledger Template
+
+The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
+this structure:
+
+| Proof item | Evidence source | Command/API/artifact | Result | Follow-up |
+| --- | --- | --- | --- | --- |
+| Explicit-list batch creates items and report jobs | TBD | TBD | TBD | TBD |
+| Selected-subset batch materializes deterministic membership | TBD | TBD | TBD | TBD |
+| Duplicate submission is idempotent | TBD | TBD | TBD | TBD |
+| Concurrency limit is enforced | TBD | TBD | TBD | TBD |
+| Retry-failed-only retries only eligible failures | TBD | TBD | TBD | TBD |
+| Pause/resume/cancel semantics match API docs | TBD | TBD | TBD | TBD |
+| Expired lease recovery is safe and idempotent | TBD | TBD | TBD | TBD |
+| Successful item renders and archives document | TBD | TBD | TBD | TBD |
+| Swagger examples match runtime behavior | TBD | TBD | TBD | TBD |
+| Supported-features text is implementation-backed | TBD | TBD | TBD | TBD |
+
+`TBD` entries are acceptable while the RFC is proposed. They are not acceptable at implementation
+closure.
+
 ## Supported Features
 
 RFC-0104 starts with no implementation-backed batch reporting supported features.
@@ -760,3 +904,18 @@ This RFC is ready to guide implementation when this section is true:
 6. supported-features governance prevents aspirational claims,
 7. closure requires docs, wiki, context, skills/guidance, and branch hygiene decisions,
 8. implementation remains blocked until the RFC is approved for execution.
+
+## Second Gold-Pass Additions
+
+This final pre-implementation pass tightened the remaining ambiguous areas:
+
+1. explicit pre-implementation decisions required before support can be claimed,
+2. selector source mapping and source-gap handling,
+3. minimum `report_batch` and `report_batch_item` data contract floors,
+4. non-negotiable idempotency, cancellation, recovery, and aggregate-count invariants,
+5. storage, migration, indexing, and legacy-job posture,
+6. requirement traceability from feature claim to evidence,
+7. implementation proof ledger template for closure.
+
+These additions are intended to reduce implementation debate and make the first implementation
+slice testable, reviewable, and auditable from the start.

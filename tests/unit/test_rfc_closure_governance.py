@@ -333,14 +333,20 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "critical review outcome",
         "locked first-wave decisions",
         "conditional decisions",
+        "pre-implementation execution decisions",
         "architecture direction",
         "batch selectors",
+        "selector source mapping",
         "state model",
+        "data contract floor",
         "idempotency and duplicate prevention",
         "concurrency, back-pressure, and leases",
+        "non-negotiable invariants",
+        "storage and migration direction",
         "api direction",
         "swagger and api certification requirements",
         "platform governance and mesh requirements",
+        "requirement traceability matrix",
         "error handling requirements",
         "observability floor",
         "slice 0: platform automation and scaffolding improvement",
@@ -360,6 +366,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "documentation, wiki, and context impact",
         "branching and delivery expectations",
         "gold-pass readiness assessment",
+        "second gold-pass additions",
     ]:
         assert expected in text
 
@@ -378,6 +385,12 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "full error examples for invalid selector, duplicate item, unsupported frequency",
         "if no wiki, context, or skills change is needed",
         "implementation remains blocked until the rfc is approved for execution",
+        "if a source contract is missing, the rfc implementation must record a source gap",
+        "any implementation that cannot populate one of these fields must document whether the field is",
+        "aggregate batch counts must reconcile exactly with item states",
+        "no implementation may depend on in-memory state for correctness",
+        "implementation closure must update this matrix with concrete evidence paths",
+        "`tbd` entries are acceptable while the rfc is proposed",
     ]:
         assert expected in text
 
