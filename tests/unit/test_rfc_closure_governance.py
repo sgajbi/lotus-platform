@@ -320,6 +320,83 @@ def test_rfc_0103_records_supported_scope_closure_and_deferrals() -> None:
     )
 
 
+def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md"
+    )
+
+    for expected in [
+        "- status: proposed",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "locked first-wave decisions",
+        "conditional decisions",
+        "architecture direction",
+        "batch selectors",
+        "state model",
+        "idempotency and duplicate prevention",
+        "concurrency, back-pressure, and leases",
+        "api direction",
+        "swagger and api certification requirements",
+        "platform governance and mesh requirements",
+        "error handling requirements",
+        "observability floor",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: batch ledger, selectors, and idempotent materialization",
+        "slice 3: scheduling and frequency materialization",
+        "slice 4: dispatch, concurrency, back-pressure, and leases",
+        "slice 5: retry, pause, resume, cancel, and recovery",
+        "slice 6: apis, swagger, and certification",
+        "slice 7: integration with report, render, and archive",
+        "slice 8: documentation, runbook, and supportability floor",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "supported features",
+        "starts with no implementation-backed batch reporting supported features",
+        "documentation, wiki, and context impact",
+        "branching and delivery expectations",
+        "gold-pass readiness assessment",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-report` owns the batch control plane",
+        "batch execution creates or references one durable `report_job` per batch item",
+        "`lotus-render` remains the deterministic render owner",
+        "`lotus-archive` remains the generated-document archive owner",
+        "object storage is not exposed directly through batch apis",
+        "retry and recovery must be item-level, not whole-batch blind reruns",
+        "batch status is derived from durable item and job state",
+        "broad replay, rerender, regenerate, and stuck-job command center tooling owned by rfc-0105",
+        "final reporting entitlement and region/tenant segregation certification owned by rfc-0106",
+        "final end-to-end production certification owned by rfc-0107",
+        "every attribute described with type, meaning, allowed values, and example value",
+        "full error examples for invalid selector, duplicate item, unsupported frequency",
+        "if no wiki, context, or skills change is needed",
+        "implementation remains blocked until the rfc is approved for execution",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
 def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
     None
 ):
