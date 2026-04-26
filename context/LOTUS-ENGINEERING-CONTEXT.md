@@ -184,7 +184,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    evidence-pack drift are certification evidence and must not be handled as separate decorative
    reports. Public customer evidence packs must not expose restricted telemetry paths, source
    artifacts, or consumer entitlement details.
-10. RFC-0104 is in progress for batch reporting. Slice 0 strengthens
+10. RFC-0104 is implemented for first-wave batch reporting scope. Slice 0 strengthens
    `automation/New-Lotus-Service.ps1` so newly scaffolded FastAPI services include
    Swagger-quality health, liveness, readiness, and metadata endpoints plus a generated OpenAPI
    quality gate that checks summaries, descriptions, tags, response descriptions, 2xx responses,
@@ -199,10 +199,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    through report-job/snapshot/render/archive handoff, bounded run-once, bounded runtime-pass,
    daemonized worker-process execution, config-backed internal scheduler-process materialization
    with explicit/all-active/inline-manifest scheduler selectors, gateway-facing batch
-   materialization/status/control/operator-run APIs, and Workbench gateway/BFF-backed explicit
-   single-portfolio batch operation. Gateway-facing scheduler administration, RFC-0105
-   dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification
-   remain pending later work.
+   materialization/status/control/operator-run APIs, gateway-facing scheduler administration, and
+   Workbench gateway/BFF-backed explicit single-portfolio batch operation. RFC-0105
+   dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain
+   pending later work.
 11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
