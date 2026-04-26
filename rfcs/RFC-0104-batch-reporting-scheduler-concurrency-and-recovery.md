@@ -1305,6 +1305,40 @@ Review result:
    requeued for duplicate job creation. Later retry execution can explicitly retry or recover the
    linked report job without violating idempotency.
 
+### Slice 8: Documentation, Runbook, And Supportability Floor Evidence
+
+Implemented improvement:
+
+1. `lotus-report/README.md` now records the current RFC-0104 posture: certified internal batch
+   materialization/status/control APIs, internal item execution through existing report-job,
+   snapshot, render, and archive paths, and the remaining unsupported scheduler/runtime/gateway/UI
+   scope.
+2. `lotus-report/wiki/Operations-Runbook.md` now provides operator-facing truth for the current
+   first-wave batch surface: supported create/status/control actions, durable status semantics,
+   correlation/trace behavior, PostgreSQL proof expectations, and RFC-0105 observability deferrals.
+3. `lotus-report/wiki/API-Surface.md` now has copy-paste examples for all certified batch control
+   endpoints: pause, resume, cancel, retry-failed, and recover-expired-leases.
+4. `lotus-report/docs/standards/rfc-traceability.md` records Slice 8 evidence. Supported-features
+   remains split between implementation-backed first-wave batch features and planned full
+   scheduler/orchestration features.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q` passed.
+2. `git diff --check` passed.
+3. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+   -CheckOnly -Repository lotus-report` reported expected branch-local wiki publication drift for
+   `API-Surface.md`, `Operations-Runbook.md`, `RFC-Index.md`, and pre-existing
+   `Validation-and-CI.md`. Wiki publication remains a post-merge action.
+
+Review result:
+
+1. The previous runbook wording was too broad because it said batch reporting was not implemented,
+   while certified materialization/status/control APIs are now shipped. Slice 8 corrected that
+   contradiction and narrowed unsupported language to the scheduler/runtime/gateway/UI scope.
+2. The documentation now gives operators concrete examples for every currently certified batch
+   control endpoint without claiming future scheduled execution or Workbench capability.
+
 ## Implementation Proof Ledger Template
 
 The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
