@@ -836,9 +836,9 @@ Current status: Slices 0, 1, 2, and 3 are implemented and merged. Slice 0 is imp
 lease, report-job creation/reuse, and back-pressure primitives are implemented in the active
 `lotus-report` RFC-0104 branch. Slice 5 internal bounded retry, pause/resume,
 cancellation-boundary, and expired-lease recovery primitives are implemented in `lotus-report`
-commit `ab72576`. GitHub PR checks remain required before closure. No `lotus-report` batch
-scheduler loop, worker process, operator-facing batch API, or certified recovery operator
-capability is implemented yet.
+commit `ab72576`, with `sgajbi/lotus-report#70` GitHub checks green after push on 2026-04-26. No
+`lotus-report` batch scheduler loop, worker process, operator-facing batch API, or certified
+recovery operator capability is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -1157,7 +1157,9 @@ Validation evidence:
 10. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
     -CheckOnly -Repository lotus-report` reported expected wiki publication drift for
     repo-authored wiki changes on this branch. Publication remains a post-merge action.
-11. GitHub PR checks remain required before Slice 5 can be treated as closed.
+11. `sgajbi/lotus-report#70` passed Feature Lane and PR Merge Gate checks after the Slice 5 push,
+    including lint/typecheck/security, unit tests, integration tests, e2e tests, combined coverage,
+    and Docker build.
 
 Review result:
 
