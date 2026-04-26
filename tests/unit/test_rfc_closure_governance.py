@@ -328,7 +328,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: first-wave scheduler/worker runtime implemented; gateway/ui planned",
+        "- status: first-wave scheduler/worker/gateway api implemented; workbench ui planned",
         "gold-pass hardened: 2026-04-26",
         "implementation started: 2026-04-26",
         "first-wave implementation proof completed: 2026-04-26",
@@ -395,6 +395,12 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "sgajbi/lotus-report#75",
         "sgajbi/lotus-report#76",
         "9deabddff47077d197cee8c659cd6cadce5a5b77",
+        "gateway batch api exposes certified materialization/status/control/operator-run subset",
+        "sgajbi/lotus-gateway#151",
+        "80232ba536c2bfff2760bae5dad70e1db35f18dc",
+        "rbch_71903e99009b4eac87786b872a3a3307",
+        "rjob_1aaca40b76b24a25aca25b6315be7e2d",
+        "doc_415f47cfa5ee4d809c02b9802d5b2eab",
         "sgajbi/lotus-platform#210",
         "sgajbi/lotus-platform#211",
         "b312512cb2640018a825ac939d544fe4bf606095",

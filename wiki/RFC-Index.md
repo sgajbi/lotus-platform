@@ -63,10 +63,11 @@
   in progress; first-wave durable batch materialization/status/control APIs, deterministic
   schedule-cycle identity, dispatch/lease/back-pressure, retry/recovery controls, internal
   execution bridge, bounded worker primitive, certified internal run-once operator API, and bounded
-  internal runtime-pass primitive plus daemonized internal worker and scheduler processes are
-  implemented, with gateway exposure, Workbench surface, all-active scheduler materialization,
-  manifest scheduler materialization, RFC-0105 dashboards/replay, RFC-0106 security
-  certification, and RFC-0107 production certification still pending
+  internal runtime-pass primitive plus daemonized internal worker and scheduler processes and
+  gateway-facing batch materialization/status/control/operator-run APIs are implemented, with
+  Workbench surface, all-active scheduler materialization, manifest scheduler materialization,
+  RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
+  certification still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
   rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
@@ -154,7 +155,7 @@
   with first-wave durable batch materialization/status/control, deterministic schedule identity,
   dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, certified
   internal run-once operator API, bounded internal runtime-pass primitive, and daemonized internal
-  worker and scheduler processes implemented. Gateway exposure, Workbench batch UI, all-active
-  scheduler materialization, and manifest scheduler materialization remain pending. RFC-0105
-  through RFC-0107 remain the next reporting architecture RFCs for observability/operations,
-  security, and production certification.
+  worker and scheduler processes plus gateway-facing batch materialization/status/control/operator-run
+  APIs implemented. Workbench batch UI, all-active scheduler materialization, and manifest scheduler
+  materialization remain pending. RFC-0105 through RFC-0107 remain the next reporting architecture
+  RFCs for observability/operations, security, and production certification.
