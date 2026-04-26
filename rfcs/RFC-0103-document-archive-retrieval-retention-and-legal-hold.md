@@ -1030,6 +1030,34 @@ Validation evidence recorded during implementation:
 6. Archive and gateway wiki sources were published after merge and check-only validation reported
    zero drift.
 
+## Post-Implementation Slice Audit
+
+This section records the 2026-04-26 gold-pass audit performed after the supported-scope
+implementation was merged. The audit reviewed each RFC slice for completeness, correctness, testing
+quality, clean-code posture, proof, and production-readiness boundary. Findings were fixed where
+they were implementation-backed and explicitly deferred where they belonged to later RFCs.
+
+| Slice | Audit outcome | Tightening completed or required |
+| --- | --- | --- |
+| Slice 0: Platform automation and scaffolding improvement | Complete for the RFC-0103 first-wave service baseline. `lotus-archive` was created with the governed FastAPI, CI lane, OpenAPI, Docker, docs, health/readiness, structured logging, and test scaffold posture. | No additional platform-scaffold change was needed in this audit. Future gaps discovered while implementing RFC-0104 through RFC-0107 should still be fixed in `lotus-platform`, not locally copied into apps. |
+| Slice 1: Cleanup and structure | Complete with one post-merge documentation drift finding. The archive code is module-family based rather than monolithic, but `lotus-archive` operator docs still had stale support wording after report handoff and gateway retrieval landed. | Fixed in `lotus-archive` audit branch: service runbook now states report handoff and gateway retrieval are supported; boundary docs no longer say gateway retrieval is future work; documentation-posture tests now guard those exact claims. |
+| Slice 2: Archive service foundation | Complete. Health/readiness, metadata endpoint, safe error envelope, caller-context helper, structured request logging, service profile, and repo-native gates are present and tested. | No code change required. Continued production hardening belongs to RFC-0107 certification rather than RFC-0103 scope expansion. |
+| Slice 3: Metadata model and storage adapter | Complete for the supported scope. Metadata model, PostgreSQL migration contract, object-storage protocol, filesystem development adapter, checksum validation, storage-key safety, and idempotent writer behavior are covered by unit and migration tests. | No code change required. Production object-store provider and encryption configuration remain deployment/certification decisions for RFC-0107. |
+| Slice 4: Archive create and retrieval APIs | Complete. `POST /documents`, metadata lookup, binary download, access-event lookup, authorization, support-safe errors, checksum mismatch handling, and OpenAPI contract tests exist. | No code change required. Signed URLs remain deliberately deferred because service-streamed download is the implemented mode. |
+| Slice 5: Retention, purge, and legal hold | Complete. Retention posture, purge eligibility, purge execution, legal-hold set/release, legal-hold purge blocking, idempotent post-purge behavior, and audit events are tested. | No code change required. Richer legal approval workflow and granular policy taxonomy remain future legal/operations work. |
+| Slice 6: Reissue, correction, and supersession | Complete. Append-only lifecycle relationships, current-document resolution, historical lookup, conflict handling, unsupported transition handling, and audit events are implemented and tested. | No code change required. Preserve this append-only model when future customer-facing retrieval surfaces are added. |
+| Slice 7: `lotus-report` handoff | Complete. `lotus-report` PR #66 records archive handoff after PDF render success, separates `archiving`/`archived` from render completion, maps archive failures truthfully, and tests success plus validation, conflict, storage, and execution failure paths. | Post-merge documentation drift in `lotus-archive` was fixed so operator docs no longer incorrectly say report handoff is unsupported. |
+| Slice 8: Gateway and optional Workbench retrieval | Complete for gateway retrieval; Workbench retrieval remains unsupported. `lotus-gateway` PR #150 exposes metadata/download routes, forwards caller context, preserves checksum headers, maps unsafe archive failures to product-safe errors, and hides storage internals. Workbench has no direct archive calls. | Post-merge documentation drift in `lotus-archive` was fixed so boundary docs now state gateway retrieval is implemented through `lotus-gateway` and Workbench remains no-direct-archive. |
+| Slice 9: Implementation proof | Complete for supported scope with repo-native checks and GitHub PR evidence across archive, report, and gateway. The audit found proof was strong enough for first-wave closure but not a substitute for RFC-0107 production certification. | Added this audit section to make proof limitations explicit and to record the post-merge doc-drift fix. |
+| Second-last hardening and review | Complete with one tightening. API/OpenAPI tests, migration tests, service-profile tests, documentation-posture tests, and gateway/report failure-path tests exist. | Strengthened `lotus-archive` documentation-posture tests to catch stale support claims about report handoff and gateway retrieval. |
+| Final closure | Complete for supported scope. PRs were merged, CI was green, wiki publication was completed, and remote branches were cleaned. | No skills or agent-context change was needed in this audit; the existing backend governance and RFC closure rules were sufficient. |
+
+Audit conclusion: the supported RFC-0103 implementation is complete and production-ready for its
+first-wave service boundary, with the explicit caveat that RFC-0106 and RFC-0107 still own full
+security/segregation certification and production certification. The only material issue found in
+this audit was documentation drift, not missing archive behavior; that drift was fixed and guarded
+by tests.
+
 ## Gold-Pass Assessment
 
 What was completed:
@@ -1048,12 +1076,14 @@ Quality improvements made:
 
 1. Archive behavior is split into explicit module families: metadata, storage, audit, retention,
    legal hold, and lifecycle.
-2. Archive support posture is guarded by service-profile and documentation-posture tests so support
-   claims cannot silently drift.
+2. Archive support posture is guarded by service-profile, e2e metadata, and documentation-posture
+   tests so support claims cannot silently drift.
 3. Report handoff and gateway retrieval documentation distinguishes infrastructure support from
    customer-facing product retrieval.
 4. Gateway download failures are mapped to support-safe product errors without leaking archive
    storage internals.
+5. The post-implementation audit removed stale operator wording that incorrectly treated report
+   handoff and gateway retrieval as future work after they had been implemented.
 
 Debt removed or avoided:
 
@@ -1074,9 +1104,11 @@ Known deferrals:
    code uses the S3-compatible abstraction and filesystem development adapter behind that boundary.
 
 Gold-pass conclusion: RFC-0103 has reached the expected implementation standard for the supported
-first-wave scope. PR #9 is merged and the archive wiki publication has been completed. No
-unsupported archive, Workbench, batch, replay, rerender, or production-certification capability
-should be listed as supported before its owning RFC implements and proves it.
+first-wave scope after the 2026-04-26 slice-by-slice audit. PR #9 is merged, the archive wiki
+publication has been completed, and the audit-identified documentation drift was fixed with an
+explicit regression test. No unsupported archive, Workbench, batch, replay, rerender, or
+production-certification capability should be listed as supported before its owning RFC implements
+and proves it.
 
 ## Resolved Or Deferred Questions
 
