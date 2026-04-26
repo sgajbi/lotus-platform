@@ -831,9 +831,9 @@ id, archive document id, and artifact path wherever those identifiers exist.
 
 ## Implementation Status And Evidence
 
-Current status: Slice 0 is implemented in `lotus-platform` on
-`feature/rfc-0104-slice-0-platform-scaffold`. No `lotus-report` batch scheduler, batch ledger,
-worker, API, or runtime behavior is implemented yet.
+Current status: Slices 0 and 1 are implemented and merged. Slice 0 is implemented in
+`lotus-platform` and Slice 1 is implemented in `lotus-report`. No `lotus-report` batch scheduler,
+batch ledger, worker, API, or runtime behavior is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -887,6 +887,57 @@ Review result:
 3. The next slice may start only after this platform Slice 0 branch is merged and required local
    and GitHub evidence is green.
 
+### Slice 1: Cleanup And Structure Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has an explicit `src/app/report_batch_orchestrator/` module boundary for
+   RFC-0104-owned batch orchestration contracts.
+2. The boundary defines the first-wave selector and frequency vocabulary in one place:
+   `explicit_portfolio_list`, `selected_subset`, `all_active_portfolios`, `batch_manifest`,
+   `monthly`, `quarterly`, `semi_annual`, `yearly`, and `explicit`.
+3. `BATCH_RUNTIME_SUPPORTED = False` makes the current no-runtime posture executable and testable,
+   so planned vocabulary cannot be mistaken for an implemented operator capability.
+4. `docs/supported-features.md` now separates RFC-0104 planned feature candidates from
+   implementation-backed supported features.
+5. `lotus-report` README, repository engineering context, RFC traceability, and repo-local wiki
+   source now describe the batch-orchestrator boundary and explicitly exclude scheduler, worker,
+   retry, pause/resume/cancel, and recovery runtime behavior.
+6. `lotus-report` PR and main releasability Docker build jobs now have `timeout-minutes: 10`, which
+   prevents a stuck Docker build from occupying the PR merge gate indefinitely.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q` passed with
+   2 tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 239 unit tests.
+3. `make docker-build` passed locally for `lotus-report`.
+4. `docker run --rm --entrypoint actionlint -v "${PWD}:/repo" -w /repo
+   ghcr.io/reviewdog/action-actionlint:v1.72.0` passed for the workflow timeout update.
+5. `git diff --check` passed for the Slice 1 branch.
+6. `sgajbi/lotus-report#67` passed Feature Lane checks and PR Merge Gate checks, including
+   workflow lint, lint/typecheck/security, unit tests, integration tests, e2e tests, combined
+   coverage, and Docker build.
+7. `sgajbi/lotus-report#67` merged at
+   `ea2df53c6a0fd29b9dfdaf2647ef4209dfcdb023`.
+8. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+   -Publish -Repository lotus-report` published the `lotus-report` wiki source.
+9. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+   -CheckOnly -Repository lotus-report` reported zero wiki drift after publication.
+
+Review result:
+
+1. Slice 1 intentionally creates only a clean orchestration boundary and planned vocabulary. It
+   does not implement batch scheduling, batch materialization, worker dispatch, retry, recovery,
+   or APIs.
+2. The no-runtime posture is protected by test coverage and supported-features wording, reducing
+   the risk of aspirational documentation being presented as shipped capability.
+3. The Docker CI timeout is a production-readiness improvement discovered while proving the slice;
+   it prevents a non-diagnostic runner stall from blocking future PRs indefinitely.
+4. The next slice may start only after this platform evidence update is merged, platform checks are
+   green, and the platform wiki is synchronized.
+
 ## Implementation Proof Ledger Template
 
 The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
@@ -910,8 +961,9 @@ implementation closure.
 
 ## Supported Features
 
-RFC-0104 currently has no implementation-backed batch reporting supported features. Slice 0 only
-improves platform scaffolding and does not add an operator-facing batch capability.
+RFC-0104 currently has no implementation-backed batch reporting supported features. Slice 0
+improves platform scaffolding and Slice 1 adds only a `lotus-report` module boundary and planned
+batch vocabulary. Neither slice adds an operator-facing batch capability.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 

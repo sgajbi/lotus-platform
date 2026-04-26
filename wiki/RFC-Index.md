@@ -60,7 +60,8 @@
   implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
   lifecycle, `lotus-report` handoff, and gateway retrieval support
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
-  in progress; Slice 0 platform scaffold guardrails are implemented, with batch scheduler,
+  in progress; Slice 0 platform scaffold guardrails and Slice 1 `lotus-report`
+  batch-orchestrator module boundary are implemented, with batch ledger, scheduler, APIs,
   concurrency, retry, resume, and recovery runtime behavior still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   proposed reporting observability, operator APIs, replay, rerender, regenerate, stuck-job, and SLA
