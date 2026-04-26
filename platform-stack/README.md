@@ -5,7 +5,7 @@ This folder provides a centralized Docker Compose orchestration for the full PBW
 - lotus-core (`lotus-core-ingestion`, `lotus-core-query`, `lotus-core-control`) + lotus-core dependencies (`zookeeper`, `kafka`, `lotus-core-kafka-topic-creator`, `lotus-core-postgres`, `lotus-core-migration-runner`)
 - lotus-manage (`lotus-manage`, `lotus-manage-postgres`)
 - lotus-performance (`lotus-performance`)
-- lotus-report (`lotus-report`)
+- lotus-report (`lotus-report`, `lotus-report-postgres`)
 - lotus-gateway (`bff`)
 - UI (`ui`)
 - Observability baseline (`prometheus`, `grafana`, `otel-collector`)
@@ -145,6 +145,10 @@ Canonical service identities:
 - Core ingestion readiness: `http://core-ingestion.dev.lotus/health/ready`
 - Performance readiness: `http://performance.dev.lotus/health/ready`
 - Report readiness: `http://report.dev.lotus/health/ready`
+
+Report readiness is PostgreSQL-backed in the centralized stack. The `lotus-report` service uses
+the dedicated `lotus-report-postgres` service through `REPORT_JOB_LEDGER_DATABASE_URL`; do not
+validate batch/report-job ledger behavior against an in-container localhost or file database.
 - Prometheus: `http://prometheus.dev.lotus`
 - Grafana: `http://grafana.dev.lotus` (admin/admin)
 

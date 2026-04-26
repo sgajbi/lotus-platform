@@ -46,6 +46,8 @@ Use when the work is about:
 - shared local infrastructure support
 - observability support surfaces
 - environment-scoped service routing
+- production-like local persistence wiring for services in the shared stack, such as
+  `lotus-report-postgres` for `lotus-report` report-job and batch ledger readiness
 
 Do not use it as the canonical populated front-office proof path when `lotus-workbench` already
 owns that runtime.

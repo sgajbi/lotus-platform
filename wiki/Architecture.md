@@ -54,7 +54,9 @@ Derived platform evidence, not source truth:
 
 ### `platform-stack/`
 
-Shared local ingress and infrastructure support stack.
+Shared local ingress and infrastructure support stack. It includes service-owned infrastructure
+needed for production-like local readiness, including `lotus-report-postgres` for the
+`lotus-report` report-job and batch ledger.
 
 This supports the ecosystem runtime, but it is not the canonical populated front-office product
 proof path.

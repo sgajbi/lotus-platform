@@ -1,9 +1,10 @@
 # RFC-0104: Batch Reporting Scheduler, Concurrency, And Recovery
 
-- Status: In Progress
+- Status: First-Wave Implemented; Scheduler Runtime Planned
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
 - Implementation started: 2026-04-26
+- First-wave implementation proof completed: 2026-04-26
 - Owners:
   - `lotus-report` owners
   - `lotus-platform` operations
@@ -832,8 +833,14 @@ id, archive document id, and artifact path wherever those identifiers exist.
 ## Implementation Status And Evidence
 
 Current status: Slices 0, 1, 2, and 3 are implemented and merged. Slice 0 is implemented in
-`lotus-platform`; Slices 1, 2, and 3 are implemented in `lotus-report`. No `lotus-report` batch
-scheduler loop, worker, API, retry, pause, resume, cancel, dispatch, or recovery runtime behavior
+`lotus-platform`; Slices 1, 2, and 3 are implemented in `lotus-report`. Slice 4 internal dispatch,
+lease, report-job creation/reuse, and back-pressure primitives are implemented in the active
+`lotus-report` RFC-0104 branch. Slice 5 internal bounded retry, pause/resume,
+cancellation-boundary, and expired-lease recovery primitives are implemented in `lotus-report`
+commit `ab72576`. Slice 6 certified materialization, status, and control APIs are implemented in
+`lotus-report` commit `a061d4e`. Slice 7 internal report-job, snapshot, render, and archive
+integration is implemented in the active `lotus-report` RFC-0104 branch. No `lotus-report` batch
+scheduler loop, worker process, dispatch operator API, gateway exposure, or Workbench batch surface
 is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
@@ -1056,34 +1063,436 @@ Review result:
 4. The next slice may start only after this platform evidence update is merged, platform checks are
    green, and the platform wiki is synchronized.
 
-## Implementation Proof Ledger Template
+### Slice 4: Dispatch, Concurrency, Back-Pressure, And Leases Evidence
 
-The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
-this structure:
+Implemented improvement:
+
+1. `lotus-report` now has an internal `ReportBatchDispatcher` that leases materialized batch items
+   only when active-batch, active-item, upstream, render, and archive pressure permits dispatch.
+2. The PostgreSQL and SQLite ledgers persist `report_job_id`, lease owner/token/acquired/expires
+   timestamps, heartbeat time, and dispatch time for batch items.
+3. Dispatch creates or reuses exactly one RFC-0100 `report_job` per leased batch item and rejects
+   stale lease tokens.
+4. Expired leases may be safely re-acquired by another worker without creating duplicate report
+   jobs, while report-job-linked items remain protected from duplicate dispatch.
+5. `docs/supported-features.md`, `docs/standards/rfc-traceability.md`,
+   `docs/standards/batch-orchestration-source-map.md`, README, repository context, and repo-local
+   wiki source record the internal dispatch posture without claiming an operator-facing batch
+   runtime.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed with 42 tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 279 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 279 unit tests, 64 integration tests, 6 e2e tests, total 99%
+   coverage, and 100% coverage for `src/app/report_batch_orchestrator/dispatch.py`.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `python scripts/rfc_0104_slice4_live_evidence.py --database-url
+   postgresql://lotus_report:lotus_report@localhost:5439/lotus_report` produced
+   `{"batch_status": "running", "dispatched_count": 1, "job_count": 1}`.
+6. `powershell -ExecutionPolicy Bypass -File
+   C:\Users\Sandeep\projects\lotus-workbench\scripts\live\Start-LotusFrontOfficeCanonical.ps1
+   -CleanCoreState -BuildImages -RunValidation` passed against the canonical Docker front-office
+   topology with `lotus-report` backed by `lotus-report-postgres`.
+7. `make security-audit` passed with no known vulnerabilities.
+8. `make docker-build` built `lotus-report:ci-test`.
+9. `git diff --check` passed for the Slice 4 branch.
+10. `sgajbi/lotus-report#70` passed Feature Lane and PR Merge Gate checks before Slice 5 local
+    work started.
+
+Review result:
+
+1. Slice 4 deliberately stops at internal dispatch primitives. It does not ship a scheduler loop,
+   worker process, operator-facing batch API, retry, pause/resume/cancel, or recovery capability.
+2. The implementation keeps dispatch, ledger persistence, report-job creation, and runtime-load
+   input separated so later scheduler and worker slices can reuse the primitive without copying
+   control logic.
+3. PostgreSQL is treated as the runtime proof target. SQLite remains only a unit-test adapter.
+
+### Slice 5: Retry, Pause, Resume, Cancel, And Recovery Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has internal durable state for paused, cancelled, completed,
+   completed-with-failures, failed, succeeded, failed-retryable, failed-terminal, cancelled, and
+   recovery-pending batch/item lifecycle outcomes.
+2. The PostgreSQL migration adds retry/control/recovery fields: attempt count, retry eligibility,
+   next retry timestamp, last error category/summary, and batch/item lifecycle timestamps.
+3. The PostgreSQL and SQLite ledgers implement bounded retry-failed-only reset, pause, resume,
+   cancellation boundaries, expired-lease recovery, and aggregate batch status reconciliation.
+4. Retry reset is limited to retryable failed items with no attached `report_job_id`; this prevents
+   duplicate report-job creation when a failure occurs after job handoff.
+5. Cancellation cancels undispatched or unjobbed work only, leaving items with already-created
+   report jobs intact for downstream job lifecycle reconciliation.
+6. Expired-lease recovery is idempotent and moves abandoned unjobbed leased items into
+   `recovery_pending` for safe redispatch.
+7. The migration smoke validator and migration contract now check the Slice 5 schema fields,
+   expanded status constraints, and retry lookup index.
+8. `docs/supported-features.md`, `docs/standards/rfc-traceability.md`,
+   `docs/standards/batch-orchestration-source-map.md`, README, repository context, and repo-local
+   wiki source distinguish internal control primitives from operator-supported batch runtime
+   capability.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed locally with 52 tests after
+   adding Slice 5 control and recovery coverage.
+2. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   python -m pytest tests/integration/test_postgres_report_batch_ledger.py -q` passed locally with
+   11 PostgreSQL integration tests after adding Slice 5 parity coverage.
+3. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 289 unit tests.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed with 71 tests before the final aggregate-state coverage additions.
+6. `make test-e2e` passed with 6 tests.
+7. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 289 unit tests, 73 integration tests, 6 e2e tests, and total
+   99% coverage.
+8. `make security-audit` passed with no known vulnerabilities.
+9. `make docker-build` built `lotus-report:ci-test`.
+10. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -CheckOnly -Repository lotus-report` reported expected wiki publication drift for
+    repo-authored wiki changes on this branch. Publication remains a post-merge action.
+11. `sgajbi/lotus-report#70` passed Feature Lane and PR Merge Gate checks after the Slice 5 push,
+    including lint/typecheck/security, unit tests, integration tests, e2e tests, combined coverage,
+    and Docker build.
+
+Review result:
+
+1. Slice 5 deliberately implements internal ledger primitives only. It does not ship scheduler,
+   worker, API, Swagger, gateway, Workbench, or operator-supported recovery capability.
+2. The critical duplicate-output risk is reduced by refusing retry reset for failed items that
+   already have a report job.
+3. The control model is intentionally item-level and bounded by retry policy rather than
+   whole-batch blind reruns.
+
+### Slice 6: APIs, Swagger, And Certification Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now exposes certified internal batch APIs for durable batch materialization,
+   status lookup, pause, resume, cancel, retry-failed, and expired-lease recovery:
+   - `POST /reports/batches`
+   - `GET /reports/batches/{batch_id}`
+   - `POST /reports/batches/{batch_id}:pause`
+   - `POST /reports/batches/{batch_id}:resume`
+   - `POST /reports/batches/{batch_id}:cancel`
+   - `POST /reports/batches/{batch_id}:retry-failed`
+   - `POST /reports/batches/{batch_id}:recover-expired-leases`
+2. `src/app/routers/report_batches.py` isolates the certified batch API boundary from internal
+   dispatch and scheduler primitives.
+3. `src/app/report_batch_orchestrator/models.py` now carries product-safe response contracts and
+   full OpenAPI examples for batch handle, batch status, item status, control, and recovery
+   responses.
+4. `src/app/routers/caller_context.py` removes duplicate caller-context validation from
+   `report_jobs.py` and reuses the same governed header enforcement for batch create, status, and
+   control endpoints.
+5. `src/app/report_batch_orchestrator/service.py` wires the PostgreSQL batch ledger through the
+   same dependency pattern used by report jobs.
+6. `docs/supported-features.md` promotes only
+   `lotus-report.reporting.batch_materialization_api.v1` and
+   `lotus-report.reporting.batch_control_api.v1` to implementation-backed status. Full
+   scheduler/worker-backed batch orchestration remains planned under separate feature keys.
+7. README, repository context, API surface wiki, operations runbook wiki, RFC index wiki,
+   RFC traceability, and the batch source map now distinguish certified APIs from remaining
+   scheduler, worker, dispatch-operator, gateway, and Workbench scope.
+
+Validation evidence:
+
+1. `python -m pytest tests/integration/test_report_batch_api.py
+   tests/unit/report_batch_orchestrator/test_boundary.py
+   tests/integration/test_api.py::test_integration_capabilities -q` passed with 9 focused tests
+   before final coverage-hardening additions.
+2. `python -m pytest tests/integration/test_report_batch_api.py -q` passed with 10 tests after
+   adding caller-context and error-branch coverage.
+3. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 289 unit tests.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed with 79 tests before final coverage-hardening additions.
+6. `make test-e2e` passed with 6 tests.
+7. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 289 unit tests, 83 integration tests, 6 e2e tests, and total
+   99% coverage. `src/app/routers/report_batches.py` and
+   `src/app/report_batch_orchestrator/service.py` both reached 100% coverage.
+8. `make security-audit` passed with no known vulnerabilities.
+9. `make docker-build` built `lotus-report:ci-test`.
+10. `docker compose up -d --build lotus-report` rebuilt the production-shaped local Docker service
+    against healthy `lotus-report-postgres`.
+11. Live Docker proof on 2026-04-26 returned OpenAPI paths for `/reports/batches`,
+    `/reports/batches/{batch_id}`, `:pause`, `:resume`, `:cancel`, `:retry-failed`, and
+    `:recover-expired-leases`, then materialized
+    `rbch_b5dc820c412f4763bf9ccb4355755447` for `PB_SG_GLOBAL_BAL_001` with
+    `status_counts={"materialized":1}`.
+12. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+    make ci` passed the composed repo-native CI gate: lint, typecheck, OpenAPI quality, PostgreSQL
+    migration smoke, integration, e2e, combined coverage, and security audit.
+13. `git diff --check` passed.
+14. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -CheckOnly -Repository lotus-report` reported expected wiki publication drift for
+    repo-authored wiki changes on this branch. Publication remains a post-merge action.
+
+Review result:
+
+1. Slice 6 deliberately exposes materialization/status/control only. It does not ship scheduled
+   execution, worker execution, dispatch operator APIs, gateway routes, or Workbench UI.
+2. The certified APIs require caller context headers and idempotency where appropriate, publish
+   OpenAPI examples, and return product-safe error codes.
+3. The implementation keeps API boundary, ledger construction, caller-context validation, internal
+   ledger primitives, docs, and tests separated. That reduces coupling before later scheduler and
+   worker slices.
+4. A stale local Python listener on `127.0.0.1:8300` initially shadowed the Docker service during
+   live proof. It was identified by port ownership, stopped, and the Docker-backed proof was rerun
+   successfully against the rebuilt container.
+
+### Slice 7: Integration With Report, Render, And Archive Evidence
+
+Implemented improvement:
+
+1. `src/app/report_batch_orchestrator/execution.py` adds an internal batch item execution bridge.
+   The bridge uses the existing RFC-0100 report job ledger, RFC-0101 snapshot capture service,
+   RFC-0102 render orchestration service, and RFC-0103 archive handoff path rather than creating a
+   second batch-specific reporting pipeline.
+2. A dispatched batch item is now reconciled from its linked `report_job_id`:
+   - `accepted` jobs are captured through the existing snapshot service.
+   - `data_ready` PDF jobs are rendered and archived through the existing render service.
+   - successful `archived`, `completed`, `completed_with_warnings`, or json-only `data_ready`
+     jobs mark the batch item `succeeded`.
+   - failed report jobs propagate failure category, retry posture, and safe summary back to the
+     batch item.
+3. `src/app/report_batch_orchestrator/ledger.py` and `postgres_ledger.py` add
+   `mark_item_succeeded`, clearing lease/retry fields, setting item completion, and reconciling
+   aggregate batch status in both the SQLite unit adapter and PostgreSQL runtime ledger.
+4. `docs/supported-features.md`, `docs/standards/rfc-traceability.md`,
+   `docs/standards/batch-orchestration-source-map.md`, `REPOSITORY-ENGINEERING-CONTEXT.md`, and
+   `wiki/RFC-Index.md` now document the internal execution bridge while keeping full
+   scheduler/runtime, dispatch operator, gateway, and Workbench scope planned.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator/test_execution.py
+   tests/unit/report_batch_orchestrator/test_dispatch.py -q` passed with 24 focused tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 298 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed against the Docker `lotus-report-postgres` service.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed with 84 PostgreSQL-backed integration tests.
+5. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make ci` passed the composed repo-native CI gate: lint, typecheck, OpenAPI quality,
+   PostgreSQL migration smoke, integration, e2e, combined coverage at 99%, and security audit.
+6. `make docker-build` built `lotus-report:ci-test`.
+7. `docker compose up -d --build lotus-report` rebuilt the production-shaped local Docker service
+   against healthy `lotus-report-postgres`; `GET /health` returned `{"status":"ok"}` on
+   `localhost:8300`.
+
+Review result:
+
+1. Slice 7 deliberately implements an internal execution bridge only. It does not ship scheduled
+   execution, a background executor, dispatch operator APIs, gateway routes, or Workbench UI.
+2. The design keeps batch execution thin by reusing the existing report-job, snapshot, render, and
+   archive orchestration path. That preserves lineage, render package behavior, archive metadata,
+   and failure taxonomy without duplicating those rules inside the batch module.
+3. Existing retry semantics remain bounded: failed items with linked report jobs are not blindly
+   requeued for duplicate job creation. Later retry execution can explicitly retry or recover the
+   linked report job without violating idempotency.
+
+### Slice 8: Documentation, Runbook, And Supportability Floor Evidence
+
+Implemented improvement:
+
+1. `lotus-report/README.md` now records the current RFC-0104 posture: certified internal batch
+   materialization/status/control APIs, internal item execution through existing report-job,
+   snapshot, render, and archive paths, and the remaining unsupported scheduler/runtime/gateway/UI
+   scope.
+2. `lotus-report/wiki/Operations-Runbook.md` now provides operator-facing truth for the current
+   first-wave batch surface: supported create/status/control actions, durable status semantics,
+   correlation/trace behavior, PostgreSQL proof expectations, and RFC-0105 observability deferrals.
+3. `lotus-report/wiki/API-Surface.md` now has copy-paste examples for all certified batch control
+   endpoints: pause, resume, cancel, retry-failed, and recover-expired-leases.
+4. `lotus-report/docs/standards/rfc-traceability.md` records Slice 8 evidence. Supported-features
+   remains split between implementation-backed first-wave batch features and planned full
+   scheduler/orchestration features.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q` passed.
+2. `git diff --check` passed.
+3. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+   -CheckOnly -Repository lotus-report` reported expected branch-local wiki publication drift for
+   `API-Surface.md`, `Operations-Runbook.md`, `RFC-Index.md`, and pre-existing
+   `Validation-and-CI.md`. Wiki publication remains a post-merge action.
+
+Review result:
+
+1. The previous runbook wording was too broad because it said batch reporting was not implemented,
+   while certified materialization/status/control APIs are now shipped. Slice 8 corrected that
+   contradiction and narrowed unsupported language to the scheduler/runtime/gateway/UI scope.
+2. The documentation now gives operators concrete examples for every currently certified batch
+   control endpoint without claiming future scheduled execution or Workbench capability.
+
+### Second-Last Slice: Hardening, Review, And Certification Evidence
+
+Implemented improvement:
+
+1. Reviewed the RFC-0104 `lotus-report` batch surface across
+   `src/app/report_batch_orchestrator/`, `src/app/routers/report_batches.py`,
+   `docs/supported-features.md`, `wiki/API-Surface.md`, and `wiki/Operations-Runbook.md`.
+2. Verified no unresolved `TODO`, `FIXME`, `HACK`, or `TBD` markers remain in the implementation
+   slice or proof ledger. Remaining unsupported behavior is intentionally documented as future
+   scheduler/runtime/gateway/Workbench scope, not hidden implementation debt.
+3. Rechecked API certification posture for `POST /reports/batches`, `GET
+   /reports/batches/{batch_id}`, and the pause/resume/cancel/retry/recovery controls:
+   - endpoints are grouped under `Report Batches`,
+   - request and response examples are present,
+   - request and response attributes are typed through Pydantic contracts,
+   - caller context and idempotency requirements are enforced,
+   - errors use product-safe codes without tracebacks.
+4. Rechecked state-transition review coverage for idempotency, dispatch leases, expired lease
+   recovery, retry boundaries, cancellation boundaries, successful item reconciliation, and failed
+   report-job propagation.
+5. Replaced the RFC proof-ledger template with concrete evidence rows so closure no longer depends
+   on placeholder proof entries.
+
+Validation evidence:
+
+1. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed in `lotus-report` with 85 PostgreSQL-backed integration tests,
+   including batch execution through snapshot, render, archive, and status reconciliation.
+2. `make check` passed in `lotus-report` with Ruff, Ruff format, monetary-float guard, mypy,
+   OpenAPI quality, and 298 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make ci` passed in `lotus-report` with lint, format, monetary-float guard, mypy, OpenAPI
+   quality, migration contract check, 85 integration tests, 6 e2e tests, 298 unit tests, combined
+   coverage at 99%, and security audit.
+4. `git diff --check` passed in both `lotus-report` and `lotus-platform`.
+5. GitHub PR `sgajbi/lotus-report#70` at commit
+   `b312512cb2640018a825ac939d544fe4bf606095` reached `CLEAN`; Feature Lane and PR Merge Gate
+   checks passed, including unit, integration, e2e, combined coverage, and Docker build.
+6. GitHub PR `sgajbi/lotus-platform#210` at commit
+   `f69fca0e1391a86badf8c88aee10d37807447b9c` reached `CLEAN`; Feature Lane, PR Merge Gate, and
+   Cross-App Vocabulary Gate passed.
+
+Review result:
+
+1. The implementation is production-grade for the first-wave RFC-0104 scope: durable internal
+   materialization/status/control APIs, deterministic schedule identity primitives, dispatch and
+   lease primitives, bounded controls, recovery primitives, and an internal item execution bridge
+   over the existing report-job, snapshot, render, and archive path.
+2. The implementation deliberately does not claim a scheduler loop, background executor, dispatch
+   operator API, gateway route, Workbench surface, or RFC-0105 observability dashboard.
+3. No code change was required in this hardening slice because the review did not find stale
+   implementation markers, unsafe API error handling, or unsupported behavior listed as shipped.
+
+### Final Slice: Closure Evidence
+
+Closure decision:
+
+1. RFC-0104 is closed for the first-wave implementation scope delivered through
+   `sgajbi/lotus-report#70` and `sgajbi/lotus-platform#210`.
+2. The closed first-wave scope includes:
+   - durable batch materialization and status APIs,
+   - explicit portfolio-list and selected-subset materialization,
+   - deterministic schedule-cycle identity primitives,
+   - PostgreSQL-backed batch/item ledger and migration proof,
+   - dispatch, lease, back-pressure, retry, pause, resume, cancel, and expired-lease recovery
+     primitives,
+   - certified internal batch materialization/status/control APIs,
+   - internal execution bridge from batch item to report job, snapshot, render, archive, and
+     status reconciliation,
+   - operator runbook and API-surface documentation for the shipped API surface.
+3. Scheduler loop, background worker runtime, dispatch operator API, gateway route, Workbench
+   surface, broad replay/rerender/regenerate tooling, RFC-0105 observability dashboard, RFC-0106
+   entitlement certification, and RFC-0107 production certification remain planned/follow-on scope
+   and are not claimed as shipped features.
+
+Documentation, wiki, context, and guidance decisions:
+
+1. `lotus-report/docs/supported-features.md` was updated to list only implementation-backed batch
+   materialization/control/internal-execution features and to keep scheduler/orchestration features
+   planned.
+2. `lotus-report/wiki/API-Surface.md` and `lotus-report/wiki/Operations-Runbook.md` were updated
+   as repo-local wiki source because operator-facing API and runbook truth changed. Publication is
+   required after merge with `Sync-RepoWikis.ps1 -Publish -Repository lotus-report`.
+3. `lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md` was updated for repository-local operating
+   truth. No additional central `lotus-platform/context/` change is required because this RFC did
+   not change platform-wide routing, canonical front-office validation, or agent operating rules.
+4. No skill changes are required. The existing `lotus-backend-delivery-governance`,
+   `lotus-pr-premerge-gate`, and platform wiki-publication guidance were sufficient for this
+   implementation. This is a deliberate no-change decision, not an omission.
+
+Final validation and branch hygiene evidence:
+
+1. Local `lotus-report` validation passed on 2026-04-26:
+   - `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+     make test-integration` passed with 85 PostgreSQL-backed integration tests.
+   - `make check` passed with Ruff, Ruff format, monetary-float guard, mypy, OpenAPI quality, and
+     298 unit tests.
+   - `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+     make ci` passed with lint, format, monetary-float guard, mypy, OpenAPI quality, migration
+     contract check, integration, e2e, 99% coverage, and security audit.
+2. GitHub PR `sgajbi/lotus-report#70` reached `CLEAN` at
+   `b312512cb2640018a825ac939d544fe4bf606095`.
+3. GitHub PR `sgajbi/lotus-platform#210` reached `CLEAN` at
+   `e3d1b6354fe2cbf3d7ecbde8259f9036fce47522`.
+4. Branch merge, remote branch deletion, and wiki publication are post-check closure actions and
+   must be completed only after this final closure evidence commit is green.
+
+Final gold-pass assessment:
+
+1. Completed: first-wave batch materialization/status/control APIs, durable ledger, schedule-cycle
+   identity primitives, dispatch and lease primitives, bounded controls, recovery primitives, and
+   internal execution bridge over the existing report-job, snapshot, render, and archive path.
+2. Quality improvements made: the implementation avoids a second batch-specific reporting
+   pipeline, centralizes selector/schedule/dispatch/execution concerns in
+   `report_batch_orchestrator`, keeps API error handling product-safe, and keeps supported-features
+   claims implementation-backed.
+3. Debt removed: RFC placeholder proof rows were replaced with concrete evidence, stale runbook
+   wording that implied no batch support existed was corrected, and unsupported scheduler/runtime
+   claims were kept out of implementation-backed feature rows.
+4. Proven: PostgreSQL-backed materialization, dispatch, controls, recovery, execution bridge,
+   snapshot persistence, render orchestration, archive handoff, OpenAPI quality, unit behavior,
+   integration behavior, e2e behavior, Docker build, coverage, and security audit.
+5. Standard reached: production-grade for the explicitly shipped first-wave scope. Not yet
+   production-complete for full scheduler/worker-backed batch orchestration, which remains planned
+   and must not be sold or documented as shipped until separately implemented and proven.
+
+## Implementation Proof Ledger
+
+The proof ledger is maintained in this RFC because RFC-0104 spans API materialization, internal
+dispatch, PostgreSQL concurrency primitives, supportability documentation, and the report-job,
+snapshot, render, and archive bridge. Evidence must stay implementation-backed and must not claim
+the later scheduler loop, background executor, gateway exposure, or Workbench UI before those slices
+ship.
 
 | Proof item | Evidence source | Command/API/artifact | Result | Follow-up |
 | --- | --- | --- | --- | --- |
-| Explicit-list batch creates items and report jobs | TBD | TBD | TBD | TBD |
-| Selected-subset batch materializes deterministic membership | TBD | TBD | TBD | TBD |
-| Duplicate submission is idempotent | TBD | TBD | TBD | TBD |
-| Concurrency limit is enforced | TBD | TBD | TBD | TBD |
-| Retry-failed-only retries only eligible failures | TBD | TBD | TBD | TBD |
-| Pause/resume/cancel semantics match API docs | TBD | TBD | TBD | TBD |
-| Expired lease recovery is safe and idempotent | TBD | TBD | TBD | TBD |
-| Successful item renders and archives document | TBD | TBD | TBD | TBD |
-| Swagger examples match runtime behavior | TBD | TBD | TBD | TBD |
-| Supported-features text is implementation-backed | TBD | TBD | TBD | TBD |
-
-`TBD` entries are acceptable while RFC-0104 is in progress. They are not acceptable at
-implementation closure.
+| Explicit-list batch creates items and report jobs | `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py` | `make check`; `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report make test-integration` | Passed locally on 2026-04-26. Explicit-list API materialization and dispatch-linked report job creation are implementation-backed. | None for first-wave materialization/control scope. |
+| Selected-subset batch materializes deterministic membership | `lotus-report/tests/unit/report_batch_orchestrator/test_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Selected candidates are filtered and ordered deterministically. | None. |
+| Duplicate submission is idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_batch_ledger.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Same idempotency key and same materialized request return the existing batch; conflicting request is rejected. | None. |
+| Concurrency limit is enforced | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Active-batch and active-item limits gate dispatch and leases. | Runtime worker loop remains a later slice. |
+| Retry-failed-only retries only eligible failures | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Only due retryable items without linked report jobs are requeued. Job-linked failures remain bounded for explicit future retry execution. | Implement job-linked retry execution in a later scheduler/worker slice. |
+| Pause/resume/cancel semantics match API docs | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/wiki/API-Surface.md` | `make check`; PostgreSQL integration gate; API surface examples | Passed locally on 2026-04-26. Controls preserve already created report jobs and cancel only eligible unstarted items. | None for current control API scope. |
+| Expired lease recovery is safe and idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Expired leases move to recovery-pending once and repeated scans are no-ops. | Scheduler/worker monitoring will consume the primitive in a later slice. |
+| Successful item renders and archives document | `lotus-report/tests/integration/test_report_batch_execution.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_execution.py` | `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report python -m pytest tests/integration/test_report_batch_execution.py -q`; full PostgreSQL integration gate | Passed locally on 2026-04-26. A dispatched batch item uses RFC-0100 report job creation, RFC-0101 snapshot persistence, RFC-0102 render orchestration, RFC-0103 archive handoff, then reconciles item and batch status. | None for internal execution bridge scope. |
+| Swagger examples match runtime behavior | `lotus-report/tests/integration/test_report_batch_api.py`; OpenAPI quality gate | `make check`; `make ci` | Passed locally on 2026-04-26. Batch create/status/control endpoints have grouped OpenAPI examples and product-safe error behavior. | Gateway exposure remains future scope. |
+| Supported-features text is implementation-backed | `lotus-report/tests/unit/report_batch_orchestrator/test_boundary.py`; `lotus-report/docs/supported-features.md` | `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q`; `make check` | Passed locally on 2026-04-26. Supported-features text distinguishes shipped first-wave APIs/internal primitives from planned scheduler/orchestration behavior. | Keep updated as future RFC-0104 slices ship. |
 
 ## Supported Features
 
-RFC-0104 currently has no implementation-backed batch reporting supported features exposed to
-operators. Slice 0 improves platform scaffolding, Slice 1 adds a `lotus-report` module boundary
-and planned batch vocabulary, Slice 2 adds internal durable batch and batch-item materialization
-primitives, and Slice 3 adds internal deterministic schedule-cycle materialization and scheduled
-idempotency identity. No slice so far adds an operator-facing batch capability.
+RFC-0104 currently has implementation-backed batch materialization/status/control APIs exposed to
+operators and implementation-backed internal support primitives for schedule-cycle identity,
+dispatch, leases, bounded controls, recovery, and item execution through existing report-job,
+snapshot, render, and archive paths. Full scheduler/worker-backed orchestration remains planned.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 

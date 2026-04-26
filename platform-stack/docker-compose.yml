@@ -105,6 +105,22 @@ services:
       start_period: 10s
     logging: *default-logging
 
+  lotus-report-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${LOTUS_REPORT_POSTGRES_DB:-lotus_report}
+      POSTGRES_USER: ${LOTUS_REPORT_POSTGRES_USER:-lotus_report}
+      POSTGRES_PASSWORD: ${LOTUS_REPORT_POSTGRES_PASSWORD:-lotus_report}
+    volumes:
+      - lotus-report-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
+    logging: *default-logging
+
   lotus-core-kafka-topic-creator:
     build:
       context: ${LOTUS_CORE_REPO_PATH}
@@ -243,9 +259,12 @@ services:
         condition: service_healthy
       lotus-performance:
         condition: service_healthy
+      lotus-report-postgres:
+        condition: service_healthy
     environment:
-      LOTUS_CORE_BASE_URL: http://lotus-core-query:8001
-      PA_BASE_URL: http://lotus-performance:8000
+      LOTUS_CORE_QUERY_BASE_URL: http://lotus-core-query:8001
+      LOTUS_PERFORMANCE_BASE_URL: http://lotus-performance:8000
+      REPORT_JOB_LEDGER_DATABASE_URL: postgresql://${LOTUS_REPORT_POSTGRES_USER:-lotus_report}:${LOTUS_REPORT_POSTGRES_PASSWORD:-lotus_report}@lotus-report-postgres:5432/${LOTUS_REPORT_POSTGRES_DB:-lotus_report}
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-report
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
@@ -347,5 +366,6 @@ services:
 volumes:
   lotus-core-postgres-data:
   lotus-manage-postgres-data:
+  lotus-report-postgres-data:
   grafana-data:
 
