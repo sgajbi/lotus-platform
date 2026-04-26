@@ -1,6 +1,6 @@
 # RFC-0104: Batch Reporting Scheduler, Concurrency, And Recovery
 
-- Status: First-Wave Implemented; Scheduler Runtime Planned
+- Status: First-Wave Worker Runtime Implemented; Scheduler/Gateway/UI Planned
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
 - Implementation started: 2026-04-26
@@ -57,9 +57,9 @@ main gaps were:
 This gold pass tightened the RFC into an implementation guide. Implementation started on
 2026-04-26 and has since delivered the first-wave durable batch ledger, control APIs, dispatch and
 recovery primitives, internal execution bridge, bounded worker primitive, certified internal
-run-once operator API, and bounded internal runtime-pass primitive. Continuous scheduler-loop and
-daemonized background-worker runtime behavior remains unimplemented until later slices explicitly
-add and prove it.
+run-once operator API, bounded internal runtime-pass primitive, and daemonized internal worker
+process. Continuous schedule-cycle materialization, gateway exposure, and Workbench surfaces remain
+unimplemented until later slices explicitly add and prove them.
 
 ## Problem
 
@@ -835,16 +835,18 @@ id, archive document id, and artifact path wherever those identifiers exist.
 
 ## Implementation Status And Evidence
 
-Current status: Slices 0 through 7 plus the bounded run-once operator API and bounded runtime-pass
-slices are implemented and merged across `lotus-platform` and `lotus-report`. The implemented
+Current status: Slices 0 through 7 plus the bounded run-once operator API, bounded runtime-pass,
+and daemonized worker-process slices are implemented across `lotus-platform` and `lotus-report`.
+The implemented
 scope includes platform scaffold guardrails, the `lotus-report` batch-orchestrator boundary,
 durable batch/item materialization, deterministic schedule-cycle materialization, dispatch, leases,
 back-pressure, retry, pause/resume/cancel, expired-lease recovery primitives, certified internal
 materialization/status/control APIs, the internal report-job/snapshot/render/archive execution
 bridge, a bounded internal worker primitive, `POST /reports/batches/{batch_id}:run-once`, and an
 internal runtime pass that scans durable runnable batches and invokes the worker for a limited
-number of batches. No continuous `lotus-report` scheduler loop, daemonized background worker
-process, gateway exposure, or Workbench batch surface is implemented yet.
+number of batches. The `lotus-report-batch-worker` process now runs that pass continuously as an
+internal service primitive. No continuous schedule-cycle materialization loop, gateway exposure, or
+Workbench batch surface is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -1199,13 +1201,12 @@ Implemented improvement:
    control endpoints.
 5. `src/app/report_batch_orchestrator/service.py` wires the PostgreSQL batch ledger through the
    same dependency pattern used by report jobs.
-6. `docs/supported-features.md` promotes only
-   `lotus-report.reporting.batch_materialization_api.v1` and
-   `lotus-report.reporting.batch_control_api.v1` to implementation-backed status. Full
-   scheduler/worker-backed batch orchestration remains planned under separate feature keys.
+6. `docs/supported-features.md` promotes only implementation-backed batch APIs and internal
+   runtime primitives to shipped status. Full scheduler-backed batch orchestration, gateway
+   exposure, and Workbench operation remain planned under separate feature keys.
 7. README, repository context, API surface wiki, operations runbook wiki, RFC index wiki,
    RFC traceability, and the batch source map now distinguish certified APIs from remaining
-   scheduler, worker, dispatch-operator, gateway, and Workbench scope.
+   scheduler, gateway, and Workbench scope.
 
 Validation evidence:
 
@@ -1302,8 +1303,8 @@ Validation evidence:
 Review result:
 
 1. Slice 7 deliberately implements an internal execution bridge only. Later slices added bounded
-   internal worker and run-once operator execution; Slice 7 itself did not ship scheduled
-   execution, a background executor, gateway routes, or Workbench UI.
+   internal worker, run-once operator execution, runtime pass, and daemonized worker-process
+   execution; Slice 7 itself did not ship scheduled execution, gateway routes, or Workbench UI.
 2. The design keeps batch execution thin by reusing the existing report-job, snapshot, render, and
    archive orchestration path. That preserves lineage, render package behavior, archive metadata,
    and failure taxonomy without duplicating those rules inside the batch module.
@@ -1391,10 +1392,11 @@ Review result:
 
 1. The implementation is production-grade for the first-wave RFC-0104 scope: durable internal
    materialization/status/control APIs, deterministic schedule identity primitives, dispatch and
-   lease primitives, bounded controls, recovery primitives, and an internal item execution bridge
-   over the existing report-job, snapshot, render, and archive path.
-2. The implementation deliberately does not claim a scheduler loop, background executor, gateway
-   route, Workbench surface, or RFC-0105 observability dashboard.
+   lease primitives, bounded controls, recovery primitives, an internal item execution bridge over
+   the existing report-job, snapshot, render, and archive path, and the daemonized internal worker
+   process over the bounded runtime pass.
+2. The implementation deliberately does not claim schedule-cycle automation, gateway route,
+   Workbench surface, or RFC-0105 observability dashboard.
 3. No code change was required in this hardening slice because the review did not find stale
    implementation markers, unsafe API error handling, or unsupported behavior listed as shipped.
 
@@ -1404,7 +1406,8 @@ Closure decision:
 
 1. RFC-0104 is closed for the first-wave implementation scope delivered through
    `sgajbi/lotus-report#70`, `sgajbi/lotus-report#73`, `sgajbi/lotus-report#74`,
-   `sgajbi/lotus-platform#210`, and `sgajbi/lotus-platform#211`.
+   `sgajbi/lotus-report#75`, `sgajbi/lotus-platform#210`, `sgajbi/lotus-platform#211`, and
+   the worker-process central proof update.
 2. The closed first-wave scope includes:
    - durable batch materialization and status APIs,
    - explicit portfolio-list and selected-subset materialization,
@@ -1419,9 +1422,10 @@ Closure decision:
      API,
    - bounded internal runtime-pass primitive that scans durable runnable batches and invokes the
      single-batch worker for a limited number of batches,
+   - daemonized internal `lotus-report-batch-worker` process over the bounded runtime pass,
    - operator runbook and API-surface documentation for the shipped API surface.
-3. Scheduler loop, daemonized background worker runtime, gateway route, Workbench surface, broad
-   replay/rerender/regenerate tooling, RFC-0105 observability dashboard, RFC-0106 entitlement
+3. Scheduler loop/schedule-cycle materialization automation, gateway route, Workbench surface,
+   broad replay/rerender/regenerate tooling, RFC-0105 observability dashboard, RFC-0106 entitlement
    certification, and RFC-0107 production certification remain planned/follow-on scope and are not
    claimed as shipped features.
 
@@ -1463,7 +1467,8 @@ Final gold-pass assessment:
    identity primitives, dispatch and lease primitives, bounded controls, recovery primitives,
    internal execution bridge over the existing report-job, snapshot, render, and archive path, and
    a bounded internal single-batch worker run primitive plus a certified internal run-once
-   operator API plus a bounded internal runtime-pass primitive.
+   operator API plus a bounded internal runtime-pass primitive and daemonized internal worker
+   process.
 2. Quality improvements made: the implementation avoids a second batch-specific reporting
    pipeline, centralizes selector/schedule/dispatch/execution concerns in
    `report_batch_orchestrator`, keeps API error handling product-safe, and keeps supported-features
@@ -1476,16 +1481,17 @@ Final gold-pass assessment:
    orchestration, archive handoff, archive retrieval, OpenAPI quality, unit behavior, integration
    behavior, e2e behavior, Docker build, coverage, and security audit.
 5. Standard reached: production-grade for the explicitly shipped first-wave scope. Not yet
-   production-complete for full scheduler/worker-backed batch orchestration, which remains planned
-   and must not be sold or documented as shipped until separately implemented and proven.
+   production-complete for full scheduler-backed batch orchestration, gateway exposure, or
+   Workbench operation, which remain planned and must not be sold or documented as shipped until
+   separately implemented and proven.
 
 ## Implementation Proof Ledger
 
 The proof ledger is maintained in this RFC because RFC-0104 spans API materialization, internal
-dispatch, PostgreSQL concurrency primitives, supportability documentation, and the report-job,
-snapshot, render, and archive bridge. Evidence must stay implementation-backed and must not claim
-the later scheduler loop, background executor, gateway exposure, or Workbench UI before those slices
-ship.
+dispatch, PostgreSQL concurrency primitives, supportability documentation, the report-job,
+snapshot, render, archive bridge, and daemonized internal worker process. Evidence must stay
+implementation-backed and must not claim the later scheduler loop, schedule-cycle automation,
+gateway exposure, or Workbench UI before those slices ship.
 
 | Proof item | Evidence source | Command/API/artifact | Result | Follow-up |
 | --- | --- | --- | --- | --- |
@@ -1496,9 +1502,10 @@ ship.
 | Retry-failed-only retries only eligible failures | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Only due retryable items without linked report jobs are requeued. Job-linked failures remain bounded for explicit future retry execution. | Implement job-linked retry execution in a later scheduler/worker slice. |
 | Pause/resume/cancel semantics match API docs | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/wiki/API-Surface.md` | `make check`; PostgreSQL integration gate; API surface examples | Passed locally on 2026-04-26. Controls preserve already created report jobs and cancel only eligible unstarted items. | None for current control API scope. |
 | Expired lease recovery is safe and idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Expired leases move to recovery-pending once and repeated scans are no-ops. | Scheduler monitoring will consume the primitive in a later slice. |
-| Bounded internal worker run coordinates recovery, dispatch, and execution | `lotus-report/src/app/report_batch_orchestrator/worker.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_worker.py` | `python -m pytest tests/unit/report_batch_orchestrator/test_worker.py -q`; `make check`; PostgreSQL batch integration gate | Passed locally on 2026-04-26. A runnable batch dispatches and executes, paused batches are no-ops, and already waiting items can progress even when new dispatch is back-pressured. | Scheduler loop, background worker runtime, gateway exposure, and Workbench UI remain future scope. |
-| Bounded run-once operator API advances one batch through render and archive | `lotus-report/src/app/routers/report_batches.py`; `lotus-report/src/app/report_batch_orchestrator/service.py`; `lotus-report/src/app/report_batch_orchestrator/worker.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL batch integration gate; live API proof against local Docker stack; GitHub PR `sgajbi/lotus-report#73` | Passed on 2026-04-26. `POST /reports/batches/{batch_id}:run-once` accepts explicit worker identity, optional runtime load, and optional dispatch policy; live proof produced `batch_id=rbch_3853938b2ae04ae9a3365398af6106b1`, `report_job_id=rjob_1f2e440a983d43f896caf6afd40e2bc2`, `snapshot_id=rsnap_931f2582ba4a49668a2563112d968b32`, and `archive_document_id=doc_4dd092d340bc455cb90bf0513b2a3cbc`; DB rows reconciled batch completed, item succeeded, job archived, and snapshot complete; archive metadata and PDF download were retrieved. | Scheduler loop, daemonized background worker process, gateway exposure, Workbench UI, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain future scope. |
-| Bounded runtime pass scans durable runnable batches | `lotus-report/src/app/report_batch_orchestrator/runtime.py`; `lotus-report/src/app/report_batch_orchestrator/ledger.py`; `lotus-report/src/app/report_batch_orchestrator/postgres_ledger.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_runtime.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py` | `make check`; PostgreSQL batch integration gate; migration smoke; live runtime-pass proof against local Docker stack; GitHub PR `sgajbi/lotus-report#74` | Passed on 2026-04-26. The runtime pass scans durable materialized/running batches with runnable item state, excludes paused/terminal batches, stops on no-progress back-pressure, and invokes the existing worker for a bounded number of batches. Live proof scanned `batch_id=rbch_c2dc42940622452cbe00c4dac1cb834b`, moved it to completed, linked `report_job_id=rjob_a62777e85fb4487091c9cae0e23490d8`, persisted `snapshot_id=rsnap_5d0ace57f7e54de298c0eb914aedb947`, archived `archive_document_id=doc_f6db8cba0ba843bbbf2553dadb79b4d4`, and downloaded the PDF with checksum headers. | Scheduler loop, daemonized background worker process, gateway exposure, Workbench UI, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain future scope. |
+| Bounded internal worker run coordinates recovery, dispatch, and execution | `lotus-report/src/app/report_batch_orchestrator/worker.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_worker.py` | `python -m pytest tests/unit/report_batch_orchestrator/test_worker.py -q`; `make check`; PostgreSQL batch integration gate | Passed locally on 2026-04-26. A runnable batch dispatches and executes, paused batches are no-ops, and already waiting items can progress even when new dispatch is back-pressured. | Scheduler loop, gateway exposure, and Workbench UI remain future scope. |
+| Bounded run-once operator API advances one batch through render and archive | `lotus-report/src/app/routers/report_batches.py`; `lotus-report/src/app/report_batch_orchestrator/service.py`; `lotus-report/src/app/report_batch_orchestrator/worker.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL batch integration gate; live API proof against local Docker stack; GitHub PR `sgajbi/lotus-report#73` | Passed on 2026-04-26. `POST /reports/batches/{batch_id}:run-once` accepts explicit worker identity, optional runtime load, and optional dispatch policy; live proof produced `batch_id=rbch_3853938b2ae04ae9a3365398af6106b1`, `report_job_id=rjob_1f2e440a983d43f896caf6afd40e2bc2`, `snapshot_id=rsnap_931f2582ba4a49668a2563112d968b32`, and `archive_document_id=doc_4dd092d340bc455cb90bf0513b2a3cbc`; DB rows reconciled batch completed, item succeeded, job archived, and snapshot complete; archive metadata and PDF download were retrieved. | Scheduler loop, gateway exposure, Workbench UI, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain future scope. |
+| Bounded runtime pass scans durable runnable batches | `lotus-report/src/app/report_batch_orchestrator/runtime.py`; `lotus-report/src/app/report_batch_orchestrator/ledger.py`; `lotus-report/src/app/report_batch_orchestrator/postgres_ledger.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_runtime.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py` | `make check`; PostgreSQL batch integration gate; migration smoke; live runtime-pass proof against local Docker stack; GitHub PR `sgajbi/lotus-report#74` | Passed on 2026-04-26. The runtime pass scans durable materialized/running batches with runnable item state, excludes paused/terminal batches, stops on no-progress back-pressure, and invokes the existing worker for a bounded number of batches. Live proof scanned `batch_id=rbch_c2dc42940622452cbe00c4dac1cb834b`, moved it to completed, linked `report_job_id=rjob_a62777e85fb4487091c9cae0e23490d8`, persisted `snapshot_id=rsnap_5d0ace57f7e54de298c0eb914aedb947`, archived `archive_document_id=doc_f6db8cba0ba843bbbf2553dadb79b4d4`, and downloaded the PDF with checksum headers. | Scheduler loop, gateway exposure, Workbench UI, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain future scope. |
+| Daemonized internal worker process runs the bounded runtime pass | `lotus-report/src/app/report_batch_orchestrator/process.py`; `lotus-report/docker-compose.yml`; `lotus-report/tests/unit/report_batch_orchestrator/test_process.py`; `lotus-report/tests/unit/test_docker_compose_runtime.py`; `lotus-report/docs/standards/rfc-traceability.md` | `make check`; PostgreSQL batch integration gate; migration smoke; `PYTHONPATH=src python -W error::RuntimeWarning -m app.report_batch_orchestrator.process --help`; `docker compose config --quiet`; `docker compose build lotus-report lotus-report-batch-worker`; live canonical-stack proof; GitHub PR `sgajbi/lotus-report#75` | Passed on 2026-04-26. The `lotus-report-batch-worker` service repeatedly invokes the bounded runtime pass with configured worker identity, interval, batch limit, lease policy, and back-pressure limits. Live proof created `batch_id=rbch_93e51832cec949138d2b7b76194acd69` through `POST /reports/batches`; the daemon pass `corr-batch-worker-1-2cacc4d7fe30` completed it without the `:run-once` API, linked `report_job_id=rjob_0aad4adaf9744c4bbc3fdb6ed564ea05`, persisted `snapshot_id=rsnap_d982fc2ec35c4c37abedea42a5529c96`, archived `archive_document_id=doc_6529f8c0cf304d41868455c3554a88bb`, and downloaded a 231518-byte PDF with SHA-256 `2cc8a04f0d314ecccf2b05713503176d4bb49015126ecfc70ab41f25bb68f55b`. | Scheduler loop/schedule-cycle automation, gateway exposure, Workbench UI, RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain future scope. |
 | Successful item renders and archives document | `lotus-report/tests/integration/test_report_batch_execution.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_execution.py` | `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report python -m pytest tests/integration/test_report_batch_execution.py -q`; full PostgreSQL integration gate | Passed locally on 2026-04-26. A dispatched batch item uses RFC-0100 report job creation, RFC-0101 snapshot persistence, RFC-0102 render orchestration, RFC-0103 archive handoff, then reconciles item and batch status. | None for internal execution bridge scope. |
 | Swagger examples match runtime behavior | `lotus-report/tests/integration/test_report_batch_api.py`; OpenAPI quality gate | `make check`; `make ci` | Passed locally on 2026-04-26. Batch create/status/control endpoints have grouped OpenAPI examples and product-safe error behavior. | Gateway exposure remains future scope. |
 | Supported-features text is implementation-backed | `lotus-report/tests/unit/report_batch_orchestrator/test_boundary.py`; `lotus-report/docs/supported-features.md` | `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q`; `make check` | Passed locally on 2026-04-26. Supported-features text distinguishes shipped first-wave APIs/internal primitives from planned scheduler/orchestration behavior. | Keep updated as future RFC-0104 slices ship. |
@@ -1508,9 +1515,10 @@ ship.
 RFC-0104 currently has implementation-backed batch materialization/status/control APIs exposed to
 operators and implementation-backed internal support primitives for schedule-cycle identity,
 dispatch, leases, bounded controls, recovery, bounded single-batch worker runs, a certified
-internal run-once operator API, bounded internal runtime-pass scans, and item execution through
-existing report-job, snapshot, render, and archive paths. Full scheduler and daemonized
-background-worker orchestration remains planned.
+internal run-once operator API, bounded internal runtime-pass scans, daemonized internal worker
+process execution, and item execution through existing report-job, snapshot, render, and archive
+paths. Full scheduler-backed orchestration, gateway exposure, and Workbench operation remain
+planned.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 

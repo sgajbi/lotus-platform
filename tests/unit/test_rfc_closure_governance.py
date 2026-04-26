@@ -328,7 +328,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: first-wave implemented; scheduler runtime planned",
+        "- status: first-wave worker runtime implemented; scheduler/gateway/ui planned",
         "gold-pass hardened: 2026-04-26",
         "implementation started: 2026-04-26",
         "first-wave implementation proof completed: 2026-04-26",
@@ -365,9 +365,9 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "final slice: closure",
         "supported features",
         "implementation-backed batch materialization/status/control apis",
-        "daemonized background-worker runtime behavior",
+        "daemonized internal worker process",
         "implementation status and evidence",
-        "slices 0 through 7 plus the bounded run-once operator api and bounded runtime-pass",
+        "slices 0 through 7 plus the bounded run-once operator api, bounded runtime-pass,",
         "generated openapi quality gate now checks every generated operation",
         "src/app/report_batch_orchestrator/",
         "batch_runtime_supported = false",
@@ -391,6 +391,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "sgajbi/lotus-report#70",
         "sgajbi/lotus-report#73",
         "sgajbi/lotus-report#74",
+        "sgajbi/lotus-report#75",
         "sgajbi/lotus-platform#210",
         "sgajbi/lotus-platform#211",
         "b312512cb2640018a825ac939d544fe4bf606095",
@@ -402,6 +403,9 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "gold-pass readiness assessment",
         "second gold-pass additions",
         "final gold-pass assessment",
+        "rbch_93e51832cec949138d2b7b76194acd69",
+        "rjob_0aad4adaf9744c4bbc3fdb6ed564ea05",
+        "doc_6529f8c0cf304d41868455c3554a88bb",
     ]:
         assert expected in text
 
