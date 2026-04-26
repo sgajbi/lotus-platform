@@ -258,6 +258,7 @@ def test_rfc_0103_records_supported_scope_closure_and_deferrals() -> None:
         "critical review outcome",
         "gold-pass readiness assessment",
         "implementation evidence and closure",
+        "post-implementation slice audit",
         "gold-pass assessment",
         "locked first-wave decisions",
         "conditional decisions",
@@ -296,6 +297,9 @@ def test_rfc_0103_records_supported_scope_closure_and_deferrals() -> None:
         "`lotus-report` hands successful rendered pdf artifacts to `lotus-archive`",
         "`lotus-gateway` exposes the product-facing archived document metadata and download facade",
         "workbench retrieval remains deliberately unsupported",
+        "material issue found in\nthis audit was documentation drift",
+        "service runbook now states report handoff and gateway retrieval are supported",
+        "documentation-posture tests now guard those exact claims",
         "no placeholder mesh product was added for",
     ]:
         assert expected in text
