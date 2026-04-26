@@ -62,10 +62,10 @@
 - [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
   in progress; first-wave durable batch materialization/status/control APIs, deterministic
   schedule-cycle identity, dispatch/lease/back-pressure, retry/recovery controls, internal
-  execution bridge, bounded worker primitive, and certified internal run-once operator API are
-  implemented, with scheduler loop, background worker process, gateway exposure, Workbench surface,
-  RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
-  certification still pending
+  execution bridge, bounded worker primitive, certified internal run-once operator API, and bounded
+  internal runtime-pass primitive are implemented, with scheduler loop, daemonized background
+  worker process, gateway exposure, Workbench surface, RFC-0105 dashboards/replay, RFC-0106
+  security certification, and RFC-0107 production certification still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
   rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
@@ -149,8 +149,8 @@
   relationships, `lotus-report` handoff, and `lotus-gateway` retrieval. Workbench retrieval remains
   deferred until a concrete gateway-backed product surface is approved. RFC-0104 is in progress
   with first-wave durable batch materialization/status/control, deterministic schedule identity,
-  dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, and
-  certified internal run-once operator API implemented. Continuous scheduler loop, background
-  worker process, gateway exposure, and Workbench batch UI remain pending. RFC-0105 through
-  RFC-0107 remain the next reporting architecture RFCs for observability/operations, security, and
-  production certification.
+  dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, certified
+  internal run-once operator API, and bounded internal runtime-pass primitive implemented.
+  Continuous scheduler loop, daemonized background worker process, gateway exposure, and Workbench
+  batch UI remain pending. RFC-0105 through RFC-0107 remain the next reporting architecture RFCs
+  for observability/operations, security, and production certification.
