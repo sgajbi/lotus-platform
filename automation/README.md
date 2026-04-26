@@ -1223,4 +1223,4 @@ same workflow.
 Scaffolded backend repositories now also default to:
 - repo-local virtualenv bootstrap through `make install`
 - repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
-- baseline health, readiness, metrics, correlation-id, OpenAPI quality, coverage gate, and wiki-source posture from day one
+- baseline health, readiness, metrics, correlation-id and trace-id propagation, OpenAPI quality, coverage gate, and wiki-source posture from day one

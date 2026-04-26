@@ -195,11 +195,12 @@ Boundary rules:
     gateway scheduler administration plus Workbench gateway-backed explicit single-portfolio batch
     operation across the sibling repos. RFC-0105 observability/replay, RFC-0106 security
     certification, and RFC-0107 production certification remain pending.
-36. RFC-0105 is tightened after RFC-0104 closure and remains implementation-not-started. Platform
-    truth now says RFC-0105 may consume RFC-0104 batch, gateway, Workbench, and scheduler-admin
-    identifiers as source-backed observability inputs, but the first implementation wave must start
-    with observability contracts/operator lookup and data-protection proof before mutating
-    rerender/regenerate/replay commands.
+36. RFC-0105 implementation has started after RFC-0104 closure with Slice 0 platform scaffold
+    hardening. Platform truth now says RFC-0105 may consume RFC-0104 batch, gateway, Workbench, and
+    scheduler-admin identifiers as source-backed observability inputs; future FastAPI service
+    scaffolds now default to correlation-id plus trace-id propagation. The next implementation wave
+    must continue with reporting observability contracts/operator lookup and data-protection proof
+    before mutating rerender/regenerate/replay commands.
 
 ## Repo-Native Commands
 

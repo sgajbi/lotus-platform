@@ -203,11 +203,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Workbench gateway/BFF-backed explicit single-portfolio batch operation. RFC-0105
    dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain
    pending later work.
-11. RFC-0105 is tightened after RFC-0104 closure but implementation is not started. It may consume
-    RFC-0104 durable batch, gateway, Workbench, and scheduler-administration identifiers as
-    source-backed observability inputs. The first implementation wave should start with
-    observability contracts, trace/log/operator lookup, and data-protection proof before mutating
-    rerender, regenerate, or replay commands.
+11. RFC-0105 implementation has started with Slice 0 platform scaffold hardening after RFC-0104
+    closure. It may consume RFC-0104 durable batch, gateway, Workbench, and scheduler-administration
+    identifiers as source-backed observability inputs. The platform scaffold now defaults future
+    FastAPI services to correlation-id plus trace-id propagation. The next implementation wave
+    should continue with observability contracts, trace/log/operator lookup, and data-protection
+    proof before mutating rerender, regenerate, or replay commands.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

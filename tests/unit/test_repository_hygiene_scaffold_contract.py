@@ -59,6 +59,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "include_in_schema=False" in scaffold_script
     assert 'tags=["Health"]' in scaffold_script
     assert 'tags=["Metadata"]' in scaffold_script
+    assert 'require_response_headers = @("x-correlation-id", "x-trace-id")' in scaffold_script
+    assert '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")' in scaffold_script
+    assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
     assert "coverage-gate:" in makefile_template
@@ -123,6 +126,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
+    correlation_middleware = (repo_root / "src/app/middleware/correlation.py").read_text(
+        encoding="utf-8"
+    )
+    health_tests = (repo_root / "tests/integration/test_health.py").read_text(encoding="utf-8")
     openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
@@ -143,6 +150,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert 'summary="Get service health"' in main_py
     assert 'summary="Get readiness"' in main_py
     assert 'tags=["Metadata"]' in main_py
+    assert 'request.state.correlation_id = correlation_id' in correlation_middleware
+    assert 'request.state.trace_id = trace_id' in correlation_middleware
+    assert 'response.headers["X-Correlation-Id"] = correlation_id' in correlation_middleware
+    assert 'response.headers["X-Trace-Id"] = trace_id' in correlation_middleware
+    assert "test_correlation_and_trace_header_propagation" in health_tests
+    assert "test_correlation_and_trace_headers_are_generated" in health_tests
     assert "missing summary" in openapi_gate
     assert "missing success response example" in openapi_gate
     assert (

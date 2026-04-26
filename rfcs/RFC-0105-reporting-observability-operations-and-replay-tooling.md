@@ -430,6 +430,15 @@ Acceptance criteria:
 3. tests or validation commands prove the scaffold/automation changes,
 4. RFC records explicit no-change decisions for any scaffold area reviewed but not changed.
 
+Slice 0 implementation note, 2026-04-26: the platform scaffold already generated health,
+liveness, readiness, metadata, Prometheus metrics, OpenAPI quality, coverage, wiki-source, and
+correlation-id middleware/test baselines. The implemented Slice 0 platform change strengthens the
+repeatable baseline by adding trace-id propagation to generated FastAPI services, generated
+integration tests, default QA-matrix response-header expectations, and default required log-pattern
+registration. No scaffold changes were made for product-safe error models, replay commands, or
+dashboard provisioning in this slice because those require source-backed reporting contracts in
+later RFC-0105 implementation slices.
+
 ### Slice 1: Cleanup And Structure
 
 Purpose: prepare the reporting repos for maintainable observability implementation.
@@ -783,12 +792,14 @@ Required validation includes:
 
 ## Implementation Proof Ledger
 
-The proof ledger starts empty because implementation has not begun.
+The proof ledger records implementation-backed evidence only. Candidate observability features
+remain unpromoted until source-backed reporting services and live cross-service proof exist.
 
 | Slice | Evidence source | Command/API/artifact | Result | Follow-up |
 | --- | --- | --- | --- | --- |
 | Pre-implementation gold pass | This RFC revision | RFC tightened before implementation | Ready for implementation planning | Do not promote supported features until implementation-backed proof exists. |
 | RFC-0104 closure alignment | RFC-0104 closure evidence; report PR `sgajbi/lotus-report#78`; gateway PR `sgajbi/lotus-gateway#152`; platform PR `sgajbi/lotus-platform#219` | Reviewed after RFC-0104 first-wave closure | RFC-0105 may consume RFC-0104 batch, gateway, Workbench, and scheduler-admin identifiers as source-backed observability inputs | First implementation wave must start with observability contracts/operator lookup before mutating rerender/regenerate/replay commands. |
+| Slice 0 platform scaffold | `automation/New-Lotus-Service.ps1`, `tests/unit/test_repository_hygiene_scaffold_contract.py`, `automation/README.md` | `python -m pytest tests/unit/test_repository_hygiene_scaffold_contract.py -q` | Generated-service contract proves correlation-id plus trace-id propagation, generated fallback headers, QA-matrix header defaults, and trace log-pattern default for future scaffolded services | Continue with reporting-repo cleanup and source-backed observability contracts before replay/rerender/regenerate commands. |
 
 ## Final Gold-Pass Assessment Placeholder
 
