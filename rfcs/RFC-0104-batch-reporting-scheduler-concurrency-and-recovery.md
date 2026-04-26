@@ -1339,6 +1339,59 @@ Review result:
 2. The documentation now gives operators concrete examples for every currently certified batch
    control endpoint without claiming future scheduled execution or Workbench capability.
 
+### Second-Last Slice: Hardening, Review, And Certification Evidence
+
+Implemented improvement:
+
+1. Reviewed the RFC-0104 `lotus-report` batch surface across
+   `src/app/report_batch_orchestrator/`, `src/app/routers/report_batches.py`,
+   `docs/supported-features.md`, `wiki/API-Surface.md`, and `wiki/Operations-Runbook.md`.
+2. Verified no unresolved `TODO`, `FIXME`, `HACK`, or `TBD` markers remain in the implementation
+   slice or proof ledger. Remaining unsupported behavior is intentionally documented as future
+   scheduler/runtime/gateway/Workbench scope, not hidden implementation debt.
+3. Rechecked API certification posture for `POST /reports/batches`, `GET
+   /reports/batches/{batch_id}`, and the pause/resume/cancel/retry/recovery controls:
+   - endpoints are grouped under `Report Batches`,
+   - request and response examples are present,
+   - request and response attributes are typed through Pydantic contracts,
+   - caller context and idempotency requirements are enforced,
+   - errors use product-safe codes without tracebacks.
+4. Rechecked state-transition review coverage for idempotency, dispatch leases, expired lease
+   recovery, retry boundaries, cancellation boundaries, successful item reconciliation, and failed
+   report-job propagation.
+5. Replaced the RFC proof-ledger template with concrete evidence rows so closure no longer depends
+   on placeholder proof entries.
+
+Validation evidence:
+
+1. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed in `lotus-report` with 85 PostgreSQL-backed integration tests,
+   including batch execution through snapshot, render, archive, and status reconciliation.
+2. `make check` passed in `lotus-report` with Ruff, Ruff format, monetary-float guard, mypy,
+   OpenAPI quality, and 298 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make ci` passed in `lotus-report` with lint, format, monetary-float guard, mypy, OpenAPI
+   quality, migration contract check, 85 integration tests, 6 e2e tests, 298 unit tests, combined
+   coverage at 99%, and security audit.
+4. `git diff --check` passed in both `lotus-report` and `lotus-platform`.
+5. GitHub PR `sgajbi/lotus-report#70` at commit
+   `b312512cb2640018a825ac939d544fe4bf606095` reached `CLEAN`; Feature Lane and PR Merge Gate
+   checks passed, including unit, integration, e2e, combined coverage, and Docker build.
+6. GitHub PR `sgajbi/lotus-platform#210` at commit
+   `f69fca0e1391a86badf8c88aee10d37807447b9c` reached `CLEAN`; Feature Lane, PR Merge Gate, and
+   Cross-App Vocabulary Gate passed.
+
+Review result:
+
+1. The implementation is production-grade for the first-wave RFC-0104 scope: durable internal
+   materialization/status/control APIs, deterministic schedule identity primitives, dispatch and
+   lease primitives, bounded controls, recovery primitives, and an internal item execution bridge
+   over the existing report-job, snapshot, render, and archive path.
+2. The implementation deliberately does not claim a scheduler loop, background executor, dispatch
+   operator API, gateway route, Workbench surface, or RFC-0105 observability dashboard.
+3. No code change was required in this hardening slice because the review did not find stale
+   implementation markers, unsafe API error handling, or unsupported behavior listed as shipped.
+
 ## Implementation Proof Ledger
 
 The proof ledger is maintained in this RFC because RFC-0104 spans API materialization, internal
