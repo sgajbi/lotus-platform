@@ -1,9 +1,10 @@
 # RFC-0104: Batch Reporting Scheduler, Concurrency, And Recovery
 
-- Status: In Progress
+- Status: First-Wave Implemented; Scheduler Runtime Planned
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
 - Implementation started: 2026-04-26
+- First-wave implementation proof completed: 2026-04-26
 - Owners:
   - `lotus-report` owners
   - `lotus-platform` operations
@@ -1391,6 +1392,79 @@ Review result:
    operator API, gateway route, Workbench surface, or RFC-0105 observability dashboard.
 3. No code change was required in this hardening slice because the review did not find stale
    implementation markers, unsafe API error handling, or unsupported behavior listed as shipped.
+
+### Final Slice: Closure Evidence
+
+Closure decision:
+
+1. RFC-0104 is closed for the first-wave implementation scope delivered through
+   `sgajbi/lotus-report#70` and `sgajbi/lotus-platform#210`.
+2. The closed first-wave scope includes:
+   - durable batch materialization and status APIs,
+   - explicit portfolio-list and selected-subset materialization,
+   - deterministic schedule-cycle identity primitives,
+   - PostgreSQL-backed batch/item ledger and migration proof,
+   - dispatch, lease, back-pressure, retry, pause, resume, cancel, and expired-lease recovery
+     primitives,
+   - certified internal batch materialization/status/control APIs,
+   - internal execution bridge from batch item to report job, snapshot, render, archive, and
+     status reconciliation,
+   - operator runbook and API-surface documentation for the shipped API surface.
+3. Scheduler loop, background worker runtime, dispatch operator API, gateway route, Workbench
+   surface, broad replay/rerender/regenerate tooling, RFC-0105 observability dashboard, RFC-0106
+   entitlement certification, and RFC-0107 production certification remain planned/follow-on scope
+   and are not claimed as shipped features.
+
+Documentation, wiki, context, and guidance decisions:
+
+1. `lotus-report/docs/supported-features.md` was updated to list only implementation-backed batch
+   materialization/control/internal-execution features and to keep scheduler/orchestration features
+   planned.
+2. `lotus-report/wiki/API-Surface.md` and `lotus-report/wiki/Operations-Runbook.md` were updated
+   as repo-local wiki source because operator-facing API and runbook truth changed. Publication is
+   required after merge with `Sync-RepoWikis.ps1 -Publish -Repository lotus-report`.
+3. `lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md` was updated for repository-local operating
+   truth. No additional central `lotus-platform/context/` change is required because this RFC did
+   not change platform-wide routing, canonical front-office validation, or agent operating rules.
+4. No skill changes are required. The existing `lotus-backend-delivery-governance`,
+   `lotus-pr-premerge-gate`, and platform wiki-publication guidance were sufficient for this
+   implementation. This is a deliberate no-change decision, not an omission.
+
+Final validation and branch hygiene evidence:
+
+1. Local `lotus-report` validation passed on 2026-04-26:
+   - `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+     make test-integration` passed with 85 PostgreSQL-backed integration tests.
+   - `make check` passed with Ruff, Ruff format, monetary-float guard, mypy, OpenAPI quality, and
+     298 unit tests.
+   - `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+     make ci` passed with lint, format, monetary-float guard, mypy, OpenAPI quality, migration
+     contract check, integration, e2e, 99% coverage, and security audit.
+2. GitHub PR `sgajbi/lotus-report#70` reached `CLEAN` at
+   `b312512cb2640018a825ac939d544fe4bf606095`.
+3. GitHub PR `sgajbi/lotus-platform#210` reached `CLEAN` at
+   `e3d1b6354fe2cbf3d7ecbde8259f9036fce47522`.
+4. Branch merge, remote branch deletion, and wiki publication are post-check closure actions and
+   must be completed only after this final closure evidence commit is green.
+
+Final gold-pass assessment:
+
+1. Completed: first-wave batch materialization/status/control APIs, durable ledger, schedule-cycle
+   identity primitives, dispatch and lease primitives, bounded controls, recovery primitives, and
+   internal execution bridge over the existing report-job, snapshot, render, and archive path.
+2. Quality improvements made: the implementation avoids a second batch-specific reporting
+   pipeline, centralizes selector/schedule/dispatch/execution concerns in
+   `report_batch_orchestrator`, keeps API error handling product-safe, and keeps supported-features
+   claims implementation-backed.
+3. Debt removed: RFC placeholder proof rows were replaced with concrete evidence, stale runbook
+   wording that implied no batch support existed was corrected, and unsupported scheduler/runtime
+   claims were kept out of implementation-backed feature rows.
+4. Proven: PostgreSQL-backed materialization, dispatch, controls, recovery, execution bridge,
+   snapshot persistence, render orchestration, archive handoff, OpenAPI quality, unit behavior,
+   integration behavior, e2e behavior, Docker build, coverage, and security audit.
+5. Standard reached: production-grade for the explicitly shipped first-wave scope. Not yet
+   production-complete for full scheduler/worker-backed batch orchestration, which remains planned
+   and must not be sold or documented as shipped until separately implemented and proven.
 
 ## Implementation Proof Ledger
 
