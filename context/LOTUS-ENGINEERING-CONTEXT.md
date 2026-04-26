@@ -190,9 +190,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    quality gate that checks summaries, descriptions, tags, response descriptions, 2xx responses,
    and success examples. Slice 1 adds the `lotus-report` `report_batch_orchestrator` module
    boundary and planned selector/frequency vocabulary while keeping
-   `BATCH_RUNTIME_SUPPORTED = False`. These slices are platform and structure baselines only;
-   `lotus-report` batch scheduler, ledger, worker, API, retry, and recovery runtime behavior remain
-   pending later RFC-0104 slices.
+   `BATCH_RUNTIME_SUPPORTED = False`. Slice 2 adds internal durable `report_batch` and
+   `report_batch_item` materialization for explicit portfolio lists and selected subsets, with
+   source-backed validation and idempotent duplicate prevention. These slices are platform,
+   structure, and internal ledger baselines only; `lotus-report` batch scheduler, worker, API,
+   retry, and recovery runtime behavior remain pending later RFC-0104 slices.
 11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

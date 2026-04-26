@@ -831,9 +831,10 @@ id, archive document id, and artifact path wherever those identifiers exist.
 
 ## Implementation Status And Evidence
 
-Current status: Slices 0 and 1 are implemented and merged. Slice 0 is implemented in
-`lotus-platform` and Slice 1 is implemented in `lotus-report`. No `lotus-report` batch scheduler,
-batch ledger, worker, API, or runtime behavior is implemented yet.
+Current status: Slices 0, 1, and 2 are implemented and merged. Slice 0 is implemented in
+`lotus-platform`; Slices 1 and 2 are implemented in `lotus-report`. No `lotus-report` batch
+scheduler, worker, API, retry, pause, resume, cancel, or recovery runtime behavior is implemented
+yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -938,6 +939,67 @@ Review result:
 4. The next slice may start only after this platform evidence update is merged, platform checks are
    green, and the platform wiki is synchronized.
 
+### Slice 2: Batch Ledger, Selectors, And Idempotent Materialization Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has source-backed batch materialization primitives in
+   `src/app/report_batch_orchestrator/models.py`, `selector.py`, `ledger.py`, and
+   `postgres_ledger.py`.
+2. Explicit portfolio-list and selected-subset selectors are implemented first. They validate
+   tenant, region, active/inactive portfolio status, duplicate requested portfolios, duplicate
+   source candidates, unsupported selector modes, empty selectors, missing portfolios, and maximum
+   batch size.
+3. `migrations/007_report_batch_ledger.sql` adds durable `report_batch` and `report_batch_item`
+   tables with idempotency uniqueness, batch-item uniqueness, status constraints, and operational
+   indexes.
+4. Batch creation is idempotent by caller key and canonical request hash. Duplicate compatible
+   submissions return the existing batch and items; duplicate incompatible submissions raise a
+   deterministic conflict.
+5. Batch items are materialized before any dispatch behavior exists. Slice 2 does not create
+   `report_job` rows, does not run a scheduler, and does not expose batch APIs.
+6. `docs/standards/batch-orchestration-source-map.md` maps batch attributes to `lotus-core`,
+   `lotus-report` caller request data, and `lotus-report` derived composition logic, while
+   recording source gaps for `all_active_portfolios` and `batch_manifest`.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed with 19 tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 256 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed with 63 tests.
+5. `make test-e2e` passed with 6 tests.
+6. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed the 99% coverage gate.
+7. `make security-audit` passed with no known vulnerabilities.
+8. `make docker-build` built `lotus-report:ci-test`.
+9. `git diff --check` passed for the Slice 2 branch.
+10. `sgajbi/lotus-report#68` passed Feature Lane checks and PR Merge Gate checks, including
+    workflow lint, lint/typecheck/security, unit tests, integration tests, e2e tests, combined
+    coverage, and Docker build.
+11. `sgajbi/lotus-report#68` merged at
+    `f6587fc8bc1f58ea5cc812553817cc4fe5d7c428`.
+12. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -Publish -Repository lotus-report` published the `lotus-report` wiki source.
+13. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -CheckOnly -Repository lotus-report` reported zero wiki drift after publication.
+
+Review result:
+
+1. Slice 2 deliberately stops at durable materialization. It does not leak unsupported scheduler,
+   worker, API, dispatch, retry, pause/resume/cancel, or recovery behavior into product
+   documentation.
+2. The implementation is modular: source-backed selection, durable ledger behavior, PostgreSQL
+   schema, migration governance, source mapping, and tests are separated.
+3. Duplicate prevention is implemented before dispatch, which reduces later Slice 4 complexity when
+   batch items begin creating or reusing report jobs.
+4. The next slice may start only after this platform evidence update is merged, platform checks are
+   green, and the platform wiki is synchronized.
+
 ## Implementation Proof Ledger Template
 
 The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
@@ -961,9 +1023,10 @@ implementation closure.
 
 ## Supported Features
 
-RFC-0104 currently has no implementation-backed batch reporting supported features. Slice 0
-improves platform scaffolding and Slice 1 adds only a `lotus-report` module boundary and planned
-batch vocabulary. Neither slice adds an operator-facing batch capability.
+RFC-0104 currently has no implementation-backed batch reporting supported features exposed to
+operators. Slice 0 improves platform scaffolding, Slice 1 adds a `lotus-report` module boundary
+and planned batch vocabulary, and Slice 2 adds internal durable batch and batch-item materialization
+primitives. No slice so far adds an operator-facing batch capability.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 
