@@ -65,9 +65,10 @@
   execution bridge, bounded worker primitive, certified internal run-once operator API, and bounded
   internal runtime-pass primitive plus daemonized internal worker and scheduler processes,
   explicit/all-active/inline-manifest scheduler selectors, and gateway-facing batch
-  materialization/status/control/operator-run APIs are implemented, with Workbench surface,
-  gateway-facing scheduler administration, RFC-0105 dashboards/replay, RFC-0106 security
-  certification, and RFC-0107 production certification still pending
+  materialization/status/control/operator-run APIs plus Workbench gateway-backed explicit
+  single-portfolio batch operation are implemented, with gateway-facing scheduler administration,
+  RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
+  certification still pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   gold-pass ready with implementation not started; reporting observability, operator APIs, replay,
   rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API certification
@@ -92,8 +93,8 @@
    archival scope. RFC-0104 is in progress with durable materialization/status/control,
    deterministic schedule identity, dispatch/recovery, internal execution, bounded worker,
    run-once operator API, runtime-pass, worker-process, scheduler-process, scheduler-selector, and
-   gateway API slices implemented; continue RFC-0104 Workbench and scheduler-administration slices
-   before RFC-0105, RFC-0106, then RFC-0107.
+   gateway API plus Workbench operation slices implemented; continue RFC-0104
+   scheduler-administration slices before RFC-0105, RFC-0106, then RFC-0107.
 3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
@@ -156,6 +157,7 @@
   dispatch/recovery primitives, an internal execution bridge, bounded worker primitive, certified
   internal run-once operator API, bounded internal runtime-pass primitive, and daemonized internal
   worker and scheduler processes with explicit/all-active/inline-manifest scheduler selectors plus
-  gateway-facing batch materialization/status/control/operator-run APIs implemented. Workbench batch
-  UI, gateway-facing scheduler administration, RFC-0105 observability/operations, RFC-0106 security,
-  and RFC-0107 production certification remain pending.
+  gateway-facing batch materialization/status/control/operator-run APIs and Workbench
+  gateway-backed explicit single-portfolio batch operation implemented. Gateway-facing scheduler
+  administration, RFC-0105 observability/operations, RFC-0106 security, and RFC-0107 production
+  certification remain pending.
