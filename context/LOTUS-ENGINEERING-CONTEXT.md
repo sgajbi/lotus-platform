@@ -192,9 +192,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    boundary and planned selector/frequency vocabulary while keeping
    `BATCH_RUNTIME_SUPPORTED = False`. Slice 2 adds internal durable `report_batch` and
    `report_batch_item` materialization for explicit portfolio lists and selected subsets, with
-   source-backed validation and idempotent duplicate prevention. These slices are platform,
-   structure, and internal ledger baselines only; `lotus-report` batch scheduler, worker, API,
-   retry, and recovery runtime behavior remain pending later RFC-0104 slices.
+   source-backed validation and idempotent duplicate prevention. Slice 3 adds deterministic
+   schedule-cycle materialization and scheduled idempotency identity for monthly, quarterly,
+   semi-annual, yearly, and explicit cycles. These slices are platform, structure, internal ledger,
+   and internal schedule baselines only; `lotus-report` batch scheduler loop, worker, API,
+   dispatch, retry, and recovery runtime behavior remain pending later RFC-0104 slices.
 11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
