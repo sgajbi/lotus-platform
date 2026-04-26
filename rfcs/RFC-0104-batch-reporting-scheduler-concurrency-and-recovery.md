@@ -832,9 +832,13 @@ id, archive document id, and artifact path wherever those identifiers exist.
 ## Implementation Status And Evidence
 
 Current status: Slices 0, 1, 2, and 3 are implemented and merged. Slice 0 is implemented in
-`lotus-platform`; Slices 1, 2, and 3 are implemented in `lotus-report`. No `lotus-report` batch
-scheduler loop, worker, API, retry, pause, resume, cancel, dispatch, or recovery runtime behavior
-is implemented yet.
+`lotus-platform`; Slices 1, 2, and 3 are implemented in `lotus-report`. Slice 4 internal dispatch,
+lease, report-job creation/reuse, and back-pressure primitives are implemented in the active
+`lotus-report` RFC-0104 branch. Slice 5 internal bounded retry, pause/resume,
+cancellation-boundary, and expired-lease recovery primitives are implemented in `lotus-report`
+commit `ab72576`. GitHub PR checks remain required before closure. No `lotus-report` batch
+scheduler loop, worker process, operator-facing batch API, or certified recovery operator
+capability is implemented yet.
 
 ### Slice 0: Platform Automation And Scaffolding Improvement Evidence
 
@@ -1055,6 +1059,114 @@ Review result:
    batch creation, and continued all-active selector gating.
 4. The next slice may start only after this platform evidence update is merged, platform checks are
    green, and the platform wiki is synchronized.
+
+### Slice 4: Dispatch, Concurrency, Back-Pressure, And Leases Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has an internal `ReportBatchDispatcher` that leases materialized batch items
+   only when active-batch, active-item, upstream, render, and archive pressure permits dispatch.
+2. The PostgreSQL and SQLite ledgers persist `report_job_id`, lease owner/token/acquired/expires
+   timestamps, heartbeat time, and dispatch time for batch items.
+3. Dispatch creates or reuses exactly one RFC-0100 `report_job` per leased batch item and rejects
+   stale lease tokens.
+4. Expired leases may be safely re-acquired by another worker without creating duplicate report
+   jobs, while report-job-linked items remain protected from duplicate dispatch.
+5. `docs/supported-features.md`, `docs/standards/rfc-traceability.md`,
+   `docs/standards/batch-orchestration-source-map.md`, README, repository context, and repo-local
+   wiki source record the internal dispatch posture without claiming an operator-facing batch
+   runtime.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed with 42 tests.
+2. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 279 unit tests.
+3. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 279 unit tests, 64 integration tests, 6 e2e tests, total 99%
+   coverage, and 100% coverage for `src/app/report_batch_orchestrator/dispatch.py`.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `python scripts/rfc_0104_slice4_live_evidence.py --database-url
+   postgresql://lotus_report:lotus_report@localhost:5439/lotus_report` produced
+   `{"batch_status": "running", "dispatched_count": 1, "job_count": 1}`.
+6. `powershell -ExecutionPolicy Bypass -File
+   C:\Users\Sandeep\projects\lotus-workbench\scripts\live\Start-LotusFrontOfficeCanonical.ps1
+   -CleanCoreState -BuildImages -RunValidation` passed against the canonical Docker front-office
+   topology with `lotus-report` backed by `lotus-report-postgres`.
+7. `make security-audit` passed with no known vulnerabilities.
+8. `make docker-build` built `lotus-report:ci-test`.
+9. `git diff --check` passed for the Slice 4 branch.
+10. `sgajbi/lotus-report#70` passed Feature Lane and PR Merge Gate checks before Slice 5 local
+    work started.
+
+Review result:
+
+1. Slice 4 deliberately stops at internal dispatch primitives. It does not ship a scheduler loop,
+   worker process, operator-facing batch API, retry, pause/resume/cancel, or recovery capability.
+2. The implementation keeps dispatch, ledger persistence, report-job creation, and runtime-load
+   input separated so later scheduler and worker slices can reuse the primitive without copying
+   control logic.
+3. PostgreSQL is treated as the runtime proof target. SQLite remains only a unit-test adapter.
+
+### Slice 5: Retry, Pause, Resume, Cancel, And Recovery Evidence
+
+Implemented improvement:
+
+1. `lotus-report` now has internal durable state for paused, cancelled, completed,
+   completed-with-failures, failed, succeeded, failed-retryable, failed-terminal, cancelled, and
+   recovery-pending batch/item lifecycle outcomes.
+2. The PostgreSQL migration adds retry/control/recovery fields: attempt count, retry eligibility,
+   next retry timestamp, last error category/summary, and batch/item lifecycle timestamps.
+3. The PostgreSQL and SQLite ledgers implement bounded retry-failed-only reset, pause, resume,
+   cancellation boundaries, expired-lease recovery, and aggregate batch status reconciliation.
+4. Retry reset is limited to retryable failed items with no attached `report_job_id`; this prevents
+   duplicate report-job creation when a failure occurs after job handoff.
+5. Cancellation cancels undispatched or unjobbed work only, leaving items with already-created
+   report jobs intact for downstream job lifecycle reconciliation.
+6. Expired-lease recovery is idempotent and moves abandoned unjobbed leased items into
+   `recovery_pending` for safe redispatch.
+7. The migration smoke validator and migration contract now check the Slice 5 schema fields,
+   expanded status constraints, and retry lookup index.
+8. `docs/supported-features.md`, `docs/standards/rfc-traceability.md`,
+   `docs/standards/batch-orchestration-source-map.md`, README, repository context, and repo-local
+   wiki source distinguish internal control primitives from operator-supported batch runtime
+   capability.
+
+Validation evidence:
+
+1. `python -m pytest tests/unit/report_batch_orchestrator -q` passed locally with 52 tests after
+   adding Slice 5 control and recovery coverage.
+2. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   python -m pytest tests/integration/test_postgres_report_batch_ledger.py -q` passed locally with
+   11 PostgreSQL integration tests after adding Slice 5 parity coverage.
+3. `make check` passed in `lotus-report`, including Ruff, Ruff format, monetary-float guard,
+   mypy, OpenAPI quality gate, and 289 unit tests.
+4. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make migration-smoke` passed and printed `Migration contract check passed (PostgreSQL report job
+   and batch ledger schema mode).`
+5. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-integration` passed with 71 tests before the final aggregate-state coverage additions.
+6. `make test-e2e` passed with 6 tests.
+7. `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report
+   make test-coverage` passed with 289 unit tests, 73 integration tests, 6 e2e tests, and total
+   99% coverage.
+8. `make security-audit` passed with no known vulnerabilities.
+9. `make docker-build` built `lotus-report:ci-test`.
+10. `powershell -ExecutionPolicy Bypass -File ..\lotus-platform\automation\Sync-RepoWikis.ps1
+    -CheckOnly -Repository lotus-report` reported expected wiki publication drift for
+    repo-authored wiki changes on this branch. Publication remains a post-merge action.
+11. GitHub PR checks remain required before Slice 5 can be treated as closed.
+
+Review result:
+
+1. Slice 5 deliberately implements internal ledger primitives only. It does not ship scheduler,
+   worker, API, Swagger, gateway, Workbench, or operator-supported recovery capability.
+2. The critical duplicate-output risk is reduced by refusing retry reset for failed items that
+   already have a report job.
+3. The control model is intentionally item-level and bounded by retry policy rather than
+   whole-batch blind reruns.
 
 ## Implementation Proof Ledger Template
 
