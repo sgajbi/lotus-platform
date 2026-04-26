@@ -64,6 +64,25 @@ def test_platform_stack_wires_dedicated_core_control_plane_service() -> None:
     )
 
 
+def test_platform_stack_wires_report_to_dedicated_postgres_and_canonical_upstreams() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    report_postgres = compose["services"]["lotus-report-postgres"]
+    report = compose["services"]["lotus-report"]
+
+    assert report_postgres["image"] == "postgres:16-alpine"
+    assert report_postgres["environment"]["POSTGRES_DB"] == "${LOTUS_REPORT_POSTGRES_DB:-lotus_report}"
+    assert "lotus-report-postgres-data:/var/lib/postgresql/data" in report_postgres["volumes"]
+    assert report["depends_on"]["lotus-report-postgres"]["condition"] == "service_healthy"
+    assert report["environment"]["LOTUS_CORE_QUERY_BASE_URL"] == "http://lotus-core-query:8001"
+    assert (
+        report["environment"]["LOTUS_PERFORMANCE_BASE_URL"]
+        == "http://lotus-performance:8000"
+    )
+    assert "lotus-report-postgres:5432" in report["environment"][
+        "REPORT_JOB_LEDGER_DATABASE_URL"
+    ]
+
+
 def test_platform_stack_debug_override_preserves_optional_direct_host_ports() -> None:
     override = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.host-ports.yml")
     services = override["services"]

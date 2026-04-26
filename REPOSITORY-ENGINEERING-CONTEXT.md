@@ -34,6 +34,9 @@ Current repository posture:
 3. RFC-0074 is implemented and governs developer onboarding, agent ramp-up, and bootstrap synchronization.
 4. Platform validation, ingress, and local runtime automation are already in active use for canonical stack bring-up and proof.
 5. Front-office product-surface bring-up is governed through `lotus-workbench`; this repository owns the shared ingress and infrastructure support around that flow rather than replacing it.
+6. `platform-stack` includes production-like local persistence dependencies for orchestrated
+   services where readiness requires them, including `lotus-report-postgres` for `lotus-report`
+   report-job and batch ledger readiness.
 
 ## Architecture And Module Map
 
