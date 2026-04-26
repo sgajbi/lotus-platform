@@ -454,6 +454,11 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "gold-pass hardened: 2026-04-26",
         "critical review outcome",
         "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-implementation no-go gates",
+        "mandatory data-protection proof",
+        "slice exit discipline",
+        "cross-rfc handoff rules",
         "locked first-wave decisions",
         "conditional decisions",
         "architecture direction",
@@ -492,6 +497,8 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "operator apis require certification, complete swagger, examples, safe errors",
         "live proof must follow a report from gateway/job creation through snapshot, render, archive",
         "do not promote supported features until implementation-backed proof exists",
+        "the next slice must not start until the current slice has a passing targeted validation set",
+        "final role, entitlement, tenant, region, and document-access authorization to rfc-0106",
     ]:
         assert expected in text
 
@@ -504,6 +511,69 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "slice 1: cleanup and structure"
     )
     assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "entitlement attribute inventory",
+        "role and action matrix floor",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: caller context and entitlement contract",
+        "slice 3: gateway and report enforcement",
+        "slice 4: archive retrieval enforcement",
+        "slice 5: service-to-service trust and sensitive data controls",
+        "slice 6: api certification, swagger, and error contract",
+        "slice 7: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-gateway` is the product-facing authorization boundary",
+        "`lotus-report` must independently enforce report request",
+        "`lotus-render` must accept render work only from authorized service callers",
+        "`lotus-archive` must independently enforce document metadata",
+        "`lotus-workbench` consumes gateway-backed permissions only",
+        "object storage is never exposed directly to workbench",
+        "synthetic examples are mandatory in swagger, docs, tests, and wiki material",
+        "security supported-features entries require positive and negative tests plus live proof",
+        "cross-tenant, cross-region, cross-booking-center, unauthorized role, and unauthorized portfolio",
+        "no-sensitive-content tests or review gates protect logs, metrics, traces, swagger, and docs",
+        "do not promote supported features until implementation-backed proof exists",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 7: implementation proof") < text.index(
         "second-last slice: hardening"
     )
     assert text.index("second-last slice: hardening") < text.index(

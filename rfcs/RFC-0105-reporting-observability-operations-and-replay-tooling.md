@@ -83,6 +83,83 @@ Gold-pass conclusion: RFC-0105 is implementation-ready as an execution guide aft
 Implementation remains unstarted. Supported-features entries must remain planned or absent until
 the corresponding code, tests, API contracts, docs, and live evidence are complete.
 
+## Second Gold-Pass Additions
+
+This final pre-implementation pass tightened the execution guide in four areas that were still too
+easy to under-prove during delivery:
+
+1. explicit no-go gates before implementation can begin,
+2. mandatory data-protection proof for logs, metrics, traces, dashboards, and operator APIs,
+3. slice exit discipline so implementation cannot move forward on shallow evidence,
+4. dependency handoff rules to RFC-0106 and RFC-0107 for entitlement and production certification.
+
+The RFC remains implementation-ready. These additions do not expand first-wave scope; they make the
+quality bar harder to bypass.
+
+## Pre-Implementation No-Go Gates
+
+Implementation must not begin until the implementer records a branch-local execution note covering:
+
+1. active branch and PR target,
+2. repositories expected to change,
+3. whether RFC-0104 first-wave batch primitives are in scope for this RFC-0105 implementation wave,
+4. whether any operator API will be exposed through `lotus-gateway` in this wave,
+5. whether dashboard artifacts will be committed as dashboard JSON, markdown contract, or both,
+6. local live-stack strategy for `lotus-report`, `lotus-render`, and `lotus-archive`,
+7. data-protection validation command or test plan,
+8. CI lanes expected before merge.
+
+If any of these are unknown, the first implementation commit must be limited to resolving the
+unknown rather than adding product behavior.
+
+## Mandatory Data-Protection Proof
+
+Every slice that touches logs, metrics, traces, dashboards, operator APIs, or audit records must
+prove that it does not expose:
+
+1. raw report payloads,
+2. rendered document bytes,
+3. raw upstream service payloads,
+4. client names unless explicitly allowed by a support-safe contract,
+5. account numbers, booking-center-sensitive details, or unrestricted portfolio holdings,
+6. secrets, service credentials, signed URLs, object-storage keys, or bearer tokens.
+
+Accepted proof may include unit tests, integration tests, generated OpenAPI example checks, log
+capture assertions, metric-label assertions, dashboard-contract validation, and live proof
+artifacts. A slice cannot be marked complete with only code review if it changes a data-exposure
+surface.
+
+## Slice Exit Discipline
+
+Each implementation slice must record:
+
+1. what was implemented,
+2. what was deliberately not implemented,
+3. code paths changed,
+4. tests added or strengthened,
+5. local validation commands and results,
+6. GitHub check status when a PR exists,
+7. docs, wiki, supported-features, context, and skill impact,
+8. discovered source gaps or semantic questions,
+9. whether the next slice is safe to start.
+
+The next slice must not start until the current slice has a passing targeted validation set and no
+known P0/P1 correctness, privacy, API-certification, or supported-features mismatch.
+
+## Cross-RFC Handoff Rules
+
+RFC-0105 implementation must hand off the following instead of solving them locally:
+
+1. final role, entitlement, tenant, region, and document-access authorization to RFC-0106,
+2. full release evidence, production readiness, and cross-app certification to RFC-0107,
+3. new batch scheduler/runtime behavior to RFC-0104 unless RFC-0104 is explicitly amended,
+4. new report visual/template content to RFC-0102 unless the work is only observability metadata,
+5. retention, purge, and legal-hold semantics to RFC-0103.
+
+If implementation discovers that one of these boundaries is blocking safe RFC-0105 delivery, the
+RFC proof ledger must record the blocker and the receiving RFC/owner rather than silently expanding
+scope.
+
 ## Problem
 
 Enterprise reporting failures cross service boundaries:

@@ -70,7 +70,10 @@
   requirements, supported-features governance, and live proof expectations are tightened before
   implementation
 - [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
-  proposed reporting security, entitlements, region/tenant segregation, and document access control
+  gold-pass ready with implementation not started; reporting security, entitlements, role/action
+  matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,
+  document access audit, sensitive-surface controls, API certification, supported-features
+  governance, and live proof expectations are tightened before implementation
 - [RFC-0107](../rfcs/RFC-0107-enterprise-reporting-production-certification.md)
   proposed end-to-end enterprise reporting production certification
 
