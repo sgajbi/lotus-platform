@@ -195,14 +195,17 @@ Boundary rules:
     gateway scheduler administration plus Workbench gateway-backed explicit single-portfolio batch
     operation across the sibling repos. RFC-0105 observability/replay, RFC-0106 security
     certification, and RFC-0107 production certification remain pending.
-36. RFC-0105 implementation has completed Slice 0 platform scaffold hardening and Slice 1
-    `lotus-report` observability structure cleanup after RFC-0104 closure. Platform truth now says
-    RFC-0105 may consume RFC-0104 batch, gateway, Workbench, and scheduler-admin identifiers as
-    source-backed observability inputs; future FastAPI service scaffolds now default to
-    correlation-id plus trace-id propagation, and `lotus-report` now owns runtime correlation,
-    request, trace, structured-log, and safe operator lookup vocabulary in `src/app/observability.py`.
-    The next implementation wave must continue with trace/log behavior and data-protection proof
-    before mutating rerender/regenerate/replay commands.
+36. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
+    `lotus-report` observability structure cleanup, and Slice 2 cross-service trace and structured
+    logging proof after RFC-0104 closure. Platform truth now says RFC-0105 may consume RFC-0104
+    batch, gateway, Workbench, and scheduler-admin identifiers as source-backed observability
+    inputs; future FastAPI service scaffolds now default to correlation-id plus trace-id
+    propagation, `lotus-report` now owns runtime correlation, request, trace, structured-log, and
+    safe operator lookup vocabulary in `src/app/observability.py`, and gateway/report/render/archive
+    now preserve caller correlation and trace identifiers through live batch-to-archive proof while
+    suppressing malformed `traceparent` headers for non-W3C trace IDs. The next implementation wave
+    must continue with operator status and diagnostics APIs before mutating rerender/regenerate/
+    replay commands.
 
 ## Repo-Native Commands
 

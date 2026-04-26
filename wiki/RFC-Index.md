@@ -70,12 +70,14 @@
   RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
   certification remain pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
-  implementation started with Slice 0 platform scaffold hardening and Slice 1 `lotus-report`
-  observability structure cleanup; reporting observability, operator APIs, replay, rerender,
-  regenerate, stuck-job, SLA monitoring, implementation slices, API certification requirements,
-  supported-features governance, RFC-0104 batch/scheduler-admin observability inputs, live proof
-  expectations, future-service correlation-id plus trace-id propagation defaults, and
-  `lotus-report` runtime observability vocabulary ownership are now tracked
+  implementation started with Slice 0 platform scaffold hardening, Slice 1 `lotus-report`
+  observability structure cleanup, and Slice 2 cross-service trace/structured logging proof across
+  `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`; reporting observability,
+  operator APIs, replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices,
+  API certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
+  observability inputs, live proof expectations, future-service correlation-id plus trace-id
+  propagation defaults, `lotus-report` runtime observability vocabulary ownership, and the
+  operator-diagnostics gate before mutating replay/rerender/regenerate are now tracked
 - [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
   gold-pass ready with implementation not started; reporting security, entitlements, role/action
   matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,
