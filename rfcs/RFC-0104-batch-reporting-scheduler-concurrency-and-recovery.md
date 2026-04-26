@@ -1339,26 +1339,26 @@ Review result:
 2. The documentation now gives operators concrete examples for every currently certified batch
    control endpoint without claiming future scheduled execution or Workbench capability.
 
-## Implementation Proof Ledger Template
+## Implementation Proof Ledger
 
-The final implementation PR must fill a proof ledger in the RFC or a linked closure document using
-this structure:
+The proof ledger is maintained in this RFC because RFC-0104 spans API materialization, internal
+dispatch, PostgreSQL concurrency primitives, supportability documentation, and the report-job,
+snapshot, render, and archive bridge. Evidence must stay implementation-backed and must not claim
+the later scheduler loop, background executor, gateway exposure, or Workbench UI before those slices
+ship.
 
 | Proof item | Evidence source | Command/API/artifact | Result | Follow-up |
 | --- | --- | --- | --- | --- |
-| Explicit-list batch creates items and report jobs | TBD | TBD | TBD | TBD |
-| Selected-subset batch materializes deterministic membership | TBD | TBD | TBD | TBD |
-| Duplicate submission is idempotent | TBD | TBD | TBD | TBD |
-| Concurrency limit is enforced | TBD | TBD | TBD | TBD |
-| Retry-failed-only retries only eligible failures | TBD | TBD | TBD | TBD |
-| Pause/resume/cancel semantics match API docs | TBD | TBD | TBD | TBD |
-| Expired lease recovery is safe and idempotent | TBD | TBD | TBD | TBD |
-| Successful item renders and archives document | TBD | TBD | TBD | TBD |
-| Swagger examples match runtime behavior | TBD | TBD | TBD | TBD |
-| Supported-features text is implementation-backed | TBD | TBD | TBD | TBD |
-
-`TBD` entries are acceptable while RFC-0104 is in progress. They are not acceptable at
-implementation closure.
+| Explicit-list batch creates items and report jobs | `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py` | `make check`; `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report make test-integration` | Passed locally on 2026-04-26. Explicit-list API materialization and dispatch-linked report job creation are implementation-backed. | None for first-wave materialization/control scope. |
+| Selected-subset batch materializes deterministic membership | `lotus-report/tests/unit/report_batch_orchestrator/test_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Selected candidates are filtered and ordered deterministically. | None. |
+| Duplicate submission is idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_batch_ledger.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Same idempotency key and same materialized request return the existing batch; conflicting request is rejected. | None. |
+| Concurrency limit is enforced | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Active-batch and active-item limits gate dispatch and leases. | Runtime worker loop remains a later slice. |
+| Retry-failed-only retries only eligible failures | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Only due retryable items without linked report jobs are requeued. Job-linked failures remain bounded for explicit future retry execution. | Implement job-linked retry execution in a later scheduler/worker slice. |
+| Pause/resume/cancel semantics match API docs | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/wiki/API-Surface.md` | `make check`; PostgreSQL integration gate; API surface examples | Passed locally on 2026-04-26. Controls preserve already created report jobs and cancel only eligible unstarted items. | None for current control API scope. |
+| Expired lease recovery is safe and idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Expired leases move to recovery-pending once and repeated scans are no-ops. | Scheduler/worker monitoring will consume the primitive in a later slice. |
+| Successful item renders and archives document | `lotus-report/tests/integration/test_report_batch_execution.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_execution.py` | `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report python -m pytest tests/integration/test_report_batch_execution.py -q`; full PostgreSQL integration gate | Passed locally on 2026-04-26. A dispatched batch item uses RFC-0100 report job creation, RFC-0101 snapshot persistence, RFC-0102 render orchestration, RFC-0103 archive handoff, then reconciles item and batch status. | None for internal execution bridge scope. |
+| Swagger examples match runtime behavior | `lotus-report/tests/integration/test_report_batch_api.py`; OpenAPI quality gate | `make check`; `make ci` | Passed locally on 2026-04-26. Batch create/status/control endpoints have grouped OpenAPI examples and product-safe error behavior. | Gateway exposure remains future scope. |
+| Supported-features text is implementation-backed | `lotus-report/tests/unit/report_batch_orchestrator/test_boundary.py`; `lotus-report/docs/supported-features.md` | `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q`; `make check` | Passed locally on 2026-04-26. Supported-features text distinguishes shipped first-wave APIs/internal primitives from planned scheduler/orchestration behavior. | Keep updated as future RFC-0104 slices ship. |
 
 ## Supported Features
 
