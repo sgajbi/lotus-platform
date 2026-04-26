@@ -1450,8 +1450,9 @@ Final validation and branch hygiene evidence:
 Final gold-pass assessment:
 
 1. Completed: first-wave batch materialization/status/control APIs, durable ledger, schedule-cycle
-   identity primitives, dispatch and lease primitives, bounded controls, recovery primitives, and
-   internal execution bridge over the existing report-job, snapshot, render, and archive path.
+   identity primitives, dispatch and lease primitives, bounded controls, recovery primitives,
+   internal execution bridge over the existing report-job, snapshot, render, and archive path, and
+   a bounded internal single-batch worker run primitive.
 2. Quality improvements made: the implementation avoids a second batch-specific reporting
    pipeline, centralizes selector/schedule/dispatch/execution concerns in
    `report_batch_orchestrator`, keeps API error handling product-safe, and keeps supported-features
@@ -1459,9 +1460,9 @@ Final gold-pass assessment:
 3. Debt removed: RFC placeholder proof rows were replaced with concrete evidence, stale runbook
    wording that implied no batch support existed was corrected, and unsupported scheduler/runtime
    claims were kept out of implementation-backed feature rows.
-4. Proven: PostgreSQL-backed materialization, dispatch, controls, recovery, execution bridge,
-   snapshot persistence, render orchestration, archive handoff, OpenAPI quality, unit behavior,
-   integration behavior, e2e behavior, Docker build, coverage, and security audit.
+4. Proven: PostgreSQL-backed materialization, dispatch, controls, recovery, bounded worker run,
+   execution bridge, snapshot persistence, render orchestration, archive handoff, OpenAPI quality,
+   unit behavior, integration behavior, e2e behavior, Docker build, coverage, and security audit.
 5. Standard reached: production-grade for the explicitly shipped first-wave scope. Not yet
    production-complete for full scheduler/worker-backed batch orchestration, which remains planned
    and must not be sold or documented as shipped until separately implemented and proven.
@@ -1482,7 +1483,8 @@ ship.
 | Concurrency limit is enforced | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Active-batch and active-item limits gate dispatch and leases. | Runtime worker loop remains a later slice. |
 | Retry-failed-only retries only eligible failures | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Only due retryable items without linked report jobs are requeued. Job-linked failures remain bounded for explicit future retry execution. | Implement job-linked retry execution in a later scheduler/worker slice. |
 | Pause/resume/cancel semantics match API docs | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_report_batch_api.py`; `lotus-report/wiki/API-Surface.md` | `make check`; PostgreSQL integration gate; API surface examples | Passed locally on 2026-04-26. Controls preserve already created report jobs and cancel only eligible unstarted items. | None for current control API scope. |
-| Expired lease recovery is safe and idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Expired leases move to recovery-pending once and repeated scans are no-ops. | Scheduler/worker monitoring will consume the primitive in a later slice. |
+| Expired lease recovery is safe and idempotent | `lotus-report/tests/unit/report_batch_orchestrator/test_dispatch.py`; `lotus-report/tests/integration/test_postgres_report_batch_ledger.py`; `lotus-report/tests/integration/test_report_batch_api.py` | `make check`; PostgreSQL integration gate | Passed locally on 2026-04-26. Expired leases move to recovery-pending once and repeated scans are no-ops. | Scheduler monitoring will consume the primitive in a later slice. |
+| Bounded internal worker run coordinates recovery, dispatch, and execution | `lotus-report/src/app/report_batch_orchestrator/worker.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_worker.py` | `python -m pytest tests/unit/report_batch_orchestrator/test_worker.py -q`; `make check`; PostgreSQL batch integration gate | Passed locally on 2026-04-26. A runnable batch dispatches and executes, paused batches are no-ops, and already waiting items can progress even when new dispatch is back-pressured. | Scheduler loop, public worker runtime, dispatch operator API, gateway exposure, and Workbench UI remain future scope. |
 | Successful item renders and archives document | `lotus-report/tests/integration/test_report_batch_execution.py`; `lotus-report/tests/unit/report_batch_orchestrator/test_execution.py` | `REPORT_JOB_LEDGER_DATABASE_URL=postgresql://lotus_report:lotus_report@localhost:5439/lotus_report python -m pytest tests/integration/test_report_batch_execution.py -q`; full PostgreSQL integration gate | Passed locally on 2026-04-26. A dispatched batch item uses RFC-0100 report job creation, RFC-0101 snapshot persistence, RFC-0102 render orchestration, RFC-0103 archive handoff, then reconciles item and batch status. | None for internal execution bridge scope. |
 | Swagger examples match runtime behavior | `lotus-report/tests/integration/test_report_batch_api.py`; OpenAPI quality gate | `make check`; `make ci` | Passed locally on 2026-04-26. Batch create/status/control endpoints have grouped OpenAPI examples and product-safe error behavior. | Gateway exposure remains future scope. |
 | Supported-features text is implementation-backed | `lotus-report/tests/unit/report_batch_orchestrator/test_boundary.py`; `lotus-report/docs/supported-features.md` | `python -m pytest tests/unit/report_batch_orchestrator/test_boundary.py -q`; `make check` | Passed locally on 2026-04-26. Supported-features text distinguishes shipped first-wave APIs/internal primitives from planned scheduler/orchestration behavior. | Keep updated as future RFC-0104 slices ship. |
@@ -1491,8 +1493,9 @@ ship.
 
 RFC-0104 currently has implementation-backed batch materialization/status/control APIs exposed to
 operators and implementation-backed internal support primitives for schedule-cycle identity,
-dispatch, leases, bounded controls, recovery, and item execution through existing report-job,
-snapshot, render, and archive paths. Full scheduler/worker-backed orchestration remains planned.
+dispatch, leases, bounded controls, recovery, bounded single-batch worker runs, and item execution
+through existing report-job, snapshot, render, and archive paths. Full scheduler/public-worker
+orchestration remains planned.
 
 Supported-features entries must be added only after implementation and proof. Each entry must name:
 

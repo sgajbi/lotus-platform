@@ -328,9 +328,10 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
     )
 
     for expected in [
-        "- status: in progress",
+        "- status: first-wave implemented; scheduler runtime planned",
         "gold-pass hardened: 2026-04-26",
         "implementation started: 2026-04-26",
+        "first-wave implementation proof completed: 2026-04-26",
         "critical review outcome",
         "locked first-wave decisions",
         "conditional decisions",
@@ -363,7 +364,8 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "second-last slice: hardening, review, and certification",
         "final slice: closure",
         "supported features",
-        "currently has no implementation-backed batch reporting supported features",
+        "implementation-backed batch materialization/status/control apis",
+        "full scheduler/public-worker",
         "implementation status and evidence",
         "slices 0, 1, 2, and 3 are implemented and merged",
         "generated openapi quality gate now checks every generated operation",
@@ -382,6 +384,13 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "sgajbi/lotus-report#69",
         "28c43e8",
         "4062d0e",
+        "slice 4: dispatch, concurrency, back-pressure, and leases evidence",
+        "slice 5: retry, pause, resume, cancel, and recovery evidence",
+        "slice 8: documentation, runbook, and supportability floor evidence",
+        "bounded internal single-batch worker run primitive",
+        "sgajbi/lotus-report#70",
+        "sgajbi/lotus-platform#210",
+        "b312512cb2640018a825ac939d544fe4bf606095",
         "make test-coverage",
         "prevents a stuck docker build from occupying the pr merge gate indefinitely",
         "does not claim any rfc-0104 batch reporting supported feature",
@@ -389,6 +398,7 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "branching and delivery expectations",
         "gold-pass readiness assessment",
         "second gold-pass additions",
+        "final gold-pass assessment",
     ]:
         assert expected in text
 
@@ -412,7 +422,230 @@ def test_rfc_0104_preserves_batch_reporting_gold_standard_contract() -> None:
         "aggregate batch counts must reconcile exactly with item states",
         "no implementation may depend on in-memory state for correctness",
         "implementation closure must update this matrix with concrete evidence paths",
-        "`tbd` entries are acceptable while rfc-0104 is in progress",
+        "verified no unresolved `todo`, `fixme`, `hack`, or `tbd` markers remain",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0105-reporting-observability-operations-and-replay-tooling.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-implementation no-go gates",
+        "mandatory data-protection proof",
+        "slice exit discipline",
+        "cross-rfc handoff rules",
+        "locked first-wave decisions",
+        "conditional decisions",
+        "architecture direction",
+        "required identifier contract",
+        "observability and operations attribute inventory",
+        "replay semantics",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: trace and structured logging",
+        "slice 3: metrics, dashboards, alerts, and sla contracts",
+        "slice 4: operator status and diagnostics apis",
+        "slice 5: rerender from snapshot",
+        "slice 6: regenerate from upstream data",
+        "slice 7: replay failed jobs and batch items",
+        "slice 8: stuck-state detection, recovery guidance, and sla monitoring",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-report` owns reporting operation control",
+        "`lotus-render` remains render execution owner",
+        "`lotus-archive` owns archived document identity, retrieval, lifecycle, retention, legal hold",
+        "identifier-only observability is the default",
+        "rerender uses an existing immutable rfc-0101 snapshot",
+        "regenerate creates a new data snapshot from upstream sources",
+        "replay is an execution-control operation for failed or stuck work",
+        "rerender, regenerate, replay, retry, and recovery must have separate command paths",
+        "operator apis require certification, complete swagger, examples, safe errors",
+        "live proof must follow a report from gateway/job creation through snapshot, render, archive",
+        "do not promote supported features until implementation-backed proof exists",
+        "the next slice must not start until the current slice has a passing targeted validation set",
+        "final role, entitlement, tenant, region, and document-access authorization to rfc-0106",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 9: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-implementation no-go gates",
+        "mandatory allow/deny evidence",
+        "break-glass and privileged operator posture",
+        "entitlement source-gap handling",
+        "security slice exit discipline",
+        "entitlement attribute inventory",
+        "role and action matrix floor",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: caller context and entitlement contract",
+        "slice 3: gateway and report enforcement",
+        "slice 4: archive retrieval enforcement",
+        "slice 5: service-to-service trust and sensitive data controls",
+        "slice 6: api certification, swagger, and error contract",
+        "slice 7: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "`lotus-gateway` is the product-facing authorization boundary",
+        "`lotus-report` must independently enforce report request",
+        "`lotus-render` must accept render work only from authorized service callers",
+        "`lotus-archive` must independently enforce document metadata",
+        "`lotus-workbench` consumes gateway-backed permissions only",
+        "object storage is never exposed directly to workbench",
+        "synthetic examples are mandatory in swagger, docs, tests, and wiki material",
+        "security supported-features entries require positive and negative tests plus live proof",
+        "cross-tenant, cross-region, cross-booking-center, unauthorized role, and unauthorized portfolio",
+        "no-sensitive-content tests or review gates protect logs, metrics, traces, swagger, and docs",
+        "denied responses must be product-safe",
+        "break-glass access is not supported by default",
+        "no implementation may silently substitute hardcoded user, tenant, region, booking-center, or role",
+        "do not promote supported features until implementation-backed proof exists",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 7: implementation proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
+def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> None:
+    text = _read(
+        ROOT / "rfcs" / "RFC-0107-enterprise-reporting-production-certification.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "gold-pass hardened: 2026-04-26",
+        "critical review outcome",
+        "gold-pass readiness assessment",
+        "second gold-pass additions",
+        "pre-certification branch and pr gates",
+        "live-stack evidence review requirements",
+        "blocker classification",
+        "clean-state and merge sequencing requirements",
+        "entry criteria",
+        "certification scenario matrix",
+        "evidence pack contract",
+        "architecture direction",
+        "slice 0: platform automation and certification scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: certification harness and evidence pack",
+        "slice 3: end-to-end functional certification",
+        "slice 4: batch, replay, rerender, regenerate, and supersession certification",
+        "slice 5: failure and recovery certification",
+        "slice 6: security, segregation, audit, and observability certification",
+        "slice 7: non-functional certification",
+        "slice 8: documentation, wiki, context, supported-features, and release posture",
+        "slice 9: implementation proof",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "api certification requirements",
+        "supported features governance",
+        "evidence expectations",
+        "implementation proof ledger",
+        "final gold-pass assessment placeholder",
+    ]:
+        assert expected in text
+
+    for expected in [
+        "rfc-0107 certifies the complete enterprise reporting platform",
+        "missing capabilities must be blocked, excluded, or sent back to the owning rfc",
+        "no production-ready claim from docs-only, mocked-only, or single happy-path proof",
+        "certification uses real service apis and databases/object storage adapters",
+        "evidence must name repo, branch, pr, commit, check, endpoint, and operational identifiers",
+        "if a required upstream capability is missing, rfc-0107 must stop or narrow scope",
+        "evidence-pack schema is test-protected",
+        "unsupported operations are excluded rather than faked",
+        "allow and deny paths are both proven",
+        "thresholds are explicit before results are judged",
+        "production certification must not proceed with unknown branch state",
+        "the evidence must be reviewed critically",
+        "p0/p1 blockers cannot be papered over by documentation",
+        "before starting the next implementation rfc",
+        "ci health must be checked after merge, not only before merge",
+        "do not claim production readiness until certification evidence exists",
     ]:
         assert expected in text
 
