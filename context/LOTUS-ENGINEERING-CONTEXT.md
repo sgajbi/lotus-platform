@@ -188,8 +188,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    `automation/New-Lotus-Service.ps1` so newly scaffolded FastAPI services include
    Swagger-quality health, liveness, readiness, and metadata endpoints plus a generated OpenAPI
    quality gate that checks summaries, descriptions, tags, response descriptions, 2xx responses,
-   and success examples. This is a platform scaffold baseline only; `lotus-report` batch runtime
-   behavior remains pending later RFC-0104 slices.
+   and success examples. Slice 1 adds the `lotus-report` `report_batch_orchestrator` module
+   boundary and planned selector/frequency vocabulary while keeping
+   `BATCH_RUNTIME_SUPPORTED = False`. These slices are platform and structure baselines only;
+   `lotus-report` batch scheduler, ledger, worker, API, retry, and recovery runtime behavior remain
+   pending later RFC-0104 slices.
 11. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
