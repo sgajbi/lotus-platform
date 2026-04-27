@@ -3,7 +3,7 @@ groups:
     interval: 1m
     rules:
       - alert: ReportOperationFailures
-        expr: sum(increase(lotus_report_operations_total{status="failure"}[15m])) > 5
+        expr: sum(increase(lotus_report_operations_total{status="failed"}[15m])) > 5
         for: 15m
         labels:
           severity: P2

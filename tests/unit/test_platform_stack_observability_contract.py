@@ -112,3 +112,26 @@ def test_platform_stack_reporting_rules_align_with_contract_alerts() -> None:
         assert actual["runbook_path"] == expected["runbook_path"]
         assert expected["metric_name"] in metric_names
         assert expected["metric_name"] in actual["expr"]
+
+
+def test_platform_stack_reporting_rules_use_bounded_status_values() -> None:
+    contract = json.loads(
+        (ROOT / "context" / "contracts" / "reporting-observability-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    rules = _read_yaml(
+        PLATFORM_STACK_DIR / "prometheus" / "rules" / "reporting-observability.rules.yml"
+    )
+
+    rule_exprs = {}
+    for group in rules["groups"]:
+        for rule in group["rules"]:
+            rule_exprs[rule["labels"]["alert_id"]] = rule["expr"]
+
+    assert "report-operation-failures" in rule_exprs
+    assert 'status="failed"' in rule_exprs["report-operation-failures"]
+    report_operation_alert = next(
+        alert for alert in contract["alerts"] if alert["alert_id"] == "report-operation-failures"
+    )
+    assert report_operation_alert["metric_name"] == "lotus_report_operations_total"
