@@ -1,6 +1,6 @@
 # RFC-0105: Reporting Observability, Operations, And Replay Tooling
 
-- Status: Implementation In Progress; Slices 0-2 Complete
+- Status: Implementation In Progress; Slices 0-3 Complete
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
 - RFC-0104 closure alignment: 2026-04-26

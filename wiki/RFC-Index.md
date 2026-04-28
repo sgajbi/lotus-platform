@@ -71,10 +71,11 @@
   certification remain pending
 - [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   implementation started with Slice 0 platform scaffold hardening, Slice 1 `lotus-report`
-  observability structure cleanup, and Slice 2 cross-service trace/structured logging proof across
-  `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`; reporting observability,
-  operator APIs, replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices,
-  API certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
+  observability structure cleanup, Slice 2 cross-service trace/structured logging proof across
+  `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`, and Slice 3 first-wave
+  reporting metrics, dashboard, alert, and SLA contracts; reporting observability, operator APIs,
+  replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API
+  certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
   observability inputs, live proof expectations, future-service correlation-id plus trace-id
   propagation defaults, `lotus-report` runtime observability vocabulary ownership, and the
   operator-diagnostics gate before mutating replay/rerender/regenerate are now tracked
