@@ -487,7 +487,7 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
     )
 
     for expected in [
-        "- status: implementation in progress; slices 0-7 complete",
+        "- status: implementation in progress; slices 0-8 complete",
         "gold-pass hardened: 2026-04-26",
         "rfc-0104 closure alignment: 2026-04-26",
         "critical review outcome",
@@ -523,8 +523,12 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "final gold-pass assessment placeholder",
         "slice 2 trace and structured logging",
         "23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f",
+        "f063bbc7541d72f85ddc2e8e8a12ed27efd0665d",
         "targeted replay/error coverage suite with `12 passed`",
         "combined coverage, docker build, and workflow lint all passed",
+        "`get /reports/operations/attention` runs a deterministic source-backed scan over active durable report jobs",
+        "`lotus_report_attention_events_last_count`",
+        "97 passed, 29 skipped",
     ]:
         assert expected in text
 
@@ -866,3 +870,9 @@ def test_rfc_0092_preserves_production_mesh_operations_contract() -> None:
         "tests/unit/test_enterprise_mesh_operating_report.py",
     ]:
         assert expected in text
+
+
+
+
+
+

@@ -207,9 +207,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `lotus-report` observability structure cleanup, Slice 2 cross-service trace and structured
     logging proof after RFC-0104 closure, Slice 3 first-wave reporting metrics, dashboard,
     alert, and SLA contracts, Slice 4 first-wave report-job operator diagnostics, Slice 5
-    archived-report rerender from immutable snapshot, Slice 6 regenerate from upstream data, and
+    archived-report rerender from immutable snapshot, Slice 6 regenerate from upstream data,
     Slice 7 failed-work replay for failed retry-eligible report jobs and implementation-backed
-    batch items.
+    batch items, and Slice 8 source-backed stuck-state/SLA attention scanning.
     It may
     consume RFC-0104 durable batch, gateway, Workbench, and
     scheduler-administration identifiers as source-backed observability inputs. The platform
@@ -230,10 +230,17 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     archive document with explicit old/new identities, exposes `POST /reports/jobs/{job_id}/replay`
     for failed retry-eligible report jobs, and exposes
     `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay` for failed retry-eligible
-    implementation-backed batch items linked to failed report jobs. GitHub CI is green for Slice 7
-    on `lotus-report` PR `sgajbi/lotus-report#83` head `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`,
-    including feature lane, PR merge gate unit/integration/e2e, combined coverage, and Docker
-    build. The next implementation wave can continue with stuck-state and SLA monitoring.
+    implementation-backed batch items linked to failed report jobs, and exposes
+    `GET /reports/operations/attention` for bounded source-backed stuck-state and SLA-breach
+    attention events over active report jobs and batch items without raw payloads, portfolio scope,
+    tenant identifiers, correlation identifiers, or trace identifiers. GitHub CI is green for
+    Slice 7 on `lotus-report` PR `sgajbi/lotus-report#83` head
+    `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`, including feature lane, PR merge gate
+    unit/integration/e2e, combined coverage, and Docker build. Slice 8 is proven on
+    `f063bbc7541d72f85ddc2e8e8a12ed27efd0665d`; GitHub PR #83 is green including feature lane
+    lint/type/security and unit checks plus PR merge gate lint/type/security, unit, integration,
+    e2e, combined coverage, Docker build, and workflow lint. Slice 9 end-to-end implementation
+    proof is now unblocked.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
@@ -551,3 +558,6 @@ Use [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when you need a human-read
 2. domain authority ownership,
 3. standards currently in force,
 4. active RFCs that still materially govern the ecosystem.
+
+
+
