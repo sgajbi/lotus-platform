@@ -74,8 +74,9 @@
   observability structure cleanup, Slice 2 cross-service trace/structured logging proof across
   `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`, Slice 3 first-wave
   reporting metrics, dashboard, alert, and SLA contracts, Slice 4 first-wave report-job
-  operator diagnostics, Slice 5 archived-report rerender from immutable snapshot, and Slice 6
-  regenerate from upstream data; reporting
+  operator diagnostics, Slice 5 archived-report rerender from immutable snapshot, Slice 6
+  regenerate from upstream data, and Slice 7 failed-work replay for failed retry-eligible report
+  jobs and implementation-backed batch items; reporting
   observability, operator APIs, replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API
   certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
   observability inputs, live proof expectations, future-service correlation-id plus trace-id
@@ -83,8 +84,10 @@
   implementation-backed `GET /reports/jobs/{job_id}/diagnostics`,
   implementation-backed `POST /reports/jobs/{job_id}/rerender` for archived PDF correction from
   the same snapshot id/hash, implementation-backed `POST /reports/jobs/{job_id}/regenerate` for
-  archived PDF upstream refresh with new snapshot/lineage and replacement archive identities, and
-  the data-protection gate before broader replay commands are now tracked
+  archived PDF upstream refresh with new snapshot/lineage and replacement archive identities,
+  implementation-backed `POST /reports/jobs/{job_id}/replay`,
+  implementation-backed `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay`, and the
+  data-protection gate before stuck-state/SLA monitoring are now tracked
 - [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
   gold-pass ready with implementation not started; reporting security, entitlements, role/action
   matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,

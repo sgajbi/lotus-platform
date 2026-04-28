@@ -207,7 +207,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `lotus-report` observability structure cleanup, Slice 2 cross-service trace and structured
     logging proof after RFC-0104 closure, Slice 3 first-wave reporting metrics, dashboard,
     alert, and SLA contracts, Slice 4 first-wave report-job operator diagnostics, Slice 5
-    archived-report rerender from immutable snapshot, and Slice 6 regenerate from upstream data.
+    archived-report rerender from immutable snapshot, Slice 6 regenerate from upstream data, and
+    Slice 7 failed-work replay for failed retry-eligible report jobs and implementation-backed
+    batch items.
     It may
     consume RFC-0104 durable batch, gateway, Workbench, and
     scheduler-administration identifiers as source-backed observability inputs. The platform
@@ -223,10 +225,14 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     handoff identifiers without raw payloads or storage references, exposes
     `POST /reports/jobs/{job_id}/rerender` for already archived PDF jobs to create an idempotent
     correction from the same snapshot id/hash with a new rerender/render/archive identity and no
-    upstream recollection, and exposes `POST /reports/jobs/{job_id}/regenerate` for already archived
+    upstream recollection, exposes `POST /reports/jobs/{job_id}/regenerate` for already archived
     PDF jobs to create a new report job, fresh upstream snapshot and lineage bundle, and replacement
-    archive document with explicit old/new identities. The next implementation wave should continue
-    with broader replay controls only after regenerate CI and wiki evidence remain green.
+    archive document with explicit old/new identities, exposes `POST /reports/jobs/{job_id}/replay`
+    for failed retry-eligible report jobs, and exposes
+    `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay` for failed retry-eligible
+    implementation-backed batch items linked to failed report jobs. The next implementation wave
+    should continue with stuck-state and SLA monitoring only after replay CI and wiki evidence
+    remain green.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
