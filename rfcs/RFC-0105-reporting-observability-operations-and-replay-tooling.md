@@ -1,6 +1,6 @@
 # RFC-0105: Reporting Observability, Operations, And Replay Tooling
 
-- Status: Implementation In Progress; Slices 0-8 Complete
+- Status: Implemented For First-Wave Scope
 - Date: 2026-04-23
 - Gold-pass hardened: 2026-04-26
 - RFC-0104 closure alignment: 2026-04-26
@@ -810,18 +810,98 @@ remain unpromoted until source-backed reporting services and live cross-service 
 | Slice 6 regenerate from upstream data | `lotus-report` PR `sgajbi/lotus-report#83`, commit `0e4a08e84f7503275631edfdcadeaa57fa3917d7`; `src/app/reporting_render/regenerate_service.py`, `src/app/reporting_render/service.py`, `src/app/reporting_jobs/models.py`, `src/app/routers/report_jobs.py`, `src/app/reporting_metrics.py`, `tests/integration/test_report_job_api.py`, `tests/unit/test_observability.py`, `docs/supported-features.md`, `docs/operations/reporting-observability-metrics.md`, `README.md`, `wiki/API-Surface.md`, and `wiki/Operations-Runbook.md` | `lotus-report`: `make check` with `389 passed`; targeted `python -m pytest tests/integration/test_report_job_api.py tests/unit/test_observability.py tests/unit/reporting_render/test_service.py -q` with `71 passed`; post-idempotency-audit fix `python -m pytest tests/integration/test_report_job_api.py -q` with `33 passed`; `python -m mypy src`; `python scripts/openapi_quality_gate.py`; commit hook ruff, ruff format, and mypy passed | Slice 6 is implementation-backed for regenerate-from-upstream: `POST /reports/jobs/{job_id}/regenerate` is idempotent, only accepts already archived PDF jobs, creates a new report job from the source request, recollects upstream data into a fresh snapshot and lineage bundle, renders and archives a replacement document with supersession metadata, emits bounded `regenerate_from_upstream` metrics, and returns explicit old/new report job, snapshot, snapshot hash, and archive document identities. Tests prove successful regenerate, upstream failure without render/archive handoff, partial upstream lineage, invalid eligibility, idempotency with no duplicate capture/render/archive/audit side effects, OpenAPI schema/examples, operator docs, and audit behavior. Rerender and regenerate are now separate implementation-backed operations; broader multi-step replay, document distribution, stuck-state scanners, and SLA breach evaluation remain planned. | Continue with replay controls only after regenerate CI and wiki sync evidence remain green. |
 | Slice 7 replay failed jobs and batch items | `lotus-report` PR `sgajbi/lotus-report#83`, head `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`; implementation commit `79e1047402e7ebd5ae20ad75dd371ca0b0371084` plus coverage/proof commits `b9542f9`, `0d4ccdf`, and `23dd048`; `src/app/reporting_render/replay_service.py`, `src/app/report_batch_orchestrator/replay.py`, `src/app/report_batch_orchestrator/ledger.py`, `src/app/report_batch_orchestrator/postgres_ledger.py`, `src/app/reporting_jobs/models.py`, `src/app/report_batch_orchestrator/models.py`, `src/app/routers/report_jobs.py`, `src/app/routers/report_batches.py`, `src/app/reporting_metrics.py`, `tests/integration/test_report_job_api.py`, `tests/integration/test_report_batch_api.py`, `tests/unit/reporting_render/test_replay_service.py`, `tests/unit/report_batch_orchestrator/test_replay.py`, `tests/unit/report_batch_orchestrator/test_batch_ledger.py`, `tests/unit/reporting_render/test_service.py`, `tests/unit/test_observability.py`, `docs/supported-features.md`, `docs/operations/reporting-observability-metrics.md`, `README.md`, `REPOSITORY-ENGINEERING-CONTEXT.md`, `wiki/API-Surface.md`, and `wiki/Operations-Runbook.md` | `lotus-report`: targeted `python -m pytest tests/integration/test_report_job_api.py tests/integration/test_report_batch_api.py tests/unit/test_observability.py -q` with `76 passed`; targeted replay/error coverage suite with `12 passed`; local check path `python -m ruff check .`, `python -m ruff format --check .`, `python scripts/check_monetary_float_usage.py`, `python -m mypy --config-file mypy.ini`, `python scripts/openapi_quality_gate.py`, and `python -m pytest tests/unit -q` with `401 passed`; full integration `python -m pytest tests/integration -q` with `96 passed, 29 skipped`; commit hook ruff, ruff format, and mypy passed. GitHub PR #83 is green on head `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`: feature lane lint/type/security, feature unit, workflow lint, PR merge gate lint/type/security, unit, integration, e2e, combined coverage, Docker build, and workflow lint all passed after rerunning no-log queued jobs. | Slice 7 is implementation-backed for failed-work replay: `POST /reports/jobs/{job_id}/replay` creates or reuses a replay-scoped report job only for failed retry-eligible report jobs, rejects completed/archived/non-retryable sources, preserves lineage through source-job replay audit events, and never duplicates already archived documents. `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay` supports implementation-backed batch items linked to failed report jobs, atomically relinks eligible failed retryable items to replay-scoped report jobs, rejects completed, leased, terminal, retry-ceiling, and different-key concurrent replay attempts, and records source and replay lineage events for same-key idempotency. Metrics now count implemented replay commands through bounded `operation="replay_command"` while dedicated broader replay dashboards stay reserved. The proof hardening added behavior coverage for JSON replay, failed PDF render replay, replay factory wiring, API conflict mappings, batch replay idempotency, SQLite relink edge cases, and render-package defensive normalization. Scheduler CRUD, registry mutation, document distribution, archive housekeeping, stuck-state scanners, and SLA breach evaluation remain planned rather than overclaimed. | Slice 8 stuck-state detection, recovery guidance, and SLA monitoring is now unblocked. |
 | Slice 8 stuck-state detection, recovery guidance, and SLA monitoring | `lotus-report` PR `sgajbi/lotus-report#83`, head `f063bbc7541d72f85ddc2e8e8a12ed27efd0665d`; `src/app/reporting_operations/attention.py`, `src/app/reporting_operations/models.py`, `src/app/routers/reporting_operations.py`, `src/app/reporting_metrics.py`, `src/app/report_batch_orchestrator/ledger.py`, `src/app/report_batch_orchestrator/postgres_ledger.py`, `src/app/main.py`, `tests/unit/reporting_operations/test_attention.py`, `tests/unit/test_observability.py`, `tests/integration/test_report_batch_api.py`, `docs/supported-features.md`, `docs/operations/reporting-observability-metrics.md`, `README.md`, `REPOSITORY-ENGINEERING-CONTEXT.md`, `wiki/API-Surface.md`, and `wiki/Operations-Runbook.md` | `lotus-report`: targeted `python -m pytest tests/unit/report_batch_orchestrator/test_postgres_batch_ledger_helpers.py tests/unit/reporting_operations/test_attention.py tests/unit/test_observability.py tests/integration/test_report_batch_api.py::test_reporting_attention_endpoint_returns_operator_safe_scan -q` with `37 passed`; local check path `python -m ruff check .`, `python -m ruff format --check .`, `python -m mypy --config-file mypy.ini`, `python scripts/openapi_quality_gate.py`, and `python -m pytest tests/unit -q` with `404 passed`; full integration `python -m pytest tests/integration -q` with `97 passed, 29 skipped`; commit hook ruff, ruff format, and mypy passed. GitHub PR #83 is green on head `f063bbc7541d72f85ddc2e8e8a12ed27efd0665d`: feature lane lint/type/security, feature unit, workflow lint, PR merge gate lint/type/security, unit, integration, e2e, combined coverage, Docker build, and workflow lint all passed. | Slice 8 is implementation-backed for first-wave report-job and batch-item attention monitoring: `GET /reports/operations/attention` runs a deterministic source-backed scan over active durable report jobs and active batch items, returns bounded stuck-state and SLA-breach attention events with opaque identifiers, age, thresholds, reasons, recommended actions, and support-safe evidence links, and excludes raw report payloads, portfolio scope, tenant identifiers, correlation identifiers, and trace identifiers. Metrics now count `operation="stuck_state_scan"` and expose `lotus_report_attention_events_last_count` with bounded `attention_type` and `severity` labels only. Tests prove report-job SLA breach detection, stale non-expired batch-item heartbeat detection, max-event sorting, API response safety, metric contract promotion, and OpenAPI quality. Broader dedicated replay dashboards, retry-pressure dashboards, render/archive-specific stuck scanners beyond current report job lifecycle state, and productized SLA dashboard surfaces remain planned rather than overclaimed. | Slice 9 end-to-end implementation proof is now unblocked. |
+| Slice 9 implementation proof | `lotus-report` PR `sgajbi/lotus-report#83`, branch `feature/rfc-0105-observability-slice-3`; live evidence pack `lotus-report/output/rfc-0105-live-evidence-20260428-165945`; `scripts/rfc_0102_proof_app.py`, `scripts/rfc_0105_live_evidence.py`, `src/app/reporting_render/rerender_service.py`, and `tests/integration/test_report_job_api.py` | `lotus-report`: `python scripts/rfc_0105_live_evidence.py` passed against live local `lotus-report`, `lotus-render`, and `lotus-archive`; proof summary booleans all true for report/render/archive, operator diagnostics safety, archive metadata linkage, rerender, regenerate, failed report-job replay, failed batch-item replay, scheduler-admin list/run-due observability, attention events, and metrics vocabulary. Targeted regression set `python -m pytest tests/integration/test_report_job_api.py::test_report_job_rerender_uses_existing_snapshot_and_archives_correction tests/unit/reporting_operations/test_attention.py tests/unit/test_observability.py tests/integration/test_report_batch_api.py::test_reporting_attention_endpoint_returns_operator_safe_scan -q` passed with `36 passed`; `python -m ruff check .` and `python -m ruff format --check .` passed after formatting. Exact live identifiers: correlation `corr-rfc0105-3861407cce884357b0d9bf8461aa4fe2`, trace `3861407cce884357b0d9bf8461aa4fe2`, report `rjob_ba42b5d2c4914cb5951b1a38ab767c65`, snapshot `rsnap_59bd3a7b543444ebbf712aaa6fa6782e`, render `rdr_rjob_ba42b5d2c4914cb5951b1a38ab767c65_pdf`, archive document `doc_0ec51648138642cdbd61e978a4649d59`, rerender document `doc_f68a7f172b324754a44565b2156a6a15`, regenerated job `rjob_81a9cf99f298478ab07620fe0d4b0276`, regenerated snapshot `rsnap_ebba5316e83341e4beb8c97acefeb2ec`, regenerated document `doc_d5b33aaf87ce4b01860bc0350e0d889f`, failed source job `rjob_a9682a0a392b4e7cbebd9318cebca005`, replayed job `rjob_1c32a33a15dc4d8d98ae672ffdafc2fb`, batch `rbch_e271fac07ced4ecbb4fda192f2918138`, batch item `rbit_ebf34b57d77c44aca40a3e13c3186b19`, batch replayed job `rjob_0a093b71660f4291bc24221970523232`, attention batch `rbch_e9b0ab530b2041bc8b3abfcf0c113abf`, attention item `rbit_f056e3018ee44a3db9ded198f150df13`, attention scan `rasc_20260428T165956Z`, batch schedule `monthly-sg-global-bal-rfc0105-live`, scheduler run correlation `corr-batch-scheduler-9-14b9f8d70ba6`, and scheduled batch `rbch_d68324768bc34b37a4806bd735ba2005`. | Slice 9 is implementation-backed for live end-to-end proof across the first-wave RFC-0105 surface. The proof exposed and fixed a production contract bug where rerender sent non-render-contract `snapshot_hash` and `render_attempt_id` fields to live `lotus-render`; rerender now keeps those fields in report/ledger/archive metadata while sending only the render package contract to render. The proof harness now captures reusable live evidence for report creation, status/events/snapshot/lineage/diagnostics, archive metadata and access events, rerender, regenerate, failed job replay, failed batch-item replay, scheduler-admin list/run-due over the config-backed scheduler source, a deliberate stale active batch item attention event, and metrics including scheduler pass counters/gauges. | Proceed to second-last hardening/review/certification slice before final closure. |
 
-## Final Gold-Pass Assessment Placeholder
+## Final Gold-Pass Assessment
 
-This section must be completed in the final closure slice. It must state:
+Implemented for first-wave scope on 2026-04-28 in `lotus-report` PR
+`sgajbi/lotus-report#83` and `lotus-platform` PR `sgajbi/lotus-platform#224`.
 
-1. what was truly completed,
-2. what quality improvements were made,
-3. what debt was removed,
-4. what was proven through tests and live evidence,
-5. which features were promoted to implementation-backed,
-6. which gaps remain deferred and why,
-7. whether the implementation reached the expected production standard.
+Completed implementation-backed scope:
+
+1. correlation and trace propagation across report, render, archive, batch worker, and scheduler
+   operations,
+2. bounded structured logging and no-sensitive-content controls for the reporting flow,
+3. first-wave metrics vocabulary, dashboard, alert, and SLA contract governance,
+4. one-job operator diagnostics through `GET /reports/jobs/{job_id}/diagnostics`,
+5. archived-report rerender from immutable RFC-0101 snapshot through
+   `POST /reports/jobs/{job_id}/rerender`,
+6. archived-report regenerate from upstream data through `POST /reports/jobs/{job_id}/regenerate`,
+7. failed retry-eligible report-job replay through `POST /reports/jobs/{job_id}/replay`,
+8. failed retry-eligible implementation-backed batch-item replay through
+   `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay`,
+9. source-backed report-job and batch-item stuck-state/SLA attention scanning through
+   `GET /reports/operations/attention`,
+10. scheduler-admin observability proof for config-backed schedule list and bounded run-due
+    materialization,
+11. reusable live evidence harness `scripts/rfc_0105_live_evidence.py`.
+
+Quality improvements made during implementation:
+
+1. consolidated reporting observability vocabulary under code-owned metric and operation helpers,
+2. kept render, archive, report, batch, and scheduler ownership boundaries explicit,
+3. added behavior tests for diagnostics, rerender, regenerate, replay, attention scanning, metrics,
+   OpenAPI examples, and sensitive-field absence,
+4. added a live proof app and harness that exercise the implementation through actual local
+   service processes instead of mocked-only success,
+5. fixed the live rerender/render contract mismatch exposed by Slice 9 so `lotus-report` no longer
+   sends non-render-contract `snapshot_hash` or `render_attempt_id` fields to `lotus-render`.
+
+Proof evidence:
+
+1. `lotus-report/output/rfc-0105-live-evidence-20260428-165945` proves live
+   report/render/archive, diagnostics, rerender, regenerate, failed report-job replay, failed
+   batch-item replay, scheduler-admin list/run-due, attention scan, and metrics behavior.
+2. Exact live identifiers include correlation `corr-rfc0105-3861407cce884357b0d9bf8461aa4fe2`,
+   trace `3861407cce884357b0d9bf8461aa4fe2`, report
+   `rjob_ba42b5d2c4914cb5951b1a38ab767c65`, document
+   `doc_0ec51648138642cdbd61e978a4649d59`, batch schedule
+   `monthly-sg-global-bal-rfc0105-live`, scheduler run correlation
+   `corr-batch-scheduler-9-14b9f8d70ba6`, attention scan `rasc_20260428T165956Z`, and scheduled
+   batch `rbch_d68324768bc34b37a4806bd735ba2005`.
+3. Local validation for the final hardening pass included `python -m ruff check .`,
+   `python -m ruff format --check .`, `python -m mypy --config-file mypy.ini`,
+   `python scripts/openapi_quality_gate.py`, report targeted API/scheduler tests, platform RFC
+   governance tests, and the live proof harness.
+4. GitHub PR checks were green on report head `746234474cdfa25c95f08ca4796f893185b58b50` and
+   platform head `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`, including feature lanes, PR merge
+   gates, unit/integration/e2e, combined coverage, Docker build, workflow lint, platform contracts,
+   and cross-app vocabulary.
+
+Supported-feature posture:
+
+1. Promoted implementation-backed rows remain limited to the specific report diagnostics,
+   rerender, regenerate, failed-work replay, attention scan, traceability, metrics, batch
+   scheduler-admin, and related already-proven batch/report primitives listed in
+   `lotus-report/docs/supported-features.md`.
+2. Broader cross-identifier operations lookup, broad replay dashboards, retry-pressure dashboards,
+   productized SLA dashboards, document distribution/reissue, archive housekeeping, scheduler CRUD,
+   persisted scheduler registry mutation, Workbench scheduler-management, and entitlement-certified
+   public scheduler runtime remain planned or later-RFC scope.
+3. RFC-0106 remains the owner for final role/action, tenant, region, booking-center, portfolio,
+   document-access, and service-to-service authorization certification.
+4. RFC-0107 remains the owner for final enterprise reporting production certification across
+   non-functional thresholds, complete platform evidence packs, and release posture.
+
+Documentation, context, wiki, and skills decision:
+
+1. `lotus-report` README, supported-features, operations docs, repository context, and repo-local
+   wiki source already describe the implementation-backed RFC-0105 first-wave surface and residual
+   planned scope.
+2. `lotus-platform` RFC index and engineering context were updated with final proof evidence.
+3. No new skill was required; existing Lotus backend delivery, PR pre-merge, and platform
+   governance skills cover this operating pattern.
+4. Repo-local wiki source is the authored truth. The `lotus-report` pre-merge wiki check currently
+   reports pre-existing published-wiki drift in `API-Surface.md`, `Operations-Runbook.md`, and
+   `Security-and-Governance.md`; this RFC slice did not introduce new repo-local wiki source drift.
+
+Final assessment:
+
+RFC-0105 reaches the expected production standard for the first-wave reporting observability,
+operations, and replay tooling scope proven above. Remaining work is explicitly bounded to planned
+broader operations surfaces and to RFC-0106/RFC-0107 certification responsibilities, not hidden
+implementation debt inside this RFC closure.
+
 
 
 

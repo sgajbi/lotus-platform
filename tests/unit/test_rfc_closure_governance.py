@@ -487,7 +487,7 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
     )
 
     for expected in [
-        "- status: implementation in progress; slices 0-8 complete",
+        "- status: implemented for first-wave scope",
         "gold-pass hardened: 2026-04-26",
         "rfc-0104 closure alignment: 2026-04-26",
         "critical review outcome",
@@ -520,10 +520,28 @@ def test_rfc_0105_preserves_observability_operations_gold_pass_contract() -> Non
         "supported features governance",
         "evidence expectations",
         "implementation proof ledger",
-        "final gold-pass assessment placeholder",
+        "final gold-pass assessment",
         "slice 2 trace and structured logging",
         "23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f",
         "f063bbc7541d72f85ddc2e8e8a12ed27efd0665d",
+        "lotus-report/output/rfc-0105-live-evidence-20260428-165945",
+        "corr-rfc0105-3861407cce884357b0d9bf8461aa4fe2",
+        "3861407cce884357b0d9bf8461aa4fe2",
+        "rjob_ba42b5d2c4914cb5951b1a38ab767c65",
+        "doc_0ec51648138642cdbd61e978a4649d59",
+        "rasc_20260428t165956z",
+        "monthly-sg-global-bal-rfc0105-live",
+        "corr-batch-scheduler-9-14b9f8d70ba6",
+        "746234474cdfa25c95f08ca4796f893185b58b50",
+        "ee835094e7bc0f407fe2afb002c90e0bccdbcd05",
+        "proof exposed and fixed a production contract bug",
+        "scheduler-admin list/run-due observability",
+        "scheduler-admin list/run-due over the config-backed scheduler source",
+        "implemented for first-wave scope on 2026-04-28",
+        "final assessment",
+        "pre-existing published-wiki drift",
+        "rfc-0106 remains the owner",
+        "rfc-0107 remains the owner",
         "targeted replay/error coverage suite with `12 passed`",
         "combined coverage, docker build, and workflow lint all passed",
         "`get /reports/operations/attention` runs a deterministic source-backed scan over active durable report jobs",
@@ -602,7 +620,7 @@ def test_rfc_0106_preserves_reporting_security_gold_pass_contract() -> None:
         "supported features governance",
         "evidence expectations",
         "implementation proof ledger",
-        "final gold-pass assessment placeholder",
+        "final gold-pass assessment",
     ]:
         assert expected in text
 
@@ -675,7 +693,7 @@ def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> Non
         "supported features governance",
         "evidence expectations",
         "implementation proof ledger",
-        "final gold-pass assessment placeholder",
+        "final gold-pass assessment",
     ]:
         assert expected in text
 
@@ -870,9 +888,3 @@ def test_rfc_0092_preserves_production_mesh_operations_contract() -> None:
         "tests/unit/test_enterprise_mesh_operating_report.py",
     ]:
         assert expected in text
-
-
-
-
-
-
