@@ -73,14 +73,16 @@
   implementation started with Slice 0 platform scaffold hardening, Slice 1 `lotus-report`
   observability structure cleanup, Slice 2 cross-service trace/structured logging proof across
   `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`, Slice 3 first-wave
-  reporting metrics, dashboard, alert, and SLA contracts, and Slice 4 first-wave report-job
-  operator diagnostics; reporting observability, operator APIs,
-  replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API
+  reporting metrics, dashboard, alert, and SLA contracts, Slice 4 first-wave report-job
+  operator diagnostics, and Slice 5 archived-report rerender from immutable snapshot; reporting
+  observability, operator APIs, replay, rerender, regenerate, stuck-job, SLA monitoring, implementation slices, API
   certification requirements, supported-features governance, RFC-0104 batch/scheduler-admin
   observability inputs, live proof expectations, future-service correlation-id plus trace-id
   propagation defaults, `lotus-report` runtime observability vocabulary ownership,
-  implementation-backed `GET /reports/jobs/{job_id}/diagnostics`, and the data-protection gate
-  before broader mutating replay/rerender/regenerate are now tracked
+  implementation-backed `GET /reports/jobs/{job_id}/diagnostics`,
+  implementation-backed `POST /reports/jobs/{job_id}/rerender` for archived PDF correction from
+  the same snapshot id/hash, and the data-protection gate before broader mutating
+  replay/regenerate are now tracked
 - [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
   gold-pass ready with implementation not started; reporting security, entitlements, role/action
   matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,

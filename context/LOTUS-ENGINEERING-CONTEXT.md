@@ -206,7 +206,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
 11. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
     `lotus-report` observability structure cleanup, Slice 2 cross-service trace and structured
     logging proof after RFC-0104 closure, Slice 3 first-wave reporting metrics, dashboard,
-    alert, and SLA contracts, and Slice 4 first-wave report-job operator diagnostics. It may
+    alert, and SLA contracts, Slice 4 first-wave report-job operator diagnostics, and Slice 5
+    archived-report rerender from immutable snapshot. It may
     consume RFC-0104 durable batch, gateway, Workbench, and
     scheduler-administration identifiers as source-backed observability inputs. The platform
     scaffold now defaults future FastAPI services to correlation-id plus trace-id propagation,
@@ -218,8 +219,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     objectives without claiming stuck-state or replay behavior. `lotus-report` now exposes
     `GET /reports/jobs/{job_id}/diagnostics` as a source-backed one-job operator view over status,
     latest lifecycle event, snapshot posture, upstream-lineage summary, render metadata, and archive
-    handoff identifiers without raw payloads or storage references. The next implementation wave
-    should continue with rerender-from-snapshot proof before broader regenerate or replay commands.
+    handoff identifiers without raw payloads or storage references, and exposes
+    `POST /reports/jobs/{job_id}/rerender` for already archived PDF jobs to create an idempotent
+    correction from the same snapshot id/hash with a new rerender/render/archive identity and no
+    upstream recollection. The next implementation wave should continue with regenerate-from-source
+    only after rerender CI and wiki evidence remain green.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
