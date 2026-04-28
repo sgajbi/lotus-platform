@@ -205,8 +205,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    pending later work.
 11. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
     `lotus-report` observability structure cleanup, Slice 2 cross-service trace and structured
-    logging proof after RFC-0104 closure, and Slice 3 first-wave reporting metrics, dashboard,
-    alert, and SLA contracts. It may consume RFC-0104 durable batch, gateway, Workbench, and
+    logging proof after RFC-0104 closure, Slice 3 first-wave reporting metrics, dashboard,
+    alert, and SLA contracts, and Slice 4 first-wave report-job operator diagnostics. It may
+    consume RFC-0104 durable batch, gateway, Workbench, and
     scheduler-administration identifiers as source-backed observability inputs. The platform
     scaffold now defaults future FastAPI services to correlation-id plus trace-id propagation,
     `lotus-report` now owns runtime correlation, request, trace, structured-log, and safe operator
@@ -214,9 +215,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     caller correlation and trace identifiers through live batch-to-archive proof while suppressing
     malformed `traceparent` headers for non-W3C trace IDs, and platform observability contracts now
     inventory first-wave report/render/archive metrics, dashboards, alert rules, and initial SLA
-    objectives without claiming stuck-state or replay behavior. The next implementation wave should
-    continue with operator status and diagnostics APIs before mutating rerender, regenerate, or
-    replay commands.
+    objectives without claiming stuck-state or replay behavior. `lotus-report` now exposes
+    `GET /reports/jobs/{job_id}/diagnostics` as a source-backed one-job operator view over status,
+    latest lifecycle event, snapshot posture, upstream-lineage summary, render metadata, and archive
+    handoff identifiers without raw payloads or storage references. The next implementation wave
+    should continue with rerender-from-snapshot proof before broader regenerate or replay commands.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
