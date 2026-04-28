@@ -230,9 +230,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     archive document with explicit old/new identities, exposes `POST /reports/jobs/{job_id}/replay`
     for failed retry-eligible report jobs, and exposes
     `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay` for failed retry-eligible
-    implementation-backed batch items linked to failed report jobs. The next implementation wave
-    should continue with stuck-state and SLA monitoring only after replay CI and wiki evidence
-    remain green.
+    implementation-backed batch items linked to failed report jobs. GitHub CI is green for Slice 7
+    on `lotus-report` PR `sgajbi/lotus-report#83` head `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`,
+    including feature lane, PR merge gate unit/integration/e2e, combined coverage, and Docker
+    build. The next implementation wave can continue with stuck-state and SLA monitoring.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
