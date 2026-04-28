@@ -210,7 +210,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     archived-report rerender from immutable snapshot, Slice 6 regenerate from upstream data,
     Slice 7 failed-work replay for failed retry-eligible report jobs and implementation-backed
     batch items, Slice 8 source-backed stuck-state/SLA attention scanning, and Slice 9 live
-    implementation proof through `lotus-report/output/rfc-0105-live-evidence-20260428-165945`.
+    implementation proof through `lotus-report/output/rfc-0105-live-evidence-20260428-165945`
+    plus the gold-pass audit rerun
+    `lotus-report/output/rfc-0105-live-evidence-20260428-234551`, which preserved numbered
+    per-call render/archive evidence captures.
     It may
     consume RFC-0104 durable batch, gateway, Workbench, and
     scheduler-administration identifiers as source-backed observability inputs. The platform
