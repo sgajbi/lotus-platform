@@ -197,12 +197,12 @@
     {
       "repository": "lotus-advise",
       "role": "Advisory proposal, recommendation, suitability, and decision-support supportability source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["advise.observability.advisory_supportability"],
-      "gap_classification": ["advisory_supportability_planned"],
-      "blockers": ["advisory supportability metrics are not implemented"],
-      "required_proof": ["repo-native advisory tests", "supportability metric proof", "Workbench advisory surface reconciliation"],
-      "wiki_source_decision": "Advise wiki source update required when advisory supportability ships",
+      "gap_classification": ["advisory_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["advisory supportability is implemented in lotus-advise; Gateway consumption and Workbench advisory surface reconciliation remain planned"],
+      "required_proof": ["repo-native advisory tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench advisory surface reconciliation"],
+      "wiki_source_decision": "Advise wiki source updated for advisory supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["advisory supportability runbook"]
     },
     {

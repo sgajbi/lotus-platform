@@ -38,6 +38,7 @@ IMPLEMENTED_SLICE_11_FEATURE_KEY = (
     "platform.analytics.observability.scaffold_ci_enforcement"
 )
 IMPLEMENTED_SLICE_12_FEATURE_KEYS = {
+    "advise.observability.advisory_supportability",
     "manage.observability.action_register_supportability",
     "performance.observability.calculation_supportability",
     "risk.observability.calculation_supportability",

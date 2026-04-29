@@ -153,6 +153,7 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion()
 @pytest.mark.parametrize(
     "feature_key",
     [
+        "advise.observability.advisory_supportability",
         "performance.observability.calculation_supportability",
         "risk.observability.calculation_supportability",
         "manage.observability.action_register_supportability",
