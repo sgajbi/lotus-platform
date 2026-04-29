@@ -554,9 +554,9 @@
     },
     {
       "feature_key": "report.observability.evidence_surface_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-report",
-      "promotion_evidence": "Slice 12 must expose report evidence-pack supportability for front-office evidence surfaces without duplicating RFC-0105 reporting job operations."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-report evidence-surface supportability via GET /integration/capabilities supportability, report.observability.evidence_surface_supportability capability publication, lotus_report_evidence_surface_supportability_total with bounded labels only, repo-native make check proof covering lint, typecheck, OpenAPI, and 419 unit tests, docs, and wiki source updates. Gateway consumption and Workbench evidence-surface reconciliation remain planned."
     },
     {
       "feature_key": "render.observability.render_supportability",

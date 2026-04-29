@@ -180,6 +180,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert (
         feature_status["advise.observability.advisory_supportability"] == "implemented"
     )
+    assert (
+        feature_status["report.observability.evidence_surface_supportability"]
+        == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
@@ -206,6 +210,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "risk.observability.calculation_supportability",
             "advise.observability.advisory_supportability",
             "manage.observability.action_register_supportability",
+            "report.observability.evidence_surface_supportability",
         }
     } == {"planned"}
 
