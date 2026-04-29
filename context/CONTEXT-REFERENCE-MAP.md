@@ -277,9 +277,11 @@ The current reporting and analytics observability governance references are:
    Slices 10 and 11 are complete with a governed ecosystem-completion contract, per-app gap matrix,
    scaffold/CI enforcement contract, validators, first-wave protected evidence, branch policy,
    generated backend no-sensitive-content and supported-features gates, reusable Workbench/UI
-   observability template, and platform repo check wiring. Required ecosystem Slices 12-18 extend
-   the same posture uniformly across all Lotus apps, including backend supportability metrics,
-   Gateway fan-out metrics and protected diagnostics, all Workbench supported surfaces,
+   observability template, and platform repo check wiring. Slice 12 is partially implemented in
+   `lotus-risk` and `lotus-manage` for risk calculation and management action-register
+   supportability posture with bounded metrics. Required remaining ecosystem Slices 12-18 extend
+   the same posture uniformly across all Lotus apps, including the remaining backend supportability
+   metrics, Gateway fan-out metrics and protected diagnostics, all Workbench supported surfaces,
    dashboards/alerts/runbooks, live ecosystem proof, hardening/certification, and final ecosystem
    closure.
    It is not an extension of RFC-0105.

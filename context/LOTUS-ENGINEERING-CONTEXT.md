@@ -314,10 +314,20 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `context/contracts/analytics-ui-observability-scaffold-ci-enforcement.json`,
     `automation/validate_analytics_ui_scaffold_ci_enforcement.py`, generated backend
     no-sensitive-content and supported-features gates, a reusable Workbench/UI observability
-    template, and platform repo check wiring that keeps the baseline platform-owned. Slices 12-18
-    remain planned for backend freshness/supportability metrics, Gateway fan-out metrics and
-    protected diagnostics, all supported Workbench surfaces, dashboards/alerts/runbooks, live
-    ecosystem proof, ecosystem hardening/certification, and final ecosystem closure.
+    template, and platform repo check wiring that keeps the baseline platform-owned. Slice 12 is
+    now partially implemented: `lotus-risk` `POST /analytics/risk/calculate` emits
+    `metadata.calculation_supportability`, bounded
+    `lotus_risk_calculation_supportability_total` labels, and the implemented feature key
+    `risk.observability.calculation_supportability`; `lotus-manage`
+    `GET /rebalance/supportability/summary` emits `supportability.state`,
+    `supportability.reason`, `supportability.freshness_bucket`, bounded
+    `lotus_manage_action_register_supportability_total` labels, and the implemented feature key
+    `manage.observability.action_register_supportability`. The remaining backend services,
+    remaining risk endpoint families, and Gateway/Workbench reconciliation still need
+    implementation-backed supportability before Slice 12 can close. Slices 13-18 remain planned for
+    Gateway fan-out metrics and protected diagnostics, all supported Workbench surfaces,
+    dashboards/alerts/runbooks, live ecosystem proof, ecosystem hardening/certification, and final
+    ecosystem closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

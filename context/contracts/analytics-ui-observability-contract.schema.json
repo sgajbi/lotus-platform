@@ -38,7 +38,8 @@
         "second-last-hardening-implemented",
         "final-closure-implemented",
         "slice-10-ecosystem-contract-implemented",
-        "slice-11-scaffold-ci-enforcement-implemented"
+        "slice-11-scaffold-ci-enforcement-implemented",
+        "slice-12-backend-supportability-partial-implemented"
       ]
     },
     "allowed_labels": {

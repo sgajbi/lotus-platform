@@ -4,6 +4,8 @@ import copy
 import json
 from pathlib import Path
 
+import pytest
+
 from automation.validate_analytics_ui_ecosystem_completion import (
     REQUIRED_REPOSITORIES,
     validate_ecosystem_completion,
@@ -45,7 +47,10 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert ecosystem["contract_id"] == "analytics-ui-observability-ecosystem-completion"
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
-    assert ecosystem["lifecycle_status"] == "slice-11-scaffold-ci-enforcement-implemented"
+    assert (
+        ecosystem["lifecycle_status"]
+        == "slice-12-backend-supportability-partial-implemented"
+    )
 
 
 def test_analytics_ui_ecosystem_completion_validator_accepts_baseline() -> None:
@@ -67,7 +72,7 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
-def test_analytics_ui_ecosystem_completion_requires_slices_10_and_11_only_implemented() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_12_partial_only() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {
         entry["slice_id"]: entry["status"]
@@ -76,7 +81,8 @@ def test_analytics_ui_ecosystem_completion_requires_slices_10_and_11_only_implem
 
     assert statuses[10] == "implemented"
     assert statuses[11] == "implemented"
-    assert {statuses[slice_id] for slice_id in range(12, 19)} == {"planned"}
+    assert statuses[12] == "partially_implemented"
+    assert {statuses[slice_id] for slice_id in range(13, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
@@ -90,7 +96,7 @@ def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
     assert any("lotus-ai" in error for error in errors)
 
 
-def test_analytics_ui_ecosystem_completion_rejects_premature_slice_promotion() -> None:
+def test_analytics_ui_ecosystem_completion_rejects_premature_slice_completion() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
     for entry in ecosystem["ecosystem_completion_slices"]:
@@ -99,7 +105,7 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_slice_promotion() -
 
     errors = _validate(observability, ecosystem)
 
-    assert any("Slice 12 must remain planned" in error for error in errors)
+    assert any("Slice 12 must be partially_implemented" in error for error in errors)
 
 
 def test_analytics_ui_ecosystem_completion_rejects_unknown_feature_key() -> None:
@@ -136,5 +142,29 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion()
     assert any(
         "gateway.analytics.observability.fanout_metrics: ecosystem feature must remain planned"
         in error
+        for error in errors
+    )
+
+
+@pytest.mark.parametrize(
+    "feature_key",
+    [
+        "risk.observability.calculation_supportability",
+        "manage.observability.action_register_supportability",
+    ],
+)
+def test_analytics_ui_ecosystem_completion_requires_slice_12_features_implemented(
+    feature_key: str,
+) -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if feature["feature_key"] == feature_key:
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        f"{feature_key} must be implemented after Slice 12 partial proof" in error
         for error in errors
     )
