@@ -1,3 +1,4 @@
 interface:
   display_name: "Lotus Frontend Delivery Governance"
-  short_description: "Apply Lotus frontend CI, browser validation, and PR standards"
+  short_description: "Build governed private-banking Workbench UI with validation"
+  default_prompt: "Use $lotus-frontend-delivery-governance to implement or review Lotus Workbench UI with gateway-backed behavior, private-banking analytics quality, browser validation, and truthful PR evidence."

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import yaml
@@ -48,3 +49,89 @@ def test_platform_stack_otel_collector_is_platform_owned() -> None:
 
     assert "./otel-collector/config.yaml:/etc/otelcol/config.yaml:ro" in volumes
     assert (PLATFORM_STACK_DIR / "otel-collector" / "config.yaml").exists()
+
+
+def test_platform_stack_prometheus_scrapes_reporting_observability_targets() -> None:
+    prometheus = _read_yaml(PLATFORM_STACK_DIR / "prometheus" / "prometheus.yml")
+
+    jobs = {job["job_name"]: job for job in prometheus["scrape_configs"]}
+    assert prometheus["rule_files"] == ["/etc/prometheus/rules/*.yml"]
+    assert jobs["lotus-report"]["static_configs"][0]["targets"] == ["lotus-report:8300"]
+    assert jobs["lotus-render"]["static_configs"][0]["targets"] == ["host.docker.internal:8310"]
+    assert jobs["lotus-archive"]["static_configs"][0]["targets"] == ["host.docker.internal:8150"]
+
+
+def test_platform_stack_prometheus_mounts_reporting_rules() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    prometheus = compose["services"]["prometheus"]
+    volumes = prometheus["volumes"]
+
+    assert "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro" in volumes
+    assert "./prometheus/rules:/etc/prometheus/rules:ro" in volumes
+    assert (
+        PLATFORM_STACK_DIR / "prometheus" / "rules" / "reporting-observability.rules.yml"
+    ).exists()
+
+
+def test_platform_stack_reporting_rules_align_with_contract_alerts() -> None:
+    contract = json.loads(
+        (ROOT / "context" / "contracts" / "reporting-observability-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    rules = _read_yaml(
+        PLATFORM_STACK_DIR / "prometheus" / "rules" / "reporting-observability.rules.yml"
+    )
+
+    expected_alerts = {
+        alert["alert_id"]: {
+            "metric_name": alert["metric_name"],
+            "severity": alert["severity"],
+            "owner_repo": alert["owner_repo"],
+            "runbook_path": alert["runbook_path"],
+        }
+        for alert in contract["alerts"]
+    }
+    metric_names = {metric["metric_name"] for metric in contract["metrics_catalog"]}
+    actual_alerts = {}
+    for group in rules["groups"]:
+        for rule in group["rules"]:
+            alert_id = rule["labels"]["alert_id"]
+            actual_alerts[alert_id] = {
+                "severity": rule["labels"]["severity"],
+                "owner_repo": rule["labels"]["owner_repo"],
+                "runbook_path": rule["annotations"]["runbook"],
+                "expr": rule["expr"],
+            }
+
+    assert set(actual_alerts) == set(expected_alerts)
+    for alert_id, expected in expected_alerts.items():
+        actual = actual_alerts[alert_id]
+        assert actual["severity"] == expected["severity"]
+        assert actual["owner_repo"] == expected["owner_repo"]
+        assert actual["runbook_path"] == expected["runbook_path"]
+        assert expected["metric_name"] in metric_names
+        assert expected["metric_name"] in actual["expr"]
+
+
+def test_platform_stack_reporting_rules_use_bounded_status_values() -> None:
+    contract = json.loads(
+        (ROOT / "context" / "contracts" / "reporting-observability-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    rules = _read_yaml(
+        PLATFORM_STACK_DIR / "prometheus" / "rules" / "reporting-observability.rules.yml"
+    )
+
+    rule_exprs = {}
+    for group in rules["groups"]:
+        for rule in group["rules"]:
+            rule_exprs[rule["labels"]["alert_id"]] = rule["expr"]
+
+    assert "report-operation-failures" in rule_exprs
+    assert 'status="failed"' in rule_exprs["report-operation-failures"]
+    report_operation_alert = next(
+        alert for alert in contract["alerts"] if alert["alert_id"] == "report-operation-failures"
+    )
+    assert report_operation_alert["metric_name"] == "lotus_report_operations_total"

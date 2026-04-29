@@ -2,9 +2,14 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
 # Canonical shared Prometheus baseline for platform-stack.
-# This file is platform-owned and should only describe services that are
-# actually orchestrated by lotus-platform/platform-stack.
+# This file is platform-owned and primarily describes services orchestrated by
+# lotus-platform/platform-stack. First-wave RFC-0105 reporting bridge targets
+# are allowed when platform-owned dashboards and alert contracts need to observe
+# reporting services that currently run from their repo-local stacks.
 scrape_configs:
   - job_name: "bff"
     static_configs:
@@ -29,3 +34,11 @@ scrape_configs:
   - job_name: "lotus-report"
     static_configs:
       - targets: ["lotus-report:8300"]
+
+  - job_name: "lotus-render"
+    static_configs:
+      - targets: ["host.docker.internal:8310"]
+
+  - job_name: "lotus-archive"
+    static_configs:
+      - targets: ["host.docker.internal:8150"]

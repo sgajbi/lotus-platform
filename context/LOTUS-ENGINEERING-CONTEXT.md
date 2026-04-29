@@ -203,17 +203,50 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Workbench gateway/BFF-backed explicit single-portfolio batch operation. RFC-0105
    dashboards/replay, RFC-0106 security certification, and RFC-0107 production certification remain
    pending later work.
-11. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
-    `lotus-report` observability structure cleanup, and Slice 2 cross-service trace and structured
-    logging proof after RFC-0104 closure. It may consume RFC-0104 durable batch, gateway,
-    Workbench, and scheduler-administration identifiers as source-backed observability inputs. The
-    platform scaffold now defaults future FastAPI services to correlation-id plus trace-id
-    propagation, `lotus-report` now owns runtime correlation, request, trace, structured-log, and
-    safe operator lookup vocabulary in `src/app/observability.py`, and gateway/report/render/archive
-    now preserve caller correlation and trace identifiers through live batch-to-archive proof while
-    suppressing malformed `traceparent` headers for non-W3C trace IDs. The next implementation wave
-    should continue with operator status and diagnostics APIs before mutating rerender, regenerate,
-    or replay commands.
+11. RFC-0105 is implemented for first-wave scope after completing Slice 0 platform scaffold hardening, Slice 1
+    `lotus-report` observability structure cleanup, Slice 2 cross-service trace and structured
+    logging proof after RFC-0104 closure, Slice 3 first-wave reporting metrics, dashboard,
+    alert, and SLA contracts, Slice 4 first-wave report-job operator diagnostics, Slice 5
+    archived-report rerender from immutable snapshot, Slice 6 regenerate from upstream data,
+    Slice 7 failed-work replay for failed retry-eligible report jobs and implementation-backed
+    batch items, Slice 8 source-backed stuck-state/SLA attention scanning, and Slice 9 live
+    implementation proof through `lotus-report/output/rfc-0105-live-evidence-20260428-165945`
+    plus the gold-pass audit rerun
+    `lotus-report/output/rfc-0105-live-evidence-20260428-234551`, which preserved numbered
+    per-call render/archive evidence captures.
+    It may
+    consume RFC-0104 durable batch, gateway, Workbench, and
+    scheduler-administration identifiers as source-backed observability inputs. The platform
+    scaffold now defaults future FastAPI services to correlation-id plus trace-id propagation,
+    `lotus-report` now owns runtime correlation, request, trace, structured-log, and safe operator
+    lookup vocabulary in `src/app/observability.py`, gateway/report/render/archive now preserve
+    caller correlation and trace identifiers through live batch-to-archive proof while suppressing
+    malformed `traceparent` headers for non-W3C trace IDs, and platform observability contracts now
+    inventory first-wave report/render/archive metrics, dashboards, alert rules, and initial SLA
+    objectives without claiming stuck-state or replay behavior. `lotus-report` now exposes
+    `GET /reports/jobs/{job_id}/diagnostics` as a source-backed one-job operator view over status,
+    latest lifecycle event, snapshot posture, upstream-lineage summary, render metadata, and archive
+    handoff identifiers without raw payloads or storage references, exposes
+    `POST /reports/jobs/{job_id}/rerender` for already archived PDF jobs to create an idempotent
+    correction from the same snapshot id/hash with a new rerender/render/archive identity and no
+    upstream recollection, exposes `POST /reports/jobs/{job_id}/regenerate` for already archived
+    PDF jobs to create a new report job, fresh upstream snapshot and lineage bundle, and replacement
+    archive document with explicit old/new identities, exposes `POST /reports/jobs/{job_id}/replay`
+    for failed retry-eligible report jobs, and exposes
+    `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay` for failed retry-eligible
+    implementation-backed batch items linked to failed report jobs, and exposes
+    `GET /reports/operations/attention` for bounded source-backed stuck-state and SLA-breach
+    attention events over active report jobs and batch items without raw payloads, portfolio scope,
+    tenant identifiers, correlation identifiers, or trace identifiers. GitHub CI is green for
+    Slice 7 on `lotus-report` PR `sgajbi/lotus-report#83` head
+    `23dd048a3d2ee1f2dfc3fe4452b31953a8a93b4f`, including feature lane, PR merge gate
+    unit/integration/e2e, combined coverage, and Docker build. Slice 8 is proven on
+    `f063bbc7541d72f85ddc2e8e8a12ed27efd0665d`; GitHub PR #83 is green including feature lane
+    lint/type/security and unit checks plus PR merge gate lint/type/security, unit, integration,
+    e2e, combined coverage, Docker build, and workflow lint. RFC-0105 final closure is recorded
+    for first-wave scope on `lotus-report` head
+    `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
+    `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
 12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

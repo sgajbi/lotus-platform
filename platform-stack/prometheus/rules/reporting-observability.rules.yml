@@ -1,0 +1,63 @@
+groups:
+  - name: reporting-observability
+    interval: 1m
+    rules:
+      - alert: ReportOperationFailures
+        expr: sum(increase(lotus_report_operations_total{status="failed"}[15m])) > 5
+        for: 15m
+        labels:
+          severity: P2
+          alert_id: report-operation-failures
+          owner_repo: lotus-report
+        annotations:
+          summary: Report operation failures are above the first-wave threshold.
+          description: Failed report operations exceeded 5 over the trailing 15 minutes.
+          runbook: docs/operations/reporting-observability-runbook.md#report-operation-failures
+
+      - alert: RenderLatencyP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(lotus_render_operation_duration_seconds_bucket[15m]))) > 5
+        for: 15m
+        labels:
+          severity: P2
+          alert_id: render-latency-p95
+          owner_repo: lotus-render
+        annotations:
+          summary: Render latency p95 is above the first-wave threshold.
+          description: Render duration p95 exceeded 5 seconds over the trailing 15 minutes.
+          runbook: docs/operations/reporting-observability-runbook.md#render-latency-p95
+
+      - alert: ArchiveLatencyP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(lotus_archive_operation_duration_seconds_bucket[15m]))) > 2
+        for: 15m
+        labels:
+          severity: P2
+          alert_id: archive-latency-p95
+          owner_repo: lotus-archive
+        annotations:
+          summary: Archive latency p95 is above the first-wave threshold.
+          description: Archive duration p95 exceeded 2 seconds over the trailing 15 minutes.
+          runbook: docs/operations/reporting-observability-runbook.md#archive-latency-p95
+
+      - alert: BatchDispatchReadyBacklog
+        expr: lotus_report_batch_pressure_last_counts{pressure_state="dispatch_ready_items"} > 100
+        for: 15m
+        labels:
+          severity: P2
+          alert_id: batch-dispatch-ready-backlog
+          owner_repo: lotus-report
+        annotations:
+          summary: Dispatch-ready batch backlog is above the first-wave threshold.
+          description: Dispatch-ready batch items exceeded 100 for at least 15 minutes.
+          runbook: docs/operations/reporting-observability-runbook.md#batch-dispatch-ready-backlog
+
+      - alert: BatchRetryReadyPressure
+        expr: lotus_report_batch_pressure_last_counts{pressure_state="retry_ready_items"} > 25
+        for: 15m
+        labels:
+          severity: P3
+          alert_id: batch-retry-ready-pressure
+          owner_repo: lotus-report
+        annotations:
+          summary: Retry-ready batch pressure is above the first-wave threshold.
+          description: Retry-ready batch items exceeded 25 for at least 15 minutes.
+          runbook: docs/operations/reporting-observability-runbook.md#batch-retry-ready-pressure

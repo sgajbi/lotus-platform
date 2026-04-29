@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/reporting-observability-contract.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "metrics_catalog",
+    "dashboards",
+    "alerts",
+    "sla_objectives",
+    "deferred_alerts"
+  ],
+  "properties": {
+    "contract_id": { "const": "reporting-observability-contract" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0105" },
+    "metrics_catalog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "metric_name",
+          "owner_repo",
+          "implemented",
+          "metric_type",
+          "labels",
+          "cardinality_policy",
+          "purpose"
+        ],
+        "properties": {
+          "metric_name": { "type": "string" },
+          "owner_repo": { "type": "string" },
+          "implemented": { "type": "boolean" },
+          "metric_type": { "enum": ["counter", "gauge", "histogram"] },
+          "labels": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "cardinality_policy": { "type": "string" },
+          "purpose": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "dashboards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dashboard_id", "title", "metric_names"],
+        "properties": {
+          "dashboard_id": { "type": "string" },
+          "title": { "type": "string" },
+          "metric_names": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alert_id",
+          "metric_name",
+          "severity",
+          "owner_repo",
+          "runbook_path",
+          "threshold_summary"
+        ],
+        "properties": {
+          "alert_id": { "type": "string" },
+          "metric_name": { "type": "string" },
+          "severity": { "enum": ["P1", "P2", "P3"] },
+          "owner_repo": { "type": "string" },
+          "runbook_path": { "type": "string" },
+          "threshold_summary": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sla_objectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "objective_id",
+          "service_scope",
+          "metric_name",
+          "target_summary",
+          "measurement_window",
+          "owner_repo",
+          "escalation_owner_role",
+          "runbook_path"
+        ],
+        "properties": {
+          "objective_id": { "type": "string" },
+          "service_scope": { "type": "string" },
+          "metric_name": { "type": "string" },
+          "target_summary": { "type": "string" },
+          "measurement_window": { "type": "string" },
+          "owner_repo": { "type": "string" },
+          "escalation_owner_role": { "type": "string" },
+          "runbook_path": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "deferred_alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["alert_family", "deferred_to_slice", "reason"],
+        "properties": {
+          "alert_family": { "type": "string" },
+          "deferred_to_slice": { "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

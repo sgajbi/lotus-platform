@@ -1,6 +1,6 @@
 ---
 name: lotus-frontend-delivery-governance
-description: "Use when implementing or reviewing frontend work in Lotus product surfaces such as lotus-workbench or other Lotus UIs. Apply the Lotus platform CI lane model, canonical gateway-first integration rules, browser validation expectations, platform end-to-end evidence requirements, and truthful PR process defined by RFC-0072."
+description: "Use when implementing or reviewing frontend work in Lotus product surfaces such as lotus-workbench or other Lotus UIs, including private banking analytics dashboards, Workbench panels, forms, tables, charts, and UI polish. Apply the Lotus platform CI lane model, canonical gateway-first integration rules, browser validation expectations, platform end-to-end evidence requirements, enterprise private-banking UI quality guidance, and truthful PR process defined by RFC-0072."
 ---
 
 # Lotus Frontend Delivery Governance
@@ -21,6 +21,11 @@ Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing, 
 If the task is specifically about the governed canonical front-office runtime, populated Workbench
 panels, or screenshot proof for `PB_SG_GLOBAL_BAL_001`, use `lotus-front-office-runtime` as the
 primary routing skill and treat this skill as secondary delivery governance.
+
+For Workbench experience design, analytics UI hardening, or private banking product-surface polish,
+also read [Private Banking Analytics UI](references/private-banking-analytics-ui.md). That
+reference captures reusable enterprise-grade UI guidance adapted from UI UX Pro Max and Lotus
+private banking architecture without making generic design-system generation the source of truth.
 
 ## Context-First Rule
 
@@ -65,6 +70,19 @@ Before changing UI:
    contract and RFC-0077 panel registry rather than page-local assumptions.
 7. Screenshots alone are not proof for governed front-office surfaces.
 
+## Workbench Experience Model
+
+For private banking analytics surfaces, organize the screen around advisor workflow value:
+
+1. portfolio identity and as-of context,
+2. primary decision or exception requiring attention,
+3. performance, risk, advisory, reporting, or operational evidence,
+4. drill-down path from summary to explanation to source evidence,
+5. supported action with its permission, workflow, and audit posture.
+
+Do not organize the interface around service boundaries or chart inventory. The user should see a
+coherent advisor workbench, not a stitched set of backend modules.
+
 ## Validation Thinking
 
 Map validation to the platform lanes:
@@ -97,6 +115,8 @@ For those canonical runtime tasks, the governed source of truth is:
 5. Copy, state handling, and layout do not drift from the shared system without explicit reason.
 6. PR evidence names the real commands and the real routes or panels validated.
 7. Panel support posture is truthful and matches the governed registry state.
+8. Private banking analytics panels show as-of date, benchmark or mandate context, currency/unit,
+   freshness, supportability, and source/evidence posture where applicable.
 
 ## Cross-Repo Rule
 

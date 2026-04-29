@@ -18,6 +18,11 @@ Current contracts:
 4. `workbench-panel-registry.json`
    The governed initial panel inventory, state policy, ownership mapping, and evidence posture for
    the canonical Workbench front-office surface.
+5. `reporting-observability-contract.schema.json`
+   The governed schema for the RFC-0105 reporting metrics, dashboard, and alert contract.
+6. `reporting-observability-contract.json`
+   The first-wave machine-readable inventory of implemented reporting metrics plus dashboard and
+   alert references that are allowed to claim them.
 
 Rules:
 
