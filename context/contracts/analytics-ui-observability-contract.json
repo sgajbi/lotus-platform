@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "final-closure-implemented",
+  "lifecycle_status": "slice-10-ecosystem-contract-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -392,9 +392,9 @@
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_completion_contract",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 10 must add the ecosystem observability contract, per-app gap matrix, validators, execution ledger, and supported-features checks for every Lotus repository."
+      "promotion_evidence": "Slice 10 adds the ecosystem observability contract, per-app gap matrix, validator, tests, execution ledger posture, and supported-features checks for every Lotus repository while keeping runtime work blocked until the expanded contract is merged."
     },
     {
       "feature_key": "platform.analytics.observability.scaffold_ci_enforcement",

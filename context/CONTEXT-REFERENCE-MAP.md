@@ -274,11 +274,12 @@ The current reporting and analytics observability governance references are:
    residual planned scope, and no-open-P0/P1 findings. Final closure adds a governed closure
    contract, validator, docs/context/wiki source updates, residual planned-scope preservation,
    branch/wiki hygiene requirements, and a deliberate no-change skills/guidance review outcome.
-   New required ecosystem Slices 10-18 extend the same posture uniformly across all Lotus apps,
-   including platform contract expansion, scaffolding/CI enforcement, backend supportability
-   metrics, Gateway fan-out metrics and protected diagnostics, all Workbench supported surfaces,
-   dashboards/alerts/runbooks, live ecosystem proof, hardening/certification, and final ecosystem
-   closure.
+   Slice 10 is complete with a governed ecosystem-completion contract, per-app gap matrix,
+   validator, first-wave protected evidence, and branch policy. Required ecosystem Slices 11-18
+   extend the same posture uniformly across all Lotus apps, including scaffolding/CI enforcement,
+   backend supportability metrics, Gateway fan-out metrics and protected diagnostics, all
+   Workbench supported surfaces, dashboards/alerts/runbooks, live ecosystem proof,
+   hardening/certification, and final ecosystem closure.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

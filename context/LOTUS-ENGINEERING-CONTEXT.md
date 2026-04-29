@@ -306,10 +306,14 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     wave adds required Slices 10-18 to finish uniform observability and operational posture across
     `lotus-workbench`, `lotus-gateway`, `lotus-core`, `lotus-performance`, `lotus-risk`,
     `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`,
-    and `lotus-platform`, covering contract expansion, platform scaffolding/CI enforcement,
-    backend freshness/supportability metrics, Gateway fan-out metrics and protected diagnostics,
-    all supported Workbench surfaces, dashboards/alerts/runbooks, live ecosystem proof,
-    ecosystem hardening/certification, and final ecosystem closure.
+    and `lotus-platform`. Slice 10 is complete with
+    `context/contracts/analytics-ui-observability-ecosystem-completion.json`,
+    `automation/validate_analytics_ui_ecosystem_completion.py`, a validator-protected per-app gap
+    matrix, first-wave protected evidence, required GitHub checks, and branch policy that blocks
+    runtime work before contract expansion is merged. Slices 11-18 remain planned for platform
+    scaffolding/CI enforcement, backend freshness/supportability metrics, Gateway fan-out metrics
+    and protected diagnostics, all supported Workbench surfaces, dashboards/alerts/runbooks, live
+    ecosystem proof, ecosystem hardening/certification, and final ecosystem closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

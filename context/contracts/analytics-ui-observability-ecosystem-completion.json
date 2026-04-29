@@ -1,0 +1,275 @@
+{
+  "contract_id": "analytics-ui-observability-ecosystem-completion",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-10-ecosystem-contract-implemented",
+  "participating_repositories": [
+    "lotus-platform",
+    "lotus-workbench",
+    "lotus-gateway",
+    "lotus-core",
+    "lotus-performance",
+    "lotus-risk",
+    "lotus-advise",
+    "lotus-manage",
+    "lotus-report",
+    "lotus-render",
+    "lotus-archive",
+    "lotus-ai"
+  ],
+  "first_wave_evidence": {
+    "implemented_scope_status": "first_wave_implemented",
+    "merge_prs": [225, 233, 234, 235, 236, 237],
+    "protected_feature_keys": [
+      "platform.scaffolding.analytics_ui_observability_baseline",
+      "platform.analytics.observability.telemetry_contract",
+      "platform.analytics.observability.rollout_readiness",
+      "platform.analytics.observability.hardening_certification",
+      "platform.analytics.observability.final_closure",
+      "workbench.analytics.observability.contract_vocabulary",
+      "workbench.analytics.observability.correlation_trace",
+      "workbench.analytics.observability.panel_state_metrics",
+      "workbench.analytics.observability.safe_dashboard",
+      "workbench.analytics.observability.attention_events",
+      "workbench.analytics.observability.entitlement_audit_events",
+      "workbench.analytics.observability.canonical_proof",
+      "gateway.analytics.observability.contract_vocabulary",
+      "gateway.analytics.observability.correlation_trace",
+      "gateway.analytics.observability.structured_fanout_logs"
+    ]
+  },
+  "ecosystem_completion_slices": [
+    {
+      "slice_id": 10,
+      "status": "implemented",
+      "purpose": "Expand RFC-0108 into a governed ecosystem observability contract and per-app gap matrix before runtime work resumes.",
+      "required_proof": [
+        "ecosystem contract validator",
+        "per-app gap matrix",
+        "supported-feature key reconciliation",
+        "GitHub checks"
+      ]
+    },
+    {
+      "slice_id": 11,
+      "status": "planned",
+      "purpose": "Make uniform observability the platform default through scaffolding and CI enforcement.",
+      "required_proof": ["scaffold tests", "workflow checks", "context and wiki updates"]
+    },
+    {
+      "slice_id": 12,
+      "status": "planned",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services.",
+      "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
+    },
+    {
+      "slice_id": 13,
+      "status": "planned",
+      "purpose": "Complete Gateway fan-out metrics, protected diagnostics, and audit events.",
+      "required_proof": ["gateway tests", "OpenAPI certification", "protected diagnostics audit proof"]
+    },
+    {
+      "slice_id": 14,
+      "status": "planned",
+      "purpose": "Roll observability out to every supported Workbench surface.",
+      "required_proof": ["Workbench tests", "browser proof", "Gateway/backend reconciliation"]
+    },
+    {
+      "slice_id": 15,
+      "status": "planned",
+      "purpose": "Extend dashboards, alerts, runbooks, and operator diagnostics across implemented ecosystem telemetry.",
+      "required_proof": ["dashboard validators", "alert validators", "runbook link checks"]
+    },
+    {
+      "slice_id": 16,
+      "status": "planned",
+      "purpose": "Prove the complete supported Lotus user journey end to end.",
+      "required_proof": ["live proof bundle", "proof review automation", "no-sensitive evidence assertions"]
+    },
+    {
+      "slice_id": 17,
+      "status": "planned",
+      "purpose": "Perform ecosystem hardening, API certification, and no-open-P0/P1 review.",
+      "required_proof": ["hardening review contract", "changed-repo CI", "supported-features audit"]
+    },
+    {
+      "slice_id": 18,
+      "status": "planned",
+      "purpose": "Close RFC-0108 after uniform ecosystem observability is implemented and published.",
+      "required_proof": ["final closure contract", "wiki publication evidence", "clean repo evidence"]
+    }
+  ],
+  "app_gap_matrix": [
+    {
+      "repository": "lotus-platform",
+      "role": "Platform contracts, automation, dashboards, CI, runbooks, wiki, and final evidence aggregation.",
+      "posture": "partially_implemented",
+      "feature_keys": [
+        "platform.analytics.observability.ecosystem_completion_contract",
+        "platform.analytics.observability.scaffold_ci_enforcement",
+        "platform.analytics.observability.ecosystem_dashboards_alerts",
+        "platform.analytics.observability.ecosystem_implementation_proof",
+        "platform.analytics.observability.ecosystem_hardening_certification",
+        "platform.analytics.observability.ecosystem_final_closure"
+      ],
+      "gap_classification": ["slice_10_implemented", "slices_11_15_16_17_18_planned"],
+      "blockers": ["platform scaffolding and CI enforcement remain planned", "ecosystem dashboards and proof remain planned"],
+      "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
+      "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
+      "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]
+    },
+    {
+      "repository": "lotus-workbench",
+      "role": "Primary front-office UI, BFF routes, panel state, browser evidence, and user-visible attention events.",
+      "posture": "partially_implemented",
+      "feature_keys": [
+        "workbench.analytics.observability.contract_vocabulary",
+        "workbench.analytics.observability.correlation_trace",
+        "workbench.analytics.observability.panel_state_metrics",
+        "workbench.analytics.observability.attention_events",
+        "workbench.analytics.observability.canonical_proof",
+        "workbench.analytics.observability.freshness_degraded_state",
+        "workbench.analytics.observability.all_supported_surfaces"
+      ],
+      "gap_classification": ["selected_panels_implemented", "all_supported_surfaces_planned", "source_backed_freshness_planned"],
+      "blockers": ["backend freshness/supportability metrics are not complete", "Gateway fan-out metrics and protected diagnostics are not complete"],
+      "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
+      "wiki_source_decision": "Workbench repo-local wiki source must document supported surfaces after Slice 14",
+      "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
+    },
+    {
+      "repository": "lotus-gateway",
+      "role": "Experience API, fan-out boundary, protected diagnostics, trace propagation, and entitlement-relevant audits.",
+      "posture": "partially_implemented",
+      "feature_keys": [
+        "gateway.analytics.observability.contract_vocabulary",
+        "gateway.analytics.observability.correlation_trace",
+        "gateway.analytics.observability.structured_fanout_logs",
+        "gateway.analytics.observability.fanout_metrics",
+        "gateway.analytics.observability.protected_diagnostics",
+        "gateway.analytics.observability.all_ui_fanout_paths"
+      ],
+      "gap_classification": ["structured_logs_implemented", "fanout_metrics_planned", "protected_diagnostics_planned"],
+      "blockers": ["fan-out metric families are not implemented", "protected diagnostics lookup API is not implemented"],
+      "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof"],
+      "wiki_source_decision": "Gateway repo-local wiki source must document diagnostics and fan-out metrics after Slice 13",
+      "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]
+    },
+    {
+      "repository": "lotus-core",
+      "role": "Portfolio, account, holding, mandate, transaction, and entitlement source supportability.",
+      "posture": "planned",
+      "feature_keys": ["core.observability.portfolio_supportability"],
+      "gap_classification": ["backend_supportability_planned"],
+      "blockers": ["source-backed portfolio supportability metrics are not implemented"],
+      "required_proof": ["repo-native tests", "metrics/log proof", "OpenAPI certification where APIs change"],
+      "wiki_source_decision": "Core wiki source update required if operator posture changes",
+      "runbook_requirements": ["portfolio supportability runbook"]
+    },
+    {
+      "repository": "lotus-performance",
+      "role": "Performance calculation freshness, completeness, period quality, and supportability source.",
+      "posture": "planned",
+      "feature_keys": [
+        "analytics.backend.observability.freshness_supportability",
+        "performance.observability.calculation_supportability"
+      ],
+      "gap_classification": ["backend_freshness_metrics_planned"],
+      "blockers": ["performance freshness/supportability metrics are not implemented"],
+      "required_proof": ["repo-native calculation tests", "freshness metric proof", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Performance wiki source update required when freshness/supportability metrics ship",
+      "runbook_requirements": ["performance calculation supportability runbook"]
+    },
+    {
+      "repository": "lotus-risk",
+      "role": "Risk calculation freshness, completeness, concentration/drawdown quality, and supportability source.",
+      "posture": "planned",
+      "feature_keys": [
+        "analytics.backend.observability.freshness_supportability",
+        "risk.observability.calculation_supportability"
+      ],
+      "gap_classification": ["backend_freshness_metrics_planned"],
+      "blockers": ["risk freshness/supportability metrics are not implemented"],
+      "required_proof": ["repo-native risk tests", "freshness metric proof", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Risk wiki source update required when freshness/supportability metrics ship",
+      "runbook_requirements": ["risk calculation supportability runbook"]
+    },
+    {
+      "repository": "lotus-advise",
+      "role": "Advisory proposal, recommendation, suitability, and decision-support supportability source.",
+      "posture": "planned",
+      "feature_keys": ["advise.observability.advisory_supportability"],
+      "gap_classification": ["advisory_supportability_planned"],
+      "blockers": ["advisory supportability metrics are not implemented"],
+      "required_proof": ["repo-native advisory tests", "supportability metric proof", "Workbench advisory surface reconciliation"],
+      "wiki_source_decision": "Advise wiki source update required when advisory supportability ships",
+      "runbook_requirements": ["advisory supportability runbook"]
+    },
+    {
+      "repository": "lotus-manage",
+      "role": "Management action register, mandate operation, task/action workflow, and operational supportability source.",
+      "posture": "planned",
+      "feature_keys": ["manage.observability.action_register_supportability"],
+      "gap_classification": ["management_supportability_planned"],
+      "blockers": ["management action-register supportability metrics are not implemented"],
+      "required_proof": ["repo-native management tests", "supportability metric proof", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Manage wiki source update required when action-register supportability ships",
+      "runbook_requirements": ["management action-register supportability runbook"]
+    },
+    {
+      "repository": "lotus-report",
+      "role": "Report evidence-pack supportability source for front-office evidence surfaces.",
+      "posture": "planned",
+      "feature_keys": ["report.observability.evidence_surface_supportability"],
+      "gap_classification": ["evidence_surface_supportability_planned"],
+      "blockers": ["front-office evidence supportability metrics are not implemented outside RFC-0105 job operations"],
+      "required_proof": ["repo-native report evidence tests", "supportability metric proof", "Gateway/Workbench evidence reconciliation"],
+      "wiki_source_decision": "Report wiki source update required when evidence-surface supportability ships",
+      "runbook_requirements": ["report evidence-surface supportability runbook"]
+    },
+    {
+      "repository": "lotus-render",
+      "role": "Deterministic render service supportability for report/evidence surfaces.",
+      "posture": "planned",
+      "feature_keys": ["render.observability.render_supportability"],
+      "gap_classification": ["render_supportability_planned"],
+      "blockers": ["render supportability metrics are not implemented for front-office evidence surfaces"],
+      "required_proof": ["repo-native render tests", "render metric proof", "report/evidence reconciliation"],
+      "wiki_source_decision": "Render wiki source update required when render supportability ships",
+      "runbook_requirements": ["render supportability runbook"]
+    },
+    {
+      "repository": "lotus-archive",
+      "role": "Archive retrieval, retention, legal-hold, document availability, and access-audit supportability source.",
+      "posture": "planned",
+      "feature_keys": ["archive.observability.archive_supportability"],
+      "gap_classification": ["archive_supportability_planned"],
+      "blockers": ["archive supportability metrics are not implemented for front-office evidence surfaces"],
+      "required_proof": ["repo-native archive tests", "archive metric proof", "access audit proof"],
+      "wiki_source_decision": "Archive wiki source update required when archive supportability ships",
+      "runbook_requirements": ["archive supportability runbook"]
+    },
+    {
+      "repository": "lotus-ai",
+      "role": "AI-backed feature supportability, degraded model posture, and bounded workflow-pack status source.",
+      "posture": "planned",
+      "feature_keys": ["ai.observability.ai_surface_supportability"],
+      "gap_classification": ["ai_surface_supportability_planned"],
+      "blockers": ["AI-backed supportability metrics are not implemented for supported UI surfaces"],
+      "required_proof": ["repo-native AI tests", "model posture proof", "no-sensitive prompt/output telemetry checks"],
+      "wiki_source_decision": "AI wiki source update required when AI surface supportability ships",
+      "runbook_requirements": ["AI surface supportability runbook"]
+    }
+  ],
+  "required_github_checks": [
+    "Cross-App Vocabulary Gate",
+    "Feature Lane / Platform Repo Contracts",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Platform Repo Contracts",
+    "PR Merge Gate / Workflow Lint"
+  ],
+  "branch_policy": {
+    "one_pr_per_slice": true,
+    "runtime_work_blocked_before_slice_10_merge": true
+  }
+}

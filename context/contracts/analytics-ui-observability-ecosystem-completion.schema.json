@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-ecosystem-completion.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "participating_repositories",
+    "first_wave_evidence",
+    "ecosystem_completion_slices",
+    "app_gap_matrix",
+    "required_github_checks",
+    "branch_policy"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "analytics-ui-observability-ecosystem-completion"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "governed_by_rfc": {
+      "const": "RFC-0108"
+    },
+    "lifecycle_status": {
+      "const": "slice-10-ecosystem-contract-implemented"
+    },
+    "participating_repositories": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "first_wave_evidence": {
+      "type": "object",
+      "required": ["implemented_scope_status", "merge_prs", "protected_feature_keys"],
+      "properties": {
+        "implemented_scope_status": { "const": "first_wave_implemented" },
+        "merge_prs": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 1
+        },
+        "protected_feature_keys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ecosystem_completion_slices": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/slice" },
+      "minItems": 1
+    },
+    "app_gap_matrix": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/appGap" },
+      "minItems": 1
+    },
+    "required_github_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "branch_policy": {
+      "type": "object",
+      "required": ["one_pr_per_slice", "runtime_work_blocked_before_slice_10_merge"],
+      "properties": {
+        "one_pr_per_slice": { "const": true },
+        "runtime_work_blocked_before_slice_10_merge": { "const": true }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "slice": {
+      "type": "object",
+      "required": ["slice_id", "status", "purpose", "required_proof"],
+      "properties": {
+        "slice_id": { "type": "integer" },
+        "status": {
+          "enum": ["implemented", "planned"]
+        },
+        "purpose": { "type": "string" },
+        "required_proof": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "appGap": {
+      "type": "object",
+      "required": [
+        "repository",
+        "role",
+        "posture",
+        "feature_keys",
+        "gap_classification",
+        "blockers",
+        "required_proof",
+        "wiki_source_decision",
+        "runbook_requirements"
+      ],
+      "properties": {
+        "repository": { "type": "string" },
+        "role": { "type": "string" },
+        "posture": {
+          "enum": [
+            "implemented",
+            "partially_implemented",
+            "planned",
+            "not_applicable_with_rationale",
+            "blocked_with_owner"
+          ]
+        },
+        "feature_keys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "gap_classification": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "blockers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "required_proof": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "wiki_source_decision": { "type": "string" },
+        "runbook_requirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
