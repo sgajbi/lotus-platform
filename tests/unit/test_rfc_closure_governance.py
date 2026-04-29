@@ -742,6 +742,110 @@ def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> Non
     )
 
 
+def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md"
+    )
+
+    for expected in [
+        "- status: implementation started; slice 0 complete",
+        "front-office analytics ui observability",
+        "interactive read/display flows",
+        "browser to gateway to backend",
+        "page load",
+        "panel hydration",
+        "api fan-out",
+        "calculation freshness",
+        "empty states",
+        "degraded widgets",
+        "user-visible stale data",
+        "frontend/backend correlation",
+        "no-sensitive-content controls",
+        "client names",
+        "portfolio ids",
+        "holdings",
+        "screen content",
+        "advisor behavior",
+        "entitlement failures",
+        "pb_sg_global_bal_001",
+        "critical review findings and gold-standard corrections",
+        "requirement traceability",
+        "dependency and ownership map",
+        "delivery and branch hygiene expectations",
+        "cross-slice acceptance criteria",
+        "risk register",
+        "slice 0: platform automation and scaffolding improvement",
+        "slice 1: cleanup and structure",
+        "slice 2: telemetry contract",
+        "slice 3: browser-to-gateway trace and correlation propagation",
+        "slice 4: gateway and analytics backend structured logging",
+        "slice 5: metrics, dashboards, alerts, and freshness contracts",
+        "slice 6: ui state and attention events",
+        "slice 7: audit events for entitlement-relevant reads and privileged actions",
+        "slice 8: canonical workbench implementation proof",
+        "slice 9: rollout proof and expansion readiness",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "supported features governance",
+        "implementation proof ledger",
+        "not an extension of rfc-0105",
+        "slice 0 is complete",
+        "workbench, gateway, backend metrics, dashboards, alerts, attention events, audit events",
+        "identify gaps in `lotus-platform` automation",
+        "api certification pattern",
+        "swagger quality",
+        "health/liveness/readiness endpoints",
+        "structured logging",
+        "product-safe error handling",
+        "test scaffolding",
+        "ci defaults",
+        "documentation scaffolding",
+        "governance hooks",
+        "remove dead code",
+        "move long-lived operator or governance material to repo-local wiki source",
+        "avoid duplicate documentation across repo docs and wiki source",
+        "critically review the evidence",
+        "iterate on implementation and evidence until the first-wave scope is genuinely gold standard",
+        "verify platform governance and enterprise data mesh standards are met",
+        "endpoints are grouped correctly",
+        "every endpoint has clear what/when/how guidance",
+        "full request and response examples exist",
+        "every attribute has description, type, and example value",
+        "ensure error handling is complete, correct, and properly tested",
+        "consciously review whether skills, guidance, documentation, or agent context should be added",
+        "`platform.scaffolding.analytics_ui_observability_baseline`",
+        "artifact existence is not proof",
+        "fix failures promptly",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 1: cleanup and structure") < text.index(
+        "slice 2: telemetry contract"
+    )
+    assert text.index("slice 2: telemetry contract") < text.index(
+        "slice 3: browser-to-gateway"
+    )
+    assert text.index("slice 8: canonical workbench implementation proof") < text.index(
+        "slice 9: rollout proof"
+    )
+    assert text.index("slice 9: rollout proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
 def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
     None
 ):

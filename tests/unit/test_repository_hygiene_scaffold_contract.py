@@ -59,6 +59,12 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "include_in_schema=False" in scaffold_script
     assert 'tags=["Health"]' in scaffold_script
     assert 'tags=["Metadata"]' in scaffold_script
+    assert "ProblemDetails" in scaffold_script
+    assert "problem_response" in scaffold_script
+    assert "structured JSON application events" in scaffold_script
+    assert "supported-features/supported-features.json" in scaffold_script
+    assert "evidence/rfc-implementation/README.md" in scaffold_script
+    assert "docs/operations/api-certification.md" in scaffold_script
     assert 'require_response_headers = @("x-correlation-id", "x-trace-id")' in scaffold_script
     assert '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")' in scaffold_script
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
@@ -126,11 +132,28 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
+    errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
+    observability_py = (repo_root / "src/app/observability.py").read_text(encoding="utf-8")
     correlation_middleware = (repo_root / "src/app/middleware/correlation.py").read_text(
         encoding="utf-8"
     )
     health_tests = (repo_root / "tests/integration/test_health.py").read_text(encoding="utf-8")
+    service_contract_tests = (repo_root / "tests/unit/test_service_contract.py").read_text(
+        encoding="utf-8"
+    )
     openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
+    supported_features = json.loads(
+        (repo_root / "supported-features/supported-features.json").read_text(encoding="utf-8")
+    )
+    evidence_readme = (repo_root / "evidence/rfc-implementation/README.md").read_text(
+        encoding="utf-8"
+    )
+    observability_doc = (repo_root / "docs/operations/observability.md").read_text(
+        encoding="utf-8"
+    )
+    api_certification_doc = (repo_root / "docs/operations/api-certification.md").read_text(
+        encoding="utf-8"
+    )
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -150,14 +173,34 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert 'summary="Get service health"' in main_py
     assert 'summary="Get readiness"' in main_py
     assert 'tags=["Metadata"]' in main_py
+    assert "validation_exception_handler" in main_py
+    assert "unhandled_exception_handler" in main_py
+    assert "Request validation failed. Correct the request fields and retry." in main_py
+    assert "ProblemDetails" in errors_py
+    assert "Product-safe remediation guidance" in errors_py
+    assert "json.dumps(payload, sort_keys=True, default=str)" in observability_py
+    assert '"event": event_name' in observability_py
     assert 'request.state.correlation_id = correlation_id' in correlation_middleware
     assert 'request.state.trace_id = trace_id' in correlation_middleware
     assert 'response.headers["X-Correlation-Id"] = correlation_id' in correlation_middleware
     assert 'response.headers["X-Trace-Id"] = trace_id' in correlation_middleware
     assert "test_correlation_and_trace_header_propagation" in health_tests
     assert "test_correlation_and_trace_headers_are_generated" in health_tests
+    assert "test_not_found_error_is_product_safe" in health_tests
+    assert "test_problem_details_are_product_safe" in service_contract_tests
     assert "missing summary" in openapi_gate
     assert "missing success response example" in openapi_gate
+    assert supported_features == {
+        "repository": service_name,
+        "features": [],
+        "policy": "Only implementation-backed behavior may be promoted to supported.",
+    }
+    assert "machine-readable implementation evidence" in evidence_readme
+    assert "client, portfolio, holding" in evidence_readme
+    assert "structured JSON application events" in observability_doc
+    assert "must not include client names" in observability_doc
+    assert "clear what/when/how description" in api_certification_doc
+    assert "product-safe error examples" in api_certification_doc
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile

@@ -247,16 +247,33 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
+12. RFC-0108 implementation has started with Slice 0 complete. It governs front-office analytics
+    UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
+    analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
+    permission-blocked states, attention events, entitlement-relevant audit events, safe operator
+    diagnostics, and canonical proof using `PB_SG_GLOBAL_BAL_001`. RFC-0108 is not an extension of
+    RFC-0105; reporting observability tracks asynchronous report evidence production, while
+    analytics UI observability tracks interactive read/display flows and frontend/backend
+    correlation from browser to gateway to backend. UI telemetry must not expose client names,
+    portfolio ids, holdings, screen content, advisor behavior, raw entitlement failures, request/
+    response bodies, trace ids, or correlation ids as metrics labels. Slice 0 added
+    `context/contracts/analytics-ui-observability-contract.json`,
+    `automation/validate_analytics_ui_observability_contract.py`, and generated-service scaffold
+    defaults for product-safe problem-details errors, structured JSON application events,
+    supported-features placeholders, RFC implementation evidence scaffolding, operations
+    observability documentation, and API certification documentation. Workbench instrumentation,
+    gateway/backend metrics, dashboards, alerts, attention events, audit events, and canonical
+    browser proof remain planned until later slices.
+13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
-13. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
+14. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
     `enterprise-mesh-operating-report.json` and `.md` alongside certification status artifacts.
     The operating report consumes current certification status and optional certification-history
     records, then reports operating state, limited-history posture, drift trend, regression since
     prior certified posture, product operating posture, escalation ownership, and operator guidance.
     It is operational evidence, not product truth and not customer evidence export.
-14. The durable mesh completion handoff is
+15. The durable mesh completion handoff is
     `docs/operations/enterprise-mesh-completion-handoff.md`, with machine-readable closure evidence
     in `generated/enterprise-mesh-closure-ledger.json` and published human status in
     `wiki/Enterprise-Mesh-Status.md`. Use those artifacts instead of old chat history when
