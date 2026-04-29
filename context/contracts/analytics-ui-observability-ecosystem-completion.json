@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, and lotus-render render supportability are implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, and lotus-archive archive supportability are implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -241,12 +241,12 @@
     {
       "repository": "lotus-archive",
       "role": "Archive retrieval, retention, legal-hold, document availability, and access-audit supportability source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["archive.observability.archive_supportability"],
-      "gap_classification": ["archive_supportability_planned"],
-      "blockers": ["archive supportability metrics are not implemented for front-office evidence surfaces"],
-      "required_proof": ["repo-native archive tests", "archive metric proof", "access audit proof"],
-      "wiki_source_decision": "Archive wiki source update required when archive supportability ships",
+      "gap_classification": ["archive_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["archive supportability is implemented in lotus-archive; Gateway consumption and Workbench archive-surface reconciliation remain planned"],
+      "required_proof": ["repo-native archive tests", "archive metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench archive reconciliation"],
+      "wiki_source_decision": "Archive wiki source updated for archive supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["archive supportability runbook"]
     },
     {

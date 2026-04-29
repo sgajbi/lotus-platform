@@ -184,6 +184,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["advise.observability.advisory_supportability"] == "implemented"
     )
     assert (
+        feature_status["archive.observability.archive_supportability"] == "implemented"
+    )
+    assert (
         feature_status["report.observability.evidence_surface_supportability"]
         == "implemented"
     )
@@ -216,6 +219,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",
             "advise.observability.advisory_supportability",
+            "archive.observability.archive_supportability",
             "manage.observability.action_register_supportability",
             "report.observability.evidence_surface_supportability",
             "render.observability.render_supportability",

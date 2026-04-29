@@ -566,9 +566,9 @@
     },
     {
       "feature_key": "archive.observability.archive_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-archive",
-      "promotion_evidence": "Slice 12 must expose archive retrieval, retention, legal-hold, access-audit, document availability, and product-safe failure supportability signals."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-archive archive supportability via GET /metadata supportability, archive.observability.archive_supportability feature posture, lotus_archive_supportability_total with bounded state/reason/freshness_bucket labels only, repo-native make check proof covering lint, typecheck, OpenAPI, migration gate, and 70 unit tests, docs, and wiki source updates. PR #17 merged as 031fcc1a2e46cc4750d47a06c99b65387e7b95ef and wiki published as 98ce3b7."
     },
     {
       "feature_key": "ai.observability.ai_surface_supportability",
