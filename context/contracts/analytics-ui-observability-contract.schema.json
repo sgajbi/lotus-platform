@@ -35,7 +35,8 @@
         "slice-7-audit-events-implemented",
         "slice-8-canonical-proof-implemented",
         "slice-9-rollout-readiness-implemented",
-        "second-last-hardening-implemented"
+        "second-last-hardening-implemented",
+        "final-closure-implemented"
       ]
     },
     "allowed_labels": {

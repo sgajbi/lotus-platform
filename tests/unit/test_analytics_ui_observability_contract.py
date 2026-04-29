@@ -64,7 +64,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "second-last-hardening-implemented"
+    assert contract["lifecycle_status"] == "final-closure-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -109,6 +109,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     )
     assert (
         feature_status["platform.analytics.observability.hardening_certification"]
+        == "implemented"
+    )
+    assert (
+        feature_status["platform.analytics.observability.final_closure"]
         == "implemented"
     )
     assert (
@@ -160,6 +164,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "platform.analytics.observability.telemetry_contract",
             "platform.analytics.observability.rollout_readiness",
             "platform.analytics.observability.hardening_certification",
+            "platform.analytics.observability.final_closure",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",

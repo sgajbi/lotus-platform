@@ -1,0 +1,94 @@
+{
+  "contract_id": "analytics-ui-observability-final-closure",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "final-closure-implemented",
+  "closure_scope": {
+    "implemented_scope_status": "closed_for_implemented_scope",
+    "supported_features_policy": "implementation_backed_only",
+    "residual_scope_policy": "planned_until_separately_implemented"
+  },
+  "merged_prs": [
+    {
+      "pr_number": 225,
+      "merge_commit": "755be9a",
+      "scope": "Gold-pass RFC tightening before implementation"
+    },
+    {
+      "pr_number": 233,
+      "merge_commit": "9b5c2f7b675b1031d16351cf2d3a5672c3ee2168",
+      "scope": "Slice 8 canonical Workbench proof"
+    },
+    {
+      "pr_number": 234,
+      "merge_commit": "d726d0fbadca46a04087007bdea3108d52db8304",
+      "scope": "Slice 9 rollout readiness"
+    },
+    {
+      "pr_number": 235,
+      "merge_commit": "2d9bd70cdd4b0dce20cd00d6d03ffc2816b37f5f",
+      "scope": "Second-last hardening review"
+    }
+  ],
+  "local_proof_commands": [
+    "python automation\\validate_analytics_ui_observability_contract.py",
+    "python automation\\validate_analytics_ui_rollout_readiness.py",
+    "python automation\\validate_analytics_ui_hardening_review.py",
+    "python automation\\validate_analytics_ui_final_closure.py",
+    "python -m pytest tests\\unit\\test_analytics_ui_observability_contract.py tests\\unit\\test_analytics_ui_rollout_readiness.py tests\\unit\\test_analytics_ui_hardening_review.py tests\\unit\\test_analytics_ui_final_closure.py tests\\unit\\test_platform_stack_observability_contract.py tests\\unit\\test_analytics_ui_canonical_proof_review.py -q",
+    "python -m ruff check automation\\validate_analytics_ui_observability_contract.py automation\\validate_analytics_ui_rollout_readiness.py automation\\validate_analytics_ui_hardening_review.py automation\\validate_analytics_ui_final_closure.py tests\\unit\\test_analytics_ui_observability_contract.py tests\\unit\\test_analytics_ui_rollout_readiness.py tests\\unit\\test_analytics_ui_hardening_review.py tests\\unit\\test_analytics_ui_final_closure.py",
+    "git diff --check",
+    "powershell -ExecutionPolicy Bypass -File automation\\Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform"
+  ],
+  "required_github_checks": [
+    "Cross-App Vocabulary Gate",
+    "Feature Lane / Platform Repo Contracts",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Platform Repo Contracts",
+    "PR Merge Gate / Workflow Lint"
+  ],
+  "wiki_publication": {
+    "source_repository": "lotus-platform",
+    "publish_required_after_merge": true,
+    "check_required": true,
+    "pre_merge_drift_expected": true,
+    "expected_pre_merge_drift_files": ["RFC-Index.md"],
+    "publish_command": "powershell -ExecutionPolicy Bypass -File automation\\Sync-RepoWikis.ps1 -Publish -Repository lotus-platform"
+  },
+  "skills_guidance_review": {
+    "decision": "no_change_required",
+    "rationale": "Existing routing already directs canonical Workbench proof through lotus-front-office-runtime, platform contract/governance documentation through lotus-rfc-review-loop, and PR/merge discipline through lotus-pr-premerge-gate. RFC-0108 did not reveal a reusable routing gap that needs a new skill or skill-map change.",
+    "reviewed_guidance": [
+      "context/LOTUS-SKILL-ROUTING-MAP.md",
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md"
+    ]
+  },
+  "residual_scope": [
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
+      "reason": "Backend-owned freshness/supportability metrics are required before Workbench can claim source-backed freshness/degraded-state observability."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.fanout_metrics",
+      "status": "planned",
+      "owner_repo": "lotus-gateway",
+      "reason": "Gateway fan-out logs are implemented, but fan-out metric families and dashboard reconciliation are not yet implemented."
+    },
+    {
+      "feature_key": "analytics.backend.observability.freshness_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "reason": "Performance and risk services do not yet emit backend freshness/supportability metrics."
+    }
+  ],
+  "clean_state_requirements": [
+    "lotus-platform main clean after merge",
+    "lotus-workbench main clean after merge",
+    "lotus-gateway main clean after merge",
+    "lotus-manage main clean after merge",
+    "feature branch deleted locally and remotely after squash merge"
+  ]
+}
