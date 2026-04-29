@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-0-implemented",
+  "lifecycle_status": "slice-1-structure-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -123,6 +123,12 @@
       "promotion_evidence": "Browser/BFF trace propagation tests, gateway/backend reconciliation, and no forbidden metric labels."
     },
     {
+      "feature_key": "workbench.analytics.observability.contract_vocabulary",
+      "status": "implemented",
+      "owner_repo": "lotus-workbench",
+      "promotion_evidence": "RFC-0108 Slice 1 adds code-owned Workbench analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Workbench metric-family names without emitting product telemetry."
+    },
+    {
       "feature_key": "workbench.analytics.observability.panel_state_metrics",
       "status": "planned",
       "owner_repo": "lotus-workbench",
@@ -139,6 +145,12 @@
       "status": "planned",
       "owner_repo": "lotus-gateway",
       "promotion_evidence": "Fan-out metric/log tests, backend reconciliation, and OpenAPI/API certification evidence where API shape changes."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.contract_vocabulary",
+      "status": "implemented",
+      "owner_repo": "lotus-gateway",
+      "promotion_evidence": "RFC-0108 Slice 1 adds code-owned Gateway analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Gateway metric-family names without emitting fan-out metrics."
     },
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",

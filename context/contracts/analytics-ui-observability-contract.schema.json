@@ -21,7 +21,13 @@
     "contract_id": { "const": "analytics-ui-observability-contract" },
     "contract_version": { "type": "string" },
     "governed_by_rfc": { "const": "RFC-0108" },
-    "lifecycle_status": { "enum": ["implementation-not-started", "slice-0-implemented"] },
+    "lifecycle_status": {
+      "enum": [
+        "implementation-not-started",
+        "slice-0-implemented",
+        "slice-1-structure-implemented"
+      ]
+    },
     "allowed_labels": {
       "type": "array",
       "items": { "type": "string" },

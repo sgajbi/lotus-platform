@@ -19,8 +19,16 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         errors.append("contract_id must be analytics-ui-observability-contract")
     if contract.get("governed_by_rfc") != "RFC-0108":
         errors.append("governed_by_rfc must be RFC-0108")
-    if contract.get("lifecycle_status") not in {"implementation-not-started", "slice-0-implemented"}:
-        errors.append("lifecycle_status must be implementation-not-started or slice-0-implemented")
+    allowed_lifecycle_statuses = {
+        "implementation-not-started",
+        "slice-0-implemented",
+        "slice-1-structure-implemented",
+    }
+    if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
+        errors.append(
+            "lifecycle_status must be implementation-not-started, slice-0-implemented, "
+            "or slice-1-structure-implemented"
+        )
 
     allowed_labels = set(contract.get("allowed_labels", []))
     forbidden_fields = set(contract.get("forbidden_fields", []))
@@ -72,7 +80,12 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
     for feature in feature_keys:
         key = feature.get("feature_key", "<missing>")
         status = feature.get("status")
-        if key == "platform.scaffolding.analytics_ui_observability_baseline":
+        implemented_foundation_keys = {
+            "platform.scaffolding.analytics_ui_observability_baseline",
+            "workbench.analytics.observability.contract_vocabulary",
+            "gateway.analytics.observability.contract_vocabulary",
+        }
+        if key in implemented_foundation_keys:
             if status not in {"planned", "implemented"}:
                 errors.append(f"{key}: status must be planned or implemented")
         elif status != "planned":

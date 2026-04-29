@@ -29,10 +29,10 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-0-implemented"
+    assert contract["lifecycle_status"] == "slice-1-structure-implemented"
 
 
-def test_analytics_ui_observability_contract_limits_promotion_to_slice0_scaffold() -> None:
+def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> None:
     contract = _load_contract()
 
     assert contract["dashboards"] == []
@@ -42,10 +42,17 @@ def test_analytics_ui_observability_contract_limits_promotion_to_slice0_scaffold
         entry["feature_key"]: entry["status"] for entry in contract["supported_feature_keys"]
     }
     assert feature_status["platform.scaffolding.analytics_ui_observability_baseline"] == "implemented"
+    assert feature_status["workbench.analytics.observability.contract_vocabulary"] == "implemented"
+    assert feature_status["gateway.analytics.observability.contract_vocabulary"] == "implemented"
     assert {
         status
         for key, status in feature_status.items()
-        if key != "platform.scaffolding.analytics_ui_observability_baseline"
+        if key
+        not in {
+            "platform.scaffolding.analytics_ui_observability_baseline",
+            "workbench.analytics.observability.contract_vocabulary",
+            "gateway.analytics.observability.contract_vocabulary",
+        }
     } == {"planned"}
 
 
