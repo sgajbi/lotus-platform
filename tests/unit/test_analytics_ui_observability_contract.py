@@ -66,7 +66,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
         contract["lifecycle_status"]
-        == "slice-13-gateway-fanout-metrics-partial-implemented"
+        == "slice-13-gateway-fanout-metrics-implemented"
     )
 
 
@@ -178,6 +178,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["gateway.analytics.observability.all_ui_fanout_paths"]
+        == "implemented"
+    )
+    assert (
         feature_status["core.observability.portfolio_supportability"] == "implemented"
     )
     assert (
@@ -229,6 +233,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.fanout_metrics",
             "gateway.analytics.observability.protected_diagnostics",
+            "gateway.analytics.observability.all_ui_fanout_paths",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
             "core.observability.portfolio_supportability",

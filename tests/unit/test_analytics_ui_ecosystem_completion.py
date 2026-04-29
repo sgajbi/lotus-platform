@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-13-gateway-fanout-metrics-partial-implemented"
+        == "slice-13-gateway-fanout-metrics-implemented"
     )
 
 
@@ -72,7 +72,7 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_13_partial_only() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {
         entry["slice_id"]: entry["status"]
@@ -82,7 +82,7 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_partial_only() -> N
     assert statuses[10] == "implemented"
     assert statuses[11] == "implemented"
     assert statuses[12] == "partially_implemented"
-    assert statuses[13] == "partially_implemented"
+    assert statuses[13] == "implemented"
     assert {statuses[slice_id] for slice_id in range(14, 19)} == {"planned"}
 
 
@@ -97,16 +97,16 @@ def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
     assert any("lotus-ai" in error for error in errors)
 
 
-def test_analytics_ui_ecosystem_completion_rejects_premature_slice_completion() -> None:
+def test_analytics_ui_ecosystem_completion_rejects_slice_13_regression() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
     for entry in ecosystem["ecosystem_completion_slices"]:
         if entry["slice_id"] == 13:
-            entry["status"] = "implemented"
+            entry["status"] = "partially_implemented"
 
     errors = _validate(observability, ecosystem)
 
-    assert any("Slice 13 must be partially_implemented" in error for error in errors)
+    assert any("Slice 13 must be implemented" in error for error in errors)
 
 
 def test_analytics_ui_ecosystem_completion_rejects_unknown_feature_key() -> None:
@@ -133,17 +133,17 @@ def test_analytics_ui_ecosystem_completion_rejects_missing_branch_policy() -> No
     )
 
 
-def test_analytics_ui_ecosystem_completion_rejects_premature_all_path_promotion() -> None:
+def test_analytics_ui_ecosystem_completion_rejects_all_path_regression() -> None:
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
         if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
-            feature["status"] = "implemented"
+            feature["status"] = "planned"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
-        "gateway.analytics.observability.all_ui_fanout_paths: ecosystem feature must remain planned"
+        "gateway.analytics.observability.all_ui_fanout_paths: Slice 13 feature must be implemented"
         in error
         for error in errors
     )
@@ -184,21 +184,22 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemente
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] in {
-            "gateway.analytics.observability.fanout_metrics",
-            "gateway.analytics.observability.protected_diagnostics",
-        }:
-            feature["status"] = "planned"
+            if feature["feature_key"] in {
+                "gateway.analytics.observability.fanout_metrics",
+                "gateway.analytics.observability.protected_diagnostics",
+                "gateway.analytics.observability.all_ui_fanout_paths",
+            }:
+                feature["status"] = "planned"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
-        "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 partial proof"
+            "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 proof"
         in error
         for error in errors
     )
     assert any(
-        "gateway.analytics.observability.protected_diagnostics must be implemented after Slice 13 partial proof"
+            "gateway.analytics.observability.protected_diagnostics must be implemented after Slice 13 proof"
         in error
         for error in errors
     )

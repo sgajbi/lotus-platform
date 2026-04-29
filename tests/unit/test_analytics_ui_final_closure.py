@@ -85,22 +85,16 @@ def test_analytics_ui_final_closure_rejects_skill_review_without_decision() -> N
     assert any("skills_guidance_review.decision" in error for error in errors)
 
 
-def test_analytics_ui_final_closure_rejects_residual_promotion() -> None:
-    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+def test_analytics_ui_final_closure_rejects_residual_scope_mismatch() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     rollout = _load_json(ROLLOUT_CONTRACT_PATH)
     hardening = _load_json(HARDENING_REVIEW_PATH)
-    closure = _load_json(FINAL_CLOSURE_PATH)
-    for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
-            feature["status"] = "implemented"
+    closure = copy.deepcopy(_load_json(FINAL_CLOSURE_PATH))
+    closure["residual_scope"] = closure["residual_scope"][1:]
 
     errors = _validate(observability, rollout, hardening, closure)
 
-    assert any(
-        "gateway.analytics.observability.all_ui_fanout_paths: residual feature must remain planned"
-        in error
-        for error in errors
-    )
+    assert any("final residual scope must match" in error for error in errors)
 
 
 def test_analytics_ui_final_closure_rejects_missing_clean_state_requirement() -> None:
