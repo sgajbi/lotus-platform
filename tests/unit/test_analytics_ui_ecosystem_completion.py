@@ -156,6 +156,7 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion()
         "advise.observability.advisory_supportability",
         "core.observability.portfolio_supportability",
         "performance.observability.calculation_supportability",
+        "render.observability.render_supportability",
         "report.observability.evidence_surface_supportability",
         "risk.observability.calculation_supportability",
         "manage.observability.action_register_supportability",

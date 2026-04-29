@@ -42,6 +42,7 @@ IMPLEMENTED_SLICE_12_FEATURE_KEYS = {
     "core.observability.portfolio_supportability",
     "manage.observability.action_register_supportability",
     "performance.observability.calculation_supportability",
+    "render.observability.render_supportability",
     "report.observability.evidence_surface_supportability",
     "risk.observability.calculation_supportability",
 }

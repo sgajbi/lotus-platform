@@ -560,9 +560,9 @@
     },
     {
       "feature_key": "render.observability.render_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-render",
-      "promotion_evidence": "Slice 12 must expose rendering health, latency, degradation, deterministic-output supportability, and product-safe failure signals consumed by evidence/reporting surfaces."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-render render supportability via GET /metadata supportability, render.observability.render_supportability feature posture, lotus_render_supportability_total with bounded state/reason/freshness_bucket labels only, repo-native make check proof covering lint, typecheck, OpenAPI, template registry validation, and 69 unit tests, docs, and wiki source updates. PR #6 merged as d2198f821516cb25bd8e0a36d42f10e04d7fdd5f and wiki published as 34ecc05."
     },
     {
       "feature_key": "archive.observability.archive_supportability",
