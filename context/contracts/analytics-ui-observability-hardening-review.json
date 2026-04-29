@@ -127,8 +127,8 @@
       "finding_id": "RFC0108-HARDENING-003",
       "severity": "P3",
       "status": "planned_residual",
-      "summary": "Gateway fan-out metrics and backend freshness/supportability metrics remain planned.",
-      "evidence": "Residual scope remains in analytics-ui-observability-rollout-readiness and supported features with planned status."
+      "summary": "Backend freshness/supportability metrics remain planned.",
+      "evidence": "Gateway fan-out metrics are implementation-backed through Slice 13; backend residual scope remains in analytics-ui-observability-rollout-readiness and supported features with planned status."
     }
   ],
   "residual_scope": [
@@ -137,12 +137,6 @@
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
       "reason": "Backend-owned freshness/supportability metrics are required before Workbench can claim source-backed freshness/degraded-state observability."
-    },
-    {
-      "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
-      "status": "planned",
-      "owner_repo": "lotus-gateway",
-      "reason": "Gateway selected fan-out logs, fan-out metrics, and protected diagnostics are implemented; all UI-facing Gateway operation rollout and dashboard reconciliation remain planned."
     },
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",

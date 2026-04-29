@@ -113,17 +113,11 @@ def test_analytics_ui_rollout_readiness_requires_validator_proof_cases() -> None
     assert any("forbidden-label proof" in error for error in errors)
 
 
-def test_analytics_ui_rollout_readiness_rejects_premature_residual_promotion() -> None:
-    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
-    rollout = _load_json(ROLLOUT_CONTRACT_PATH)
-    for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
-            feature["status"] = "implemented"
+def test_analytics_ui_rollout_readiness_rejects_residual_status_drift() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    rollout = copy.deepcopy(_load_json(ROLLOUT_CONTRACT_PATH))
+    rollout["residual_scope"][0]["status"] = "implemented"
 
     errors = _validate(observability, rollout)
 
-    assert any(
-        "gateway.analytics.observability.all_ui_fanout_paths: residual feature must exist"
-        in error
-        for error in errors
-    )
+    assert any("residual status must remain planned" in error for error in errors)

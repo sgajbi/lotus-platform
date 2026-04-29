@@ -72,12 +72,6 @@
       "reason": "Backend-owned freshness/supportability metrics are required before Workbench can claim source-backed freshness/degraded-state observability."
     },
     {
-      "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
-      "status": "planned",
-      "owner_repo": "lotus-gateway",
-      "reason": "Gateway selected fan-out logs, fan-out metrics, and protected diagnostics are implemented; all UI-facing Gateway operation rollout and dashboard reconciliation remain planned."
-    },
-    {
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",

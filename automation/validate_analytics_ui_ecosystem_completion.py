@@ -52,6 +52,10 @@ IMPLEMENTED_SLICE_13_FEATURE_KEYS = {
     "gateway.analytics.observability.fanout_metrics",
     "gateway.analytics.observability.protected_diagnostics",
 }
+IMPLEMENTED_SLICE_13_FULL_FEATURE_KEYS = {
+    *IMPLEMENTED_SLICE_13_FEATURE_KEYS,
+    "gateway.analytics.observability.all_ui_fanout_paths",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -92,25 +96,29 @@ def _validate_identity(
         "slice-11-scaffold-ci-enforcement-implemented",
         "slice-12-backend-supportability-partial-implemented",
         "slice-13-gateway-fanout-metrics-partial-implemented",
+        "slice-13-gateway-fanout-metrics-implemented",
     }:
         errors.append(
             "lifecycle_status must be slice-10-ecosystem-contract-implemented or "
             "slice-11-scaffold-ci-enforcement-implemented or "
             "slice-12-backend-supportability-partial-implemented or "
-            "slice-13-gateway-fanout-metrics-partial-implemented"
+            "slice-13-gateway-fanout-metrics-partial-implemented or "
+            "slice-13-gateway-fanout-metrics-implemented"
         )
     if observability_contract.get("lifecycle_status") not in {
         "slice-10-ecosystem-contract-implemented",
         "slice-11-scaffold-ci-enforcement-implemented",
         "slice-12-backend-supportability-partial-implemented",
         "slice-13-gateway-fanout-metrics-partial-implemented",
+        "slice-13-gateway-fanout-metrics-implemented",
     }:
         errors.append(
             "analytics-ui-observability-contract lifecycle_status must be "
             "slice-10-ecosystem-contract-implemented or "
             "slice-11-scaffold-ci-enforcement-implemented or "
             "slice-12-backend-supportability-partial-implemented or "
-            "slice-13-gateway-fanout-metrics-partial-implemented"
+            "slice-13-gateway-fanout-metrics-partial-implemented or "
+            "slice-13-gateway-fanout-metrics-implemented"
         )
 
 
@@ -157,6 +165,7 @@ def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> N
             "slice-11-scaffold-ci-enforcement-implemented",
             "slice-12-backend-supportability-partial-implemented",
             "slice-13-gateway-fanout-metrics-partial-implemented",
+            "slice-13-gateway-fanout-metrics-implemented",
         }
         else "planned"
     )
@@ -168,16 +177,18 @@ def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> N
         in {
             "slice-12-backend-supportability-partial-implemented",
             "slice-13-gateway-fanout-metrics-partial-implemented",
+            "slice-13-gateway-fanout-metrics-implemented",
         }
         else "planned"
     )
     if slice_status.get(12) != expected_slice_12:
         errors.append(f"Slice 12 must be {expected_slice_12}")
-    expected_slice_13 = (
-        "partially_implemented"
-        if lifecycle_status == "slice-13-gateway-fanout-metrics-partial-implemented"
-        else "planned"
-    )
+    if lifecycle_status == "slice-13-gateway-fanout-metrics-implemented":
+        expected_slice_13 = "implemented"
+    elif lifecycle_status == "slice-13-gateway-fanout-metrics-partial-implemented":
+        expected_slice_13 = "partially_implemented"
+    else:
+        expected_slice_13 = "planned"
     if slice_status.get(13) != expected_slice_13:
         errors.append(f"Slice 13 must be {expected_slice_13}")
     for slice_id in range(14, 19):
@@ -216,6 +227,7 @@ def _validate_supported_features(
             "slice-11-scaffold-ci-enforcement-implemented",
             "slice-12-backend-supportability-partial-implemented",
             "slice-13-gateway-fanout-metrics-partial-implemented",
+            "slice-13-gateway-fanout-metrics-implemented",
         }
         and statuses.get(IMPLEMENTED_SLICE_11_FEATURE_KEY) != "implemented"
     ):
@@ -227,20 +239,28 @@ def _validate_supported_features(
         == "slice-12-backend-supportability-partial-implemented"
         or ecosystem_contract.get("lifecycle_status")
         == "slice-13-gateway-fanout-metrics-partial-implemented"
+        or ecosystem_contract.get("lifecycle_status")
+        == "slice-13-gateway-fanout-metrics-implemented"
     ):
         for feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS:
             if statuses.get(feature_key) != "implemented":
                 errors.append(
                     f"{feature_key} must be implemented after Slice 12 partial proof"
                 )
-    if (
-        ecosystem_contract.get("lifecycle_status")
-        == "slice-13-gateway-fanout-metrics-partial-implemented"
-    ):
-        for feature_key in IMPLEMENTED_SLICE_13_FEATURE_KEYS:
+    if ecosystem_contract.get("lifecycle_status") in {
+        "slice-13-gateway-fanout-metrics-partial-implemented",
+        "slice-13-gateway-fanout-metrics-implemented",
+    }:
+        required_slice_13_features = (
+            IMPLEMENTED_SLICE_13_FULL_FEATURE_KEYS
+            if ecosystem_contract.get("lifecycle_status")
+            == "slice-13-gateway-fanout-metrics-implemented"
+            else IMPLEMENTED_SLICE_13_FEATURE_KEYS
+        )
+        for feature_key in required_slice_13_features:
             if statuses.get(feature_key) != "implemented":
                 errors.append(
-                    f"{feature_key} must be implemented after Slice 13 partial proof"
+                    f"{feature_key} must be implemented after Slice 13 proof"
                 )
 
     protected = set(
@@ -284,6 +304,7 @@ def _validate_supported_features(
             in {
                 "slice-12-backend-supportability-partial-implemented",
                 "slice-13-gateway-fanout-metrics-partial-implemented",
+                "slice-13-gateway-fanout-metrics-implemented",
             }
             and feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS
         ):
@@ -292,14 +313,23 @@ def _validate_supported_features(
                     f"{feature_key}: Slice 12 partial feature must be implemented"
                 )
             continue
+        required_slice_13_features = (
+            IMPLEMENTED_SLICE_13_FULL_FEATURE_KEYS
+            if ecosystem_contract.get("lifecycle_status")
+            == "slice-13-gateway-fanout-metrics-implemented"
+            else IMPLEMENTED_SLICE_13_FEATURE_KEYS
+        )
         if (
             ecosystem_contract.get("lifecycle_status")
-            == "slice-13-gateway-fanout-metrics-partial-implemented"
-            and feature_key in IMPLEMENTED_SLICE_13_FEATURE_KEYS
+            in {
+                "slice-13-gateway-fanout-metrics-partial-implemented",
+                "slice-13-gateway-fanout-metrics-implemented",
+            }
+            and feature_key in required_slice_13_features
         ):
             if statuses.get(feature_key) != "implemented":
                 errors.append(
-                    f"{feature_key}: Slice 13 partial feature must be implemented"
+                    f"{feature_key}: Slice 13 feature must be implemented"
                 )
             continue
         if statuses.get(feature_key) != "planned":

@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-13-gateway-fanout-metrics-partial-implemented",
+  "lifecycle_status": "slice-13-gateway-fanout-metrics-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -495,19 +495,19 @@
       "feature_key": "gateway.analytics.observability.fanout_metrics",
       "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Gateway PR #163 expands the same bounded fan-out wrapper to central lotus-manage, lotus-report, lotus-archive, and lotus-ai client seams with explicit operation labels so proposal, job, document, run, portfolio, prompt, and model-output content never become telemetry dimensions. Tests prove bounded labels, metric increments, forbidden sensitive-label rejection, and safe degraded records. Protected diagnostics is now implementation-backed; remaining direct core-query path coverage keeps all UI fan-out rollout planned."
+      "promotion_evidence": "RFC-0108 Slice 13 implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the selected Workbench performance and risk analytics fan-out path. Gateway PR #163 expands the same bounded fan-out wrapper to central lotus-manage, lotus-report, lotus-archive, and lotus-ai client seams with explicit operation labels so proposal, job, document, run, portfolio, prompt, and model-output content never become telemetry dimensions. Gateway PR #164 completes direct lotus-core query/control-plane and lotus-core ingestion client coverage with explicit operation labels and expands forbidden telemetry fields for session and upload identifiers. Tests prove bounded labels, metric increments, forbidden sensitive-label rejection, and safe degraded records without proposal, job, document, run, portfolio, prompt, model-output, session, upload, or request-body content."
     },
     {
       "feature_key": "gateway.analytics.observability.protected_diagnostics",
       "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "RFC-0108 Slice 13 partial implementation adds the protected operator lookup API GET /api/v1/analytics-ui/diagnostics/{support_reference}, requires governed caller context plus an operator support role, rejects raw-looking identifiers by requiring opaque gdiag-* support references, returns only bounded panel/operation/service/state/reason/operator-guidance posture, and emits gateway.analytics.audit.protected_diagnostics_lookup without support references, portfolio ids, trace ids, correlation ids, request bodies, response bodies, or raw entitlement failures in audit fields. Gateway PR #162 merged this proof with make check, Feature Lane, PR Merge Gate, Docker build, Docker parity, and wiki publication."
+      "promotion_evidence": "RFC-0108 Slice 13 implementation adds the protected operator lookup API GET /api/v1/analytics-ui/diagnostics/{support_reference}, requires governed caller context plus an operator support role, rejects raw-looking identifiers by requiring opaque gdiag-* support references, returns only bounded panel/operation/service/state/reason/operator-guidance posture, and emits gateway.analytics.audit.protected_diagnostics_lookup without support references, portfolio ids, trace ids, correlation ids, request bodies, response bodies, or raw entitlement failures in audit fields. Gateway PR #162 merged this proof with make check, Feature Lane, PR Merge Gate, Docker build, Docker parity, and wiki publication."
     },
     {
       "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "Slice 13 has partial coverage for selected Workbench performance/risk analytics and the central manage, report, archive, and AI client seams. Remaining direct core-query Gateway paths must still apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and diagnostics before this feature can be promoted."
+      "promotion_evidence": "Slice 13 now covers selected Workbench performance/risk analytics fan-out, central manage/report/archive/AI client seams, and direct lotus-core query/control-plane plus ingestion client seams. Gateway PR #164 applies the safe fan-out wrapper to direct core paths, preserves trace propagation through existing propagation headers, classifies degraded states through the shared analytics UI observability module, and proves no portfolio, session, upload, request-body, trace, or correlation identifiers appear as telemetry dimensions."
     },
     {
       "feature_key": "gateway.analytics.observability.structured_fanout_logs",
