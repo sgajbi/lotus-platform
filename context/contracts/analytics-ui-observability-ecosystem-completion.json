@@ -65,7 +65,7 @@
     {
       "slice_id": 13,
       "status": "partially_implemented",
-      "purpose": "Partially complete Gateway fan-out metrics and protected diagnostics for selected Workbench performance and risk analytics fan-out while all UI-facing fan-out paths remain planned.",
+      "purpose": "Partially complete Gateway fan-out metrics and protected diagnostics for selected Workbench performance and risk analytics fan-out plus central manage, report, archive, and AI client seams while remaining direct core-query paths stay planned.",
       "required_proof": ["gateway tests", "metric label proof", "no-sensitive telemetry checks", "protected diagnostics audit proof", "all-path rollout proof before full completion"]
     },
     {
@@ -149,8 +149,8 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "protected_diagnostics_implemented", "all_ui_fanout_paths_planned"],
-      "blockers": ["fan-out metrics and protected diagnostics cover selected Workbench performance and risk analytics operations only", "all UI-facing Gateway fan-out path rollout remains planned"],
+      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_planned", "all_ui_fanout_paths_planned"],
+      "blockers": ["fan-out metrics and protected diagnostics cover selected Workbench performance/risk analytics and central manage, report, archive, and AI client seams", "remaining direct core-query Gateway fan-out paths keep all-UI path rollout planned"],
       "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof"],
       "wiki_source_decision": "Gateway repo-local wiki source must document diagnostics and fan-out metrics after Slice 13",
       "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]

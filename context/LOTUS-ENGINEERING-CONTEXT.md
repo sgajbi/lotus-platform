@@ -325,9 +325,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `manage.observability.action_register_supportability`. The remaining backend services,
     remaining risk endpoint families, and Gateway/Workbench reconciliation still need
     implementation-backed supportability before Slice 12 can close. Slice 13 now has partial
-    Gateway proof for selected analytics fan-out metrics and protected diagnostics lookup, while
-    all UI-facing Gateway fan-out rollout remains planned. Slices 14-18 remain planned for all
-    supported Workbench surfaces, dashboards/alerts/runbooks, live ecosystem proof, ecosystem
+    Gateway proof for selected analytics fan-out metrics, protected diagnostics lookup, and
+    central manage/report/archive/AI client fan-out metrics, while remaining direct core-query
+    Gateway fan-out rollout remains planned. Slices 14-18 remain planned for all supported
+    Workbench surfaces, dashboards/alerts/runbooks, live ecosystem proof, ecosystem
     hardening/certification, and final ecosystem closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
