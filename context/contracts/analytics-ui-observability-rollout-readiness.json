@@ -1,0 +1,152 @@
+{
+  "contract_id": "analytics-ui-observability-rollout-readiness",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-9-rollout-readiness-implemented",
+  "source_proof": {
+    "source_slice": "Slice 8",
+    "canonical_portfolio": "PB_SG_GLOBAL_BAL_001",
+    "canonical_benchmark": "BMK_PB_GLOBAL_BALANCED_60_40",
+    "merge_commit": "9b5c2f7b675b1031d16351cf2d3a5672c3ee2168",
+    "pull_request": "https://github.com/sgajbi/lotus-platform/pull/233",
+    "evidence_artifacts": [
+      "output/front-office-qa/canonical-front-office-qa-20260429-131616.json",
+      "output/rfc-0108-slice-8-canonical/live-validation-summary.json",
+      "output/rfc-0108-slice-8-canonical/SHOT-INDEX.md",
+      "output/rfc-0108-slice-8-proof-review/latest.json"
+    ]
+  },
+  "certified_route_groups": [
+    {
+      "route": "/portfolio?portfolioId={portfolio_id}",
+      "certification_status": "certified",
+      "panel_ids": ["portfolio.summary"],
+      "evidence_basis": "Slice 8 canonical proof validated the portfolio route after API and panel checks passed."
+    },
+    {
+      "route": "/portfolio?portfolioId={portfolio_id}&tab=detailed",
+      "certification_status": "certified",
+      "panel_ids": ["portfolio.detailed"],
+      "evidence_basis": "Slice 8 canonical proof validated the detailed portfolio route after API and panel checks passed."
+    },
+    {
+      "route": "/performance?portfolioId={portfolio_id}",
+      "certification_status": "certified",
+      "panel_ids": ["performance.summary"],
+      "evidence_basis": "Slice 8 canonical proof validated selected performance summary analytics state and metric exposure."
+    },
+    {
+      "route": "/performance?portfolioId={portfolio_id}&mode=analysis",
+      "certification_status": "certified",
+      "panel_ids": [
+        "performance.analysis.contribution",
+        "performance.analysis.attribution"
+      ],
+      "evidence_basis": "Slice 8 canonical proof validated selected performance analysis panels against the Workbench panel registry."
+    },
+    {
+      "route": "/performance?portfolioId={portfolio_id}&mode=advisor",
+      "certification_status": "certified",
+      "panel_ids": ["performance.advisor_brief"],
+      "evidence_basis": "Slice 8 canonical proof validated the advisor brief route after API and panel checks passed."
+    },
+    {
+      "route": "/performance?portfolioId={portfolio_id}&mode=risk",
+      "certification_status": "certified",
+      "panel_ids": [
+        "performance.risk.snapshot",
+        "performance.risk.drawdown",
+        "performance.risk.concentration",
+        "performance.risk.rolling",
+        "performance.risk.historical_attribution"
+      ],
+      "evidence_basis": "Slice 8 canonical proof validated selected risk panels against the Workbench panel registry."
+    },
+    {
+      "route": "/performance?portfolioId={portfolio_id}&mode=evidence",
+      "certification_status": "certified_partial",
+      "panel_ids": ["performance.evidence"],
+      "evidence_basis": "Slice 8 canonical proof validated truthful partial evidence state instead of overclaiming unsupported lineage behavior.",
+      "residual_scope": "Full evidence and lineage behavior remains governed by RFC-0079."
+    }
+  ],
+  "rollout_checklist": [
+    {
+      "step": "Register the target route and panels in the Workbench panel registry before claiming observability support.",
+      "required_evidence": "Panel ids, routes, owning services, allowed states, screenshot policy, and known limitations are source-controlled."
+    },
+    {
+      "step": "Add code-owned Workbench and Gateway telemetry vocabulary before emitting events.",
+      "required_evidence": "Vocabulary tests reject unknown labels and sensitive fields."
+    },
+    {
+      "step": "Emit only bounded metrics, logs, attention events, or audit events backed by implemented code.",
+      "required_evidence": "Runtime tests cover emitted names, labels, states, reason codes, and field exclusion."
+    },
+    {
+      "step": "Add dashboard and alert references only for implemented metric families.",
+      "required_evidence": "Contract and platform-stack tests reject unimplemented metric references."
+    },
+    {
+      "step": "Run canonical or route-specific browser proof after API, calculation, and panel validation pass.",
+      "required_evidence": "Proof records route, panel ids, commit SHA, command, screenshot index, API checks, calculation checks, and panel classifications."
+    },
+    {
+      "step": "Run sensitive-content assertions over generated evidence artifacts.",
+      "required_evidence": "Assertions cover logs, metrics, dashboard/alert evidence, screenshot indexes, and proof summaries without allowing client, holding, request, response, trace, or correlation content."
+    },
+    {
+      "step": "Promote supported-features only after the implementation proof passes.",
+      "required_evidence": "Supported-feature key, owner, status, and promotion evidence align with the contract and RFC proof ledger."
+    },
+    {
+      "step": "Record residual scope where backend, gateway, entitlement, or diagnostics support is not implemented.",
+      "required_evidence": "Residual item has owner, blocker, planned status, and next action."
+    }
+  ],
+  "validator_proof_cases": [
+    {
+      "proof_type": "forbidden-label",
+      "test_name": "tests/unit/test_analytics_ui_observability_contract.py::test_analytics_ui_observability_contract_validator_rejects_forbidden_metric_label",
+      "expected_failure": "metric labels include forbidden fields"
+    },
+    {
+      "proof_type": "unimplemented-metric-reference",
+      "test_name": "tests/unit/test_analytics_ui_observability_contract.py::test_analytics_ui_observability_contract_validator_rejects_premature_dashboard_claim",
+      "expected_failure": "dashboard references unimplemented metrics"
+    },
+    {
+      "proof_type": "unimplemented-metric-reference",
+      "test_name": "tests/unit/test_analytics_ui_canonical_proof_review.py::test_canonical_proof_review_rejects_dashboard_metric_drift",
+      "expected_failure": "dashboard references unimplemented metrics"
+    },
+    {
+      "proof_type": "sensitive-event-attribute",
+      "test_name": "tests/unit/test_analytics_ui_observability_contract.py::test_analytics_ui_observability_contract_validator_rejects_sensitive_event_attribute",
+      "expected_failure": "event attributes include forbidden fields"
+    }
+  ],
+  "residual_scope": [
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
+      "blocker": "Backend freshness and supportability counters are not implemented across performance and risk services.",
+      "next_action": "Implement backend-owned freshness/supportability metrics and reconcile Workbench panel states against those metrics."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.fanout_metrics",
+      "status": "planned",
+      "owner_repo": "lotus-gateway",
+      "blocker": "Gateway structured fan-out logs are implemented, but fan-out metrics and dashboard reconciliation are not yet implemented.",
+      "next_action": "Add gateway fan-out metric families, tests, dashboard contract references, and API certification evidence where API shape changes."
+    },
+    {
+      "feature_key": "analytics.backend.observability.freshness_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "blocker": "Backend analytics freshness and supportability telemetry remains planned.",
+      "next_action": "Add backend metric emission, tests, and gateway/Workbench state reconciliation proof."
+    }
+  ]
+}

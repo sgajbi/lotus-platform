@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-rollout-readiness.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "source_proof",
+    "certified_route_groups",
+    "rollout_checklist",
+    "validator_proof_cases",
+    "residual_scope"
+  ],
+  "properties": {
+    "contract_id": { "const": "analytics-ui-observability-rollout-readiness" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": { "const": "slice-9-rollout-readiness-implemented" },
+    "source_proof": {
+      "type": "object",
+      "required": [
+        "source_slice",
+        "canonical_portfolio",
+        "canonical_benchmark",
+        "merge_commit",
+        "pull_request",
+        "evidence_artifacts"
+      ],
+      "properties": {
+        "source_slice": { "const": "Slice 8" },
+        "canonical_portfolio": { "const": "PB_SG_GLOBAL_BAL_001" },
+        "canonical_benchmark": { "const": "BMK_PB_GLOBAL_BALANCED_60_40" },
+        "merge_commit": { "type": "string" },
+        "pull_request": { "type": "string" },
+        "evidence_artifacts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "certified_route_groups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/certifiedRouteGroup" },
+      "minItems": 1
+    },
+    "rollout_checklist": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rolloutChecklistItem" },
+      "minItems": 1
+    },
+    "validator_proof_cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/validatorProofCase" },
+      "minItems": 2
+    },
+    "residual_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/residualScopeItem" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "certifiedRouteGroup": {
+      "type": "object",
+      "required": ["route", "certification_status", "panel_ids", "evidence_basis"],
+      "properties": {
+        "route": { "type": "string" },
+        "certification_status": { "enum": ["certified", "certified_partial"] },
+        "panel_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "evidence_basis": { "type": "string" },
+        "residual_scope": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "rolloutChecklistItem": {
+      "type": "object",
+      "required": ["step", "required_evidence"],
+      "properties": {
+        "step": { "type": "string" },
+        "required_evidence": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "validatorProofCase": {
+      "type": "object",
+      "required": ["proof_type", "test_name", "expected_failure"],
+      "properties": {
+        "proof_type": {
+          "enum": [
+            "forbidden-label",
+            "unimplemented-metric-reference",
+            "sensitive-event-attribute"
+          ]
+        },
+        "test_name": { "type": "string" },
+        "expected_failure": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "residualScopeItem": {
+      "type": "object",
+      "required": ["feature_key", "status", "owner_repo", "blocker", "next_action"],
+      "properties": {
+        "feature_key": { "type": "string" },
+        "status": { "const": "planned" },
+        "owner_repo": { "type": "string" },
+        "blocker": { "type": "string" },
+        "next_action": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

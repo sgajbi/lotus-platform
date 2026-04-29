@@ -33,7 +33,8 @@
         "slice-5-metrics-dashboard-implemented",
         "slice-6-attention-events-implemented",
         "slice-7-audit-events-implemented",
-        "slice-8-canonical-proof-implemented"
+        "slice-8-canonical-proof-implemented",
+        "slice-9-rollout-readiness-implemented"
       ]
     },
     "allowed_labels": {

@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-8-canonical-proof-implemented",
+  "lifecycle_status": "slice-9-rollout-readiness-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -373,6 +373,12 @@
       "promotion_evidence": "RFC-0108 Slice 2 adds the governed analytics UI telemetry contract for browser events, gateway log events, severity levels, attention event types, audit event types, trace attributes, dashboard/alert reference policy, protected diagnostics policy, and validator tests without emitting runtime telemetry."
     },
     {
+      "feature_key": "platform.analytics.observability.rollout_readiness",
+      "status": "implemented",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "RFC-0108 Slice 9 adds a machine-readable rollout-readiness contract, validator, and unit tests that tie certified Workbench route/panel scope to Slice 8 proof, separate planned residual scope, and prove validators reject forbidden labels and unimplemented metric references."
+    },
+    {
       "feature_key": "workbench.analytics.observability.correlation_trace",
       "status": "implemented",
       "owner_repo": "lotus-workbench",
@@ -389,6 +395,12 @@
       "status": "implemented",
       "owner_repo": "lotus-workbench",
       "promotion_evidence": "RFC-0108 Slice 5 adds Workbench local analytics UI metric events and tests for ready, empty, partial, stale, degraded, error, permission-blocked, unsupported, API duration, panel state, panel hydration, and sensitive-field exclusion."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
+      "promotion_evidence": "Source-backed freshness/supportability contract proof and browser validation remain planned until backend-owned freshness and supportability metrics exist."
     },
     {
       "feature_key": "workbench.analytics.observability.safe_dashboard",
