@@ -18,7 +18,7 @@ vectors_path = Path(sys.argv[2])
 
 targets = {
     "pas": ("lotus-core", "src/services/query_service/app", "precision_policy"),
-    "pa": ("lotus-performance", "app", "precision_policy"),
+    "lotus-performance": ("lotus-performance", "app", "precision_policy"),
     "dpm": ("lotus-manage", "src/core", "precision_policy"),
     "ras": ("lotus-report", "src/app", "precision_policy"),
     "aea": ("lotus-gateway", "src/app", "precision_policy"),

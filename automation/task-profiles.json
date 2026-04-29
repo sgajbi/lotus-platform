@@ -20,7 +20,7 @@
                                            "command":  "python -m pip install -r requirements.txt \u0026\u0026 python -m pip install -r requirements-dev.txt"
                                        },
                                        {
-                                           "id":  "bootstrap-pa",
+                                           "id":  "bootstrap-lotus-performance",
                                            "repo":  "lotus-performance",
                                            "command":  "python -m pip install -r requirements.txt \u0026\u0026 python -m pip install -r requirements-dev.txt"
                                        },
@@ -86,7 +86,7 @@
                                            "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python -m pytest tests/unit/shared/dependencies/test_postgres_migrations.py tests/unit/shared/dependencies/test_production_cutover_contract.py -q\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit"
                                        },
                                        {
-                                           "id":  "pa-check",
+                                           "id":  "lotus-performance-check",
                                            "repo":  "lotus-performance",
                                            "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -m mypy --config-file mypy.ini \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python -m pytest tests/unit"
                                        },
@@ -147,7 +147,7 @@
                                            "command":  "docker compose up -d --build lotus-advise"
                                        },
                                        {
-                                           "id":  "pa-docker-up",
+                                           "id":  "lotus-performance-docker-up",
                                            "repo":  "lotus-performance",
                                            "command":  "docker compose up -d --build performance-analytics"
                                        },
@@ -203,7 +203,7 @@
                                            "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python scripts/dependency_health_check.py --requirements requirements.txt \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=src --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=src --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
                                        },
                                        {
-                                           "id":  "pa-ci-local",
+                                           "id":  "lotus-performance-ci-local",
                                            "repo":  "lotus-performance",
                                            "command":  "python -m ruff check . \u0026\u0026 python -m ruff format --check . \u0026\u0026 python -c \"import shutil,subprocess,sys; cmd=\u0027make migration-smoke\u0027 if shutil.which(\u0027make\u0027) else \u0027python scripts/migration_contract_check.py\u0027; sys.exit(subprocess.call(cmd, shell=True))\" \u0026\u0026 python scripts/dependency_health_check.py --requirements requirements.txt \u0026\u0026 set COVERAGE_FILE=.coverage.unit \u0026\u0026 python -m pytest tests/unit --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.integration \u0026\u0026 python -m pytest tests/integration --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 set COVERAGE_FILE=.coverage.e2e \u0026\u0026 python -m pytest tests/e2e --cov=app --cov=engine --cov=core --cov=adapters --cov-report= \u0026\u0026 python -m coverage combine .coverage.unit .coverage.integration .coverage.e2e \u0026\u0026 python -m coverage report --fail-under=99 \u0026\u0026 python -m mypy --config-file mypy.ini"
                                        },
@@ -264,7 +264,7 @@
                                            "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
                                        },
                                        {
-                                           "id":  "pa-ci-docker",
+                                           "id":  "lotus-performance-ci-docker",
                                            "repo":  "lotus-performance",
                                            "command":  "make ci-local-docker \u0026\u0026 make ci-local-docker-down"
                                        },
@@ -356,12 +356,12 @@
                                            "command":  "python -m pytest tests/integration -q"
                                        },
                                        {
-                                           "id":  "pa-unit",
+                                           "id":  "lotus-performance-unit",
                                            "repo":  "lotus-performance",
                                            "command":  "python -m pytest tests/unit -q"
                                        },
                                        {
-                                           "id":  "pa-integration",
+                                           "id":  "lotus-performance-integration",
                                            "repo":  "lotus-performance",
                                            "command":  "python -m pytest tests/integration -q"
                                        },

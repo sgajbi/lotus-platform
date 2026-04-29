@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, and lotus-report evidence-surface supportability are implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, and lotus-report evidence-surface supportability are implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -158,12 +158,12 @@
     {
       "repository": "lotus-core",
       "role": "Portfolio, account, holding, mandate, transaction, and entitlement source supportability.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["core.observability.portfolio_supportability"],
-      "gap_classification": ["backend_supportability_planned"],
-      "blockers": ["source-backed portfolio supportability metrics are not implemented"],
-      "required_proof": ["repo-native tests", "metrics/log proof", "OpenAPI certification where APIs change"],
-      "wiki_source_decision": "Core wiki source update required if operator posture changes",
+      "gap_classification": ["portfolio_readiness_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["portfolio readiness supportability is implemented in lotus-core; Gateway consumption and Workbench portfolio supportability reconciliation remain planned"],
+      "required_proof": ["repo-native tests", "metrics/log proof", "OpenAPI certification where APIs change", "Gateway/Workbench portfolio supportability reconciliation"],
+      "wiki_source_decision": "Core wiki source updated and published for portfolio readiness supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["portfolio supportability runbook"]
     },
     {
