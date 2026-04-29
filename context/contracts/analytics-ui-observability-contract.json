@@ -524,9 +524,9 @@
     },
     {
       "feature_key": "core.observability.portfolio_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-core",
-      "promotion_evidence": "Slice 12 must expose product-safe supportability, freshness, entitlement, and data-quality signals for portfolio, account, holding, mandate, and transaction data consumed by Gateway and Workbench."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-core portfolio readiness supportability via PortfolioReadinessResponse.supportability, core.observability.portfolio_supportability capability publication, lotus_core_portfolio_supportability_total with bounded state/reason/freshness labels only, repo-native unit/integration/OpenAPI/API-vocabulary/no-alias proof, docs, and wiki source updates. Gateway consumption and Workbench portfolio supportability reconciliation remain planned."
     },
     {
       "feature_key": "performance.observability.calculation_supportability",

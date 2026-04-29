@@ -39,6 +39,7 @@ IMPLEMENTED_SLICE_11_FEATURE_KEY = (
 )
 IMPLEMENTED_SLICE_12_FEATURE_KEYS = {
     "advise.observability.advisory_supportability",
+    "core.observability.portfolio_supportability",
     "manage.observability.action_register_supportability",
     "performance.observability.calculation_supportability",
     "report.observability.evidence_surface_supportability",

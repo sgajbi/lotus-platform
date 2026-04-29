@@ -167,6 +167,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["core.observability.portfolio_supportability"] == "implemented"
+    )
+    assert (
         feature_status["performance.observability.calculation_supportability"]
         == "implemented"
     )
@@ -206,6 +209,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
+            "core.observability.portfolio_supportability",
             "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",
             "advise.observability.advisory_supportability",
