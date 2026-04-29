@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-12-backend-supportability-partial-implemented"
+        == "slice-13-gateway-fanout-metrics-partial-implemented"
     )
 
 
@@ -72,7 +72,7 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_12_partial_only() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_13_partial_only() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {
         entry["slice_id"]: entry["status"]
@@ -82,7 +82,8 @@ def test_analytics_ui_ecosystem_completion_requires_slice_12_partial_only() -> N
     assert statuses[10] == "implemented"
     assert statuses[11] == "implemented"
     assert statuses[12] == "partially_implemented"
-    assert {statuses[slice_id] for slice_id in range(13, 19)} == {"planned"}
+    assert statuses[13] == "partially_implemented"
+    assert {statuses[slice_id] for slice_id in range(14, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
@@ -100,12 +101,12 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_slice_completion() 
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
     for entry in ecosystem["ecosystem_completion_slices"]:
-        if entry["slice_id"] == 12:
+        if entry["slice_id"] == 13:
             entry["status"] = "implemented"
 
     errors = _validate(observability, ecosystem)
 
-    assert any("Slice 12 must be partially_implemented" in error for error in errors)
+    assert any("Slice 13 must be partially_implemented" in error for error in errors)
 
 
 def test_analytics_ui_ecosystem_completion_rejects_unknown_feature_key() -> None:
@@ -138,13 +139,13 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion()
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.fanout_metrics":
+        if feature["feature_key"] == "gateway.analytics.observability.protected_diagnostics":
             feature["status"] = "implemented"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
-        "gateway.analytics.observability.fanout_metrics: ecosystem feature must remain planned"
+        "gateway.analytics.observability.protected_diagnostics: ecosystem feature must remain planned"
         in error
         for error in errors
     )
@@ -177,5 +178,21 @@ def test_analytics_ui_ecosystem_completion_requires_slice_12_features_implemente
 
     assert any(
         f"{feature_key} must be implemented after Slice 12 partial proof" in error
+        for error in errors
+    )
+
+
+def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemented() -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if feature["feature_key"] == "gateway.analytics.observability.fanout_metrics":
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 partial proof"
+        in error
         for error in errors
     )
