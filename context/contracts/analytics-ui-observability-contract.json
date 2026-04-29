@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-1-structure-implemented",
+  "lifecycle_status": "slice-2-telemetry-contract-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -107,6 +107,140 @@
       "purpose": "planned bounded attention counter for actionable user-visible degradation"
     }
   ],
+  "telemetry_contract": {
+    "severity_levels": ["info", "warning", "action_required", "critical"],
+    "attention_event_types": [
+      "panel_stale",
+      "panel_degraded",
+      "panel_repeated_failure",
+      "source_partial",
+      "permission_blocked"
+    ],
+    "audit_event_types": [
+      "analytics_read_allowed",
+      "analytics_read_denied",
+      "protected_diagnostics_lookup"
+    ],
+    "browser_events": [
+      {
+        "event_name": "workbench.analytics.panel_hydration",
+        "owner_repo": "lotus-workbench",
+        "implemented": false,
+        "attributes": ["route", "panel", "state", "freshness_bucket", "status_class"],
+        "purpose": "planned browser-side panel hydration event for certified analytics panels"
+      },
+      {
+        "event_name": "workbench.analytics.panel_state",
+        "owner_repo": "lotus-workbench",
+        "implemented": false,
+        "attributes": ["route", "panel", "state", "reason", "severity"],
+        "purpose": "planned browser-side state transition event for certified analytics panels"
+      },
+      {
+        "event_name": "workbench.analytics.api_request",
+        "owner_repo": "lotus-workbench",
+        "implemented": false,
+        "attributes": ["route", "operation", "status_class", "error_category"],
+        "purpose": "planned Workbench BFF/API request event for analytics reads"
+      }
+    ],
+    "gateway_log_events": [
+      {
+        "event_name": "gateway.analytics.fanout.completed",
+        "owner_repo": "lotus-gateway",
+        "implemented": false,
+        "attributes": ["operation", "service", "status_class", "supportability_state"],
+        "purpose": "planned product-safe structured log for analytics fan-out completion"
+      },
+      {
+        "event_name": "gateway.analytics.fanout.degraded",
+        "owner_repo": "lotus-gateway",
+        "implemented": false,
+        "attributes": ["operation", "service", "reason", "severity"],
+        "purpose": "planned product-safe structured log for degraded analytics fan-out"
+      }
+    ],
+    "trace_attributes": [
+      "route",
+      "panel",
+      "service",
+      "operation",
+      "state",
+      "freshness_bucket",
+      "supportability_state",
+      "status_class",
+      "error_category"
+    ],
+    "attention_event_attributes": [
+      "route",
+      "panel",
+      "attention_type",
+      "severity",
+      "state",
+      "reason",
+      "freshness_bucket",
+      "supportability_state"
+    ],
+    "audit_event_attributes": [
+      "route",
+      "panel",
+      "operation",
+      "state",
+      "reason",
+      "status_class",
+      "region",
+      "environment"
+    ],
+    "dashboard_reference_policy": {
+      "implemented_metrics_only": true,
+      "forbidden_variables": [
+        "portfolio_id",
+        "client_id",
+        "client_name",
+        "household_id",
+        "account_id",
+        "instrument_id",
+        "holding_id",
+        "transaction_id",
+        "trace_id",
+        "correlation_id",
+        "document_id",
+        "advisor_id",
+        "advisor_behavior",
+        "screen_content",
+        "request_body",
+        "response_body",
+        "raw_entitlement_failure"
+      ]
+    },
+    "alert_reference_policy": {
+      "implemented_metrics_only": true,
+      "forbidden_annotations": [
+        "portfolio_id",
+        "client_id",
+        "client_name",
+        "household_id",
+        "account_id",
+        "instrument_id",
+        "holding_id",
+        "transaction_id",
+        "trace_id",
+        "correlation_id",
+        "document_id",
+        "advisor_id",
+        "advisor_behavior",
+        "screen_content",
+        "request_body",
+        "response_body",
+        "raw_entitlement_failure"
+      ]
+    },
+    "protected_diagnostics_policy": {
+      "metrics_must_not_carry_lookup_identifiers": true,
+      "operator_lookup_requires_protected_api": true,
+      "raw_request_response_capture_allowed": false
+    }
+  },
   "dashboards": [],
   "alerts": [],
   "supported_feature_keys": [
@@ -115,6 +249,12 @@
       "status": "implemented",
       "owner_repo": "lotus-platform",
       "promotion_evidence": "RFC-0108 Slice 0 added platform analytics UI observability contract validation, generated-app product-safe error scaffolding, structured JSON event logging, supported-features placeholders, RFC evidence scaffolding, operations documentation, API certification documentation, and generated scaffold tests."
+    },
+    {
+      "feature_key": "platform.analytics.observability.telemetry_contract",
+      "status": "implemented",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "RFC-0108 Slice 2 adds the governed analytics UI telemetry contract for browser events, gateway log events, severity levels, attention event types, audit event types, trace attributes, dashboard/alert reference policy, protected diagnostics policy, and validator tests without emitting runtime telemetry."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",
