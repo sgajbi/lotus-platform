@@ -91,13 +91,13 @@ def test_analytics_ui_final_closure_rejects_residual_promotion() -> None:
     hardening = _load_json(HARDENING_REVIEW_PATH)
     closure = _load_json(FINAL_CLOSURE_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.fanout_metrics":
+        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
             feature["status"] = "implemented"
 
     errors = _validate(observability, rollout, hardening, closure)
 
     assert any(
-        "gateway.analytics.observability.fanout_metrics: residual feature must remain planned"
+        "gateway.analytics.observability.all_ui_fanout_paths: residual feature must remain planned"
         in error
         for error in errors
     )

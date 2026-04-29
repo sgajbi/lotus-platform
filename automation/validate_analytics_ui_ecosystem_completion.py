@@ -50,6 +50,7 @@ IMPLEMENTED_SLICE_12_FEATURE_KEYS = {
 }
 IMPLEMENTED_SLICE_13_FEATURE_KEYS = {
     "gateway.analytics.observability.fanout_metrics",
+    "gateway.analytics.observability.protected_diagnostics",
 }
 
 

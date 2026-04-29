@@ -477,13 +477,13 @@
       "feature_key": "workbench.analytics.observability.entitlement_audit_events",
       "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "RFC-0108 Slice 7 adds Gateway product-safe analytics read audit logs for selected Workbench performance and risk analytics reads. Successful upstream reads emit analytics_read_allowed, 401/403 upstream denials emit analytics_read_denied, and tests prove bounded audit fields plus exclusion of portfolio, client, request, response, and raw entitlement failure content. Protected diagnostics lookup audit remains planned until a protected diagnostics API exists."
+      "promotion_evidence": "RFC-0108 Slice 7 adds Gateway product-safe analytics read audit logs for selected Workbench performance and risk analytics reads. Successful upstream reads emit analytics_read_allowed, 401/403 upstream denials emit analytics_read_denied, and tests prove bounded audit fields plus exclusion of portfolio, client, request, response, and raw entitlement failure content. RFC-0108 Slice 13 adds protected_diagnostics_lookup audit through the protected diagnostics API."
     },
     {
       "feature_key": "workbench.analytics.observability.canonical_proof",
       "status": "implemented",
       "owner_repo": "lotus-platform/lotus-workbench",
-      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions while leaving gateway/backend metrics, protected diagnostics lookup audit, and full caller-context entitlement certification planned."
+      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions. Later Slice 13 proof adds selected Gateway fan-out metrics and protected diagnostics; backend freshness and full caller-context entitlement certification remain planned."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
@@ -495,13 +495,13 @@
       "feature_key": "gateway.analytics.observability.fanout_metrics",
       "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Tests prove bounded labels, metric increments, and forbidden sensitive-label rejection. Protected diagnostics and all UI fan-out path coverage remain planned."
+      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Tests prove bounded labels, metric increments, and forbidden sensitive-label rejection. Protected diagnostics is now implementation-backed; all UI fan-out path coverage remains planned."
     },
     {
       "feature_key": "gateway.analytics.observability.protected_diagnostics",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "Slice 13 must add protected diagnostics lookup APIs and audit events so operators can resolve support references without exposing sensitive identifiers in telemetry or dashboards."
+      "promotion_evidence": "RFC-0108 Slice 13 partial implementation adds the protected operator lookup API GET /api/v1/analytics-ui/diagnostics/{support_reference}, requires governed caller context plus an operator support role, rejects raw-looking identifiers by requiring opaque gdiag-* support references, returns only bounded panel/operation/service/state/reason/operator-guidance posture, and emits gateway.analytics.audit.protected_diagnostics_lookup without support references, portfolio ids, trace ids, correlation ids, request bodies, response bodies, or raw entitlement failures in audit fields. Gateway PR #162 merged this proof with make check, Feature Lane, PR Merge Gate, Docker build, Docker parity, and wiki publication."
     },
     {
       "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
