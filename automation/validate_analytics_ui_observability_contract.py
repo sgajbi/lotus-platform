@@ -152,6 +152,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         key = feature.get("feature_key", "<missing>")
         status = feature.get("status")
         implemented_slice_12_partial_keys = {
+            "advise.observability.advisory_supportability",
             "manage.observability.action_register_supportability",
             "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",

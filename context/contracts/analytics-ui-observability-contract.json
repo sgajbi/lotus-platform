@@ -542,9 +542,9 @@
     },
     {
       "feature_key": "advise.observability.advisory_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-advise",
-      "promotion_evidence": "Slice 12 must implement advisory proposal, recommendation, suitability, and decision-support supportability signals for supported advisory UI surfaces."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-advise advisory supportability via GET /platform/capabilities supportability, advise.observability.advisory_supportability capability publication, lotus_advise_advisory_supportability_total with bounded labels only, repo-native make check proof covering lint, typecheck, OpenAPI, no-alias, API vocabulary, domain-data-product validation, and 585 unit tests, docs, and wiki source updates. Gateway consumption and Workbench advisory surface reconciliation remain planned."
     },
     {
       "feature_key": "manage.observability.action_register_supportability",

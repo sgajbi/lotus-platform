@@ -177,6 +177,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["manage.observability.action_register_supportability"]
         == "implemented"
     )
+    assert (
+        feature_status["advise.observability.advisory_supportability"] == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
@@ -201,6 +204,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "gateway.analytics.observability.contract_vocabulary",
             "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",
+            "advise.observability.advisory_supportability",
             "manage.observability.action_register_supportability",
         }
     } == {"planned"}
