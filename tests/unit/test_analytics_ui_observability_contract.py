@@ -40,7 +40,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-3-correlation-propagation-implemented"
+    assert contract["lifecycle_status"] == "slice-4-structured-logging-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -79,6 +79,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["gateway.analytics.observability.correlation_trace"]
         == "implemented"
     )
+    assert (
+        feature_status["gateway.analytics.observability.structured_fanout_logs"]
+        == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
@@ -89,9 +93,28 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "gateway.analytics.observability.correlation_trace",
+            "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
         }
     } == {"planned"}
+
+    gateway_events = {
+        entry["event_name"]: entry
+        for entry in contract["telemetry_contract"]["gateway_log_events"]
+    }
+    assert gateway_events["gateway.analytics.fanout.completed"]["implemented"] is True
+    assert gateway_events["gateway.analytics.fanout.degraded"]["implemented"] is True
+    assert {"route", "operation", "service", "state", "status_class"} <= set(
+        gateway_events["gateway.analytics.fanout.completed"]["attributes"]
+    )
+    assert {
+        "route",
+        "operation",
+        "service",
+        "state",
+        "reason",
+        "error_category",
+    } <= set(gateway_events["gateway.analytics.fanout.degraded"]["attributes"])
 
 
 def test_analytics_ui_observability_contract_rejects_sensitive_labels() -> None:
@@ -172,11 +195,15 @@ def test_analytics_ui_observability_contract_records_telemetry_contract() -> Non
         "gateway.analytics.fanout.degraded",
     }
 
-    for event_group in ("browser_events", "gateway_log_events"):
-        for event in telemetry_contract[event_group]:
-            assert event["implemented"] is False
-            assert set(event["attributes"]) <= allowed_labels
-            assert set(event["attributes"]).isdisjoint(forbidden_fields)
+    for event in telemetry_contract["browser_events"]:
+        assert event["implemented"] is False
+        assert set(event["attributes"]) <= allowed_labels
+        assert set(event["attributes"]).isdisjoint(forbidden_fields)
+
+    for event in telemetry_contract["gateway_log_events"]:
+        assert event["implemented"] is True
+        assert set(event["attributes"]) <= allowed_labels
+        assert set(event["attributes"]).isdisjoint(forbidden_fields)
 
     for attribute_group in (
         "trace_attributes",
