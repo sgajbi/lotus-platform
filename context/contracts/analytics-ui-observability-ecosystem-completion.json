@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, and lotus-report evidence-surface supportability are implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, and lotus-render render supportability are implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -230,12 +230,12 @@
     {
       "repository": "lotus-render",
       "role": "Deterministic render service supportability for report/evidence surfaces.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["render.observability.render_supportability"],
-      "gap_classification": ["render_supportability_planned"],
-      "blockers": ["render supportability metrics are not implemented for front-office evidence surfaces"],
-      "required_proof": ["repo-native render tests", "render metric proof", "report/evidence reconciliation"],
-      "wiki_source_decision": "Render wiki source update required when render supportability ships",
+      "gap_classification": ["render_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["render supportability is implemented in lotus-render; Gateway consumption and Workbench evidence-surface reconciliation remain planned"],
+      "required_proof": ["repo-native render tests", "render metric proof", "OpenAPI supportability docs proof", "report/evidence reconciliation"],
+      "wiki_source_decision": "Render wiki source updated for render supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["render supportability runbook"]
     },
     {
