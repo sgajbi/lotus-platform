@@ -29,14 +29,16 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-3-correlation-propagation-implemented",
         "slice-4-structured-logging-implemented",
         "slice-5-metrics-dashboard-implemented",
+        "slice-6-attention-events-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
             "lifecycle_status must be implementation-not-started, slice-0-implemented, "
             "slice-1-structure-implemented, slice-2-telemetry-contract-implemented, "
             "slice-3-correlation-propagation-implemented, "
-            "slice-4-structured-logging-implemented, or "
-            "slice-5-metrics-dashboard-implemented"
+            "slice-4-structured-logging-implemented, "
+            "slice-5-metrics-dashboard-implemented, or "
+            "slice-6-attention-events-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -54,6 +56,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "lotus_workbench_panel_hydration_duration_seconds",
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
+        "lotus_analytics_ui_attention_events_total",
     }
     for metric in metric_families:
         name = metric.get("metric_name", "<missing>")
@@ -139,6 +142,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
             "workbench.analytics.observability.safe_dashboard",
+            "workbench.analytics.observability.attention_events",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
@@ -225,6 +229,7 @@ def _validate_telemetry_events(
             "workbench.analytics.panel_hydration",
             "workbench.analytics.panel_state",
             "workbench.analytics.api_request",
+            "workbench.analytics.attention",
             "gateway.analytics.fanout.completed",
             "gateway.analytics.fanout.degraded",
         }

@@ -21,3 +21,13 @@ groups:
         annotations:
           summary: Selected Workbench analytics API request p95 latency is above 3 seconds.
           runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-api-request-latency-p95
+      - alert: AnalyticsUiAttentionEvents
+        expr: sum(increase(lotus_analytics_ui_attention_events_total{severity="action_required"}[10m])) > 0
+        for: 10m
+        labels:
+          alert_id: analytics-ui-attention-events
+          severity: P2
+          owner_repo: lotus-workbench
+        annotations:
+          summary: Selected Workbench analytics panel emitted action-required attention events.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-attention-events

@@ -64,7 +64,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-5-metrics-dashboard-implemented"
+    assert contract["lifecycle_status"] == "slice-6-attention-events-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -78,6 +78,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert {alert["alert_id"] for alert in contract["alerts"]} == {
         "analytics-ui-panel-error-rate",
         "analytics-ui-api-request-latency-p95",
+        "analytics-ui-attention-events",
     }
     implemented_metrics = {
         entry["metric_name"]
@@ -88,6 +89,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "lotus_workbench_panel_hydration_duration_seconds",
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
+        "lotus_analytics_ui_attention_events_total",
     }
     feature_status = {
         entry["feature_key"]: entry["status"]
@@ -118,6 +120,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["workbench.analytics.observability.attention_events"]
+        == "implemented"
+    )
+    assert (
         feature_status["gateway.analytics.observability.contract_vocabulary"]
         == "implemented"
     )
@@ -140,6 +146,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
             "workbench.analytics.observability.safe_dashboard",
+            "workbench.analytics.observability.attention_events",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
@@ -235,6 +242,7 @@ def test_analytics_ui_observability_contract_records_telemetry_contract() -> Non
         "workbench.analytics.panel_hydration",
         "workbench.analytics.panel_state",
         "workbench.analytics.api_request",
+        "workbench.analytics.attention",
     }
     assert {
         event["event_name"] for event in telemetry_contract["gateway_log_events"]
@@ -372,7 +380,7 @@ def test_analytics_ui_observability_dashboard_references_only_implemented_metric
 
     assert dashboard["uid"] == "analytics-ui-observability-overview"
     assert dashboard["title"] == "Analytics UI Observability Overview"
-    assert len(dashboard["panels"]) == 3
+    assert len(dashboard["panels"]) == 4
     assert dashboard_metric_names <= implemented_metric_names
     assert all(forbidden not in dashboard_text for forbidden in forbidden_variables)
 

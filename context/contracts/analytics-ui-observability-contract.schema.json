@@ -30,7 +30,8 @@
         "slice-2-telemetry-contract-implemented",
         "slice-3-correlation-propagation-implemented",
         "slice-4-structured-logging-implemented",
-        "slice-5-metrics-dashboard-implemented"
+        "slice-5-metrics-dashboard-implemented",
+        "slice-6-attention-events-implemented"
       ]
     },
     "allowed_labels": {

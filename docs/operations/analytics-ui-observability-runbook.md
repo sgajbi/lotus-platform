@@ -1,7 +1,7 @@
 # Analytics UI Observability Runbook
 
 This runbook covers the RFC-0108 first-wave Workbench analytics UI observability alerts.
-The Slice 5 alert rules are intentionally bounded to implemented Workbench metric families and
+The alert rules are intentionally bounded to implemented Workbench metric families and
 must not include portfolio identifiers, client names, trace identifiers, request bodies, response
 bodies, or screen content.
 
@@ -31,3 +31,18 @@ Triage steps:
 3. Confirm whether backend analytics services are returning stale, partial, degraded, or error
    responses.
 4. Keep remediation notes bounded to route, panel, service, operation, status class, and state.
+
+## analytics-ui-attention-events
+
+Use this alert when selected Workbench analytics panels emit action-required attention events for at
+least ten minutes.
+
+Triage steps:
+
+1. Check the dashboard attention panel by route, panel, attention type, and severity.
+2. Compare the attention reason with the selected panel state and Gateway fan-out logs for the same
+   operation family.
+3. Treat repeated failures as operator-actionable only after the Workbench deduplication threshold
+   is met.
+4. Keep entity-specific investigation inside protected diagnostics; do not add portfolio, client,
+   correlation, trace, request, response, or screen content fields to attention labels.
