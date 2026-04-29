@@ -12,6 +12,9 @@
     "reason",
     "freshness_bucket",
     "supportability_state",
+    "surface",
+    "posture",
+    "source",
     "attention_type",
     "severity",
     "status_class",
@@ -116,6 +119,14 @@
         "supportability_state"
       ],
       "purpose": "implementation-backed Workbench attention counter for stale, degraded, partial-source, and repeated-failure selected analytics panel states with deduplication and bounded labels"
+    },
+    {
+      "metric_name": "lotus_ai_surface_supportability_state",
+      "owner_repo": "lotus-ai",
+      "implemented": true,
+      "metric_type": "gauge",
+      "labels": ["surface", "posture", "source"],
+      "purpose": "implementation-backed lotus-ai supportability gauge for bounded AI-backed surface posture"
     }
   ],
   "telemetry_contract": {
@@ -572,9 +583,9 @@
     },
     {
       "feature_key": "ai.observability.ai_surface_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-ai",
-      "promotion_evidence": "Slice 12 must expose AI-backed feature supportability, degraded/unavailable model posture, bounded workflow-pack status, and no-sensitive-content telemetry for supported AI-backed surfaces."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-ai AI surface supportability via observability_runtime.ai_surface_supportability embedded in GET /platform/observability/runtime-status and GET /platform/runtime-status, lotus_ai_surface_supportability_state with bounded surface/posture/source labels only, workflow-pack runtime/provider/safety source posture for advisor brief, lotus-performance TWR inspection support brief, and workspace rationale surfaces, repo-native targeted tests, lint, typecheck, docs, and wiki source updates. Gateway/Workbench AI-backed surface reconciliation remains planned."
     }
   ],
   "evidence_requirements": {

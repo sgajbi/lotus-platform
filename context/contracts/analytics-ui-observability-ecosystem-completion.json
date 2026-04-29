@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, and lotus-archive archive supportability are implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented, while remaining performance/risk endpoint families and Gateway/Workbench reconciliation stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -252,12 +252,12 @@
     {
       "repository": "lotus-ai",
       "role": "AI-backed feature supportability, degraded model posture, and bounded workflow-pack status source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["ai.observability.ai_surface_supportability"],
-      "gap_classification": ["ai_surface_supportability_planned"],
-      "blockers": ["AI-backed supportability metrics are not implemented for supported UI surfaces"],
-      "required_proof": ["repo-native AI tests", "model posture proof", "no-sensitive prompt/output telemetry checks"],
-      "wiki_source_decision": "AI wiki source update required when AI surface supportability ships",
+      "gap_classification": ["ai_surface_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["AI surface supportability is implemented in lotus-ai; Gateway consumption and Workbench AI-backed surface reconciliation remain planned"],
+      "required_proof": ["repo-native AI tests", "model posture proof", "no-sensitive prompt/output telemetry checks", "Gateway/Workbench AI-backed surface reconciliation"],
+      "wiki_source_decision": "AI wiki source updated for AI surface supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["AI surface supportability runbook"]
     }
   ],

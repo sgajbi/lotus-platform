@@ -93,6 +93,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
         "lotus_analytics_ui_attention_events_total",
+        "lotus_ai_surface_supportability_state",
     }
     feature_status = {
         entry["feature_key"]: entry["status"]
@@ -193,6 +194,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert (
         feature_status["render.observability.render_supportability"] == "implemented"
     )
+    assert (
+        feature_status["ai.observability.ai_surface_supportability"] == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
@@ -223,6 +227,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "manage.observability.action_register_supportability",
             "report.observability.evidence_surface_supportability",
             "render.observability.render_supportability",
+            "ai.observability.ai_surface_supportability",
         }
     } == {"planned"}
 
@@ -230,6 +235,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         entry["event_name"]: entry
         for entry in contract["telemetry_contract"]["gateway_log_events"]
     }
+    metric_families = {
+        entry["metric_name"]: entry for entry in contract["metric_families"]
+    }
+    assert metric_families["lotus_ai_surface_supportability_state"]["implemented"] is True
+    assert metric_families["lotus_ai_surface_supportability_state"]["labels"] == [
+        "surface",
+        "posture",
+        "source",
+    ]
     assert gateway_events["gateway.analytics.fanout.completed"]["implemented"] is True
     assert gateway_events["gateway.analytics.fanout.degraded"]["implemented"] is True
     assert (
