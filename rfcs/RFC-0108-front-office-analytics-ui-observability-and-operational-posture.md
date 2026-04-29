@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Implementation Started; Slice 8 Complete
+- Status: Reopened For Ecosystem Completion; First-Wave Scope Implemented
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:
@@ -11,6 +11,9 @@
   - `lotus-risk` owners
   - `lotus-core` owners where portfolio identity, entitlement, or position context is required
   - `lotus-advise` owners where advisory panels are included
+  - `lotus-manage` owners where management and operations panels or data products are included
+  - `lotus-report`, `lotus-render`, `lotus-archive`, and `lotus-ai` owners where their product,
+    evidence, document, archive, or AI-backed surfaces participate in the unified user journey
 - Target repositories:
   - `lotus-platform`
   - `lotus-workbench`
@@ -18,7 +21,12 @@
   - `lotus-performance`
   - `lotus-risk`
   - `lotus-core`
-  - optionally `lotus-advise` when advisory analytics panels enter scope
+  - `lotus-advise`
+  - `lotus-manage`
+  - `lotus-report`
+  - `lotus-render`
+  - `lotus-archive`
+  - `lotus-ai`
 - Depends on:
   - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
   - `RFC-0076` canonical front-office demo-data contracts and panel validation posture
@@ -33,8 +41,9 @@
   - RFC-0108 is not an extension of RFC-0105.
   - RFC-0108 does not certify reporting security from RFC-0106.
   - RFC-0108 does not claim final reporting production readiness from RFC-0107.
-  - A later analytics production-certification RFC may consume RFC-0108 evidence if a broader
-    front-office release gate is needed.
+  - RFC-0108 is now reopened to add required ecosystem-completion slices that remove the
+    remaining planned analytics UI observability gaps and extend the same operational posture
+    uniformly across the Lotus ecosystem.
 
 ## Summary
 
@@ -76,9 +85,10 @@ Key differences:
 6. supported-features must not promote operational observability until browser, gateway, backend,
    dashboard, and no-sensitive-content evidence exist.
 
-Gold-pass conclusion: RFC-0108 is implementation-ready as a governed execution guide. Slice 0,
-Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, Slice 7, and Slice 8 are now
-implementation-backed. Slice 2 adds the platform
+Gold-pass conclusion: RFC-0108 remains the governed execution guide. The first-wave scope is
+implementation-backed through final closure, and the RFC is now reopened for required ecosystem
+completion slices. Slice 0, Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, Slice 7, and
+Slice 8 are implementation-backed. Slice 2 adds the platform
 telemetry contract and code-owned Workbench/Gateway constants for event names, severity levels,
 attention/audit event types, trace attributes, dashboard/alert reference policy, and protected
 diagnostics policy. Slice 3 adds browser/BFF/gateway/backend correlation and trace propagation
@@ -93,8 +103,10 @@ bounded `analytics_read_allowed` events and upstream `401`/`403` denials emittin
 `analytics_read_denied` events. Slice 8 adds platform-owned canonical proof review and live
 governed Workbench proof for `PB_SG_GLOBAL_BAL_001`, including API checks, browser screenshots,
 calculation sanity, panel classifications, Workbench `/api/metrics` exposure, dashboard/alert
-metric reconciliation, and sensitive-content assertions. Gateway/backend metrics, protected
-diagnostics lookup audit, and full caller-context entitlement certification remain planned.
+metric reconciliation, and sensitive-content assertions. The reopened ecosystem-completion wave now
+requires Gateway fan-out metrics, backend freshness/supportability metrics, protected diagnostics,
+full caller-context entitlement certification, all supported Workbench surfaces, and all Lotus app
+supportability signals to be implemented before overall RFC-0108 closure.
 
 ## Critical Review Findings And Gold-Standard Corrections
 
@@ -307,12 +319,64 @@ Out of scope:
 1. reporting job/rerender/regenerate/replay behavior already owned by RFC-0105,
 2. final reporting security certification owned by RFC-0106,
 3. final enterprise reporting production certification owned by RFC-0107,
-4. full Workbench scheduler-management or reporting document retrieval unless included by a later
-   approved scope,
-5. broad user behavior analytics or advisor productivity tracking,
-6. session replay of screen content,
-7. telemetry containing client, portfolio, holding, or transaction content,
-8. decorative trust or health badges not backed by gateway/platform evidence.
+4. broad user behavior analytics or advisor productivity tracking,
+5. session replay of screen content,
+6. telemetry containing client, portfolio, holding, or transaction content,
+7. decorative trust or health badges not backed by gateway/platform evidence.
+
+## Ecosystem Completion Extension
+
+The first-wave implementation proved the pattern for selected Workbench performance and risk
+analytics flows. That is no longer sufficient for the desired Lotus posture. RFC-0108 now requires
+the same observability and operational supportability standard to be completed across the whole
+Lotus ecosystem.
+
+The ecosystem-completion wave must not dilute the privacy and supported-features rules that made
+the first wave safe. It must instead expand them uniformly.
+
+Required ecosystem coverage:
+
+1. `lotus-workbench`: all supported front-office routes, panels, BFF routes, user-visible state,
+   attention events, screenshots, and browser proof.
+2. `lotus-gateway`: all UI-facing fan-out paths, request correlation, safe structured logs,
+   latency/error/degraded metrics, entitlement-relevant read audits, and protected diagnostics.
+3. `lotus-core`: portfolio, booking, account, holding, mandate, transaction, and entitlement
+   supportability signals that downstream UI surfaces depend on.
+4. `lotus-performance`: performance freshness, completeness, calculation supportability,
+   period-quality signals, and degraded-source reasons.
+5. `lotus-risk`: risk freshness, completeness, calculation supportability, concentration/drawdown
+   data-quality signals, and degraded-source reasons.
+6. `lotus-advise`: advisory proposal, recommendation, suitability, and decision-support
+   supportability signals where Workbench renders advisory UI surfaces.
+7. `lotus-manage`: management action register, mandate operations, task/action workflow, and
+   operational posture signals where Workbench or Gateway exposes management surfaces.
+8. `lotus-report`: report evidence-pack supportability signals that intersect front-office
+   evidence surfaces, while keeping RFC-0105 reporting job operations as their own domain.
+9. `lotus-render`: rendering-service health, latency, degradation, and deterministic output
+   supportability signals consumed by reporting/evidence surfaces.
+10. `lotus-archive`: archive retrieval, retention, legal-hold, access-audit, and document
+    availability supportability signals consumed by evidence surfaces.
+11. `lotus-ai`: AI-backed feature supportability, degraded/unavailable model posture, bounded
+    workflow-pack status, and no-sensitive-content telemetry where AI-backed surfaces are exposed.
+12. `lotus-platform`: cross-repo contracts, scaffolding, validators, dashboards, alerts,
+    runbooks, CI gates, wiki/context governance, and final proof aggregation.
+
+Uniform posture means every included app must have, at minimum:
+
+1. health/liveness/readiness and service metadata posture aligned with platform scaffold rules,
+2. request correlation and trace propagation where it participates in a user journey,
+3. structured product-safe logs for successful, degraded, denied, and failed paths,
+4. bounded metrics for latency, error, freshness, degraded state, empty state where relevant, and
+   operator attention,
+5. OpenAPI/Swagger quality and examples for all changed HTTP APIs,
+6. product-safe problem-details errors and tested failure handling,
+7. entitlement-relevant read and privileged/operator action audit events where applicable,
+8. protected diagnostics lookup instead of leaking identifiers into metrics, logs, screenshots, or
+   dashboard labels,
+9. dashboard and alert references that use implemented metrics only,
+10. repo-local docs/wiki source and supported-features updates backed by proof,
+11. evidence that browser, gateway, backend, dashboard, logs, metrics, and no-sensitive assertions
+    reconcile for the same user journey.
 
 ## Architecture Direction
 
@@ -651,6 +715,269 @@ Exit criteria:
 3. skill/guidance/context review has an explicit change or no-change decision,
 4. local repos are clean before the next RFC starts.
 
+### Ecosystem Completion Slice 10: Reopen Governance And Contract Expansion
+
+Purpose: turn RFC-0108 from first-wave analytics UI proof into a complete ecosystem execution
+program without losing the evidence and supported-features discipline already established.
+
+Required work:
+
+1. change RFC-0108 lifecycle and platform context from first-wave closure to reopened ecosystem
+   completion,
+2. expand the analytics UI observability contract into an ecosystem observability contract that
+   records every participating Lotus repository, route family, service family, metric family,
+   audit-event family, protected-diagnostics family, dashboard, alert, runbook, and evidence
+   requirement,
+3. add a machine-readable per-app gap matrix covering `lotus-workbench`, `lotus-gateway`,
+   `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`,
+   `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`, and `lotus-platform`,
+4. classify every app gap as `implemented`, `partially_implemented`, `planned`,
+   `not_applicable_with_rationale`, or `blocked_with_owner`,
+5. add validators that reject missing app coverage, unsupported implemented claims, forbidden
+   labels, dashboard references to unimplemented metrics, missing runbooks, missing wiki-source
+   decisions, and missing supported-features entries,
+6. map first-wave RFC-0108 proof into the new matrix without reclassifying planned items as done,
+7. create the execution ledger for ecosystem completion slices and require one PR per slice unless
+   a slice is explicitly documentation-only.
+
+Exit criteria:
+
+1. ecosystem gap matrix exists and is validator-protected,
+2. every Lotus app has an explicit observability posture row,
+3. every planned item has owner, repo, blocker, and required proof,
+4. first-wave implemented claims remain backed by prior PR/evidence,
+5. no new runtime implementation begins before the expanded contract passes locally and in CI.
+
+### Ecosystem Completion Slice 11: Platform Automation, Scaffolding, And CI Enforcement
+
+Purpose: make uniform observability the default platform behavior instead of app-by-app custom
+work.
+
+Required work:
+
+1. improve `lotus-platform` service scaffolding so new backend services start with health,
+   liveness, readiness, metadata, metrics, correlation/trace propagation, structured JSON logs,
+   product-safe errors, OpenAPI quality checks, supported-features placeholders, operations docs,
+   wiki-source placeholders, and RFC evidence layout,
+2. improve Workbench or UI scaffolding patterns so new UI surfaces start with bounded panel state,
+   BFF request instrumentation, safe metric labels, attention-event hooks, browser evidence
+   scaffolding, and no-sensitive-content test hooks,
+3. add or tighten CI/workflow gates so every participating repository can run the relevant
+   observability, OpenAPI, supported-features, docs/wiki, and no-sensitive-content checks,
+4. provide reusable validators and templates rather than repeating local implementations,
+5. update context, skill routing, onboarding, and repository engineering context templates if the
+   ecosystem rollout creates durable new workflow guidance,
+6. prove generated scaffolds and CI templates through contract tests.
+
+Exit criteria:
+
+1. platform scaffolding tests prove new apps receive the uniform baseline,
+2. CI/workflow templates include the observability and documentation checks required by this RFC,
+3. no app-local workaround remains where a platform-level scaffold or validator should own the
+   behavior,
+4. future Lotus apps can start with the same governed observability posture by default.
+
+### Ecosystem Completion Slice 12: Backend Service Freshness And Supportability Metrics
+
+Purpose: finish source-backed freshness, data-quality, and supportability signals in the domain
+services that feed front-office UI state.
+
+Required work:
+
+1. implement governed freshness/supportability metric families in `lotus-performance` and
+   `lotus-risk` for the analytics calculations already surfaced in Workbench,
+2. implement equivalent source-backed supportability signals in `lotus-core`, `lotus-advise`,
+   `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, and `lotus-ai` where their
+   data or capabilities affect Workbench, Gateway, evidence, advisory, management, report, archive,
+   or AI-backed surfaces,
+3. standardize freshness buckets, supportability states, empty-state reasons, degraded reasons,
+   calculation-quality reasons, and retryability reasons across services,
+4. ensure each service emits product-safe logs and metrics without portfolio, client, account,
+   holding, transaction, document, advisor, request-body, response-body, raw prompt, or model-output
+   content,
+5. add repo-native tests for ready, stale, degraded, empty, error, permission-blocked, and
+   unsupported paths where applicable,
+6. update each service's OpenAPI/Swagger and operations docs when API shape or operator behavior
+   changes,
+7. update supported-features only after service-native implementation and proof.
+
+Exit criteria:
+
+1. every participating backend service has source-backed supportability metrics or an explicit
+   not-applicable rationale,
+2. `analytics.backend.observability.freshness_supportability` can be promoted only after
+   `lotus-performance` and `lotus-risk` pass source-backed proof,
+3. Workbench freshness/degraded-state claims have backend-owned evidence,
+4. no backend service leaks sensitive identifiers or payload content into telemetry.
+
+### Ecosystem Completion Slice 13: Gateway Fan-Out Metrics, Protected Diagnostics, And Audit Completion
+
+Purpose: complete Gateway as the uniform product-facing observability and diagnostics boundary.
+
+Required work:
+
+1. implement `lotus_gateway_analytics_fanout_duration_seconds`,
+   `lotus_gateway_analytics_degraded_total`, and any additional governed fan-out metric families
+   required for all UI-facing Gateway operations,
+2. apply the metric pattern to Gateway calls into `lotus-core`, `lotus-performance`, `lotus-risk`,
+   `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, and
+   `lotus-ai` where those calls support Workbench surfaces,
+3. add protected diagnostics lookup APIs for operators to resolve safe support references without
+   placing portfolio, client, account, holding, transaction, document, advisor, trace, or
+   correlation identifiers in metric labels or dashboard variables,
+4. complete audit events for entitlement-relevant reads and privileged/operator actions, including
+   protected diagnostics lookup audit,
+5. ensure OpenAPI/Swagger for new or changed Gateway APIs is complete with grouped endpoints,
+   what/when/how guidance, request/response examples, attribute descriptions, types, examples, and
+   product-safe error examples,
+6. add gateway tests for success, partial, degraded, timeout, permission-denied, upstream
+   unavailable, malformed traceparent, and protected-diagnostics authorization paths,
+7. reconcile Gateway metrics with dashboard and alert contracts.
+
+Exit criteria:
+
+1. `gateway.analytics.observability.fanout_metrics` can be promoted from planned to implemented,
+2. protected diagnostics lookup audit is implementation-backed,
+3. Gateway is the single UI-facing diagnostics boundary for protected lookup,
+4. dashboards and alerts reference only implemented Gateway metrics,
+5. API certification and Swagger checks pass.
+
+### Ecosystem Completion Slice 14: Workbench All-Surface Observability Rollout
+
+Purpose: extend Workbench observability from selected canonical panels to every supported
+front-office surface without decorative or unsupported claims.
+
+Required work:
+
+1. inventory every supported Workbench route, panel, BFF route, evidence surface, advisory surface,
+   management surface, reporting/evidence surface, archive surface, and AI-backed surface,
+2. map each surface to Gateway operations and backend supportability sources,
+3. implement panel hydration, API duration, state, attention, empty/degraded/stale/error, and
+   permission-blocked observability for every supported surface,
+4. consume backend-owned freshness/supportability and Gateway fan-out state instead of inferring
+   decorative UI status,
+5. keep unsupported panels explicit as unsupported and unpromoted,
+6. add browser/unit tests for all state classes and sensitive-label exclusion,
+7. capture governed browser proof only after API, calculation, panel, and supportability validation
+   pass.
+
+Exit criteria:
+
+1. all supported Workbench surfaces have source-backed observability or explicit unsupported
+   posture,
+2. `workbench.analytics.observability.freshness_degraded_state` can be promoted only after
+   backend and Gateway proof exists,
+3. no Workbench surface claims supportability that Gateway/backend services do not provide,
+4. browser evidence reconciles with Gateway/backend evidence.
+
+### Ecosystem Completion Slice 15: Dashboards, Alerts, Runbooks, And Operator Diagnostics
+
+Purpose: provide ecosystem-level operator surfaces tied only to implemented telemetry.
+
+Required work:
+
+1. extend Grafana dashboards and Prometheus alert rules to cover Workbench, Gateway, and every
+   participating backend service,
+2. group dashboards by user journey, service, route family, panel family, source system, and
+   supportability state without sensitive variables,
+3. add runbooks for attention events, degraded panels, stale calculations, Gateway fan-out
+   degradation, backend freshness failures, entitlement denials, protected diagnostics lookup,
+   archive/report/evidence unavailability, and AI-backed degraded state,
+4. ensure alert severities distinguish user-visible degradation, service degradation, stale data,
+   unsupported capability, and security/entitlement posture,
+5. add validators proving dashboards and alerts reference implemented metrics only,
+6. prove operator diagnostics do not require raw request/response bodies, screen content, client
+   identifiers, portfolio identifiers, raw prompts, or generated AI output.
+
+Exit criteria:
+
+1. dashboards and alerts cover every implemented ecosystem metric family,
+2. every alert has a runbook and bounded severity,
+3. dashboard and alert validators reject forbidden variables, annotations, and unimplemented metric
+   references,
+4. operator diagnostics are useful without sensitive-content leakage.
+
+### Ecosystem Completion Slice 16: Ecosystem Implementation Proof
+
+Purpose: prove the complete Lotus user journey end to end, not only one canonical panel.
+
+Required work:
+
+1. bring up the governed ecosystem runtime with all required sibling repositories,
+2. validate canonical and expanded Workbench surfaces through Gateway-backed APIs,
+3. capture browser evidence, Gateway evidence, backend logs/metrics, dashboards, alerts, protected
+   diagnostics proof, audit proof, OpenAPI proof, and no-sensitive-content assertions,
+4. prove representative journeys across portfolio state, performance analytics, risk analytics,
+   advisory, management action register, report evidence, render/archive-backed evidence, and
+   AI-backed support where supported,
+5. record commit SHAs, PR numbers, check names, route/panel ids, service ids, metric names,
+   dashboard ids, runbook paths, and evidence artifact paths,
+6. critically review evidence for inconsistencies and iterate until the implementation is genuinely
+   production-grade.
+
+Exit criteria:
+
+1. all included journeys pass live proof,
+2. evidence reconciles across browser, Gateway, backend services, dashboards, alerts, audit logs,
+   and protected diagnostics,
+3. no-sensitive-content assertions pass over source, telemetry artifacts, screenshots, logs,
+   metrics, traces, and evidence bundles,
+4. gaps are fixed or explicitly rejected as unsupported with owner-approved rationale.
+
+### Ecosystem Completion Slice 17: Ecosystem Hardening, Review, And Certification
+
+Purpose: perform the required second-last review for the reopened ecosystem scope.
+
+Required work:
+
+1. perform full code review across all changed repositories,
+2. remove dead code, duplicate observability logic, stale docs, unused metrics, and decorative
+   supportability claims,
+3. verify API certification pattern compliance and Swagger quality for every changed API,
+4. verify platform governance, enterprise data mesh standards, supported-features governance, and
+   no-sensitive-content controls,
+5. verify every implemented supported-feature key has repo-native tests, platform validators,
+   GitHub check evidence, docs/wiki source, and live proof,
+6. verify dashboards, alerts, runbooks, protected diagnostics, audit events, and operator workflows,
+7. fix all P0/P1 findings before closure and explicitly triage P2/P3 findings with owner and
+   target slice.
+
+Exit criteria:
+
+1. no P0/P1 privacy, supportability, telemetry, API, Swagger, dashboard, alert, audit, or
+   unsupported-feature finding remains,
+2. every API and metric family is certified,
+3. all participating repos have green relevant CI,
+4. supported-features exactly matches implementation-backed reality.
+
+### Ecosystem Completion Slice 18: Final Ecosystem Closure
+
+Purpose: close RFC-0108 only after uniform observability and operational posture is implemented
+across the Lotus ecosystem.
+
+Required work:
+
+1. update RFC-0108, RFC index, context, repo-local engineering contexts, docs, runbooks,
+   supported-features, wiki source, and machine-readable contracts to final ecosystem state,
+2. publish every changed repo wiki after merge,
+3. update skills, guidance, scaffolding, validators, or agent context where the ecosystem rollout
+   produced durable reusable lessons; otherwise record explicit no-change decisions,
+4. verify every affected repository is clean on `main...origin/main`,
+5. delete completed feature branches locally and remotely,
+6. record final ecosystem evidence, PRs, merge commits, wiki publication commits, check names,
+   evidence directories, and residual unsupported scope.
+
+Exit criteria:
+
+1. RFC-0108 has no planned observability/supportability feature key for included Lotus apps unless
+   it is explicitly out of scope with owner-approved rationale,
+2. all docs, wiki source, context, contracts, dashboards, alerts, runbooks, and supported-features
+   match merged implementation,
+3. all GitHub checks are green,
+4. every affected repo is clean,
+5. Lotus has a uniform, implementation-backed observability and operational posture across the
+   full supported user journey.
+
 ## API And UI Certification Requirements
 
 Every new or changed API, BFF route, dashboard, or panel involved in RFC-0108 must satisfy:
@@ -675,6 +1002,12 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `platform.analytics.observability.rollout_readiness` | Implemented | `lotus-platform` | Slice 9 adds the machine-readable rollout-readiness contract, validator, and unit tests that tie certified Workbench route/panel scope to Slice 8 proof, separate residual planned scope, and prove validators reject forbidden labels and unimplemented metric references. |
 | `platform.analytics.observability.hardening_certification` | Implemented | `lotus-platform` | Second-last slice adds a machine-readable hardening review contract, validator, and tests covering telemetry fields, panel states, API/Swagger applicability, dashboard and alert certification, enterprise governance, residual planned scope, and no open P0/P1 findings before closure. |
 | `platform.analytics.observability.final_closure` | Implemented | `lotus-platform` | Final closure adds the machine-readable final closure contract, validator, tests, docs/context/wiki source updates, explicit skills and guidance review, required wiki publication, residual planned-scope preservation, and branch hygiene requirements before closure. |
+| `platform.analytics.observability.ecosystem_completion_contract` | Planned | `lotus-platform` | Slice 10 must add the ecosystem observability contract, per-app gap matrix, validators, execution ledger, and supported-features checks for every Lotus repository. |
+| `platform.analytics.observability.scaffold_ci_enforcement` | Planned | `lotus-platform` | Slice 11 must make uniform observability, docs/wiki, OpenAPI, no-sensitive-content, supported-features, and evidence scaffolding the default for new apps and enforce the posture through reusable validators and CI templates. |
+| `platform.analytics.observability.ecosystem_dashboards_alerts` | Planned | `lotus-platform` | Slice 15 must extend dashboards, alerts, runbooks, protected diagnostics guidance, and validators across all implemented Workbench, Gateway, and backend service metric families. |
+| `platform.analytics.observability.ecosystem_implementation_proof` | Planned | `lotus-platform` | Slice 16 must prove the complete user journey across Workbench, Gateway, domain services, dashboards, alerts, audits, protected diagnostics, OpenAPI, and no-sensitive-content assertions. |
+| `platform.analytics.observability.ecosystem_hardening_certification` | Planned | `lotus-platform` | Slice 17 must perform second-last code review, API/Swagger certification, dashboard/alert certification, enterprise governance review, supported-features proof, and no-open-P0/P1 certification for the reopened ecosystem scope. |
+| `platform.analytics.observability.ecosystem_final_closure` | Planned | `lotus-platform` | Slice 18 must close RFC-0108 only after all included Lotus apps have uniform implementation-backed observability and operational posture, docs/wiki/context/source truth is updated, wikis are published, branches are clean, and residual unsupported scope is explicitly owner-approved. |
 | `workbench.analytics.observability.correlation_trace` | Implemented | `lotus-workbench` | Slice 3 adds Workbench analytics UI correlation helpers, client-side BFF request headers, BFF proxy correlation/trace generation and malformed traceparent replacement tests, while keeping correlation and trace identifiers out of metric labels. |
 | `workbench.analytics.observability.contract_vocabulary` | Implemented | `lotus-workbench` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Workbench metric-family names without emitting product telemetry. |
 | `workbench.analytics.observability.panel_state_metrics` | Implemented | `lotus-workbench` | Slice 5 adds local Workbench analytics UI metric events, `/api/metrics` Prometheus text export, and tests for ready, empty, partial, stale, degraded, error, permission-blocked, unsupported, API duration, panel state, panel hydration, and sensitive-field exclusion for selected performance-summary, performance-details, and risk-summary reads. |
@@ -683,11 +1016,23 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `workbench.analytics.observability.entitlement_audit_events` | Implemented | `lotus-gateway` | Slice 7 adds Gateway product-safe selected analytics read audit logs. Successful upstream reads emit `analytics_read_allowed`; upstream `401`/`403` denials emit `analytics_read_denied`; tests prove bounded audit fields and exclusion of portfolio, client, request/response body, and raw entitlement-failure content. Full caller-context entitlement certification and protected diagnostics lookup audit remain planned. |
 | `workbench.analytics.observability.canonical_proof` | Implemented | `lotus-platform`, `lotus-workbench` | Slice 8 adds platform-owned canonical proof review plus governed live Workbench proof for `PB_SG_GLOBAL_BAL_001`: API checks, calculation sanity, panel classifications, browser screenshots, Workbench `/api/metrics` family exposure, dashboard/alert metric reconciliation, and sensitive-content assertions. |
 | `workbench.analytics.observability.safe_dashboard` | Implemented | `lotus-platform` | Slice 5 adds a platform Grafana dashboard, Prometheus scrape config, and alert rules that reference only implemented Workbench metric-family names, with validator and unit coverage rejecting unimplemented metric references and forbidden dashboard/alert content. |
+| `workbench.analytics.observability.all_supported_surfaces` | Planned | `lotus-workbench` | Slice 14 must inventory and instrument every supported Workbench route, panel, BFF route, evidence surface, advisory surface, management surface, reporting/evidence surface, archive surface, and AI-backed surface with source-backed state and proof. |
 | `gateway.analytics.observability.fanout_metrics` | Planned | `lotus-gateway` | Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes. |
+| `gateway.analytics.observability.protected_diagnostics` | Planned | `lotus-gateway` | Slice 13 must add protected diagnostics lookup APIs and audit events so operators can resolve support references without exposing sensitive identifiers in telemetry or dashboards. |
+| `gateway.analytics.observability.all_ui_fanout_paths` | Planned | `lotus-gateway` | Slice 13 must apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and diagnostics to all UI-facing Gateway operations. |
 | `gateway.analytics.observability.correlation_trace` | Implemented | `lotus-gateway` | Slice 3 proves Gateway middleware accepts valid traceparent, rejects malformed traceparent, emits safe response trace headers, and forwards correlation and trace context to analytics backend clients without adding sensitive labels. |
 | `gateway.analytics.observability.contract_vocabulary` | Implemented | `lotus-gateway` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned gateway metric-family names without emitting fan-out metrics. |
 | `gateway.analytics.observability.structured_fanout_logs` | Implemented | `lotus-gateway` | Slice 4 emits product-safe structured gateway fan-out logs for selected Workbench performance and risk analytics operations with route, service, operation, state, supportability, status class, bounded reason, and no sensitive request/response payload fields. |
 | `analytics.backend.observability.freshness_supportability` | Planned | `lotus-performance`, `lotus-risk` | Backend freshness/supportability tests and gateway/Workbench state reconciliation. |
+| `core.observability.portfolio_supportability` | Planned | `lotus-core` | Slice 12 must expose product-safe supportability, freshness, entitlement, and data-quality signals for portfolio, account, holding, mandate, and transaction data consumed by Gateway and Workbench. |
+| `performance.observability.calculation_supportability` | Planned | `lotus-performance` | Slice 12 must implement source-backed freshness, completeness, period-quality, calculation supportability, degraded-state, and empty-state metrics/logs for performance analytics. |
+| `risk.observability.calculation_supportability` | Planned | `lotus-risk` | Slice 12 must implement source-backed freshness, completeness, risk calculation supportability, concentration/drawdown data-quality, degraded-state, and empty-state metrics/logs for risk analytics. |
+| `advise.observability.advisory_supportability` | Planned | `lotus-advise` | Slice 12 must implement advisory proposal, recommendation, suitability, and decision-support supportability signals for supported advisory UI surfaces. |
+| `manage.observability.action_register_supportability` | Planned | `lotus-manage` | Slice 12 must implement management action register, mandate-operation, task/action workflow, and operational supportability signals consumed by Gateway or Workbench. |
+| `report.observability.evidence_surface_supportability` | Planned | `lotus-report` | Slice 12 must expose report evidence-pack supportability for front-office evidence surfaces without duplicating RFC-0105 reporting job operations. |
+| `render.observability.render_supportability` | Planned | `lotus-render` | Slice 12 must expose rendering health, latency, degradation, deterministic-output supportability, and product-safe failure signals consumed by evidence/reporting surfaces. |
+| `archive.observability.archive_supportability` | Planned | `lotus-archive` | Slice 12 must expose archive retrieval, retention, legal-hold, access-audit, document availability, and product-safe failure supportability signals. |
+| `ai.observability.ai_surface_supportability` | Planned | `lotus-ai` | Slice 12 must expose AI-backed feature supportability, degraded/unavailable model posture, bounded workflow-pack status, and no-sensitive-content telemetry for supported AI-backed surfaces. |
 
 No key may be promoted from planned to supported until the relevant Workbench, gateway, backend,
 dashboard, no-sensitive-content, and browser proof exists.
@@ -741,6 +1086,15 @@ Evidence review rules:
 | Slice 9: rollout proof and expansion readiness | `context/contracts/analytics-ui-observability-rollout-readiness.json`; `automation/validate_analytics_ui_rollout_readiness.py`; `tests/unit/test_analytics_ui_rollout_readiness.py`; `context/contracts/workbench-panel-registry.json`; `context/contracts/analytics-ui-observability-contract.json` | `python automation\validate_analytics_ui_rollout_readiness.py`; `python -m pytest tests\unit\test_analytics_ui_rollout_readiness.py tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_canonical_proof_review.py -q`; `python -m ruff check automation\validate_analytics_ui_rollout_readiness.py tests\unit\test_analytics_ui_rollout_readiness.py` | Complete locally for source-backed expansion readiness: certified Workbench route/panel scope is tied to Slice 8 proof, the evidence panel is explicitly `certified_partial`, the reusable rollout checklist is contract-governed, validator proof cases cover forbidden labels and unimplemented metrics, and residual gateway/backend/entitlement scope remains planned | Second-last hardening, API certification review, final docs/context/wiki/skills review, PR merge evidence, and branch hygiene remain. |
 | Second-last slice: hardening, review, and certification | `context/contracts/analytics-ui-observability-hardening-review.json`; `automation/validate_analytics_ui_hardening_review.py`; `tests/unit/test_analytics_ui_hardening_review.py`; `platform-stack/grafana/dashboards/analytics-ui-observability-overview.json`; `platform-stack/prometheus/rules/analytics-ui-observability.rules.yml` | `python automation\validate_analytics_ui_observability_contract.py`; `python automation\validate_analytics_ui_rollout_readiness.py`; `python automation\validate_analytics_ui_hardening_review.py`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_rollout_readiness.py tests\unit\test_analytics_ui_hardening_review.py tests\unit\test_platform_stack_observability_contract.py -q`; `python -m ruff check automation\validate_analytics_ui_observability_contract.py automation\validate_analytics_ui_rollout_readiness.py automation\validate_analytics_ui_hardening_review.py tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_rollout_readiness.py tests\unit\test_analytics_ui_hardening_review.py` | Complete locally for second-last hardening: telemetry fields, panel states, API/Swagger applicability, dashboard/alert references, enterprise governance, residual planned scope, and no-open-P0/P1 findings are contract-reviewed and validator-protected | Final docs/context/wiki/skills review, PR merge evidence, wiki publication, and branch hygiene remain. |
 | Final slice: closure | `context/contracts/analytics-ui-observability-final-closure.json`; `automation/validate_analytics_ui_final_closure.py`; `tests/unit/test_analytics_ui_final_closure.py`; `context/contracts/analytics-ui-observability-contract.json`; `rfcs/README.md`; `context/LOTUS-ENGINEERING-CONTEXT.md`; `context/CONTEXT-REFERENCE-MAP.md`; `wiki/RFC-Index.md` | `python automation\validate_analytics_ui_final_closure.py`; `python -m pytest tests\unit\test_analytics_ui_final_closure.py tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_rollout_readiness.py tests\unit\test_analytics_ui_hardening_review.py tests\unit\test_platform_stack_observability_contract.py tests\unit\test_analytics_ui_canonical_proof_review.py -q`; `python -m ruff check automation\validate_analytics_ui_final_closure.py tests\unit\test_analytics_ui_final_closure.py`; `powershell -ExecutionPolicy Bypass -File automation\Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform` | Complete locally for final closure: implementation-backed supported features are final, residual planned scope remains blocked from promotion, docs/context/wiki source are updated, skills/guidance review records no change required, and wiki publication/branch hygiene are required after merge | Merge PR, publish wiki, delete feature branch, and verify clean repositories. |
+| Ecosystem Slice 10: reopen governance and contract expansion | Planned `analytics-ui-observability-ecosystem-completion` contract, per-app gap matrix, validators, and execution ledger | Required: contract validator, gap-matrix validator, supported-features validator, CI check evidence | Planned: must enumerate all Lotus apps, preserve first-wave evidence, classify every gap, and prevent unsupported implemented claims before runtime work resumes | Begin before any new runtime implementation. |
+| Ecosystem Slice 11: platform automation, scaffolding, and CI enforcement | Planned platform scaffolding, generated-app tests, UI scaffolding hooks, CI templates, context/skill updates | Required: scaffold contract tests, workflow lint, platform repo checks, docs/wiki-source checks | Planned: must make uniform observability the default for future apps and prevent app-local repetition | Must precede broad app rollout. |
+| Ecosystem Slice 12: backend service freshness and supportability metrics | Planned repo-native work in `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, and `lotus-ai` | Required: repo-native unit/integration tests, OpenAPI checks where APIs change, no-sensitive telemetry checks, service metrics proof | Planned: must implement source-backed freshness/supportability or explicit not-applicable posture in every participating backend service | Blocks Workbench full freshness/degraded-state promotion. |
+| Ecosystem Slice 13: Gateway fan-out metrics, protected diagnostics, and audit completion | Planned `lotus-gateway` metrics, protected diagnostics APIs, audit completion, OpenAPI certification, dashboard reconciliation | Required: Gateway tests, OpenAPI/Swagger checks, fan-out metric scrape proof, protected diagnostics auth/audit proof | Planned: must promote Gateway fan-out metrics and protected diagnostics only after implementation proof | Blocks ecosystem dashboards and final proof. |
+| Ecosystem Slice 14: Workbench all-surface observability rollout | Planned Workbench route/panel/BFF inventory, all-surface state metrics, attention events, browser tests, screenshots | Required: Workbench unit/integration/browser tests, canonical runtime proof, no-sensitive screenshot/evidence assertions | Planned: must cover every supported Workbench surface or record explicit unsupported posture | Blocks ecosystem implementation proof. |
+| Ecosystem Slice 15: dashboards, alerts, runbooks, and operator diagnostics | Planned platform dashboards, alert rules, runbooks, dashboard/alert validators, operator diagnostics docs | Required: dashboard/alert contract tests, runbook link validation, implemented-metric-only validation | Planned: must cover all implemented ecosystem metric families without sensitive variables or annotations | Blocks ecosystem hardening. |
+| Ecosystem Slice 16: ecosystem implementation proof | Planned live proof across Workbench, Gateway, backend services, dashboards, alerts, audit, protected diagnostics, and no-sensitive assertions | Required: live runtime proof bundle, proof-review automation, browser/API/backend/dashboard reconciliation, GitHub check evidence | Planned: must prove the complete supported Lotus user journey end to end | Blocks ecosystem hardening. |
+| Ecosystem Slice 17: ecosystem hardening, review, and certification | Planned cross-repo code review, API/Swagger certification, governance audit, supported-features review, no-open-P0/P1 proof | Required: full changed-repo CI, platform validators, hardening review contract, review findings ledger | Planned: must eliminate P0/P1 findings and certify every implemented API/metric/dashboard/alert/supportability claim | Blocks final ecosystem closure. |
+| Ecosystem Slice 18: final ecosystem closure | Planned final docs/context/wiki/supported-features/contracts update, wiki publication, branch cleanup, clean-repo evidence | Required: all changed wikis published, all affected repos clean on `main...origin/main`, final closure validator, PR/merge/check evidence | Planned: must close RFC-0108 only when uniform observability and operational posture is implemented across all included Lotus apps | Final closure of reopened ecosystem scope. |
 
 ## Final Gold-Pass Assessment
 
@@ -817,7 +1171,9 @@ The evidence panel remains truthfully classified as `partial`; this is an implem
 supportability state, not a cosmetic success claim.
 
 Gateway/backend metrics, protected diagnostics lookup audit, full caller-context entitlement
-certification, and broad rollout beyond the canonical path remain planned.
+certification, and broad rollout beyond the canonical path were deliberately left planned at
+first-wave closure. This RFC is now reopened to finish those items and extend the same
+observability and operational posture across every Lotus application.
 
 Slice 9 is complete for rollout proof and expansion readiness. Platform now owns
 `context/contracts/analytics-ui-observability-rollout-readiness.json` and schema, with certified

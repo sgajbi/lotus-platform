@@ -391,6 +391,42 @@
       "promotion_evidence": "RFC-0108 final closure adds a machine-readable final closure contract, validator, tests, documentation/context/wiki source updates, explicit skills and guidance review, required wiki publication, residual planned-scope preservation, and branch hygiene requirements before closure."
     },
     {
+      "feature_key": "platform.analytics.observability.ecosystem_completion_contract",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 10 must add the ecosystem observability contract, per-app gap matrix, validators, execution ledger, and supported-features checks for every Lotus repository."
+    },
+    {
+      "feature_key": "platform.analytics.observability.scaffold_ci_enforcement",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 11 must make uniform observability, docs/wiki, OpenAPI, no-sensitive-content, supported-features, and evidence scaffolding the default for new apps and enforce the posture through reusable validators and CI templates."
+    },
+    {
+      "feature_key": "platform.analytics.observability.ecosystem_dashboards_alerts",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 15 must extend dashboards, alerts, runbooks, protected diagnostics guidance, and validators across all implemented Workbench, Gateway, and backend service metric families."
+    },
+    {
+      "feature_key": "platform.analytics.observability.ecosystem_implementation_proof",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 16 must prove the complete user journey across Workbench, Gateway, domain services, dashboards, alerts, audits, protected diagnostics, OpenAPI, and no-sensitive-content assertions."
+    },
+    {
+      "feature_key": "platform.analytics.observability.ecosystem_hardening_certification",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 17 must perform second-last code review, API/Swagger certification, dashboard/alert certification, enterprise governance review, supported-features proof, and no-open-P0/P1 certification for the reopened ecosystem scope."
+    },
+    {
+      "feature_key": "platform.analytics.observability.ecosystem_final_closure",
+      "status": "planned",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "Slice 18 must close RFC-0108 only after all included Lotus apps have uniform implementation-backed observability and operational posture, docs/wiki/context/source truth is updated, wikis are published, branches are clean, and residual unsupported scope is explicitly owner-approved."
+    },
+    {
       "feature_key": "workbench.analytics.observability.correlation_trace",
       "status": "implemented",
       "owner_repo": "lotus-workbench",
@@ -439,10 +475,28 @@
       "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions while leaving gateway/backend metrics, protected diagnostics lookup audit, and full caller-context entitlement certification planned."
     },
     {
+      "feature_key": "workbench.analytics.observability.all_supported_surfaces",
+      "status": "planned",
+      "owner_repo": "lotus-workbench",
+      "promotion_evidence": "Slice 14 must inventory and instrument every supported Workbench route, panel, BFF route, evidence surface, advisory surface, management surface, reporting/evidence surface, archive surface, and AI-backed surface with source-backed state and proof."
+    },
+    {
       "feature_key": "gateway.analytics.observability.fanout_metrics",
       "status": "planned",
       "owner_repo": "lotus-gateway",
       "promotion_evidence": "Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.protected_diagnostics",
+      "status": "planned",
+      "owner_repo": "lotus-gateway",
+      "promotion_evidence": "Slice 13 must add protected diagnostics lookup APIs and audit events so operators can resolve support references without exposing sensitive identifiers in telemetry or dashboards."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
+      "status": "planned",
+      "owner_repo": "lotus-gateway",
+      "promotion_evidence": "Slice 13 must apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and diagnostics to all UI-facing Gateway operations."
     },
     {
       "feature_key": "gateway.analytics.observability.structured_fanout_logs",
@@ -467,6 +521,60 @@
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
       "promotion_evidence": "Backend freshness/supportability tests and gateway/Workbench state reconciliation."
+    },
+    {
+      "feature_key": "core.observability.portfolio_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-core",
+      "promotion_evidence": "Slice 12 must expose product-safe supportability, freshness, entitlement, and data-quality signals for portfolio, account, holding, mandate, and transaction data consumed by Gateway and Workbench."
+    },
+    {
+      "feature_key": "performance.observability.calculation_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-performance",
+      "promotion_evidence": "Slice 12 must implement source-backed freshness, completeness, period-quality, calculation supportability, degraded-state, and empty-state metrics/logs for performance analytics."
+    },
+    {
+      "feature_key": "risk.observability.calculation_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-risk",
+      "promotion_evidence": "Slice 12 must implement source-backed freshness, completeness, risk calculation supportability, concentration/drawdown data-quality, degraded-state, and empty-state metrics/logs for risk analytics."
+    },
+    {
+      "feature_key": "advise.observability.advisory_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-advise",
+      "promotion_evidence": "Slice 12 must implement advisory proposal, recommendation, suitability, and decision-support supportability signals for supported advisory UI surfaces."
+    },
+    {
+      "feature_key": "manage.observability.action_register_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-manage",
+      "promotion_evidence": "Slice 12 must implement management action register, mandate-operation, task/action workflow, and operational supportability signals consumed by Gateway or Workbench."
+    },
+    {
+      "feature_key": "report.observability.evidence_surface_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-report",
+      "promotion_evidence": "Slice 12 must expose report evidence-pack supportability for front-office evidence surfaces without duplicating RFC-0105 reporting job operations."
+    },
+    {
+      "feature_key": "render.observability.render_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-render",
+      "promotion_evidence": "Slice 12 must expose rendering health, latency, degradation, deterministic-output supportability, and product-safe failure signals consumed by evidence/reporting surfaces."
+    },
+    {
+      "feature_key": "archive.observability.archive_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-archive",
+      "promotion_evidence": "Slice 12 must expose archive retrieval, retention, legal-hold, access-audit, document availability, and product-safe failure supportability signals."
+    },
+    {
+      "feature_key": "ai.observability.ai_surface_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-ai",
+      "promotion_evidence": "Slice 12 must expose AI-backed feature supportability, degraded/unavailable model posture, bounded workflow-pack status, and no-sensitive-content telemetry for supported AI-backed surfaces."
     }
   ],
   "evidence_requirements": {
