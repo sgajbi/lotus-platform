@@ -247,7 +247,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 implementation has started with Slice 6 complete. It governs front-office analytics
+12. RFC-0108 implementation has started with Slice 7 complete. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -278,8 +278,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     Workbench metric-family names. Slice 6 added Workbench attention events and the
     `lotus_analytics_ui_attention_events_total` counter for stale, degraded, partial-source, and
     repeated-failure selected analytics panel states, with bounded severity, deduplication,
-    source-backed reason codes, and no sensitive metric labels. Gateway/backend metrics, audit
-    events, and canonical browser proof remain planned until later slices.
+    source-backed reason codes, and no sensitive metric labels. Slice 7 added Gateway product-safe
+    structured analytics read audit logs for selected Workbench performance and risk analytics
+    operations: successful upstream reads emit bounded `analytics_read_allowed` events, upstream
+    `401`/`403` denials emit bounded `analytics_read_denied` events, and tests prove portfolio,
+    client, request/response body, and raw entitlement-failure content stays out of audit fields.
+    Gateway/backend metrics, protected diagnostics lookup audit, and canonical browser proof remain
+    planned until later slices.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

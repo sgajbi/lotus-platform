@@ -99,7 +99,7 @@
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
 - [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-  implementation started with Slice 6 complete; governed front-office analytics UI
+  implementation started with Slice 7 complete; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
   no-sensitive-content controls, supported-features governance, and canonical proof through
@@ -118,8 +118,11 @@
   Grafana dashboard panels, and alert rules for selected performance-summary, performance-details,
   and risk-summary reads. Slice 6 adds bounded Workbench attention events and the
   `lotus_analytics_ui_attention_events_total` counter for stale, degraded, partial-source, and
-  repeated-failure selected analytics panel states. Gateway/backend metrics, audit events, and
-  canonical browser proof remain planned. This is not an extension of RFC-0105 reporting
+  repeated-failure selected analytics panel states. Slice 7 adds Gateway product-safe selected
+  analytics read audit logs for successful upstream reads and upstream `401`/`403` denials.
+  Gateway/backend metrics, protected diagnostics lookup audit, full caller-context entitlement
+  certification, and canonical browser proof remain planned. This is not an extension of RFC-0105
+  reporting
   observability.
 
 ## Recommended next implementation order

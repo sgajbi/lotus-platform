@@ -30,6 +30,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-4-structured-logging-implemented",
         "slice-5-metrics-dashboard-implemented",
         "slice-6-attention-events-implemented",
+        "slice-7-audit-events-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -38,7 +39,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "slice-3-correlation-propagation-implemented, "
             "slice-4-structured-logging-implemented, "
             "slice-5-metrics-dashboard-implemented, or "
-            "slice-6-attention-events-implemented"
+            "slice-6-attention-events-implemented, or "
+            "slice-7-audit-events-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -143,6 +145,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.panel_state_metrics",
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
+            "workbench.analytics.observability.entitlement_audit_events",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
@@ -232,6 +235,8 @@ def _validate_telemetry_events(
             "workbench.analytics.attention",
             "gateway.analytics.fanout.completed",
             "gateway.analytics.fanout.degraded",
+            "gateway.analytics.audit.analytics_read_allowed",
+            "gateway.analytics.audit.analytics_read_denied",
         }
         if event_name in implementation_backed_events:
             if event.get("implemented") is not True:
