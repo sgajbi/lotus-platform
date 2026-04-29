@@ -140,6 +140,46 @@
       ],
       "title": "Analytics API Request P95",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (route, panel, attention_type, severity) (increase(lotus_analytics_ui_attention_events_total[15m]))",
+          "legendFormat": "{{ route }} {{ panel }} {{ attention_type }} {{ severity }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Analytics UI Attention Events (15m)",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
