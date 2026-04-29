@@ -260,14 +260,14 @@ The current reporting and analytics observability governance references are:
    stuck-state/SLA attention, diagnostics, metrics, and live proof for asynchronous report evidence
    production.
 2. [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-   implementation started with Slice 0 complete; governs interactive front-office analytics UI
+   implementation started with Slice 7 complete; governs interactive front-office analytics UI
    observability from browser to gateway to backend, including Workbench panel hydration, API
    fan-out, calculation freshness, empty/degraded/stale/error states, frontend/backend
    correlation, no-sensitive-content controls, attention and audit events, and canonical
-   `PB_SG_GLOBAL_BAL_001` proof. Slice 0 adds platform analytics UI observability contract
-   validation plus generated-app product-safe error, structured JSON event, supported-features, RFC
-   evidence, operations observability, and API certification scaffolding. It is not an extension of
-   RFC-0105.
+   `PB_SG_GLOBAL_BAL_001` proof. Slices 0-7 now cover platform contract/scaffold hardening,
+   Workbench/Gateway vocabulary, telemetry contract governance, correlation propagation,
+   Gateway fan-out structured logs, Workbench metric/dashboard/alert contracts, Workbench attention
+   events, and Gateway selected analytics read audit logs. It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 

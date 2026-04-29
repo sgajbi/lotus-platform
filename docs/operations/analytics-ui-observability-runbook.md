@@ -46,3 +46,21 @@ Triage steps:
    is met.
 4. Keep entity-specific investigation inside protected diagnostics; do not add portfolio, client,
    correlation, trace, request, response, or screen content fields to attention labels.
+
+## Gateway Analytics Read Audit Events
+
+Use Gateway analytics read audit logs to reconcile selected Workbench analytics read outcomes with
+the user-visible panel state without exposing entity-specific data.
+
+Triage steps:
+
+1. Review `gateway.analytics.audit.analytics_read_allowed` and
+   `gateway.analytics.audit.analytics_read_denied` by route, panel, operation, status class, region,
+   and environment.
+2. Treat `analytics_read_allowed` as proof that the upstream analytics service accepted the selected
+   read request, not as a full caller-context entitlement certification.
+3. Treat `analytics_read_denied` as a bounded upstream `401` or `403` denial signal. The reason must
+   remain `upstream_authorization_denied`; do not copy raw entitlement text into logs, dashboards, or
+   tickets.
+4. Keep protected diagnostics lookup audit planned until the protected diagnostics API exists and is
+   certified.
