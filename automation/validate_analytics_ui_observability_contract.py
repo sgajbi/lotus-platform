@@ -155,6 +155,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "advise.observability.advisory_supportability",
             "manage.observability.action_register_supportability",
             "performance.observability.calculation_supportability",
+            "report.observability.evidence_surface_supportability",
             "risk.observability.calculation_supportability",
         }
         implemented_foundation_keys = {

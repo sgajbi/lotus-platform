@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate, lotus-performance TWR, and lotus-manage action-register supportability are implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, and lotus-report evidence-surface supportability are implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -219,12 +219,12 @@
     {
       "repository": "lotus-report",
       "role": "Report evidence-pack supportability source for front-office evidence surfaces.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["report.observability.evidence_surface_supportability"],
-      "gap_classification": ["evidence_surface_supportability_planned"],
-      "blockers": ["front-office evidence supportability metrics are not implemented outside RFC-0105 job operations"],
-      "required_proof": ["repo-native report evidence tests", "supportability metric proof", "Gateway/Workbench evidence reconciliation"],
-      "wiki_source_decision": "Report wiki source update required when evidence-surface supportability ships",
+      "gap_classification": ["evidence_surface_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["report evidence-surface supportability is implemented in lotus-report; Gateway consumption and Workbench evidence-surface reconciliation remain planned"],
+      "required_proof": ["repo-native report evidence tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench evidence reconciliation"],
+      "wiki_source_decision": "Report wiki source updated for evidence-surface supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["report evidence-surface supportability runbook"]
     },
     {
