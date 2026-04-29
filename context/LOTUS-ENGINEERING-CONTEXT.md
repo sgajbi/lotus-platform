@@ -290,9 +290,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `context/contracts/analytics-ui-observability-rollout-readiness.json` and
     `automation/validate_analytics_ui_rollout_readiness.py`, tying certified Workbench route/panel
     scope to Slice 8 proof, recording the reusable expansion checklist, proving forbidden-label
-    and unimplemented-metric validator failures, and keeping gateway/backend metrics, protected
-    diagnostics lookup audit, full caller-context entitlement certification, and broad rollout
-    planned until later slices. The second-last slice added
+    and unimplemented-metric validator failures, and keeping gateway/backend metrics, full
+    caller-context entitlement certification, all UI-facing Gateway fan-out rollout, and broad
+    rollout planned until later slices. The second-last slice added
     `context/contracts/analytics-ui-observability-hardening-review.json` and
     `automation/validate_analytics_ui_hardening_review.py`, validating telemetry fields, panel
     states, API/Swagger applicability, dashboard/alert certification, enterprise governance,
@@ -324,10 +324,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `lotus_manage_action_register_supportability_total` labels, and the implemented feature key
     `manage.observability.action_register_supportability`. The remaining backend services,
     remaining risk endpoint families, and Gateway/Workbench reconciliation still need
-    implementation-backed supportability before Slice 12 can close. Slices 13-18 remain planned for
-    Gateway fan-out metrics and protected diagnostics, all supported Workbench surfaces,
-    dashboards/alerts/runbooks, live ecosystem proof, ecosystem hardening/certification, and final
-    ecosystem closure.
+    implementation-backed supportability before Slice 12 can close. Slice 13 now has partial
+    Gateway proof for selected analytics fan-out metrics and protected diagnostics lookup, while
+    all UI-facing Gateway fan-out rollout remains planned. Slices 14-18 remain planned for all
+    supported Workbench surfaces, dashboards/alerts/runbooks, live ecosystem proof, ecosystem
+    hardening/certification, and final ecosystem closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

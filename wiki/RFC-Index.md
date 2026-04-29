@@ -124,9 +124,9 @@
   proof-review automation, browser screenshots, API/calculation/panel evidence, Workbench
   `/api/metrics` family exposure, dashboard/alert reconciliation, and sensitive-content
   assertions. Slice 9 adds a governed rollout-readiness contract and validator tying certified
-  Workbench route/panel scope to Slice 8 proof while keeping gateway/backend metrics, protected
-  diagnostics lookup audit, full caller-context entitlement certification, and broad rollout
-  planned. The second-last slice adds a governed hardening review contract and validator covering
+  Workbench route/panel scope to Slice 8 proof while keeping gateway/backend metrics, full
+  caller-context entitlement certification, all UI-facing Gateway fan-out rollout, and broad
+  rollout planned. The second-last slice adds a governed hardening review contract and validator covering
   telemetry fields, panel states, API/Swagger applicability, dashboard/alert certification,
   enterprise governance, residual planned scope, and no-open-P0/P1 proof. Final closure adds a
   governed closure contract and validator, docs/context/wiki source updates, explicit no-change
@@ -138,9 +138,10 @@
   implemented in `lotus-risk` and `lotus-manage` for risk calculation and management
   action-register supportability posture with bounded metrics. Required remaining ecosystem Slices
   12-18 extend the same posture uniformly across all Lotus apps, including the remaining backend
-  supportability metrics, Gateway fan-out metrics and protected diagnostics, all Workbench
+  supportability metrics, the remaining all UI-facing Gateway fan-out rollout, all Workbench
   supported surfaces, dashboards/alerts/runbooks, live ecosystem proof, hardening/certification,
-  and final ecosystem closure. This is not an extension of RFC-0105
+  and final ecosystem closure. Slice 13 already has partial Gateway proof for selected fan-out
+  metrics and protected diagnostics lookup. This is not an extension of RFC-0105
   reporting observability.
 
 ## Recommended next implementation order

@@ -117,13 +117,13 @@ def test_analytics_ui_rollout_readiness_rejects_premature_residual_promotion() -
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     rollout = _load_json(ROLLOUT_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.fanout_metrics":
+        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
             feature["status"] = "implemented"
 
     errors = _validate(observability, rollout)
 
     assert any(
-        "gateway.analytics.observability.fanout_metrics: residual feature must exist"
+        "gateway.analytics.observability.all_ui_fanout_paths: residual feature must exist"
         in error
         for error in errors
     )

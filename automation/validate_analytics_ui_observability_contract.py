@@ -169,6 +169,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         }
         implemented_slice_13_partial_keys = {
             "gateway.analytics.observability.fanout_metrics",
+            "gateway.analytics.observability.protected_diagnostics",
         }
         implemented_foundation_keys = {
             "platform.scaffolding.analytics_ui_observability_baseline",

@@ -133,19 +133,17 @@ def test_analytics_ui_ecosystem_completion_rejects_missing_branch_policy() -> No
     )
 
 
-def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion() -> (
-    None
-):
+def test_analytics_ui_ecosystem_completion_rejects_premature_all_path_promotion() -> None:
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.protected_diagnostics":
+        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
             feature["status"] = "implemented"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
-        "gateway.analytics.observability.protected_diagnostics: ecosystem feature must remain planned"
+        "gateway.analytics.observability.all_ui_fanout_paths: ecosystem feature must remain planned"
         in error
         for error in errors
     )
@@ -186,13 +184,21 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemente
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.fanout_metrics":
+        if feature["feature_key"] in {
+            "gateway.analytics.observability.fanout_metrics",
+            "gateway.analytics.observability.protected_diagnostics",
+        }:
             feature["status"] = "planned"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
         "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 partial proof"
+        in error
+        for error in errors
+    )
+    assert any(
+        "gateway.analytics.observability.protected_diagnostics must be implemented after Slice 13 partial proof"
         in error
         for error in errors
     )

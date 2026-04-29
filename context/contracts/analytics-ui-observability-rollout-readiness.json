@@ -135,11 +135,11 @@
       "next_action": "Implement backend-owned freshness/supportability metrics and reconcile Workbench panel states against those metrics."
     },
     {
-      "feature_key": "gateway.analytics.observability.fanout_metrics",
+      "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
       "status": "planned",
       "owner_repo": "lotus-gateway",
-      "blocker": "Gateway structured fan-out logs are implemented, but fan-out metrics and dashboard reconciliation are not yet implemented.",
-      "next_action": "Add gateway fan-out metric families, tests, dashboard contract references, and API certification evidence where API shape changes."
+      "blocker": "Gateway structured fan-out logs, selected fan-out metrics, and protected diagnostics are implemented for selected Workbench analytics paths only; all UI-facing fan-out path rollout is not yet complete.",
+      "next_action": "Apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and protected diagnostics posture across every supported UI-facing Gateway operation."
     },
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",

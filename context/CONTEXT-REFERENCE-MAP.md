@@ -281,9 +281,10 @@ The current reporting and analytics observability governance references are:
    `lotus-risk` and `lotus-manage` for risk calculation and management action-register
    supportability posture with bounded metrics. Required remaining ecosystem Slices 12-18 extend
    the same posture uniformly across all Lotus apps, including the remaining backend supportability
-   metrics, Gateway fan-out metrics and protected diagnostics, all Workbench supported surfaces,
+   metrics, the remaining all UI-facing Gateway fan-out rollout, all Workbench supported surfaces,
    dashboards/alerts/runbooks, live ecosystem proof, hardening/certification, and final ecosystem
-   closure.
+   closure. Slice 13 already has partial Gateway proof for selected fan-out metrics and protected
+   diagnostics lookup.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

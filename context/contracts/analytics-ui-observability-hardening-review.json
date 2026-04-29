@@ -27,7 +27,7 @@
     {
       "area": "residual unsupported scope",
       "status": "planned_residual",
-      "evidence": "Gateway fan-out metrics, backend freshness/supportability metrics, protected diagnostics lookup audit, full caller-context entitlement certification, and broad rollout remain planned and blocked from supported-feature promotion."
+      "evidence": "Backend freshness/supportability metrics, full caller-context entitlement certification, all-UI Gateway fan-out rollout, and broad Workbench rollout remain planned and blocked from supported-feature promotion."
     }
   ],
   "telemetry_field_review": {
@@ -139,10 +139,10 @@
       "reason": "Backend-owned freshness/supportability metrics are required before Workbench can claim source-backed freshness/degraded-state observability."
     },
     {
-      "feature_key": "gateway.analytics.observability.fanout_metrics",
+      "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
       "status": "planned",
       "owner_repo": "lotus-gateway",
-      "reason": "Gateway fan-out logs are implemented, but fan-out metric families and dashboard reconciliation are not yet implemented."
+      "reason": "Gateway selected fan-out logs, fan-out metrics, and protected diagnostics are implemented; all UI-facing Gateway operation rollout and dashboard reconciliation remain planned."
     },
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",

@@ -65,8 +65,8 @@
     {
       "slice_id": 13,
       "status": "partially_implemented",
-      "purpose": "Partially complete Gateway fan-out metrics for selected Workbench performance and risk analytics fan-out while protected diagnostics, audit completion, and all UI-facing fan-out paths remain planned.",
-      "required_proof": ["gateway tests", "metric label proof", "no-sensitive telemetry checks", "protected diagnostics audit proof before full completion"]
+      "purpose": "Partially complete Gateway fan-out metrics and protected diagnostics for selected Workbench performance and risk analytics fan-out while all UI-facing fan-out paths remain planned.",
+      "required_proof": ["gateway tests", "metric label proof", "no-sensitive telemetry checks", "protected diagnostics audit proof", "all-path rollout proof before full completion"]
     },
     {
       "slice_id": 14,
@@ -132,7 +132,7 @@
         "workbench.analytics.observability.all_supported_surfaces"
       ],
       "gap_classification": ["selected_panels_implemented", "all_supported_surfaces_planned", "source_backed_freshness_planned"],
-      "blockers": ["backend freshness/supportability metrics are not complete", "Gateway fan-out metrics and protected diagnostics are not complete"],
+      "blockers": ["backend freshness/supportability metrics are not complete", "Gateway all-UI fan-out path rollout is not complete"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
       "wiki_source_decision": "Workbench repo-local wiki source must document supported surfaces after Slice 14",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
@@ -149,8 +149,8 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "protected_diagnostics_planned"],
-      "blockers": ["fan-out metrics cover selected Workbench performance and risk analytics operations only", "protected diagnostics lookup API is not implemented"],
+      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "protected_diagnostics_implemented", "all_ui_fanout_paths_planned"],
+      "blockers": ["fan-out metrics and protected diagnostics cover selected Workbench performance and risk analytics operations only", "all UI-facing Gateway fan-out path rollout remains planned"],
       "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof"],
       "wiki_source_decision": "Gateway repo-local wiki source must document diagnostics and fan-out metrics after Slice 13",
       "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]
