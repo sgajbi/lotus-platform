@@ -247,7 +247,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 is implemented for first-wave scope with final closure complete locally. It governs front-office analytics
+12. RFC-0108 is implemented for first-wave scope and reopened for ecosystem completion. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -302,7 +302,14 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     merged PR evidence, required proof commands, required GitHub checks, wiki publication
     requirements, clean-state branch hygiene, residual planned scope, and an explicit no-change
     decision for skills/guidance because existing Lotus routing already covers canonical Workbench
-    proof, RFC/context governance, and PR pre-merge discipline.
+    proof, RFC/context governance, and PR pre-merge discipline. The reopened ecosystem-completion
+    wave adds required Slices 10-18 to finish uniform observability and operational posture across
+    `lotus-workbench`, `lotus-gateway`, `lotus-core`, `lotus-performance`, `lotus-risk`,
+    `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`,
+    and `lotus-platform`, covering contract expansion, platform scaffolding/CI enforcement,
+    backend freshness/supportability metrics, Gateway fan-out metrics and protected diagnostics,
+    all supported Workbench surfaces, dashboards/alerts/runbooks, live ecosystem proof,
+    ecosystem hardening/certification, and final ecosystem closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
