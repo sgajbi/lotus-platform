@@ -750,7 +750,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
 
     for expected in [
-        "- status: gold-pass ready; implementation not started",
+        "- status: implementation started; slice 0 complete",
         "front-office analytics ui observability",
         "interactive read/display flows",
         "browser to gateway to backend",
@@ -791,7 +791,8 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "supported features governance",
         "implementation proof ledger",
         "not an extension of rfc-0105",
-        "implementation has not started",
+        "slice 0 is complete",
+        "workbench, gateway, backend metrics, dashboards, alerts, attention events, audit events",
         "identify gaps in `lotus-platform` automation",
         "api certification pattern",
         "swagger quality",

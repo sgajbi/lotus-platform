@@ -23,6 +23,11 @@ Current contracts:
 6. `reporting-observability-contract.json`
    The first-wave machine-readable inventory of implemented reporting metrics plus dashboard and
    alert references that are allowed to claim them.
+7. `analytics-ui-observability-contract.schema.json`
+   The governed schema for the RFC-0108 front-office analytics UI observability contract.
+8. `analytics-ui-observability-contract.json`
+   The pre-implementation inventory of planned analytics UI metric families, forbidden fields,
+   state vocabulary, supported-feature keys, evidence requirements, and scaffold requirements.
 
 Rules:
 

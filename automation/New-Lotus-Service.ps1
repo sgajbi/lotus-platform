@@ -465,12 +465,15 @@ $dirs = @(
   "src/app",
   "src/app/contracts",
   "src/app/middleware",
+  "docs/operations",
   "tests/unit",
   "tests/integration",
   "tests/e2e",
   "scripts",
   "docs/standards",
   "docs/rfcs",
+  "evidence/rfc-implementation",
+  "supported-features",
   "wiki"
 )
 
@@ -582,9 +585,12 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$Port"]
 Set-Content -Path (Join-Path $target "Dockerfile") -Value $dockerfile
 
 $mainPy = @"
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Request, Response, status
+from fastapi.exceptions import RequestValidationError
 from prometheus_fastapi_instrumentator import Instrumentator
+from app.errors import problem_response
 from app.middleware.correlation import CorrelationIdMiddleware
+from app.observability import configure_logging, log_event
 
 SERVICE_NAME = "$ServiceName"
 SERVICE_VERSION = "0.1.0"
@@ -593,6 +599,42 @@ ROUNDING_POLICY_VERSION = "v1"
 app = FastAPI(title=SERVICE_NAME, version=SERVICE_VERSION)
 app.add_middleware(CorrelationIdMiddleware, service_name=SERVICE_NAME)
 Instrumentator().instrument(app).expose(app, include_in_schema=False)
+configure_logging()
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> Response:
+    log_event(
+        "request.validation_failed",
+        service=SERVICE_NAME,
+        path=str(request.url.path),
+        method=request.method,
+        error_category="validation",
+    )
+    return problem_response(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        code="invalid_request",
+        title="Invalid request",
+        detail="Request validation failed. Correct the request fields and retry.",
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
+    log_event(
+        "request.unhandled_error",
+        service=SERVICE_NAME,
+        level="ERROR",
+        path=str(request.url.path),
+        method=request.method,
+        error_category=exc.__class__.__name__,
+    )
+    return problem_response(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        code="internal_error",
+        title="Internal service error",
+        detail="The service could not complete the request. Retry later or contact support with the correlation id.",
+    )
 
 
 @app.get(
@@ -686,6 +728,56 @@ Set-Content -Path (Join-Path $target "src/app/main.py") -Value $mainPy
 Set-Content -Path (Join-Path $target "src/app/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/contracts/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/middleware/__init__.py") -Value ""
+
+$errorsPy = @"
+from __future__ import annotations
+
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+
+class ProblemDetails(BaseModel):
+    code: str = Field(..., description="Stable product-safe error code.", examples=["invalid_request"])
+    title: str = Field(..., description="Short product-safe error title.", examples=["Invalid request"])
+    detail: str = Field(
+        ...,
+        description="Product-safe remediation guidance without raw payload or sensitive content.",
+        examples=["Correct the request fields and retry."],
+    )
+
+
+def problem_response(status_code: int, code: str, title: str, detail: str) -> JSONResponse:
+    problem = ProblemDetails(code=code, title=title, detail=detail)
+    return JSONResponse(status_code=status_code, content=problem.model_dump())
+"@
+Set-Content -Path (Join-Path $target "src/app/errors.py") -Value $errorsPy
+
+$observabilityPy = @"
+from __future__ import annotations
+
+import json
+import logging
+from typing import Literal
+
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
+def configure_logging() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+
+def log_event(event_name: str, service: str, level: LogLevel = "INFO", **fields: object) -> None:
+    payload = {
+        "event": event_name,
+        "service": service,
+        **fields,
+    }
+    logging.getLogger(service).log(
+        getattr(logging, level),
+        json.dumps(payload, sort_keys=True, default=str),
+    )
+"@
+Set-Content -Path (Join-Path $target "src/app/observability.py") -Value $observabilityPy
 
 $correlationMiddleware = @"
 from __future__ import annotations
@@ -862,11 +954,28 @@ if __name__ == "__main__":
 Set-Content -Path (Join-Path $target "scripts/check_monetary_float_usage.py") -Value $floatGuard
 
 $unitTest = @"
+from app.errors import ProblemDetails
 from app.main import SERVICE_NAME
 
 
 def test_service_name_is_lotus_prefixed() -> None:
     assert SERVICE_NAME.startswith("lotus-")
+
+
+def test_problem_details_are_product_safe() -> None:
+    problem = ProblemDetails(
+        code="invalid_request",
+        title="Invalid request",
+        detail="Correct the request fields and retry.",
+    )
+    payload = problem.model_dump()
+    assert payload == {
+        "code": "invalid_request",
+        "title": "Invalid request",
+        "detail": "Correct the request fields and retry.",
+    }
+    assert "portfolio" not in payload["detail"].lower()
+    assert "holding" not in payload["detail"].lower()
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_service_contract.py") -Value $unitTest
 
@@ -899,6 +1008,14 @@ def test_correlation_and_trace_headers_are_generated() -> None:
     assert response.status_code == 200
     assert response.headers["X-Correlation-Id"]
     assert response.headers["X-Trace-Id"]
+
+
+def test_not_found_error_is_product_safe() -> None:
+    client = TestClient(app)
+    response = client.get("/does-not-exist")
+    assert response.status_code == 404
+    assert "portfolio" not in response.text.lower()
+    assert "holding" not in response.text.lower()
 
 
 def test_readiness_reports_draining_state() -> None:
@@ -996,6 +1113,23 @@ $readme = @(
 Set-Content -Path (Join-Path $target "README.md") -Value $readme
 
 Set-Content -Path (Join-Path $target "docs/rfcs/README.md") -Value "# RFC Index`n"
+Set-Content -Path (Join-Path $target "supported-features/supported-features.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "features": [],
+  "policy": "Only implementation-backed behavior may be promoted to supported."
+}
+"@
+Set-Content -Path (Join-Path $target "evidence/rfc-implementation/README.md") -Value @"
+# RFC Implementation Evidence
+
+Use this directory for machine-readable implementation evidence referenced by RFCs and PRs.
+
+Evidence must name the repository, branch, commit SHA, PR number, command, endpoint or route,
+operational identifiers, and result. Do not store sensitive client, portfolio, holding,
+transaction, entitlement, request-body, response-body, trace, or correlation details here unless a
+later security review explicitly certifies the artifact.
+"@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
 APP_ENV=local
 LOG_LEVEL=INFO
@@ -1038,6 +1172,38 @@ Set-Content -Path (Join-Path $target "docs/runbooks/service-operations.md") -Val
 1. Check container logs for request failures and stack traces.
 2. Verify `/health/ready` and metrics endpoint.
 3. Run local parity check (`make ci`) before hotfix PR.
+"@
+Set-Content -Path (Join-Path $target "docs/operations/observability.md") -Value @"
+# Observability Baseline
+
+This repository starts from the Lotus platform observability scaffold.
+
+## Default Signals
+
+- `/health`, `/health/live`, and `/health/ready`
+- `/metrics` outside the OpenAPI schema
+- correlation and trace response headers
+- structured JSON application events
+- product-safe error responses
+
+## Sensitive-Content Rule
+
+Logs, metrics, traces, dashboards, and evidence artifacts must not include client names, portfolio
+ids, holdings, raw entitlement failures, request bodies, response bodies, trace ids, or correlation
+ids as metric labels.
+"@
+Set-Content -Path (Join-Path $target "docs/operations/api-certification.md") -Value @"
+# API Certification Baseline
+
+Every endpoint added after scaffold creation must include:
+
+1. domain-correct tag grouping,
+2. clear what/when/how description,
+3. complete request and response examples,
+4. product-safe error examples,
+5. attribute descriptions, types, and examples,
+6. focused unit or integration tests for success and failure behavior,
+7. OpenAPI gate coverage before merge.
 "@
 
 if (-not $SkipAutomationRegistration) {

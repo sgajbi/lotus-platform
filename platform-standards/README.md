@@ -64,9 +64,13 @@ This generates a production-grade backend baseline with:
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
 - FastAPI app with health/readiness and metrics
+- product-safe problem-details error scaffolding
+- structured JSON application event logging
 - OpenAPI gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)
+- operations docs for observability and API certification
+- supported-features placeholder and RFC implementation evidence directory
 - automation registration in `automation/repos.json` and `automation/service-map.json`
 
 RFC-0072 note:

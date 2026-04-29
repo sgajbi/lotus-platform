@@ -99,11 +99,14 @@
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
 - [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-  gold-pass ready with implementation not started; governed front-office analytics UI
+  implementation started with Slice 0 complete; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
   no-sensitive-content controls, supported-features governance, and canonical proof through
-  `PB_SG_GLOBAL_BAL_001`. This is not an extension of RFC-0105 reporting observability.
+  `PB_SG_GLOBAL_BAL_001`. Slice 0 adds platform analytics UI observability contract validation plus
+  generated-app product-safe error, structured JSON event, supported-features, RFC evidence,
+  operations observability, and API certification scaffolding. This is not an extension of RFC-0105
+  reporting observability.
 
 ## Recommended next implementation order
 

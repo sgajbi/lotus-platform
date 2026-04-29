@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-contract.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "allowed_labels",
+    "forbidden_fields",
+    "state_vocabulary",
+    "metric_families",
+    "dashboards",
+    "alerts",
+    "supported_feature_keys",
+    "evidence_requirements",
+    "scaffold_requirements"
+  ],
+  "properties": {
+    "contract_id": { "const": "analytics-ui-observability-contract" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": { "enum": ["implementation-not-started", "slice-0-implemented"] },
+    "allowed_labels": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "forbidden_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "state_vocabulary": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "metric_families": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "metric_name",
+          "owner_repo",
+          "implemented",
+          "metric_type",
+          "labels",
+          "purpose"
+        ],
+        "properties": {
+          "metric_name": { "type": "string" },
+          "owner_repo": { "type": "string" },
+          "implemented": { "type": "boolean" },
+          "metric_type": { "enum": ["counter", "gauge", "histogram"] },
+          "labels": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "purpose": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "dashboards": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "alerts": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "supported_feature_keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature_key", "status", "owner_repo", "promotion_evidence"],
+        "properties": {
+          "feature_key": { "type": "string" },
+          "status": { "enum": ["planned", "implemented"] },
+          "owner_repo": { "type": "string" },
+          "promotion_evidence": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_requirements": {
+      "type": "object",
+      "required": ["artifact_types", "required_identifiers", "forbidden_content_classes"],
+      "properties": {
+        "artifact_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "required_identifiers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "forbidden_content_classes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "scaffold_requirements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

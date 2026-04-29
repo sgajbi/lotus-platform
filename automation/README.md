@@ -1224,3 +1224,11 @@ Scaffolded backend repositories now also default to:
 - repo-local virtualenv bootstrap through `make install`
 - repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
 - baseline health, readiness, metrics, correlation-id and trace-id propagation, OpenAPI quality, coverage gate, and wiki-source posture from day one
+- product-safe problem-details errors, structured JSON application events, supported-features placeholders, RFC implementation evidence scaffolding, operations observability documentation, and API certification documentation from day one
+
+RFC-0108 Slice 0 added the analytics UI observability scaffold baseline. Validate that baseline with:
+
+```powershell
+python automation/validate_analytics_ui_observability_contract.py
+python -m pytest tests/unit/test_repository_hygiene_scaffold_contract.py tests/unit/test_analytics_ui_observability_contract.py
+```
