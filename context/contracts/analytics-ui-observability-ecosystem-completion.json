@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate supportability is implemented, while the remaining backend app supportability keys stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate, lotus-performance TWR, and lotus-manage action-register supportability are implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -169,15 +169,15 @@
     {
       "repository": "lotus-performance",
       "role": "Performance calculation freshness, completeness, period quality, and supportability source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": [
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "gap_classification": ["backend_freshness_metrics_planned"],
-      "blockers": ["performance freshness/supportability metrics are not implemented"],
-      "required_proof": ["repo-native calculation tests", "freshness metric proof", "Gateway/Workbench reconciliation"],
-      "wiki_source_decision": "Performance wiki source update required when freshness/supportability metrics ship",
+      "gap_classification": ["twr_calculation_supportability_implemented", "broader_backend_freshness_metrics_planned"],
+      "blockers": ["TWR supportability is implemented in lotus-performance; MWR, contribution, attribution, Gateway consumption, and Workbench reconciliation remain planned"],
+      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "OpenAPI quality proof", "API vocabulary proof", "freshness metric proof for remaining performance surfaces", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Performance wiki source updated for TWR supportability; update again when remaining performance supportability surfaces ship",
       "runbook_requirements": ["performance calculation supportability runbook"]
     },
     {

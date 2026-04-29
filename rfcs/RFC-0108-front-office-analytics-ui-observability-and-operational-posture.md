@@ -802,13 +802,16 @@ Slice 11 implementation evidence:
 Status: partially implemented. `lotus-risk` implements Slice 12 runtime proof for
 `POST /analytics/risk/calculate` through `metadata.calculation_supportability`,
 `lotus_risk_calculation_supportability_total`, and
-`risk.observability.calculation_supportability`. `lotus-manage` implements Slice 12 runtime proof
-for `GET /rebalance/supportability/summary` through `supportability.state`,
+`risk.observability.calculation_supportability`. `lotus-performance` implements Slice 12 runtime
+proof for `POST /performance/twr` through `calculation_supportability`,
+`lotus_performance_calculation_supportability_total`, and
+`performance.observability.calculation_supportability`. `lotus-manage` implements Slice 12 runtime
+proof for `GET /rebalance/supportability/summary` through `supportability.state`,
 `supportability.reason`, `supportability.freshness_bucket`,
 `lotus_manage_action_register_supportability_total`, and
-`manage.observability.action_register_supportability`. Both proofs include repo-native tests,
+`manage.observability.action_register_supportability`. These proofs include repo-native tests,
 OpenAPI quality or contract proof, docs, and wiki source updates. The remaining backend services,
-remaining risk endpoint families, and Gateway/Workbench consumption still require
+remaining performance and risk endpoint families, and Gateway/Workbench consumption still require
 implementation-backed supportability before this slice can close.
 
 Purpose: finish source-backed freshness, data-quality, and supportability signals in the domain
@@ -1057,7 +1060,7 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `gateway.analytics.observability.structured_fanout_logs` | Implemented | `lotus-gateway` | Slice 4 emits product-safe structured gateway fan-out logs for selected Workbench performance and risk analytics operations with route, service, operation, state, supportability, status class, bounded reason, and no sensitive request/response payload fields. |
 | `analytics.backend.observability.freshness_supportability` | Planned | `lotus-performance`, `lotus-risk` | Backend freshness/supportability tests and gateway/Workbench state reconciliation. |
 | `core.observability.portfolio_supportability` | Planned | `lotus-core` | Slice 12 must expose product-safe supportability, freshness, entitlement, and data-quality signals for portfolio, account, holding, mandate, and transaction data consumed by Gateway and Workbench. |
-| `performance.observability.calculation_supportability` | Planned | `lotus-performance` | Slice 12 must implement source-backed freshness, completeness, period-quality, calculation supportability, degraded-state, and empty-state metrics/logs for performance analytics. |
+| `performance.observability.calculation_supportability` | Implemented for TWR; broader performance endpoint rollout planned | `lotus-performance` | Slice 12 partial proof implements `calculation_supportability`, bounded `lotus_performance_calculation_supportability_total` labels, integration capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. MWR, contribution, attribution, Gateway consumption, and Workbench reconciliation remain planned. |
 | `risk.observability.calculation_supportability` | Implemented for `risk/calculate`; broader risk endpoint rollout planned | `lotus-risk` | Slice 12 partial proof implements `metadata.calculation_supportability`, bounded `lotus_risk_calculation_supportability_total` labels, integration capability publication, repo-native tests, OpenAPI quality proof, docs, and wiki source updates. Concentration, drawdown, rolling metrics, historical attribution, Gateway consumption, and Workbench reconciliation remain planned. |
 | `advise.observability.advisory_supportability` | Planned | `lotus-advise` | Slice 12 must implement advisory proposal, recommendation, suitability, and decision-support supportability signals for supported advisory UI surfaces. |
 | `manage.observability.action_register_supportability` | Implemented for supportability summary; Gateway/Workbench reconciliation planned | `lotus-manage` | Slice 12 partial proof implements `supportability.state`, `supportability.reason`, `supportability.freshness_bucket`, bounded `lotus_manage_action_register_supportability_total` labels, capability publication, repo-native service/API/OpenAPI tests, docs, and wiki source updates. Gateway consumption and Workbench reconciliation remain planned. |

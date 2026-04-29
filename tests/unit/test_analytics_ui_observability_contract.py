@@ -167,8 +167,11 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
-        feature_status["risk.observability.calculation_supportability"]
+        feature_status["performance.observability.calculation_supportability"]
         == "implemented"
+    )
+    assert (
+        feature_status["risk.observability.calculation_supportability"] == "implemented"
     )
     assert (
         feature_status["manage.observability.action_register_supportability"]
@@ -196,6 +199,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
+            "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",
             "manage.observability.action_register_supportability",
         }
@@ -235,7 +239,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "status_class",
         "region",
         "environment",
-    } <= set(gateway_events["gateway.analytics.audit.analytics_read_denied"]["attributes"])
+    } <= set(
+        gateway_events["gateway.analytics.audit.analytics_read_denied"]["attributes"]
+    )
 
 
 def test_analytics_ui_observability_contract_rejects_sensitive_labels() -> None:

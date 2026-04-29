@@ -530,9 +530,9 @@
     },
     {
       "feature_key": "performance.observability.calculation_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-performance",
-      "promotion_evidence": "Slice 12 must implement source-backed freshness, completeness, period-quality, calculation supportability, degraded-state, and empty-state metrics/logs for performance analytics."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-performance TWR source-backed calculation supportability via calculation_supportability, lotus_performance_calculation_supportability_total with bounded labels only, performance.observability.calculation_supportability capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. MWR, contribution, attribution, Gateway consumption, and Workbench reconciliation remain planned."
     },
     {
       "feature_key": "risk.observability.calculation_supportability",

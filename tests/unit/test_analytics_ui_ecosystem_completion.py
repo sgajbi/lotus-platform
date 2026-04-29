@@ -127,10 +127,14 @@ def test_analytics_ui_ecosystem_completion_rejects_missing_branch_policy() -> No
 
     errors = _validate(observability, ecosystem)
 
-    assert any("runtime_work_blocked_before_slice_10_merge" in error for error in errors)
+    assert any(
+        "runtime_work_blocked_before_slice_10_merge" in error for error in errors
+    )
 
 
-def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion() -> None:
+def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion() -> (
+    None
+):
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
@@ -149,6 +153,7 @@ def test_analytics_ui_ecosystem_completion_rejects_premature_feature_promotion()
 @pytest.mark.parametrize(
     "feature_key",
     [
+        "performance.observability.calculation_supportability",
         "risk.observability.calculation_supportability",
         "manage.observability.action_register_supportability",
     ],
