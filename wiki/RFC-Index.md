@@ -99,7 +99,7 @@
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
 - [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-  implementation started with Slice 2 complete; governed front-office analytics UI
+  implementation started with Slice 3 complete; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
   no-sensitive-content controls, supported-features governance, and canonical proof through
@@ -110,8 +110,9 @@
   wiki source-of-truth notes. Slice 2 adds governed browser/gateway event names, severity levels,
   attention/audit event types, trace attributes, dashboard/alert reference policy, protected
   diagnostics policy, and matching Workbench/Gateway code constants without emitting runtime
-  telemetry. Correlation propagation, runtime telemetry, dashboards, alerts, attention events,
-  audit events, and canonical browser proof remain planned. This is not an extension of RFC-0105 reporting
+  telemetry. Slice 3 adds safe Workbench browser/BFF/gateway/backend correlation and trace
+  propagation with malformed traceparent replacement. Runtime telemetry, dashboards, alerts,
+  attention events, audit events, and canonical browser proof remain planned. This is not an extension of RFC-0105 reporting
   observability.
 
 ## Recommended next implementation order

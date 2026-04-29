@@ -26,11 +26,13 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-0-implemented",
         "slice-1-structure-implemented",
         "slice-2-telemetry-contract-implemented",
+        "slice-3-correlation-propagation-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
             "lifecycle_status must be implementation-not-started, slice-0-implemented, "
-            "slice-1-structure-implemented, or slice-2-telemetry-contract-implemented"
+            "slice-1-structure-implemented, slice-2-telemetry-contract-implemented, "
+            "or slice-3-correlation-propagation-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -121,7 +123,9 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         implemented_foundation_keys = {
             "platform.scaffolding.analytics_ui_observability_baseline",
             "platform.analytics.observability.telemetry_contract",
+            "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
+            "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.contract_vocabulary",
         }
         if key in implemented_foundation_keys:

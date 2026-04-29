@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-2-telemetry-contract-implemented",
+  "lifecycle_status": "slice-3-correlation-propagation-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -258,9 +258,9 @@
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-workbench",
-      "promotion_evidence": "Browser/BFF trace propagation tests, gateway/backend reconciliation, and no forbidden metric labels."
+      "promotion_evidence": "RFC-0108 Slice 3 adds Workbench analytics UI correlation helpers, client-side BFF request headers, BFF proxy correlation/trace generation and malformed traceparent replacement tests, while keeping correlation and trace identifiers out of metric labels."
     },
     {
       "feature_key": "workbench.analytics.observability.contract_vocabulary",
@@ -285,6 +285,12 @@
       "status": "planned",
       "owner_repo": "lotus-gateway",
       "promotion_evidence": "Fan-out metric/log tests, backend reconciliation, and OpenAPI/API certification evidence where API shape changes."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.correlation_trace",
+      "status": "implemented",
+      "owner_repo": "lotus-gateway",
+      "promotion_evidence": "RFC-0108 Slice 3 proves Gateway middleware accepts valid traceparent, rejects malformed traceparent, emits safe response trace headers, and forwards correlation and trace context to analytics backend clients without adding sensitive labels."
     },
     {
       "feature_key": "gateway.analytics.observability.contract_vocabulary",
