@@ -45,6 +45,12 @@ Current contracts:
     The RFC-0108 second-last review contract that records telemetry-field review, panel-state
     review, API/Swagger applicability, dashboard/alert certification, enterprise-governance
     posture, findings, residual scope, local proof commands, and required GitHub checks.
+13. `analytics-ui-observability-final-closure.schema.json`
+    The governed schema for the RFC-0108 final closure contract.
+14. `analytics-ui-observability-final-closure.json`
+    The RFC-0108 final closure contract that records implemented-scope closure, merged PR
+    evidence, local proof commands, required GitHub checks, wiki publication requirements,
+    skills/guidance review, residual planned scope, and branch hygiene requirements.
 
 Rules:
 

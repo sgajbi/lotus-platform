@@ -260,7 +260,7 @@ The current reporting and analytics observability governance references are:
    stuck-state/SLA attention, diagnostics, metrics, and live proof for asynchronous report evidence
    production.
 2. [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-   implementation started with second-last hardening complete; governs interactive front-office analytics UI
+   implemented for first-wave scope with final closure complete locally; governs interactive front-office analytics UI
    observability from browser to gateway to backend, including Workbench panel hydration, API
    fan-out, calculation freshness, empty/degraded/stale/error states, frontend/backend
    correlation, no-sensitive-content controls, attention and audit events, and canonical
@@ -271,7 +271,10 @@ The current reporting and analytics observability governance references are:
    rollout-readiness contract that separates certified route/panel scope from residual planned
    gateway/backend/entitlement work, and a hardening review contract covering telemetry fields,
    panel states, API/Swagger applicability, dashboard/alert certification, enterprise governance,
-   residual planned scope, and no-open-P0/P1 findings. It is not an extension of RFC-0105.
+   residual planned scope, and no-open-P0/P1 findings. Final closure adds a governed closure
+   contract, validator, docs/context/wiki source updates, residual planned-scope preservation,
+   branch/wiki hygiene requirements, and a deliberate no-change skills/guidance review outcome.
+   It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 

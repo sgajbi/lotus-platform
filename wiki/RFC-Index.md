@@ -99,7 +99,7 @@
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
 - [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-  implementation started with second-last hardening complete; governed front-office analytics UI
+  implemented for first-wave scope with final closure complete locally; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
   no-sensitive-content controls, supported-features governance, and canonical proof through
@@ -128,8 +128,10 @@
   diagnostics lookup audit, full caller-context entitlement certification, and broad rollout
   planned. The second-last slice adds a governed hardening review contract and validator covering
   telemetry fields, panel states, API/Swagger applicability, dashboard/alert certification,
-  enterprise governance, residual planned scope, and no-open-P0/P1 proof. This is not an
-  extension of RFC-0105 reporting observability.
+  enterprise governance, residual planned scope, and no-open-P0/P1 proof. Final closure adds a
+  governed closure contract and validator, docs/context/wiki source updates, explicit no-change
+  skills/guidance review, residual planned-scope preservation, and branch/wiki hygiene
+  requirements. This is not an extension of RFC-0105 reporting observability.
 
 ## Recommended next implementation order
 

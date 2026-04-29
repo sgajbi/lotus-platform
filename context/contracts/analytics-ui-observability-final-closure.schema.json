@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-final-closure.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "closure_scope",
+    "merged_prs",
+    "local_proof_commands",
+    "required_github_checks",
+    "wiki_publication",
+    "skills_guidance_review",
+    "residual_scope",
+    "clean_state_requirements"
+  ],
+  "properties": {
+    "contract_id": { "const": "analytics-ui-observability-final-closure" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": { "const": "final-closure-implemented" },
+    "closure_scope": {
+      "type": "object",
+      "required": [
+        "implemented_scope_status",
+        "supported_features_policy",
+        "residual_scope_policy"
+      ],
+      "properties": {
+        "implemented_scope_status": { "const": "closed_for_implemented_scope" },
+        "supported_features_policy": { "const": "implementation_backed_only" },
+        "residual_scope_policy": { "const": "planned_until_separately_implemented" }
+      },
+      "additionalProperties": false
+    },
+    "merged_prs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/mergedPr" },
+      "minItems": 1
+    },
+    "local_proof_commands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_github_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "wiki_publication": {
+      "type": "object",
+      "required": [
+        "source_repository",
+        "publish_required_after_merge",
+        "check_required",
+        "pre_merge_drift_expected",
+        "expected_pre_merge_drift_files",
+        "publish_command"
+      ],
+      "properties": {
+        "source_repository": { "const": "lotus-platform" },
+        "publish_required_after_merge": { "const": true },
+        "check_required": { "const": true },
+        "pre_merge_drift_expected": { "const": true },
+        "expected_pre_merge_drift_files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "publish_command": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "skills_guidance_review": {
+      "type": "object",
+      "required": ["decision", "rationale", "reviewed_guidance"],
+      "properties": {
+        "decision": { "enum": ["no_change_required", "changed"] },
+        "rationale": { "type": "string" },
+        "reviewed_guidance": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "residual_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/residualScopeItem" }
+    },
+    "clean_state_requirements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "mergedPr": {
+      "type": "object",
+      "required": ["pr_number", "merge_commit", "scope"],
+      "properties": {
+        "pr_number": { "type": "integer" },
+        "merge_commit": { "type": "string" },
+        "scope": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "residualScopeItem": {
+      "type": "object",
+      "required": ["feature_key", "status", "owner_repo", "reason"],
+      "properties": {
+        "feature_key": { "type": "string" },
+        "status": { "const": "planned" },
+        "owner_repo": { "type": "string" },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

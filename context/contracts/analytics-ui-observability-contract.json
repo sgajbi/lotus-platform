@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "second-last-hardening-implemented",
+  "lifecycle_status": "final-closure-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -383,6 +383,12 @@
       "status": "implemented",
       "owner_repo": "lotus-platform",
       "promotion_evidence": "RFC-0108 second-last slice adds a machine-readable hardening review contract, validator, and tests covering telemetry fields, panel states, API/Swagger applicability, dashboard and alert certification, enterprise governance, residual planned scope, and no open P0/P1 findings before closure."
+    },
+    {
+      "feature_key": "platform.analytics.observability.final_closure",
+      "status": "implemented",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "RFC-0108 final closure adds a machine-readable final closure contract, validator, tests, documentation/context/wiki source updates, explicit skills and guidance review, required wiki publication, residual planned-scope preservation, and branch hygiene requirements before closure."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",
