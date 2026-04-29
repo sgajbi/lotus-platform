@@ -1,4 +1,4 @@
-.PHONY: install lint monetary-float-guard typecheck openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean
+.PHONY: install lint monetary-float-guard no-sensitive-content-guard supported-features-gate typecheck openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean
 
 VENV_DIR ?= .venv
 
@@ -17,9 +17,17 @@ lint:
 	$(VENV_PYTHON) -m ruff check .
 	$(VENV_PYTHON) -m ruff format --check .
 	$(MAKE) monetary-float-guard
+	$(MAKE) no-sensitive-content-guard
+	$(MAKE) supported-features-gate
 
 monetary-float-guard:
 	$(VENV_PYTHON) scripts/check_monetary_float_usage.py
+
+no-sensitive-content-guard:
+	$(VENV_PYTHON) scripts/no_sensitive_content_guard.py
+
+supported-features-gate:
+	$(VENV_PYTHON) scripts/supported_features_gate.py
 
 typecheck:
 	$(VENV_PYTHON) -m mypy --config-file mypy.ini
@@ -51,9 +59,9 @@ coverage-gate:
 security-audit:
 	$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt
 
-check: lint typecheck openapi-gate test
+check: lint typecheck openapi-gate supported-features-gate test
 
-ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit
+ci: lint typecheck openapi-gate supported-features-gate test-integration test-e2e test-coverage security-audit
 
 docker-build:
 	docker build -t backend-service:ci-test .

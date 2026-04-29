@@ -58,6 +58,13 @@ Current contracts:
     ecosystem completion slices, first-wave protected evidence, per-app observability gap matrix,
     required GitHub checks, and branch policy that blocks runtime work before contract expansion
     is merged.
+17. `analytics-ui-observability-scaffold-ci-enforcement.schema.json`
+    The governed schema for RFC-0108 Slice 11 platform scaffold and CI enforcement.
+18. `analytics-ui-observability-scaffold-ci-enforcement.json`
+    The RFC-0108 Slice 11 contract that proves generated backend service defaults, reusable
+    Workbench observability surface defaults, platform CI wiring, generated workflow templates, and
+    reusable validators that keep observability, OpenAPI, supported-features, docs/wiki, evidence,
+    and no-sensitive-content checks platform-owned.
 
 Rules:
 

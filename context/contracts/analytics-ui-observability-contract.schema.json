@@ -37,7 +37,8 @@
         "slice-9-rollout-readiness-implemented",
         "second-last-hardening-implemented",
         "final-closure-implemented",
-        "slice-10-ecosystem-contract-implemented"
+        "slice-10-ecosystem-contract-implemented",
+        "slice-11-scaffold-ci-enforcement-implemented"
       ]
     },
     "allowed_labels": {

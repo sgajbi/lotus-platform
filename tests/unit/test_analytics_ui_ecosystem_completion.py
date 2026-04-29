@@ -45,7 +45,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert ecosystem["contract_id"] == "analytics-ui-observability-ecosystem-completion"
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
-    assert ecosystem["lifecycle_status"] == "slice-10-ecosystem-contract-implemented"
+    assert ecosystem["lifecycle_status"] == "slice-11-scaffold-ci-enforcement-implemented"
 
 
 def test_analytics_ui_ecosystem_completion_validator_accepts_baseline() -> None:
@@ -67,7 +67,7 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_10_only_implemented() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slices_10_and_11_only_implemented() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {
         entry["slice_id"]: entry["status"]
@@ -75,7 +75,8 @@ def test_analytics_ui_ecosystem_completion_requires_slice_10_only_implemented() 
     }
 
     assert statuses[10] == "implemented"
-    assert {statuses[slice_id] for slice_id in range(11, 19)} == {"planned"}
+    assert statuses[11] == "implemented"
+    assert {statuses[slice_id] for slice_id in range(12, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:

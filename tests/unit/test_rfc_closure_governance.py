@@ -750,7 +750,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
 
     for expected in [
-        "- status: implementation started; slice 0 complete",
+        "- status: reopened for ecosystem completion; slices 10-11 complete",
         "front-office analytics ui observability",
         "interactive read/display flows",
         "browser to gateway to backend",
@@ -788,11 +788,14 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "slice 9: rollout proof and expansion readiness",
         "second-last slice: hardening, review, and certification",
         "final slice: closure",
+        "ecosystem completion slice 10: reopen governance and contract expansion",
+        "ecosystem completion slice 11: platform automation, scaffolding, and ci enforcement",
+        "slice 11 implementation evidence",
         "supported features governance",
         "implementation proof ledger",
         "not an extension of rfc-0105",
         "slice 0 is complete",
-        "workbench, gateway, backend metrics, dashboards, alerts, attention events, audit events",
+        "product telemetry, metrics, dashboards, alerts, attention events, audit events",
         "identify gaps in `lotus-platform` automation",
         "api certification pattern",
         "swagger quality",
@@ -818,6 +821,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "`platform.scaffolding.analytics_ui_observability_baseline`",
         "artifact existence is not proof",
         "fix failures promptly",
+        "`platform.analytics.observability.scaffold_ci_enforcement`",
     ]:
         assert expected in text
 
@@ -843,6 +847,12 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
     assert text.index("second-last slice: hardening") < text.index(
         "final slice: closure"
+    )
+    assert text.index("final slice: closure") < text.index(
+        "ecosystem completion slice 10"
+    )
+    assert text.index("ecosystem completion slice 10") < text.index(
+        "ecosystem completion slice 11"
     )
 
 

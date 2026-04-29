@@ -34,6 +34,9 @@ REQUIRED_SLICE_IDS = set(range(10, 19))
 IMPLEMENTED_SLICE_10_FEATURE_KEY = (
     "platform.analytics.observability.ecosystem_completion_contract"
 )
+IMPLEMENTED_SLICE_11_FEATURE_KEY = (
+    "platform.analytics.observability.scaffold_ci_enforcement"
+)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -71,18 +74,26 @@ def _validate_identity(
         errors.append("governed_by_rfc must be RFC-0108")
     if (
         ecosystem_contract.get("lifecycle_status")
-        != "slice-10-ecosystem-contract-implemented"
+        not in {
+            "slice-10-ecosystem-contract-implemented",
+            "slice-11-scaffold-ci-enforcement-implemented",
+        }
     ):
         errors.append(
-            "lifecycle_status must be slice-10-ecosystem-contract-implemented"
+            "lifecycle_status must be slice-10-ecosystem-contract-implemented or "
+            "slice-11-scaffold-ci-enforcement-implemented"
         )
     if (
         observability_contract.get("lifecycle_status")
-        != "slice-10-ecosystem-contract-implemented"
+        not in {
+            "slice-10-ecosystem-contract-implemented",
+            "slice-11-scaffold-ci-enforcement-implemented",
+        }
     ):
         errors.append(
             "analytics-ui-observability-contract lifecycle_status must be "
-            "slice-10-ecosystem-contract-implemented"
+            "slice-10-ecosystem-contract-implemented or "
+            "slice-11-scaffold-ci-enforcement-implemented"
         )
 
 
@@ -119,9 +130,17 @@ def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> N
         errors.append(f"ecosystem_completion_slices missing {sorted(missing)}")
     if slice_status.get(10) != "implemented":
         errors.append("Slice 10 must be implemented")
-    for slice_id in range(11, 19):
+    expected_slice_11 = (
+        "implemented"
+        if ecosystem_contract.get("lifecycle_status")
+        == "slice-11-scaffold-ci-enforcement-implemented"
+        else "planned"
+    )
+    if slice_status.get(11) != expected_slice_11:
+        errors.append(f"Slice 11 must be {expected_slice_11}")
+    for slice_id in range(12, 19):
         if slice_status.get(slice_id) != "planned":
-            errors.append(f"Slice {slice_id} must remain planned after Slice 10")
+            errors.append(f"Slice {slice_id} must remain planned after Slice 11")
     for slice_entry in slices:
         if not slice_entry.get("purpose"):
             errors.append(f"Slice {slice_entry.get('slice_id')}: purpose is required")
@@ -148,6 +167,14 @@ def _validate_supported_features(
     if statuses.get(IMPLEMENTED_SLICE_10_FEATURE_KEY) != "implemented":
         errors.append(
             f"{IMPLEMENTED_SLICE_10_FEATURE_KEY} must be implemented after Slice 10"
+        )
+    if (
+        ecosystem_contract.get("lifecycle_status")
+        == "slice-11-scaffold-ci-enforcement-implemented"
+        and statuses.get(IMPLEMENTED_SLICE_11_FEATURE_KEY) != "implemented"
+    ):
+        errors.append(
+            f"{IMPLEMENTED_SLICE_11_FEATURE_KEY} must be implemented after Slice 11"
         )
 
     protected = set(
@@ -179,7 +206,7 @@ def _validate_supported_features(
         )
 
     for feature_key in matrix_feature_keys - protected:
-        if feature_key == IMPLEMENTED_SLICE_10_FEATURE_KEY:
+        if feature_key in {IMPLEMENTED_SLICE_10_FEATURE_KEY, IMPLEMENTED_SLICE_11_FEATURE_KEY}:
             continue
         if statuses.get(feature_key) != "planned":
             errors.append(f"{feature_key}: ecosystem feature must remain planned")
@@ -229,7 +256,7 @@ def _validate_gap_matrix(
                     f"{sorted(not_implemented)}"
                 )
         if repo != "lotus-platform" and posture == "implemented":
-            errors.append(f"{repo}: non-platform rows must not be fully implemented in Slice 10")
+            errors.append(f"{repo}: non-platform rows must not be fully implemented before Slice 12")
 
 
 def _validate_required_checks_and_branch_policy(

@@ -953,6 +953,101 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/check_monetary_float_usage.py") -Value $floatGuard
 
+$sensitiveContentGuard = @"
+import re
+import sys
+from pathlib import Path
+
+FORBIDDEN_PATTERNS = {
+    "portfolio_id": re.compile(r"\bportfolio[_-]?id\b", re.IGNORECASE),
+    "client_id": re.compile(r"\bclient[_-]?id\b", re.IGNORECASE),
+    "client_name": re.compile(r"\bclient[_-]?name\b", re.IGNORECASE),
+    "account_id": re.compile(r"\baccount[_-]?id\b", re.IGNORECASE),
+    "holding_id": re.compile(r"\bholding[_-]?id\b", re.IGNORECASE),
+    "transaction_id": re.compile(r"\btransaction[_-]?id\b", re.IGNORECASE),
+    "request_body": re.compile(r"\brequest[_-]?body\b", re.IGNORECASE),
+    "response_body": re.compile(r"\bresponse[_-]?body\b", re.IGNORECASE),
+    "raw_entitlement_failure": re.compile(r"\braw[_-]?entitlement[_-]?failure\b", re.IGNORECASE),
+}
+
+SCAN_ROOTS = ("evidence", "logs", "output")
+ALLOWLIST = {
+    Path("evidence/rfc-implementation/README.md"),
+}
+
+
+def main() -> int:
+    violations: list[str] = []
+    for root_name in SCAN_ROOTS:
+        root = Path(root_name)
+        if not root.exists():
+            continue
+        for path in root.rglob("*"):
+            if not path.is_file() or path in ALLOWLIST:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            for name, pattern in FORBIDDEN_PATTERNS.items():
+                if pattern.search(text):
+                    violations.append(f"{path}: forbidden sensitive content marker {name}")
+    if violations:
+        print("\\n".join(sorted(violations)))
+        return 1
+    print("No-sensitive-content guard passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+"@
+Set-Content -Path (Join-Path $target "scripts/no_sensitive_content_guard.py") -Value $sensitiveContentGuard
+
+$supportedFeaturesGate = @"
+import json
+import sys
+from pathlib import Path
+
+SUPPORTED_FEATURES_PATH = Path("supported-features/supported-features.json")
+
+
+def main() -> int:
+    if not SUPPORTED_FEATURES_PATH.exists():
+        print(f"Missing {SUPPORTED_FEATURES_PATH}")
+        return 1
+    payload = json.loads(SUPPORTED_FEATURES_PATH.read_text(encoding="utf-8"))
+    errors: list[str] = []
+    if payload.get("repository") is None:
+        errors.append("supported-features repository is required")
+    if payload.get("policy") != "Only implementation-backed behavior may be promoted to supported.":
+        errors.append("supported-features policy must preserve implementation-backed promotion")
+    features = payload.get("features")
+    if not isinstance(features, list):
+        errors.append("supported-features features must be a list")
+    else:
+        for index, feature in enumerate(features):
+            if not isinstance(feature, dict):
+                errors.append(f"features[{index}] must be an object")
+                continue
+            status = feature.get("status")
+            evidence = feature.get("promotion_evidence")
+            if status == "implemented" and not evidence:
+                errors.append(f"features[{index}] implemented feature missing promotion_evidence")
+            if status not in {"planned", "implemented", "not_applicable"}:
+                errors.append(f"features[{index}] invalid status {status!r}")
+    if errors:
+        print("\\n".join(errors))
+        return 1
+    print("Supported-features gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+"@
+Set-Content -Path (Join-Path $target "scripts/supported_features_gate.py") -Value $supportedFeaturesGate
+
 $unitTest = @"
 from app.errors import ProblemDetails
 from app.main import SERVICE_NAME
@@ -976,6 +1071,15 @@ def test_problem_details_are_product_safe() -> None:
     }
     assert "portfolio" not in payload["detail"].lower()
     assert "holding" not in payload["detail"].lower()
+
+
+def test_supported_features_policy_starts_unpromoted() -> None:
+    import json
+    from pathlib import Path
+
+    payload = json.loads(Path("supported-features/supported-features.json").read_text())
+    assert payload["features"] == []
+    assert payload["policy"] == "Only implementation-backed behavior may be promoted to supported."
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_service_contract.py") -Value $unitTest
 

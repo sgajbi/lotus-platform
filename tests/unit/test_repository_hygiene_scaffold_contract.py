@@ -65,11 +65,17 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "supported-features/supported-features.json" in scaffold_script
     assert "evidence/rfc-implementation/README.md" in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
+    assert "scripts/no_sensitive_content_guard.py" in scaffold_script
+    assert "scripts/supported_features_gate.py" in scaffold_script
     assert 'require_response_headers = @("x-correlation-id", "x-trace-id")' in scaffold_script
     assert '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")' in scaffold_script
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
+    assert "no-sensitive-content-guard:" in makefile_template
+    assert "$(MAKE) no-sensitive-content-guard" in makefile_template
+    assert "supported-features-gate:" in makefile_template
+    assert "$(MAKE) supported-features-gate" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
     assert (
@@ -142,6 +148,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         encoding="utf-8"
     )
     openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
+    sensitive_content_guard = (repo_root / "scripts/no_sensitive_content_guard.py").read_text(
+        encoding="utf-8"
+    )
+    supported_features_gate = (repo_root / "scripts/supported_features_gate.py").read_text(
+        encoding="utf-8"
+    )
     supported_features = json.loads(
         (repo_root / "supported-features/supported-features.json").read_text(encoding="utf-8")
     )
@@ -166,6 +178,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert result["dockerignore_missing_patterns"] == []
     assert "monetary-float-guard:" in makefile
     assert "$(MAKE) monetary-float-guard" in makefile
+    assert "no-sensitive-content-guard:" in makefile
+    assert "$(MAKE) no-sensitive-content-guard" in makefile
+    assert "supported-features-gate:" in makefile
+    assert "$(MAKE) supported-features-gate" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
     assert "include_in_schema=False" in main_py
@@ -188,8 +204,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "test_correlation_and_trace_headers_are_generated" in health_tests
     assert "test_not_found_error_is_product_safe" in health_tests
     assert "test_problem_details_are_product_safe" in service_contract_tests
+    assert "test_supported_features_policy_starts_unpromoted" in service_contract_tests
     assert "missing summary" in openapi_gate
     assert "missing success response example" in openapi_gate
+    assert "FORBIDDEN_PATTERNS" in sensitive_content_guard
+    assert "request_body" in sensitive_content_guard
+    assert "response_body" in sensitive_content_guard
+    assert "Supported-features gate passed" in supported_features_gate
+    assert "implemented feature missing promotion_evidence" in supported_features_gate
     assert supported_features == {
         "repository": service_name,
         "features": [],
