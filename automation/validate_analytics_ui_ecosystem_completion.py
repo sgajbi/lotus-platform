@@ -39,6 +39,7 @@ IMPLEMENTED_SLICE_11_FEATURE_KEY = (
 )
 IMPLEMENTED_SLICE_12_FEATURE_KEYS = {
     "manage.observability.action_register_supportability",
+    "performance.observability.calculation_supportability",
     "risk.observability.calculation_supportability",
 }
 
@@ -76,27 +77,21 @@ def _validate_identity(
         )
     if ecosystem_contract.get("governed_by_rfc") != "RFC-0108":
         errors.append("governed_by_rfc must be RFC-0108")
-    if (
-        ecosystem_contract.get("lifecycle_status")
-        not in {
-            "slice-10-ecosystem-contract-implemented",
-            "slice-11-scaffold-ci-enforcement-implemented",
-            "slice-12-backend-supportability-partial-implemented",
-        }
-    ):
+    if ecosystem_contract.get("lifecycle_status") not in {
+        "slice-10-ecosystem-contract-implemented",
+        "slice-11-scaffold-ci-enforcement-implemented",
+        "slice-12-backend-supportability-partial-implemented",
+    }:
         errors.append(
             "lifecycle_status must be slice-10-ecosystem-contract-implemented or "
             "slice-11-scaffold-ci-enforcement-implemented or "
             "slice-12-backend-supportability-partial-implemented"
         )
-    if (
-        observability_contract.get("lifecycle_status")
-        not in {
-            "slice-10-ecosystem-contract-implemented",
-            "slice-11-scaffold-ci-enforcement-implemented",
-            "slice-12-backend-supportability-partial-implemented",
-        }
-    ):
+    if observability_contract.get("lifecycle_status") not in {
+        "slice-10-ecosystem-contract-implemented",
+        "slice-11-scaffold-ci-enforcement-implemented",
+        "slice-12-backend-supportability-partial-implemented",
+    }:
         errors.append(
             "analytics-ui-observability-contract lifecycle_status must be "
             "slice-10-ecosystem-contract-implemented or "
@@ -114,7 +109,9 @@ def _validate_repositories(
     if missing:
         errors.append(f"participating_repositories missing {sorted(missing)}")
     if extra:
-        errors.append(f"participating_repositories contains unknown repos {sorted(extra)}")
+        errors.append(
+            f"participating_repositories contains unknown repos {sorted(extra)}"
+        )
 
     matrix_repositories = {
         str(row.get("repository"))
@@ -204,7 +201,9 @@ def _validate_supported_features(
     ):
         for feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS:
             if statuses.get(feature_key) != "implemented":
-                errors.append(f"{feature_key} must be implemented after Slice 12 partial proof")
+                errors.append(
+                    f"{feature_key} must be implemented after Slice 12 partial proof"
+                )
 
     protected = set(
         ecosystem_contract.get("first_wave_evidence", {}).get(
@@ -219,7 +218,9 @@ def _validate_supported_features(
         )
     for feature_key in protected:
         if statuses.get(feature_key) != "implemented":
-            errors.append(f"{feature_key}: first-wave protected feature must stay implemented")
+            errors.append(
+                f"{feature_key}: first-wave protected feature must stay implemented"
+            )
 
     matrix_feature_keys = {
         str(feature_key)
@@ -235,7 +236,10 @@ def _validate_supported_features(
         )
 
     for feature_key in matrix_feature_keys - protected:
-        if feature_key in {IMPLEMENTED_SLICE_10_FEATURE_KEY, IMPLEMENTED_SLICE_11_FEATURE_KEY}:
+        if feature_key in {
+            IMPLEMENTED_SLICE_10_FEATURE_KEY,
+            IMPLEMENTED_SLICE_11_FEATURE_KEY,
+        }:
             continue
         if (
             ecosystem_contract.get("lifecycle_status")
@@ -243,7 +247,9 @@ def _validate_supported_features(
             and feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS
         ):
             if statuses.get(feature_key) != "implemented":
-                errors.append(f"{feature_key}: Slice 12 partial feature must be implemented")
+                errors.append(
+                    f"{feature_key}: Slice 12 partial feature must be implemented"
+                )
             continue
         if statuses.get(feature_key) != "planned":
             errors.append(f"{feature_key}: ecosystem feature must remain planned")
@@ -293,7 +299,9 @@ def _validate_gap_matrix(
                     f"{sorted(not_implemented)}"
                 )
         if repo != "lotus-platform" and posture == "implemented":
-            errors.append(f"{repo}: non-platform rows must not be fully implemented before Slice 12")
+            errors.append(
+                f"{repo}: non-platform rows must not be fully implemented before Slice 12"
+            )
 
 
 def _validate_required_checks_and_branch_policy(
