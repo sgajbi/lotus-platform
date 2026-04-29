@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-12-backend-supportability-partial-implemented",
+  "lifecycle_status": "slice-13-gateway-fanout-metrics-partial-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -64,9 +64,9 @@
     },
     {
       "slice_id": 13,
-      "status": "planned",
-      "purpose": "Complete Gateway fan-out metrics, protected diagnostics, and audit events.",
-      "required_proof": ["gateway tests", "OpenAPI certification", "protected diagnostics audit proof"]
+      "status": "partially_implemented",
+      "purpose": "Partially complete Gateway fan-out metrics for selected Workbench performance and risk analytics fan-out while protected diagnostics, audit completion, and all UI-facing fan-out paths remain planned.",
+      "required_proof": ["gateway tests", "metric label proof", "no-sensitive telemetry checks", "protected diagnostics audit proof before full completion"]
     },
     {
       "slice_id": 14,
@@ -149,8 +149,8 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "fanout_metrics_planned", "protected_diagnostics_planned"],
-      "blockers": ["fan-out metric families are not implemented", "protected diagnostics lookup API is not implemented"],
+      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "protected_diagnostics_planned"],
+      "blockers": ["fan-out metrics cover selected Workbench performance and risk analytics operations only", "protected diagnostics lookup API is not implemented"],
       "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof"],
       "wiki_source_decision": "Gateway repo-local wiki source must document diagnostics and fan-out metrics after Slice 13",
       "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]

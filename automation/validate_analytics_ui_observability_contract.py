@@ -38,6 +38,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-10-ecosystem-contract-implemented",
         "slice-11-scaffold-ci-enforcement-implemented",
         "slice-12-backend-supportability-partial-implemented",
+        "slice-13-gateway-fanout-metrics-partial-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -54,7 +55,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "final-closure-implemented, or "
             "slice-10-ecosystem-contract-implemented, or "
             "slice-11-scaffold-ci-enforcement-implemented, or "
-            "slice-12-backend-supportability-partial-implemented"
+            "slice-12-backend-supportability-partial-implemented, or "
+            "slice-13-gateway-fanout-metrics-partial-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -72,6 +74,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "lotus_workbench_panel_hydration_duration_seconds",
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
+        "lotus_gateway_analytics_fanout_duration_seconds",
+        "lotus_gateway_analytics_degraded_total",
         "lotus_analytics_ui_attention_events_total",
         "lotus_ai_surface_supportability_state",
     }
@@ -163,6 +167,9 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "report.observability.evidence_surface_supportability",
             "risk.observability.calculation_supportability",
         }
+        implemented_slice_13_partial_keys = {
+            "gateway.analytics.observability.fanout_metrics",
+        }
         implemented_foundation_keys = {
             "platform.scaffolding.analytics_ui_observability_baseline",
             "platform.analytics.observability.telemetry_contract",
@@ -187,11 +194,21 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                 errors.append(f"{key}: status must be planned or implemented")
         elif (
             contract.get("lifecycle_status")
-            == "slice-12-backend-supportability-partial-implemented"
+            in {
+                "slice-12-backend-supportability-partial-implemented",
+                "slice-13-gateway-fanout-metrics-partial-implemented",
+            }
             and key in implemented_slice_12_partial_keys
         ):
             if status != "implemented":
                 errors.append(f"{key}: status must be implemented after Slice 12 proof")
+        elif (
+            contract.get("lifecycle_status")
+            == "slice-13-gateway-fanout-metrics-partial-implemented"
+            and key in implemented_slice_13_partial_keys
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 13 partial proof")
         elif status != "planned":
             errors.append(
                 f"{key}: status must remain planned until implementation proof exists"

@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-12-backend-supportability-partial-implemented",
+  "lifecycle_status": "slice-13-gateway-fanout-metrics-partial-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -80,18 +80,18 @@
     {
       "metric_name": "lotus_gateway_analytics_fanout_duration_seconds",
       "owner_repo": "lotus-gateway",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "histogram",
       "labels": ["operation", "service", "status_class"],
-      "purpose": "planned gateway analytics fan-out duration metric"
+      "purpose": "implementation-backed gateway analytics fan-out duration metric for selected Workbench performance and risk analytics operations"
     },
     {
       "metric_name": "lotus_gateway_analytics_degraded_total",
       "owner_repo": "lotus-gateway",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "counter",
       "labels": ["operation", "service", "reason"],
-      "purpose": "planned gateway analytics degraded-source counter"
+      "purpose": "implementation-backed gateway analytics degraded-source counter for selected Workbench performance and risk analytics operations"
     },
     {
       "metric_name": "lotus_analytics_freshness_bucket_total",
@@ -493,9 +493,9 @@
     },
     {
       "feature_key": "gateway.analytics.observability.fanout_metrics",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes."
+      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Tests prove bounded labels, metric increments, and forbidden sensitive-label rejection. Protected diagnostics and all UI fan-out path coverage remain planned."
     },
     {
       "feature_key": "gateway.analytics.observability.protected_diagnostics",

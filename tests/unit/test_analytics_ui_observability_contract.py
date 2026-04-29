@@ -66,7 +66,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
         contract["lifecycle_status"]
-        == "slice-12-backend-supportability-partial-implemented"
+        == "slice-13-gateway-fanout-metrics-partial-implemented"
     )
 
 
@@ -92,6 +92,8 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "lotus_workbench_panel_hydration_duration_seconds",
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
+        "lotus_gateway_analytics_fanout_duration_seconds",
+        "lotus_gateway_analytics_degraded_total",
         "lotus_analytics_ui_attention_events_total",
         "lotus_ai_surface_supportability_state",
     }
@@ -168,6 +170,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["gateway.analytics.observability.fanout_metrics"]
+        == "implemented"
+    )
+    assert (
         feature_status["core.observability.portfolio_supportability"] == "implemented"
     )
     assert (
@@ -217,6 +223,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.entitlement_audit_events",
             "workbench.analytics.observability.canonical_proof",
             "gateway.analytics.observability.correlation_trace",
+            "gateway.analytics.observability.fanout_metrics",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
             "core.observability.portfolio_supportability",
@@ -238,6 +245,21 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     metric_families = {
         entry["metric_name"]: entry for entry in contract["metric_families"]
     }
+    assert (
+        metric_families["lotus_gateway_analytics_fanout_duration_seconds"]["implemented"]
+        is True
+    )
+    assert metric_families["lotus_gateway_analytics_fanout_duration_seconds"]["labels"] == [
+        "operation",
+        "service",
+        "status_class",
+    ]
+    assert metric_families["lotus_gateway_analytics_degraded_total"]["implemented"] is True
+    assert metric_families["lotus_gateway_analytics_degraded_total"]["labels"] == [
+        "operation",
+        "service",
+        "reason",
+    ]
     assert metric_families["lotus_ai_surface_supportability_state"]["implemented"] is True
     assert metric_families["lotus_ai_surface_supportability_state"]["labels"] == [
         "surface",
@@ -423,7 +445,7 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_dashboa
     contract["dashboards"].append(
         {
             "dashboard_id": "analytics-ui-overview",
-            "metric_names": ["lotus_gateway_analytics_fanout_duration_seconds"],
+            "metric_names": ["lotus_analytics_freshness_bucket_total"],
         }
     )
 
@@ -441,7 +463,7 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_alert_c
     contract["alerts"].append(
         {
             "alert_id": "analytics-ui-panel-errors",
-            "metric_name": "lotus_gateway_analytics_fanout_duration_seconds",
+            "metric_name": "lotus_analytics_freshness_bucket_total",
         }
     )
 
