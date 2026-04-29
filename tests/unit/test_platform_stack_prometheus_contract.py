@@ -20,11 +20,14 @@ def test_platform_stack_prometheus_scrapes_the_expected_orchestrated_services() 
 
     assert actual_jobs == {
         "bff",
+        "lotus-archive",
         "lotus-core-ingestion",
         "lotus-core-query",
         "lotus-manage",
         "lotus-performance",
+        "lotus-render",
         "lotus-report",
+        "lotus-workbench",
     }
 
 
@@ -33,7 +36,8 @@ def test_platform_stack_prometheus_targets_match_platform_stack_service_names() 
     prometheus = _read_yaml(PLATFORM_STACK_DIR / "prometheus" / "prometheus.yml")
 
     services = compose["services"]
+    platform_owned_bridge_hosts = {"host.docker.internal"}
     for job in prometheus["scrape_configs"]:
         target = job["static_configs"][0]["targets"][0]
         host = target.split(":", maxsplit=1)[0]
-        assert host in services
+        assert host in services or host in platform_owned_bridge_hosts

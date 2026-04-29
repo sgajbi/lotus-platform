@@ -1,0 +1,174 @@
+{
+  "contract_id": "analytics-ui-observability-scaffold-ci-enforcement",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
+  "source_contracts": [
+    "analytics-ui-observability-contract",
+    "analytics-ui-observability-ecosystem-completion"
+  ],
+  "backend_scaffold_defaults": [
+    {
+      "id": "backend_health_metadata_metrics",
+      "artifact_path": "automation/New-Lotus-Service.ps1",
+      "required_terms": [
+        "/health",
+        "/health/live",
+        "/health/ready",
+        "/metadata",
+        "include_in_schema=False",
+        "X-Correlation-Id",
+        "X-Trace-Id"
+      ]
+    },
+    {
+      "id": "backend_structured_logs_and_safe_errors",
+      "artifact_path": "automation/New-Lotus-Service.ps1",
+      "required_terms": [
+        "src/app/observability.py",
+        "json.dumps(payload, sort_keys=True, default=str)",
+        "ProblemDetails",
+        "product-safe",
+        "request.validation_failed",
+        "request.unhandled_error"
+      ]
+    },
+    {
+      "id": "backend_openapi_supported_features_and_evidence",
+      "artifact_path": "automation/New-Lotus-Service.ps1",
+      "required_terms": [
+        "scripts/openapi_quality_gate.py",
+        "scripts/supported_features_gate.py",
+        "supported-features/supported-features.json",
+        "evidence/rfc-implementation/README.md",
+        "docs/operations/api-certification.md",
+        "docs/operations/observability.md",
+        "Write-WikiBaseline"
+      ]
+    },
+    {
+      "id": "backend_no_sensitive_content_guard",
+      "artifact_path": "automation/New-Lotus-Service.ps1",
+      "required_terms": [
+        "scripts/no_sensitive_content_guard.py",
+        "FORBIDDEN_PATTERNS",
+        "request_body",
+        "response_body",
+        "raw_entitlement_failure"
+      ]
+    },
+    {
+      "id": "backend_makefile_ci_gates",
+      "artifact_path": "platform-standards/templates/Makefile.backend.template",
+      "required_terms": [
+        "openapi-gate",
+        "no-sensitive-content-guard",
+        "supported-features-gate",
+        "coverage-gate",
+        "security-audit"
+      ]
+    }
+  ],
+  "ui_surface_scaffold_defaults": [
+    {
+      "id": "workbench_bounded_panel_state_template",
+      "artifact_path": "platform-standards/templates/workbench-observability-surface.template.ts",
+      "required_terms": [
+        "LotusPanelState",
+        "loading",
+        "ready",
+        "empty",
+        "partial",
+        "stale",
+        "degraded",
+        "error",
+        "permission_blocked",
+        "unsupported"
+      ]
+    },
+    {
+      "id": "workbench_safe_label_and_attention_template",
+      "artifact_path": "platform-standards/templates/workbench-observability-surface.template.ts",
+      "required_terms": [
+        "LOTUS_ALLOWED_OBSERVABILITY_LABELS",
+        "LOTUS_FORBIDDEN_OBSERVABILITY_FIELDS",
+        "assertNoSensitiveObservabilityKeys",
+        "emitPanelStateMetric",
+        "emitAttentionEvent",
+        "workbench.analytics.panel_state",
+        "workbench.analytics.attention"
+      ]
+    }
+  ],
+  "ci_enforcement": [
+    {
+      "id": "platform_feature_lane_contracts",
+      "artifact_path": ".github/workflows/feature-lane.yml",
+      "required_terms": [
+        "Feature Lane / Platform Repo Contracts",
+        "Invoke-PlatformRepoChecks.ps1 -Lane feature"
+      ]
+    },
+    {
+      "id": "platform_pr_merge_contracts",
+      "artifact_path": ".github/workflows/pr-merge-gate.yml",
+      "required_terms": [
+        "PR Merge Gate / Platform Repo Contracts",
+        "Invoke-PlatformRepoChecks.ps1 -Lane pr-merge"
+      ]
+    },
+    {
+      "id": "platform_repo_check_validator_wiring",
+      "artifact_path": "automation/Invoke-PlatformRepoChecks.ps1",
+      "required_terms": [
+        "validate_analytics_ui_observability_contract.py",
+        "validate_analytics_ui_ecosystem_completion.py",
+        "validate_analytics_ui_scaffold_ci_enforcement.py",
+        "tests/unit"
+      ]
+    },
+    {
+      "id": "generated_backend_feature_lane_template",
+      "artifact_path": "platform-standards/templates/workflows/feature-lane.backend.template.yml",
+      "required_terms": [
+        "OpenAPI Gate",
+        "Security Audit",
+        "Run unit tests"
+      ]
+    },
+    {
+      "id": "generated_backend_pr_merge_template",
+      "artifact_path": "platform-standards/templates/workflows/pr-merge-gate.backend.template.yml",
+      "required_terms": [
+        "OpenAPI Gate",
+        "Coverage Gate",
+        "Validate Docker Build"
+      ]
+    }
+  ],
+  "reusable_validators": [
+    {
+      "id": "analytics_ui_observability_contract",
+      "path": "automation/validate_analytics_ui_observability_contract.py",
+      "required_for_ci": true
+    },
+    {
+      "id": "analytics_ui_ecosystem_completion",
+      "path": "automation/validate_analytics_ui_ecosystem_completion.py",
+      "required_for_ci": true
+    },
+    {
+      "id": "analytics_ui_scaffold_ci_enforcement",
+      "path": "automation/validate_analytics_ui_scaffold_ci_enforcement.py",
+      "required_for_ci": true
+    }
+  ],
+  "proof_commands": [
+    "python automation/validate_analytics_ui_scaffold_ci_enforcement.py",
+    "python -m pytest tests/unit/test_analytics_ui_scaffold_ci_enforcement.py tests/unit/test_repository_hygiene_scaffold_contract.py -q"
+  ],
+  "runtime_work_policy": {
+    "no_app_runtime_promotion_in_slice_11": true,
+    "platform_owned_reusable_baseline": true
+  }
+}

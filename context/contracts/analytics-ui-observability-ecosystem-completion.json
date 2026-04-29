@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-10-ecosystem-contract-implemented",
+  "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -52,7 +52,7 @@
     },
     {
       "slice_id": 11,
-      "status": "planned",
+      "status": "implemented",
       "purpose": "Make uniform observability the platform default through scaffolding and CI enforcement.",
       "required_proof": ["scaffold tests", "workflow checks", "context and wiki updates"]
     },
@@ -112,8 +112,8 @@
         "platform.analytics.observability.ecosystem_hardening_certification",
         "platform.analytics.observability.ecosystem_final_closure"
       ],
-      "gap_classification": ["slice_10_implemented", "slices_11_15_16_17_18_planned"],
-      "blockers": ["platform scaffolding and CI enforcement remain planned", "ecosystem dashboards and proof remain planned"],
+      "gap_classification": ["slices_10_11_implemented", "slices_15_16_17_18_planned"],
+      "blockers": ["ecosystem dashboards and proof remain planned"],
       "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
       "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
       "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]

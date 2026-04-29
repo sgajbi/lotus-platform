@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-10-ecosystem-contract-implemented",
+  "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -398,9 +398,9 @@
     },
     {
       "feature_key": "platform.analytics.observability.scaffold_ci_enforcement",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 11 must make uniform observability, docs/wiki, OpenAPI, no-sensitive-content, supported-features, and evidence scaffolding the default for new apps and enforce the posture through reusable validators and CI templates."
+      "promotion_evidence": "Slice 11 adds generated backend no-sensitive-content and supported-features gates, a reusable Workbench observability surface template with bounded state and safe labels, a machine-readable scaffold/CI enforcement contract, validator, tests, and platform repo check wiring so scaffolding and CI templates enforce the uniform baseline."
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_dashboards_alerts",

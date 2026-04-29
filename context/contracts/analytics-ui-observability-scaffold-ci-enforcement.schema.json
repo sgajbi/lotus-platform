@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-scaffold-ci-enforcement.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "source_contracts",
+    "backend_scaffold_defaults",
+    "ui_surface_scaffold_defaults",
+    "ci_enforcement",
+    "reusable_validators",
+    "proof_commands",
+    "runtime_work_policy"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "analytics-ui-observability-scaffold-ci-enforcement"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "governed_by_rfc": {
+      "const": "RFC-0108"
+    },
+    "lifecycle_status": {
+      "const": "slice-11-scaffold-ci-enforcement-implemented"
+    },
+    "source_contracts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "backend_scaffold_defaults": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scaffoldDefault" },
+      "minItems": 1
+    },
+    "ui_surface_scaffold_defaults": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scaffoldDefault" },
+      "minItems": 1
+    },
+    "ci_enforcement": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ciCheck" },
+      "minItems": 1
+    },
+    "reusable_validators": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/validator" },
+      "minItems": 1
+    },
+    "proof_commands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "runtime_work_policy": {
+      "type": "object",
+      "required": ["no_app_runtime_promotion_in_slice_11", "platform_owned_reusable_baseline"],
+      "properties": {
+        "no_app_runtime_promotion_in_slice_11": { "const": true },
+        "platform_owned_reusable_baseline": { "const": true }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "scaffoldDefault": {
+      "type": "object",
+      "required": ["id", "artifact_path", "required_terms"],
+      "properties": {
+        "id": { "type": "string" },
+        "artifact_path": { "type": "string" },
+        "required_terms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ciCheck": {
+      "type": "object",
+      "required": ["id", "artifact_path", "required_terms"],
+      "properties": {
+        "id": { "type": "string" },
+        "artifact_path": { "type": "string" },
+        "required_terms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "validator": {
+      "type": "object",
+      "required": ["id", "path", "required_for_ci"],
+      "properties": {
+        "id": { "type": "string" },
+        "path": { "type": "string" },
+        "required_for_ci": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -64,7 +64,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-10-ecosystem-contract-implemented"
+    assert contract["lifecycle_status"] == "slice-11-scaffold-ci-enforcement-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -120,6 +120,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["platform.analytics.observability.scaffold_ci_enforcement"]
+        == "implemented"
+    )
+    assert (
         feature_status["workbench.analytics.observability.contract_vocabulary"]
         == "implemented"
     )
@@ -170,6 +174,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "platform.analytics.observability.hardening_certification",
             "platform.analytics.observability.final_closure",
             "platform.analytics.observability.ecosystem_completion_contract",
+            "platform.analytics.observability.scaffold_ci_enforcement",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",

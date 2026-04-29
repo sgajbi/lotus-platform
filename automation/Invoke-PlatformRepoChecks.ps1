@@ -16,6 +16,9 @@ try {
     & $toolingPython automation/validate_agent_engineering_contracts.py
     & $toolingPython automation/validate_heartbeat_contracts.py
     & $toolingPython automation/validate_lotus_skill_alignment.py
+    & $toolingPython automation/validate_analytics_ui_observability_contract.py
+    & $toolingPython automation/validate_analytics_ui_ecosystem_completion.py
+    & $toolingPython automation/validate_analytics_ui_scaffold_ci_enforcement.py
     & $toolingPython automation/validate_workflow_security.py
     & $toolingPython automation/validate_workflow_action_runtime.py
     & $toolingPython automation/validate_container_build_baseline.py

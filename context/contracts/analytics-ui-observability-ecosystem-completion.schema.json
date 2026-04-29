@@ -25,7 +25,10 @@
       "const": "RFC-0108"
     },
     "lifecycle_status": {
-      "const": "slice-10-ecosystem-contract-implemented"
+      "enum": [
+        "slice-10-ecosystem-contract-implemented",
+        "slice-11-scaffold-ci-enforcement-implemented"
+      ]
     },
     "participating_repositories": {
       "type": "array",

@@ -131,12 +131,14 @@
   enterprise governance, residual planned scope, and no-open-P0/P1 proof. Final closure adds a
   governed closure contract and validator, docs/context/wiki source updates, explicit no-change
   skills/guidance review, residual planned-scope preservation, and branch/wiki hygiene
-  requirements. Slice 10 is complete with a governed ecosystem-completion contract, per-app gap
-  matrix, validator, first-wave protected evidence, and branch policy. Required ecosystem Slices
-  11-18 extend the same posture uniformly across all Lotus apps, including scaffolding/CI enforcement, backend
-  supportability metrics, Gateway fan-out metrics and protected diagnostics, all Workbench
-  supported surfaces, dashboards/alerts/runbooks, live ecosystem proof,
-  hardening/certification, and final ecosystem closure. This is not an extension of RFC-0105
+  requirements. Slices 10 and 11 are complete with a governed ecosystem-completion contract,
+  per-app gap matrix, scaffold/CI enforcement contract, validators, first-wave protected evidence,
+  branch policy, generated backend no-sensitive-content and supported-features gates, reusable
+  Workbench/UI observability template, and platform repo check wiring. Required ecosystem Slices
+  12-18 extend the same posture uniformly across all Lotus apps, including backend supportability
+  metrics, Gateway fan-out metrics and protected diagnostics, all Workbench supported surfaces,
+  dashboards/alerts/runbooks, live ecosystem proof, hardening/certification, and final ecosystem
+  closure. This is not an extension of RFC-0105
   reporting observability.
 
 ## Recommended next implementation order
