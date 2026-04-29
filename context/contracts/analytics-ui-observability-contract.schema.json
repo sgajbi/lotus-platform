@@ -29,7 +29,8 @@
         "slice-1-structure-implemented",
         "slice-2-telemetry-contract-implemented",
         "slice-3-correlation-propagation-implemented",
-        "slice-4-structured-logging-implemented"
+        "slice-4-structured-logging-implemented",
+        "slice-5-metrics-dashboard-implemented"
       ]
     },
     "allowed_labels": {

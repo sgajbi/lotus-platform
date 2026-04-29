@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from pathlib import Path
+
+import yaml
 
 from automation.validate_analytics_ui_observability_contract import validate_contract
 
@@ -11,10 +14,31 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_PATH = (
     ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json"
 )
+DASHBOARD_PATH = (
+    ROOT
+    / "platform-stack"
+    / "grafana"
+    / "dashboards"
+    / "analytics-ui-observability-overview.json"
+)
+ALERT_RULES_PATH = (
+    ROOT
+    / "platform-stack"
+    / "prometheus"
+    / "rules"
+    / "analytics-ui-observability.rules.yml"
+)
 
 
 def _load_contract() -> dict:
     return json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+
+
+def _normalize_prometheus_metric_name(metric_name: str) -> str:
+    for suffix in ("_bucket", "_sum", "_count", "_created"):
+        if metric_name.endswith(suffix):
+            return metric_name[: -len(suffix)]
+    return metric_name
 
 
 def test_analytics_ui_observability_contract_artifacts_are_present_and_governed() -> (
@@ -40,7 +64,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-4-structured-logging-implemented"
+    assert contract["lifecycle_status"] == "slice-5-metrics-dashboard-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -48,9 +72,23 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
 ):
     contract = _load_contract()
 
-    assert contract["dashboards"] == []
-    assert contract["alerts"] == []
-    assert {entry["implemented"] for entry in contract["metric_families"]} == {False}
+    assert {dashboard["dashboard_id"] for dashboard in contract["dashboards"]} == {
+        "analytics-ui-observability-overview"
+    }
+    assert {alert["alert_id"] for alert in contract["alerts"]} == {
+        "analytics-ui-panel-error-rate",
+        "analytics-ui-api-request-latency-p95",
+    }
+    implemented_metrics = {
+        entry["metric_name"]
+        for entry in contract["metric_families"]
+        if entry["implemented"]
+    }
+    assert implemented_metrics == {
+        "lotus_workbench_panel_hydration_duration_seconds",
+        "lotus_workbench_panel_state_total",
+        "lotus_workbench_api_request_duration_seconds",
+    }
     feature_status = {
         entry["feature_key"]: entry["status"]
         for entry in contract["supported_feature_keys"]
@@ -69,6 +107,14 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     )
     assert (
         feature_status["workbench.analytics.observability.correlation_trace"]
+        == "implemented"
+    )
+    assert (
+        feature_status["workbench.analytics.observability.panel_state_metrics"]
+        == "implemented"
+    )
+    assert (
+        feature_status["workbench.analytics.observability.safe_dashboard"]
         == "implemented"
     )
     assert (
@@ -92,6 +138,8 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "platform.analytics.observability.telemetry_contract",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
+            "workbench.analytics.observability.panel_state_metrics",
+            "workbench.analytics.observability.safe_dashboard",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
@@ -196,7 +244,7 @@ def test_analytics_ui_observability_contract_records_telemetry_contract() -> Non
     }
 
     for event in telemetry_contract["browser_events"]:
-        assert event["implemented"] is False
+        assert event["implemented"] is True
         assert set(event["attributes"]) <= allowed_labels
         assert set(event["attributes"]).isdisjoint(forbidden_fields)
 
@@ -258,7 +306,7 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_dashboa
     contract["dashboards"].append(
         {
             "dashboard_id": "analytics-ui-overview",
-            "metric_names": ["lotus_workbench_panel_state_total"],
+            "metric_names": ["lotus_gateway_analytics_fanout_duration_seconds"],
         }
     )
 
@@ -276,7 +324,7 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_alert_c
     contract["alerts"].append(
         {
             "alert_id": "analytics-ui-panel-errors",
-            "metric_name": "lotus_workbench_panel_state_total",
+            "metric_name": "lotus_gateway_analytics_fanout_duration_seconds",
         }
     )
 
@@ -296,3 +344,78 @@ def test_analytics_ui_observability_contract_validator_rejects_sensitive_event_a
     errors = validate_contract(contract)
 
     assert any("attributes include forbidden fields" in error for error in errors)
+
+
+def test_analytics_ui_observability_dashboard_references_only_implemented_metrics() -> (
+    None
+):
+    contract = _load_contract()
+    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding="utf-8"))
+
+    implemented_metric_names = {
+        entry["metric_name"]
+        for entry in contract["metric_families"]
+        if entry["implemented"]
+    }
+    dashboard_metric_names = {
+        _normalize_prometheus_metric_name(metric_name)
+        for metric_name in re.findall(
+            r"lotus_[a-z0-9_]+", json.dumps(dashboard, sort_keys=True)
+        )
+    }
+    forbidden_variables = set(
+        contract["telemetry_contract"]["dashboard_reference_policy"][
+            "forbidden_variables"
+        ]
+    )
+    dashboard_text = json.dumps(dashboard, sort_keys=True)
+
+    assert dashboard["uid"] == "analytics-ui-observability-overview"
+    assert dashboard["title"] == "Analytics UI Observability Overview"
+    assert len(dashboard["panels"]) == 3
+    assert dashboard_metric_names <= implemented_metric_names
+    assert all(forbidden not in dashboard_text for forbidden in forbidden_variables)
+
+
+def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
+    contract = _load_contract()
+    rules = yaml.safe_load(ALERT_RULES_PATH.read_text(encoding="utf-8"))
+
+    expected_alerts = {
+        alert["alert_id"]: {
+            "metric_name": alert["metric_name"],
+            "severity": alert["severity"],
+            "owner_repo": alert["owner_repo"],
+            "runbook_path": alert["runbook_path"],
+        }
+        for alert in contract["alerts"]
+    }
+    actual_alerts = {}
+    for group in rules["groups"]:
+        for rule in group["rules"]:
+            alert_id = rule["labels"]["alert_id"]
+            actual_alerts[alert_id] = {
+                "severity": rule["labels"]["severity"],
+                "owner_repo": rule["labels"]["owner_repo"],
+                "runbook_path": rule["annotations"]["runbook"],
+                "expr": rule["expr"],
+                "annotations": rule["annotations"],
+            }
+
+    forbidden_annotations = set(
+        contract["telemetry_contract"]["alert_reference_policy"][
+            "forbidden_annotations"
+        ]
+    )
+    assert set(actual_alerts) == set(expected_alerts)
+    for alert_id, expected in expected_alerts.items():
+        actual = actual_alerts[alert_id]
+        assert actual["severity"] == expected["severity"]
+        assert actual["owner_repo"] == expected["owner_repo"]
+        assert actual["runbook_path"] == expected["runbook_path"]
+        assert expected["metric_name"] in actual["expr"]
+        serialized_annotations = json.dumps(actual["annotations"], sort_keys=True)
+        assert all(
+            forbidden not in serialized_annotations
+            for forbidden in forbidden_annotations
+        )

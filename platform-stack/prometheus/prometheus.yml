@@ -15,6 +15,11 @@ scrape_configs:
     static_configs:
       - targets: ["bff:8100"]
 
+  - job_name: "lotus-workbench"
+    metrics_path: "/api/metrics"
+    static_configs:
+      - targets: ["ui:3000"]
+
   - job_name: "lotus-core-query"
     static_configs:
       - targets: ["lotus-core-query:8001"]

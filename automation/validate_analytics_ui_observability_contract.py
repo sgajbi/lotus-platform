@@ -28,13 +28,15 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-2-telemetry-contract-implemented",
         "slice-3-correlation-propagation-implemented",
         "slice-4-structured-logging-implemented",
+        "slice-5-metrics-dashboard-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
             "lifecycle_status must be implementation-not-started, slice-0-implemented, "
             "slice-1-structure-implemented, slice-2-telemetry-contract-implemented, "
-            "slice-3-correlation-propagation-implemented, or "
-            "slice-4-structured-logging-implemented"
+            "slice-3-correlation-propagation-implemented, "
+            "slice-4-structured-logging-implemented, or "
+            "slice-5-metrics-dashboard-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -48,9 +50,17 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
     metric_families = contract.get("metric_families", [])
     if not metric_families:
         errors.append("metric_families must define planned metric candidates")
+    implementation_backed_metric_names = {
+        "lotus_workbench_panel_hydration_duration_seconds",
+        "lotus_workbench_panel_state_total",
+        "lotus_workbench_api_request_duration_seconds",
+    }
     for metric in metric_families:
         name = metric.get("metric_name", "<missing>")
-        if metric.get("implemented") is not False:
+        if name in implementation_backed_metric_names:
+            if metric.get("implemented") is not True:
+                errors.append(f"{name}: implemented must be true after Slice 5 proof")
+        elif metric.get("implemented") is not False:
             errors.append(
                 f"{name}: implemented must remain false before implementation proof"
             )
@@ -127,6 +137,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "platform.analytics.observability.telemetry_contract",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
+            "workbench.analytics.observability.panel_state_metrics",
+            "workbench.analytics.observability.safe_dashboard",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
@@ -210,13 +222,16 @@ def _validate_telemetry_events(
             continue
         event_name = str(event.get("event_name", "<missing>"))
         implementation_backed_events = {
+            "workbench.analytics.panel_hydration",
+            "workbench.analytics.panel_state",
+            "workbench.analytics.api_request",
             "gateway.analytics.fanout.completed",
             "gateway.analytics.fanout.degraded",
         }
         if event_name in implementation_backed_events:
             if event.get("implemented") is not True:
                 errors.append(
-                    f"{event_name}: implemented must be true after Slice 4 proof"
+                    f"{event_name}: implemented must be true after implementation proof"
                 )
         elif event.get("implemented") is not False:
             errors.append(

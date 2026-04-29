@@ -59,6 +59,8 @@ def test_platform_stack_prometheus_scrapes_reporting_observability_targets() -> 
     assert jobs["lotus-report"]["static_configs"][0]["targets"] == ["lotus-report:8300"]
     assert jobs["lotus-render"]["static_configs"][0]["targets"] == ["host.docker.internal:8310"]
     assert jobs["lotus-archive"]["static_configs"][0]["targets"] == ["host.docker.internal:8150"]
+    assert jobs["lotus-workbench"]["metrics_path"] == "/api/metrics"
+    assert jobs["lotus-workbench"]["static_configs"][0]["targets"] == ["ui:3000"]
 
 
 def test_platform_stack_prometheus_mounts_reporting_rules() -> None:
@@ -135,3 +137,42 @@ def test_platform_stack_reporting_rules_use_bounded_status_values() -> None:
         alert for alert in contract["alerts"] if alert["alert_id"] == "report-operation-failures"
     )
     assert report_operation_alert["metric_name"] == "lotus_report_operations_total"
+
+
+def test_platform_stack_analytics_ui_rules_align_with_contract_alerts() -> None:
+    contract = json.loads(
+        (ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    rules = _read_yaml(
+        PLATFORM_STACK_DIR / "prometheus" / "rules" / "analytics-ui-observability.rules.yml"
+    )
+
+    expected_alerts = {
+        alert["alert_id"]: {
+            "metric_name": alert["metric_name"],
+            "severity": alert["severity"],
+            "owner_repo": alert["owner_repo"],
+            "runbook_path": alert["runbook_path"],
+        }
+        for alert in contract["alerts"]
+    }
+    actual_alerts = {}
+    for group in rules["groups"]:
+        for rule in group["rules"]:
+            alert_id = rule["labels"]["alert_id"]
+            actual_alerts[alert_id] = {
+                "severity": rule["labels"]["severity"],
+                "owner_repo": rule["labels"]["owner_repo"],
+                "runbook_path": rule["annotations"]["runbook"],
+                "expr": rule["expr"],
+            }
+
+    assert set(actual_alerts) == set(expected_alerts)
+    for alert_id, expected in expected_alerts.items():
+        actual = actual_alerts[alert_id]
+        assert actual["severity"] == expected["severity"]
+        assert actual["owner_repo"] == expected["owner_repo"]
+        assert actual["runbook_path"] == expected["runbook_path"]
+        assert expected["metric_name"] in actual["expr"]
