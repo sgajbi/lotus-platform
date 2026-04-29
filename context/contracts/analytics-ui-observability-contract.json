@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-4-structured-logging-implemented",
+  "lifecycle_status": "slice-5-metrics-dashboard-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -53,26 +53,26 @@
     {
       "metric_name": "lotus_workbench_panel_hydration_duration_seconds",
       "owner_repo": "lotus-workbench",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "histogram",
-      "labels": ["route", "panel", "state", "freshness_bucket"],
-      "purpose": "planned panel hydration duration metric for certified Workbench analytics panels"
+      "labels": ["route", "panel", "service", "operation", "state", "freshness_bucket", "supportability_state"],
+      "purpose": "implementation-backed local Workbench analytics panel hydration duration event for selected performance and risk panels"
     },
     {
       "metric_name": "lotus_workbench_panel_state_total",
       "owner_repo": "lotus-workbench",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "counter",
-      "labels": ["route", "panel", "state", "reason"],
-      "purpose": "planned bounded state transition counter for certified analytics panels"
+      "labels": ["route", "panel", "service", "operation", "state", "reason", "freshness_bucket", "supportability_state"],
+      "purpose": "implementation-backed local Workbench state transition event for selected analytics panels with bounded state, reason, freshness, and supportability labels"
     },
     {
       "metric_name": "lotus_workbench_api_request_duration_seconds",
       "owner_repo": "lotus-workbench",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "histogram",
-      "labels": ["route", "operation", "status_class"],
-      "purpose": "planned Workbench BFF/API request duration metric"
+      "labels": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
+      "purpose": "implementation-backed local Workbench BFF/API request duration event for selected analytics reads"
     },
     {
       "metric_name": "lotus_gateway_analytics_fanout_duration_seconds",
@@ -125,23 +125,23 @@
       {
         "event_name": "workbench.analytics.panel_hydration",
         "owner_repo": "lotus-workbench",
-        "implemented": false,
-        "attributes": ["route", "panel", "state", "freshness_bucket", "status_class"],
-        "purpose": "planned browser-side panel hydration event for certified analytics panels"
+        "implemented": true,
+        "attributes": ["route", "panel", "service", "operation", "state", "freshness_bucket", "supportability_state"],
+        "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics panel hydration"
       },
       {
         "event_name": "workbench.analytics.panel_state",
         "owner_repo": "lotus-workbench",
-        "implemented": false,
-        "attributes": ["route", "panel", "state", "reason", "severity"],
-        "purpose": "planned browser-side state transition event for certified analytics panels"
+        "implemented": true,
+        "attributes": ["route", "panel", "service", "operation", "state", "reason", "freshness_bucket", "supportability_state"],
+        "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics panel states"
       },
       {
         "event_name": "workbench.analytics.api_request",
         "owner_repo": "lotus-workbench",
-        "implemented": false,
-        "attributes": ["route", "operation", "status_class", "error_category"],
-        "purpose": "planned Workbench BFF/API request event for analytics reads"
+        "implemented": true,
+        "attributes": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
+        "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics API reads"
       }
     ],
     "gateway_log_events": [
@@ -257,8 +257,38 @@
       "raw_request_response_capture_allowed": false
     }
   },
-  "dashboards": [],
-  "alerts": [],
+  "dashboards": [
+    {
+      "dashboard_id": "analytics-ui-observability-overview",
+      "title": "Analytics UI Observability Overview",
+      "owner_repo": "lotus-platform",
+      "artifact_path": "platform-stack/grafana/dashboards/analytics-ui-observability-overview.json",
+      "metric_names": [
+        "lotus_workbench_panel_hydration_duration_seconds",
+        "lotus_workbench_panel_state_total",
+        "lotus_workbench_api_request_duration_seconds"
+      ],
+      "forbidden_variables": []
+    }
+  ],
+  "alerts": [
+    {
+      "alert_id": "analytics-ui-panel-error-rate",
+      "metric_name": "lotus_workbench_panel_state_total",
+      "severity": "P2",
+      "owner_repo": "lotus-workbench",
+      "runbook_path": "docs/operations/analytics-ui-observability-runbook.md#analytics-ui-panel-error-rate",
+      "threshold": "any selected Workbench analytics panel records error, degraded, or permission_blocked state for 10 minutes"
+    },
+    {
+      "alert_id": "analytics-ui-api-request-latency-p95",
+      "metric_name": "lotus_workbench_api_request_duration_seconds",
+      "severity": "P3",
+      "owner_repo": "lotus-workbench",
+      "runbook_path": "docs/operations/analytics-ui-observability-runbook.md#analytics-ui-api-request-latency-p95",
+      "threshold": "selected Workbench analytics API request p95 exceeds 3 seconds for 10 minutes"
+    }
+  ],
   "supported_feature_keys": [
     {
       "feature_key": "platform.scaffolding.analytics_ui_observability_baseline",
@@ -286,15 +316,15 @@
     },
     {
       "feature_key": "workbench.analytics.observability.panel_state_metrics",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-workbench",
-      "promotion_evidence": "Panel state tests for ready, empty, partial, stale, degraded, error, permission-blocked, and unsupported states."
+      "promotion_evidence": "RFC-0108 Slice 5 adds Workbench local analytics UI metric events and tests for ready, empty, partial, stale, degraded, error, permission-blocked, unsupported, API duration, panel state, panel hydration, and sensitive-field exclusion."
     },
     {
       "feature_key": "workbench.analytics.observability.safe_dashboard",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Dashboard validation against implemented metrics and forbidden-variable tests."
+      "promotion_evidence": "RFC-0108 Slice 5 adds a platform Grafana dashboard artifact and Prometheus alert rules that reference only implemented Workbench metric-family names, with validator and unit coverage rejecting unimplemented metric references and forbidden dashboard/alert content."
     },
     {
       "feature_key": "gateway.analytics.observability.fanout_metrics",

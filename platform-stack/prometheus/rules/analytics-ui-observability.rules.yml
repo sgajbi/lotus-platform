@@ -1,0 +1,23 @@
+groups:
+  - name: analytics-ui-observability
+    rules:
+      - alert: AnalyticsUiPanelErrorRate
+        expr: sum(increase(lotus_workbench_panel_state_total{state=~"error|degraded|permission_blocked"}[10m])) > 0
+        for: 10m
+        labels:
+          alert_id: analytics-ui-panel-error-rate
+          severity: P2
+          owner_repo: lotus-workbench
+        annotations:
+          summary: Selected Workbench analytics panel has user-visible error, degraded, or permission-blocked state.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-panel-error-rate
+      - alert: AnalyticsUiApiRequestLatencyP95
+        expr: histogram_quantile(0.95, sum by (le, route, operation) (rate(lotus_workbench_api_request_duration_seconds_bucket[10m]))) > 3
+        for: 10m
+        labels:
+          alert_id: analytics-ui-api-request-latency-p95
+          severity: P3
+          owner_repo: lotus-workbench
+        annotations:
+          summary: Selected Workbench analytics API request p95 latency is above 3 seconds.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-api-request-latency-p95

@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Implementation Started; Slice 4 Complete
+- Status: Implementation Started; Slice 5 Complete
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:
@@ -77,13 +77,16 @@ Key differences:
    dashboard, and no-sensitive-content evidence exist.
 
 Gold-pass conclusion: RFC-0108 is implementation-ready as a governed execution guide. Slice 0,
-Slice 1, Slice 2, Slice 3, and Slice 4 are now implementation-backed. Slice 2 adds the platform
+Slice 1, Slice 2, Slice 3, Slice 4, and Slice 5 are now implementation-backed. Slice 2 adds the platform
 telemetry contract and code-owned Workbench/Gateway constants for event names, severity levels,
 attention/audit event types, trace attributes, dashboard/alert reference policy, and protected
 diagnostics policy. Slice 3 adds browser/BFF/gateway/backend correlation and trace propagation
 without emitting product telemetry. Slice 4 adds product-safe Gateway structured fan-out logs for
-selected Workbench performance and risk analytics operations while leaving metrics, dashboards,
-alerts, attention events, audit events, and canonical browser proof planned.
+selected Workbench performance and risk analytics operations. Slice 5 adds first-wave Workbench
+browser metric events, a Prometheus text scrape route, platform dashboard panels, and alert rules
+for selected performance-summary, performance-details, and risk-summary analytics reads while
+leaving gateway/backend metrics, attention events, audit events, and canonical browser proof
+planned.
 
 ## Critical Review Findings And Gold-Standard Corrections
 
@@ -100,12 +103,12 @@ following findings are now corrected in this RFC:
 | CI and branch hygiene were implicit. | A long-running RFC branch could drift from checks or leave repos in an unclear state. | Delivery expectations now require remote branch tracking, GitHub checks, periodic monitoring, prompt fix-forward, PR evidence, post-merge verification, and clean local repos. |
 | Skills/context review was not concrete. | Future agents could miss reusable patterns and repeat avoidable work. | Final closure now requires a conscious skills, guidance, documentation, and agent-context review with explicit change or no-change decisions. |
 
-The RFC remains pre-implementation for Workbench browser product telemetry behavior. Slice 0
-platform scaffolding, Slice 1 Workbench/Gateway observability vocabulary foundations, Slice 2
-telemetry-contract governance, Slice 3 correlation propagation, and Slice 4 Gateway structured
-fan-out logs are implementation-backed. No Workbench product metric, dashboard, API behavior
-change, attention event, audit event, or runtime-emitted Workbench UI state is implementation-backed
-until the relevant slice records code, tests, evidence, PRs, and merge state.
+Slice 0 platform scaffolding, Slice 1 Workbench/Gateway observability vocabulary foundations,
+Slice 2 telemetry-contract governance, Slice 3 correlation propagation, Slice 4 Gateway structured
+fan-out logs, and Slice 5 first-wave Workbench metrics/dashboard/alert contracts are
+implementation-backed. Gateway/backend metrics, attention events, audit events, canonical browser
+proof, and broad rollout remain planned until later slices record code, tests, evidence, PRs, and
+merge state.
 
 ## Gold-Pass Readiness Assessment
 
@@ -662,11 +665,11 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `platform.analytics.observability.telemetry_contract` | Implemented | `lotus-platform` | Slice 2 adds the governed analytics UI telemetry contract for browser events, gateway log events, severity levels, attention event types, audit event types, trace attributes, dashboard/alert reference policy, protected diagnostics policy, and validator tests without emitting runtime telemetry. |
 | `workbench.analytics.observability.correlation_trace` | Implemented | `lotus-workbench` | Slice 3 adds Workbench analytics UI correlation helpers, client-side BFF request headers, BFF proxy correlation/trace generation and malformed traceparent replacement tests, while keeping correlation and trace identifiers out of metric labels. |
 | `workbench.analytics.observability.contract_vocabulary` | Implemented | `lotus-workbench` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Workbench metric-family names without emitting product telemetry. |
-| `workbench.analytics.observability.panel_state_metrics` | Planned | `lotus-workbench` | Panel state tests for ready, empty, partial, stale, degraded, error, permission-blocked, and unsupported where in scope. |
+| `workbench.analytics.observability.panel_state_metrics` | Implemented | `lotus-workbench` | Slice 5 adds local Workbench analytics UI metric events, `/api/metrics` Prometheus text export, and tests for ready, empty, partial, stale, degraded, error, permission-blocked, unsupported, API duration, panel state, panel hydration, and sensitive-field exclusion for selected performance-summary, performance-details, and risk-summary reads. |
 | `workbench.analytics.observability.freshness_degraded_state` | Planned | `lotus-workbench`, `lotus-performance`, `lotus-risk` | Source-backed freshness/supportability contract proof and browser validation. |
 | `workbench.analytics.observability.attention_events` | Planned | `lotus-workbench`, `lotus-platform` | Attention-event contract, deduplication tests, severity tests, and operator response docs. |
 | `workbench.analytics.observability.entitlement_audit_events` | Planned | `lotus-workbench`, `lotus-gateway`, `lotus-core` | Caller-context proof, allow/deny audit tests, and sensitive-field assertions. |
-| `workbench.analytics.observability.safe_dashboard` | Planned | `lotus-platform` | Dashboard validation against implemented metrics and forbidden-variable tests. |
+| `workbench.analytics.observability.safe_dashboard` | Implemented | `lotus-platform` | Slice 5 adds a platform Grafana dashboard, Prometheus scrape config, and alert rules that reference only implemented Workbench metric-family names, with validator and unit coverage rejecting unimplemented metric references and forbidden dashboard/alert content. |
 | `gateway.analytics.observability.fanout_metrics` | Planned | `lotus-gateway` | Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes. |
 | `gateway.analytics.observability.correlation_trace` | Implemented | `lotus-gateway` | Slice 3 proves Gateway middleware accepts valid traceparent, rejects malformed traceparent, emits safe response trace headers, and forwards correlation and trace context to analytics backend clients without adding sensitive labels. |
 | `gateway.analytics.observability.contract_vocabulary` | Implemented | `lotus-gateway` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned gateway metric-family names without emitting fan-out metrics. |
@@ -718,6 +721,7 @@ Evidence review rules:
 | Slice 2: telemetry contract | `context/contracts/analytics-ui-observability-contract.json`; `automation/validate_analytics_ui_observability_contract.py`; `lotus-workbench/src/features/analytics-observability/contract.ts`; `lotus-gateway/src/app/observability/analytics_ui.py` | `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q`; `python automation\validate_analytics_ui_observability_contract.py`; `npm run test -- tests/unit/analytics-observability-contract.test.ts`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q` | Complete locally for governed telemetry names, severity levels, attention/audit event vocabularies, trace attributes, dashboard/alert reference policy, and protected diagnostics policy | Runtime correlation propagation starts in Slice 3; product telemetry remains planned. |
 | Slice 3: browser-to-gateway trace and correlation propagation | `lotus-workbench/src/features/analytics-observability/correlation.ts`; `lotus-workbench/src/app/api/bff/[...path]/route.ts`; `lotus-workbench/src/features/workbench/api.ts`; `lotus-gateway/src/app/middleware/correlation.py`; `lotus-gateway/src/app/clients/lotus_analytics_client.py` | `npm run test -- tests/unit/analytics-observability-correlation.test.ts tests/unit/bff-route.test.ts tests/unit/workbench-api.test.ts tests/unit/analytics-observability-contract.test.ts`; `npm run typecheck`; `python -m pytest tests\unit\test_correlation_middleware.py tests\unit\test_upstream_clients.py::test_lotus_analytics_client_workspace_summary_forwards_trace_context tests\unit\test_analytics_ui_observability_contract.py -q` | Complete locally for safe browser/BFF/gateway/backend correlation and trace propagation | Product telemetry, metrics, dashboards, alerts, attention events, audit events, and canonical browser proof remain planned. |
 | Slice 4: Gateway and analytics backend structured logging | `lotus-gateway/src/app/observability/analytics_ui.py`; `lotus-gateway/src/app/clients/lotus_analytics_client.py`; `context/contracts/analytics-ui-observability-contract.json` | `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_structured_fanout_log tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_unavailable_fanout_log tests\unit\test_upstream_clients.py::test_lotus_analytics_client_workspace_summary_forwards_trace_context -q`; `python automation\validate_analytics_ui_observability_contract.py`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q` | Complete locally for product-safe Gateway structured fan-out logs over selected Workbench performance and risk analytics operations | Metrics, dashboards, alerts, attention events, audit events, Workbench browser telemetry, and canonical browser proof remain planned. |
+| Slice 5: Metrics, dashboards, alerts, and freshness contracts | `lotus-workbench/src/features/analytics-observability/metrics.ts`; `lotus-workbench/src/app/api/metrics/route.ts`; `lotus-platform/context/contracts/analytics-ui-observability-contract.json`; `lotus-platform/platform-stack/grafana/dashboards/analytics-ui-observability-overview.json`; `lotus-platform/platform-stack/prometheus/rules/analytics-ui-observability.rules.yml`; `lotus-platform/platform-stack/prometheus/prometheus.yml` | `npm run test -- tests/unit/analytics-observability-metrics.test.ts tests/unit/workbench-api.test.ts tests/unit/analytics-observability-contract.test.ts tests/unit/metrics-route.test.ts`; `npm run typecheck`; `python automation\validate_analytics_ui_observability_contract.py`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_platform_stack_observability_contract.py -q`; `python -m ruff check automation\validate_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_platform_stack_observability_contract.py` | Complete locally for first-wave Workbench metric events, Prometheus text export, platform scrape config, dashboard panels, alert rules, state classification, freshness buckets, and sensitive-field exclusion for selected analytics reads | Gateway/backend metrics, attention events, audit events, and canonical browser proof remain planned. |
 
 ## Final Gold-Pass Assessment
 
@@ -748,7 +752,14 @@ metrics, keep request/response payloads out of telemetry, preserve backend sourc
 warnings, partial failures, and supportability state, and do not expose portfolio or client
 identifiers as fields or labels.
 
-Implementation must not move to dashboard, alert, attention-event, audit-event, or Workbench
-browser telemetry claims until Slice 5 state metrics/freshness work is completed and validated.
-Workbench browser telemetry, gateway/backend metrics, dashboards, alerts, attention events, audit
-events, and canonical `PB_SG_GLOBAL_BAL_001` browser proof remain planned.
+Slice 5 is complete for first-wave Workbench metrics, dashboards, alerts, and freshness contracts.
+Workbench now records bounded local browser metric events for selected performance-summary,
+performance-details, and risk-summary analytics reads, classifies ready, empty, partial, stale,
+degraded, error, permission-blocked, and unsupported states, exposes implemented metric families
+through `/api/metrics`, and excludes portfolio, client, trace, correlation, request/response body,
+and screen-content fields from labels. Platform now records the implemented metric inventory,
+scrapes the Workbench metrics route in the platform stack, and owns Grafana dashboard and
+Prometheus alert artifacts that validate against implemented metrics only.
+
+Gateway/backend metrics, attention events, audit events, and canonical `PB_SG_GLOBAL_BAL_001`
+browser proof remain planned.
