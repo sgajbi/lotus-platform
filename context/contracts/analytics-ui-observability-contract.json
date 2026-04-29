@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-3-correlation-propagation-implemented",
+  "lifecycle_status": "slice-4-structured-logging-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -148,16 +148,32 @@
       {
         "event_name": "gateway.analytics.fanout.completed",
         "owner_repo": "lotus-gateway",
-        "implemented": false,
-        "attributes": ["operation", "service", "status_class", "supportability_state"],
-        "purpose": "planned product-safe structured log for analytics fan-out completion"
+        "implemented": true,
+        "attributes": [
+          "route",
+          "operation",
+          "service",
+          "state",
+          "status_class",
+          "supportability_state"
+        ],
+        "purpose": "implementation-backed product-safe structured log for analytics fan-out completion"
       },
       {
         "event_name": "gateway.analytics.fanout.degraded",
         "owner_repo": "lotus-gateway",
-        "implemented": false,
-        "attributes": ["operation", "service", "reason", "severity"],
-        "purpose": "planned product-safe structured log for degraded analytics fan-out"
+        "implemented": true,
+        "attributes": [
+          "route",
+          "operation",
+          "service",
+          "state",
+          "reason",
+          "supportability_state",
+          "status_class",
+          "error_category"
+        ],
+        "purpose": "implementation-backed product-safe structured log for degraded analytics fan-out"
       }
     ],
     "trace_attributes": [
@@ -284,7 +300,13 @@
       "feature_key": "gateway.analytics.observability.fanout_metrics",
       "status": "planned",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "Fan-out metric/log tests, backend reconciliation, and OpenAPI/API certification evidence where API shape changes."
+      "promotion_evidence": "Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes."
+    },
+    {
+      "feature_key": "gateway.analytics.observability.structured_fanout_logs",
+      "status": "implemented",
+      "owner_repo": "lotus-gateway",
+      "promotion_evidence": "RFC-0108 Slice 4 emits product-safe structured gateway fan-out logs for selected Workbench performance and risk analytics operations with route, service, operation, state, supportability, status class, bounded reason, and no sensitive request/response payload fields."
     },
     {
       "feature_key": "gateway.analytics.observability.correlation_trace",

@@ -247,7 +247,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 implementation has started with Slice 3 complete. It governs front-office analytics
+12. RFC-0108 implementation has started with Slice 4 complete. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -268,9 +268,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     attributes, dashboard/alert reference policy, protected diagnostics policy, and matching
     Workbench/Gateway code-owned constants and tests. Slice 3 added safe Workbench browser/BFF/
     gateway/backend correlation and trace propagation with malformed traceparent replacement and
-    backend analytics-client forwarding proof. Workbench instrumentation, gateway/backend metrics,
-    dashboards, alerts, attention events, audit events, and canonical browser proof remain planned
-    until later slices.
+    backend analytics-client forwarding proof. Slice 4 added product-safe Gateway structured
+    fan-out logs for selected Workbench performance and risk analytics operations, preserving
+    source-backed warnings, partial failures, supportability state, status class, and bounded
+    degraded reasons without request/response payload fields or portfolio/client identifiers.
+    Workbench instrumentation, gateway/backend metrics, dashboards, alerts, attention events,
+    audit events, and canonical browser proof remain planned until later slices.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

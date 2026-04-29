@@ -27,12 +27,14 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-1-structure-implemented",
         "slice-2-telemetry-contract-implemented",
         "slice-3-correlation-propagation-implemented",
+        "slice-4-structured-logging-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
             "lifecycle_status must be implementation-not-started, slice-0-implemented, "
             "slice-1-structure-implemented, slice-2-telemetry-contract-implemented, "
-            "or slice-3-correlation-propagation-implemented"
+            "slice-3-correlation-propagation-implemented, or "
+            "slice-4-structured-logging-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -126,6 +128,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "gateway.analytics.observability.correlation_trace",
+            "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
         }
         if key in implemented_foundation_keys:
@@ -206,7 +209,16 @@ def _validate_telemetry_events(
             errors.append(f"telemetry_contract.{section_name} entries must be objects")
             continue
         event_name = str(event.get("event_name", "<missing>"))
-        if event.get("implemented") is not False:
+        implementation_backed_events = {
+            "gateway.analytics.fanout.completed",
+            "gateway.analytics.fanout.degraded",
+        }
+        if event_name in implementation_backed_events:
+            if event.get("implemented") is not True:
+                errors.append(
+                    f"{event_name}: implemented must be true after Slice 4 proof"
+                )
+        elif event.get("implemented") is not False:
             errors.append(
                 f"{event_name}: implemented must remain false before runtime proof"
             )
