@@ -1,0 +1,190 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_OBSERVABILITY_CONTRACT_PATH = (
+    ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json"
+)
+DEFAULT_ROLLOUT_CONTRACT_PATH = (
+    ROOT
+    / "context"
+    / "contracts"
+    / "analytics-ui-observability-rollout-readiness.json"
+)
+DEFAULT_PANEL_REGISTRY_PATH = ROOT / "context" / "contracts" / "workbench-panel-registry.json"
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_rollout_readiness(
+    *,
+    observability_contract: dict[str, Any],
+    rollout_contract: dict[str, Any],
+    panel_registry: dict[str, Any],
+) -> list[str]:
+    errors: list[str] = []
+    if rollout_contract.get("contract_id") != "analytics-ui-observability-rollout-readiness":
+        errors.append("contract_id must be analytics-ui-observability-rollout-readiness")
+    if rollout_contract.get("governed_by_rfc") != "RFC-0108":
+        errors.append("governed_by_rfc must be RFC-0108")
+    if rollout_contract.get("lifecycle_status") != "slice-9-rollout-readiness-implemented":
+        errors.append("lifecycle_status must be slice-9-rollout-readiness-implemented")
+
+    source_proof = rollout_contract.get("source_proof", {})
+    if source_proof.get("source_slice") != "Slice 8":
+        errors.append("source_proof.source_slice must be Slice 8")
+    if source_proof.get("canonical_portfolio") != "PB_SG_GLOBAL_BAL_001":
+        errors.append("source_proof.canonical_portfolio must be PB_SG_GLOBAL_BAL_001")
+    if source_proof.get("canonical_benchmark") != "BMK_PB_GLOBAL_BALANCED_60_40":
+        errors.append(
+            "source_proof.canonical_benchmark must be BMK_PB_GLOBAL_BALANCED_60_40"
+        )
+    if not source_proof.get("merge_commit"):
+        errors.append("source_proof.merge_commit is required")
+    if not source_proof.get("pull_request"):
+        errors.append("source_proof.pull_request is required")
+    if not source_proof.get("evidence_artifacts"):
+        errors.append("source_proof.evidence_artifacts must be non-empty")
+
+    registry_panels = {
+        str(panel.get("panel_id")): panel
+        for panel in panel_registry.get("panels", [])
+        if isinstance(panel, dict)
+    }
+    certified_route_groups = rollout_contract.get("certified_route_groups", [])
+    if not certified_route_groups:
+        errors.append("certified_route_groups must be non-empty")
+    certified_panel_ids: set[str] = set()
+    for group in certified_route_groups:
+        route = str(group.get("route", ""))
+        status = group.get("certification_status")
+        panel_ids = [str(panel_id) for panel_id in group.get("panel_ids", [])]
+        if status not in {"certified", "certified_partial"}:
+            errors.append(f"{route}: certification_status is not supported")
+        if status == "certified_partial" and not group.get("residual_scope"):
+            errors.append(f"{route}: certified_partial groups require residual_scope")
+        if not panel_ids:
+            errors.append(f"{route}: panel_ids must be non-empty")
+        if not group.get("evidence_basis"):
+            errors.append(f"{route}: evidence_basis is required")
+        for panel_id in panel_ids:
+            certified_panel_ids.add(panel_id)
+            if panel_id not in registry_panels:
+                errors.append(f"{route}: unknown panel_id {panel_id}")
+                continue
+            registry_route = str(registry_panels[panel_id].get("route", ""))
+            if registry_route != route:
+                errors.append(
+                    f"{panel_id}: rollout route {route} does not match registry route "
+                    f"{registry_route}"
+                )
+
+    registry_evidence_panels = {
+        panel_id
+        for panel_id, panel in registry_panels.items()
+        if panel.get("evidence_required") is True
+    }
+    missing_certified_panels = sorted(registry_evidence_panels - certified_panel_ids)
+    if missing_certified_panels:
+        errors.append(
+            "certified_route_groups missing evidence-required panels: "
+            f"{missing_certified_panels}"
+        )
+
+    checklist = rollout_contract.get("rollout_checklist", [])
+    required_checklist_terms = {
+        "panel registry",
+        "sensitive-content",
+        "supported-features",
+        "dashboard",
+        "browser proof",
+        "residual",
+    }
+    checklist_text = " ".join(
+        f"{item.get('step', '')} {item.get('required_evidence', '')}".lower()
+        for item in checklist
+        if isinstance(item, dict)
+    )
+    for term in required_checklist_terms:
+        if term not in checklist_text:
+            errors.append(f"rollout_checklist must cover {term}")
+
+    proof_types = {
+        str(case.get("proof_type"))
+        for case in rollout_contract.get("validator_proof_cases", [])
+        if isinstance(case, dict)
+    }
+    if "forbidden-label" not in proof_types:
+        errors.append("validator_proof_cases must include forbidden-label proof")
+    if "unimplemented-metric-reference" not in proof_types:
+        errors.append(
+            "validator_proof_cases must include unimplemented-metric-reference proof"
+        )
+    for case in rollout_contract.get("validator_proof_cases", []):
+        if not case.get("test_name") or not case.get("expected_failure"):
+            errors.append("validator_proof_cases require test_name and expected_failure")
+
+    feature_status = {
+        str(feature.get("feature_key")): str(feature.get("status"))
+        for feature in observability_contract.get("supported_feature_keys", [])
+        if isinstance(feature, dict)
+    }
+    rollout_feature_status = feature_status.get(
+        "platform.analytics.observability.rollout_readiness"
+    )
+    if rollout_feature_status != "implemented":
+        errors.append(
+            "platform.analytics.observability.rollout_readiness must be implemented"
+        )
+    for residual in rollout_contract.get("residual_scope", []):
+        feature_key = str(residual.get("feature_key", ""))
+        if residual.get("status") != "planned":
+            errors.append(f"{feature_key}: residual status must remain planned")
+        if feature_status.get(feature_key) != "planned":
+            errors.append(
+                f"{feature_key}: residual feature must exist in supported features "
+                "with planned status"
+            )
+        for required_field in ("owner_repo", "blocker", "next_action"):
+            if not residual.get(required_field):
+                errors.append(f"{feature_key}: {required_field} is required")
+
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Validate RFC-0108 analytics UI rollout readiness contract."
+    )
+    parser.add_argument(
+        "--observability-contract",
+        type=Path,
+        default=DEFAULT_OBSERVABILITY_CONTRACT_PATH,
+    )
+    parser.add_argument(
+        "--rollout-contract", type=Path, default=DEFAULT_ROLLOUT_CONTRACT_PATH
+    )
+    parser.add_argument("--panel-registry", type=Path, default=DEFAULT_PANEL_REGISTRY_PATH)
+    args = parser.parse_args()
+
+    errors = validate_rollout_readiness(
+        observability_contract=_load_json(args.observability_contract),
+        rollout_contract=_load_json(args.rollout_contract),
+        panel_registry=_load_json(args.panel_registry),
+    )
+    if errors:
+        for error in errors:
+            print(error)
+        return 1
+    print("Analytics UI rollout readiness validation passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

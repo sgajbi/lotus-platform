@@ -32,6 +32,12 @@ Current contracts:
    names, severity levels, attention/audit event types, trace attributes, dashboard/alert reference
    policy, protected diagnostics policy, supported-feature keys, evidence requirements, and
    scaffold requirements.
+9. `analytics-ui-observability-rollout-readiness.schema.json`
+   The governed schema for RFC-0108 analytics UI rollout readiness after canonical proof.
+10. `analytics-ui-observability-rollout-readiness.json`
+   The RFC-0108 Slice 9 expansion contract that records certified Workbench route and panel scope,
+   the reusable rollout checklist, validator proof cases, and residual planned scope before broader
+   analytics UI observability claims are promoted.
 
 Rules:
 
