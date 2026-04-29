@@ -27,7 +27,8 @@
         "implementation-not-started",
         "slice-0-implemented",
         "slice-1-structure-implemented",
-        "slice-2-telemetry-contract-implemented"
+        "slice-2-telemetry-contract-implemented",
+        "slice-3-correlation-propagation-implemented"
       ]
     },
     "allowed_labels": {
