@@ -38,6 +38,13 @@ Current contracts:
    The RFC-0108 Slice 9 expansion contract that records certified Workbench route and panel scope,
    the reusable rollout checklist, validator proof cases, and residual planned scope before broader
    analytics UI observability claims are promoted.
+11. `analytics-ui-observability-hardening-review.schema.json`
+    The governed schema for the RFC-0108 second-last hardening, API/Swagger certification, and
+    governance review.
+12. `analytics-ui-observability-hardening-review.json`
+    The RFC-0108 second-last review contract that records telemetry-field review, panel-state
+    review, API/Swagger applicability, dashboard/alert certification, enterprise-governance
+    posture, findings, residual scope, local proof commands, and required GitHub checks.
 
 Rules:
 

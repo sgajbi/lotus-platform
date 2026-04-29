@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-9-rollout-readiness-implemented",
+  "lifecycle_status": "second-last-hardening-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -377,6 +377,12 @@
       "status": "implemented",
       "owner_repo": "lotus-platform",
       "promotion_evidence": "RFC-0108 Slice 9 adds a machine-readable rollout-readiness contract, validator, and unit tests that tie certified Workbench route/panel scope to Slice 8 proof, separate planned residual scope, and prove validators reject forbidden labels and unimplemented metric references."
+    },
+    {
+      "feature_key": "platform.analytics.observability.hardening_certification",
+      "status": "implemented",
+      "owner_repo": "lotus-platform",
+      "promotion_evidence": "RFC-0108 second-last slice adds a machine-readable hardening review contract, validator, and tests covering telemetry fields, panel states, API/Swagger applicability, dashboard and alert certification, enterprise governance, residual planned scope, and no open P0/P1 findings before closure."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",

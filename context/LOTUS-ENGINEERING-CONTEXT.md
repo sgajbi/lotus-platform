@@ -247,7 +247,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 implementation has started with Slice 9 complete. It governs front-office analytics
+12. RFC-0108 implementation has started with second-last hardening complete. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -292,7 +292,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     scope to Slice 8 proof, recording the reusable expansion checklist, proving forbidden-label
     and unimplemented-metric validator failures, and keeping gateway/backend metrics, protected
     diagnostics lookup audit, full caller-context entitlement certification, and broad rollout
-    planned until later slices.
+    planned until later slices. The second-last slice added
+    `context/contracts/analytics-ui-observability-hardening-review.json` and
+    `automation/validate_analytics_ui_hardening_review.py`, validating telemetry fields, panel
+    states, API/Swagger applicability, dashboard/alert certification, enterprise governance,
+    residual planned scope, and no-open-P0/P1 findings before final closure.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
