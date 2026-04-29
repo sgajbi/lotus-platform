@@ -64,7 +64,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-7-audit-events-implemented"
+    assert contract["lifecycle_status"] == "slice-8-canonical-proof-implemented"
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -128,6 +128,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status["workbench.analytics.observability.canonical_proof"]
+        == "implemented"
+    )
+    assert (
         feature_status["gateway.analytics.observability.contract_vocabulary"]
         == "implemented"
     )
@@ -152,6 +156,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
+            "workbench.analytics.observability.canonical_proof",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",

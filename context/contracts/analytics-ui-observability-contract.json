@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-7-audit-events-implemented",
+  "lifecycle_status": "slice-8-canonical-proof-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -407,6 +407,12 @@
       "status": "implemented",
       "owner_repo": "lotus-gateway",
       "promotion_evidence": "RFC-0108 Slice 7 adds Gateway product-safe analytics read audit logs for selected Workbench performance and risk analytics reads. Successful upstream reads emit analytics_read_allowed, 401/403 upstream denials emit analytics_read_denied, and tests prove bounded audit fields plus exclusion of portfolio, client, request, response, and raw entitlement failure content. Protected diagnostics lookup audit remains planned until a protected diagnostics API exists."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.canonical_proof",
+      "status": "implemented",
+      "owner_repo": "lotus-platform/lotus-workbench",
+      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions while leaving gateway/backend metrics, protected diagnostics lookup audit, and full caller-context entitlement certification planned."
     },
     {
       "feature_key": "gateway.analytics.observability.fanout_metrics",
