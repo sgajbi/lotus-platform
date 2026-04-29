@@ -31,6 +31,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-5-metrics-dashboard-implemented",
         "slice-6-attention-events-implemented",
         "slice-7-audit-events-implemented",
+        "slice-8-canonical-proof-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -40,7 +41,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "slice-4-structured-logging-implemented, "
             "slice-5-metrics-dashboard-implemented, or "
             "slice-6-attention-events-implemented, or "
-            "slice-7-audit-events-implemented"
+            "slice-7-audit-events-implemented, or "
+            "slice-8-canonical-proof-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -146,6 +148,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
+            "workbench.analytics.observability.canonical_proof",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",

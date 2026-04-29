@@ -32,7 +32,8 @@
         "slice-4-structured-logging-implemented",
         "slice-5-metrics-dashboard-implemented",
         "slice-6-attention-events-implemented",
-        "slice-7-audit-events-implemented"
+        "slice-7-audit-events-implemented",
+        "slice-8-canonical-proof-implemented"
       ]
     },
     "allowed_labels": {

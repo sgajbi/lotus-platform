@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Implementation Started; Slice 7 Complete
+- Status: Implementation Started; Slice 8 Complete
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:
@@ -77,7 +77,7 @@ Key differences:
    dashboard, and no-sensitive-content evidence exist.
 
 Gold-pass conclusion: RFC-0108 is implementation-ready as a governed execution guide. Slice 0,
-Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, and Slice 7 are now
+Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, Slice 7, and Slice 8 are now
 implementation-backed. Slice 2 adds the platform
 telemetry contract and code-owned Workbench/Gateway constants for event names, severity levels,
 attention/audit event types, trace attributes, dashboard/alert reference policy, and protected
@@ -90,8 +90,11 @@ adds bounded Workbench attention events for stale, degraded, partial-source, and
 selected analytics panel states. Slice 7 adds product-safe Gateway analytics read audit logs for
 selected Workbench performance and risk analytics reads, with successful upstream reads emitting
 bounded `analytics_read_allowed` events and upstream `401`/`403` denials emitting bounded
-`analytics_read_denied` events. Gateway/backend metrics, protected diagnostics lookup audit, and
-canonical browser proof remain planned.
+`analytics_read_denied` events. Slice 8 adds platform-owned canonical proof review and live
+governed Workbench proof for `PB_SG_GLOBAL_BAL_001`, including API checks, browser screenshots,
+calculation sanity, panel classifications, Workbench `/api/metrics` exposure, dashboard/alert
+metric reconciliation, and sensitive-content assertions. Gateway/backend metrics, protected
+diagnostics lookup audit, and full caller-context entitlement certification remain planned.
 
 ## Critical Review Findings And Gold-Standard Corrections
 
@@ -111,9 +114,10 @@ following findings are now corrected in this RFC:
 Slice 0 platform scaffolding, Slice 1 Workbench/Gateway observability vocabulary foundations,
 Slice 2 telemetry-contract governance, Slice 3 correlation propagation, Slice 4 Gateway structured
 fan-out logs, Slice 5 first-wave Workbench metrics/dashboard/alert contracts, Slice 6 Workbench
-attention events, and Slice 7 Gateway analytics read audit events are implementation-backed.
-Gateway/backend metrics, protected diagnostics lookup audit, canonical browser proof, and broad
-rollout remain planned until later slices record code, tests, evidence, PRs, and merge state.
+attention events, Slice 7 Gateway analytics read audit events, and Slice 8 canonical Workbench
+proof are implementation-backed. Gateway/backend metrics, protected diagnostics lookup audit, full
+caller-context entitlement certification, and broad rollout remain planned until later slices record
+code, tests, evidence, PRs, and merge state.
 
 ## Gold-Pass Readiness Assessment
 
@@ -674,6 +678,7 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `workbench.analytics.observability.freshness_degraded_state` | Planned | `lotus-workbench`, `lotus-performance`, `lotus-risk` | Source-backed freshness/supportability contract proof and browser validation. |
 | `workbench.analytics.observability.attention_events` | Implemented | `lotus-workbench`, `lotus-platform` | Slice 6 adds Workbench attention events and the `lotus_analytics_ui_attention_events_total` counter for stale, degraded, partial-source, and repeated-failure selected analytics panel states, with deduplication tests, bounded severity tests, source-backed reason codes, dashboard/alert contract coverage, and operator response docs. |
 | `workbench.analytics.observability.entitlement_audit_events` | Implemented | `lotus-gateway` | Slice 7 adds Gateway product-safe selected analytics read audit logs. Successful upstream reads emit `analytics_read_allowed`; upstream `401`/`403` denials emit `analytics_read_denied`; tests prove bounded audit fields and exclusion of portfolio, client, request/response body, and raw entitlement-failure content. Full caller-context entitlement certification and protected diagnostics lookup audit remain planned. |
+| `workbench.analytics.observability.canonical_proof` | Implemented | `lotus-platform`, `lotus-workbench` | Slice 8 adds platform-owned canonical proof review plus governed live Workbench proof for `PB_SG_GLOBAL_BAL_001`: API checks, calculation sanity, panel classifications, browser screenshots, Workbench `/api/metrics` family exposure, dashboard/alert metric reconciliation, and sensitive-content assertions. |
 | `workbench.analytics.observability.safe_dashboard` | Implemented | `lotus-platform` | Slice 5 adds a platform Grafana dashboard, Prometheus scrape config, and alert rules that reference only implemented Workbench metric-family names, with validator and unit coverage rejecting unimplemented metric references and forbidden dashboard/alert content. |
 | `gateway.analytics.observability.fanout_metrics` | Planned | `lotus-gateway` | Fan-out metric tests, dashboard reconciliation, and OpenAPI/API certification evidence where API shape changes. |
 | `gateway.analytics.observability.correlation_trace` | Implemented | `lotus-gateway` | Slice 3 proves Gateway middleware accepts valid traceparent, rejects malformed traceparent, emits safe response trace headers, and forwards correlation and trace context to analytics backend clients without adding sensitive labels. |
@@ -729,6 +734,7 @@ Evidence review rules:
 | Slice 5: Metrics, dashboards, alerts, and freshness contracts | `lotus-workbench/src/features/analytics-observability/metrics.ts`; `lotus-workbench/src/app/api/metrics/route.ts`; `lotus-platform/context/contracts/analytics-ui-observability-contract.json`; `lotus-platform/platform-stack/grafana/dashboards/analytics-ui-observability-overview.json`; `lotus-platform/platform-stack/prometheus/rules/analytics-ui-observability.rules.yml`; `lotus-platform/platform-stack/prometheus/prometheus.yml` | `npm run test -- tests/unit/analytics-observability-metrics.test.ts tests/unit/workbench-api.test.ts tests/unit/analytics-observability-contract.test.ts tests/unit/metrics-route.test.ts`; `npm run typecheck`; `python automation\validate_analytics_ui_observability_contract.py`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_platform_stack_observability_contract.py -q`; `python -m ruff check automation\validate_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_platform_stack_observability_contract.py` | Complete locally for first-wave Workbench metric events, Prometheus text export, platform scrape config, dashboard panels, alert rules, state classification, freshness buckets, and sensitive-field exclusion for selected analytics reads | Gateway/backend metrics, attention events, audit events, and canonical browser proof remain planned. |
 | Slice 6: UI state and attention events | `lotus-workbench/src/features/analytics-observability/metrics.ts`; `lotus-workbench/src/features/analytics-observability/contract.ts`; `lotus-platform/context/contracts/analytics-ui-observability-contract.json`; `lotus-platform/platform-stack/grafana/dashboards/analytics-ui-observability-overview.json`; `lotus-platform/platform-stack/prometheus/rules/analytics-ui-observability.rules.yml`; `lotus-platform/docs/operations/analytics-ui-observability-runbook.md` | `npm run test -- tests/unit/analytics-observability-metrics.test.ts tests/unit/analytics-observability-contract.test.ts tests/unit/metrics-route.test.ts`; `npm run typecheck`; `python automation\validate_analytics_ui_observability_contract.py`; `python -m json.tool context\contracts\analytics-ui-observability-contract.json`; `python -m json.tool platform-stack\grafana\dashboards\analytics-ui-observability-overview.json` | Complete locally for bounded Workbench attention events, attention counter export, repeated-failure thresholding, deduplication, dashboard/alert contract references, operator runbook guidance, and sensitive-field exclusion | Gateway/backend metrics, read audit events, protected diagnostics lookup audit, and canonical browser proof remain planned. |
 | Slice 7: audit events for entitlement-relevant reads and privileged actions | `lotus-gateway/src/app/observability/analytics_ui.py`; `lotus-gateway/src/app/clients/lotus_analytics_client.py`; `lotus-platform/context/contracts/analytics-ui-observability-contract.json`; `lotus-platform/docs/operations/analytics-ui-observability-runbook.md` | `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_structured_fanout_log tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_read_allowed_audit_log tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_read_denied_audit_log tests\unit\test_upstream_clients.py::test_lotus_analytics_client_emits_safe_unavailable_fanout_log -q`; `python automation\validate_analytics_ui_observability_contract.py`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_platform_stack_observability_contract.py -q` | Complete locally for Gateway selected analytics read allow/deny audit logs, bounded audit field validation, upstream denial classification, and sensitive-field exclusion | Gateway/backend metrics, protected diagnostics lookup audit, full caller-context entitlement certification, and canonical browser proof remain planned. |
+| Slice 8: canonical Workbench implementation proof | `automation/review_analytics_ui_canonical_proof.py`; `tests/unit/test_analytics_ui_canonical_proof_review.py`; `output/front-office-qa/canonical-front-office-qa-20260429-131616.json`; `output/rfc-0108-slice-8-canonical/live-validation-summary.json`; `output/rfc-0108-slice-8-canonical/SHOT-INDEX.md`; Workbench `/api/metrics` live response | `powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -KeepRunning -LotusAiEnvFile .env.example -ScreenshotDirectory output\rfc-0108-slice-8-canonical`; `python automation\review_analytics_ui_canonical_proof.py output\front-office-qa\canonical-front-office-qa-20260429-131616.json`; `Invoke-WebRequest -UseBasicParsing http://workbench.dev.lotus/api/metrics`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py tests\unit\test_analytics_ui_canonical_proof_review.py -q` | Complete locally for governed `PB_SG_GLOBAL_BAL_001` live proof: canonical seed verified, API checks passed, calculation sanity passed, seven browser screenshots were captured after validation, panel classifications reconciled with the registry, dashboard/alert artifacts referenced only implemented metrics, Workbench exposed all four implemented metric families, and the proof reviewer passed no-sensitive and reconciliation checks | Gateway/backend metrics, protected diagnostics lookup audit, full caller-context entitlement certification, and broad rollout remain planned. |
 
 ## Final Gold-Pass Assessment
 
@@ -786,5 +792,20 @@ client, request/response body, and raw entitlement-failure content are excluded.
 not claim full caller-context entitlement certification or protected diagnostics lookup audit;
 those remain planned until the protected diagnostics and caller-context model exists.
 
+Slice 8 is complete for canonical Workbench implementation proof. The governed runtime was brought
+up with `PB_SG_GLOBAL_BAL_001` and `BMK_PB_GLOBAL_BALANCED_60_40`, the seed converged to complete
+position and cash quality, API checks passed through the Gateway, calculation sanity checks passed,
+panel classifications reconciled with the governed registry, and seven browser screenshots were
+captured after validation for portfolio summary, portfolio detailed, performance summary,
+performance analysis, advisor brief, risk, and evidence panels. Platform added
+`automation/review_analytics_ui_canonical_proof.py` plus unit tests so the proof bundle is reviewed
+for live-summary presence, screenshot/index completeness, calculation and panel evidence,
+dashboard/alert implemented-metric reconciliation, and forbidden sensitive evidence terms. The live
+Workbench `/api/metrics` endpoint exposed the four implemented metric families:
+`lotus_workbench_panel_hydration_duration_seconds`, `lotus_workbench_panel_state_total`,
+`lotus_workbench_api_request_duration_seconds`, and `lotus_analytics_ui_attention_events_total`.
+The evidence panel remains truthfully classified as `partial`; this is an implementation-backed
+supportability state, not a cosmetic success claim.
+
 Gateway/backend metrics, protected diagnostics lookup audit, full caller-context entitlement
-certification, and canonical `PB_SG_GLOBAL_BAL_001` browser proof remain planned.
+certification, and broad rollout beyond the canonical path remain planned.
