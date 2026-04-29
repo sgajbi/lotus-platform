@@ -141,7 +141,8 @@
   supportability metrics, the remaining all UI-facing Gateway fan-out rollout, all Workbench
   supported surfaces, dashboards/alerts/runbooks, live ecosystem proof, hardening/certification,
   and final ecosystem closure. Slice 13 already has partial Gateway proof for selected fan-out
-  metrics and protected diagnostics lookup. This is not an extension of RFC-0105
+  metrics, protected diagnostics lookup, and central manage/report/archive/AI client fan-out
+  metrics. This is not an extension of RFC-0105
   reporting observability.
 
 ## Recommended next implementation order

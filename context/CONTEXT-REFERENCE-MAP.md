@@ -283,8 +283,8 @@ The current reporting and analytics observability governance references are:
    the same posture uniformly across all Lotus apps, including the remaining backend supportability
    metrics, the remaining all UI-facing Gateway fan-out rollout, all Workbench supported surfaces,
    dashboards/alerts/runbooks, live ecosystem proof, hardening/certification, and final ecosystem
-   closure. Slice 13 already has partial Gateway proof for selected fan-out metrics and protected
-   diagnostics lookup.
+   closure. Slice 13 already has partial Gateway proof for selected fan-out metrics, protected
+   diagnostics lookup, and central manage/report/archive/AI client fan-out metrics.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

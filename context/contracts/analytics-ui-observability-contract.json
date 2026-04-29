@@ -495,7 +495,7 @@
       "feature_key": "gateway.analytics.observability.fanout_metrics",
       "status": "implemented",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Tests prove bounded labels, metric increments, and forbidden sensitive-label rejection. Protected diagnostics is now implementation-backed; all UI fan-out path coverage remains planned."
+      "promotion_evidence": "RFC-0108 Slice 13 partial implementation emits lotus_gateway_analytics_fanout_duration_seconds and lotus_gateway_analytics_degraded_total from the existing selected Workbench performance and risk analytics fan-out path. Gateway PR #163 expands the same bounded fan-out wrapper to central lotus-manage, lotus-report, lotus-archive, and lotus-ai client seams with explicit operation labels so proposal, job, document, run, portfolio, prompt, and model-output content never become telemetry dimensions. Tests prove bounded labels, metric increments, forbidden sensitive-label rejection, and safe degraded records. Protected diagnostics is now implementation-backed; remaining direct core-query path coverage keeps all UI fan-out rollout planned."
     },
     {
       "feature_key": "gateway.analytics.observability.protected_diagnostics",
@@ -507,7 +507,7 @@
       "feature_key": "gateway.analytics.observability.all_ui_fanout_paths",
       "status": "planned",
       "owner_repo": "lotus-gateway",
-      "promotion_evidence": "Slice 13 must apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and diagnostics to all UI-facing Gateway operations."
+      "promotion_evidence": "Slice 13 has partial coverage for selected Workbench performance/risk analytics and the central manage, report, archive, and AI client seams. Remaining direct core-query Gateway paths must still apply safe fan-out logs, metrics, trace propagation, degraded-state classification, audits, and diagnostics before this feature can be promoted."
     },
     {
       "feature_key": "gateway.analytics.observability.structured_fanout_logs",

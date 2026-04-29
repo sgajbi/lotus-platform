@@ -27,8 +27,9 @@ Current contracts:
    The governed schema for the RFC-0108 front-office analytics UI observability contract.
 8. `analytics-ui-observability-contract.json`
    The RFC-0108 inventory of implemented first-wave Workbench analytics UI metric and attention
-   event families, implemented Gateway analytics fan-out, read-audit, and protected-diagnostics
-   events, planned later backend metric and all-UI Gateway fan-out families, forbidden fields,
+   event families, implemented Gateway analytics fan-out, read-audit, protected-diagnostics
+   events, expanded central Gateway client fan-out metrics, planned later backend metric and
+   remaining direct core-query Gateway fan-out families, forbidden fields,
    state vocabulary, governed telemetry event names, severity levels, attention/audit event types,
    trace attributes, dashboard/alert reference policy, protected diagnostics policy,
    supported-feature keys, evidence requirements, and scaffold requirements.
