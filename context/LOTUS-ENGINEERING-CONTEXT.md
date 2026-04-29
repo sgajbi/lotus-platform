@@ -247,7 +247,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 implementation has started with Slice 1 complete. It governs front-office analytics
+12. RFC-0108 implementation has started with Slice 2 complete. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -263,9 +263,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     supported-features placeholders, RFC implementation evidence scaffolding, operations
     observability documentation, and API certification documentation. Slice 1 added Workbench and
     Gateway code-owned observability vocabulary foundations with tests that reject sensitive or
-    ad hoc labels before runtime telemetry exists. Workbench instrumentation, gateway/backend
-    metrics, dashboards, alerts, attention events, audit events, and canonical browser proof remain
-    planned until later slices.
+    ad hoc labels before runtime telemetry exists. Slice 2 added the governed telemetry contract
+    for browser events, gateway log events, severity levels, attention/audit event types, trace
+    attributes, dashboard/alert reference policy, protected diagnostics policy, and matching
+    Workbench/Gateway code-owned constants and tests. Correlation propagation, Workbench
+    instrumentation, gateway/backend metrics, dashboards, alerts, attention events, audit events,
+    and canonical browser proof remain planned until later slices.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

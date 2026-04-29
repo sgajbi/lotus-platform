@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Implementation Started; Slice 1 Complete
+- Status: Implementation Started; Slice 2 Complete
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:
@@ -76,9 +76,12 @@ Key differences:
 6. supported-features must not promote operational observability until browser, gateway, backend,
    dashboard, and no-sensitive-content evidence exist.
 
-Gold-pass conclusion: RFC-0108 is implementation-ready as a governed execution guide. Slice 0 and
-Slice 1 are now implementation-backed; product telemetry, Workbench/gateway/backend runtime metrics,
-dashboards, alerts, attention events, audit events, and canonical browser proof remain unstarted.
+Gold-pass conclusion: RFC-0108 is implementation-ready as a governed execution guide. Slice 0,
+Slice 1, and Slice 2 are now implementation-backed. Slice 2 adds the platform telemetry contract
+and code-owned Workbench/Gateway constants for event names, severity levels, attention/audit event
+types, trace attributes, dashboard/alert reference policy, and protected diagnostics policy.
+Product telemetry, correlation propagation, Workbench/gateway/backend runtime metrics, dashboards,
+alerts, attention events, audit events, and canonical browser proof remain unstarted.
 
 ## Critical Review Findings And Gold-Standard Corrections
 
@@ -95,11 +98,11 @@ following findings are now corrected in this RFC:
 | CI and branch hygiene were implicit. | A long-running RFC branch could drift from checks or leave repos in an unclear state. | Delivery expectations now require remote branch tracking, GitHub checks, periodic monitoring, prompt fix-forward, PR evidence, post-merge verification, and clean local repos. |
 | Skills/context review was not concrete. | Future agents could miss reusable patterns and repeat avoidable work. | Final closure now requires a conscious skills, guidance, documentation, and agent-context review with explicit change or no-change decisions. |
 
-The RFC remains pre-implementation for product telemetry behavior. Slice 0 platform scaffolding and
-Slice 1 Workbench/Gateway observability vocabulary foundations are implementation-backed. No
-Workbench product metric, dashboard, API behavior change, attention event, audit event, or
-runtime-emitted Workbench UI state is implementation-backed until the relevant slice records code,
-tests, evidence, PRs, and merge state.
+The RFC remains pre-implementation for product telemetry behavior. Slice 0 platform scaffolding,
+Slice 1 Workbench/Gateway observability vocabulary foundations, and Slice 2 telemetry-contract
+governance are implementation-backed. No Workbench product metric, dashboard, API behavior change,
+attention event, audit event, or runtime-emitted Workbench UI state is implementation-backed until
+the relevant slice records code, tests, evidence, PRs, and merge state.
 
 ## Gold-Pass Readiness Assessment
 
@@ -653,6 +656,7 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | Supported-feature key | Initial status | Owner | Promotion evidence |
 | --- | --- | --- | --- |
 | `platform.scaffolding.analytics_ui_observability_baseline` | Implemented | `lotus-platform` | Slice 0 adds app scaffolding automation for product-safe errors, structured JSON events, supported-features placeholders, RFC evidence scaffolding, operations/API-certification docs, generated-app tests, and analytics UI observability contract validation. |
+| `platform.analytics.observability.telemetry_contract` | Implemented | `lotus-platform` | Slice 2 adds the governed analytics UI telemetry contract for browser events, gateway log events, severity levels, attention event types, audit event types, trace attributes, dashboard/alert reference policy, protected diagnostics policy, and validator tests without emitting runtime telemetry. |
 | `workbench.analytics.observability.correlation_trace` | Planned | `lotus-workbench` | Browser/BFF trace propagation tests, gateway/backend reconciliation, and no forbidden metric labels. |
 | `workbench.analytics.observability.contract_vocabulary` | Implemented | `lotus-workbench` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Workbench metric-family names without emitting product telemetry. |
 | `workbench.analytics.observability.panel_state_metrics` | Planned | `lotus-workbench` | Panel state tests for ready, empty, partial, stale, degraded, error, permission-blocked, and unsupported where in scope. |
@@ -706,6 +710,7 @@ Evidence review rules:
 | Slice 0: platform automation and scaffolding improvement | `automation/New-Lotus-Service.ps1`; `context/contracts/analytics-ui-observability-contract.json`; `automation/validate_analytics_ui_observability_contract.py`; scaffold contract tests | `python -m pytest tests\unit\test_repository_hygiene_scaffold_contract.py -q`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q`; `python automation\validate_analytics_ui_observability_contract.py` | Complete for platform scaffold baseline | Workbench/gateway/backend implementation remains planned for later slices. |
 | Slice 0 heartbeat advisory | `output/heartbeat/heartbeat-status.md` generated locally, not committed as source truth | `powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1 -Branch feature/rfc-0108-analytics-ui-observability` | Succeeded with `attention_required` from historical failed background-run ledger entries and stale mesh certification evidence | Advisory findings are not Slice 0 blockers; GitHub PR checks remain source truth for PR health. |
 | Slice 1: cleanup and structure | `lotus-workbench/src/features/analytics-observability/contract.ts`; `lotus-gateway/src/app/observability/analytics_ui.py`; repo-local wiki operations runbooks | `npm run test -- tests/unit/analytics-observability-contract.test.ts`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q` | Complete locally for code-owned observability vocabulary foundations | Product telemetry, fan-out metrics, dashboards, attention events, audit events, and browser proof remain planned. |
+| Slice 2: telemetry contract | `context/contracts/analytics-ui-observability-contract.json`; `automation/validate_analytics_ui_observability_contract.py`; `lotus-workbench/src/features/analytics-observability/contract.ts`; `lotus-gateway/src/app/observability/analytics_ui.py` | `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q`; `python automation\validate_analytics_ui_observability_contract.py`; `npm run test -- tests/unit/analytics-observability-contract.test.ts`; `python -m pytest tests\unit\test_analytics_ui_observability_contract.py -q` | Complete locally for governed telemetry names, severity levels, attention/audit event vocabularies, trace attributes, dashboard/alert reference policy, and protected diagnostics policy | Runtime correlation propagation starts in Slice 3; product telemetry remains planned. |
 
 ## Final Gold-Pass Assessment
 
@@ -716,6 +721,13 @@ vocabulary modules, focused tests reject sensitive/ad hoc labels, repo-local wik
 runbooks identify the source of truth, and supported-features governance records only the
 implementation-backed contract vocabulary foundations.
 
-Implementation must not move to product telemetry until Slice 2 telemetry contract work is
+Slice 2 is complete for telemetry-contract governance. The platform contract now defines planned
+browser events, gateway log events, severity levels, attention event types, audit event types,
+trace/attention/audit attributes, dashboard and alert reference policy, and protected diagnostics
+policy. Validators reject forbidden fields and references to unimplemented dashboard or alert
+metrics. Workbench and Gateway expose matching code-owned constants and tests, still without
+emitting product telemetry.
+
+Implementation must not move to product telemetry until Slice 3 correlation propagation is
 completed and validated. Workbench, gateway, backend metrics, dashboards, alerts, attention events,
 audit events, and canonical `PB_SG_GLOBAL_BAL_001` browser proof remain planned.

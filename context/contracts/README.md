@@ -26,8 +26,10 @@ Current contracts:
 7. `analytics-ui-observability-contract.schema.json`
    The governed schema for the RFC-0108 front-office analytics UI observability contract.
 8. `analytics-ui-observability-contract.json`
-   The pre-implementation inventory of planned analytics UI metric families, forbidden fields,
-   state vocabulary, supported-feature keys, evidence requirements, and scaffold requirements.
+   The RFC-0108 inventory of planned analytics UI metric families, forbidden fields, state
+   vocabulary, governed telemetry event names, severity levels, attention/audit event types,
+   trace attributes, dashboard/alert reference policy, protected diagnostics policy,
+   supported-feature keys, evidence requirements, and scaffold requirements.
 
 Rules:
 

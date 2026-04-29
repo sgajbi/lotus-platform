@@ -8,48 +8,76 @@ from automation.validate_analytics_ui_observability_contract import validate_con
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACT_PATH = ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json"
+CONTRACT_PATH = (
+    ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json"
+)
 
 
 def _load_contract() -> dict:
     return json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
 
 
-def test_analytics_ui_observability_contract_artifacts_are_present_and_governed() -> None:
+def test_analytics_ui_observability_contract_artifacts_are_present_and_governed() -> (
+    None
+):
     readme = (ROOT / "context" / "contracts" / "README.md").read_text(encoding="utf-8")
     schema = json.loads(
-        (ROOT / "context" / "contracts" / "analytics-ui-observability-contract.schema.json")
-        .read_text(encoding="utf-8")
+        (
+            ROOT
+            / "context"
+            / "contracts"
+            / "analytics-ui-observability-contract.schema.json"
+        ).read_text(encoding="utf-8")
     )
     contract = _load_contract()
 
     assert "analytics-ui-observability-contract.schema.json" in readme
     assert "analytics-ui-observability-contract.json" in readme
-    assert schema["properties"]["contract_id"]["const"] == "analytics-ui-observability-contract"
+    assert (
+        schema["properties"]["contract_id"]["const"]
+        == "analytics-ui-observability-contract"
+    )
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-1-structure-implemented"
+    assert contract["lifecycle_status"] == "slice-2-telemetry-contract-implemented"
 
 
-def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> None:
+def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
+    None
+):
     contract = _load_contract()
 
     assert contract["dashboards"] == []
     assert contract["alerts"] == []
     assert {entry["implemented"] for entry in contract["metric_families"]} == {False}
     feature_status = {
-        entry["feature_key"]: entry["status"] for entry in contract["supported_feature_keys"]
+        entry["feature_key"]: entry["status"]
+        for entry in contract["supported_feature_keys"]
     }
-    assert feature_status["platform.scaffolding.analytics_ui_observability_baseline"] == "implemented"
-    assert feature_status["workbench.analytics.observability.contract_vocabulary"] == "implemented"
-    assert feature_status["gateway.analytics.observability.contract_vocabulary"] == "implemented"
+    assert (
+        feature_status["platform.scaffolding.analytics_ui_observability_baseline"]
+        == "implemented"
+    )
+    assert (
+        feature_status["platform.analytics.observability.telemetry_contract"]
+        == "implemented"
+    )
+    assert (
+        feature_status["workbench.analytics.observability.contract_vocabulary"]
+        == "implemented"
+    )
+    assert (
+        feature_status["gateway.analytics.observability.contract_vocabulary"]
+        == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
         if key
         not in {
             "platform.scaffolding.analytics_ui_observability_baseline",
+            "platform.analytics.observability.telemetry_contract",
             "workbench.analytics.observability.contract_vocabulary",
             "gateway.analytics.observability.contract_vocabulary",
         }
@@ -74,7 +102,9 @@ def test_analytics_ui_observability_contract_rejects_sensitive_labels() -> None:
         assert labels.isdisjoint(forbidden_fields)
 
 
-def test_analytics_ui_observability_contract_records_required_states_and_evidence() -> None:
+def test_analytics_ui_observability_contract_records_required_states_and_evidence() -> (
+    None
+):
     contract = _load_contract()
 
     assert set(contract["state_vocabulary"]) == {
@@ -96,15 +126,86 @@ def test_analytics_ui_observability_contract_records_required_states_and_evidenc
         "sensitive-data-assertion",
         "github-check",
     }
-    assert "portfolio ids" in contract["evidence_requirements"]["forbidden_content_classes"]
-    assert "screen content" in contract["evidence_requirements"]["forbidden_content_classes"]
+    assert (
+        "portfolio ids"
+        in contract["evidence_requirements"]["forbidden_content_classes"]
+    )
+    assert (
+        "screen content"
+        in contract["evidence_requirements"]["forbidden_content_classes"]
+    )
+
+
+def test_analytics_ui_observability_contract_records_telemetry_contract() -> None:
+    contract = _load_contract()
+    telemetry_contract = contract["telemetry_contract"]
+    allowed_labels = set(contract["allowed_labels"])
+    forbidden_fields = set(contract["forbidden_fields"])
+
+    assert set(telemetry_contract["severity_levels"]) == {
+        "info",
+        "warning",
+        "action_required",
+        "critical",
+    }
+    assert "panel_stale" in telemetry_contract["attention_event_types"]
+    assert "analytics_read_denied" in telemetry_contract["audit_event_types"]
+    assert {event["event_name"] for event in telemetry_contract["browser_events"]} == {
+        "workbench.analytics.panel_hydration",
+        "workbench.analytics.panel_state",
+        "workbench.analytics.api_request",
+    }
+    assert {
+        event["event_name"] for event in telemetry_contract["gateway_log_events"]
+    } == {
+        "gateway.analytics.fanout.completed",
+        "gateway.analytics.fanout.degraded",
+    }
+
+    for event_group in ("browser_events", "gateway_log_events"):
+        for event in telemetry_contract[event_group]:
+            assert event["implemented"] is False
+            assert set(event["attributes"]) <= allowed_labels
+            assert set(event["attributes"]).isdisjoint(forbidden_fields)
+
+    for attribute_group in (
+        "trace_attributes",
+        "attention_event_attributes",
+        "audit_event_attributes",
+    ):
+        attributes = set(telemetry_contract[attribute_group])
+        assert attributes <= allowed_labels
+        assert attributes.isdisjoint(forbidden_fields)
+
+    assert (
+        telemetry_contract["dashboard_reference_policy"]["implemented_metrics_only"]
+        is True
+    )
+    assert (
+        telemetry_contract["alert_reference_policy"]["implemented_metrics_only"] is True
+    )
+    assert (
+        set(telemetry_contract["dashboard_reference_policy"]["forbidden_variables"])
+        >= forbidden_fields
+    )
+    assert (
+        set(telemetry_contract["alert_reference_policy"]["forbidden_annotations"])
+        >= forbidden_fields
+    )
+    assert telemetry_contract["protected_diagnostics_policy"] == {
+        "metrics_must_not_carry_lookup_identifiers": True,
+        "operator_lookup_requires_protected_api": True,
+        "raw_request_response_capture_allowed": False,
+    }
 
 
 def test_analytics_ui_observability_contract_validator_accepts_baseline() -> None:
     assert validate_contract(_load_contract()) == []
 
 
-def test_analytics_ui_observability_contract_validator_rejects_forbidden_metric_label() -> None:
+def test_analytics_ui_observability_contract_validator_rejects_forbidden_metric_label() -> (
+    None
+):
     contract = copy.deepcopy(_load_contract())
     contract["metric_families"][0]["labels"].append("portfolio_id")
 
@@ -113,7 +214,9 @@ def test_analytics_ui_observability_contract_validator_rejects_forbidden_metric_
     assert any("forbidden fields" in error for error in errors)
 
 
-def test_analytics_ui_observability_contract_validator_rejects_premature_dashboard_claim() -> None:
+def test_analytics_ui_observability_contract_validator_rejects_premature_dashboard_claim() -> (
+    None
+):
     contract = copy.deepcopy(_load_contract())
     contract["dashboards"].append(
         {
@@ -124,4 +227,35 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_dashboa
 
     errors = validate_contract(contract)
 
-    assert "dashboards must remain empty until implemented metrics exist" in errors
+    assert any(
+        "dashboard references unimplemented metrics" in error for error in errors
+    )
+
+
+def test_analytics_ui_observability_contract_validator_rejects_premature_alert_claim() -> (
+    None
+):
+    contract = copy.deepcopy(_load_contract())
+    contract["alerts"].append(
+        {
+            "alert_id": "analytics-ui-panel-errors",
+            "metric_name": "lotus_workbench_panel_state_total",
+        }
+    )
+
+    errors = validate_contract(contract)
+
+    assert any("alert references unimplemented metric" in error for error in errors)
+
+
+def test_analytics_ui_observability_contract_validator_rejects_sensitive_event_attribute() -> (
+    None
+):
+    contract = copy.deepcopy(_load_contract())
+    contract["telemetry_contract"]["browser_events"][0]["attributes"].append(
+        "client_name"
+    )
+
+    errors = validate_contract(contract)
+
+    assert any("attributes include forbidden fields" in error for error in errors)

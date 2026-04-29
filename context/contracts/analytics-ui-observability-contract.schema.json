@@ -11,6 +11,7 @@
     "forbidden_fields",
     "state_vocabulary",
     "metric_families",
+    "telemetry_contract",
     "dashboards",
     "alerts",
     "supported_feature_keys",
@@ -25,7 +26,8 @@
       "enum": [
         "implementation-not-started",
         "slice-0-implemented",
-        "slice-1-structure-implemented"
+        "slice-1-structure-implemented",
+        "slice-2-telemetry-contract-implemented"
       ]
     },
     "allowed_labels": {
@@ -73,6 +75,103 @@
       "type": "array",
       "items": { "type": "object" }
     },
+    "telemetry_contract": {
+      "type": "object",
+      "required": [
+        "severity_levels",
+        "attention_event_types",
+        "audit_event_types",
+        "browser_events",
+        "gateway_log_events",
+        "trace_attributes",
+        "attention_event_attributes",
+        "audit_event_attributes",
+        "dashboard_reference_policy",
+        "alert_reference_policy",
+        "protected_diagnostics_policy"
+      ],
+      "properties": {
+        "severity_levels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "attention_event_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "audit_event_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "browser_events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/telemetryEvent" },
+          "minItems": 1
+        },
+        "gateway_log_events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/telemetryEvent" },
+          "minItems": 1
+        },
+        "trace_attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "attention_event_attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "audit_event_attributes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "dashboard_reference_policy": {
+          "type": "object",
+          "required": ["implemented_metrics_only", "forbidden_variables"],
+          "properties": {
+            "implemented_metrics_only": { "const": true },
+            "forbidden_variables": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "alert_reference_policy": {
+          "type": "object",
+          "required": ["implemented_metrics_only", "forbidden_annotations"],
+          "properties": {
+            "implemented_metrics_only": { "const": true },
+            "forbidden_annotations": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "protected_diagnostics_policy": {
+          "type": "object",
+          "required": [
+            "metrics_must_not_carry_lookup_identifiers",
+            "operator_lookup_requires_protected_api",
+            "raw_request_response_capture_allowed"
+          ],
+          "properties": {
+            "metrics_must_not_carry_lookup_identifiers": { "const": true },
+            "operator_lookup_requires_protected_api": { "const": true },
+            "raw_request_response_capture_allowed": { "const": false }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "alerts": {
       "type": "array",
       "items": { "type": "object" }
@@ -117,6 +216,23 @@
       "type": "array",
       "items": { "type": "string" },
       "minItems": 1
+    }
+  },
+  "$defs": {
+    "telemetryEvent": {
+      "type": "object",
+      "required": ["event_name", "owner_repo", "implemented", "attributes", "purpose"],
+      "properties": {
+        "event_name": { "type": "string" },
+        "owner_repo": { "type": "string" },
+        "implemented": { "type": "boolean" },
+        "attributes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "purpose": { "type": "string" }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
