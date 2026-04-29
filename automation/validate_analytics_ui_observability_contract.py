@@ -73,6 +73,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "lotus_workbench_panel_state_total",
         "lotus_workbench_api_request_duration_seconds",
         "lotus_analytics_ui_attention_events_total",
+        "lotus_ai_surface_supportability_state",
     }
     for metric in metric_families:
         name = metric.get("metric_name", "<missing>")
@@ -154,6 +155,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         implemented_slice_12_partial_keys = {
             "advise.observability.advisory_supportability",
             "archive.observability.archive_supportability",
+            "ai.observability.ai_surface_supportability",
             "core.observability.portfolio_supportability",
             "manage.observability.action_register_supportability",
             "performance.observability.calculation_supportability",
