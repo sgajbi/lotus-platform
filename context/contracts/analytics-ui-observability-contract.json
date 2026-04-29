@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
+  "lifecycle_status": "slice-12-backend-supportability-partial-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -536,9 +536,9 @@
     },
     {
       "feature_key": "risk.observability.calculation_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-risk",
-      "promotion_evidence": "Slice 12 must implement source-backed freshness, completeness, risk calculation supportability, concentration/drawdown data-quality, degraded-state, and empty-state metrics/logs for risk analytics."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-risk risk/calculate source-backed calculation supportability via metadata.calculation_supportability, lotus_risk_calculation_supportability_total with bounded labels only, integration capability publication, repo-native unit/integration tests for ready/stale/degraded/empty posture, OpenAPI quality proof, docs, and wiki source updates."
     },
     {
       "feature_key": "advise.observability.advisory_supportability",
@@ -548,9 +548,9 @@
     },
     {
       "feature_key": "manage.observability.action_register_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-manage",
-      "promotion_evidence": "Slice 12 must implement management action register, mandate-operation, task/action workflow, and operational supportability signals consumed by Gateway or Workbench."
+      "promotion_evidence": "Slice 12 partial proof implements lotus-manage supportability summary posture via supportability.state, supportability.reason, supportability.freshness_bucket, manage.observability.action_register_supportability capability publication, lotus_manage_action_register_supportability_total with bounded labels only, repo-native unit/API/OpenAPI tests for empty/ready/stale/degraded posture, docs, and wiki source updates."
     },
     {
       "feature_key": "report.observability.evidence_surface_supportability",

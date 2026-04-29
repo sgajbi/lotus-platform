@@ -27,7 +27,8 @@
     "lifecycle_status": {
       "enum": [
         "slice-10-ecosystem-contract-implemented",
-        "slice-11-scaffold-ci-enforcement-implemented"
+        "slice-11-scaffold-ci-enforcement-implemented",
+        "slice-12-backend-supportability-partial-implemented"
       ]
     },
     "participating_repositories": {
@@ -85,7 +86,7 @@
       "properties": {
         "slice_id": { "type": "integer" },
         "status": {
-          "enum": ["implemented", "planned"]
+          "enum": ["implemented", "partially_implemented", "planned"]
         },
         "purpose": { "type": "string" },
         "required_proof": {

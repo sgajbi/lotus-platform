@@ -37,6 +37,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "final-closure-implemented",
         "slice-10-ecosystem-contract-implemented",
         "slice-11-scaffold-ci-enforcement-implemented",
+        "slice-12-backend-supportability-partial-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -52,7 +53,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "second-last-hardening-implemented, or "
             "final-closure-implemented, or "
             "slice-10-ecosystem-contract-implemented, or "
-            "slice-11-scaffold-ci-enforcement-implemented"
+            "slice-11-scaffold-ci-enforcement-implemented, or "
+            "slice-12-backend-supportability-partial-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -149,6 +151,10 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
     for feature in feature_keys:
         key = feature.get("feature_key", "<missing>")
         status = feature.get("status")
+        implemented_slice_12_partial_keys = {
+            "manage.observability.action_register_supportability",
+            "risk.observability.calculation_supportability",
+        }
         implemented_foundation_keys = {
             "platform.scaffolding.analytics_ui_observability_baseline",
             "platform.analytics.observability.telemetry_contract",
@@ -171,6 +177,13 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         if key in implemented_foundation_keys:
             if status not in {"planned", "implemented"}:
                 errors.append(f"{key}: status must be planned or implemented")
+        elif (
+            contract.get("lifecycle_status")
+            == "slice-12-backend-supportability-partial-implemented"
+            and key in implemented_slice_12_partial_keys
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 12 proof")
         elif status != "planned":
             errors.append(
                 f"{key}: status must remain planned until implementation proof exists"

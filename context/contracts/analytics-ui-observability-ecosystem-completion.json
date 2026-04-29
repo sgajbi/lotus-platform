@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
+  "lifecycle_status": "slice-12-backend-supportability-partial-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -58,8 +58,8 @@
     },
     {
       "slice_id": 12,
-      "status": "planned",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services.",
+      "status": "partially_implemented",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-risk risk/calculate supportability is implemented, while the remaining backend app supportability keys stay planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -183,15 +183,15 @@
     {
       "repository": "lotus-risk",
       "role": "Risk calculation freshness, completeness, concentration/drawdown quality, and supportability source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": [
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "gap_classification": ["backend_freshness_metrics_planned"],
-      "blockers": ["risk freshness/supportability metrics are not implemented"],
-      "required_proof": ["repo-native risk tests", "freshness metric proof", "Gateway/Workbench reconciliation"],
-      "wiki_source_decision": "Risk wiki source update required when freshness/supportability metrics ship",
+      "gap_classification": ["risk_calculate_supportability_implemented", "broader_backend_freshness_metrics_planned"],
+      "blockers": ["risk supportability is implemented for risk/calculate only; concentration, drawdown, rolling metrics, historical attribution, Gateway consumption, and Workbench reconciliation remain planned"],
+      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "OpenAPI quality proof", "freshness metric proof for remaining risk surfaces", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Risk wiki source updated for risk/calculate supportability; update again when remaining risk supportability surfaces ship",
       "runbook_requirements": ["risk calculation supportability runbook"]
     },
     {
@@ -208,12 +208,12 @@
     {
       "repository": "lotus-manage",
       "role": "Management action register, mandate operation, task/action workflow, and operational supportability source.",
-      "posture": "planned",
+      "posture": "partially_implemented",
       "feature_keys": ["manage.observability.action_register_supportability"],
-      "gap_classification": ["management_supportability_planned"],
-      "blockers": ["management action-register supportability metrics are not implemented"],
-      "required_proof": ["repo-native management tests", "supportability metric proof", "Gateway/Workbench reconciliation"],
-      "wiki_source_decision": "Manage wiki source update required when action-register supportability ships",
+      "gap_classification": ["action_register_supportability_implemented", "gateway_workbench_reconciliation_planned"],
+      "blockers": ["action-register summary supportability is implemented in lotus-manage; Gateway consumption and Workbench reconciliation remain planned"],
+      "required_proof": ["repo-native management tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench reconciliation"],
+      "wiki_source_decision": "Manage wiki source updated for action-register supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["management action-register supportability runbook"]
     },
     {

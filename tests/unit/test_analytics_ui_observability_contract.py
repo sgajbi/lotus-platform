@@ -64,7 +64,10 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
-    assert contract["lifecycle_status"] == "slice-11-scaffold-ci-enforcement-implemented"
+    assert (
+        contract["lifecycle_status"]
+        == "slice-12-backend-supportability-partial-implemented"
+    )
 
 
 def test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations() -> (
@@ -163,6 +166,14 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["gateway.analytics.observability.structured_fanout_logs"]
         == "implemented"
     )
+    assert (
+        feature_status["risk.observability.calculation_supportability"]
+        == "implemented"
+    )
+    assert (
+        feature_status["manage.observability.action_register_supportability"]
+        == "implemented"
+    )
     assert {
         status
         for key, status in feature_status.items()
@@ -185,6 +196,8 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.structured_fanout_logs",
             "gateway.analytics.observability.contract_vocabulary",
+            "risk.observability.calculation_supportability",
+            "manage.observability.action_register_supportability",
         }
     } == {"planned"}
 
