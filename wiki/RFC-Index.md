@@ -98,15 +98,24 @@
   certification across gateway, report, render, archive, upstream services, Workbench where
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
+- [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
+  gold-pass ready with implementation not started; governed front-office analytics UI
+  observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
+  fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
+  no-sensitive-content controls, supported-features governance, and canonical proof through
+  `PB_SG_GLOBAL_BAL_001`. This is not an extension of RFC-0105 reporting observability.
 
 ## Recommended next implementation order
 
 1. Review and approve RFC-0099 before implementation starts for enterprise reporting, rendering,
    batch production, or document archival.
-2. RFC-0100 through RFC-0104 now have implementation-backed first-wave reporting, rendering,
-   archival, and batch scope. Continue by tightening RFC-0105 observability/operations/replay before
-   implementation, then RFC-0106 security certification, then RFC-0107 production certification.
-3. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
+2. RFC-0100 through RFC-0105 now have implementation-backed first-wave reporting, rendering,
+   archival, batch, observability, operations, and replay scope. Continue the reporting sequence
+   with RFC-0106 security certification and then RFC-0107 production certification.
+3. RFC-0108 may proceed separately for analytics UI observability. It must not be treated as
+   reporting scope or a casual RFC-0105 extension; it starts from a governed Workbench/gateway/
+   backend telemetry contract and proves one canonical analytics path before rollout.
+4. None currently open in the RFC-0095 through RFC-0098 workflow-pack runtime sequence.
    Future gateway or Workbench queue-posture work should start only from a concrete supported
    operator or product need.
 

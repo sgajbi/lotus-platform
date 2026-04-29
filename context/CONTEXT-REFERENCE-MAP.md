@@ -253,6 +253,19 @@ The next draft implementation sequence for workflow-pack runtime governance is:
    gateway/Workbench publication remains future work only if a supported product or operator need
    exists
 
+The current reporting and analytics observability governance references are:
+
+1. [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
+   implemented first-wave reporting observability, operations, rerender, regenerate, replay,
+   stuck-state/SLA attention, diagnostics, metrics, and live proof for asynchronous report evidence
+   production.
+2. [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
+   gold-pass ready with implementation not started; governs interactive front-office analytics UI
+   observability from browser to gateway to backend, including Workbench panel hydration, API
+   fan-out, calculation freshness, empty/degraded/stale/error states, frontend/backend
+   correlation, no-sensitive-content controls, attention and audit events, and canonical
+   `PB_SG_GLOBAL_BAL_001` proof. It is not an extension of RFC-0105.
+
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 
 ## RFC Governance

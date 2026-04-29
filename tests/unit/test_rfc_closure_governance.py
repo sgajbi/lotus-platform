@@ -742,6 +742,78 @@ def test_rfc_0107_preserves_production_certification_gold_pass_contract() -> Non
     )
 
 
+def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md"
+    )
+
+    for expected in [
+        "- status: gold-pass ready; implementation not started",
+        "front-office analytics ui observability",
+        "interactive read/display flows",
+        "browser to gateway to backend",
+        "page load",
+        "panel hydration",
+        "api fan-out",
+        "calculation freshness",
+        "empty states",
+        "degraded widgets",
+        "user-visible stale data",
+        "frontend/backend correlation",
+        "no-sensitive-content controls",
+        "client names",
+        "portfolio ids",
+        "holdings",
+        "screen content",
+        "advisor behavior",
+        "entitlement failures",
+        "pb_sg_global_bal_001",
+        "slice 0: platform automation and telemetry scaffolding",
+        "slice 1: cleanup and structure",
+        "slice 2: telemetry contract",
+        "slice 3: browser-to-gateway trace and correlation propagation",
+        "slice 4: gateway and analytics backend structured logging",
+        "slice 5: metrics, dashboards, alerts, and freshness contracts",
+        "slice 6: ui state and attention events",
+        "slice 7: audit events for entitlement-relevant reads and privileged actions",
+        "slice 8: canonical workbench implementation proof",
+        "slice 9: rollout proof and expansion readiness",
+        "second-last slice: hardening, review, and certification",
+        "final slice: closure",
+        "supported features governance",
+        "implementation proof ledger",
+        "not an extension of rfc-0105",
+        "implementation has not started",
+    ]:
+        assert expected in text
+
+    for expected in SECOND_LAST_TERMS:
+        assert expected in text
+    for expected in FINAL_SLICE_TERMS:
+        assert expected in text
+
+    assert text.index("slice 0: platform automation") < text.index(
+        "slice 1: cleanup and structure"
+    )
+    assert text.index("slice 1: cleanup and structure") < text.index(
+        "slice 2: telemetry contract"
+    )
+    assert text.index("slice 2: telemetry contract") < text.index(
+        "slice 3: browser-to-gateway"
+    )
+    assert text.index("slice 8: canonical workbench implementation proof") < text.index(
+        "slice 9: rollout proof"
+    )
+    assert text.index("slice 9: rollout proof") < text.index(
+        "second-last slice: hardening"
+    )
+    assert text.index("second-last slice: hardening") < text.index(
+        "final slice: closure"
+    )
+
+
 def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (
     None
 ):
