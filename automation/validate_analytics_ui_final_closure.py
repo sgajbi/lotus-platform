@@ -40,9 +40,14 @@ def validate_final_closure(
     if final_closure.get("lifecycle_status") != "final-closure-implemented":
         errors.append("lifecycle_status must be final-closure-implemented")
 
-    if observability_contract.get("lifecycle_status") != "final-closure-implemented":
+    allowed_reopened_lifecycle = {
+        "final-closure-implemented",
+        "slice-10-ecosystem-contract-implemented",
+    }
+    if observability_contract.get("lifecycle_status") not in allowed_reopened_lifecycle:
         errors.append(
-            "analytics-ui-observability-contract lifecycle_status must be final-closure-implemented"
+            "analytics-ui-observability-contract lifecycle_status must be "
+            "final-closure-implemented or slice-10-ecosystem-contract-implemented"
         )
 
     closure_scope = final_closure.get("closure_scope", {})

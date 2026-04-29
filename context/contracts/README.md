@@ -51,6 +51,13 @@ Current contracts:
     The RFC-0108 final closure contract that records implemented-scope closure, merged PR
     evidence, local proof commands, required GitHub checks, wiki publication requirements,
     skills/guidance review, residual planned scope, and branch hygiene requirements.
+15. `analytics-ui-observability-ecosystem-completion.schema.json`
+    The governed schema for the RFC-0108 Slice 10 ecosystem-completion contract.
+16. `analytics-ui-observability-ecosystem-completion.json`
+    The RFC-0108 Slice 10 contract that records every participating Lotus repository, the
+    ecosystem completion slices, first-wave protected evidence, per-app observability gap matrix,
+    required GitHub checks, and branch policy that blocks runtime work before contract expansion
+    is merged.
 
 Rules:
 
