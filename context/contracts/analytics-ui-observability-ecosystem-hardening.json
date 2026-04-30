@@ -181,7 +181,7 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "certification_status": "planned_residual",
       "openapi_required": false,
-      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. Backend freshness/supportability metric-family promotion remains planned until remaining risk endpoint families and Gateway/Workbench reconciliation are implemented."
+      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Backend freshness/supportability metric-family promotion remains planned until Gateway/Workbench reconciliation is implemented."
     }
   ],
   "supported_features_audit": {
@@ -257,19 +257,19 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations; remaining risk endpoint families and Gateway/Workbench reconciliation still block backend freshness/supportability promotion."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, and lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway/Workbench reconciliation still blocks backend freshness/supportability promotion."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Full promotion remains blocked until all participating backend supportability signals are reconciled through Gateway and Workbench."
+      "reason": "Full promotion remains blocked until participating backend supportability signals are reconciled through Gateway and Workbench."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
       "owner_repo": "lotus-workbench",
-      "reason": "Full RFC-0079 risk/evidence scope and backend freshness completion remain outside Slice 17 hardening certification."
+      "reason": "Full RFC-0079 risk/evidence scope and Workbench reconciliation remain outside Slice 17 hardening certification."
     }
   ],
   "required_local_commands": [
