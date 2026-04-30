@@ -85,6 +85,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "analytics-ui-api-request-latency-p95",
         "gateway-analytics-fanout-latency-p95",
         "gateway-analytics-degraded-sources",
+        "backend-analytics-freshness-action-required",
         "analytics-ui-attention-events",
         "ai-surface-supportability-degraded",
     }
@@ -99,6 +100,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "lotus_workbench_api_request_duration_seconds",
         "lotus_gateway_analytics_fanout_duration_seconds",
         "lotus_gateway_analytics_degraded_total",
+        "lotus_analytics_freshness_bucket_total",
         "lotus_analytics_ui_attention_events_total",
         "lotus_ai_surface_supportability_state",
     }
@@ -222,6 +224,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["risk.observability.calculation_supportability"] == "implemented"
     )
     assert (
+        feature_status["analytics.backend.observability.freshness_supportability"]
+        == "implemented"
+    )
+    assert (
         feature_status["manage.observability.action_register_supportability"]
         == "implemented"
     )
@@ -281,6 +287,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "core.observability.portfolio_supportability",
             "performance.observability.calculation_supportability",
             "risk.observability.calculation_supportability",
+            "analytics.backend.observability.freshness_supportability",
             "advise.observability.advisory_supportability",
             "archive.observability.archive_supportability",
             "manage.observability.action_register_supportability",
@@ -494,10 +501,20 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_dashboa
     None
 ):
     contract = copy.deepcopy(_load_contract())
+    contract["metric_families"].append(
+        {
+            "metric_name": "lotus_future_backend_metric_total",
+            "owner_repo": "lotus-future",
+            "implemented": False,
+            "metric_type": "counter",
+            "labels": ["service", "operation"],
+            "purpose": "future unimplemented metric",
+        }
+    )
     contract["dashboards"].append(
         {
             "dashboard_id": "analytics-ui-overview",
-            "metric_names": ["lotus_analytics_freshness_bucket_total"],
+            "metric_names": ["lotus_future_backend_metric_total"],
         }
     )
 
@@ -512,10 +529,20 @@ def test_analytics_ui_observability_contract_validator_rejects_premature_alert_c
     None
 ):
     contract = copy.deepcopy(_load_contract())
+    contract["metric_families"].append(
+        {
+            "metric_name": "lotus_future_backend_metric_total",
+            "owner_repo": "lotus-future",
+            "implemented": False,
+            "metric_type": "counter",
+            "labels": ["service", "operation"],
+            "purpose": "future unimplemented metric",
+        }
+    )
     contract["alerts"].append(
         {
             "alert_id": "analytics-ui-panel-errors",
-            "metric_name": "lotus_analytics_freshness_bucket_total",
+            "metric_name": "lotus_future_backend_metric_total",
         }
     )
 
@@ -563,7 +590,7 @@ def test_analytics_ui_observability_dashboard_references_only_implemented_metric
 
     assert dashboard["uid"] == "analytics-ui-observability-overview"
     assert dashboard["title"] == "Analytics UI Observability Overview"
-    assert len(dashboard["panels"]) == 7
+    assert len(dashboard["panels"]) == 8
     assert dashboard_metric_names == implemented_metric_names
     assert all(forbidden not in dashboard_text for forbidden in forbidden_variables)
 

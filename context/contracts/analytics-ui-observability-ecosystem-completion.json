@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, the RFC-0108 backend freshness metric for performance/risk calculation supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -71,7 +71,7 @@
     {
       "slice_id": 14,
       "status": "partially_implemented",
-      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned.",
+      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
       "required_proof": ["Workbench unit tests", "typecheck", "lint", "repo-local wiki source", "browser proof", "Gateway/backend reconciliation"]
     },
     {
@@ -83,7 +83,7 @@
     {
       "slice_id": 16,
       "status": "implemented",
-      "purpose": "Prove the complete supported Lotus user journey end to end across the current implemented RFC-0108 scope while preserving backend freshness and full RFC-0079 residuals as planned.",
+      "purpose": "Prove the complete supported Lotus user journey end to end across the current implemented RFC-0108 scope while preserving full RFC-0079 residuals as planned.",
       "required_proof": ["live proof bundle", "proof review automation", "protected diagnostics proof", "OpenAPI diagnostics proof", "dashboard/alert reconciliation", "no-sensitive evidence assertions"]
     },
     {
@@ -95,7 +95,7 @@
     {
       "slice_id": 18,
       "status": "implemented",
-      "purpose": "Close RFC-0108 for the current implementation-backed ecosystem observability scope while preserving unsupported backend freshness and full Workbench promotion residuals as planned.",
+      "purpose": "Close RFC-0108 for the current implementation-backed ecosystem observability scope while preserving full Workbench promotion residuals as planned.",
       "required_proof": ["ecosystem final closure contract", "wiki publication evidence", "clean repo evidence", "residual scope reconciliation"]
     }
   ],
@@ -174,10 +174,10 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "gap_classification": ["twr_mwr_contribution_attribution_supportability_implemented", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
-      "blockers": ["TWR, MWR, contribution, and attribution supportability are implemented in lotus-performance, consumed by lotus-gateway PR #166, and consumed by lotus-workbench PR #118 for supported reads"],
-      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "OpenAPI quality proof", "API vocabulary proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
-      "wiki_source_decision": "Performance wiki source updated and published for TWR, MWR, contribution, and attribution supportability; Workbench source supportability consumption published after PR #118",
+      "gap_classification": ["twr_mwr_contribution_attribution_supportability_implemented", "rfc_0108_backend_freshness_metric_implemented", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
+      "blockers": ["TWR, MWR, contribution, and attribution supportability are implemented in lotus-performance, the generic RFC-0108 backend freshness metric is implemented through PR #139, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"],
+      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "RFC-0108 backend freshness metric proof", "OpenAPI quality proof", "API vocabulary proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
+      "wiki_source_decision": "Performance wiki source updated for TWR, MWR, contribution, attribution supportability, and the RFC-0108 backend freshness metric; publish after PR #139 merge",
       "runbook_requirements": ["performance calculation supportability runbook"]
     },
     {
@@ -188,10 +188,10 @@
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "gap_classification": ["risk_calculate_drawdown_rolling_historical_attribution_concentration_supportability_implemented", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
-      "blockers": ["risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implemented in lotus-risk, consumed by lotus-gateway PR #166, and consumed by lotus-workbench PR #118 for supported reads"],
-      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "OpenAPI quality proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
-      "wiki_source_decision": "Risk wiki source updated and published for risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability; Workbench source supportability consumption published after PR #118",
+      "gap_classification": ["risk_calculate_drawdown_rolling_historical_attribution_concentration_supportability_implemented", "rfc_0108_backend_freshness_metric_implemented", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
+      "blockers": ["risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implemented in lotus-risk, the generic RFC-0108 backend freshness metric is implemented through PR #108, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"],
+      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "RFC-0108 backend freshness metric proof", "OpenAPI quality proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
+      "wiki_source_decision": "Risk wiki source updated for risk/calculate, drawdown, rolling metrics, historical attribution, concentration supportability, and the RFC-0108 backend freshness metric; publish after PR #108 merge",
       "runbook_requirements": ["risk calculation supportability runbook"]
     },
     {

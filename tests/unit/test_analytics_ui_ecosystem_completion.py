@@ -156,6 +156,7 @@ def test_analytics_ui_ecosystem_completion_rejects_all_path_regression() -> None
 @pytest.mark.parametrize(
     "feature_key",
     [
+        "analytics.backend.observability.freshness_supportability",
         "advise.observability.advisory_supportability",
         "ai.observability.ai_surface_supportability",
         "archive.observability.archive_supportability",

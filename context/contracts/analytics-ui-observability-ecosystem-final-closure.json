@@ -52,6 +52,7 @@
       "gateway.analytics.observability.structured_fanout_logs",
       "gateway.analytics.observability.correlation_trace",
       "gateway.analytics.observability.contract_vocabulary",
+      "analytics.backend.observability.freshness_supportability",
       "core.observability.portfolio_supportability",
       "performance.observability.calculation_supportability",
       "risk.observability.calculation_supportability",
@@ -63,18 +64,11 @@
       "ai.observability.ai_surface_supportability"
     ],
     "planned_feature_keys_reviewed": [
-      "analytics.backend.observability.freshness_supportability",
       "workbench.analytics.observability.freshness_degraded_state",
       "workbench.analytics.observability.all_supported_surfaces"
     ]
   },
   "residual_scope": [
-    {
-      "feature_key": "analytics.backend.observability.freshness_supportability",
-      "status": "planned",
-      "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations through PR #138, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, lotus-gateway PR #166 consumes those source supportability blocks into the experience API, lotus-workbench PR #118 consumes Gateway source_supportability arrays for supported performance/risk reads, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
-    },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",

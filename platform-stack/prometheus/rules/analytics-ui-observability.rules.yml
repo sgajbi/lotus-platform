@@ -51,6 +51,16 @@ groups:
         annotations:
           summary: Gateway analytics fan-out recorded degraded source outcomes.
           runbook: docs/operations/analytics-ui-observability-runbook.md#gateway-analytics-degraded-sources
+      - alert: BackendAnalyticsFreshnessActionRequired
+        expr: sum(increase(lotus_analytics_freshness_bucket_total{supportability_state=~"stale|degraded|empty|error|permission_blocked|unsupported"}[10m])) > 0
+        for: 10m
+        labels:
+          alert_id: backend-analytics-freshness-action-required
+          severity: P2
+          owner_repo: lotus-performance/lotus-risk
+        annotations:
+          summary: Performance or risk backend analytics freshness reports action-required posture.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#backend-analytics-freshness-action-required
       - alert: AnalyticsUiAttentionEvents
         expr: sum(increase(lotus_analytics_ui_attention_events_total{severity="action_required"}[10m])) > 0
         for: 10m

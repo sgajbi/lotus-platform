@@ -99,10 +99,10 @@
     {
       "metric_name": "lotus_analytics_freshness_bucket_total",
       "owner_repo": "lotus-performance/lotus-risk",
-      "implemented": false,
+      "implemented": true,
       "metric_type": "counter",
       "labels": ["service", "operation", "freshness_bucket", "supportability_state"],
-      "purpose": "planned backend analytics freshness and supportability counter"
+      "purpose": "implementation-backed backend analytics freshness and supportability counter for performance and risk calculation supportability outcomes"
     },
     {
       "metric_name": "lotus_analytics_ui_attention_events_total",
@@ -350,6 +350,7 @@
         "lotus_workbench_api_request_duration_seconds",
         "lotus_gateway_analytics_fanout_duration_seconds",
         "lotus_gateway_analytics_degraded_total",
+        "lotus_analytics_freshness_bucket_total",
         "lotus_analytics_ui_attention_events_total",
         "lotus_ai_surface_supportability_state"
       ],
@@ -396,6 +397,14 @@
       "owner_repo": "lotus-gateway",
       "runbook_path": "docs/operations/analytics-ui-observability-runbook.md#gateway-analytics-degraded-sources",
       "threshold": "Gateway analytics fan-out records degraded source outcomes for 10 minutes"
+    },
+    {
+      "alert_id": "backend-analytics-freshness-action-required",
+      "metric_name": "lotus_analytics_freshness_bucket_total",
+      "severity": "P2",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "runbook_path": "docs/operations/analytics-ui-observability-runbook.md#backend-analytics-freshness-action-required",
+      "threshold": "performance or risk backend analytics freshness records stale, degraded, empty, error, permission_blocked, or unsupported posture for 10 minutes"
     },
     {
       "alert_id": "analytics-ui-attention-events",
@@ -479,7 +488,7 @@
       "feature_key": "platform.analytics.observability.ecosystem_final_closure",
       "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving backend freshness and full Workbench supported-surface residuals as planned."
+      "promotion_evidence": "Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving full Workbench supported-surface and full RFC-0079 residuals as planned. A later backend metric slice promotes performance/risk RFC-0108 backend freshness supportability through lotus-performance PR #139 and lotus-risk PR #108."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",
@@ -527,7 +536,7 @@
       "feature_key": "workbench.analytics.observability.canonical_proof",
       "status": "implemented",
       "owner_repo": "lotus-platform/lotus-workbench",
-      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions. Later Slice 13 proof adds selected Gateway fan-out metrics and protected diagnostics; backend freshness and full caller-context entitlement certification remain planned."
+      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions. Later slices add selected Gateway fan-out metrics, protected diagnostics, and the performance/risk backend freshness metric; full caller-context entitlement certification remains planned."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
@@ -573,9 +582,9 @@
     },
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-performance/lotus-risk",
-      "promotion_evidence": "lotus-performance now emits calculation_supportability and lotus_performance_calculation_supportability_total for completed TWR, MWR, contribution, and attribution calculations through PR #138. lotus-risk PR #107 extends metadata.calculation_supportability and lotus_risk_calculation_supportability_total across risk/calculate, drawdown, rolling metrics, historical attribution, and concentration. Gateway PR #166 consumes those source supportability blocks through the experience API, maps stale/partial/unavailable posture into bounded fan-out state, and preserves source supportability in risk workspace supportability items plus performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into UI freshness/supportability derivation and live validation summaries. Full UI promotion remains planned until every supported metric family and surface is separately implemented and certified."
+      "promotion_evidence": "lotus-performance emits calculation_supportability and bounded lotus_performance_calculation_supportability_total labels for completed TWR, MWR, contribution, and attribution calculations through PR #138; PR #139 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path with bounded service, operation, freshness_bucket, and supportability_state labels. lotus-risk PR #107 extends metadata.calculation_supportability and bounded lotus_risk_calculation_supportability_total labels across risk/calculate, drawdown, rolling metrics, historical attribution, and concentration; PR #108 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path. Gateway PR #166 consumes those source supportability blocks through the experience API, maps stale/partial/unavailable posture into bounded fan-out state, and preserves source supportability in risk workspace supportability items plus performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into UI freshness/supportability derivation and live validation summaries. Full Workbench all-supported-surface promotion remains planned until every supported surface and full RFC-0079 risk/evidence scope are separately implemented and certified."
     },
     {
       "feature_key": "core.observability.portfolio_supportability",
