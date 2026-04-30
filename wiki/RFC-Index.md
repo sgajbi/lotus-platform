@@ -136,9 +136,9 @@
   branch policy, generated backend no-sensitive-content and supported-features gates, reusable
   Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially
   implemented across source supportability metrics for the current backend proof scope. Required
-  remaining ecosystem Slices 12 and 16-18 extend the same posture uniformly across all Lotus apps,
-  including the remaining backend supportability metrics, all Workbench supported surfaces, live
-  ecosystem proof, hardening/certification, and final ecosystem closure. Slice 13 has
+  remaining ecosystem Slices 12 and 17-18 extend the same posture uniformly across all Lotus apps,
+  including the remaining backend supportability metrics, all Workbench supported surfaces,
+  hardening/certification, and final ecosystem closure. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
   central manage/report/archive/AI client fan-out metrics, and direct lotus-core
   query/control-plane plus ingestion fan-out metrics. Slice 14 has partial Workbench proof for
@@ -150,7 +150,12 @@
   full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
-  labels. This is not an extension of RFC-0105 reporting observability.
+  labels. Slice 16 implements platform-owned ecosystem proof automation for the current supported
+  Lotus journey across portfolio state, performance analytics, risk analytics, advisory workflow
+  actions, manage/report capability posture, evidence support posture, AI-backed support, protected
+  diagnostics, Gateway OpenAPI diagnostics evidence, dashboards, alerts, screenshots, residual
+  planned-scope preservation, and no-sensitive assertions. This is not an extension of RFC-0105
+  reporting observability.
 
 ## Recommended next implementation order
 
