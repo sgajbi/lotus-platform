@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -131,8 +131,8 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_performance_risk_reporting_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk", "workbench_source_supportability_reconciled_for_performance_risk", "performance_evidence_context_partially_reconciled", "canonical_runtime_promotion_blocked"],
-      "blockers": ["clean governed canonical runtime proof remains blocked by advisor-brief workflow-pack runtime state FAILED / ACTION_REQUIRED", "full RFC-0079 risk/evidence scope remains planned"],
+      "gap_classification": ["supported_portfolio_performance_risk_reporting_advisor_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai", "workbench_source_supportability_reconciled_for_performance_risk_report_ai", "performance_evidence_context_partially_reconciled"],
+      "blockers": ["full RFC-0079 risk/evidence scope remains planned", "complete all-supported-surface promotion remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
       "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability and source supportability reconciliation; published after PR #118. Final supported-surface posture must be updated again after clean canonical runtime proof and full RFC-0079 risk/evidence completion.",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
@@ -149,8 +149,8 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_implemented", "all_ui_fanout_paths_implemented", "performance_risk_source_supportability_reconciled"],
-      "blockers": ["no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics; Workbench PR #118 consumes the Gateway source_supportability shape for supported performance/risk reads"],
+      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_implemented", "all_ui_fanout_paths_implemented", "performance_risk_report_ai_source_supportability_reconciled"],
+      "blockers": ["no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics, portfolio readiness, manage action-register, report evidence-surface, or AI advisor-brief supportability for the supported reads now implemented"],
       "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof", "source supportability reconciliation proof"],
       "wiki_source_decision": "Gateway repo-local wiki source documents diagnostics, fan-out metrics, and performance/risk source supportability reconciliation; published after PR #166",
       "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]
@@ -160,8 +160,8 @@
       "role": "Portfolio, account, holding, mandate, transaction, and entitlement source supportability.",
       "posture": "partially_implemented",
       "feature_keys": ["core.observability.portfolio_supportability"],
-      "gap_classification": ["portfolio_readiness_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["portfolio readiness supportability is implemented in lotus-core; Gateway consumption and Workbench portfolio supportability reconciliation remain planned"],
+      "gap_classification": ["portfolio_readiness_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_portfolio_reads"],
+      "blockers": ["portfolio readiness supportability is implemented in lotus-core, consumed by lotus-gateway PR #167, and consumed by lotus-workbench PR #120 for supported portfolio reads"],
       "required_proof": ["repo-native tests", "metrics/log proof", "OpenAPI certification where APIs change", "Gateway/Workbench portfolio supportability reconciliation"],
       "wiki_source_decision": "Core wiki source updated and published for portfolio readiness supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["portfolio supportability runbook"]
@@ -210,8 +210,8 @@
       "role": "Management action register, mandate operation, task/action workflow, and operational supportability source.",
       "posture": "partially_implemented",
       "feature_keys": ["manage.observability.action_register_supportability"],
-      "gap_classification": ["action_register_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["action-register summary supportability is implemented in lotus-manage; Gateway consumption and Workbench reconciliation remain planned"],
+      "gap_classification": ["action_register_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_portfolio_workspace_rebalance_reads"],
+      "blockers": ["action-register summary supportability is implemented in lotus-manage, consumed by lotus-gateway PR #168, and consumed by lotus-workbench PR #121 for supported portfolio workspace rebalance reads"],
       "required_proof": ["repo-native management tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench reconciliation"],
       "wiki_source_decision": "Manage wiki source updated for action-register supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["management action-register supportability runbook"]
@@ -221,8 +221,8 @@
       "role": "Report evidence-pack supportability source for front-office evidence surfaces.",
       "posture": "partially_implemented",
       "feature_keys": ["report.observability.evidence_surface_supportability"],
-      "gap_classification": ["evidence_surface_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["report evidence-surface supportability is implemented in lotus-report; Gateway consumption and Workbench evidence-surface reconciliation remain planned"],
+      "gap_classification": ["evidence_surface_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"],
+      "blockers": ["report evidence-surface supportability is implemented in lotus-report, consumed by lotus-gateway PR #169, and consumed by lotus-workbench PR #122 for supported report-batch operator reads"],
       "required_proof": ["repo-native report evidence tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench evidence reconciliation"],
       "wiki_source_decision": "Report wiki source updated for evidence-surface supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["report evidence-surface supportability runbook"]
@@ -254,8 +254,8 @@
       "role": "AI-backed feature supportability, degraded model posture, and bounded workflow-pack status source.",
       "posture": "partially_implemented",
       "feature_keys": ["ai.observability.ai_surface_supportability"],
-      "gap_classification": ["ai_surface_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["AI surface supportability is implemented in lotus-ai; Gateway consumption and Workbench AI-backed surface reconciliation remain planned"],
+      "gap_classification": ["ai_surface_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"],
+      "blockers": ["AI surface supportability is implemented in lotus-ai, consumed by lotus-gateway PR #170, and consumed by lotus-workbench PR #123 for supported advisor-brief reads"],
       "required_proof": ["repo-native AI tests", "model posture proof", "no-sensitive prompt/output telemetry checks", "Gateway/Workbench AI-backed surface reconciliation"],
       "wiki_source_decision": "AI wiki source updated for AI surface supportability; update again when Gateway/Workbench reconciliation ships",
       "runbook_requirements": ["AI surface supportability runbook"]
