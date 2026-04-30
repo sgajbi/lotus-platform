@@ -146,8 +146,9 @@
   supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator
   reads through a code-owned observed-surface registry reconciled to the governed endpoint registry
   with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
-  and source support-state proof for `supportability.state` / `supportability.freshness_bucket`;
-  RFC-0079 evidence posture and backend freshness reconciliation stay planned. This is not an
+  source support-state proof for `supportability.state` / `supportability.freshness_bucket`, and
+  partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench;
+  full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. This is not an
   extension of
   RFC-0105 reporting observability.
 
