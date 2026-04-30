@@ -72,6 +72,23 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
+def test_analytics_ui_ecosystem_completion_records_gateway_backed_archive_retrieval() -> None:
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    archive_row = next(
+        row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-archive"
+    )
+
+    assert (
+        "gateway_backed_workbench_archive_retrieval_implemented"
+        in archive_row["gap_classification"]
+    )
+    assert "workbench_archive_surface_reconciliation_not_supported" not in (
+        archive_row["gap_classification"]
+    )
+    assert "workbenchRetrievalSupported=false" not in archive_row["blockers"][0]
+    assert "direct Workbench-to-archive non-support" in archive_row["wiki_source_decision"]
+
+
 def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {

@@ -329,8 +329,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     implementation-backed Gateway proof for selected analytics fan-out metrics, protected
     diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
     lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially
-    implemented for supported Portfolio workspace, client-side Performance, Risk, and explicit
-    report-batch operator reads; Slice 15 implements ecosystem dashboard/alert/runbook coverage for
+    implemented for supported Portfolio workspace, client-side Performance, Risk, explicit
+    report-batch operator reads, and Gateway-backed Workbench archive metadata/download reads; Slice
+    15 implements ecosystem dashboard/alert/runbook coverage for
     current metric families; Slice 16 implements platform-owned ecosystem proof automation; and
     Slice 17 implements ecosystem hardening certification with a machine-readable contract and
     validator. Slice 18 implements ecosystem final closure with
@@ -339,7 +340,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, supported-feature
     posture, residual planned scope, local/GitHub proof requirements, wiki publication, branch
     hygiene, and skills guidance. Backend freshness completion and full RFC-0079 risk/evidence
-    Workbench promotion remain planned residuals until separately implemented and proved.
+    Workbench promotion remain planned residuals until separately implemented and proved; Workbench
+    archive retrieval is implemented only through the BFF/Gateway boundary.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

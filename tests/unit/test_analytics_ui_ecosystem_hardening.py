@@ -67,6 +67,25 @@ def test_ecosystem_hardening_validator_accepts_baseline() -> None:
     )
 
 
+def test_ecosystem_hardening_records_archive_reconciliation_evidence() -> None:
+    hardening = _load_json(HARDENING_PATH)
+    archive_review = next(
+        review
+        for review in hardening["repository_reviews"]
+        if review["repository"] == "lotus-archive"
+    )
+
+    assert "Workbench PR #126 implements Gateway/BFF-backed archive metadata" in (
+        archive_review["ci_evidence"]
+    )
+    assert "direct Workbench-to-archive calls remain unsupported" in (
+        archive_review["ci_evidence"]
+    )
+    assert "archive-surface reconciliation remain planned" not in (
+        archive_review["ci_evidence"]
+    )
+
+
 def test_ecosystem_hardening_rejects_missing_repository_review() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)

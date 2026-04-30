@@ -157,9 +157,10 @@
   render supportability reconciliation through Gateway PR #171 plus Workbench PR #124 for supported report-batch operator reads,
   advisory supportability reconciliation through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads,
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
-  clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328; full
-  RFC-0079 risk/evidence scope, Workbench archive retrieval, and every supported Workbench surface
-  stay planned; backend freshness reconciliation is implemented for performance/risk calculation
+  clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328, and
+  Gateway-backed archive metadata/download retrieval through Workbench PR #126 plus lotus-archive
+  commit `203ec6d`; full RFC-0079 risk/evidence scope and every supported Workbench surface stay
+  planned; backend freshness reconciliation is implemented for performance/risk calculation
   supportability through lotus-performance PR #139 and lotus-risk PR #108. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
