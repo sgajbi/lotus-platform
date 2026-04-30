@@ -468,7 +468,7 @@
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "promotion_evidence": "Slice 14 partial Workbench proof records source-backed stale/degraded classification on newly observed client reads when response metadata is present, and canonical browser validation passed for PB_SG_GLOBAL_BAL_001 through automation/Invoke-Canonical-FrontOffice-QA.ps1 with evidence output/front-office-qa/canonical-front-office-qa-20260430-080907.json. Full promotion remains planned until backend-owned freshness/supportability metrics cover the remaining performance/risk endpoint families."
+      "promotion_evidence": "Slice 14 partial Workbench proof records source-backed stale/degraded classification on newly observed client reads when response metadata is present, derives nested source supportability state from supportability.state/supportability.freshness_bucket without sensitive labels, and canonical browser validation passed for PB_SG_GLOBAL_BAL_001 through automation/Invoke-Canonical-FrontOffice-QA.ps1 with evidence output/front-office-qa/canonical-front-office-qa-20260430-080907.json. Full promotion remains planned until backend-owned freshness/supportability metrics cover the remaining performance/risk endpoint families."
     },
     {
       "feature_key": "workbench.analytics.observability.safe_dashboard",
@@ -498,7 +498,7 @@
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
       "owner_repo": "lotus-workbench",
-      "promotion_evidence": "Slice 14 partial proof instruments supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads in lotus-workbench with a code-owned observed-surface registry, unit coverage, typecheck, lint, repo-local wiki source, no-sensitive metric label assertions, endpoint reconciliation against the governed Workbench registry, and canonical browser proof through automation/Invoke-Canonical-FrontOffice-QA.ps1 with screenshot output in output/rfc-0108-slice-14-canonical-qa. Full all-supported-surface promotion remains planned until support-state proof and the RFC-0079-governed evidence posture are reconciled."
+      "promotion_evidence": "Slice 14 partial proof instruments supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads in lotus-workbench with a code-owned observed-surface registry, unit coverage, typecheck, lint, repo-local wiki source, no-sensitive metric label assertions, endpoint reconciliation against the governed Workbench registry, canonical browser proof through automation/Invoke-Canonical-FrontOffice-QA.ps1 with screenshot output in output/rfc-0108-slice-14-canonical-qa, and support-state proof for source-shaped supportability metadata. Full all-supported-surface promotion remains planned until the RFC-0079-governed evidence posture and backend freshness/supportability completion are reconciled."
     },
     {
       "feature_key": "gateway.analytics.observability.fanout_metrics",

@@ -145,9 +145,10 @@
   query/control-plane plus ingestion fan-out metrics. Slice 14 has partial Workbench proof for
   supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator
   reads through a code-owned observed-surface registry reconciled to the governed endpoint registry
-  with no-sensitive metric labels and canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`;
-  support-state proof, RFC-0079 evidence posture, and backend freshness reconciliation stay planned.
-  This is not an extension of
+  with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
+  and source support-state proof for `supportability.state` / `supportability.freshness_bucket`;
+  RFC-0079 evidence posture and backend freshness reconciliation stay planned. This is not an
+  extension of
   RFC-0105 reporting observability.
 
 ## Recommended next implementation order
