@@ -88,6 +88,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "lotus_workbench_api_request_duration_seconds",
         "lotus_gateway_analytics_fanout_duration_seconds",
         "lotus_gateway_analytics_degraded_total",
+        "lotus_analytics_freshness_bucket_total",
         "lotus_analytics_ui_attention_events_total",
         "lotus_ai_surface_supportability_state",
     }
@@ -169,6 +170,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         key = feature.get("feature_key", "<missing>")
         status = feature.get("status")
         implemented_slice_12_partial_keys = {
+            "analytics.backend.observability.freshness_supportability",
             "advise.observability.advisory_supportability",
             "archive.observability.archive_supportability",
             "ai.observability.ai_surface_supportability",

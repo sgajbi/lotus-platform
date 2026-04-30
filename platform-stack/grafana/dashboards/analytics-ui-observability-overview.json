@@ -281,6 +281,46 @@
         "x": 0,
         "y": 32
       },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (service, operation, freshness_bucket, supportability_state) (increase(lotus_analytics_freshness_bucket_total[15m]))",
+          "legendFormat": "{{ service }} {{ operation }} {{ freshness_bucket }} {{ supportability_state }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Backend Analytics Freshness (15m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
       "id": 7,
       "options": {
         "legend": {

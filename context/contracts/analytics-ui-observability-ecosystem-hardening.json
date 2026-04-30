@@ -27,7 +27,7 @@
     {
       "area": "dashboard and alerts",
       "status": "passed",
-      "evidence": "Slice 15 and Slice 16 reconcile dashboard and alert references to implemented metric families only, including Workbench, Gateway, and AI supportability metrics."
+      "evidence": "Slice 15 and Slice 16 reconcile dashboard and alert references to implemented metric families only, including Workbench, Gateway, backend freshness, and AI supportability metrics."
     },
     {
       "area": "residual planned scope",
@@ -92,23 +92,23 @@
     },
     {
       "repository": "lotus-performance",
-      "review_status": "planned_residual",
+      "review_status": "certified_current_scope",
       "feature_keys_reviewed": [
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138, consumed through lotus-gateway PR #166, and consumed by lotus-workbench PR #118 for supported reads.",
+      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138, consumed through lotus-gateway PR #166, consumed by lotus-workbench PR #118 for supported reads, and the RFC-0108 lotus_analytics_freshness_bucket_total companion metric is implementation-backed through PR #139.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
     {
       "repository": "lotus-risk",
-      "review_status": "planned_residual",
+      "review_status": "certified_current_scope",
       "feature_keys_reviewed": [
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "ci_evidence": "Risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implementation-backed in lotus-risk through PR #107, consumed through lotus-gateway PR #166, and consumed by lotus-workbench PR #118 for supported reads.",
+      "ci_evidence": "Risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implementation-backed in lotus-risk through PR #107, consumed through lotus-gateway PR #166, consumed by lotus-workbench PR #118 for supported reads, and the RFC-0108 lotus_analytics_freshness_bucket_total companion metric is implementation-backed through PR #108.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -179,9 +179,9 @@
     {
       "surface": "Backend freshness and supportability metrics",
       "owner_repo": "lotus-performance/lotus-risk",
-      "certification_status": "planned_residual",
+      "certification_status": "certified",
       "openapi_required": false,
-      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway PR #166 now consumes those source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. lotus-core portfolio readiness supportability is consumed through Gateway PR #167 and Workbench PR #120 for supported portfolio reads. lotus-report evidence-surface supportability is consumed through Gateway PR #169 and Workbench PR #122 for supported report-batch operator reads. lotus-ai surface supportability is consumed through Gateway PR #170 and Workbench PR #123 for supported advisor-brief reads. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
+      "evidence": "lotus-performance supportability covers completed TWR, MWR, contribution, and attribution calculations through PR #138 and emits the RFC-0108 lotus_analytics_freshness_bucket_total companion metric through PR #139. lotus-risk supportability covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107 and emits the RFC-0108 companion metric through PR #108. Gateway PR #166 consumes those source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution for the current supported surface."
     }
   ],
   "supported_features_audit": {
@@ -210,6 +210,7 @@
       "gateway.analytics.observability.structured_fanout_logs",
       "gateway.analytics.observability.correlation_trace",
       "gateway.analytics.observability.contract_vocabulary",
+      "analytics.backend.observability.freshness_supportability",
       "core.observability.portfolio_supportability",
       "performance.observability.calculation_supportability",
       "risk.observability.calculation_supportability",
@@ -221,7 +222,6 @@
       "ai.observability.ai_surface_supportability"
     ],
     "planned_feature_keys_reviewed": [
-      "analytics.backend.observability.freshness_supportability",
       "workbench.analytics.observability.freshness_degraded_state",
       "workbench.analytics.observability.all_supported_surfaces",
       "platform.analytics.observability.ecosystem_final_closure"
@@ -253,12 +253,6 @@
     }
   ],
   "residual_scope": [
-    {
-      "feature_key": "analytics.backend.observability.freshness_supportability",
-      "status": "planned",
-      "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, lotus-gateway PR #166 consumes those source supportability blocks, lotus-workbench PR #118 consumes Gateway source_supportability arrays for supported reads, lotus-core portfolio readiness supportability is consumed through lotus-gateway PR #167 and lotus-workbench PR #120, lotus-manage action-register supportability is consumed through lotus-gateway PR #168 and lotus-workbench PR #121, lotus-report evidence-surface supportability is consumed through lotus-gateway PR #169 and lotus-workbench PR #122, lotus-ai surface supportability is consumed through lotus-gateway PR #170 and lotus-workbench PR #123, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
-    },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",

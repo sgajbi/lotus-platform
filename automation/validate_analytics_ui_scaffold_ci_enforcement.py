@@ -32,6 +32,7 @@ POST_SLICE_11_LIFECYCLE_STATUSES = {
     "slice-18-ecosystem-final-closure-implemented",
 }
 POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS = {
+    "analytics.backend.observability.freshness_supportability",
     "advise.observability.advisory_supportability",
     "ai.observability.ai_surface_supportability",
     "archive.observability.archive_supportability",

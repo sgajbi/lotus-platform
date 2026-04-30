@@ -74,6 +74,23 @@ Triage steps:
 4. Treat source degradation as service degradation unless the Workbench panel shows user-visible
    error, permission-blocked, or action-required posture.
 
+## backend-analytics-freshness-action-required
+
+Use this alert when performance or risk backend analytics freshness records `stale`, `degraded`,
+`empty`, `error`, `permission_blocked`, or `unsupported` supportability posture for at least ten
+minutes.
+
+Triage steps:
+
+1. Check the dashboard backend freshness panel by service, operation, freshness bucket, and
+   supportability state.
+2. Compare the affected source posture with Gateway fan-out degradation and Workbench panel state
+   for the same service and operation family.
+3. Escalate to `lotus-performance` or `lotus-risk` only with bounded service, operation,
+   freshness, supportability state, and source-specific runbook evidence.
+4. Do not add portfolio, client, account, transaction, trace, correlation, request, or response
+   identifiers to metric labels, dashboard variables, alert annotations, or incident summaries.
+
 ## analytics-ui-attention-events
 
 Use this alert when selected Workbench analytics panels emit action-required attention events for at
