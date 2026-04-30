@@ -232,10 +232,10 @@
       "role": "Deterministic render service supportability for report/evidence surfaces.",
       "posture": "partially_implemented",
       "feature_keys": ["render.observability.render_supportability"],
-      "gap_classification": ["render_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["render supportability is implemented in lotus-render; Gateway consumption and Workbench evidence-surface reconciliation remain planned"],
-      "required_proof": ["repo-native render tests", "render metric proof", "OpenAPI supportability docs proof", "report/evidence reconciliation"],
-      "wiki_source_decision": "Render wiki source updated for render supportability; update again when Gateway/Workbench reconciliation ships",
+      "gap_classification": ["render_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"],
+      "blockers": ["render supportability is implemented in lotus-render and reconciled through lotus-gateway PR #171 plus lotus-workbench PR #124 for supported report-batch operator reads; merge proof remains pending"],
+      "required_proof": ["repo-native render tests", "render metric proof", "OpenAPI supportability docs proof", "report/evidence reconciliation", "Gateway/Workbench render supportability reconciliation"],
+      "wiki_source_decision": "Render wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #171 and Workbench PR #124 reconciliation evidence pending merge",
       "runbook_requirements": ["render supportability runbook"]
     },
     {
@@ -243,10 +243,10 @@
       "role": "Archive retrieval, retention, legal-hold, document availability, and access-audit supportability source.",
       "posture": "partially_implemented",
       "feature_keys": ["archive.observability.archive_supportability"],
-      "gap_classification": ["archive_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["archive supportability is implemented in lotus-archive; Gateway consumption and Workbench archive-surface reconciliation remain planned"],
+      "gap_classification": ["archive_supportability_implemented", "gateway_document_retrieval_implemented", "workbench_archive_surface_reconciliation_not_supported"],
+      "blockers": ["archive supportability is implemented in lotus-archive and Gateway document retrieval exists; lotus-archive metadata still reports workbenchRetrievalSupported=false, so Workbench archive-surface reconciliation remains intentionally unsupported until a real Workbench archive retrieval surface ships"],
       "required_proof": ["repo-native archive tests", "archive metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench archive reconciliation"],
-      "wiki_source_decision": "Archive wiki source updated for archive supportability; update again when Gateway/Workbench reconciliation ships",
+      "wiki_source_decision": "Archive wiki source remains valid for source supportability and explicit Workbench non-support; update again only when a real Workbench archive retrieval surface ships",
       "runbook_requirements": ["archive supportability runbook"]
     },
     {

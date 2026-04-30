@@ -154,10 +154,11 @@
   manage action-register supportability reconciliation through Gateway PR #168 and Workbench PR #121,
   report evidence-surface supportability reconciliation through Gateway PR #169 and Workbench PR #122,
   AI surface supportability reconciliation through Gateway PR #170 and Workbench PR #123,
+  render supportability reconciliation through Gateway PR #171 plus Workbench PR #124 for supported report-batch operator reads,
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
   clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328; full
-  RFC-0079 risk/evidence scope, every supported Workbench surface, and backend freshness
-  reconciliation stay planned. Slice 15
+  RFC-0079 risk/evidence scope, Workbench archive retrieval, every supported Workbench surface, and
+  backend freshness reconciliation stay planned. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
   labels. Slice 16 implements platform-owned ecosystem proof automation for the current supported
