@@ -99,7 +99,7 @@
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
 - [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-  implemented for first-wave scope and reopened for ecosystem completion; governed front-office analytics UI
+  implemented for first-wave scope and reopened ecosystem scope closed for current implementation-backed claims; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,
   no-sensitive-content controls, supported-features governance, and canonical proof through
@@ -136,9 +136,8 @@
   branch policy, generated backend no-sensitive-content and supported-features gates, reusable
   Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially
   implemented across source supportability metrics for the current backend proof scope. Required
-  remaining ecosystem Slices 12 and 18 extend the same posture uniformly across all Lotus apps,
-  including the remaining backend supportability metrics, all Workbench supported surfaces,
-  hardening/certification, and final ecosystem closure. Slice 13 has
+  remaining ecosystem Slice 12 residuals extend the same posture uniformly across all Lotus apps,
+  including the remaining backend supportability metrics and all Workbench supported surfaces. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
   central manage/report/archive/AI client fan-out metrics, and direct lotus-core
   query/control-plane plus ingestion fan-out metrics. Slice 14 has partial Workbench proof for
@@ -158,7 +157,9 @@
   ecosystem hardening certification with a machine-readable contract, validator, and tests that
   reconcile supported features, per-repository reviews, Slice 16 proof, protected diagnostics
   OpenAPI evidence, dashboard/alert proof, residual planned scope, and no-open-P0/P1 findings.
-  Slice 18 final ecosystem closure remains planned. This is not an extension of RFC-0105 reporting
+  Slice 18 implements a separate ecosystem final closure contract, validator, and tests that
+  reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned
+  scope, local/GitHub proof, wiki publication, and branch hygiene. This is not an extension of RFC-0105 reporting
   observability.
 
 ## Recommended next implementation order

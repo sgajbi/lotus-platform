@@ -78,6 +78,13 @@ Current contracts:
     The RFC-0108 Slice 17 contract that records supported-feature audit, per-repository hardening
     review, API certification reconciliation, Slice 16 proof reconciliation, residual planned
     scope, no-open-P0/P1 findings, local proof commands, and required GitHub checks.
+23. `analytics-ui-observability-ecosystem-final-closure.schema.json`
+    The governed schema for RFC-0108 Slice 18 ecosystem final closure.
+24. `analytics-ui-observability-ecosystem-final-closure.json`
+    The RFC-0108 Slice 18 contract that records implemented-scope closure, source-contract and
+    slice-status reconciliation, supported-feature audit, residual planned-scope preservation,
+    proof/hardening reconciliation, local and GitHub proof requirements, wiki publication, branch
+    hygiene, and skills guidance review.
 
 Rules:
 

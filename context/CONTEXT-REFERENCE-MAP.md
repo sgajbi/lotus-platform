@@ -260,7 +260,8 @@ The current reporting and analytics observability governance references are:
    stuck-state/SLA attention, diagnostics, metrics, and live proof for asynchronous report evidence
    production.
 2. [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
-   implemented for first-wave scope and reopened for ecosystem completion; governs interactive front-office analytics UI
+   implemented for first-wave scope and reopened ecosystem scope closed for current
+   implementation-backed claims; governs interactive front-office analytics UI
    observability from browser to gateway to backend, including Workbench panel hydration, API
    fan-out, calculation freshness, empty/degraded/stale/error states, frontend/backend
    correlation, no-sensitive-content controls, attention and audit events, and canonical
@@ -287,7 +288,11 @@ The current reporting and analytics observability governance references are:
    for supported Workbench reads, Slice 15 implements ecosystem dashboard/alert/runbook coverage for
    current metric families, Slice 16 implements platform-owned ecosystem proof automation, and
    Slice 17 implements ecosystem hardening certification with a machine-readable contract and
-   validator. Slice 18 final ecosystem closure remains planned.
+   validator. Slice 18 implements ecosystem final closure with a separate machine-readable
+   contract, validator, and tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem
+   completion status, residual planned scope, local/GitHub proof requirements, wiki publication,
+   branch hygiene, and skills guidance. Backend freshness and full Workbench supported-surface
+   promotion remain planned residuals until separately implemented and proved.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
