@@ -201,7 +201,7 @@ def test_canonical_proof_review_rejects_dashboard_metric_drift(tmp_path: Path) -
     dashboard = json.loads(dashboard_path.read_text(encoding="utf-8"))
     drifted_dashboard = copy.deepcopy(dashboard)
     drifted_dashboard["panels"][0]["targets"][0]["expr"] = (
-        "sum(rate(lotus_gateway_analytics_fanout_duration_seconds_count[5m]))"
+        "sum(rate(lotus_unimplemented_metric_total[5m]))"
     )
     _write_json(dashboard_path, drifted_dashboard)
 
@@ -235,7 +235,7 @@ def test_canonical_proof_review_rejects_unimplemented_alert_metric(
     ) = _review(tmp_path)
     alert_rules = yaml.safe_load(alert_rules_path.read_text(encoding="utf-8"))
     alert_rules["groups"][0]["rules"][0]["expr"] = (
-        "sum(lotus_gateway_analytics_degraded_total) > 0"
+        "sum(lotus_unimplemented_metric_total) > 0"
     )
     alert_rules_path.write_text(yaml.safe_dump(alert_rules), encoding="utf-8")
 
