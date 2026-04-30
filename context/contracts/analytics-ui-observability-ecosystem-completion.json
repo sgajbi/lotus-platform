@@ -71,7 +71,7 @@
     {
       "slice_id": 14,
       "status": "partially_implemented",
-      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, explicit report-batch operator reads, Gateway-backed archive metadata/download reads, and legacy advisor Workbench gateway-backed reads/mutations are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
+      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, explicit report-batch operator reads, Gateway-backed archive metadata/download reads, legacy advisor Workbench gateway-backed reads/mutations, and Data Products catalog/dependency graph/trust certification reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
       "required_proof": ["Workbench unit tests", "typecheck", "lint", "repo-local wiki source", "browser proof", "Gateway/backend reconciliation"]
     },
     {
@@ -131,10 +131,10 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_performance_risk_reporting_advisor_archive_reads_instrumented", "legacy_advisor_workbench_gateway_reads_mutations_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
+      "gap_classification": ["supported_portfolio_performance_risk_reporting_advisor_archive_data_products_reads_instrumented", "legacy_advisor_workbench_gateway_reads_mutations_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
       "blockers": ["full RFC-0079 risk/evidence scope remains planned", "complete all-supported-surface promotion remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
-      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, Gateway-backed archive metadata/download retrieval, and legacy advisor Workbench gateway-backed read/mutation observability; published after PR #127 as wiki commit de69328. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
+      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, Gateway-backed archive metadata/download retrieval, legacy advisor Workbench gateway-backed read/mutation observability, and Data Products catalog/dependency graph/trust certification observability; published after PR #128 as wiki commit 32937b0. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
     },
     {
