@@ -97,7 +97,7 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "ci_evidence": "TWR calculation supportability is implementation-backed; broader performance freshness/supportability metrics remain planned.",
+      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138. Broader backend freshness/supportability promotion remains planned for remaining lotus-risk endpoint families and Gateway/Workbench reconciliation.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -181,7 +181,7 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "certification_status": "planned_residual",
       "openapi_required": false,
-      "evidence": "Backend freshness/supportability metric families remain planned until remaining performance and risk endpoint families are implemented and reconciled."
+      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. Backend freshness/supportability metric-family promotion remains planned until remaining risk endpoint families and Gateway/Workbench reconciliation are implemented."
     }
   ],
   "supported_features_audit": {
@@ -257,7 +257,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "Remaining performance and risk endpoint families still require backend-owned freshness and supportability metrics before promotion."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations; remaining risk endpoint families and Gateway/Workbench reconciliation still block backend freshness/supportability promotion."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
