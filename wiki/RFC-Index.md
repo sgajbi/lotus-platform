@@ -155,6 +155,7 @@
   report evidence-surface supportability reconciliation through Gateway PR #169 and Workbench PR #122,
   AI surface supportability reconciliation through Gateway PR #170 and Workbench PR #123,
   render supportability reconciliation through Gateway PR #171 plus Workbench PR #124 for supported report-batch operator reads,
+  advisory supportability reconciliation through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads,
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
   clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328; full
   RFC-0079 risk/evidence scope, Workbench archive retrieval, every supported Workbench surface, and
