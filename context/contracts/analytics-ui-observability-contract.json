@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-16-ecosystem-implementation-proof-implemented",
+  "lifecycle_status": "slice-17-ecosystem-hardening-certified",
   "allowed_labels": [
     "route",
     "panel",
@@ -471,9 +471,9 @@
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_hardening_certification",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 17 must perform second-last code review, API/Swagger certification, dashboard/alert certification, enterprise governance review, supported-features proof, and no-open-P0/P1 certification for the reopened ecosystem scope."
+      "promotion_evidence": "Slice 17 adds a machine-readable ecosystem hardening contract, schema, validator, and unit tests that reconcile supported-features posture, per-repository gap-matrix reviews, Slice 16 proof, protected diagnostics OpenAPI evidence, dashboard and alert review, residual planned scope, and no-open-P0/P1 findings before final closure."
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_final_closure",

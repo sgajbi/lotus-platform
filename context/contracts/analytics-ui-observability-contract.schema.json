@@ -44,7 +44,8 @@
         "slice-13-gateway-fanout-metrics-implemented",
         "slice-14-workbench-supported-client-reads-partial-implemented",
         "slice-15-ecosystem-dashboards-alerts-implemented",
-        "slice-16-ecosystem-implementation-proof-implemented"
+        "slice-16-ecosystem-implementation-proof-implemented",
+        "slice-17-ecosystem-hardening-certified"
       ]
     },
     "allowed_labels": {

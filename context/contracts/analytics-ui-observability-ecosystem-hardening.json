@@ -1,0 +1,289 @@
+{
+  "contract_id": "analytics-ui-observability-ecosystem-hardening",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-17-ecosystem-hardening-certified",
+  "source_contracts": [
+    "analytics-ui-observability-contract",
+    "analytics-ui-observability-ecosystem-completion",
+    "analytics-ui-observability-ecosystem-proof"
+  ],
+  "review_scope": [
+    {
+      "area": "supported journey proof",
+      "status": "passed",
+      "evidence": "Slice 16 proof covers the implemented portfolio, performance, risk, advisory, management-action, report/evidence, and AI-backed journeys for PB_SG_GLOBAL_BAL_001 with screenshot, API, dashboard, alert, protected diagnostics, and no-sensitive assertions."
+    },
+    {
+      "area": "repository gap matrix",
+      "status": "passed",
+      "evidence": "Every participating Lotus repository has an explicit gap-matrix row, reviewed feature keys, CI/proof posture, wiki-source decision, runbook requirement, and no-open-P0/P1 posture."
+    },
+    {
+      "area": "api and swagger certification",
+      "status": "passed",
+      "evidence": "The only ecosystem proof OpenAPI-required path is Gateway protected diagnostics, which Slice 16 validates against Gateway OpenAPI. Metrics endpoints remain outside OpenAPI by policy."
+    },
+    {
+      "area": "dashboard and alerts",
+      "status": "passed",
+      "evidence": "Slice 15 and Slice 16 reconcile dashboard and alert references to implemented metric families only, including Workbench, Gateway, and AI supportability metrics."
+    },
+    {
+      "area": "residual planned scope",
+      "status": "planned_residual",
+      "evidence": "Backend freshness/supportability, full Workbench freshness/degraded promotion, and full all-supported-surface promotion remain planned and blocked from supported-feature promotion."
+    }
+  ],
+  "repository_reviews": [
+    {
+      "repository": "lotus-platform",
+      "review_status": "certified_current_scope",
+      "feature_keys_reviewed": [
+        "platform.analytics.observability.ecosystem_completion_contract",
+        "platform.analytics.observability.scaffold_ci_enforcement",
+        "platform.analytics.observability.ecosystem_dashboards_alerts",
+        "platform.analytics.observability.ecosystem_implementation_proof",
+        "platform.analytics.observability.ecosystem_hardening_certification",
+        "platform.analytics.observability.ecosystem_final_closure"
+      ],
+      "ci_evidence": "Slice 17 platform validators and unit tests are required before PR; GitHub Feature Lane and PR Merge Gate remain required before merge.",
+      "api_certification_posture": "certified",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-workbench",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": [
+        "workbench.analytics.observability.contract_vocabulary",
+        "workbench.analytics.observability.correlation_trace",
+        "workbench.analytics.observability.panel_state_metrics",
+        "workbench.analytics.observability.attention_events",
+        "workbench.analytics.observability.canonical_proof",
+        "workbench.analytics.observability.freshness_degraded_state",
+        "workbench.analytics.observability.all_supported_surfaces"
+      ],
+      "ci_evidence": "Current implemented Workbench scope is protected by prior repo-native proof and Slice 16 canonical evidence; freshness/degraded and all-supported-surface promotion remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-gateway",
+      "review_status": "certified_current_scope",
+      "feature_keys_reviewed": [
+        "gateway.analytics.observability.contract_vocabulary",
+        "gateway.analytics.observability.correlation_trace",
+        "gateway.analytics.observability.structured_fanout_logs",
+        "gateway.analytics.observability.fanout_metrics",
+        "gateway.analytics.observability.protected_diagnostics",
+        "gateway.analytics.observability.all_ui_fanout_paths"
+      ],
+      "ci_evidence": "Gateway fan-out, protected diagnostics, audit, and OpenAPI proof are implementation-backed by prior merged Gateway PRs and Slice 16 proof reconciliation.",
+      "api_certification_posture": "certified",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-core",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["core.observability.portfolio_supportability"],
+      "ci_evidence": "Portfolio supportability is implementation-backed in lotus-core; Gateway and Workbench reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-performance",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": [
+        "analytics.backend.observability.freshness_supportability",
+        "performance.observability.calculation_supportability"
+      ],
+      "ci_evidence": "TWR calculation supportability is implementation-backed; broader performance freshness/supportability metrics remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-risk",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": [
+        "analytics.backend.observability.freshness_supportability",
+        "risk.observability.calculation_supportability"
+      ],
+      "ci_evidence": "Risk/calculate supportability is implementation-backed; broader risk freshness/supportability metrics remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-advise",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["advise.observability.advisory_supportability"],
+      "ci_evidence": "Advisory supportability is implementation-backed; Gateway and Workbench advisory reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-manage",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["manage.observability.action_register_supportability"],
+      "ci_evidence": "Action-register supportability is implementation-backed; Gateway and Workbench reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-report",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["report.observability.evidence_surface_supportability"],
+      "ci_evidence": "Evidence-surface supportability is implementation-backed; Gateway and Workbench evidence reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-render",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["render.observability.render_supportability"],
+      "ci_evidence": "Render supportability is implementation-backed; report/evidence reconciliation remains planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-archive",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["archive.observability.archive_supportability"],
+      "ci_evidence": "Archive supportability is implementation-backed; Gateway and Workbench archive-surface reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    },
+    {
+      "repository": "lotus-ai",
+      "review_status": "planned_residual",
+      "feature_keys_reviewed": ["ai.observability.ai_surface_supportability"],
+      "ci_evidence": "AI surface supportability is implementation-backed; Gateway and Workbench AI-backed surface reconciliation remain planned.",
+      "api_certification_posture": "planned_residual",
+      "no_open_p0_p1": true
+    }
+  ],
+  "api_certification_review": [
+    {
+      "surface": "Gateway protected analytics UI diagnostics",
+      "owner_repo": "lotus-gateway",
+      "certification_status": "certified",
+      "openapi_required": true,
+      "evidence": "Slice 16 ecosystem proof requires /api/v1/analytics-ui/diagnostics/{support_reference} in Gateway OpenAPI and validates a protected diagnostics response without forbidden fields."
+    },
+    {
+      "surface": "Workbench and Gateway analytics metrics endpoints",
+      "owner_repo": "lotus-workbench/lotus-gateway",
+      "certification_status": "not_changed",
+      "openapi_required": false,
+      "evidence": "Metrics endpoints remain outside OpenAPI schema by contract policy and are certified through metric-family, dashboard, alert, and scrape proof."
+    },
+    {
+      "surface": "Backend freshness and supportability metrics",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "certification_status": "planned_residual",
+      "openapi_required": false,
+      "evidence": "Backend freshness/supportability metric families remain planned until remaining performance and risk endpoint families are implemented and reconciled."
+    }
+  ],
+  "supported_features_audit": {
+    "policy": "implementation_backed_only",
+    "implemented_feature_keys_reviewed": [
+      "platform.scaffolding.analytics_ui_observability_baseline",
+      "platform.analytics.observability.telemetry_contract",
+      "platform.analytics.observability.rollout_readiness",
+      "platform.analytics.observability.hardening_certification",
+      "platform.analytics.observability.final_closure",
+      "platform.analytics.observability.ecosystem_completion_contract",
+      "platform.analytics.observability.scaffold_ci_enforcement",
+      "platform.analytics.observability.ecosystem_dashboards_alerts",
+      "platform.analytics.observability.ecosystem_implementation_proof",
+      "platform.analytics.observability.ecosystem_hardening_certification",
+      "workbench.analytics.observability.correlation_trace",
+      "workbench.analytics.observability.contract_vocabulary",
+      "workbench.analytics.observability.panel_state_metrics",
+      "workbench.analytics.observability.safe_dashboard",
+      "workbench.analytics.observability.attention_events",
+      "workbench.analytics.observability.entitlement_audit_events",
+      "workbench.analytics.observability.canonical_proof",
+      "gateway.analytics.observability.fanout_metrics",
+      "gateway.analytics.observability.protected_diagnostics",
+      "gateway.analytics.observability.all_ui_fanout_paths",
+      "gateway.analytics.observability.structured_fanout_logs",
+      "gateway.analytics.observability.correlation_trace",
+      "gateway.analytics.observability.contract_vocabulary",
+      "core.observability.portfolio_supportability",
+      "performance.observability.calculation_supportability",
+      "risk.observability.calculation_supportability",
+      "advise.observability.advisory_supportability",
+      "manage.observability.action_register_supportability",
+      "report.observability.evidence_surface_supportability",
+      "render.observability.render_supportability",
+      "archive.observability.archive_supportability",
+      "ai.observability.ai_surface_supportability"
+    ],
+    "planned_feature_keys_reviewed": [
+      "analytics.backend.observability.freshness_supportability",
+      "workbench.analytics.observability.freshness_degraded_state",
+      "workbench.analytics.observability.all_supported_surfaces",
+      "platform.analytics.observability.ecosystem_final_closure"
+    ]
+  },
+  "proof_reconciliation": {
+    "ecosystem_proof_contract": "analytics-ui-observability-ecosystem-proof",
+    "protected_diagnostics_reviewed": true,
+    "openapi_paths_reviewed": [
+      "/api/v1/analytics-ui/diagnostics/{support_reference}"
+    ],
+    "dashboard_alerts_reviewed": true,
+    "no_sensitive_content_reviewed": true
+  },
+  "findings": [
+    {
+      "finding_id": "RFC0108-ECOSYSTEM-HARDENING-001",
+      "severity": "P2",
+      "status": "closed",
+      "summary": "Ecosystem hardening needed executable reconciliation to Slice 16 proof instead of relying on RFC narrative.",
+      "evidence": "Slice 17 adds a machine-readable ecosystem hardening contract and validator that consumes the observability contract, ecosystem-completion contract, and Slice 16 ecosystem proof contract."
+    },
+    {
+      "finding_id": "RFC0108-ECOSYSTEM-HARDENING-002",
+      "severity": "P3",
+      "status": "planned_residual",
+      "summary": "Backend freshness/supportability and full Workbench promotion remain planned.",
+      "evidence": "Residual features remain planned in supported features, ecosystem proof, and ecosystem hardening contracts."
+    }
+  ],
+  "residual_scope": [
+    {
+      "feature_key": "analytics.backend.observability.freshness_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "reason": "Remaining performance and risk endpoint families still require backend-owned freshness and supportability metrics before promotion."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
+      "reason": "Full promotion remains blocked until all participating backend supportability signals are reconciled through Gateway and Workbench."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.all_supported_surfaces",
+      "status": "planned",
+      "owner_repo": "lotus-workbench",
+      "reason": "Full RFC-0079 risk/evidence scope and backend freshness completion remain outside Slice 17 hardening certification."
+    }
+  ],
+  "required_local_commands": [
+    "python automation\\validate_analytics_ui_observability_contract.py",
+    "python automation\\validate_analytics_ui_ecosystem_completion.py",
+    "python automation\\validate_analytics_ui_ecosystem_hardening.py",
+    "python -m pytest tests\\unit\\test_analytics_ui_ecosystem_hardening.py tests\\unit\\test_analytics_ui_ecosystem_completion.py tests\\unit\\test_analytics_ui_observability_contract.py -q",
+    "python -m ruff check automation\\validate_analytics_ui_ecosystem_hardening.py automation\\validate_analytics_ui_ecosystem_completion.py automation\\validate_analytics_ui_observability_contract.py tests\\unit\\test_analytics_ui_ecosystem_hardening.py tests\\unit\\test_analytics_ui_ecosystem_completion.py tests\\unit\\test_analytics_ui_observability_contract.py"
+  ],
+  "required_github_checks": [
+    "Cross-App Vocabulary Gate",
+    "Feature Lane / Platform Repo Contracts",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Platform Repo Contracts",
+    "PR Merge Gate / Workflow Lint"
+  ]
+}

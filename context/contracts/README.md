@@ -72,6 +72,12 @@ Current contracts:
     The RFC-0108 Slice 16 contract that records the supported end-to-end Lotus user journeys,
     canonical runtime identity, protected diagnostics proof, Gateway OpenAPI proof, dashboard and
     alert reconciliation, residual planned scope, and local proof commands.
+21. `analytics-ui-observability-ecosystem-hardening.schema.json`
+    The governed schema for RFC-0108 Slice 17 ecosystem hardening certification.
+22. `analytics-ui-observability-ecosystem-hardening.json`
+    The RFC-0108 Slice 17 contract that records supported-feature audit, per-repository hardening
+    review, API certification reconciliation, Slice 16 proof reconciliation, residual planned
+    scope, no-open-P0/P1 findings, local proof commands, and required GitHub checks.
 
 Rules:
 

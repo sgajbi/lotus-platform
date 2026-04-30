@@ -43,6 +43,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-14-workbench-supported-client-reads-partial-implemented",
         "slice-15-ecosystem-dashboards-alerts-implemented",
         "slice-16-ecosystem-implementation-proof-implemented",
+        "slice-17-ecosystem-hardening-certified",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -64,7 +65,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "slice-13-gateway-fanout-metrics-implemented, or "
             "slice-14-workbench-supported-client-reads-partial-implemented, or "
             "slice-15-ecosystem-dashboards-alerts-implemented, or "
-            "slice-16-ecosystem-implementation-proof-implemented"
+            "slice-16-ecosystem-implementation-proof-implemented, or "
+            "slice-17-ecosystem-hardening-certified"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -214,6 +216,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                 "slice-14-workbench-supported-client-reads-partial-implemented",
                 "slice-15-ecosystem-dashboards-alerts-implemented",
                 "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
             }
             and key in implemented_slice_12_partial_keys
         ):
@@ -227,6 +230,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                 "slice-14-workbench-supported-client-reads-partial-implemented",
                 "slice-15-ecosystem-dashboards-alerts-implemented",
                 "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
             }
             and key in (
                 implemented_slice_13_keys
@@ -236,6 +240,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                     "slice-14-workbench-supported-client-reads-partial-implemented",
                     "slice-15-ecosystem-dashboards-alerts-implemented",
                     "slice-16-ecosystem-implementation-proof-implemented",
+                    "slice-17-ecosystem-hardening-certified",
                 }
                 else implemented_slice_13_partial_keys
             )
@@ -247,6 +252,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             in {
                 "slice-15-ecosystem-dashboards-alerts-implemented",
                 "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
             }
             and key == "platform.analytics.observability.ecosystem_dashboards_alerts"
         ):
@@ -254,11 +260,20 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                 errors.append(f"{key}: status must be implemented after Slice 15 proof")
         elif (
             contract.get("lifecycle_status")
-            == "slice-16-ecosystem-implementation-proof-implemented"
+            in {
+                "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
+            }
             and key == "platform.analytics.observability.ecosystem_implementation_proof"
         ):
             if status != "implemented":
                 errors.append(f"{key}: status must be implemented after Slice 16 proof")
+        elif (
+            contract.get("lifecycle_status") == "slice-17-ecosystem-hardening-certified"
+            and key == "platform.analytics.observability.ecosystem_hardening_certification"
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 17 proof")
         elif status != "planned":
             errors.append(
                 f"{key}: status must remain planned until implementation proof exists"

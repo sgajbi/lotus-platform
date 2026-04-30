@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Reopened For Ecosystem Completion; Slice 16 Ecosystem Implementation Proof Complete
+- Status: Reopened For Ecosystem Completion; Slice 17 Ecosystem Hardening Certified
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:
@@ -1003,6 +1003,18 @@ Exit criteria:
 4. gaps are fixed or explicitly rejected as unsupported with owner-approved rationale.
 
 ### Ecosystem Completion Slice 17: Ecosystem Hardening, Review, And Certification
+
+Status: implemented. Slice 17 adds
+`context/contracts/analytics-ui-observability-ecosystem-hardening.json` and
+`automation/validate_analytics_ui_ecosystem_hardening.py`, plus validator tests, to make the
+second-last reopened-ecosystem review executable rather than narrative-only. The validator
+reconciles the Slice 16 proof contract, the ecosystem-completion gap matrix, supported-features
+status, protected diagnostics OpenAPI proof, dashboard and alert proof, per-repository review
+rows, residual planned scope, local proof commands, GitHub check expectations, and no-open-P0/P1
+findings. It promotes only
+`platform.analytics.observability.ecosystem_hardening_certification`; backend freshness,
+Workbench freshness/degraded-state promotion, all-supported-surface promotion, and final ecosystem
+closure remain planned.
 
 Purpose: perform the required second-last review for the reopened ecosystem scope.
 
