@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-13-gateway-fanout-metrics-implemented",
+  "lifecycle_status": "slice-14-workbench-supported-client-reads-partial-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -70,9 +70,9 @@
     },
     {
       "slice_id": 14,
-      "status": "planned",
-      "purpose": "Roll observability out to every supported Workbench surface.",
-      "required_proof": ["Workbench tests", "browser proof", "Gateway/backend reconciliation"]
+      "status": "partially_implemented",
+      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned.",
+      "required_proof": ["Workbench unit tests", "typecheck", "lint", "repo-local wiki source", "browser proof", "Gateway/backend reconciliation"]
     },
     {
       "slice_id": 15,
@@ -131,10 +131,10 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["selected_panels_implemented", "all_supported_surfaces_planned", "source_backed_freshness_planned"],
-      "blockers": ["backend freshness/supportability metrics are not complete", "Workbench all-supported-surface rollout remains planned"],
+      "gap_classification": ["supported_portfolio_performance_risk_reporting_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "performance_evidence_context_partially_reconciled", "source_backed_freshness_planned"],
+      "blockers": ["backend freshness/supportability metrics are not complete", "full RFC-0079 risk/evidence scope remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
-      "wiki_source_decision": "Workbench repo-local wiki source must document supported surfaces after Slice 14",
+      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability; final supported-surface posture must be updated again after Slice 14 completion proof",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
     },
     {

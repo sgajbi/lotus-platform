@@ -142,8 +142,15 @@
   ecosystem proof, hardening/certification, and final ecosystem closure. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
   central manage/report/archive/AI client fan-out metrics, and direct lotus-core
-  query/control-plane plus ingestion fan-out metrics. This is not an extension of RFC-0105
-  reporting observability.
+  query/control-plane plus ingestion fan-out metrics. Slice 14 has partial Workbench proof for
+  supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator
+  reads through a code-owned observed-surface registry reconciled to the governed endpoint registry
+  with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
+  source support-state proof for `supportability.state` / `supportability.freshness_bucket`, and
+  partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench;
+  full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. This is not an
+  extension of
+  RFC-0105 reporting observability.
 
 ## Recommended next implementation order
 

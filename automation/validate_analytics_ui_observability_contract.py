@@ -40,6 +40,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         "slice-12-backend-supportability-partial-implemented",
         "slice-13-gateway-fanout-metrics-partial-implemented",
         "slice-13-gateway-fanout-metrics-implemented",
+        "slice-14-workbench-supported-client-reads-partial-implemented",
     }
     if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
         errors.append(
@@ -58,7 +59,8 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "slice-11-scaffold-ci-enforcement-implemented, or "
             "slice-12-backend-supportability-partial-implemented, or "
             "slice-13-gateway-fanout-metrics-partial-implemented, or "
-            "slice-13-gateway-fanout-metrics-implemented"
+            "slice-13-gateway-fanout-metrics-implemented, or "
+            "slice-14-workbench-supported-client-reads-partial-implemented"
         )
 
     allowed_labels = set(contract.get("allowed_labels", []))
@@ -205,6 +207,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
                 "slice-12-backend-supportability-partial-implemented",
                 "slice-13-gateway-fanout-metrics-partial-implemented",
                 "slice-13-gateway-fanout-metrics-implemented",
+                "slice-14-workbench-supported-client-reads-partial-implemented",
             }
             and key in implemented_slice_12_partial_keys
         ):
@@ -215,11 +218,15 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             in {
                 "slice-13-gateway-fanout-metrics-partial-implemented",
                 "slice-13-gateway-fanout-metrics-implemented",
+                "slice-14-workbench-supported-client-reads-partial-implemented",
             }
             and key in (
                 implemented_slice_13_keys
                 if contract.get("lifecycle_status")
-                == "slice-13-gateway-fanout-metrics-implemented"
+                in {
+                    "slice-13-gateway-fanout-metrics-implemented",
+                    "slice-14-workbench-supported-client-reads-partial-implemented",
+                }
                 else implemented_slice_13_partial_keys
             )
         ):

@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-13-gateway-fanout-metrics-implemented"
+        == "slice-14-workbench-supported-client-reads-partial-implemented"
     )
 
 
@@ -83,7 +83,8 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> No
     assert statuses[11] == "implemented"
     assert statuses[12] == "partially_implemented"
     assert statuses[13] == "implemented"
-    assert {statuses[slice_id] for slice_id in range(14, 19)} == {"planned"}
+    assert statuses[14] == "partially_implemented"
+    assert {statuses[slice_id] for slice_id in range(15, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:

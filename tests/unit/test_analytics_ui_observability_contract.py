@@ -66,7 +66,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
         contract["lifecycle_status"]
-        == "slice-13-gateway-fanout-metrics-implemented"
+        == "slice-14-workbench-supported-client-reads-partial-implemented"
     )
 
 
@@ -142,6 +142,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        "supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads"
+        in next(
+            entry["promotion_evidence"]
+            for entry in contract["supported_feature_keys"]
+            if entry["feature_key"]
+            == "workbench.analytics.observability.panel_state_metrics"
+        )
+    )
+    assert (
         feature_status["workbench.analytics.observability.safe_dashboard"]
         == "implemented"
     )
@@ -210,6 +219,14 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     )
     assert (
         feature_status["ai.observability.ai_surface_supportability"] == "implemented"
+    )
+    assert (
+        feature_status["workbench.analytics.observability.all_supported_surfaces"]
+        == "planned"
+    )
+    assert (
+        feature_status["workbench.analytics.observability.freshness_degraded_state"]
+        == "planned"
     )
     assert {
         status
