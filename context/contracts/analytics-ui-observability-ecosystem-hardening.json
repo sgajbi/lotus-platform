@@ -32,7 +32,7 @@
     {
       "area": "residual planned scope",
       "status": "planned_residual",
-      "evidence": "Gateway source supportability reconciliation is now implemented for performance/risk analytics through Gateway PR #166 and core portfolio readiness through Gateway PR #167. Workbench source_supportability reconciliation for supported performance/risk reads is implemented through Workbench PR #118, portfolio readiness supportability consumption is implemented through Workbench PR #120, and clean governed canonical runtime proof passed after Workbench PR #119 and lotus-core PR #328. Full Workbench freshness/degraded promotion and full all-supported-surface promotion remain planned until complete RFC-0079 risk/evidence and all-supported-surface coverage are separately implemented and certified."
+      "evidence": "Gateway source supportability reconciliation is now implemented for performance/risk analytics through Gateway PR #166, core portfolio readiness through Gateway PR #167, manage action-register reads through Gateway PR #168, and report evidence-surface batch reads through Gateway PR #169. Workbench source_supportability reconciliation for supported performance/risk reads is implemented through Workbench PR #118, portfolio readiness supportability consumption is implemented through Workbench PR #120, manage action-register supportability consumption is implemented through Workbench PR #121, report evidence-surface supportability consumption for report-batch operator reads is implemented through Workbench PR #122, and clean governed canonical runtime proof passed after Workbench PR #119 and lotus-core PR #328. Full Workbench freshness/degraded promotion and full all-supported-surface promotion remain planned until complete RFC-0079 risk/evidence and all-supported-surface coverage are separately implemented and certified."
     }
   ],
   "repository_reviews": [
@@ -132,7 +132,7 @@
       "repository": "lotus-report",
       "review_status": "planned_residual",
       "feature_keys_reviewed": ["report.observability.evidence_surface_supportability"],
-      "ci_evidence": "Evidence-surface supportability is implementation-backed; Gateway and Workbench evidence reconciliation remain planned.",
+      "ci_evidence": "Evidence-surface supportability is implementation-backed in lotus-report, consumed through lotus-gateway PR #169 for report-batch create/status/run-once supportability, and consumed by lotus-workbench PR #122 for bounded report-batch supportability metrics without sensitive labels.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -248,8 +248,8 @@
       "finding_id": "RFC0108-ECOSYSTEM-HARDENING-002",
       "severity": "P3",
       "status": "planned_residual",
-      "summary": "Workbench source_supportability reconciliation is implemented for supported performance/risk reads, portfolio readiness, and manage action-register supportability carried through the portfolio workspace; full Workbench promotion remains planned.",
-      "evidence": "Gateway PR #166 closed the performance/risk Gateway source supportability reconciliation gap, Workbench PR #118 closed supported performance/risk source_supportability consumption, Gateway PR #167 and Workbench PR #120 closed the supported portfolio readiness supportability reconciliation gap, Gateway PR #168 and Workbench PR #121 closed manage action-register supportability reconciliation into the portfolio workspace rebalance summary and bounded no-sensitive metrics, and Workbench PR #119 plus lotus-core PR #328 closed the clean governed canonical runtime proof gap. Residual Workbench feature promotion remains planned in supported features, ecosystem proof, and ecosystem hardening contracts because full RFC-0079 risk/evidence and complete all-supported-surface coverage are still required."
+      "summary": "Workbench source_supportability reconciliation is implemented for supported performance/risk reads, portfolio readiness, manage action-register supportability carried through the portfolio workspace, and report evidence-surface supportability carried through report-batch operator reads; full Workbench promotion remains planned.",
+      "evidence": "Gateway PR #166 closed the performance/risk Gateway source supportability reconciliation gap, Workbench PR #118 closed supported performance/risk source_supportability consumption, Gateway PR #167 and Workbench PR #120 closed the supported portfolio readiness supportability reconciliation gap, Gateway PR #168 and Workbench PR #121 closed manage action-register supportability reconciliation into the portfolio workspace rebalance summary and bounded no-sensitive metrics, Gateway PR #169 and Workbench PR #122 closed report evidence-surface supportability reconciliation into report-batch create/status/run-once responses and bounded no-sensitive metrics, and Workbench PR #119 plus lotus-core PR #328 closed the clean governed canonical runtime proof gap. Residual Workbench feature promotion remains planned in supported features, ecosystem proof, and ecosystem hardening contracts because full RFC-0079 risk/evidence and complete all-supported-surface coverage are still required."
     }
   ],
   "residual_scope": [
