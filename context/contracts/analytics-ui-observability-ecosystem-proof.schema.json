@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-ecosystem-proof.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "canonical_runtime",
+    "required_journeys",
+    "protected_diagnostics_proof",
+    "openapi_proof",
+    "dashboard_alert_proof",
+    "residual_scope",
+    "local_proof_commands"
+  ],
+  "properties": {
+    "contract_id": { "const": "analytics-ui-observability-ecosystem-proof" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": {
+      "const": "slice-16-ecosystem-implementation-proof-implemented"
+    },
+    "canonical_runtime": {
+      "type": "object",
+      "required": [
+        "portfolio_id",
+        "benchmark_code",
+        "governed_as_of_date",
+        "minimum_screenshot_count",
+        "allowed_partial_panels"
+      ],
+      "properties": {
+        "portfolio_id": { "type": "string" },
+        "benchmark_code": { "type": "string" },
+        "governed_as_of_date": { "type": "string" },
+        "minimum_screenshot_count": { "type": "integer", "minimum": 1 },
+        "allowed_partial_panels": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "required_journeys": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/journey" },
+      "minItems": 1
+    },
+    "protected_diagnostics_proof": {
+      "type": "object",
+      "required": [
+        "endpoint",
+        "support_reference",
+        "expected_audit_event",
+        "required_safe_dimensions",
+        "forbidden_response_fields"
+      ],
+      "properties": {
+        "endpoint": { "type": "string" },
+        "support_reference": { "type": "string" },
+        "expected_audit_event": { "type": "string" },
+        "required_safe_dimensions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "forbidden_response_fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "openapi_proof": {
+      "type": "object",
+      "required": ["required_paths", "metrics_endpoint_policy"],
+      "properties": {
+        "required_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "metrics_endpoint_policy": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "dashboard_alert_proof": {
+      "type": "object",
+      "required": ["implemented_metrics_only", "required_dashboard_ids", "required_alert_ids"],
+      "properties": {
+        "implemented_metrics_only": { "const": true },
+        "required_dashboard_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "required_alert_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "residual_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/residual" },
+      "minItems": 1
+    },
+    "local_proof_commands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "journey": {
+      "type": "object",
+      "required": [
+        "journey_id",
+        "status",
+        "required_api_descriptions",
+        "required_panel_ids"
+      ],
+      "properties": {
+        "journey_id": { "type": "string" },
+        "status": { "const": "implemented" },
+        "required_api_descriptions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "required_panel_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "residual": {
+      "type": "object",
+      "required": ["feature_key", "status", "rationale"],
+      "properties": {
+        "feature_key": { "type": "string" },
+        "status": { "const": "planned" },
+        "rationale": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

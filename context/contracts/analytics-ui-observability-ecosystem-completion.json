@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-15-ecosystem-dashboards-alerts-implemented",
+  "lifecycle_status": "slice-16-ecosystem-implementation-proof-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -82,9 +82,9 @@
     },
     {
       "slice_id": 16,
-      "status": "planned",
-      "purpose": "Prove the complete supported Lotus user journey end to end.",
-      "required_proof": ["live proof bundle", "proof review automation", "no-sensitive evidence assertions"]
+      "status": "implemented",
+      "purpose": "Prove the complete supported Lotus user journey end to end across the current implemented RFC-0108 scope while preserving backend freshness and full RFC-0079 residuals as planned.",
+      "required_proof": ["live proof bundle", "proof review automation", "protected diagnostics proof", "OpenAPI diagnostics proof", "dashboard/alert reconciliation", "no-sensitive evidence assertions"]
     },
     {
       "slice_id": 17,
@@ -112,8 +112,8 @@
         "platform.analytics.observability.ecosystem_hardening_certification",
         "platform.analytics.observability.ecosystem_final_closure"
       ],
-      "gap_classification": ["slices_10_11_15_implemented", "slices_16_17_18_planned"],
-      "blockers": ["ecosystem implementation proof, hardening, and final closure remain planned"],
+      "gap_classification": ["slices_10_11_15_16_implemented", "slices_17_18_planned"],
+      "blockers": ["ecosystem hardening and final closure remain planned"],
       "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
       "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
       "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]

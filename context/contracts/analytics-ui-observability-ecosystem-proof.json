@@ -1,0 +1,153 @@
+{
+  "contract_id": "analytics-ui-observability-ecosystem-proof",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-16-ecosystem-implementation-proof-implemented",
+  "canonical_runtime": {
+    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "benchmark_code": "BMK_PB_GLOBAL_BALANCED_60_40",
+    "governed_as_of_date": "2026-04-10",
+    "minimum_screenshot_count": 7,
+    "allowed_partial_panels": ["performance.evidence"]
+  },
+  "required_journeys": [
+    {
+      "journey_id": "portfolio-state",
+      "status": "implemented",
+      "required_api_descriptions": [
+        "Foundation workspace",
+        "Workbench portfolio route"
+      ],
+      "required_panel_ids": ["portfolio.summary", "portfolio.detailed"]
+    },
+    {
+      "journey_id": "performance-analytics",
+      "status": "implemented",
+      "required_api_descriptions": [
+        "Performance summary",
+        "Performance details",
+        "Workbench performance route"
+      ],
+      "required_panel_ids": [
+        "performance.summary",
+        "performance.analysis.contribution",
+        "performance.analysis.attribution"
+      ]
+    },
+    {
+      "journey_id": "risk-analytics",
+      "status": "implemented",
+      "required_api_descriptions": [
+        "Risk summary",
+        "Risk concentration",
+        "Risk drawdown",
+        "Risk rolling",
+        "Risk attribution"
+      ],
+      "required_panel_ids": [
+        "performance.risk.snapshot",
+        "performance.risk.concentration",
+        "performance.risk.drawdown",
+        "performance.risk.rolling",
+        "performance.risk.historical_attribution"
+      ]
+    },
+    {
+      "journey_id": "advisory-and-management-action-register",
+      "status": "implemented",
+      "required_api_descriptions": [
+        "Advisor brief",
+        "Advisor brief ACCEPT review action",
+        "Advisor brief SUPERSEDE review action",
+        "Advisor brief REVISE review action",
+        "lotus-manage integration capabilities"
+      ],
+      "required_panel_ids": ["performance.advisor_brief"]
+    },
+    {
+      "journey_id": "report-evidence-and-render-archive-backed-posture",
+      "status": "implemented",
+      "required_api_descriptions": [
+        "lotus-report integration capabilities",
+        "Gateway platform capabilities"
+      ],
+      "required_panel_ids": ["performance.evidence"]
+    },
+    {
+      "journey_id": "ai-backed-support",
+      "status": "implemented",
+      "required_api_descriptions": ["Advisor brief source metrics"],
+      "required_panel_ids": ["performance.advisor_brief"]
+    }
+  ],
+  "protected_diagnostics_proof": {
+    "endpoint": "/api/v1/analytics-ui/diagnostics/{support_reference}",
+    "support_reference": "gdiag-risk-summary-permission-blocked",
+    "expected_audit_event": "gateway.analytics.audit.protected_diagnostics_lookup",
+    "required_safe_dimensions": ["operation", "service", "state", "reason"],
+    "forbidden_response_fields": [
+      "account_id",
+      "advisor_behavior",
+      "advisor_id",
+      "client_id",
+      "client_name",
+      "correlation_id",
+      "document_id",
+      "holding_id",
+      "household_id",
+      "instrument_id",
+      "model_output",
+      "portfolio_id",
+      "raw_entitlement_failure",
+      "raw_prompt",
+      "request_body",
+      "response_body",
+      "screen_content",
+      "session_id",
+      "simulation_session_id",
+      "trace_id",
+      "transaction_id",
+      "upload_id"
+    ]
+  },
+  "openapi_proof": {
+    "required_paths": ["/api/v1/analytics-ui/diagnostics/{support_reference}"],
+    "metrics_endpoint_policy": "metrics endpoint outside OpenAPI schema"
+  },
+  "dashboard_alert_proof": {
+    "implemented_metrics_only": true,
+    "required_dashboard_ids": ["analytics-ui-observability-overview"],
+    "required_alert_ids": [
+      "analytics-ui-panel-hydration-latency-p95",
+      "analytics-ui-panel-error-rate",
+      "analytics-ui-api-request-latency-p95",
+      "gateway-analytics-fanout-latency-p95",
+      "gateway-analytics-degraded-sources",
+      "analytics-ui-attention-events",
+      "ai-surface-supportability-degraded"
+    ]
+  },
+  "residual_scope": [
+    {
+      "feature_key": "analytics.backend.observability.freshness_supportability",
+      "status": "planned",
+      "rationale": "remaining performance and risk endpoint families still require backend-owned freshness and supportability metrics before promotion"
+    },
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "rationale": "full promotion remains blocked until all participating backend supportability signals are reconciled through Gateway and Workbench"
+    },
+    {
+      "feature_key": "workbench.analytics.observability.all_supported_surfaces",
+      "status": "planned",
+      "rationale": "full RFC-0079 risk/evidence scope and backend freshness completion remain outside Slice 16 proof"
+    }
+  ],
+  "local_proof_commands": [
+    "powershell -ExecutionPolicy Bypass -File automation\\Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory output\\rfc-0108-slice-14-canonical-qa",
+    "python automation\\review_analytics_ui_ecosystem_proof.py output\\front-office-qa\\latest.json --protected-diagnostics-url http://gateway.dev.lotus/api/v1/analytics-ui/diagnostics/gdiag-risk-summary-permission-blocked --gateway-openapi-url http://gateway.dev.lotus/openapi.json",
+    "python automation\\validate_analytics_ui_observability_contract.py",
+    "python automation\\validate_analytics_ui_ecosystem_completion.py"
+  ]
+}

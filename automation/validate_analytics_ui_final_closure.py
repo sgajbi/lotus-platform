@@ -48,6 +48,7 @@ def validate_final_closure(
         "slice-13-gateway-fanout-metrics-implemented",
         "slice-14-workbench-supported-client-reads-partial-implemented",
         "slice-15-ecosystem-dashboards-alerts-implemented",
+        "slice-16-ecosystem-implementation-proof-implemented",
     }
     if observability_contract.get("lifecycle_status") not in allowed_reopened_lifecycle:
         errors.append(
@@ -57,7 +58,8 @@ def validate_final_closure(
             "slice-13-gateway-fanout-metrics-partial-implemented, or "
             "slice-13-gateway-fanout-metrics-implemented, or "
             "slice-14-workbench-supported-client-reads-partial-implemented, or "
-            "slice-15-ecosystem-dashboards-alerts-implemented"
+            "slice-15-ecosystem-dashboards-alerts-implemented, or "
+            "slice-16-ecosystem-implementation-proof-implemented"
         )
 
     closure_scope = final_closure.get("closure_scope", {})

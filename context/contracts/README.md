@@ -66,6 +66,12 @@ Current contracts:
     Workbench observability surface defaults, platform CI wiring, generated workflow templates, and
     reusable validators that keep observability, OpenAPI, supported-features, docs/wiki, evidence,
     and no-sensitive-content checks platform-owned.
+19. `analytics-ui-observability-ecosystem-proof.schema.json`
+    The governed schema for RFC-0108 Slice 16 ecosystem implementation proof.
+20. `analytics-ui-observability-ecosystem-proof.json`
+    The RFC-0108 Slice 16 contract that records the supported end-to-end Lotus user journeys,
+    canonical runtime identity, protected diagnostics proof, Gateway OpenAPI proof, dashboard and
+    alert reconciliation, residual planned scope, and local proof commands.
 
 Rules:
 

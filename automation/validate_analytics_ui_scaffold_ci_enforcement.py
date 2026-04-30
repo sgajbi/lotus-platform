@@ -27,6 +27,7 @@ POST_SLICE_11_LIFECYCLE_STATUSES = {
     "slice-13-gateway-fanout-metrics-implemented",
     "slice-14-workbench-supported-client-reads-partial-implemented",
     "slice-15-ecosystem-dashboards-alerts-implemented",
+    "slice-16-ecosystem-implementation-proof-implemented",
 }
 POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS = {
     "advise.observability.advisory_supportability",

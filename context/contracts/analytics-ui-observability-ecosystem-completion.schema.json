@@ -32,7 +32,8 @@
         "slice-13-gateway-fanout-metrics-partial-implemented",
         "slice-13-gateway-fanout-metrics-implemented",
         "slice-14-workbench-supported-client-reads-partial-implemented",
-        "slice-15-ecosystem-dashboards-alerts-implemented"
+        "slice-15-ecosystem-dashboards-alerts-implemented",
+        "slice-16-ecosystem-implementation-proof-implemented"
       ]
     },
     "participating_repositories": {
