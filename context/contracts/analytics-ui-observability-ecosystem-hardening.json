@@ -32,7 +32,7 @@
     {
       "area": "residual planned scope",
       "status": "planned_residual",
-      "evidence": "Gateway source supportability reconciliation is now implemented for performance/risk analytics through Gateway PR #166, Workbench source_supportability reconciliation for supported performance/risk reads is implemented through Workbench PR #118, and clean governed canonical runtime proof passed after Workbench PR #119 and lotus-core PR #328. Full Workbench freshness/degraded promotion and full all-supported-surface promotion remain planned until complete RFC-0079 risk/evidence and all-supported-surface coverage are separately implemented and certified."
+      "evidence": "Gateway source supportability reconciliation is now implemented for performance/risk analytics through Gateway PR #166 and core portfolio readiness through Gateway PR #167. Workbench source_supportability reconciliation for supported performance/risk reads is implemented through Workbench PR #118, portfolio readiness supportability consumption is implemented through Workbench PR #120, and clean governed canonical runtime proof passed after Workbench PR #119 and lotus-core PR #328. Full Workbench freshness/degraded promotion and full all-supported-surface promotion remain planned until complete RFC-0079 risk/evidence and all-supported-surface coverage are separately implemented and certified."
     }
   ],
   "repository_reviews": [
@@ -86,7 +86,7 @@
       "repository": "lotus-core",
       "review_status": "planned_residual",
       "feature_keys_reviewed": ["core.observability.portfolio_supportability"],
-      "ci_evidence": "Portfolio supportability is implementation-backed in lotus-core; Gateway and Workbench reconciliation remain planned.",
+      "ci_evidence": "Portfolio supportability is implementation-backed in lotus-core, consumed through lotus-gateway PR #167 for portfolio readiness, and consumed by lotus-workbench PR #120 for supported detailed portfolio reads and no-sensitive readiness metrics.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -181,7 +181,7 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "certification_status": "planned_residual",
       "openapi_required": false,
-      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway PR #166 now consumes those source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
+      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway PR #166 now consumes those source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. lotus-core portfolio readiness supportability is consumed through Gateway PR #167 and Workbench PR #120 for supported portfolio reads. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
     }
   ],
   "supported_features_audit": {
@@ -248,8 +248,8 @@
       "finding_id": "RFC0108-ECOSYSTEM-HARDENING-002",
       "severity": "P3",
       "status": "planned_residual",
-      "summary": "Workbench source_supportability reconciliation is implemented for supported performance/risk reads; full Workbench promotion remains planned.",
-      "evidence": "Gateway PR #166 closed the performance/risk Gateway source supportability reconciliation gap, Workbench PR #118 closed supported performance/risk source_supportability consumption, and Workbench PR #119 plus lotus-core PR #328 closed the clean governed canonical runtime proof gap. Residual Workbench feature promotion remains planned in supported features, ecosystem proof, and ecosystem hardening contracts because full RFC-0079 risk/evidence and complete all-supported-surface coverage are still required."
+      "summary": "Workbench source_supportability reconciliation is implemented for supported performance/risk reads and portfolio readiness; full Workbench promotion remains planned.",
+      "evidence": "Gateway PR #166 closed the performance/risk Gateway source supportability reconciliation gap, Workbench PR #118 closed supported performance/risk source_supportability consumption, Gateway PR #167 and Workbench PR #120 closed the supported portfolio readiness supportability reconciliation gap, and Workbench PR #119 plus lotus-core PR #328 closed the clean governed canonical runtime proof gap. Residual Workbench feature promotion remains planned in supported features, ecosystem proof, and ecosystem hardening contracts because full RFC-0079 risk/evidence and complete all-supported-surface coverage are still required."
     }
   ],
   "residual_scope": [
@@ -257,13 +257,13 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, lotus-gateway PR #166 consumes those source supportability blocks, lotus-workbench PR #118 consumes Gateway source_supportability arrays for supported reads, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, lotus-gateway PR #166 consumes those source supportability blocks, lotus-workbench PR #118 consumes Gateway source_supportability arrays for supported reads, lotus-core portfolio readiness supportability is consumed through lotus-gateway PR #167 and lotus-workbench PR #120, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into the experience API, Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
+      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into the experience API, Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays, Gateway PR #167 and Workbench PR #120 reconcile core portfolio readiness supportability into supported portfolio reads, and Workbench PR #119 plus lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
