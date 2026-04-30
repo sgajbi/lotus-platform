@@ -199,10 +199,10 @@
       "role": "Advisory proposal, recommendation, suitability, and decision-support supportability source.",
       "posture": "partially_implemented",
       "feature_keys": ["advise.observability.advisory_supportability"],
-      "gap_classification": ["advisory_supportability_implemented", "gateway_workbench_reconciliation_planned"],
-      "blockers": ["advisory supportability is implemented in lotus-advise; Gateway consumption and Workbench advisory surface reconciliation remain planned"],
+      "gap_classification": ["advisory_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"],
+      "blockers": ["advisory supportability is implemented in lotus-advise and reconciled through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads"],
       "required_proof": ["repo-native advisory tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench advisory surface reconciliation"],
-      "wiki_source_decision": "Advise wiki source updated for advisory supportability; update again when Gateway/Workbench reconciliation ships",
+      "wiki_source_decision": "Advise wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #172 and Workbench PR #125 advisory supportability reconciliation evidence",
       "runbook_requirements": ["advisory supportability runbook"]
     },
     {
@@ -233,9 +233,9 @@
       "posture": "partially_implemented",
       "feature_keys": ["render.observability.render_supportability"],
       "gap_classification": ["render_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"],
-      "blockers": ["render supportability is implemented in lotus-render and reconciled through lotus-gateway PR #171 plus lotus-workbench PR #124 for supported report-batch operator reads; merge proof remains pending"],
+      "blockers": ["render supportability is implemented in lotus-render and reconciled through lotus-gateway PR #171 plus lotus-workbench PR #124 for supported report-batch operator reads"],
       "required_proof": ["repo-native render tests", "render metric proof", "OpenAPI supportability docs proof", "report/evidence reconciliation", "Gateway/Workbench render supportability reconciliation"],
-      "wiki_source_decision": "Render wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #171 and Workbench PR #124 reconciliation evidence pending merge",
+      "wiki_source_decision": "Render wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #171 and Workbench PR #124 reconciliation evidence",
       "runbook_requirements": ["render supportability runbook"]
     },
     {
