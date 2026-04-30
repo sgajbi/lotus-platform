@@ -73,7 +73,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations through PR #138; remaining risk endpoint families and Gateway/Workbench reconciliation still block backend freshness/supportability promotion."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations through PR #138, and lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway/Workbench reconciliation still blocks backend freshness/supportability promotion."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
@@ -85,7 +85,7 @@
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
       "owner_repo": "lotus-workbench",
-      "reason": "Full RFC-0079 risk/evidence scope, remaining risk freshness/supportability completion, and Workbench reconciliation remain outside Slice 18 final closure."
+      "reason": "Full RFC-0079 risk/evidence scope and Workbench reconciliation remain outside Slice 18 final closure."
     }
   ],
   "proof_reconciliation": {

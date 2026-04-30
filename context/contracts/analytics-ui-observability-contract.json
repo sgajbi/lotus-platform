@@ -575,7 +575,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "promotion_evidence": "lotus-performance now emits calculation_supportability and lotus_performance_calculation_supportability_total for completed TWR, MWR, contribution, and attribution calculations through PR #138. Full backend freshness/supportability promotion remains planned until remaining lotus-risk endpoint families and Gateway/Workbench state reconciliation are complete."
+      "promotion_evidence": "lotus-performance now emits calculation_supportability and lotus_performance_calculation_supportability_total for completed TWR, MWR, contribution, and attribution calculations through PR #138. lotus-risk PR #107 extends metadata.calculation_supportability and lotus_risk_calculation_supportability_total across risk/calculate, drawdown, rolling metrics, historical attribution, and concentration. Full backend freshness/supportability promotion remains planned until Gateway/Workbench state reconciliation is complete."
     },
     {
       "feature_key": "core.observability.portfolio_supportability",
@@ -593,7 +593,7 @@
       "feature_key": "risk.observability.calculation_supportability",
       "status": "implemented",
       "owner_repo": "lotus-risk",
-      "promotion_evidence": "Slice 12 partial proof implements lotus-risk risk/calculate source-backed calculation supportability via metadata.calculation_supportability, lotus_risk_calculation_supportability_total with bounded labels only, integration capability publication, repo-native unit/integration tests for ready/stale/degraded/empty posture, OpenAPI quality proof, docs, and wiki source updates."
+      "promotion_evidence": "Slice 12 partial proof implemented lotus-risk risk/calculate source-backed calculation supportability via metadata.calculation_supportability, lotus_risk_calculation_supportability_total with bounded labels only, integration capability publication, repo-native tests, OpenAPI quality proof, docs, and wiki source updates. PR #107 completes the same source-owned supportability contract across drawdown, rolling metrics, historical attribution, and concentration with green Feature Lane and PR Merge Gate checks, docs, vocabulary, monetary-float guard baseline, and published wiki source."
     },
     {
       "feature_key": "advise.observability.advisory_supportability",
