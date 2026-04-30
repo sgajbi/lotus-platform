@@ -131,17 +131,17 @@
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
-      "rationale": "remaining performance and risk endpoint families still require backend-owned freshness and supportability metrics before promotion"
+      "rationale": "performance/risk source supportability is implementation-backed in the domain services and consumed by Gateway PR #166; Workbench canonical browser reconciliation is still required before full UI promotion"
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
-      "rationale": "full promotion remains blocked until all participating backend supportability signals are reconciled through Gateway and Workbench"
+      "rationale": "Gateway PR #166 reconciles performance/risk source supportability into the experience API; full promotion remains blocked until Workbench proves those Gateway-backed states end to end"
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
-      "rationale": "full RFC-0079 risk/evidence scope and backend freshness completion remain outside Slice 16 proof"
+      "rationale": "full RFC-0079 risk/evidence scope and Workbench supportability reconciliation remain outside Slice 16 proof"
     }
   ],
   "local_proof_commands": [

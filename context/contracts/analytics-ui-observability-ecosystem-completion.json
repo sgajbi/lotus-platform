@@ -59,7 +59,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate, lotus-performance TWR, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented, while remaining performance/risk endpoint families and Gateway/Workbench reconciliation stay planned.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench reconciliation stays planned.",
       "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
     },
     {
@@ -131,8 +131,8 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_performance_risk_reporting_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "performance_evidence_context_partially_reconciled", "source_backed_freshness_planned"],
-      "blockers": ["backend freshness/supportability metrics are not complete", "full RFC-0079 risk/evidence scope remains planned"],
+      "gap_classification": ["supported_portfolio_performance_risk_reporting_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk", "performance_evidence_context_partially_reconciled", "workbench_reconciliation_planned"],
+      "blockers": ["Workbench canonical browser reconciliation for Gateway-backed supportability states remains planned", "full RFC-0079 risk/evidence scope remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
       "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability; final supported-surface posture must be updated again after Slice 14 completion proof",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
@@ -149,10 +149,10 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_implemented", "all_ui_fanout_paths_implemented"],
-      "blockers": ["Gateway fan-out coverage is implemented for selected Workbench analytics, central manage/report/archive/AI client seams, and direct lotus-core query/control-plane plus ingestion paths; ecosystem dashboard and final proof work remains in later platform slices"],
-      "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof"],
-      "wiki_source_decision": "Gateway repo-local wiki source must document diagnostics and fan-out metrics after Slice 13",
+      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_implemented", "all_ui_fanout_paths_implemented", "performance_risk_source_supportability_reconciled"],
+      "blockers": ["no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics; Workbench canonical browser reconciliation remains planned in lotus-workbench"],
+      "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof", "source supportability reconciliation proof"],
+      "wiki_source_decision": "Gateway repo-local wiki source documents diagnostics, fan-out metrics, and performance/risk source supportability reconciliation; published after PR #166",
       "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]
     },
     {
@@ -174,10 +174,10 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "gap_classification": ["twr_calculation_supportability_implemented", "broader_backend_freshness_metrics_planned"],
-      "blockers": ["TWR supportability is implemented in lotus-performance; MWR, contribution, attribution, Gateway consumption, and Workbench reconciliation remain planned"],
-      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "OpenAPI quality proof", "API vocabulary proof", "freshness metric proof for remaining performance surfaces", "Gateway/Workbench reconciliation"],
-      "wiki_source_decision": "Performance wiki source updated for TWR supportability; update again when remaining performance supportability surfaces ship",
+      "gap_classification": ["twr_mwr_contribution_attribution_supportability_implemented", "gateway_supportability_consumption_implemented", "workbench_reconciliation_planned"],
+      "blockers": ["TWR, MWR, contribution, and attribution supportability are implemented in lotus-performance and consumed by lotus-gateway PR #166; Workbench reconciliation remains planned"],
+      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "OpenAPI quality proof", "API vocabulary proof", "Gateway source supportability reconciliation proof", "Workbench reconciliation"],
+      "wiki_source_decision": "Performance wiki source updated and published for TWR, MWR, contribution, and attribution supportability; update again when Workbench reconciliation ships",
       "runbook_requirements": ["performance calculation supportability runbook"]
     },
     {
@@ -188,10 +188,10 @@
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "gap_classification": ["risk_calculate_supportability_implemented", "broader_backend_freshness_metrics_planned"],
-      "blockers": ["risk supportability is implemented for risk/calculate only; concentration, drawdown, rolling metrics, historical attribution, Gateway consumption, and Workbench reconciliation remain planned"],
-      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "OpenAPI quality proof", "freshness metric proof for remaining risk surfaces", "Gateway/Workbench reconciliation"],
-      "wiki_source_decision": "Risk wiki source updated for risk/calculate supportability; update again when remaining risk supportability surfaces ship",
+      "gap_classification": ["risk_calculate_drawdown_rolling_historical_attribution_concentration_supportability_implemented", "gateway_supportability_consumption_implemented", "workbench_reconciliation_planned"],
+      "blockers": ["risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implemented in lotus-risk and consumed by lotus-gateway PR #166; Workbench reconciliation remains planned"],
+      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "OpenAPI quality proof", "Gateway source supportability reconciliation proof", "Workbench reconciliation"],
+      "wiki_source_decision": "Risk wiki source updated and published for risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability; update again when Workbench reconciliation ships",
       "runbook_requirements": ["risk calculation supportability runbook"]
     },
     {

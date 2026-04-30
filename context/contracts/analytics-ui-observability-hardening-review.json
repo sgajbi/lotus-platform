@@ -27,7 +27,7 @@
     {
       "area": "residual unsupported scope",
       "status": "planned_residual",
-      "evidence": "Backend freshness/supportability metrics, full caller-context entitlement certification, all-UI Gateway fan-out rollout, and broad Workbench rollout remain planned and blocked from supported-feature promotion."
+      "evidence": "Historical pre-ecosystem hardening snapshot: backend freshness/supportability, full caller-context entitlement certification, all-UI Gateway fan-out rollout, and broad Workbench rollout were planned at that time. Current ecosystem contracts supersede this with performance/risk supportability implemented in domain services and consumed by Gateway PR #166, while Workbench reconciliation remains planned."
     }
   ],
   "telemetry_field_review": {
@@ -90,7 +90,7 @@
       "changed_by_rfc0108": false,
       "openapi_required": false,
       "certification_status": "planned_residual",
-      "evidence": "Backend freshness/supportability metric emission remains planned and must be proven before Workbench freshness support is promoted."
+      "evidence": "Historical pre-ecosystem review: backend freshness/supportability metric emission was planned at that time. Current ecosystem contracts record performance/risk source supportability plus Gateway PR #166 consumption; Workbench freshness support still requires browser reconciliation before promotion."
     }
   ],
   "dashboard_certification_review": {
@@ -131,7 +131,7 @@
       "finding_id": "RFC0108-HARDENING-003",
       "severity": "P3",
       "status": "planned_residual",
-      "summary": "Backend freshness/supportability metrics remain planned.",
+      "summary": "Workbench supportability reconciliation remains planned after later backend and Gateway supportability work.",
       "evidence": "Gateway fan-out metrics are implementation-backed through Slice 13; backend residual scope remains in analytics-ui-observability-rollout-readiness and supported features with planned status."
     }
   ],
@@ -146,7 +146,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "Performance and risk services do not yet emit backend freshness/supportability metrics."
+      "reason": "Historical pre-ecosystem residual; performance/risk supportability is now implementation-backed and consumed by Gateway PR #166, while Workbench browser reconciliation remains planned."
     }
   ],
   "required_local_commands": [
