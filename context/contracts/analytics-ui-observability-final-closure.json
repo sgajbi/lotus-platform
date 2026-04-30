@@ -69,13 +69,7 @@
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Backend-owned freshness/supportability metrics are required before Workbench can claim source-backed freshness/degraded-state observability."
-    },
-    {
-      "feature_key": "analytics.backend.observability.freshness_supportability",
-      "status": "planned",
-      "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "Historical pre-ecosystem closure residual; performance and risk source supportability now exists in domain services, is consumed by Gateway PR #166, and is consumed by Workbench PR #118 for supported reads. Full promotion still requires clean governed canonical runtime proof."
+      "reason": "Performance/risk backend freshness and supportability metrics are implemented and consumed by Gateway/Workbench for supported reads; full Workbench promotion still requires complete RFC-0079 risk/evidence and all-supported-surface certification."
     }
   ],
   "clean_state_requirements": [

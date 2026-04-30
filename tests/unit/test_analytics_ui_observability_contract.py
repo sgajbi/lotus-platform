@@ -237,6 +237,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert (
         feature_status["archive.observability.archive_supportability"] == "implemented"
     )
+    archive_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"] == "archive.observability.archive_supportability"
+    )
+    assert "Workbench PR #126 implements Gateway/BFF-backed" in archive_evidence
+    assert "workbenchRetrievalSupported=true" in archive_evidence
+    assert "workbenchRetrievalSupported=false" not in archive_evidence
+    assert "direct Workbench-to-archive calls remain unsupported" in archive_evidence
     assert (
         feature_status["report.observability.evidence_surface_supportability"]
         == "implemented"

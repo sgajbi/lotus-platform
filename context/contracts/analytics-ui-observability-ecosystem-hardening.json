@@ -148,7 +148,7 @@
       "repository": "lotus-archive",
       "review_status": "planned_residual",
       "feature_keys_reviewed": ["archive.observability.archive_supportability"],
-      "ci_evidence": "Archive supportability is implementation-backed; Gateway and Workbench archive-surface reconciliation remain planned.",
+      "ci_evidence": "Archive supportability is implementation-backed; Workbench PR #126 implements Gateway/BFF-backed archive metadata and binary download retrieval, and lotus-archive commit 203ec6d updates source metadata/docs/tests for Gateway-backed Workbench retrieval while direct Workbench-to-archive calls remain unsupported.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },

@@ -131,15 +131,8 @@
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "blocker": "Backend freshness and supportability counters are not implemented across performance and risk services.",
-      "next_action": "Implement backend-owned freshness/supportability metrics and reconcile Workbench panel states against those metrics."
-    },
-    {
-      "feature_key": "analytics.backend.observability.freshness_supportability",
-      "status": "planned",
-      "owner_repo": "lotus-performance/lotus-risk",
-      "blocker": "Backend analytics freshness and supportability telemetry remains planned.",
-      "next_action": "Add backend metric emission, tests, and gateway/Workbench state reconciliation proof."
+      "blocker": "Performance/risk backend freshness and supportability metrics are implemented and consumed by Gateway/Workbench for supported reads; full freshness/degraded-state promotion still needs complete RFC-0079 risk/evidence and all-supported-surface certification.",
+      "next_action": "Certify full RFC-0079 risk/evidence and all-supported-surface coverage before promoting this Workbench feature key."
     }
   ]
 }

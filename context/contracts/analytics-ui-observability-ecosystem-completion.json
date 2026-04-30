@@ -71,7 +71,7 @@
     {
       "slice_id": 14,
       "status": "partially_implemented",
-      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
+      "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, client-side Performance, Risk, explicit report-batch operator reads, and Gateway-backed archive metadata/download reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
       "required_proof": ["Workbench unit tests", "typecheck", "lint", "repo-local wiki source", "browser proof", "Gateway/backend reconciliation"]
     },
     {
@@ -131,10 +131,10 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_performance_risk_reporting_advisor_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai", "workbench_source_supportability_reconciled_for_performance_risk_report_ai", "performance_evidence_context_partially_reconciled"],
+      "gap_classification": ["supported_portfolio_performance_risk_reporting_advisor_archive_reads_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
       "blockers": ["full RFC-0079 risk/evidence scope remains planned", "complete all-supported-surface promotion remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
-      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability and source supportability reconciliation; published after PR #118. Final supported-surface posture must be updated again after clean canonical runtime proof and full RFC-0079 risk/evidence completion.",
+      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, and Gateway-backed archive metadata/download retrieval; published after PR #126. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
     },
     {
@@ -243,10 +243,10 @@
       "role": "Archive retrieval, retention, legal-hold, document availability, and access-audit supportability source.",
       "posture": "partially_implemented",
       "feature_keys": ["archive.observability.archive_supportability"],
-      "gap_classification": ["archive_supportability_implemented", "gateway_document_retrieval_implemented", "workbench_archive_surface_reconciliation_not_supported"],
-      "blockers": ["archive supportability is implemented in lotus-archive and Gateway document retrieval exists; lotus-archive metadata still reports workbenchRetrievalSupported=false, so Workbench archive-surface reconciliation remains intentionally unsupported until a real Workbench archive retrieval surface ships"],
+      "gap_classification": ["archive_supportability_implemented", "gateway_document_retrieval_implemented", "gateway_backed_workbench_archive_retrieval_implemented"],
+      "blockers": ["archive supportability is implemented in lotus-archive, Gateway document retrieval exists, Workbench PR #126 retrieves archive metadata and downloads through the BFF/Gateway boundary, and lotus-archive commit 203ec6d records workbenchRetrievalSupported=true for Gateway-backed Workbench retrieval only"],
       "required_proof": ["repo-native archive tests", "archive metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench archive reconciliation"],
-      "wiki_source_decision": "Archive wiki source remains valid for source supportability and explicit Workbench non-support; update again only when a real Workbench archive retrieval surface ships",
+      "wiki_source_decision": "Archive wiki source documents Gateway-backed Workbench retrieval support and preserves the direct Workbench-to-archive non-support boundary; Workbench wiki source was published after PR #126",
       "runbook_requirements": ["archive supportability runbook"]
     },
     {
