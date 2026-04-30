@@ -131,17 +131,17 @@
     {
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
-      "rationale": "performance/risk source supportability is implementation-backed in the domain services, consumed by Gateway PR #166, and consumed by Workbench PR #118 for supported reads; clean governed canonical runtime proof is still required before full UI promotion"
+      "rationale": "performance/risk source supportability is implementation-backed in the domain services, consumed by Gateway PR #166, consumed by Workbench PR #118 for supported reads, and proven through clean canonical runtime follow-up in Workbench PR #119 and lotus-core PR #328; full backend freshness/supportability promotion remains planned until every supported metric family and surface is separately implemented and certified"
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
-      "rationale": "Gateway PR #166 reconciles performance/risk source supportability into the experience API and Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays; full promotion remains blocked until clean governed canonical runtime proof passes end to end"
+      "rationale": "Gateway PR #166 reconciles performance/risk source supportability into the experience API, Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays, and Workbench PR #119 plus lotus-core PR #328 prove the governed canonical runtime end to end; full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage"
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
-      "rationale": "full RFC-0079 risk/evidence scope and clean governed canonical runtime proof remain outside Slice 16 proof"
+      "rationale": "clean governed canonical runtime proof is complete for the current supported surface; full RFC-0079 risk/evidence scope and every supported Workbench surface remain outside Slice 16 proof until separately implemented and certified"
     }
   ],
   "local_proof_commands": [
