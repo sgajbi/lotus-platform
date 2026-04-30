@@ -67,7 +67,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
         contract["lifecycle_status"]
-        == "slice-15-ecosystem-dashboards-alerts-implemented"
+        == "slice-16-ecosystem-implementation-proof-implemented"
     )
 
 
@@ -136,6 +136,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     )
     assert (
         feature_status["platform.analytics.observability.ecosystem_dashboards_alerts"]
+        == "implemented"
+    )
+    assert (
+        feature_status["platform.analytics.observability.ecosystem_implementation_proof"]
         == "implemented"
     )
     assert (
@@ -250,6 +254,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "platform.analytics.observability.ecosystem_completion_contract",
             "platform.analytics.observability.scaffold_ci_enforcement",
             "platform.analytics.observability.ecosystem_dashboards_alerts",
+            "platform.analytics.observability.ecosystem_implementation_proof",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",

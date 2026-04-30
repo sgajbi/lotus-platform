@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-15-ecosystem-dashboards-alerts-implemented"
+        == "slice-16-ecosystem-implementation-proof-implemented"
     )
 
 
@@ -85,7 +85,8 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> No
     assert statuses[13] == "implemented"
     assert statuses[14] == "partially_implemented"
     assert statuses[15] == "implemented"
-    assert {statuses[slice_id] for slice_id in range(16, 19)} == {"planned"}
+    assert statuses[16] == "implemented"
+    assert {statuses[slice_id] for slice_id in range(17, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
@@ -221,6 +222,27 @@ def test_analytics_ui_ecosystem_completion_requires_slice_15_feature_implemented
 
     assert any(
         "platform.analytics.observability.ecosystem_dashboards_alerts: Slice 15 feature must be implemented"
+        in error
+        or "platform.analytics.observability.ecosystem_dashboards_alerts: Slice 16 platform feature must be implemented"
+        in error
+        for error in errors
+    )
+
+
+def test_analytics_ui_ecosystem_completion_requires_slice_16_feature_implemented() -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if (
+            feature["feature_key"]
+            == "platform.analytics.observability.ecosystem_implementation_proof"
+        ):
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        "platform.analytics.observability.ecosystem_implementation_proof: Slice 16 platform feature must be implemented"
         in error
         for error in errors
     )

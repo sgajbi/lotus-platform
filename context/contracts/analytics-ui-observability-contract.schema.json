@@ -39,7 +39,12 @@
         "final-closure-implemented",
         "slice-10-ecosystem-contract-implemented",
         "slice-11-scaffold-ci-enforcement-implemented",
-        "slice-12-backend-supportability-partial-implemented"
+        "slice-12-backend-supportability-partial-implemented",
+        "slice-13-gateway-fanout-metrics-partial-implemented",
+        "slice-13-gateway-fanout-metrics-implemented",
+        "slice-14-workbench-supported-client-reads-partial-implemented",
+        "slice-15-ecosystem-dashboards-alerts-implemented",
+        "slice-16-ecosystem-implementation-proof-implemented"
       ]
     },
     "allowed_labels": {

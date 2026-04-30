@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-15-ecosystem-dashboards-alerts-implemented",
+  "lifecycle_status": "slice-16-ecosystem-implementation-proof-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -465,9 +465,9 @@
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_implementation_proof",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 16 must prove the complete user journey across Workbench, Gateway, domain services, dashboards, alerts, audits, protected diagnostics, OpenAPI, and no-sensitive-content assertions."
+      "promotion_evidence": "Slice 16 adds a platform-owned ecosystem proof contract and reviewer that reconciles the live canonical Workbench proof bundle, supported portfolio/performance/risk/advisory/manage/report/evidence/AI journeys, browser screenshots, Gateway-backed API checks, workflow-pack supportability actions, dashboard and alert implemented-metric references, protected diagnostics lookup, Gateway OpenAPI diagnostics route evidence, residual planned scope, and no-sensitive-content assertions. Backend freshness metrics, full RFC-0079 risk/evidence scope, and final hardening remain planned."
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_hardening_certification",
