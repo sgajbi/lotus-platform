@@ -28,6 +28,7 @@ ALERT_RULES_PATH = (
     / "rules"
     / "analytics-ui-observability.rules.yml"
 )
+RUNBOOK_PATH = ROOT / "docs" / "operations" / "analytics-ui-observability-runbook.md"
 
 
 def _load_contract() -> dict:
@@ -66,7 +67,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
         contract["lifecycle_status"]
-        == "slice-14-workbench-supported-client-reads-partial-implemented"
+        == "slice-15-ecosystem-dashboards-alerts-implemented"
     )
 
 
@@ -79,9 +80,13 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         "analytics-ui-observability-overview"
     }
     assert {alert["alert_id"] for alert in contract["alerts"]} == {
+        "analytics-ui-panel-hydration-latency-p95",
         "analytics-ui-panel-error-rate",
         "analytics-ui-api-request-latency-p95",
+        "gateway-analytics-fanout-latency-p95",
+        "gateway-analytics-degraded-sources",
         "analytics-ui-attention-events",
+        "ai-surface-supportability-degraded",
     }
     implemented_metrics = {
         entry["metric_name"]
@@ -127,6 +132,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     )
     assert (
         feature_status["platform.analytics.observability.scaffold_ci_enforcement"]
+        == "implemented"
+    )
+    assert (
+        feature_status["platform.analytics.observability.ecosystem_dashboards_alerts"]
         == "implemented"
     )
     assert (
@@ -240,6 +249,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "platform.analytics.observability.final_closure",
             "platform.analytics.observability.ecosystem_completion_contract",
             "platform.analytics.observability.scaffold_ci_enforcement",
+            "platform.analytics.observability.ecosystem_dashboards_alerts",
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
@@ -538,14 +548,15 @@ def test_analytics_ui_observability_dashboard_references_only_implemented_metric
 
     assert dashboard["uid"] == "analytics-ui-observability-overview"
     assert dashboard["title"] == "Analytics UI Observability Overview"
-    assert len(dashboard["panels"]) == 4
-    assert dashboard_metric_names <= implemented_metric_names
+    assert len(dashboard["panels"]) == 7
+    assert dashboard_metric_names == implemented_metric_names
     assert all(forbidden not in dashboard_text for forbidden in forbidden_variables)
 
 
 def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
     contract = _load_contract()
     rules = yaml.safe_load(ALERT_RULES_PATH.read_text(encoding="utf-8"))
+    runbook = RUNBOOK_PATH.read_text(encoding="utf-8")
 
     expected_alerts = {
         alert["alert_id"]: {
@@ -555,6 +566,11 @@ def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
             "runbook_path": alert["runbook_path"],
         }
         for alert in contract["alerts"]
+    }
+    implemented_metric_names = {
+        entry["metric_name"]
+        for entry in contract["metric_families"]
+        if entry["implemented"]
     }
     actual_alerts = {}
     for group in rules["groups"]:
@@ -574,12 +590,14 @@ def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
         ]
     )
     assert set(actual_alerts) == set(expected_alerts)
+    assert {alert["metric_name"] for alert in expected_alerts.values()} == implemented_metric_names
     for alert_id, expected in expected_alerts.items():
         actual = actual_alerts[alert_id]
         assert actual["severity"] == expected["severity"]
         assert actual["owner_repo"] == expected["owner_repo"]
         assert actual["runbook_path"] == expected["runbook_path"]
         assert expected["metric_name"] in actual["expr"]
+        assert f"## {alert_id}" in runbook
         serialized_annotations = json.dumps(actual["annotations"], sort_keys=True)
         assert all(
             forbidden not in serialized_annotations

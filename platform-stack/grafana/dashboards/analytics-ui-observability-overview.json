@@ -180,6 +180,126 @@
       ],
       "title": "Analytics UI Attention Events (15m)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, service, operation, status_class) (rate(lotus_gateway_analytics_fanout_duration_seconds_bucket[15m])))",
+          "legendFormat": "{{ service }} {{ operation }} {{ status_class }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway Analytics Fan-out P95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (service, operation, reason) (increase(lotus_gateway_analytics_degraded_total[15m]))",
+          "legendFormat": "{{ service }} {{ operation }} {{ reason }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway Degraded Analytics Sources (15m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (surface, posture, source) (lotus_ai_surface_supportability_state)",
+          "legendFormat": "{{ surface }} {{ posture }} {{ source }}",
+          "refId": "A"
+        }
+      ],
+      "title": "AI Surface Supportability",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",
@@ -197,6 +317,6 @@
   "timezone": "",
   "title": "Analytics UI Observability Overview",
   "uid": "analytics-ui-observability-overview",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
