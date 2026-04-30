@@ -21,6 +21,7 @@ DEFAULT_HARDENING_PATH = (
 )
 
 LIFECYCLE_STATUS = "slice-17-ecosystem-hardening-certified"
+POST_HARDENING_LIFECYCLE_STATUS = "slice-18-ecosystem-final-closure-implemented"
 HARDENING_FEATURE_KEY = (
     "platform.analytics.observability.ecosystem_hardening_certification"
 )
@@ -69,14 +70,21 @@ def _validate_identity(
         errors.append("governed_by_rfc must be RFC-0108")
     if hardening.get("lifecycle_status") != LIFECYCLE_STATUS:
         errors.append(f"lifecycle_status must be {LIFECYCLE_STATUS}")
-    if observability_contract.get("lifecycle_status") != LIFECYCLE_STATUS:
+    if observability_contract.get("lifecycle_status") not in {
+        LIFECYCLE_STATUS,
+        POST_HARDENING_LIFECYCLE_STATUS,
+    }:
         errors.append(
-            f"analytics-ui-observability-contract lifecycle_status must be {LIFECYCLE_STATUS}"
+            "analytics-ui-observability-contract lifecycle_status must be "
+            f"{LIFECYCLE_STATUS} or {POST_HARDENING_LIFECYCLE_STATUS}"
         )
-    if ecosystem_contract.get("lifecycle_status") != LIFECYCLE_STATUS:
+    if ecosystem_contract.get("lifecycle_status") not in {
+        LIFECYCLE_STATUS,
+        POST_HARDENING_LIFECYCLE_STATUS,
+    }:
         errors.append(
             "analytics-ui-observability-ecosystem-completion lifecycle_status must "
-            f"be {LIFECYCLE_STATUS}"
+            f"be {LIFECYCLE_STATUS} or {POST_HARDENING_LIFECYCLE_STATUS}"
         )
 
 
@@ -182,7 +190,11 @@ def _validate_supported_features(
     statuses = _feature_status(observability_contract)
     if statuses.get(HARDENING_FEATURE_KEY) != "implemented":
         errors.append(f"{HARDENING_FEATURE_KEY} must be implemented for Slice 17")
-    if statuses.get(FINAL_CLOSURE_FEATURE_KEY) != "planned":
+    final_closure_is_implemented = (
+        statuses.get(FINAL_CLOSURE_FEATURE_KEY) == "implemented"
+        and observability_contract.get("lifecycle_status") == POST_HARDENING_LIFECYCLE_STATUS
+    )
+    if statuses.get(FINAL_CLOSURE_FEATURE_KEY) != "planned" and not final_closure_is_implemented:
         errors.append(f"{FINAL_CLOSURE_FEATURE_KEY} must remain planned before Slice 18")
 
     audit = hardening.get("supported_features_audit", {})
@@ -192,6 +204,9 @@ def _validate_supported_features(
         feature_key
         for feature_key, status in statuses.items()
         if status == "implemented" and feature_key not in implemented_reviewed
+        and not (
+            feature_key == FINAL_CLOSURE_FEATURE_KEY and final_closure_is_implemented
+        )
     )
     planned_missing = sorted(
         feature_key

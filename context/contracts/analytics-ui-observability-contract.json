@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-contract",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-17-ecosystem-hardening-certified",
+  "lifecycle_status": "slice-18-ecosystem-final-closure-implemented",
   "allowed_labels": [
     "route",
     "panel",
@@ -477,9 +477,9 @@
     },
     {
       "feature_key": "platform.analytics.observability.ecosystem_final_closure",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 18 must close RFC-0108 only after all included Lotus apps have uniform implementation-backed observability and operational posture, docs/wiki/context/source truth is updated, wikis are published, branches are clean, and residual unsupported scope is explicitly owner-approved."
+      "promotion_evidence": "Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving backend freshness and full Workbench supported-surface residuals as planned."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",

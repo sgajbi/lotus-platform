@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-17-ecosystem-hardening-certified",
+  "lifecycle_status": "slice-18-ecosystem-final-closure-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -94,16 +94,16 @@
     },
     {
       "slice_id": 18,
-      "status": "planned",
-      "purpose": "Close RFC-0108 after uniform ecosystem observability is implemented and published.",
-      "required_proof": ["final closure contract", "wiki publication evidence", "clean repo evidence"]
+      "status": "implemented",
+      "purpose": "Close RFC-0108 for the current implementation-backed ecosystem observability scope while preserving unsupported backend freshness and full Workbench promotion residuals as planned.",
+      "required_proof": ["ecosystem final closure contract", "wiki publication evidence", "clean repo evidence", "residual scope reconciliation"]
     }
   ],
   "app_gap_matrix": [
     {
       "repository": "lotus-platform",
       "role": "Platform contracts, automation, dashboards, CI, runbooks, wiki, and final evidence aggregation.",
-      "posture": "partially_implemented",
+      "posture": "implemented",
       "feature_keys": [
         "platform.analytics.observability.ecosystem_completion_contract",
         "platform.analytics.observability.scaffold_ci_enforcement",
@@ -112,8 +112,8 @@
         "platform.analytics.observability.ecosystem_hardening_certification",
         "platform.analytics.observability.ecosystem_final_closure"
       ],
-      "gap_classification": ["slices_10_11_15_16_17_implemented", "slice_18_planned"],
-      "blockers": ["final closure remains planned"],
+      "gap_classification": ["slices_10_11_15_16_17_18_implemented"],
+      "blockers": ["no platform-owned Slice 18 blockers remain for implementation-backed scope"],
       "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
       "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
       "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]

@@ -29,6 +29,7 @@ POST_SLICE_11_LIFECYCLE_STATUSES = {
     "slice-15-ecosystem-dashboards-alerts-implemented",
     "slice-16-ecosystem-implementation-proof-implemented",
     "slice-17-ecosystem-hardening-certified",
+    "slice-18-ecosystem-final-closure-implemented",
 }
 POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS = {
     "advise.observability.advisory_supportability",

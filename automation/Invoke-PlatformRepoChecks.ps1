@@ -19,6 +19,7 @@ try {
     & $toolingPython automation/validate_analytics_ui_observability_contract.py
     & $toolingPython automation/validate_analytics_ui_ecosystem_completion.py
     & $toolingPython automation/validate_analytics_ui_ecosystem_hardening.py
+    & $toolingPython automation/validate_analytics_ui_ecosystem_final_closure.py
     & $toolingPython automation/validate_analytics_ui_scaffold_ci_enforcement.py
     & $toolingPython automation/validate_workflow_security.py
     & $toolingPython automation/validate_workflow_action_runtime.py

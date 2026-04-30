@@ -415,8 +415,8 @@ def _validate_residual_scope(
         errors.append("Slice 16 must be implemented in ecosystem completion contract")
     if slice_status.get(17) not in {"planned", "implemented"}:
         errors.append("Slice 17 must be planned or implemented after Slice 16")
-    if slice_status.get(18) != "planned":
-        errors.append("Slice 18 must remain planned after Slice 16 proof")
+    if slice_status.get(18) not in {"planned", "implemented"}:
+        errors.append("Slice 18 must be planned or implemented after Slice 16 proof")
     return {"residual_feature_keys": sorted(residual_keys)}
 
 

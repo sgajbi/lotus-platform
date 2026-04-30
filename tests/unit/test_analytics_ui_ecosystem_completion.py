@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-17-ecosystem-hardening-certified"
+        == "slice-18-ecosystem-final-closure-implemented"
     )
 
 
@@ -87,7 +87,7 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> No
     assert statuses[15] == "implemented"
     assert statuses[16] == "implemented"
     assert statuses[17] == "implemented"
-    assert statuses[18] == "planned"
+    assert statuses[18] == "implemented"
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
