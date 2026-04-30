@@ -75,7 +75,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "Historical pre-ecosystem closure residual; performance and risk source supportability now exists in domain services and is consumed by Gateway PR #166, while Workbench browser reconciliation remains planned."
+      "reason": "Historical pre-ecosystem closure residual; performance and risk source supportability now exists in domain services, is consumed by Gateway PR #166, and is consumed by Workbench PR #118 for supported reads. Full promotion still requires clean governed canonical runtime proof."
     }
   ],
   "clean_state_requirements": [
