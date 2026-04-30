@@ -144,9 +144,11 @@
   supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator
   reads through a code-owned observed-surface registry reconciled to the governed endpoint registry
   with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
-  source support-state proof for `supportability.state` / `supportability.freshness_bucket`, and
-  partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench;
-  full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. Slice 15
+  source support-state proof for `supportability.state` / `supportability.freshness_bucket`,
+  partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
+  clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328; full
+  RFC-0079 risk/evidence scope, every supported Workbench surface, and backend freshness
+  reconciliation stay planned. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
   labels. Slice 16 implements platform-owned ecosystem proof automation for the current supported
