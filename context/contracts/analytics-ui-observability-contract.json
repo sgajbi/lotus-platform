@@ -575,7 +575,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "promotion_evidence": "Backend freshness/supportability tests and gateway/Workbench state reconciliation."
+      "promotion_evidence": "lotus-performance now emits calculation_supportability and lotus_performance_calculation_supportability_total for completed TWR, MWR, contribution, and attribution calculations through PR #138. Full backend freshness/supportability promotion remains planned until remaining lotus-risk endpoint families and Gateway/Workbench state reconciliation are complete."
     },
     {
       "feature_key": "core.observability.portfolio_supportability",
@@ -587,7 +587,7 @@
       "feature_key": "performance.observability.calculation_supportability",
       "status": "implemented",
       "owner_repo": "lotus-performance",
-      "promotion_evidence": "Slice 12 partial proof implements lotus-performance TWR source-backed calculation supportability via calculation_supportability, lotus_performance_calculation_supportability_total with bounded labels only, performance.observability.calculation_supportability capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. MWR, contribution, attribution, Gateway consumption, and Workbench reconciliation remain planned."
+      "promotion_evidence": "Slice 12 partial proof implemented lotus-performance TWR source-backed calculation supportability via calculation_supportability, lotus_performance_calculation_supportability_total with bounded labels only, capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. Follow-up performance PR #138 extends the same bounded supportability contract and metric to completed MWR, contribution, and attribution responses with green Feature Lane and PR Merge Gate checks, docs, and published wiki source. Gateway consumption and Workbench reconciliation remain planned."
     },
     {
       "feature_key": "risk.observability.calculation_supportability",
