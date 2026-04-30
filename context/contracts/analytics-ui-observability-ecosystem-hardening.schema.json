@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-ecosystem-hardening.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "source_contracts",
+    "review_scope",
+    "repository_reviews",
+    "api_certification_review",
+    "supported_features_audit",
+    "proof_reconciliation",
+    "findings",
+    "residual_scope",
+    "required_local_commands",
+    "required_github_checks"
+  ],
+  "properties": {
+    "contract_id": { "const": "analytics-ui-observability-ecosystem-hardening" },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": {
+      "const": "slice-17-ecosystem-hardening-certified"
+    },
+    "source_contracts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "review_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reviewScopeItem" },
+      "minItems": 1
+    },
+    "repository_reviews": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/repositoryReview" },
+      "minItems": 1
+    },
+    "api_certification_review": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/apiCertificationItem" },
+      "minItems": 1
+    },
+    "supported_features_audit": {
+      "type": "object",
+      "required": [
+        "policy",
+        "implemented_feature_keys_reviewed",
+        "planned_feature_keys_reviewed"
+      ],
+      "properties": {
+        "policy": { "const": "implementation_backed_only" },
+        "implemented_feature_keys_reviewed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "planned_feature_keys_reviewed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "proof_reconciliation": {
+      "type": "object",
+      "required": [
+        "ecosystem_proof_contract",
+        "protected_diagnostics_reviewed",
+        "openapi_paths_reviewed",
+        "dashboard_alerts_reviewed",
+        "no_sensitive_content_reviewed"
+      ],
+      "properties": {
+        "ecosystem_proof_contract": {
+          "const": "analytics-ui-observability-ecosystem-proof"
+        },
+        "protected_diagnostics_reviewed": { "const": true },
+        "openapi_paths_reviewed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "dashboard_alerts_reviewed": { "const": true },
+        "no_sensitive_content_reviewed": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" },
+      "minItems": 1
+    },
+    "residual_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/residualScopeItem" },
+      "minItems": 1
+    },
+    "required_local_commands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_github_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "reviewScopeItem": {
+      "type": "object",
+      "required": ["area", "status", "evidence"],
+      "properties": {
+        "area": { "type": "string" },
+        "status": { "enum": ["passed", "planned_residual"] },
+        "evidence": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "repositoryReview": {
+      "type": "object",
+      "required": [
+        "repository",
+        "review_status",
+        "feature_keys_reviewed",
+        "ci_evidence",
+        "api_certification_posture",
+        "no_open_p0_p1"
+      ],
+      "properties": {
+        "repository": { "type": "string" },
+        "review_status": {
+          "enum": ["certified_current_scope", "planned_residual"]
+        },
+        "feature_keys_reviewed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "ci_evidence": { "type": "string" },
+        "api_certification_posture": {
+          "enum": ["certified", "not_changed", "planned_residual"]
+        },
+        "no_open_p0_p1": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "apiCertificationItem": {
+      "type": "object",
+      "required": [
+        "surface",
+        "owner_repo",
+        "certification_status",
+        "openapi_required",
+        "evidence"
+      ],
+      "properties": {
+        "surface": { "type": "string" },
+        "owner_repo": { "type": "string" },
+        "certification_status": {
+          "enum": ["certified", "not_changed", "planned_residual"]
+        },
+        "openapi_required": { "type": "boolean" },
+        "evidence": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": ["finding_id", "severity", "status", "summary", "evidence"],
+      "properties": {
+        "finding_id": { "type": "string" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] },
+        "status": { "enum": ["closed", "planned_residual"] },
+        "summary": { "type": "string" },
+        "evidence": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "residualScopeItem": {
+      "type": "object",
+      "required": ["feature_key", "status", "owner_repo", "reason"],
+      "properties": {
+        "feature_key": { "type": "string" },
+        "status": { "const": "planned" },
+        "owner_repo": { "type": "string" },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
