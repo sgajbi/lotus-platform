@@ -2,7 +2,7 @@
   "contract_id": "analytics-ui-observability-ecosystem-completion",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-14-workbench-supported-client-reads-partial-implemented",
+  "lifecycle_status": "slice-15-ecosystem-dashboards-alerts-implemented",
   "participating_repositories": [
     "lotus-platform",
     "lotus-workbench",
@@ -76,9 +76,9 @@
     },
     {
       "slice_id": 15,
-      "status": "planned",
-      "purpose": "Extend dashboards, alerts, runbooks, and operator diagnostics across implemented ecosystem telemetry.",
-      "required_proof": ["dashboard validators", "alert validators", "runbook link checks"]
+      "status": "implemented",
+      "purpose": "Extend dashboards, alerts, runbooks, and operator diagnostics across every currently implemented RFC-0108 metric family without sensitive dashboard variables, annotations, or alert labels.",
+      "required_proof": ["dashboard validators", "alert validators", "runbook link checks", "implemented-metric-only assertions"]
     },
     {
       "slice_id": 16,
@@ -112,8 +112,8 @@
         "platform.analytics.observability.ecosystem_hardening_certification",
         "platform.analytics.observability.ecosystem_final_closure"
       ],
-      "gap_classification": ["slices_10_11_implemented", "slices_15_16_17_18_planned"],
-      "blockers": ["ecosystem dashboards and proof remain planned"],
+      "gap_classification": ["slices_10_11_15_implemented", "slices_16_17_18_planned"],
+      "blockers": ["ecosystem implementation proof, hardening, and final closure remain planned"],
       "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
       "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
       "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]

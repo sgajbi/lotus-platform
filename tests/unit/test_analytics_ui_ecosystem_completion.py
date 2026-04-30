@@ -49,7 +49,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
         ecosystem["lifecycle_status"]
-        == "slice-14-workbench-supported-client-reads-partial-implemented"
+        == "slice-15-ecosystem-dashboards-alerts-implemented"
     )
 
 
@@ -84,7 +84,8 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> No
     assert statuses[12] == "partially_implemented"
     assert statuses[13] == "implemented"
     assert statuses[14] == "partially_implemented"
-    assert {statuses[slice_id] for slice_id in range(15, 19)} == {"planned"}
+    assert statuses[15] == "implemented"
+    assert {statuses[slice_id] for slice_id in range(16, 19)} == {"planned"}
 
 
 def test_analytics_ui_ecosystem_completion_rejects_missing_repository() -> None:
@@ -185,22 +186,41 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemente
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-            if feature["feature_key"] in {
-                "gateway.analytics.observability.fanout_metrics",
-                "gateway.analytics.observability.protected_diagnostics",
-                "gateway.analytics.observability.all_ui_fanout_paths",
-            }:
-                feature["status"] = "planned"
+        if feature["feature_key"] in {
+            "gateway.analytics.observability.fanout_metrics",
+            "gateway.analytics.observability.protected_diagnostics",
+            "gateway.analytics.observability.all_ui_fanout_paths",
+        }:
+            feature["status"] = "planned"
 
     errors = _validate(observability, ecosystem)
 
     assert any(
-            "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 proof"
+        "gateway.analytics.observability.fanout_metrics must be implemented after Slice 13 proof"
         in error
         for error in errors
     )
     assert any(
-            "gateway.analytics.observability.protected_diagnostics must be implemented after Slice 13 proof"
+        "gateway.analytics.observability.protected_diagnostics must be implemented after Slice 13 proof"
+        in error
+        for error in errors
+    )
+
+
+def test_analytics_ui_ecosystem_completion_requires_slice_15_feature_implemented() -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if (
+            feature["feature_key"]
+            == "platform.analytics.observability.ecosystem_dashboards_alerts"
+        ):
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        "platform.analytics.observability.ecosystem_dashboards_alerts: Slice 15 feature must be implemented"
         in error
         for error in errors
     )

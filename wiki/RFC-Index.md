@@ -135,10 +135,9 @@
   per-app gap matrix, scaffold/CI enforcement contract, validators, first-wave protected evidence,
   branch policy, generated backend no-sensitive-content and supported-features gates, reusable
   Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially
-  implemented in `lotus-risk` and `lotus-manage` for risk calculation and management
-  action-register supportability posture with bounded metrics. Required remaining ecosystem Slices
-  12-18 extend the same posture uniformly across all Lotus apps, including the remaining backend
-  supportability metrics, all Workbench supported surfaces, dashboards/alerts/runbooks, live
+  implemented across source supportability metrics for the current backend proof scope. Required
+  remaining ecosystem Slices 12 and 16-18 extend the same posture uniformly across all Lotus apps,
+  including the remaining backend supportability metrics, all Workbench supported surfaces, live
   ecosystem proof, hardening/certification, and final ecosystem closure. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
   central manage/report/archive/AI client fan-out metrics, and direct lotus-core
@@ -148,9 +147,10 @@
   with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
   source support-state proof for `supportability.state` / `supportability.freshness_bucket`, and
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench;
-  full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. This is not an
-  extension of
-  RFC-0105 reporting observability.
+  full RFC-0079 risk/evidence scope and backend freshness reconciliation stay planned. Slice 15
+  implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
+  every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
+  labels. This is not an extension of RFC-0105 reporting observability.
 
 ## Recommended next implementation order
 

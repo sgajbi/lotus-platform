@@ -158,6 +158,11 @@ def test_platform_stack_analytics_ui_rules_align_with_contract_alerts() -> None:
         }
         for alert in contract["alerts"]
     }
+    implemented_metric_names = {
+        metric["metric_name"]
+        for metric in contract["metric_families"]
+        if metric["implemented"]
+    }
     actual_alerts = {}
     for group in rules["groups"]:
         for rule in group["rules"]:
@@ -170,9 +175,41 @@ def test_platform_stack_analytics_ui_rules_align_with_contract_alerts() -> None:
             }
 
     assert set(actual_alerts) == set(expected_alerts)
+    assert {alert["metric_name"] for alert in expected_alerts.values()} == implemented_metric_names
     for alert_id, expected in expected_alerts.items():
         actual = actual_alerts[alert_id]
         assert actual["severity"] == expected["severity"]
         assert actual["owner_repo"] == expected["owner_repo"]
         assert actual["runbook_path"] == expected["runbook_path"]
         assert expected["metric_name"] in actual["expr"]
+
+
+def test_platform_stack_analytics_ui_dashboard_covers_implemented_metric_families() -> None:
+    contract = json.loads(
+        (ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    dashboard = json.loads(
+        (
+            PLATFORM_STACK_DIR
+            / "grafana"
+            / "dashboards"
+            / "analytics-ui-observability-overview.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    implemented_metric_names = {
+        metric["metric_name"]
+        for metric in contract["metric_families"]
+        if metric["implemented"]
+    }
+    dashboard_expr_text = json.dumps(dashboard, sort_keys=True)
+
+    assert dashboard["templating"]["list"] == []
+    for metric_name in implemented_metric_names:
+        assert metric_name in dashboard_expr_text
+    for forbidden in contract["telemetry_contract"]["dashboard_reference_policy"][
+        "forbidden_variables"
+    ]:
+        assert forbidden not in dashboard_expr_text

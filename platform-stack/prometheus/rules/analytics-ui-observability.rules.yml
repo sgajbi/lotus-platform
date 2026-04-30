@@ -1,6 +1,16 @@
 groups:
   - name: analytics-ui-observability
     rules:
+      - alert: AnalyticsUiPanelHydrationLatencyP95
+        expr: histogram_quantile(0.95, sum by (le, route, panel) (rate(lotus_workbench_panel_hydration_duration_seconds_bucket[10m]))) > 3
+        for: 10m
+        labels:
+          alert_id: analytics-ui-panel-hydration-latency-p95
+          severity: P3
+          owner_repo: lotus-workbench
+        annotations:
+          summary: Selected Workbench analytics panel hydration p95 latency is above 3 seconds.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-panel-hydration-latency-p95
       - alert: AnalyticsUiPanelErrorRate
         expr: sum(increase(lotus_workbench_panel_state_total{state=~"error|degraded|permission_blocked"}[10m])) > 0
         for: 10m
@@ -21,6 +31,26 @@ groups:
         annotations:
           summary: Selected Workbench analytics API request p95 latency is above 3 seconds.
           runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-api-request-latency-p95
+      - alert: GatewayAnalyticsFanoutLatencyP95
+        expr: histogram_quantile(0.95, sum by (le, service, operation, status_class) (rate(lotus_gateway_analytics_fanout_duration_seconds_bucket[10m]))) > 3
+        for: 10m
+        labels:
+          alert_id: gateway-analytics-fanout-latency-p95
+          severity: P3
+          owner_repo: lotus-gateway
+        annotations:
+          summary: Gateway analytics fan-out p95 latency is above 3 seconds.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#gateway-analytics-fanout-latency-p95
+      - alert: GatewayAnalyticsDegradedSources
+        expr: sum(increase(lotus_gateway_analytics_degraded_total[10m])) > 0
+        for: 10m
+        labels:
+          alert_id: gateway-analytics-degraded-sources
+          severity: P2
+          owner_repo: lotus-gateway
+        annotations:
+          summary: Gateway analytics fan-out recorded degraded source outcomes.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#gateway-analytics-degraded-sources
       - alert: AnalyticsUiAttentionEvents
         expr: sum(increase(lotus_analytics_ui_attention_events_total{severity="action_required"}[10m])) > 0
         for: 10m
@@ -31,3 +61,13 @@ groups:
         annotations:
           summary: Selected Workbench analytics panel emitted action-required attention events.
           runbook: docs/operations/analytics-ui-observability-runbook.md#analytics-ui-attention-events
+      - alert: AiSurfaceSupportabilityDegraded
+        expr: sum(lotus_ai_surface_supportability_state{posture=~"degraded|partial|unavailable|unsupported"}) > 0
+        for: 10m
+        labels:
+          alert_id: ai-surface-supportability-degraded
+          severity: P3
+          owner_repo: lotus-ai
+        annotations:
+          summary: AI-backed analytics support surface reports degraded supportability posture.
+          runbook: docs/operations/analytics-ui-observability-runbook.md#ai-surface-supportability-degraded
