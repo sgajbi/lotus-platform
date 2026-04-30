@@ -1,0 +1,137 @@
+{
+  "contract_id": "analytics-ui-observability-ecosystem-final-closure",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-18-ecosystem-final-closure-implemented",
+  "closure_scope": {
+    "implemented_scope_status": "closed_for_implemented_scope",
+    "supported_features_policy": "implementation_backed_only",
+    "residual_scope_policy": "planned_until_separately_implemented"
+  },
+  "source_contracts": [
+    "analytics-ui-observability-contract",
+    "analytics-ui-observability-ecosystem-completion",
+    "analytics-ui-observability-ecosystem-proof",
+    "analytics-ui-observability-ecosystem-hardening"
+  ],
+  "implemented_slice_status": {
+    "10": "implemented",
+    "11": "implemented",
+    "12": "partially_implemented",
+    "13": "implemented",
+    "14": "partially_implemented",
+    "15": "implemented",
+    "16": "implemented",
+    "17": "implemented",
+    "18": "implemented"
+  },
+  "supported_features_audit": {
+    "policy": "implementation_backed_only",
+    "implemented_feature_keys_reviewed": [
+      "platform.scaffolding.analytics_ui_observability_baseline",
+      "platform.analytics.observability.telemetry_contract",
+      "platform.analytics.observability.rollout_readiness",
+      "platform.analytics.observability.hardening_certification",
+      "platform.analytics.observability.final_closure",
+      "platform.analytics.observability.ecosystem_completion_contract",
+      "platform.analytics.observability.scaffold_ci_enforcement",
+      "platform.analytics.observability.ecosystem_dashboards_alerts",
+      "platform.analytics.observability.ecosystem_implementation_proof",
+      "platform.analytics.observability.ecosystem_hardening_certification",
+      "platform.analytics.observability.ecosystem_final_closure",
+      "workbench.analytics.observability.correlation_trace",
+      "workbench.analytics.observability.contract_vocabulary",
+      "workbench.analytics.observability.panel_state_metrics",
+      "workbench.analytics.observability.safe_dashboard",
+      "workbench.analytics.observability.attention_events",
+      "workbench.analytics.observability.entitlement_audit_events",
+      "workbench.analytics.observability.canonical_proof",
+      "gateway.analytics.observability.fanout_metrics",
+      "gateway.analytics.observability.protected_diagnostics",
+      "gateway.analytics.observability.all_ui_fanout_paths",
+      "gateway.analytics.observability.structured_fanout_logs",
+      "gateway.analytics.observability.correlation_trace",
+      "gateway.analytics.observability.contract_vocabulary",
+      "core.observability.portfolio_supportability",
+      "performance.observability.calculation_supportability",
+      "risk.observability.calculation_supportability",
+      "advise.observability.advisory_supportability",
+      "manage.observability.action_register_supportability",
+      "report.observability.evidence_surface_supportability",
+      "render.observability.render_supportability",
+      "archive.observability.archive_supportability",
+      "ai.observability.ai_surface_supportability"
+    ],
+    "planned_feature_keys_reviewed": [
+      "analytics.backend.observability.freshness_supportability",
+      "workbench.analytics.observability.freshness_degraded_state",
+      "workbench.analytics.observability.all_supported_surfaces"
+    ]
+  },
+  "residual_scope": [
+    {
+      "feature_key": "analytics.backend.observability.freshness_supportability",
+      "status": "planned",
+      "owner_repo": "lotus-performance/lotus-risk",
+      "reason": "Remaining performance and risk endpoint families still require backend-owned freshness and supportability metrics before promotion."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.freshness_degraded_state",
+      "status": "planned",
+      "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
+      "reason": "Full promotion remains blocked until all participating backend supportability signals are reconciled through Gateway and Workbench."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.all_supported_surfaces",
+      "status": "planned",
+      "owner_repo": "lotus-workbench",
+      "reason": "Full RFC-0079 risk/evidence scope and backend freshness completion remain outside Slice 18 final closure."
+    }
+  ],
+  "proof_reconciliation": {
+    "ecosystem_proof_contract": "analytics-ui-observability-ecosystem-proof",
+    "ecosystem_hardening_contract": "analytics-ui-observability-ecosystem-hardening",
+    "protected_diagnostics_reviewed": true,
+    "dashboard_alerts_reviewed": true,
+    "no_sensitive_content_reviewed": true,
+    "no_open_p0_p1_reviewed": true
+  },
+  "local_proof_commands": [
+    "python automation\\validate_analytics_ui_observability_contract.py",
+    "python automation\\validate_analytics_ui_ecosystem_completion.py",
+    "python automation\\validate_analytics_ui_ecosystem_hardening.py",
+    "python automation\\validate_analytics_ui_ecosystem_final_closure.py",
+    "python -m pytest tests\\unit\\test_analytics_ui_ecosystem_final_closure.py tests\\unit\\test_analytics_ui_ecosystem_completion.py tests\\unit\\test_analytics_ui_ecosystem_hardening.py tests\\unit\\test_analytics_ui_observability_contract.py -q",
+    "python -m ruff check automation\\validate_analytics_ui_ecosystem_final_closure.py automation\\validate_analytics_ui_ecosystem_completion.py automation\\validate_analytics_ui_ecosystem_hardening.py automation\\validate_analytics_ui_observability_contract.py tests\\unit\\test_analytics_ui_ecosystem_final_closure.py",
+    "git diff --check",
+    "powershell -ExecutionPolicy Bypass -File automation\\Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform"
+  ],
+  "required_github_checks": [
+    "Cross-App Vocabulary Gate",
+    "Feature Lane / Platform Repo Contracts",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Platform Repo Contracts",
+    "PR Merge Gate / Workflow Lint"
+  ],
+  "wiki_publication": {
+    "source_repository": "lotus-platform",
+    "check_required": true,
+    "publish_required_after_merge": true,
+    "publish_command": "powershell -ExecutionPolicy Bypass -File automation\\Sync-RepoWikis.ps1 -Publish -Repository lotus-platform"
+  },
+  "branch_hygiene": {
+    "branch_name": "feat/rfc-0108-slice-18-ecosystem-closure",
+    "one_pr_per_slice": true,
+    "delete_after_merge": true
+  },
+  "skills_guidance_review": {
+    "decision": "no_change_required",
+    "rationale": "Existing routing already directs canonical Workbench proof through lotus-front-office-runtime, Lotus frontend and PR governance through the delivery and premerge skills, and RFC/context work through the Lotus RFC review loop. Slice 18 closes current platform-owned proof and does not introduce a new repeatable workflow requiring skill-map changes.",
+    "reviewed_guidance": [
+      "context/LOTUS-SKILL-ROUTING-MAP.md",
+      "context/LOTUS-ENGINEERING-CONTEXT.md",
+      "context/CONTEXT-REFERENCE-MAP.md",
+      "context/PROCEDURAL-MEMORY-INDEX.md"
+    ]
+  }
+}

@@ -247,7 +247,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     for first-wave scope on `lotus-report` head
     `746234474cdfa25c95f08ca4796f893185b58b50` and `lotus-platform` head
     `ee835094e7bc0f407fe2afb002c90e0bccdbcd05`.
-12. RFC-0108 is implemented for first-wave scope and reopened for ecosystem completion. It governs front-office analytics
+12. RFC-0108 is implemented for first-wave scope and the reopened ecosystem scope is closed for
+    current implementation-backed claims. It governs front-office analytics
     UI observability across Workbench browser rendering, gateway/BFF/API delivery, backend
     analytics API fan-out, panel state, calculation freshness, empty/degraded/stale/error and
     permission-blocked states, attention events, entitlement-relevant audit events, safe operator
@@ -332,8 +333,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     report-batch operator reads; Slice 15 implements ecosystem dashboard/alert/runbook coverage for
     current metric families; Slice 16 implements platform-owned ecosystem proof automation; and
     Slice 17 implements ecosystem hardening certification with a machine-readable contract and
-    validator. Slice 18 final ecosystem closure remains planned, as do backend freshness completion
-    and full RFC-0079 risk/evidence Workbench promotion.
+    validator. Slice 18 implements ecosystem final closure with
+    `context/contracts/analytics-ui-observability-ecosystem-final-closure.json`,
+    `automation/validate_analytics_ui_ecosystem_final_closure.py`, and focused unit tests that
+    reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, supported-feature
+    posture, residual planned scope, local/GitHub proof requirements, wiki publication, branch
+    hygiene, and skills guidance. Backend freshness completion and full RFC-0079 risk/evidence
+    Workbench promotion remain planned residuals until separately implemented and proved.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
