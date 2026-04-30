@@ -135,9 +135,11 @@
   per-app gap matrix, scaffold/CI enforcement contract, validators, first-wave protected evidence,
   branch policy, generated backend no-sensitive-content and supported-features gates, reusable
   Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially
-  implemented across source supportability metrics for the current backend proof scope. Required
-  remaining ecosystem Slice 12 residuals extend the same posture uniformly across all Lotus apps,
-  including the remaining backend supportability metrics and all Workbench supported surfaces. Slice 13 has
+  implemented across source supportability metrics for the current backend proof scope, including
+  Gateway/Workbench portfolio readiness supportability propagation through Gateway PR #167 and
+  Workbench PR #120. Required remaining ecosystem Slice 12 residuals extend the same posture
+  uniformly across all Lotus apps, including the remaining backend supportability metrics and all
+  Workbench supported surfaces. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
   central manage/report/archive/AI client fan-out metrics, and direct lotus-core
   query/control-plane plus ingestion fan-out metrics. Slice 14 has partial Workbench proof for
@@ -145,6 +147,7 @@
   reads through a code-owned observed-surface registry reconciled to the governed endpoint registry
   with no-sensitive metric labels, canonical browser proof captured for `PB_SG_GLOBAL_BAL_001`,
   source support-state proof for `supportability.state` / `supportability.freshness_bucket`,
+  portfolio readiness supportability reconciliation through Gateway PR #167 and Workbench PR #120,
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
   clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328; full
   RFC-0079 risk/evidence scope, every supported Workbench surface, and backend freshness
