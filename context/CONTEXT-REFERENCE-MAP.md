@@ -279,13 +279,15 @@ The current reporting and analytics observability governance references are:
    generated backend no-sensitive-content and supported-features gates, reusable Workbench/UI
    observability template, and platform repo check wiring. Slice 12 is partially implemented in
    `lotus-risk` and `lotus-manage` for risk calculation and management action-register
-   supportability posture with bounded metrics. Required remaining ecosystem Slices 12-18 extend
-   the same posture uniformly across all Lotus apps, including the remaining backend supportability
-   metrics, all Workbench supported surfaces, dashboards/alerts/runbooks, live ecosystem proof,
-   hardening/certification, and final ecosystem closure. Slice 13 has implementation-backed
-   Gateway proof for selected fan-out metrics, protected diagnostics lookup, central
-   manage/report/archive/AI client fan-out metrics, and direct lotus-core query/control-plane plus
-   ingestion fan-out metrics.
+   supportability posture with bounded metrics. Slice 12 remains partially implemented while
+   remaining performance/risk endpoint families and Gateway/Workbench reconciliation stay planned.
+   Slice 13 has implementation-backed Gateway proof for selected fan-out metrics, protected
+   diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
+   lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially implemented
+   for supported Workbench reads, Slice 15 implements ecosystem dashboard/alert/runbook coverage for
+   current metric families, Slice 16 implements platform-owned ecosystem proof automation, and
+   Slice 17 implements ecosystem hardening certification with a machine-readable contract and
+   validator. Slice 18 final ecosystem closure remains planned.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

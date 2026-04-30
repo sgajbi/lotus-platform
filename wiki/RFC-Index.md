@@ -136,7 +136,7 @@
   branch policy, generated backend no-sensitive-content and supported-features gates, reusable
   Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially
   implemented across source supportability metrics for the current backend proof scope. Required
-  remaining ecosystem Slices 12 and 17-18 extend the same posture uniformly across all Lotus apps,
+  remaining ecosystem Slices 12 and 18 extend the same posture uniformly across all Lotus apps,
   including the remaining backend supportability metrics, all Workbench supported surfaces,
   hardening/certification, and final ecosystem closure. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,
@@ -154,8 +154,12 @@
   Lotus journey across portfolio state, performance analytics, risk analytics, advisory workflow
   actions, manage/report capability posture, evidence support posture, AI-backed support, protected
   diagnostics, Gateway OpenAPI diagnostics evidence, dashboards, alerts, screenshots, residual
-  planned-scope preservation, and no-sensitive assertions. This is not an extension of RFC-0105
-  reporting observability.
+  planned-scope preservation, and no-sensitive assertions. Slice 17 implements platform-owned
+  ecosystem hardening certification with a machine-readable contract, validator, and tests that
+  reconcile supported features, per-repository reviews, Slice 16 proof, protected diagnostics
+  OpenAPI evidence, dashboard/alert proof, residual planned scope, and no-open-P0/P1 findings.
+  Slice 18 final ecosystem closure remains planned. This is not an extension of RFC-0105 reporting
+  observability.
 
 ## Recommended next implementation order
 
