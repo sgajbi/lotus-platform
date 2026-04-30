@@ -32,7 +32,7 @@
     {
       "area": "residual planned scope",
       "status": "planned_residual",
-      "evidence": "Backend freshness/supportability, full Workbench freshness/degraded promotion, and full all-supported-surface promotion remain planned and blocked from supported-feature promotion."
+      "evidence": "Gateway source supportability reconciliation is now implemented for performance/risk analytics through Gateway PR #166. Full Workbench freshness/degraded promotion and full all-supported-surface promotion remain planned and blocked from supported-feature promotion until canonical browser reconciliation proves the Gateway-backed states."
     }
   ],
   "repository_reviews": [
@@ -97,7 +97,7 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138. Broader backend freshness/supportability promotion remains planned for remaining lotus-risk endpoint families and Gateway/Workbench reconciliation.",
+      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138 and consumed through lotus-gateway PR #166. Workbench reconciliation remains planned.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -108,7 +108,7 @@
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "ci_evidence": "Risk/calculate supportability is implementation-backed; broader risk freshness/supportability metrics remain planned.",
+      "ci_evidence": "Risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implementation-backed in lotus-risk through PR #107 and consumed through lotus-gateway PR #166. Workbench reconciliation remains planned.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -181,7 +181,7 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "certification_status": "planned_residual",
       "openapi_required": false,
-      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Backend freshness/supportability metric-family promotion remains planned until Gateway/Workbench reconciliation is implemented."
+      "evidence": "lotus-performance supportability now covers completed TWR, MWR, contribution, and attribution calculations. lotus-risk supportability now covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway PR #166 now consumes those source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench promotion remains planned until canonical browser reconciliation is implemented."
     }
   ],
   "supported_features_audit": {
@@ -248,8 +248,8 @@
       "finding_id": "RFC0108-ECOSYSTEM-HARDENING-002",
       "severity": "P3",
       "status": "planned_residual",
-      "summary": "Backend freshness/supportability and full Workbench promotion remain planned.",
-      "evidence": "Residual features remain planned in supported features, ecosystem proof, and ecosystem hardening contracts."
+      "summary": "Workbench supportability reconciliation and full Workbench promotion remain planned.",
+      "evidence": "Gateway PR #166 closed the performance/risk Gateway source supportability reconciliation gap. Residual Workbench features remain planned in supported features, ecosystem proof, and ecosystem hardening contracts."
     }
   ],
   "residual_scope": [
@@ -257,13 +257,13 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, and lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107. Gateway/Workbench reconciliation still blocks backend freshness/supportability promotion."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, and lotus-gateway PR #166 consumes those source supportability blocks. Workbench canonical browser reconciliation still blocks full UI promotion."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Full promotion remains blocked until participating backend supportability signals are reconciled through Gateway and Workbench."
+      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into the experience API. Full promotion remains blocked until Workbench proves those Gateway-backed supportability states end to end."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",

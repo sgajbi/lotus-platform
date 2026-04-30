@@ -75,7 +75,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "Performance and risk services do not yet emit backend freshness/supportability metrics."
+      "reason": "Historical pre-ecosystem closure residual; performance and risk source supportability now exists in domain services and is consumed by Gateway PR #166, while Workbench browser reconciliation remains planned."
     }
   ],
   "clean_state_requirements": [
