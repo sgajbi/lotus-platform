@@ -119,13 +119,13 @@ def test_scaffold_ci_contract_rejects_runtime_feature_promotion() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     scaffold_ci = _load_json(SCAFFOLD_CI_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "manage.observability.action_register_supportability":
+        if feature["feature_key"] == "analytics.backend.observability.freshness_supportability":
             feature["status"] = "implemented"
 
     errors = _validate(observability, ecosystem, scaffold_ci)
 
     assert any(
-        "manage.observability.action_register_supportability: runtime feature must remain planned"
+        "analytics.backend.observability.freshness_supportability: runtime feature must remain planned"
         in error
         for error in errors
     )

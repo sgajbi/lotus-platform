@@ -750,7 +750,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
 
     for expected in [
-        "- status: reopened for ecosystem completion; slices 10-11 complete",
+        "- status: reopened for ecosystem completion; slice 15 dashboard alert runbook proof complete",
         "front-office analytics ui observability",
         "interactive read/display flows",
         "browser to gateway to backend",
@@ -790,6 +790,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "final slice: closure",
         "ecosystem completion slice 10: reopen governance and contract expansion",
         "ecosystem completion slice 11: platform automation, scaffolding, and ci enforcement",
+        "ecosystem slice 15: dashboards, alerts, runbooks, and operator diagnostics",
         "slice 11 implementation evidence",
         "supported features governance",
         "implementation proof ledger",

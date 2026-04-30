@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Reopened For Ecosystem Completion; Slice 14 Workbench Supported Client Reads Evidence-Context Proof Complete
+- Status: Reopened For Ecosystem Completion; Slice 15 Dashboard Alert Runbook Proof Complete
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-04-29
 - Owners:

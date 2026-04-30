@@ -98,7 +98,11 @@
     "alert_ids": [
       "analytics-ui-panel-error-rate",
       "analytics-ui-api-request-latency-p95",
-      "analytics-ui-attention-events"
+      "analytics-ui-attention-events",
+      "analytics-ui-panel-hydration-latency-p95",
+      "gateway-analytics-fanout-latency-p95",
+      "gateway-analytics-degraded-sources",
+      "ai-surface-supportability-degraded"
     ],
     "implemented_metrics_only": true,
     "runbook_paths_required": true

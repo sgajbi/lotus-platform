@@ -20,6 +20,28 @@ DEFAULT_SCAFFOLD_CI_CONTRACT_PATH = (
 IMPLEMENTED_FEATURE_KEY = (
     "platform.analytics.observability.scaffold_ci_enforcement"
 )
+POST_SLICE_11_LIFECYCLE_STATUSES = {
+    "slice-11-scaffold-ci-enforcement-implemented",
+    "slice-12-backend-supportability-partial-implemented",
+    "slice-13-gateway-fanout-metrics-partial-implemented",
+    "slice-13-gateway-fanout-metrics-implemented",
+    "slice-14-workbench-supported-client-reads-partial-implemented",
+    "slice-15-ecosystem-dashboards-alerts-implemented",
+}
+POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS = {
+    "advise.observability.advisory_supportability",
+    "ai.observability.ai_surface_supportability",
+    "archive.observability.archive_supportability",
+    "core.observability.portfolio_supportability",
+    "gateway.analytics.observability.all_ui_fanout_paths",
+    "gateway.analytics.observability.fanout_metrics",
+    "gateway.analytics.observability.protected_diagnostics",
+    "manage.observability.action_register_supportability",
+    "performance.observability.calculation_supportability",
+    "render.observability.render_supportability",
+    "report.observability.evidence_surface_supportability",
+    "risk.observability.calculation_supportability",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -72,21 +94,17 @@ def _validate_identity(
         errors.append(
             "lifecycle_status must be slice-11-scaffold-ci-enforcement-implemented"
         )
-    if (
-        observability_contract.get("lifecycle_status")
-        != "slice-11-scaffold-ci-enforcement-implemented"
-    ):
+    if observability_contract.get("lifecycle_status") not in POST_SLICE_11_LIFECYCLE_STATUSES:
         errors.append(
             "analytics-ui-observability-contract lifecycle_status must be "
-            "slice-11-scaffold-ci-enforcement-implemented"
+            "slice-11-scaffold-ci-enforcement-implemented or a later RFC-0108 "
+            "ecosystem lifecycle status"
         )
-    if (
-        ecosystem_contract.get("lifecycle_status")
-        != "slice-11-scaffold-ci-enforcement-implemented"
-    ):
+    if ecosystem_contract.get("lifecycle_status") not in POST_SLICE_11_LIFECYCLE_STATUSES:
         errors.append(
             "analytics-ui-observability-ecosystem-completion lifecycle_status must be "
-            "slice-11-scaffold-ci-enforcement-implemented"
+            "slice-11-scaffold-ci-enforcement-implemented or a later RFC-0108 "
+            "ecosystem lifecycle status"
         )
     source_contracts = set(scaffold_ci_contract.get("source_contracts", []))
     required = {
@@ -126,7 +144,11 @@ def _validate_feature_promotion(
                 "workbench.analytics.observability.all_supported_surfaces",
             }
         )
-        if runtime_feature and status != "planned":
+        if (
+            runtime_feature
+            and status != "planned"
+            and feature_key not in POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS
+        ):
             errors.append(f"{feature_key}: runtime feature must remain planned in Slice 11")
 
 
