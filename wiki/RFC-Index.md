@@ -161,9 +161,10 @@
   Gateway-backed archive metadata/download retrieval through Workbench PR #126 plus lotus-archive
   commit `203ec6d`, legacy advisor Workbench gateway-backed overview, portfolio 360,
   analytics, reporting snapshot, sandbox-create, and sandbox-apply observability through
-  Workbench PR #127 plus published wiki commit `de69328`, and Data Products catalog/dependency
+  Workbench PR #127 plus published wiki commit `de69328`, Data Products catalog/dependency
   graph/trust certification observability through Workbench PR #128 plus published wiki commit
-  `32937b0`; full RFC-0079 risk/evidence scope and
+  `32937b0`, and Intake portfolio-bundle and lookup observability through Workbench PR #129 plus
+  published wiki commit `f34ab4d`; full RFC-0079 risk/evidence scope and
   complete all-supported-surface certification stay
   planned; backend freshness reconciliation is implemented for performance/risk calculation
   supportability through lotus-performance PR #139 and lotus-risk PR #108. Slice 15

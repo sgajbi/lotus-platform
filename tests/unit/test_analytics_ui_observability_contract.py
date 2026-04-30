@@ -165,7 +165,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
-        "supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads"
+        "supported Portfolio workspace, Intake, client-side Performance, Risk, and explicit report-batch operator reads"
         in next(
             entry["promotion_evidence"]
             for entry in contract["supported_feature_keys"]
