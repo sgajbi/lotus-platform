@@ -73,19 +73,19 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "planned",
       "owner_repo": "lotus-performance/lotus-risk",
-      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations through PR #138, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, and lotus-gateway PR #166 consumes those source supportability blocks into the experience API. Workbench canonical browser reconciliation still blocks full UI promotion."
+      "reason": "lotus-performance covers completed TWR, MWR, contribution, and attribution calculations through PR #138, lotus-risk covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, lotus-gateway PR #166 consumes those source supportability blocks into the experience API, and lotus-workbench PR #118 consumes Gateway source_supportability arrays for supported performance/risk reads. Clean governed canonical runtime proof still blocks full UI promotion."
     },
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Full promotion remains blocked until Workbench proves those Gateway-backed states end to end."
+      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 reconciles Gateway source_supportability arrays into freshness/supportability derivation and validation supportabilityChecks. Full promotion remains blocked until clean governed canonical runtime proof passes end to end."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
       "owner_repo": "lotus-workbench",
-      "reason": "Full RFC-0079 risk/evidence scope and Workbench reconciliation remain outside Slice 18 final closure."
+      "reason": "Full RFC-0079 risk/evidence scope and clean governed canonical runtime proof remain outside Slice 18 final closure."
     }
   ],
   "proof_reconciliation": {
