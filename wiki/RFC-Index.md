@@ -159,7 +159,10 @@
   partial RFC-0079 performance evidence-context reconciliation through Gateway and Workbench, and
   clean governed canonical runtime proof through Workbench PR #119 plus lotus-core PR #328, and
   Gateway-backed archive metadata/download retrieval through Workbench PR #126 plus lotus-archive
-  commit `203ec6d`; full RFC-0079 risk/evidence scope and every supported Workbench surface stay
+  commit `203ec6d`, and legacy advisor Workbench gateway-backed overview, portfolio 360,
+  analytics, reporting snapshot, sandbox-create, and sandbox-apply observability through
+  Workbench PR #127 plus published wiki commit `de69328`; full RFC-0079 risk/evidence scope and
+  complete all-supported-surface certification stay
   planned; backend freshness reconciliation is implemented for performance/risk calculation
   supportability through lotus-performance PR #139 and lotus-risk PR #108. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across

@@ -79,7 +79,7 @@
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
       "status": "planned",
       "owner_repo": "lotus-workbench",
-      "reason": "Clean governed canonical runtime proof is complete for the current supported surface; full RFC-0079 risk/evidence scope and every supported Workbench surface remain outside Slice 18 final closure until separately implemented and certified."
+      "reason": "Clean governed canonical runtime proof is complete for the current supported surface, Workbench PR #126 covers Gateway/BFF-backed archive retrieval, and Workbench PR #127 covers legacy advisor Workbench gateway-backed reads/mutations with bounded no-sensitive observability. Full promotion remains planned because full RFC-0079 risk/evidence scope and complete all-supported-surface certification, including Data Products/domain-product discovery if promoted into the RFC-0108 supported surface boundary, remain outside Slice 18 final closure until separately implemented and certified."
     }
   ],
   "proof_reconciliation": {
