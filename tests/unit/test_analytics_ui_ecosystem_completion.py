@@ -89,6 +89,21 @@ def test_analytics_ui_ecosystem_completion_records_gateway_backed_archive_retrie
     assert "direct Workbench-to-archive non-support" in archive_row["wiki_source_decision"]
 
 
+def test_analytics_ui_ecosystem_completion_records_core_metric_label_proof() -> None:
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    core_row = next(
+        row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-core"
+    )
+
+    assert "explicit_metric_labels_proven" in core_row["gap_classification"]
+    assert "no_sensitive_metric_labels_proven" in core_row["gap_classification"]
+    assert "lotus-core PR #329" in str(ecosystem["ecosystem_completion_slices"])
+    assert "state/reason/freshness_bucket" in core_row["blockers"][0]
+    assert "Prometheus metric label proof" in core_row["required_proof"]
+    assert "no-sensitive metric label proof" in core_row["required_proof"]
+    assert "operator/business feature-state diagrams" in core_row["wiki_source_decision"]
+
+
 def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {

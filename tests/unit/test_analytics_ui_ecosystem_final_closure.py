@@ -74,6 +74,15 @@ def test_ecosystem_final_closure_validator_accepts_baseline() -> None:
     )
 
 
+def test_ecosystem_final_closure_preserves_core_metric_label_hardening() -> None:
+    final_closure = _load_json(FINAL_CLOSURE_PATH)
+    residual_text = str(final_closure["residual_scope"])
+
+    assert "lotus-core PR #329" in residual_text
+    assert "metric_labels" in residual_text
+    assert "no-sensitive metric-label proof" in residual_text
+
+
 def test_ecosystem_final_closure_rejects_unimplemented_slice_18_feature() -> None:
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)

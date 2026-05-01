@@ -309,8 +309,10 @@ The current reporting and analytics observability governance references are:
    `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens AI surface
    supportability proof with bounded `supportability_reason`, explicit `metric_labels`,
    sensitive-diagnostic rejection tests, Prometheus metric-label tests, `make check`, `make ci`,
-   Docker build, and published wiki source. Workbench archive retrieval is supported only through
-   the BFF/Gateway boundary.
+   Docker build, and published wiki source. lotus-core PR #329 hardens portfolio readiness
+   supportability proof with explicit `metric_labels`, bounded Prometheus labels, no-sensitive
+   metric-label tests, full local and GitHub runtime gates, and published wiki source. Workbench
+   archive retrieval is supported only through the BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

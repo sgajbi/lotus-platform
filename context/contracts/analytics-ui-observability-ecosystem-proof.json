@@ -132,7 +132,7 @@
     {
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
-      "rationale": "Gateway PR #166 reconciles performance/risk source supportability into the experience API, Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays, lotus-performance PR #140 hardens performance capability publication across completed supportability surfaces, and Workbench PR #119 plus lotus-core PR #328 prove the governed canonical runtime end to end; full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage"
+      "rationale": "Gateway PR #166 reconciles performance/risk source supportability into the experience API, Workbench PR #118 derives freshness/supportability from Gateway source_supportability arrays, lotus-performance PR #140 hardens performance capability publication across completed supportability surfaces, lotus-core PR #329 hardens portfolio readiness supportability metric_labels and no-sensitive metric-label proof, and Workbench PR #119 plus lotus-core PR #328 prove the governed canonical runtime end to end; full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage"
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",

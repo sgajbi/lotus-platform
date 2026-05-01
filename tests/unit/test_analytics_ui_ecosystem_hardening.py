@@ -86,6 +86,23 @@ def test_ecosystem_hardening_records_archive_reconciliation_evidence() -> None:
     )
 
 
+def test_ecosystem_hardening_records_core_metric_label_proof() -> None:
+    hardening = _load_json(HARDENING_PATH)
+    core_review = next(
+        review
+        for review in hardening["repository_reviews"]
+        if review["repository"] == "lotus-core"
+    )
+
+    assert "lotus-core PR #329" in core_review["ci_evidence"]
+    assert "explicit metric_labels" in core_review["ci_evidence"]
+    assert "state, reason, and freshness_bucket" in core_review["ci_evidence"]
+    assert "no-sensitive label rejection" in core_review["ci_evidence"]
+    assert "lotus-core portfolio readiness supportability" in str(
+        hardening["api_certification_review"]
+    )
+
+
 def test_ecosystem_hardening_rejects_missing_repository_review() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
