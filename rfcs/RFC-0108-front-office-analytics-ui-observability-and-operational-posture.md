@@ -41,9 +41,9 @@
   - RFC-0108 is not an extension of RFC-0105.
   - RFC-0108 does not certify reporting security from RFC-0106.
   - RFC-0108 does not claim final reporting production readiness from RFC-0107.
-  - RFC-0108 is now reopened to add required ecosystem-completion slices that remove the
-    remaining planned analytics UI observability gaps and extend the same operational posture
-    uniformly across the Lotus ecosystem.
+  - RFC-0108 was reopened for ecosystem-completion slices and is now closed for current
+    implementation-backed claims. Future Workbench all-supported-surface promotion and full
+    RFC-0079 risk/evidence scope remain planned residuals until separately implemented and proved.
 
 ## Summary
 
@@ -86,8 +86,8 @@ Key differences:
    dashboard, and no-sensitive-content evidence exist.
 
 Gold-pass conclusion: RFC-0108 remains the governed execution guide. The first-wave scope is
-implementation-backed through final closure, and the RFC is now reopened for required ecosystem
-completion slices. Slice 0, Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, Slice 7, and
+implementation-backed through final closure, and the reopened ecosystem scope is closed for current
+implementation-backed claims. Slice 0, Slice 1, Slice 2, Slice 3, Slice 4, Slice 5, Slice 6, Slice 7, and
 Slice 8 are implementation-backed. Slice 2 adds the platform
 telemetry contract and code-owned Workbench/Gateway constants for event names, severity levels,
 attention/audit event types, trace attributes, dashboard/alert reference policy, and protected
@@ -103,10 +103,12 @@ bounded `analytics_read_allowed` events and upstream `401`/`403` denials emittin
 `analytics_read_denied` events. Slice 8 adds platform-owned canonical proof review and live
 governed Workbench proof for `PB_SG_GLOBAL_BAL_001`, including API checks, browser screenshots,
 calculation sanity, panel classifications, Workbench `/api/metrics` exposure, dashboard/alert
-metric reconciliation, and sensitive-content assertions. The reopened ecosystem-completion wave now
-requires backend freshness/supportability metrics, full caller-context entitlement certification,
-all supported Workbench surfaces, all UI-facing Gateway fan-out path rollout, and all Lotus app
-supportability signals to be implemented before overall RFC-0108 closure.
+metric reconciliation, and sensitive-content assertions. The ecosystem-completion wave added
+backend freshness/supportability metrics, caller-context entitlement certification for current
+certified read paths, Gateway fan-out coverage for implemented client seams, and all current Lotus
+app supportability signals needed for current-scope closure. Future Workbench all-supported-surface
+promotion and full RFC-0079 risk/evidence scope remain planned residuals rather than hidden
+closure blockers.
 
 ## Critical Review Findings And Gold-Standard Corrections
 

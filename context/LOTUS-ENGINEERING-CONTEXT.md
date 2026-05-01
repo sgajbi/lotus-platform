@@ -303,8 +303,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     merged PR evidence, required proof commands, required GitHub checks, wiki publication
     requirements, clean-state branch hygiene, residual planned scope, and an explicit no-change
     decision for skills/guidance because existing Lotus routing already covers canonical Workbench
-    proof, RFC/context governance, and PR pre-merge discipline. The reopened ecosystem-completion
-    wave adds required Slices 10-18 to finish uniform observability and operational posture across
+    proof, RFC/context governance, and PR pre-merge discipline. The ecosystem-completion wave added
+    required Slices 10-18 to finish current-scope uniform observability and operational posture across
     `lotus-workbench`, `lotus-gateway`, `lotus-core`, `lotus-performance`, `lotus-risk`,
     `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`,
     and `lotus-platform`. Slices 10 and 11 are complete with
@@ -323,9 +323,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `GET /api/v1/rebalance/supportability/summary` emits `supportability.state`,
     `supportability.reason`, `supportability.freshness_bucket`, bounded
     `lotus_manage_action_register_supportability_total` labels, and the implemented feature key
-    `manage.observability.action_register_supportability`. The remaining backend services,
-    remaining risk endpoint families, and Gateway/Workbench reconciliation still need
-    implementation-backed supportability before Slice 12 can close. Slice 13 now has
+    `manage.observability.action_register_supportability`. Later PRs completed performance/risk
+    backend freshness supportability and Gateway/Workbench source-supportability reconciliation for
+    current supported reads; Slice 12 remains partially implemented only because full Workbench
+    all-supported-surface and full RFC-0079 risk/evidence promotion stay planned. Slice 13 now has
     implementation-backed Gateway proof for selected analytics fan-out metrics, protected
     diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
     lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially
