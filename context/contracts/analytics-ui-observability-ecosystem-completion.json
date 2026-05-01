@@ -245,7 +245,7 @@
         "performance_risk_report_ai_source_supportability_reconciled"
       ],
       "blockers": [
-        "no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics, portfolio readiness, manage action-register, report evidence-surface, or AI advisor-brief supportability for the supported reads now implemented"
+        "no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics, portfolio readiness, manage action-register, report evidence-surface, or AI advisor-brief supportability for the supported reads now implemented; Gateway PR #179 also removes stale lotus-manage proposal routing and records that proposal lifecycle operations target lotus-advise while lotus-manage consumption is limited to versioned strategic run, supportability summary, and capability endpoints"
       ],
       "required_proof": [
         "Gateway unit tests",
@@ -254,7 +254,7 @@
         "audit proof",
         "source supportability reconciliation proof"
       ],
-      "wiki_source_decision": "Gateway repo-local wiki source documents diagnostics, fan-out metrics, and performance/risk source supportability reconciliation; published after PR #166",
+      "wiki_source_decision": "Gateway repo-local wiki source documents diagnostics, fan-out metrics, performance/risk source supportability reconciliation, and the PR #179 manage/advise downstream boundary; published after PR #179 as wiki commit 94ca9c7",
       "runbook_requirements": [
         "Gateway fan-out degradation runbook",
         "protected diagnostics runbook"
