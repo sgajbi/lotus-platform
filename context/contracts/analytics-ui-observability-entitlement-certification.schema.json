@@ -13,6 +13,7 @@
     "denial_semantics",
     "forbidden_evidence_fields",
     "required_evidence",
+    "implementation_evidence",
     "residual_scope",
     "local_proof_commands",
     "required_github_checks"
@@ -76,6 +77,11 @@
     "required_evidence": {
       "type": "array",
       "items": { "$ref": "#/$defs/evidence" },
+      "minItems": 1
+    },
+    "implementation_evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/implementationEvidence" },
       "minItems": 1
     },
     "residual_scope": {
@@ -154,6 +160,34 @@
         "evidence_type": { "type": "string" },
         "status": {
           "enum": ["required_before_promotion", "implemented"]
+        },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "implementationEvidence": {
+      "type": "object",
+      "required": [
+        "evidence_id",
+        "status",
+        "path_id",
+        "owner_repo",
+        "pull_request",
+        "merge_commit",
+        "evidence_types",
+        "description"
+      ],
+      "properties": {
+        "evidence_id": { "type": "string" },
+        "status": { "enum": ["implemented", "partial"] },
+        "path_id": { "type": "string" },
+        "owner_repo": { "type": "string" },
+        "pull_request": { "type": "string" },
+        "merge_commit": { "type": "string" },
+        "evidence_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
         },
         "description": { "type": "string" }
       },

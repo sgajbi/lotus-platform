@@ -118,6 +118,28 @@
       "description": "Protected diagnostics lookup is already implementation-backed by the RFC-0108 protected diagnostics proof and must remain bounded to opaque gdiag references."
     }
   ],
+  "implementation_evidence": [
+    {
+      "evidence_id": "lotus-gateway-pr-176-advisor-brief-caller-context",
+      "status": "implemented",
+      "path_id": "workbench-advisor-brief",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#176",
+      "merge_commit": "56d610b64e75284360dff1321bf85d7fa7308a5e",
+      "evidence_types": ["caller-context-contract-test"],
+      "description": "Gateway requires caller context on advisor-brief read and review-action routes and tests missing X-Actor-Id, X-Tenant-Id, and X-Region rejection."
+    },
+    {
+      "evidence_id": "lotus-gateway-pr-177-advisor-brief-read-audit",
+      "status": "implemented",
+      "path_id": "workbench-advisor-brief",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#177",
+      "merge_commit": "4cf65a662ca1e9bcc335b33b03b82b90e2e57f86",
+      "evidence_types": ["gateway-allow-deny-audit-log"],
+      "description": "Gateway emits bounded advisor-brief read allow and upstream-denial audit records with operation advisor_brief.summary and panel advisor-brief."
+    }
+  ],
   "residual_scope": [
     {
       "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
