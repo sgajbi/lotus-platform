@@ -10,7 +10,10 @@ automation, and runtime support.
 - `lotus-workbench`
   canonical front-office runtime, QA wrapper support, panel and screenshot evidence governance
 - `lotus-gateway`
-  ingress and platform validation support
+  ingress, platform validation support, and product-facing integration governance; current Gateway
+  proposal flows target `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
+  consumption is limited to versioned strategic run lookup, supportability summary, and capability
+  posture
 - `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`
   standards validation, repo checks, automation registration, and cross-app validation support
 

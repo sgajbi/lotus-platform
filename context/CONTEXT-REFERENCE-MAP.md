@@ -308,7 +308,11 @@ The current reporting and analytics observability governance references are:
    metric label assertions. Workbench PR #136 hardens the mutation hydration boundary: the same
    review-action mutation emits API request and panel-state metrics but must not increment
    `lotus_workbench_panel_hydration_duration_seconds`; live proof recorded
-   `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens AI surface
+   `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. Gateway PR #179 hardens the
+   downstream ownership boundary so proposal simulation/create/list/detail/version/workflow/
+   approval/lineage uses `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
+   consumption is limited to versioned strategic run, supportability summary, and capability
+   endpoints. lotus-ai PR #57 hardens AI surface
    supportability proof with bounded `supportability_reason`, explicit `metric_labels`,
    sensitive-diagnostic rejection tests, Prometheus metric-label tests, `make check`, `make ci`,
    Docker build, and published wiki source. lotus-core PR #329 hardens portfolio readiness

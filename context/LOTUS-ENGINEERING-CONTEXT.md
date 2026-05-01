@@ -320,7 +320,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `metadata.calculation_supportability`, bounded
     `lotus_risk_calculation_supportability_total` labels, and the implemented feature key
     `risk.observability.calculation_supportability`; `lotus-manage`
-    `GET /rebalance/supportability/summary` emits `supportability.state`,
+    `GET /api/v1/rebalance/supportability/summary` emits `supportability.state`,
     `supportability.reason`, `supportability.freshness_bucket`, bounded
     `lotus_manage_action_register_supportability_total` labels, and the implemented feature key
     `manage.observability.action_register_supportability`. The remaining backend services,
@@ -360,7 +360,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     implementation-backed Advisor Brief review-action mutation observability through the
     bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser
     metric ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and
-    no-sensitive metric label assertions. Workbench PR #136 adds the production boundary that
+    no-sensitive metric label assertions. Gateway PR #179 hardens the downstream ownership
+    boundary: proposal simulation, create, list, detail, version, workflow, approval, and lineage
+    calls now target `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
+    consumption is limited to `GET /api/v1/rebalance/runs`,
+    `GET /api/v1/rebalance/supportability/summary`, and
+    `GET /api/v1/platform/capabilities`; stale manage proposal and unversioned rebalance paths are
+    prohibited by tests, docs, and wiki proof. Workbench PR #136 adds the production boundary that
     state-changing Workbench actions, including the Advisor Brief review-action mutation, record
     API request and panel-state metrics without incrementing panel hydration; the live proof
     recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens

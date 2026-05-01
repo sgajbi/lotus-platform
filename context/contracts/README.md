@@ -83,8 +83,9 @@ Current contracts:
 24. `analytics-ui-observability-ecosystem-final-closure.json`
     The RFC-0108 Slice 18 contract that records implemented-scope closure, source-contract and
     slice-status reconciliation, supported-feature audit, residual planned-scope preservation,
-    proof/hardening reconciliation, local and GitHub proof requirements, wiki publication, branch
-    hygiene, and skills guidance review.
+    proof/hardening reconciliation, downstream Gateway manage/advise boundary hardening evidence,
+    local and GitHub proof requirements, wiki publication, branch hygiene, and skills guidance
+    review.
 25. `analytics-ui-observability-entitlement-certification.schema.json`
     The governed schema for RFC-0108 caller-context entitlement certification.
 26. `analytics-ui-observability-entitlement-certification.json`

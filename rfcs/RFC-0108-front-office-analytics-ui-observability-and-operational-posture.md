@@ -1538,3 +1538,23 @@ This promotes the quality of `risk.observability.calculation_supportability` and
 `analytics.backend.observability.freshness_supportability` for the current implemented risk
 endpoint-family scope while preserving the broader Workbench all-supported-surface and RFC-0079
 residual boundaries.
+
+Gateway downstream ownership boundary hardening:
+
+`lotus-gateway` PR #179, merge `2414e7e`, closes a stale downstream integration gap discovered
+during the RFC-0108 gold-pass audit. Gateway proposal simulation, create, list, detail, version,
+workflow, approval, and lineage calls now target `lotus-advise` `/advisory/proposals*` paths
+instead of stale `lotus-manage` rebalance proposal paths. Gateway `lotus-manage` consumption is now
+limited to `GET /api/v1/rebalance/runs`, `GET /api/v1/rebalance/supportability/summary`, and
+`GET /api/v1/platform/capabilities` until a separately implemented strategic execution use case
+exists.
+
+The cleanup is implementation-backed, not a documentation rename: `DpmClient` now owns only the
+strategic manage endpoints, proposal methods moved to the advise client boundary, proposal
+routers/services/OpenAPI text describe `lotus-advise`, Workbench-facing Gateway services receive
+explicit advise and manage clients, stale `manage_split_enabled` handling was removed, and
+regression tests prove stale manage proposal and unversioned rebalance paths are not used. Local
+proof included focused proposal/platform/workbench tests (`175 passed`), `make check`,
+`make test-integration`, non-live workflow e2e, `git diff --check`, and wiki drift publication.
+GitHub Feature Lane and PR Merge Gate passed, including coverage, integration, Docker build, and CI
+local Docker parity. Gateway wiki source was published as commit `94ca9c7`.

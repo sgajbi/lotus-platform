@@ -125,6 +125,22 @@ the advisory API vocabulary, and publishes the advise wiki API surface and opera
 keeps Gateway and Workbench advisory supportability reconciliation grounded in source-owned
 advisory runtime posture rather than stale manage/DPM proposal assumptions.
 
+## Gateway Proposal And Manage Boundary
+
+Gateway PR #179 hardens the downstream ownership boundary between advisory workflows and
+portfolio-management operations.
+
+| Downstream | Gateway currently calls | Boundary |
+| --- | --- | --- |
+| `lotus-advise` | `POST /advisory/proposals/simulate`, `POST /advisory/proposals`, `GET /advisory/proposals`, proposal detail, version, transition, approval, workflow-event, and lineage paths under `/advisory/proposals*` | Proposal simulation, creation, listing, detail, versioning, workflow, approval, and lineage are advisory concerns. |
+| `lotus-manage` | `GET /api/v1/rebalance/runs`, `GET /api/v1/rebalance/supportability/summary`, `GET /api/v1/platform/capabilities` | Gateway uses manage only for strategic run lookup, supportability summary, and capability posture until a separately implemented execution use case exists. |
+
+The proof is implementation-backed: `DpmClient` now contains only strategic manage methods,
+proposal methods live on the advise client boundary, Gateway proposal routes and service contracts
+describe `lotus-advise`, stale `manage_split_enabled` handling was removed, and regression tests
+prove stale manage proposal paths and unversioned `/rebalance/*` calls are not used. Gateway wiki
+source was published after the merge as commit `94ca9c7`.
+
 ## Gold-Pass Evidence
 
 The 2026-05-01 gold-pass canonical run passed for `PB_SG_GLOBAL_BAL_001` with benchmark
