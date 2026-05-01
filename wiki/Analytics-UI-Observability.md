@@ -32,6 +32,29 @@ flowchart LR
     Platform --> Operators[Operators and demo-readiness evidence]
 ```
 
+## Gold-Pass Evidence
+
+The 2026-05-01 gold-pass canonical run passed for `PB_SG_GLOBAL_BAL_001` with benchmark
+`BMK_PB_GLOBAL_BALANCED_60_40`. The platform evidence bundle is
+`output/front-office-qa/canonical-front-office-qa-20260501-140359.json`; the runtime transcript is
+`output/front-office-qa/canonical-front-office-qa-20260501-140359.log`; screenshots are under
+`output/rfc-0108-gold-pass-transcript-qa/`.
+
+The run proved DNS, Gateway readiness, Workbench portfolio/performance routes, manage/report/
+archive/render readiness, integration capabilities, Gateway workspace/capabilities/overview,
+performance summary, risk summary, advisor brief, and browser screenshots for seven panels. The
+evidence panel is intentionally `truthfully_degraded` because full RFC-0079 evidence scope remains
+outside the current implemented RFC-0108 claim.
+
+Canonical QA now writes `output/front-office-qa/latest.log` alongside `latest.json` and
+`latest.md`. Use the transcript during demo preparation and production-readiness review to confirm
+seed readiness progression, retry warnings, and teardown behavior instead of relying only on the
+structured summary.
+
+Critical screenshot review found one product-presentation follow-up: the performance summary driver
+content can clip horizontally in the desktop capture. Treat that as the next Workbench hardening
+slice before using the current screenshot pack as final client-demo presentation material.
+
 ## Residual Boundary
 
 RFC-0108 is closed for current implementation-backed claims, not for every possible future

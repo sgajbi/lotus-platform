@@ -117,6 +117,12 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 `Run-Agent.ps1` now executes five checks per iteration: repo sync, PR monitor, backend standards conformance validation, OpenAPI conformance validation, and domain vocabulary conformance validation.
 It also validates RFC-0068 shared infrastructure ownership on every iteration, emits machine-readable status to `output/agent-status.json`, runs metadata validation every iteration, and performs full coverage + dependency rollup every N iterations (`-FullAuditEvery`, default `5`).
 
+Canonical front-office QA writes timestamped JSON, Markdown, and runtime transcript artifacts under
+`output/front-office-qa/`, with `latest.json`, `latest.md`, and `latest.log` maintained for the
+most recent run. Treat the runtime transcript as part of the evidence bundle: it preserves seed
+readiness progression, retry warnings, and teardown output that may not appear in the structured
+live validation summary.
+
 ## Wiki Publication
 
 Repo-local `wiki/` directories are the authored source of truth for GitHub wiki publication.
