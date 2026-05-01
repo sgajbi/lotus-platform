@@ -67,8 +67,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
-        contract["lifecycle_status"]
-        == "slice-18-ecosystem-final-closure-implemented"
+        contract["lifecycle_status"] == "slice-18-ecosystem-final-closure-implemented"
     )
 
 
@@ -142,11 +141,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
-        feature_status["platform.analytics.observability.ecosystem_implementation_proof"]
+        feature_status[
+            "platform.analytics.observability.ecosystem_implementation_proof"
+        ]
         == "implemented"
     )
     assert (
-        feature_status["platform.analytics.observability.ecosystem_hardening_certification"]
+        feature_status[
+            "platform.analytics.observability.ecosystem_hardening_certification"
+        ]
         == "implemented"
     )
     assert (
@@ -190,7 +193,10 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert "4d8bc144c8ce07cf13087c704deeec9f177987de" in review_action_evidence
     assert "performance-advisor-brief-review-action" in review_action_evidence
     assert "/api/metrics/events" in review_action_evidence
-    assert "portfolio/client/advisor/correlation/free-form reason labels" in review_action_evidence
+    assert (
+        "portfolio/client/advisor/correlation/free-form reason labels"
+        in review_action_evidence
+    )
     assert "Workbench PR #136" in review_action_evidence
     assert "hydrationReviewActionLineCount=0" in review_action_evidence
     assert (
@@ -207,7 +213,9 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert "3dfdbd90878a82562ae38d8df66b1947ec16154f" in mutation_boundary_evidence
     assert "lotus_workbench_api_request_duration_seconds" in mutation_boundary_evidence
     assert "lotus_workbench_panel_state_total" in mutation_boundary_evidence
-    assert "lotus_workbench_panel_hydration_duration_seconds" in mutation_boundary_evidence
+    assert (
+        "lotus_workbench_panel_hydration_duration_seconds" in mutation_boundary_evidence
+    )
     assert "hydrationReviewActionLineCount=0" in mutation_boundary_evidence
     assert "leakedForbidden=[]" in mutation_boundary_evidence
     assert (
@@ -293,12 +301,8 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         feature_status["report.observability.evidence_surface_supportability"]
         == "implemented"
     )
-    assert (
-        feature_status["render.observability.render_supportability"] == "implemented"
-    )
-    assert (
-        feature_status["ai.observability.ai_surface_supportability"] == "implemented"
-    )
+    assert feature_status["render.observability.render_supportability"] == "implemented"
+    assert feature_status["ai.observability.ai_surface_supportability"] == "implemented"
     ai_evidence = next(
         entry["promotion_evidence"]
         for entry in contract["supported_feature_keys"]
@@ -313,6 +317,17 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         for entry in contract["supported_feature_keys"]
         if entry["feature_key"] == "risk.observability.calculation_supportability"
     )
+    performance_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"]
+        == "performance.observability.calculation_supportability"
+    )
+    assert "PR #141" in performance_evidence
+    assert "metric_labels" in performance_evidence
+    assert "lotus_performance_calculation_supportability_total" in performance_evidence
+    assert "lotus_analytics_freshness_bucket_total" in performance_evidence
+    assert "no-sensitive Prometheus exposition proof" in performance_evidence
     assert "lotus-risk PR #109" in risk_evidence
     assert "metric_labels" in risk_evidence
     assert "lotus_risk_calculation_supportability_total" in risk_evidence
@@ -379,21 +394,29 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         entry["metric_name"]: entry for entry in contract["metric_families"]
     }
     assert (
-        metric_families["lotus_gateway_analytics_fanout_duration_seconds"]["implemented"]
+        metric_families["lotus_gateway_analytics_fanout_duration_seconds"][
+            "implemented"
+        ]
         is True
     )
-    assert metric_families["lotus_gateway_analytics_fanout_duration_seconds"]["labels"] == [
+    assert metric_families["lotus_gateway_analytics_fanout_duration_seconds"][
+        "labels"
+    ] == [
         "operation",
         "service",
         "status_class",
     ]
-    assert metric_families["lotus_gateway_analytics_degraded_total"]["implemented"] is True
+    assert (
+        metric_families["lotus_gateway_analytics_degraded_total"]["implemented"] is True
+    )
     assert metric_families["lotus_gateway_analytics_degraded_total"]["labels"] == [
         "operation",
         "service",
         "reason",
     ]
-    assert metric_families["lotus_ai_surface_supportability_state"]["implemented"] is True
+    assert (
+        metric_families["lotus_ai_surface_supportability_state"]["implemented"] is True
+    )
     assert metric_families["lotus_ai_surface_supportability_state"]["labels"] == [
         "surface",
         "posture",
@@ -575,9 +598,7 @@ def test_analytics_ui_observability_contract_records_mutation_hydration_boundary
 
     assert boundary["owner_repo"] == "lotus-workbench"
     assert boundary["implemented"] is True
-    assert boundary["mutation_surfaces"] == [
-        "performance-advisor-brief-review-action"
-    ]
+    assert boundary["mutation_surfaces"] == ["performance-advisor-brief-review-action"]
     assert set(boundary["included_metric_families"]) == {
         "lotus_workbench_api_request_duration_seconds",
         "lotus_workbench_panel_state_total",
@@ -761,7 +782,9 @@ def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
         ]
     )
     assert set(actual_alerts) == set(expected_alerts)
-    assert {alert["metric_name"] for alert in expected_alerts.values()} == implemented_metric_names
+    assert {
+        alert["metric_name"] for alert in expected_alerts.values()
+    } == implemented_metric_names
     for alert_id, expected in expected_alerts.items():
         actual = actual_alerts[alert_id]
         assert actual["severity"] == expected["severity"]

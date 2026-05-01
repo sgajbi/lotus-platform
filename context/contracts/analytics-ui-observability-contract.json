@@ -64,7 +64,15 @@
       "owner_repo": "lotus-workbench",
       "implemented": true,
       "metric_type": "histogram",
-      "labels": ["route", "panel", "service", "operation", "state", "freshness_bucket", "supportability_state"],
+      "labels": [
+        "route",
+        "panel",
+        "service",
+        "operation",
+        "state",
+        "freshness_bucket",
+        "supportability_state"
+      ],
       "purpose": "implementation-backed local Workbench analytics panel hydration duration event for selected performance and risk panels"
     },
     {
@@ -72,7 +80,16 @@
       "owner_repo": "lotus-workbench",
       "implemented": true,
       "metric_type": "counter",
-      "labels": ["route", "panel", "service", "operation", "state", "reason", "freshness_bucket", "supportability_state"],
+      "labels": [
+        "route",
+        "panel",
+        "service",
+        "operation",
+        "state",
+        "reason",
+        "freshness_bucket",
+        "supportability_state"
+      ],
       "purpose": "implementation-backed local Workbench state transition event for selected analytics panels with bounded state, reason, freshness, and supportability labels"
     },
     {
@@ -80,7 +97,15 @@
       "owner_repo": "lotus-workbench",
       "implemented": true,
       "metric_type": "histogram",
-      "labels": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
+      "labels": [
+        "route",
+        "panel",
+        "service",
+        "operation",
+        "state",
+        "status_class",
+        "error_category"
+      ],
       "purpose": "implementation-backed local Workbench BFF/API request duration event for selected analytics reads and Advisor Brief review-action mutation"
     },
     {
@@ -88,7 +113,11 @@
       "owner_repo": "lotus-gateway",
       "implemented": true,
       "metric_type": "histogram",
-      "labels": ["operation", "service", "status_class"],
+      "labels": [
+        "operation",
+        "service",
+        "status_class"
+      ],
       "purpose": "implementation-backed gateway analytics fan-out duration metric for selected Workbench performance and risk analytics operations"
     },
     {
@@ -96,7 +125,11 @@
       "owner_repo": "lotus-gateway",
       "implemented": true,
       "metric_type": "counter",
-      "labels": ["operation", "service", "reason"],
+      "labels": [
+        "operation",
+        "service",
+        "reason"
+      ],
       "purpose": "implementation-backed gateway analytics degraded-source counter for selected Workbench performance and risk analytics operations"
     },
     {
@@ -104,7 +137,12 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "implemented": true,
       "metric_type": "counter",
-      "labels": ["service", "operation", "freshness_bucket", "supportability_state"],
+      "labels": [
+        "service",
+        "operation",
+        "freshness_bucket",
+        "supportability_state"
+      ],
       "purpose": "implementation-backed backend analytics freshness and supportability counter for performance and risk calculation supportability outcomes"
     },
     {
@@ -131,12 +169,21 @@
       "owner_repo": "lotus-ai",
       "implemented": true,
       "metric_type": "gauge",
-      "labels": ["surface", "posture", "source"],
+      "labels": [
+        "surface",
+        "posture",
+        "source"
+      ],
       "purpose": "implementation-backed lotus-ai supportability gauge for bounded AI-backed surface posture"
     }
   ],
   "telemetry_contract": {
-    "severity_levels": ["info", "warning", "action_required", "critical"],
+    "severity_levels": [
+      "info",
+      "warning",
+      "action_required",
+      "critical"
+    ],
     "attention_event_types": [
       "panel_stale",
       "panel_degraded",
@@ -154,21 +201,46 @@
         "event_name": "workbench.analytics.panel_hydration",
         "owner_repo": "lotus-workbench",
         "implemented": true,
-        "attributes": ["route", "panel", "service", "operation", "state", "freshness_bucket", "supportability_state"],
+        "attributes": [
+          "route",
+          "panel",
+          "service",
+          "operation",
+          "state",
+          "freshness_bucket",
+          "supportability_state"
+        ],
         "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics panel hydration"
       },
       {
         "event_name": "workbench.analytics.panel_state",
         "owner_repo": "lotus-workbench",
         "implemented": true,
-        "attributes": ["route", "panel", "service", "operation", "state", "reason", "freshness_bucket", "supportability_state"],
+        "attributes": [
+          "route",
+          "panel",
+          "service",
+          "operation",
+          "state",
+          "reason",
+          "freshness_bucket",
+          "supportability_state"
+        ],
         "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics panel states"
       },
       {
         "event_name": "workbench.analytics.api_request",
         "owner_repo": "lotus-workbench",
         "implemented": true,
-        "attributes": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
+        "attributes": [
+          "route",
+          "panel",
+          "service",
+          "operation",
+          "state",
+          "status_class",
+          "error_category"
+        ],
         "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics API reads and Advisor Brief review-action mutation; browser-originated events are accepted only through the bounded same-origin Workbench /api/metrics/events ingest route before Prometheus export through /api/metrics"
       },
       {
@@ -352,7 +424,9 @@
       "boundary_id": "workbench-mutation-actions-exclude-panel-hydration",
       "owner_repo": "lotus-workbench",
       "implemented": true,
-      "mutation_surfaces": ["performance-advisor-brief-review-action"],
+      "mutation_surfaces": [
+        "performance-advisor-brief-review-action"
+      ],
       "included_metric_families": [
         "lotus_workbench_api_request_duration_seconds",
         "lotus_workbench_panel_state_total"
@@ -513,7 +587,7 @@
       "feature_key": "platform.analytics.observability.ecosystem_final_closure",
       "status": "implemented",
       "owner_repo": "lotus-platform",
-      "promotion_evidence": "Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving full Workbench supported-surface and full RFC-0079 residuals as planned. Later backend metric slices promote performance/risk RFC-0108 backend freshness supportability through lotus-performance PR #139 and lotus-risk PR #108, with lotus-performance PR #140 hardening capability publication across the completed performance supportability surfaces and lotus-risk PR #109 hardening explicit metric_labels plus no-sensitive Prometheus label proof across risk supportability."
+      "promotion_evidence": "Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving full Workbench supported-surface and full RFC-0079 residuals as planned. Later backend metric slices promote performance/risk RFC-0108 backend freshness supportability through lotus-performance PR #139 and lotus-risk PR #108, with lotus-performance PR #140 hardening capability publication across the completed performance supportability surfaces, lotus-performance PR #141 hardening explicit performance metric_labels plus no-sensitive Prometheus label proof across performance supportability, and lotus-risk PR #109 hardening explicit metric_labels plus no-sensitive Prometheus label proof across risk supportability."
     },
     {
       "feature_key": "workbench.analytics.observability.correlation_trace",
@@ -627,7 +701,7 @@
       "feature_key": "analytics.backend.observability.freshness_supportability",
       "status": "implemented",
       "owner_repo": "lotus-performance/lotus-risk",
-      "promotion_evidence": "lotus-performance emits calculation_supportability and bounded lotus_performance_calculation_supportability_total labels for completed TWR, MWR, contribution, and attribution calculations through PR #138; PR #139 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path with bounded service, operation, freshness_bucket, and supportability_state labels. PR #140 hardens capability publication so performance.observability.calculation_supportability remains implemented when any implemented performance supportability operation is enabled, not only TWR. lotus-risk PR #107 extends metadata.calculation_supportability and bounded lotus_risk_calculation_supportability_total labels across risk/calculate, drawdown, rolling metrics, historical attribution, and concentration; PR #108 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path. Gateway PR #166 consumes those source supportability blocks through the experience API, maps stale/partial/unavailable posture into bounded fan-out state, and preserves source supportability in risk workspace supportability items plus performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into UI freshness/supportability derivation and live validation summaries. Full Workbench all-supported-surface promotion remains planned until every supported surface and full RFC-0079 risk/evidence scope are separately implemented and certified."
+      "promotion_evidence": "lotus-performance emits calculation_supportability and bounded lotus_performance_calculation_supportability_total labels for completed TWR, MWR, contribution, and attribution calculations through PR #138; PR #139 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path with bounded service, operation, freshness_bucket, and supportability_state labels. PR #140 hardens capability publication so performance.observability.calculation_supportability remains implemented when any implemented performance supportability operation is enabled, not only TWR. PR #141 hardens the source contract with explicit calculation_supportability.metric_labels, shared label tuples for lotus_performance_calculation_supportability_total and lotus_analytics_freshness_bucket_total, Prometheus exposition tests proving bounded labels only, no-sensitive label rejection for portfolio/account/client/security/benchmark/calculation/trace/correlation/request/response identifiers, full local lint/typecheck/OpenAPI/API-vocabulary/no-alias/domain-product/migration/unit/integration/e2e/coverage/security/Docker proof, green Feature Lane and PR Merge Gate, and published wiki source. lotus-risk PR #107 extends metadata.calculation_supportability and bounded lotus_risk_calculation_supportability_total labels across risk/calculate, drawdown, rolling metrics, historical attribution, and concentration; PR #108 adds the RFC-0108 lotus_analytics_freshness_bucket_total companion metric from the same source-owned supportability recording path. Gateway PR #166 consumes those source supportability blocks through the experience API, maps stale/partial/unavailable posture into bounded fan-out state, and preserves source supportability in risk workspace supportability items plus performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into UI freshness/supportability derivation and live validation summaries. Full Workbench all-supported-surface promotion remains planned until every supported surface and full RFC-0079 risk/evidence scope are separately implemented and certified."
     },
     {
       "feature_key": "core.observability.portfolio_supportability",
@@ -639,7 +713,7 @@
       "feature_key": "performance.observability.calculation_supportability",
       "status": "implemented",
       "owner_repo": "lotus-performance",
-      "promotion_evidence": "Slice 12 partial proof implemented lotus-performance TWR source-backed calculation supportability via calculation_supportability, lotus_performance_calculation_supportability_total with bounded labels only, capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. Follow-up performance PR #138 extends the same bounded supportability contract and metric to completed MWR, contribution, and attribution responses with green Feature Lane and PR Merge Gate checks, docs, and published wiki source. PR #140 hardens the integration capability summary so performance.observability.calculation_supportability is advertised whenever TWR, MWR, contribution, or attribution supportability is enabled, preventing capability drift if TWR is disabled while another implemented supportability surface remains active. Gateway PR #166 consumes performance source supportability into performance evidence context and capability posture. Workbench PR #118 derives supported performance freshness/supportability from Gateway source_supportability arrays and records validation supportabilityChecks."
+      "promotion_evidence": "Slice 12 partial proof implemented lotus-performance TWR source-backed calculation supportability via calculation_supportability, lotus_performance_calculation_supportability_total with bounded labels only, capability publication, repo-native integration/OpenAPI/API-vocabulary/no-alias/domain-product/lint/typecheck proof, docs, and wiki source updates. Follow-up performance PR #138 extends the same bounded supportability contract and metric to completed MWR, contribution, and attribution responses with green Feature Lane and PR Merge Gate checks, docs, and published wiki source. PR #140 hardens the integration capability summary so performance.observability.calculation_supportability is advertised whenever TWR, MWR, contribution, or attribution supportability is enabled, preventing capability drift if TWR is disabled while another implemented supportability surface remains active. PR #141 adds explicit calculation_supportability.metric_labels, shared bounded Prometheus label tuples for lotus_performance_calculation_supportability_total and lotus_analytics_freshness_bucket_total, and no-sensitive Prometheus exposition proof for performance supportability and backend freshness metrics. Gateway PR #166 consumes performance source supportability into performance evidence context and capability posture. Workbench PR #118 derives supported performance freshness/supportability from Gateway source_supportability arrays and records validation supportabilityChecks."
     },
     {
       "feature_key": "risk.observability.calculation_supportability",
