@@ -139,6 +139,20 @@ def test_ecosystem_hardening_records_performance_metric_label_proof() -> None:
     )
 
 
+def test_ecosystem_hardening_records_advise_metric_label_proof() -> None:
+    hardening = _load_json(HARDENING_PATH)
+    advise_review = next(
+        review
+        for review in hardening["repository_reviews"]
+        if review["repository"] == "lotus-advise"
+    )
+
+    assert "lotus-advise PR #109" in advise_review["ci_evidence"]
+    assert "supportability.metric_labels" in advise_review["ci_evidence"]
+    assert "lotus_advise_advisory_supportability_total" in advise_review["ci_evidence"]
+    assert "no-sensitive label rejection" in advise_review["ci_evidence"]
+
+
 def test_ecosystem_hardening_rejects_missing_repository_review() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)

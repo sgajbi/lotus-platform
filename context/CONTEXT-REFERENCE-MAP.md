@@ -316,7 +316,9 @@ The current reporting and analytics observability governance references are:
    metric-label tests, full local and GitHub runtime gates, and published wiki source. lotus-risk
    PR #109 hardens risk supportability proof with explicit `metric_labels`, bounded Prometheus
    labels, no-sensitive metric-label tests, full local and GitHub runtime gates, and published wiki
-   source. Workbench
+   source. lotus-advise PR #109 hardens advisory supportability proof with explicit
+   `supportability.metric_labels`, bounded Prometheus labels, no-sensitive metric-label tests,
+   full local and GitHub runtime gates, and published wiki source. Workbench
    archive retrieval is supported only through the BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 

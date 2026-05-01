@@ -148,7 +148,10 @@
   GitHub runtime gates, and published wiki source. lotus-risk PR #109 hardens risk supportability
   proof with explicit `metric_labels`, bounded `lotus_risk_calculation_supportability_total` and
   `lotus_analytics_freshness_bucket_total` labels, no-sensitive Prometheus label tests, green local
-  and GitHub runtime gates, and published wiki source. Required remaining
+  and GitHub runtime gates, and published wiki source. lotus-advise PR #109 hardens advisory
+  supportability proof with explicit `supportability.metric_labels`, bounded
+  `lotus_advise_advisory_supportability_total` labels, no-sensitive Prometheus label tests, green
+  local and GitHub runtime gates, and published wiki source. Required remaining
   ecosystem Slice 12 residuals extend
   the same posture uniformly across all Lotus apps, including the remaining backend supportability
   metrics and all Workbench supported surfaces. Slice 13 has

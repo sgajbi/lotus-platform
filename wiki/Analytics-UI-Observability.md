@@ -15,6 +15,7 @@ the platform contracts under [`context/contracts/`](../context/contracts/), and 
 | Core portfolio readiness | Portfolio readiness exposes source-owned supportability posture and explicit metric-label truth. The `lotus_core_portfolio_supportability_total` metric is bounded to `state`, `reason`, and `freshness_bucket`; portfolio, client, correlation, trace, security, request-body, and response-body values are proven absent from metric labels. | lotus-core PR #329, Gateway PR #167, Workbench PR #120, and published core wiki source. |
 | Performance backend | TWR, MWR, contribution, and attribution supportability emit bounded source-owned supportability state; the RFC-0108 backend freshness metric is implemented; capability publication remains enabled when any implemented performance supportability operation is enabled; responses publish explicit `metric_labels`, and Prometheus proof rejects sensitive identifiers or payload fields as labels. | lotus-performance PRs #138, #139, #140, and #141. |
 | Risk backend | Risk calculate, drawdown, rolling metrics, historical attribution, and concentration supportability emit bounded source-owned supportability state, explicit `metric_labels`, no-sensitive Prometheus label proof, and the RFC-0108 backend freshness metric. | lotus-risk PRs #107, #108, and #109. |
+| Advisory backend | Advisory capability supportability emits source-owned supportability state, explicit `supportability.metric_labels`, and no-sensitive Prometheus label proof for `lotus_advise_advisory_supportability_total`. | lotus-advise PR #109, Gateway PR #172, and Workbench PR #125. |
 | AI surface supportability | Advisor brief, TWR inspection support brief, and workspace rationale AI surface supportability is source-backed by workflow-pack runtime, provider operations, and safety runtime; bounded `supportability_reason` and explicit `metric_labels` proof prevent sensitive diagnostics from becoming operator telemetry. | lotus-ai PR #57, Gateway PR #170, and Workbench PR #123. |
 | Platform observability | Dashboard, alert rules, runbook anchors, ecosystem proof, hardening certification, final closure, and wiki publication requirements are machine-reviewed. | `analytics-ui-observability-contract.json`, ecosystem completion/proof/hardening/final-closure contracts, and platform validators. |
 
@@ -108,6 +109,21 @@ The proof inspects real Prometheus exposition, asserts the API/OpenAPI label con
 the risk API vocabulary, and publishes the risk wiki runbook with the operator flow from endpoint
 supportability metadata through Gateway source supportability, dashboards, alerts, and Workbench
 risk panel state.
+
+## Advisory Supportability Metric Labels
+
+`lotus-advise` PR #109 applies the same source-contract pattern to advisory supportability.
+`GET /platform/capabilities` publishes `supportability.metric_labels`, and the Prometheus metric
+uses the same shared bounded label tuple:
+
+| Metric | Allowed labels | Forbidden label classes |
+| --- | --- | --- |
+| `lotus_advise_advisory_supportability_total` | `state`, `reason`, `freshness_bucket` | portfolio/account/client/advisor identifiers, proposal/workspace identifiers, correlation/request/trace identifiers, transaction/security identifiers, request bodies, and response bodies |
+
+The proof inspects real Prometheus exposition, asserts the API/OpenAPI label contract, regenerates
+the advisory API vocabulary, and publishes the advise wiki API surface and operations runbook. This
+keeps Gateway and Workbench advisory supportability reconciliation grounded in source-owned
+advisory runtime posture rather than stale manage/DPM proposal assumptions.
 
 ## Gold-Pass Evidence
 
