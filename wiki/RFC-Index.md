@@ -140,7 +140,10 @@
   Workbench PR #120, manage action-register supportability reconciliation through Gateway PR
   #168 and Workbench PR #121, report evidence-surface supportability reconciliation through
   Gateway PR #169 and Workbench PR #122, and AI surface supportability reconciliation through
-  Gateway PR #170 and Workbench PR #123. Required remaining ecosystem Slice 12 residuals extend
+  Gateway PR #170 and Workbench PR #123. lotus-ai PR #57 hardens AI supportability proof with
+  bounded `supportability_reason`, explicit `metric_labels`, sensitive-diagnostic rejection,
+  Prometheus label-boundary tests, `make ci`, and published wiki source. Required remaining
+  ecosystem Slice 12 residuals extend
   the same posture uniformly across all Lotus apps, including the remaining backend supportability
   metrics and all Workbench supported surfaces. Slice 13 has
   implementation-backed Gateway proof for selected fan-out metrics, protected diagnostics lookup,

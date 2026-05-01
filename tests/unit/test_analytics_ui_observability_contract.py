@@ -299,6 +299,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert (
         feature_status["ai.observability.ai_surface_supportability"] == "implemented"
     )
+    ai_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"] == "ai.observability.ai_surface_supportability"
+    )
+    assert "lotus-ai PR #57" in ai_evidence
+    assert "supportability_reason" in ai_evidence
+    assert "metric_labels" in ai_evidence
+    assert "Prometheus metric-label tests" in ai_evidence
     assert (
         feature_status["workbench.analytics.observability.all_supported_surfaces"]
         == "planned"

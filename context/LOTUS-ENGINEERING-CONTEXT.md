@@ -361,7 +361,10 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     no-sensitive metric label assertions. Workbench PR #136 adds the production boundary that
     state-changing Workbench actions, including the Advisor Brief review-action mutation, record
     API request and panel-state metrics without incrementing panel hydration; the live proof
-    recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. Full
+    recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens
+    AI surface supportability proof with bounded `supportability_reason`, explicit
+    `metric_labels`, sensitive-diagnostic rejection tests, Prometheus metric-label tests,
+    `make check`, `make ci`, Docker build, and published wiki source. Full
     all-supported-surface promotion remains separately gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
