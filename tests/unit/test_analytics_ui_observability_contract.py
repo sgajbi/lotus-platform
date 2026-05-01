@@ -63,6 +63,7 @@ def test_analytics_ui_observability_contract_artifacts_are_present_and_governed(
         == "analytics-ui-observability-contract"
     )
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0108"
+    assert "observation_boundaries" in schema["required"]
     assert contract["contract_id"] == "analytics-ui-observability-contract"
     assert contract["governed_by_rfc"] == "RFC-0108"
     assert (
@@ -190,6 +191,25 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert "performance-advisor-brief-review-action" in review_action_evidence
     assert "/api/metrics/events" in review_action_evidence
     assert "portfolio/client/advisor/correlation/free-form reason labels" in review_action_evidence
+    assert "Workbench PR #136" in review_action_evidence
+    assert "hydrationReviewActionLineCount=0" in review_action_evidence
+    assert (
+        feature_status["workbench.analytics.observability.mutation_hydration_boundary"]
+        == "implemented"
+    )
+    mutation_boundary_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"]
+        == "workbench.analytics.observability.mutation_hydration_boundary"
+    )
+    assert "Workbench PR #136" in mutation_boundary_evidence
+    assert "3dfdbd90878a82562ae38d8df66b1947ec16154f" in mutation_boundary_evidence
+    assert "lotus_workbench_api_request_duration_seconds" in mutation_boundary_evidence
+    assert "lotus_workbench_panel_state_total" in mutation_boundary_evidence
+    assert "lotus_workbench_panel_hydration_duration_seconds" in mutation_boundary_evidence
+    assert "hydrationReviewActionLineCount=0" in mutation_boundary_evidence
+    assert "leakedForbidden=[]" in mutation_boundary_evidence
     assert (
         feature_status["workbench.analytics.observability.safe_dashboard"]
         == "implemented"
@@ -307,6 +327,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
             "workbench.analytics.observability.advisor_brief_review_action_metrics",
+            "workbench.analytics.observability.mutation_hydration_boundary",
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
@@ -523,6 +544,36 @@ def test_analytics_ui_observability_contract_records_telemetry_contract() -> Non
     }
 
 
+def test_analytics_ui_observability_contract_records_mutation_hydration_boundary() -> (
+    None
+):
+    contract = _load_contract()
+    boundary = next(
+        item
+        for item in contract["observation_boundaries"]
+        if item["boundary_id"] == "workbench-mutation-actions-exclude-panel-hydration"
+    )
+
+    assert boundary["owner_repo"] == "lotus-workbench"
+    assert boundary["implemented"] is True
+    assert boundary["mutation_surfaces"] == [
+        "performance-advisor-brief-review-action"
+    ]
+    assert set(boundary["included_metric_families"]) == {
+        "lotus_workbench_api_request_duration_seconds",
+        "lotus_workbench_panel_state_total",
+    }
+    assert boundary["excluded_metric_families"] == [
+        "lotus_workbench_panel_hydration_duration_seconds"
+    ]
+    assert "Workbench PR #136" in boundary["evidence"]
+    assert "3dfdbd90878a82562ae38d8df66b1947ec16154f" in boundary["evidence"]
+    assert "hydrationReviewActionLineCount=0" in boundary["evidence"]
+    assert "hasApiRequestMetric=true" in boundary["evidence"]
+    assert "hasPanelStateMetric=true" in boundary["evidence"]
+    assert "leakedForbidden=[]" in boundary["evidence"]
+
+
 def test_analytics_ui_observability_contract_validator_accepts_baseline() -> None:
     assert validate_contract(_load_contract()) == []
 
@@ -603,6 +654,24 @@ def test_analytics_ui_observability_contract_validator_rejects_sensitive_event_a
     errors = validate_contract(contract)
 
     assert any("attributes include forbidden fields" in error for error in errors)
+
+
+def test_analytics_ui_observability_contract_validator_rejects_mutation_hydration_drift() -> (
+    None
+):
+    contract = copy.deepcopy(_load_contract())
+    boundary = next(
+        item
+        for item in contract["observation_boundaries"]
+        if item["boundary_id"] == "workbench-mutation-actions-exclude-panel-hydration"
+    )
+    boundary["excluded_metric_families"].remove(
+        "lotus_workbench_panel_hydration_duration_seconds"
+    )
+
+    errors = validate_contract(contract)
+
+    assert any("must exclude panel hydration metrics" in error for error in errors)
 
 
 def test_analytics_ui_observability_dashboard_references_only_implemented_metrics() -> (

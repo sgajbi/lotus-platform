@@ -29,6 +29,7 @@
       "workbench.analytics.observability.contract_vocabulary",
       "workbench.analytics.observability.correlation_trace",
       "workbench.analytics.observability.panel_state_metrics",
+      "workbench.analytics.observability.mutation_hydration_boundary",
       "workbench.analytics.observability.safe_dashboard",
       "workbench.analytics.observability.attention_events",
       "workbench.analytics.observability.entitlement_audit_events",
@@ -126,15 +127,16 @@
         "workbench.analytics.observability.contract_vocabulary",
         "workbench.analytics.observability.correlation_trace",
         "workbench.analytics.observability.panel_state_metrics",
+        "workbench.analytics.observability.mutation_hydration_boundary",
         "workbench.analytics.observability.attention_events",
         "workbench.analytics.observability.canonical_proof",
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_intake_performance_risk_reporting_advisor_archive_data_products_reads_instrumented", "legacy_advisor_workbench_gateway_reads_mutations_instrumented", "browser_proof_captured", "support_state_proof_captured", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
+      "gap_classification": ["supported_portfolio_intake_performance_risk_reporting_advisor_archive_data_products_reads_instrumented", "legacy_advisor_workbench_gateway_reads_mutations_instrumented", "browser_proof_captured", "support_state_proof_captured", "mutation_hydration_boundary_proven", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
       "blockers": ["full RFC-0079 risk/evidence scope remains planned", "complete all-supported-surface promotion remains planned"],
       "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
-      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, Gateway-backed archive metadata/download retrieval, legacy advisor Workbench gateway-backed read/mutation observability, Data Products catalog/dependency graph/trust certification observability, and Intake portfolio-bundle and lookup observability; published after PR #129 as wiki commit f34ab4d. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
+      "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, Gateway-backed archive metadata/download retrieval, legacy advisor Workbench gateway-backed read/mutation observability, Data Products catalog/dependency graph/trust certification observability, Intake portfolio-bundle and lookup observability, and the mutation hydration boundary; published after PR #136 as wiki commit 2864f2c. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
       "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
     },
     {

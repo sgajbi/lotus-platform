@@ -60,10 +60,18 @@ sequenceDiagram
 
 The proof excludes portfolio, client, advisor, correlation, free-form reason, request-body, and
 response-body values from metric labels. Mutation failures are surfaced through bounded Workbench
-API errors instead of raw Gateway response bodies. Local proof included focused Workbench tests,
-full Workbench tests, typecheck, lint, live canonical validation for `PB_SG_GLOBAL_BAL_001`,
-`/api/metrics` export inspection, Gateway log/trace review, green GitHub CI, and Workbench wiki
-publication commit `8bec78e`.
+API errors instead of raw Gateway response bodies. Workbench PR #136 then hardened the
+mutation-observation boundary: state-changing Workbench actions record API request and panel-state
+evidence but do not increment panel hydration metrics. Live proof against the rebuilt canonical
+Workbench stack returned `reviewActionStatus=200`, `reviewActionLineCount=11`,
+`hydrationReviewActionLineCount=0`, `hasApiRequestMetric=true`, `hasPanelStateMetric=true`, and
+`leakedForbidden=[]`. The Workbench wiki source was published for that boundary as commit
+`2864f2c`.
+
+Operator rule: use `lotus_workbench_panel_hydration_duration_seconds` for route and panel load
+latency only. Use `lotus_workbench_api_request_duration_seconds` and
+`lotus_workbench_panel_state_total` when investigating Advisor Brief review actions or other
+state-changing Workbench commands.
 
 ## Gold-Pass Evidence
 

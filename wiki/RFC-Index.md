@@ -187,6 +187,8 @@
   Gateway allow/deny audit proof, Gateway caller-context enforcement, Workbench BFF forwarding, and
   Workbench permission-blocked UI proof are validator-required for performance Summary, Risk Review,
   and Advisor Brief; future certified read paths must provide equivalent proof before promotion.
+  Workbench PR #136 adds the current mutation hydration boundary proof: Advisor Brief review-action
+  mutations emit bounded API request and panel-state metrics without incrementing panel hydration.
   This is not an extension of RFC-0105 reporting
   observability.
 

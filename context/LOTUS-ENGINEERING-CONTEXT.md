@@ -358,8 +358,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     implementation-backed Advisor Brief review-action mutation observability through the
     bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser
     metric ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and
-    no-sensitive metric label assertions; full all-supported-surface promotion remains separately
-    gated.
+    no-sensitive metric label assertions. Workbench PR #136 adds the production boundary that
+    state-changing Workbench actions, including the Advisor Brief review-action mutation, record
+    API request and panel-state metrics without incrementing panel hydration; the live proof
+    recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. Full
+    all-supported-surface promotion remains separately gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

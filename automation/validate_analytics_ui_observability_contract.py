@@ -126,6 +126,11 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         allowed_labels=allowed_labels,
         forbidden_fields=forbidden_fields,
     )
+    _validate_observation_boundaries(
+        errors=errors,
+        contract=contract,
+        implemented_metric_names=implemented_metric_names,
+    )
 
     if contract.get("dashboards"):
         for dashboard in contract["dashboards"]:
@@ -201,6 +206,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
             "workbench.analytics.observability.advisor_brief_review_action_metrics",
+            "workbench.analytics.observability.mutation_hydration_boundary",
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
@@ -493,6 +499,88 @@ def _validate_telemetry_contract(
         errors.append(
             "protected diagnostics must not allow raw request/response capture"
         )
+
+
+def _validate_observation_boundaries(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
+    boundaries = contract.get("observation_boundaries")
+    if not isinstance(boundaries, list) or not boundaries:
+        errors.append("observation_boundaries must define implemented UI observation boundaries")
+        return
+
+    boundary_by_id = {
+        str(boundary.get("boundary_id")): boundary
+        for boundary in boundaries
+        if isinstance(boundary, dict)
+    }
+    mutation_boundary = boundary_by_id.get(
+        "workbench-mutation-actions-exclude-panel-hydration"
+    )
+    if not mutation_boundary:
+        errors.append(
+            "observation_boundaries missing workbench-mutation-actions-exclude-panel-hydration"
+        )
+        return
+
+    if mutation_boundary.get("owner_repo") != "lotus-workbench":
+        errors.append("mutation hydration boundary must be owned by lotus-workbench")
+    if mutation_boundary.get("implemented") is not True:
+        errors.append("mutation hydration boundary must be implemented")
+
+    surfaces = set(mutation_boundary.get("mutation_surfaces", []))
+    if "performance-advisor-brief-review-action" not in surfaces:
+        errors.append(
+            "mutation hydration boundary must include performance-advisor-brief-review-action"
+        )
+
+    included_metrics = set(mutation_boundary.get("included_metric_families", []))
+    excluded_metrics = set(mutation_boundary.get("excluded_metric_families", []))
+    required_included = {
+        "lotus_workbench_api_request_duration_seconds",
+        "lotus_workbench_panel_state_total",
+    }
+    missing_included = sorted(required_included - included_metrics)
+    if missing_included:
+        errors.append(
+            "mutation hydration boundary included_metric_families missing "
+            f"{missing_included}"
+        )
+    if "lotus_workbench_panel_hydration_duration_seconds" not in excluded_metrics:
+        errors.append(
+            "mutation hydration boundary must exclude panel hydration metrics"
+        )
+    overlap = sorted(included_metrics & excluded_metrics)
+    if overlap:
+        errors.append(
+            "mutation hydration boundary includes and excludes the same metric families: "
+            f"{overlap}"
+        )
+    unknown_metrics = sorted((included_metrics | excluded_metrics) - implemented_metric_names)
+    if unknown_metrics:
+        errors.append(
+            "mutation hydration boundary references unknown or unimplemented metrics: "
+            f"{unknown_metrics}"
+        )
+
+    evidence = str(mutation_boundary.get("evidence", ""))
+    for required_fragment in (
+        "Workbench PR #136",
+        "3dfdbd90878a82562ae38d8df66b1947ec16154f",
+        "hydrationReviewActionLineCount=0",
+        "hasApiRequestMetric=true",
+        "hasPanelStateMetric=true",
+        "leakedForbidden=[]",
+        "2864f2c",
+    ):
+        if required_fragment not in evidence:
+            errors.append(
+                "mutation hydration boundary evidence missing "
+                f"{required_fragment}"
+            )
 
 
 def main() -> int:
