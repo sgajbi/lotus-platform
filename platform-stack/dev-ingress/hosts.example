@@ -5,6 +5,8 @@
 127.0.0.1 risk.dev.lotus
 127.0.0.1 advise.dev.lotus
 127.0.0.1 report.dev.lotus
+127.0.0.1 archive.dev.lotus
+127.0.0.1 render.dev.lotus
 127.0.0.1 core-query.dev.lotus
 127.0.0.1 core-control.dev.lotus
 127.0.0.1 core-ingestion.dev.lotus
