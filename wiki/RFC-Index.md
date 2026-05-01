@@ -167,7 +167,9 @@
   published wiki commit `f34ab4d`; full RFC-0079 risk/evidence scope and
   complete all-supported-surface certification stay
   planned; backend freshness reconciliation is implemented for performance/risk calculation
-  supportability through lotus-performance PR #139 and lotus-risk PR #108. Slice 15
+  supportability through lotus-performance PR #139 and lotus-risk PR #108, and
+  lotus-performance PR #140 hardens capability publication so completed MWR, contribution, or
+  attribution supportability cannot be hidden by a disabled TWR capability. Slice 15
   implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
   labels. Slice 16 implements platform-owned ecosystem proof automation for the current supported

@@ -65,7 +65,8 @@
     ],
     "planned_feature_keys_reviewed": [
       "workbench.analytics.observability.freshness_degraded_state",
-      "workbench.analytics.observability.all_supported_surfaces"
+      "workbench.analytics.observability.all_supported_surfaces",
+      "workbench.analytics.observability.caller_context_entitlement_certification"
     ]
   },
   "residual_scope": [
@@ -73,7 +74,7 @@
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 reconciles Gateway source_supportability arrays into freshness/supportability derivation and validation supportabilityChecks. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
+      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 reconciles Gateway source_supportability arrays into freshness/supportability derivation and validation supportabilityChecks. lotus-performance PR #140 hardens performance capability publication across completed supportability surfaces. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",

@@ -339,9 +339,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `automation/validate_analytics_ui_ecosystem_final_closure.py`, and focused unit tests that
     reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, supported-feature
     posture, residual planned scope, local/GitHub proof requirements, wiki publication, branch
-    hygiene, and skills guidance. Backend freshness completion and full RFC-0079 risk/evidence
-    Workbench promotion remain planned residuals until separately implemented and proved; Workbench
-    archive retrieval is implemented only through the BFF/Gateway boundary.
+    hygiene, and skills guidance. Performance/risk backend freshness is now implementation-backed
+    through lotus-performance PR #139 and lotus-risk PR #108, and lotus-performance PR #140
+    hardens capability publication so completed MWR, contribution, or attribution supportability
+    cannot be hidden by a disabled TWR capability. Full RFC-0079 risk/evidence Workbench promotion
+    remains planned until separately implemented and proved; Workbench archive retrieval is
+    implemented only through the BFF/Gateway boundary.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
