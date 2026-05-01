@@ -210,6 +210,7 @@
       "gateway.analytics.observability.structured_fanout_logs",
       "gateway.analytics.observability.correlation_trace",
       "gateway.analytics.observability.contract_vocabulary",
+      "workbench.analytics.observability.caller_context_entitlement_certification",
       "analytics.backend.observability.freshness_supportability",
       "core.observability.portfolio_supportability",
       "performance.observability.calculation_supportability",
@@ -224,7 +225,6 @@
     "planned_feature_keys_reviewed": [
       "workbench.analytics.observability.freshness_degraded_state",
       "workbench.analytics.observability.all_supported_surfaces",
-      "workbench.analytics.observability.caller_context_entitlement_certification",
       "platform.analytics.observability.ecosystem_final_closure"
     ]
   },

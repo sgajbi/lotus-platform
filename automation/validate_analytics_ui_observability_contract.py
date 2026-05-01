@@ -294,6 +294,9 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         ):
             if status != "implemented":
                 errors.append(f"{key}: status must be implemented after Slice 18 proof")
+        elif key == "workbench.analytics.observability.caller_context_entitlement_certification":
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 19 proof")
         elif status != "planned":
             errors.append(
                 f"{key}: status must remain planned until implementation proof exists"

@@ -2,9 +2,9 @@
   "contract_id": "analytics-ui-observability-entitlement-certification",
   "contract_version": "0.1.0",
   "governed_by_rfc": "RFC-0108",
-  "lifecycle_status": "slice-19-entitlement-certification-governance",
+  "lifecycle_status": "slice-19-entitlement-certification-implemented",
   "certification_scope": {
-    "status": "governance_ready_implementation_pending",
+    "status": "implemented_current_certified_read_paths",
     "policy": "implementation_backed_only",
     "source_contract": "analytics-ui-observability-contract"
   },
@@ -17,8 +17,8 @@
     },
     {
       "requirement_id": "entitlement-decision-boundary",
-      "status": "implementation_pending",
-      "description": "Gateway/Core certification must prove allowed and denied outcomes for each certified read path using product-safe audit records and no raw entitlement text.",
+      "status": "implemented",
+      "description": "Gateway and Workbench certification proves allowed and denied outcomes for each certified read path using product-safe audit records, caller-context enforcement, permission-blocked UI states, and no raw entitlement text.",
       "required_fields": ["state", "reason", "status_class"]
     },
     {
@@ -31,7 +31,7 @@
   "certified_read_paths": [
     {
       "path_id": "workbench-performance-summary",
-      "status": "implementation_pending",
+      "status": "implemented",
       "route": "workbench.performance",
       "panel": "performance-summary",
       "operation": "performance.workspace.summary",
@@ -43,7 +43,7 @@
     },
     {
       "path_id": "workbench-risk-summary",
-      "status": "implementation_pending",
+      "status": "implemented",
       "route": "workbench.risk",
       "panel": "risk-summary",
       "operation": "risk.workspace.summary",
@@ -55,7 +55,7 @@
     },
     {
       "path_id": "workbench-advisor-brief",
-      "status": "implementation_pending",
+      "status": "implemented",
       "route": "workbench.advisor_brief",
       "panel": "advisor-brief",
       "operation": "advisor_brief.summary",
@@ -99,18 +99,18 @@
   "required_evidence": [
     {
       "evidence_type": "gateway-allow-deny-audit-log",
-      "status": "required_before_promotion",
-      "description": "Each certified path must include successful read and permission-blocked denial audit evidence with bounded route, panel, operation, state, reason, status class, region, and environment fields only."
+      "status": "implemented",
+      "description": "Each certified path includes successful read and permission-blocked denial audit evidence with bounded route, panel, operation, state, reason, status class, region, and environment fields only."
     },
     {
       "evidence_type": "caller-context-contract-test",
-      "status": "required_before_promotion",
-      "description": "Gateway/Core tests must prove caller context is required, malformed or missing caller context is rejected, and raw entitlement failure text is never copied into telemetry."
+      "status": "implemented",
+      "description": "Gateway and Workbench tests prove caller context is required, missing caller context is rejected, and raw entitlement failure text is never copied into telemetry or UI state."
     },
     {
       "evidence_type": "workbench-permission-blocked-panel-proof",
-      "status": "required_before_promotion",
-      "description": "Workbench proof must show permission-blocked panel state and attention semantics without exposing restricted portfolio, client, entitlement, or screen-content details."
+      "status": "implemented",
+      "description": "Workbench proof shows permission-blocked panel state for Summary, Risk Review, and Advisor Brief without exposing restricted portfolio, client, entitlement, or screen-content details."
     },
     {
       "evidence_type": "protected-diagnostics-proof",
@@ -150,6 +150,16 @@
       "description": "Gateway requires caller context on the Workbench performance summary read path and tests the standard missing-caller-context rejection shape."
     },
     {
+      "evidence_id": "lotus-workbench-pr-133-performance-summary-permission-blocked-ui",
+      "status": "implemented",
+      "path_id": "workbench-performance-summary",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#133",
+      "merge_commit": "90a3d54e81a92e6b2bad8584edb25122cf3c2a81",
+      "evidence_types": ["workbench-permission-blocked-panel-proof"],
+      "description": "Workbench renders the performance Summary initial-load and refresh denial as bounded Access restricted state with HTTP status context and no raw Gateway entitlement response body."
+    },
+    {
       "evidence_id": "lotus-gateway-pr-159-risk-summary-read-audit",
       "status": "implemented",
       "path_id": "workbench-risk-summary",
@@ -180,6 +190,26 @@
       "description": "Gateway requires caller context on the Workbench risk summary read path and tests the standard missing-caller-context rejection shape."
     },
     {
+      "evidence_id": "lotus-workbench-pr-133-risk-summary-permission-blocked-ui",
+      "status": "implemented",
+      "path_id": "workbench-risk-summary",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#133",
+      "merge_commit": "90a3d54e81a92e6b2bad8584edb25122cf3c2a81",
+      "evidence_types": ["workbench-permission-blocked-panel-proof"],
+      "description": "Workbench renders denied Risk Review reads as bounded Risk access restricted state and Access Restricted mode status without raw entitlement response body content."
+    },
+    {
+      "evidence_id": "lotus-workbench-pr-131-bff-caller-context-advisor-brief",
+      "status": "implemented",
+      "path_id": "workbench-advisor-brief",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#131",
+      "merge_commit": "f20dbb31115634a6192d01a6d1e9776e21e3a216",
+      "evidence_types": ["caller-context-bff-forwarding"],
+      "description": "Workbench BFF caller-context defaults cover advisor-brief browser reads before Gateway enforcement."
+    },
+    {
       "evidence_id": "lotus-gateway-pr-176-advisor-brief-caller-context",
       "status": "implemented",
       "path_id": "workbench-advisor-brief",
@@ -198,16 +228,19 @@
       "merge_commit": "4cf65a662ca1e9bcc335b33b03b82b90e2e57f86",
       "evidence_types": ["gateway-allow-deny-audit-log"],
       "description": "Gateway emits bounded advisor-brief read allow and upstream-denial audit records with operation advisor_brief.summary and panel advisor-brief."
-    }
-  ],
-  "residual_scope": [
+    },
     {
-      "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
-      "status": "planned",
-      "owner_repo": "lotus-gateway/lotus-core/lotus-workbench",
-      "reason": "This slice defines the certification contract and validator. Runtime promotion remains planned until Gateway/Core/Workbench provide implementation-backed allow, deny, caller-context, and permission-blocked UI proof for every certified read path."
+      "evidence_id": "lotus-workbench-pr-133-advisor-brief-permission-blocked-ui",
+      "status": "implemented",
+      "path_id": "workbench-advisor-brief",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#133",
+      "merge_commit": "90a3d54e81a92e6b2bad8584edb25122cf3c2a81",
+      "evidence_types": ["workbench-permission-blocked-panel-proof"],
+      "description": "Workbench classifies denied Advisor Brief reads as permission_blocked, suppresses talking points, and renders bounded supportability and exception copy without raw entitlement response body content."
     }
   ],
+  "residual_scope": [],
   "local_proof_commands": [
     "python automation\\validate_analytics_ui_entitlement_certification.py",
     "python -m pytest tests\\unit\\test_analytics_ui_entitlement_certification.py tests\\unit\\test_analytics_ui_observability_contract.py -q",

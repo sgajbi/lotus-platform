@@ -348,7 +348,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     attribution/contribution detail contracts render truthful partial states, live Workbench e2e and
     canonical validation passed, and Workbench wiki source was published. Full RFC-0079
     risk/evidence Workbench promotion remains planned until separately implemented and proved;
-    Workbench archive retrieval is implemented only through the BFF/Gateway boundary.
+    Workbench archive retrieval is implemented only through the BFF/Gateway boundary. Workbench
+    PR #133 closes the current certified read-path entitlement proof gap: performance Summary, Risk
+    Review, and Advisor Brief now render bounded permission-blocked UI states without raw Gateway
+    entitlement response bodies, the platform entitlement certification contract is promoted for
+    the current certified paths, and future certified read paths must provide equivalent
+    Gateway allow/deny audit, caller-context enforcement, BFF forwarding, permission-blocked UI,
+    live evidence, tests, and wiki proof before promotion.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

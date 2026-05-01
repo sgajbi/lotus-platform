@@ -296,8 +296,11 @@ The current reporting and analytics observability governance references are:
    implementation-backed through lotus-performance PR #139 and lotus-risk PR #108, with
    lotus-performance PR #140 hardening capability publication across completed performance
    supportability surfaces; full Workbench supported-surface promotion remains planned until
-   separately implemented and proved. Workbench archive retrieval is supported only through the
-   BFF/Gateway boundary.
+   separately implemented and proved. Workbench PR #133 closes the current certified read-path
+   entitlement proof gap for performance Summary, Risk Review, and Advisor Brief; future certified
+   read paths must add equivalent Gateway allow/deny audit, caller-context, BFF forwarding,
+   permission-blocked UI, tests, live evidence, and wiki proof before promotion. Workbench archive
+   retrieval is supported only through the BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

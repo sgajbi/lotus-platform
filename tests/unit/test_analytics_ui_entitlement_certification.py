@@ -40,7 +40,8 @@ def test_entitlement_certification_artifacts_are_indexed_and_governed() -> None:
         schema["properties"]["contract_id"]["const"]
         == "analytics-ui-observability-entitlement-certification"
     )
-    assert certification["lifecycle_status"] == "slice-19-entitlement-certification-governance"
+    assert certification["lifecycle_status"] == "slice-19-entitlement-certification-implemented"
+    assert certification["certification_scope"]["status"] == "implemented_current_certified_read_paths"
 
 
 def test_entitlement_certification_validator_accepts_baseline() -> None:
@@ -72,14 +73,14 @@ def test_entitlement_certification_rejects_raw_entitlement_leakage_gap() -> None
     assert any("forbidden_evidence_fields missing" in error for error in errors)
 
 
-def test_entitlement_certification_rejects_promoted_path_before_live_proof() -> None:
+def test_entitlement_certification_rejects_unimplemented_path_after_live_proof() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     certification = copy.deepcopy(_load_json(CERTIFICATION_PATH))
-    certification["certified_read_paths"][0]["status"] = "implemented"
+    certification["certified_read_paths"][0]["status"] = "implementation_pending"
 
     errors = _validate(observability, certification)
 
-    assert any("status must remain implementation_pending" in error for error in errors)
+    assert any("status must be implemented" in error for error in errors)
 
 
 def test_entitlement_certification_rejects_missing_permission_blocked_evidence() -> None:
@@ -103,6 +104,20 @@ def test_entitlement_certification_rejects_missing_gateway_pr_evidence() -> None
         item
         for item in certification["implementation_evidence"]
         if item["pull_request"] != "sgajbi/lotus-gateway#177"
+    ]
+
+    errors = _validate(observability, certification)
+
+    assert any("implementation_evidence missing required proof references" in error for error in errors)
+
+
+def test_entitlement_certification_rejects_missing_workbench_permission_blocked_proof() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    certification = copy.deepcopy(_load_json(CERTIFICATION_PATH))
+    certification["implementation_evidence"] = [
+        item
+        for item in certification["implementation_evidence"]
+        if item["pull_request"] != "sgajbi/lotus-workbench#133"
     ]
 
     errors = _validate(observability, certification)
@@ -146,3 +161,20 @@ def test_entitlement_certification_rejects_unknown_evidence_path() -> None:
     errors = _validate(observability, certification)
 
     assert any("path_id must reference a certified_read_paths entry" in error for error in errors)
+
+
+def test_entitlement_certification_rejects_residual_for_implemented_feature() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    certification = copy.deepcopy(_load_json(CERTIFICATION_PATH))
+    certification["residual_scope"] = [
+        {
+            "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
+            "status": "planned",
+            "owner_repo": "lotus-workbench",
+            "reason": "stale residual",
+        }
+    ]
+
+    errors = _validate(observability, certification)
+
+    assert any("residual_scope must not include implemented" in error for error in errors)

@@ -182,7 +182,12 @@
   OpenAPI evidence, dashboard/alert proof, residual planned scope, and no-open-P0/P1 findings.
   Slice 18 implements a separate ecosystem final closure contract, validator, and tests that
   reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned
-  scope, local/GitHub proof, wiki publication, and branch hygiene. This is not an extension of RFC-0105 reporting
+  scope, local/GitHub proof, wiki publication, and branch hygiene. Slice 19 now implements
+  caller-context entitlement certification for the current certified Workbench read paths:
+  Gateway allow/deny audit proof, Gateway caller-context enforcement, Workbench BFF forwarding, and
+  Workbench permission-blocked UI proof are validator-required for performance Summary, Risk Review,
+  and Advisor Brief; future certified read paths must provide equivalent proof before promotion.
+  This is not an extension of RFC-0105 reporting
   observability.
 
 ## Recommended next implementation order
