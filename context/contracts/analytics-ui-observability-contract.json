@@ -81,7 +81,7 @@
       "implemented": true,
       "metric_type": "histogram",
       "labels": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
-      "purpose": "implementation-backed local Workbench BFF/API request duration event for selected analytics reads"
+      "purpose": "implementation-backed local Workbench BFF/API request duration event for selected analytics reads and Advisor Brief review-action mutation"
     },
     {
       "metric_name": "lotus_gateway_analytics_fanout_duration_seconds",
@@ -169,7 +169,7 @@
         "owner_repo": "lotus-workbench",
         "implemented": true,
         "attributes": ["route", "panel", "service", "operation", "state", "status_class", "error_category"],
-        "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics API reads"
+        "purpose": "implementation-backed browser-side local metric event for selected Workbench analytics API reads and Advisor Brief review-action mutation; browser-originated events are accepted only through the bounded same-origin Workbench /api/metrics/events ingest route before Prometheus export through /api/metrics"
       },
       {
         "event_name": "workbench.analytics.attention",
@@ -546,6 +546,12 @@
       "status": "implemented",
       "owner_repo": "lotus-gateway/lotus-core/lotus-workbench",
       "promotion_evidence": "RFC-0108 Slice 19 is implementation-backed for the current certified read paths. Workbench PR #131 proves BFF caller-context defaults; Gateway PRs #174, #175, and #176 prove caller-context enforcement for performance summary, risk summary, and advisor-brief read/review-action routes; Gateway PRs #159 and #177 prove bounded allow/deny audit events; and Workbench PR #133 proves permission-blocked UI states for Summary, Risk Review, and Advisor Brief without raw entitlement response bodies."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.advisor_brief_review_action_metrics",
+      "status": "implemented",
+      "owner_repo": "lotus-workbench",
+      "promotion_evidence": "Workbench PR #134, merge 4d8bc144c8ce07cf13087c704deeec9f177987de, implements RFC-0108 observability for the Advisor Brief review-action mutation. The slice adds the performance-advisor-brief-review-action observed surface, wraps the BFF review-action POST in bounded Workbench API metrics, records browser-originated metric events through the same-origin /api/metrics/events ingest route, exports them through /api/metrics, suppresses portfolio/client/advisor/correlation/free-form reason labels, bounds mutation failures through WorkbenchApiError without copying Gateway response bodies, hardens local canonical Workbench BFF env selection, and proves the path through focused tests, full Workbench tests, live canonical validation for PB_SG_GLOBAL_BAL_001, Gateway log/trace inspection, green CI, and Workbench wiki publication 8bec78e."
     },
     {
       "feature_key": "workbench.analytics.observability.canonical_proof",

@@ -354,7 +354,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     entitlement response bodies, the platform entitlement certification contract is promoted for
     the current certified paths, and future certified read paths must provide equivalent
     Gateway allow/deny audit, caller-context enforcement, BFF forwarding, permission-blocked UI,
-    live evidence, tests, and wiki proof before promotion.
+    live evidence, tests, and wiki proof before promotion. Workbench PR #134 adds
+    implementation-backed Advisor Brief review-action mutation observability through the
+    bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser
+    metric ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and
+    no-sensitive metric label assertions; full all-supported-surface promotion remains separately
+    gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

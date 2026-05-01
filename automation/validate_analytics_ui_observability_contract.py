@@ -200,6 +200,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
+            "workbench.analytics.observability.advisor_brief_review_action_metrics",
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
