@@ -42,6 +42,26 @@ REQUIRED_EVIDENCE_TYPES = {
 }
 REQUIRED_IMPLEMENTATION_EVIDENCE = {
     (
+        "workbench-performance-summary",
+        "caller-context-bff-forwarding",
+        "sgajbi/lotus-workbench#131",
+    ),
+    (
+        "workbench-performance-summary",
+        "caller-context-contract-test",
+        "sgajbi/lotus-gateway#174",
+    ),
+    (
+        "workbench-risk-summary",
+        "caller-context-bff-forwarding",
+        "sgajbi/lotus-workbench#131",
+    ),
+    (
+        "workbench-risk-summary",
+        "caller-context-contract-test",
+        "sgajbi/lotus-gateway#175",
+    ),
+    (
         "workbench-advisor-brief",
         "caller-context-contract-test",
         "sgajbi/lotus-gateway#176",
@@ -246,12 +266,15 @@ def _validate_implementation_evidence(
             errors.append(f"{evidence_id}: path_id must reference a certified_read_paths entry")
         if item.get("status") != "implemented":
             errors.append(f"{evidence_id}: status must be implemented for recorded PR evidence")
-        if item.get("owner_repo") != "lotus-gateway":
-            errors.append(f"{evidence_id}: owner_repo must be lotus-gateway for this evidence")
+        owner_repo = str(item.get("owner_repo", ""))
+        if owner_repo not in {"lotus-gateway", "lotus-workbench"}:
+            errors.append(
+                f"{evidence_id}: owner_repo must be lotus-gateway or lotus-workbench"
+            )
         pull_request = str(item.get("pull_request", ""))
         merge_commit = str(item.get("merge_commit", ""))
-        if not pull_request.startswith("sgajbi/lotus-gateway#"):
-            errors.append(f"{evidence_id}: pull_request must reference sgajbi/lotus-gateway")
+        if not pull_request.startswith(f"sgajbi/{owner_repo}#"):
+            errors.append(f"{evidence_id}: pull_request must reference sgajbi/{owner_repo}")
         if len(merge_commit) != 40:
             errors.append(f"{evidence_id}: merge_commit must be a 40-character SHA")
         for evidence_type in item.get("evidence_types", []):

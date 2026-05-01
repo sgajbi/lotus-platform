@@ -40,8 +40,10 @@ promotion remain planned until separately implemented and certified. Do not use
 `lotus-platform/platform-stack` as product-surface proof; canonical demo screenshots and populated
 front-office validation must use the governed `lotus-workbench` runtime.
 
-The caller-context entitlement certification contract now records Gateway implementation evidence
-for the Workbench advisor-brief path: PR #176 proves required caller-context rejection on read and
+The caller-context entitlement certification contract now records implementation evidence for the
+certified Workbench read paths. Workbench PR #131 proves BFF caller-context defaults; Gateway PR
+#174 proves performance-summary caller-context enforcement, PR #175 proves risk-summary
+caller-context enforcement, PR #176 proves advisor-brief caller-context rejection on read and
 review-action routes, and PR #177 proves bounded advisor-brief read allow/deny audit records. The
 overall certification feature remains planned until every certified read path has Gateway, Core,
 and Workbench allow, deny, caller-context, and permission-blocked UI proof.
