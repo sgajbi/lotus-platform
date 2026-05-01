@@ -543,15 +543,15 @@
     },
     {
       "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
-      "status": "planned",
+      "status": "implemented",
       "owner_repo": "lotus-gateway/lotus-core/lotus-workbench",
-      "promotion_evidence": "RFC-0108 Slice 19 adds the platform-owned entitlement certification contract and validator for caller context, allow/deny audit evidence, safe permission-blocked denial semantics, forbidden evidence fields, and required Workbench permission-blocked panel proof. Runtime promotion remains planned until Gateway/Core/Workbench provide implementation-backed evidence for every certified read path."
+      "promotion_evidence": "RFC-0108 Slice 19 is implementation-backed for the current certified read paths. Workbench PR #131 proves BFF caller-context defaults; Gateway PRs #174, #175, and #176 prove caller-context enforcement for performance summary, risk summary, and advisor-brief read/review-action routes; Gateway PRs #159 and #177 prove bounded allow/deny audit events; and Workbench PR #133 proves permission-blocked UI states for Summary, Risk Review, and Advisor Brief without raw entitlement response bodies."
     },
     {
       "feature_key": "workbench.analytics.observability.canonical_proof",
       "status": "implemented",
       "owner_repo": "lotus-platform/lotus-workbench",
-      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions. Later slices add selected Gateway fan-out metrics, protected diagnostics, and the performance/risk backend freshness metric; full caller-context entitlement certification remains planned."
+      "promotion_evidence": "RFC-0108 Slice 8 adds platform-owned canonical proof review and live governed Workbench evidence for PB_SG_GLOBAL_BAL_001. The proof bundle records API checks, calculation sanity checks, panel classifications, browser screenshots, dashboard/alert metric reconciliation, Workbench /api/metrics family exposure, and sensitive-content assertions. Later slices add selected Gateway fan-out metrics, protected diagnostics, the performance/risk backend freshness metric, and current certified-read-path caller-context entitlement certification."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",

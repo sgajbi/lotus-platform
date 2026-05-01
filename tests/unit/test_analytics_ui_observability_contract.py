@@ -186,6 +186,12 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         == "implemented"
     )
     assert (
+        feature_status[
+            "workbench.analytics.observability.caller_context_entitlement_certification"
+        ]
+        == "implemented"
+    )
+    assert (
         feature_status["workbench.analytics.observability.canonical_proof"]
         == "implemented"
     )
@@ -286,6 +292,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
+            "workbench.analytics.observability.caller_context_entitlement_certification",
             "workbench.analytics.observability.canonical_proof",
             "gateway.analytics.observability.correlation_trace",
             "gateway.analytics.observability.fanout_metrics",

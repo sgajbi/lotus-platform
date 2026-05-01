@@ -25,13 +25,13 @@
     "contract_version": { "type": "string" },
     "governed_by_rfc": { "const": "RFC-0108" },
     "lifecycle_status": {
-      "const": "slice-19-entitlement-certification-governance"
+      "const": "slice-19-entitlement-certification-implemented"
     },
     "certification_scope": {
       "type": "object",
       "required": ["status", "policy", "source_contract"],
       "properties": {
-        "status": { "const": "governance_ready_implementation_pending" },
+        "status": { "const": "implemented_current_certified_read_paths" },
         "policy": { "const": "implementation_backed_only" },
         "source_contract": { "const": "analytics-ui-observability-contract" }
       },
@@ -86,8 +86,7 @@
     },
     "residual_scope": {
       "type": "array",
-      "items": { "$ref": "#/$defs/residual" },
-      "minItems": 1
+      "items": { "$ref": "#/$defs/residual" }
     },
     "local_proof_commands": {
       "type": "array",
@@ -198,7 +197,7 @@
       "required": ["feature_key", "status", "owner_repo", "reason"],
       "properties": {
         "feature_key": { "type": "string" },
-        "status": { "const": "planned" },
+        "status": { "enum": ["planned"] },
         "owner_repo": { "type": "string" },
         "reason": { "type": "string" }
       },

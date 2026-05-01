@@ -14,7 +14,7 @@ DEFAULT_ENTITLEMENT_CERTIFICATION_PATH = (
     CONTRACT_DIR / "analytics-ui-observability-entitlement-certification.json"
 )
 
-LIFECYCLE_STATUS = "slice-19-entitlement-certification-governance"
+LIFECYCLE_STATUS = "slice-19-entitlement-certification-implemented"
 CERTIFICATION_FEATURE_KEY = (
     "workbench.analytics.observability.caller_context_entitlement_certification"
 )
@@ -73,6 +73,11 @@ REQUIRED_IMPLEMENTATION_EVIDENCE = {
     ),
     (
         "workbench-advisor-brief",
+        "caller-context-bff-forwarding",
+        "sgajbi/lotus-workbench#131",
+    ),
+    (
+        "workbench-advisor-brief",
         "caller-context-contract-test",
         "sgajbi/lotus-gateway#176",
     ),
@@ -80,6 +85,21 @@ REQUIRED_IMPLEMENTATION_EVIDENCE = {
         "workbench-advisor-brief",
         "gateway-allow-deny-audit-log",
         "sgajbi/lotus-gateway#177",
+    ),
+    (
+        "workbench-performance-summary",
+        "workbench-permission-blocked-panel-proof",
+        "sgajbi/lotus-workbench#133",
+    ),
+    (
+        "workbench-risk-summary",
+        "workbench-permission-blocked-panel-proof",
+        "sgajbi/lotus-workbench#133",
+    ),
+    (
+        "workbench-advisor-brief",
+        "workbench-permission-blocked-panel-proof",
+        "sgajbi/lotus-workbench#133",
     ),
 }
 REQUIRED_CHECKS = {
@@ -143,8 +163,8 @@ def _validate_identity(errors: list[str], certification: dict[str, Any]) -> None
 
 def _validate_scope(errors: list[str], certification: dict[str, Any]) -> None:
     scope = certification.get("certification_scope", {})
-    if scope.get("status") != "governance_ready_implementation_pending":
-        errors.append("certification_scope.status must remain governance_ready_implementation_pending")
+    if scope.get("status") != "implemented_current_certified_read_paths":
+        errors.append("certification_scope.status must be implemented_current_certified_read_paths")
     if scope.get("policy") != "implementation_backed_only":
         errors.append("certification_scope.policy must be implementation_backed_only")
     if scope.get("source_contract") != "analytics-ui-observability-contract":
@@ -196,8 +216,8 @@ def _validate_read_paths(
         return
     for path in read_paths:
         path_id = str(path.get("path_id", "<missing>"))
-        if path.get("status") != "implementation_pending":
-            errors.append(f"{path_id}: status must remain implementation_pending before live proof")
+        if path.get("status") != "implemented":
+            errors.append(f"{path_id}: status must be implemented after certified read path proof")
         events = set(path.get("required_audit_events", []))
         if events != REQUIRED_AUDIT_EVENTS:
             errors.append(f"{path_id}: required_audit_events must equal {sorted(REQUIRED_AUDIT_EVENTS)}")
@@ -247,8 +267,8 @@ def _validate_evidence(errors: list[str], certification: dict[str, Any]) -> None
         if item.get("evidence_type") == "protected-diagnostics-proof":
             if item.get("status") != "implemented":
                 errors.append("protected-diagnostics-proof must remain implemented")
-        elif item.get("status") != "required_before_promotion":
-            errors.append(f"{item.get('evidence_type')}: status must be required_before_promotion")
+        elif item.get("status") != "implemented":
+            errors.append(f"{item.get('evidence_type')}: status must be implemented")
 
 
 def _validate_implementation_evidence(
@@ -301,15 +321,15 @@ def _validate_residual_scope(
     certification: dict[str, Any],
 ) -> None:
     statuses = _feature_status(observability_contract)
-    if statuses.get(CERTIFICATION_FEATURE_KEY) not in {None, "planned"}:
-        errors.append(f"{CERTIFICATION_FEATURE_KEY} must remain planned until runtime proof")
+    if statuses.get(CERTIFICATION_FEATURE_KEY) != "implemented":
+        errors.append(f"{CERTIFICATION_FEATURE_KEY} must be implemented after runtime proof")
     residual_keys = {
         str(item.get("feature_key"))
         for item in certification.get("residual_scope", [])
         if isinstance(item, dict)
     }
-    if CERTIFICATION_FEATURE_KEY not in residual_keys:
-        errors.append(f"residual_scope must include {CERTIFICATION_FEATURE_KEY}")
+    if CERTIFICATION_FEATURE_KEY in residual_keys:
+        errors.append(f"residual_scope must not include implemented {CERTIFICATION_FEATURE_KEY}")
 
 
 def _validate_required_proof(errors: list[str], certification: dict[str, Any]) -> None:

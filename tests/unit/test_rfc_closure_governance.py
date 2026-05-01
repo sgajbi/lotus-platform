@@ -750,7 +750,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
 
     for expected in [
-        "- status: gold-pass current scope implemented; entitlement certification evidence partial",
+        "- status: gold-pass current scope implemented; certified read-path entitlement evidence implemented",
         "front-office analytics ui observability",
         "interactive read/display flows",
         "browser to gateway to backend",
@@ -794,6 +794,9 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "ecosystem slice 16: ecosystem implementation proof",
         "ecosystem slice 17: ecosystem hardening, review, and certification",
         "platform.analytics.observability.ecosystem_hardening_certification",
+        "workbench.analytics.observability.caller_context_entitlement_certification",
+        "certified read-path entitlement closure",
+        "workbench pr #133",
         "slice 11 implementation evidence",
         "supported features governance",
         "implementation proof ledger",

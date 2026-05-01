@@ -59,6 +59,14 @@ support values, added truthful partial states for ready-with-empty attribution/c
 contracts, and passed live canonical Workbench validation for `PB_SG_GLOBAL_BAL_001` with refreshed
 screenshots under `lotus-workbench/output/rfc-0108-performance-layout-hardening-qa/`.
 
+The certified read-path entitlement gap is now closed for the current RFC-0108 certified paths.
+Workbench PR #133, merged at `90a3d54e81a92e6b2bad8584edb25122cf3c2a81`, proves bounded
+permission-blocked UI states for performance Summary, Risk Review, and Advisor Brief. The live
+proof passed canonical Workbench validation and platform QA on 2026-05-01 with evidence manifest
+`output/front-office-qa/canonical-front-office-qa-20260501-155832.md`; Gateway and Performance logs
+were inspected for bounded audit/correlation posture. Workbench wiki publication commit `f523dbb`
+records the operator-facing permission-blocked analytics proof rules.
+
 ## Residual Boundary
 
 RFC-0108 is closed for current implementation-backed claims, not for every possible future
@@ -68,13 +76,13 @@ promotion remain planned until separately implemented and certified. Do not use
 front-office validation must use the governed `lotus-workbench` runtime.
 
 The caller-context entitlement certification contract now records implementation evidence for the
-certified Workbench read paths. Gateway PR #159 proves bounded selected analytics read allow/deny
-audit records for performance and risk summary paths; Workbench PR #131 proves BFF caller-context
-defaults; Gateway PR #174 proves performance-summary caller-context enforcement, PR #175 proves
-risk-summary caller-context enforcement, PR #176 proves advisor-brief caller-context rejection on
-read and review-action routes, and PR #177 proves bounded advisor-brief read allow/deny audit
-records. The overall certification feature remains planned until every certified read path has
-Gateway, Core, and Workbench allow, deny, caller-context, and permission-blocked UI proof.
+current certified Workbench read paths. Gateway PR #159 proves bounded selected analytics
+read allow/deny audit records for performance and risk summary paths; Workbench PR #131 proves BFF
+caller-context defaults; Gateway PR #174 proves performance-summary caller-context enforcement,
+PR #175 proves risk-summary caller-context enforcement, PR #176 proves advisor-brief caller-context
+rejection on read and review-action routes, PR #177 proves bounded advisor-brief read allow/deny
+audit records, and Workbench PR #133 proves permission-blocked UI behavior. Future new certified
+read paths must provide the same implementation-backed proof before promotion.
 
 ## Operator Use
 
