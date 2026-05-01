@@ -750,7 +750,7 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     )
 
     for expected in [
-        "- status: reopened for ecosystem completion; slice 17 ecosystem hardening certified",
+        "- status: gold-pass current scope implemented; entitlement certification evidence partial",
         "front-office analytics ui observability",
         "interactive read/display flows",
         "browser to gateway to backend",

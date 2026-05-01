@@ -69,8 +69,10 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
         "lotus-risk PRs #107 and #108",
         "Gateway PRs #166 through #172",
         "Workbench PRs #118 through #129",
+        "Workbench PR #132",
         "PB_SG_GLOBAL_BAL_001",
         "context/contracts/",
+        "rfc-0108-performance-layout-hardening-qa",
     ]
     for evidence in required_evidence:
         assert evidence in wiki

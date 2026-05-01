@@ -52,8 +52,12 @@ seed readiness progression, retry warnings, and teardown behavior instead of rel
 structured summary.
 
 Critical screenshot review found one product-presentation follow-up: the performance summary driver
-content can clip horizontally in the desktop capture. Treat that as the next Workbench hardening
-slice before using the current screenshot pack as final client-demo presentation material.
+content could clip horizontally in the desktop capture. That follow-up is now implementation-backed
+by Workbench PR #132, merged at `4285d5c00910e8347f47976a4aec73a45c422724`, with Workbench wiki
+publication commit `764f778`. The follow-up hardened the Summary layout, labeled compact Horizon
+support values, added truthful partial states for ready-with-empty attribution/contribution detail
+contracts, and passed live canonical Workbench validation for `PB_SG_GLOBAL_BAL_001` with refreshed
+screenshots under `lotus-workbench/output/rfc-0108-performance-layout-hardening-qa/`.
 
 ## Residual Boundary
 
