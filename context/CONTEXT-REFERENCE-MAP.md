@@ -280,8 +280,10 @@ The current reporting and analytics observability governance references are:
    generated backend no-sensitive-content and supported-features gates, reusable Workbench/UI
    observability template, and platform repo check wiring. Slice 12 is partially implemented in
    `lotus-risk` and `lotus-manage` for risk calculation and management action-register
-   supportability posture with bounded metrics. Slice 12 remains partially implemented while
-   remaining performance/risk endpoint families and Gateway/Workbench reconciliation stay planned.
+   supportability posture with bounded metrics. Later PRs completed performance/risk backend
+   freshness supportability and Gateway/Workbench source-supportability reconciliation for current
+   supported reads; Slice 12 remains partially implemented only because full Workbench
+   all-supported-surface and full RFC-0079 risk/evidence promotion stay planned.
    Slice 13 has implementation-backed Gateway proof for selected fan-out metrics, protected
    diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
    lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially implemented
