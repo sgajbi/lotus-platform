@@ -104,6 +104,20 @@ def test_analytics_ui_ecosystem_completion_records_core_metric_label_proof() -> 
     assert "operator/business feature-state diagrams" in core_row["wiki_source_decision"]
 
 
+def test_analytics_ui_ecosystem_completion_records_risk_metric_label_proof() -> None:
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    risk_row = next(
+        row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-risk"
+    )
+
+    assert "explicit_metric_labels_proven" in risk_row["gap_classification"]
+    assert "no_sensitive_metric_labels_proven" in risk_row["gap_classification"]
+    assert "lotus-risk PR #109" in str(ecosystem["ecosystem_completion_slices"])
+    assert "explicit metric_labels" in risk_row["blockers"][0]
+    assert "no-sensitive metric label proof" in risk_row["required_proof"]
+    assert "operator flow diagram" in risk_row["wiki_source_decision"]
+
+
 def test_analytics_ui_ecosystem_completion_requires_slice_13_implemented() -> None:
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     statuses = {

@@ -8,20 +8,94 @@
       "openApiVersion": "3.1.0"
     }
   ],
-  "generatedAt": "2026-02-27T08:33:31.873539+00:00",
+  "generatedAt": "2026-05-01T12:41:21.413246+00:00",
   "attributeCatalog": [
     {
-      "semanticId": "lotus.annualization_factor",
-      "canonicalTerm": "annualization_factor",
-      "preferredName": "annualization_factor",
-      "description": "Optional annualization factor override.",
-      "example": 252,
-      "type": "object",
+      "semanticId": "lotus.alignment_policy",
+      "canonicalTerm": "alignment_policy",
+      "preferredName": "alignment_policy",
+      "description": "Series alignment policy used for multi-series rolling metrics.",
+      "example": "INNER_JOIN",
+      "type": "string",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "object"
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.analysis_options",
+      "canonicalTerm": "analysis_options",
+      "preferredName": "analysis_options",
+      "description": "Canonical analysis options used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "DrawdownAnalysisOptions",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "DrawdownAnalysisOptions"
+      ]
+    },
+    {
+      "semanticId": "lotus.annualization_basis",
+      "canonicalTerm": "annualization_basis",
+      "preferredName": "annualization_basis",
+      "description": "Annualization basis used for annualized metrics.",
+      "example": 252,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.annualization_factor",
+      "canonicalTerm": "annualization_factor",
+      "preferredName": "annualization_factor",
+      "description": "Applied annualization factor after defaults or overrides.",
+      "example": 252,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.applied",
+      "canonicalTerm": "applied",
+      "preferredName": "applied",
+      "description": "Whether risk-free configuration was applied to at least one requested metric.",
+      "example": true,
+      "type": "boolean",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.approved_consumers",
+      "canonicalTerm": "approved_consumers",
+      "preferredName": "approved_consumers",
+      "description": "Consumers explicitly approved in the repo-native producer declaration.",
+      "example": [
+        "lotus-gateway"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
       ]
     },
     {
@@ -39,22 +113,108 @@
       ]
     },
     {
-      "semanticId": "lotus.benchmark_returns",
-      "canonicalTerm": "benchmark_returns",
-      "preferredName": "benchmark_returns",
-      "description": "Benchmark return observations for benchmark-dependent metrics.",
-      "example": [
-        {
-          "date": "2025-01-02",
-          "value": 0.75
-        }
-      ],
-      "type": "array",
+      "semanticId": "lotus.authoritative_domain",
+      "canonicalTerm": "authoritative_domain",
+      "preferredName": "authoritative_domain",
+      "description": "Authoritative domain declared for the product.",
+      "example": "risk_analytics",
+      "type": "string",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "array"
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.base_url",
+      "canonicalTerm": "base_url",
+      "preferredName": "base_url",
+      "description": "Canonical base URL configured for the dependency.",
+      "example": "http://core-control.dev.lotus",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.benchmark_context",
+      "canonicalTerm": "benchmark_context",
+      "preferredName": "benchmark_context",
+      "description": "Canonical benchmark context used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "RollingRequestDependencyContext",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "RollingRequestDependencyContext",
+        "BenchmarkRequestContext"
+      ]
+    },
+    {
+      "semanticId": "lotus.benchmark_policy",
+      "canonicalTerm": "benchmark_policy",
+      "preferredName": "benchmark_policy",
+      "description": "Canonical benchmark policy used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "BenchmarkDrawdownPolicy",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "BenchmarkDrawdownPolicy"
+      ]
+    },
+    {
+      "semanticId": "lotus.calculation_supportability",
+      "canonicalTerm": "calculation_supportability",
+      "preferredName": "calculation_supportability",
+      "description": "Canonical calculation supportability used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "RiskCalculationSupportability",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "RiskCalculationSupportability"
+      ]
+    },
+    {
+      "semanticId": "lotus.category",
+      "canonicalTerm": "category",
+      "preferredName": "category",
+      "description": "Optional structured dependency issue category such as transport, timeout, or data_gap.",
+      "example": "data_gap",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.cdar_alpha",
+      "canonicalTerm": "cdar_alpha",
+      "preferredName": "cdar_alpha",
+      "description": "Confidence level used for drawdown-at-risk and conditional drawdown-at-risk metrics.",
+      "example": 0.95,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
       ]
     },
     {
@@ -74,11 +234,81 @@
       ]
     },
     {
-      "semanticId": "lotus.confidence",
-      "canonicalTerm": "confidence",
-      "preferredName": "confidence",
-      "description": "Confidence level used for Value-at-Risk.",
-      "example": 0.95,
+      "semanticId": "lotus.consumer_declaration_fingerprint",
+      "canonicalTerm": "consumer_declaration_fingerprint",
+      "preferredName": "consumer_declaration_fingerprint",
+      "description": "Deterministic fingerprint of the repo-native consumer declaration payload.",
+      "example": "sha256:8d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a1",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.consumer_declaration_source",
+      "canonicalTerm": "consumer_declaration_source",
+      "preferredName": "consumer_declaration_source",
+      "description": "Repo-native consumer declaration file used to resolve declared upstream dependencies.",
+      "example": "contracts/domain-data-products/lotus-risk-consumers.v1.json",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.consumption_mode",
+      "canonicalTerm": "consumption_mode",
+      "preferredName": "consumption_mode",
+      "description": "Declared consumption mode for the upstream dependency.",
+      "example": "api_read",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.contract_version",
+      "canonicalTerm": "contract_version",
+      "preferredName": "contract_version",
+      "description": "Historical attribution contract version.",
+      "example": "v1",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.covariance_method",
+      "canonicalTerm": "covariance_method",
+      "preferredName": "covariance_method",
+      "description": "Covariance estimator used for attribution decomposition.",
+      "example": "EMPIRICAL",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.coverage_ratio_current",
+      "canonicalTerm": "coverage_ratio_current",
+      "preferredName": "coverage_ratio_current",
+      "description": "Covered baseline positions divided by total baseline positions.",
+      "example": 0.833333,
       "type": "number",
       "locations": [
         "body"
@@ -88,14 +318,130 @@
       ]
     },
     {
-      "semanticId": "lotus.current_positions",
-      "canonicalTerm": "current_positions",
-      "preferredName": "current_positions",
-      "description": "Current portfolio positions used to compute baseline concentration.",
+      "semanticId": "lotus.coverage_ratio_proposed",
+      "canonicalTerm": "coverage_ratio_proposed",
+      "preferredName": "coverage_ratio_proposed",
+      "description": "Covered proposed positions divided by total proposed positions.",
+      "example": 0.870968,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.coverage_status",
+      "canonicalTerm": "coverage_status",
+      "preferredName": "coverage_status",
+      "description": "Canonical coverage status used by lotus-risk APIs.",
+      "example": "complete",
+      "type": "IssuerCoverageStatus",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "IssuerCoverageStatus"
+      ]
+    },
+    {
+      "semanticId": "lotus.covered_position_count_current",
+      "canonicalTerm": "covered_position_count_current",
+      "preferredName": "covered_position_count_current",
+      "description": "Count of baseline positions included in issuer grouping.",
+      "example": 25,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.covered_position_count_proposed",
+      "canonicalTerm": "covered_position_count_proposed",
+      "preferredName": "covered_position_count_proposed",
+      "description": "Count of proposed positions included in issuer grouping.",
+      "example": 27,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.current_routes",
+      "canonicalTerm": "current_routes",
+      "preferredName": "current_routes",
+      "description": "Current API routes declared as publishing or serving this product.",
+      "example": [
+        "/analytics/risk/calculate"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.declaration_fingerprint",
+      "canonicalTerm": "declaration_fingerprint",
+      "preferredName": "declaration_fingerprint",
+      "description": "Deterministic fingerprint of the repo-native producer declaration payload.",
+      "example": "sha256:6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.declaration_source",
+      "canonicalTerm": "declaration_source",
+      "preferredName": "declaration_source",
+      "description": "Repo-native producer declaration file used to resolve the declared products.",
+      "example": "contracts/domain-data-products/lotus-risk-products.v1.json",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.declared_dependencies",
+      "canonicalTerm": "declared_dependencies",
+      "preferredName": "declared_dependencies",
+      "description": "Current repo-native declared upstream dependencies required by lotus-risk.",
       "example": [
         {
-          "quantity": 1000.0,
-          "security_id": "AAPL.US"
+          "consumption_mode": "api_read",
+          "failure_posture": "fail_closed",
+          "producer_repository": "lotus-performance",
+          "product_name": "ReturnsSeriesBundle",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "correlation_id"
+          ],
+          "runtime_category": "transport",
+          "runtime_detail": "high_latency",
+          "runtime_issue_code": "UPSTREAM_HIGH_LATENCY",
+          "runtime_status": "degraded",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ]
         }
       ],
       "type": "array",
@@ -107,17 +453,132 @@
       ]
     },
     {
-      "semanticId": "lotus.date",
-      "canonicalTerm": "date",
-      "preferredName": "date",
-      "description": "Date of return observation.",
-      "example": "2025-01-02",
-      "type": "string",
+      "semanticId": "lotus.declared_dependency_count",
+      "canonicalTerm": "declared_dependency_count",
+      "preferredName": "declared_dependency_count",
+      "description": "Number of repo-native declared upstream dependencies included in the snapshot.",
+      "example": 6,
+      "type": "integer",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "string"
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.declared_product_count",
+      "canonicalTerm": "declared_product_count",
+      "preferredName": "declared_product_count",
+      "description": "Number of repo-native declared producer products included in the snapshot.",
+      "example": 5,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.degraded_dependency_count",
+      "canonicalTerm": "degraded_dependency_count",
+      "preferredName": "degraded_dependency_count",
+      "description": "Count of declared upstream dependencies whose producer runtime status is degraded.",
+      "example": 1,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.degraded_dependency_products",
+      "canonicalTerm": "degraded_dependency_products",
+      "preferredName": "degraded_dependency_products",
+      "description": "Declared upstream product names currently backed by degraded producer services.",
+      "example": [
+        "ReturnsSeriesBundle"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.degraded_metric_count",
+      "canonicalTerm": "degraded_metric_count",
+      "preferredName": "degraded_metric_count",
+      "description": "Number of requested metric or period results carrying deterministic error details.",
+      "example": 0,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.dependencies",
+      "canonicalTerm": "dependencies",
+      "preferredName": "dependencies",
+      "description": "Dependency runtime states used to determine readiness.",
+      "example": [
+        {
+          "base_url": "http://performance.dev.lotus",
+          "detail": "configured",
+          "service": "lotus-performance",
+          "status": "ok"
+        }
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.dependency_signals",
+      "canonicalTerm": "dependency_signals",
+      "preferredName": "dependency_signals",
+      "description": "Dependency runtime evidence used as raw trust telemetry input.",
+      "example": [
+        {
+          "category": "transport",
+          "detail": "high_latency",
+          "issue_code": "UPSTREAM_HIGH_LATENCY",
+          "service": "lotus-performance",
+          "status": "degraded"
+        }
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.detail",
+      "canonicalTerm": "detail",
+      "preferredName": "detail",
+      "description": "Additional runtime detail for operators.",
+      "example": "configured",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
       ]
     },
     {
@@ -135,6 +596,48 @@
       ]
     },
     {
+      "semanticId": "lotus.duration_unit",
+      "canonicalTerm": "duration_unit",
+      "preferredName": "duration_unit",
+      "description": "Duration convention used for drawdown episode timing metrics.",
+      "example": "BUSINESS_DAYS",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.emitted_at",
+      "canonicalTerm": "emitted_at",
+      "preferredName": "emitted_at",
+      "description": "UTC timestamp when lotus-risk assembled the local trust telemetry seed.",
+      "example": "2026-04-19T00:00:00Z",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.empty_period_count",
+      "canonicalTerm": "empty_period_count",
+      "preferredName": "empty_period_count",
+      "description": "Number of response periods with no portfolio observations.",
+      "example": 0,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
       "semanticId": "lotus.enabled",
       "canonicalTerm": "enabled",
       "preferredName": "enabled",
@@ -146,6 +649,62 @@
       ],
       "observedTypes": [
         "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.endpoint_path",
+      "canonicalTerm": "endpoint_path",
+      "preferredName": "endpoint_path",
+      "description": "Primary API path implementing this workflow.",
+      "example": "/analytics/risk/calculate",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.enrichment_policy",
+      "canonicalTerm": "enrichment_policy",
+      "preferredName": "enrichment_policy",
+      "description": "Canonical enrichment policy used by lotus-risk APIs.",
+      "example": "use_caller_only",
+      "type": "EnrichmentPolicy",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "EnrichmentPolicy"
+      ]
+    },
+    {
+      "semanticId": "lotus.evaluated_period_count",
+      "canonicalTerm": "evaluated_period_count",
+      "preferredName": "evaluated_period_count",
+      "description": "Number of periods evaluated in this response.",
+      "example": 1,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.failure_posture",
+      "canonicalTerm": "failure_posture",
+      "preferredName": "failure_posture",
+      "description": "Declared failure posture when the upstream dependency is unavailable or weak.",
+      "example": "fail_closed",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
       ]
     },
     {
@@ -171,7 +730,7 @@
       "semanticId": "lotus.frequency",
       "canonicalTerm": "frequency",
       "preferredName": "frequency",
-      "description": "Return sampling frequency.",
+      "description": "Applied return sampling frequency.",
       "example": "DAILY",
       "type": "string",
       "locations": [
@@ -182,17 +741,17 @@
       ]
     },
     {
-      "semanticId": "lotus.from_date",
-      "canonicalTerm": "from_date",
-      "preferredName": "from_date",
-      "description": "Explicit period start date (required when type=EXPLICIT).",
-      "example": "2025-01-01",
-      "type": "object",
+      "semanticId": "lotus.freshness_bucket",
+      "canonicalTerm": "freshness_bucket",
+      "preferredName": "freshness_bucket",
+      "description": "Bounded source freshness bucket based on the latest return observation.",
+      "example": "current",
+      "type": "string",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "object"
+        "string"
       ]
     },
     {
@@ -238,24 +797,25 @@
       ]
     },
     {
-      "semanticId": "lotus.horizon_days",
-      "canonicalTerm": "horizon_days",
-      "preferredName": "horizon_days",
-      "description": "Time horizon (in days) used for VaR scaling.",
-      "example": 1,
-      "type": "integer",
+      "semanticId": "lotus.include_benchmark",
+      "canonicalTerm": "include_benchmark",
+      "preferredName": "include_benchmark",
+      "description": "Whether benchmark-relative drawdown should be computed.",
+      "example": false,
+      "type": "boolean",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "integer"
+        "boolean",
+        "object"
       ]
     },
     {
-      "semanticId": "lotus.include_expected_shortfall",
-      "canonicalTerm": "include_expected_shortfall",
-      "preferredName": "include_expected_shortfall",
-      "description": "Whether expected shortfall should be included in VAR details.",
+      "semanticId": "lotus.include_episode_list",
+      "canonicalTerm": "include_episode_list",
+      "preferredName": "include_episode_list",
+      "description": "Whether drawdown episodes should be returned in responses.",
       "example": true,
       "type": "boolean",
       "locations": [
@@ -263,6 +823,52 @@
       ],
       "observedTypes": [
         "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.include_time_series",
+      "canonicalTerm": "include_time_series",
+      "preferredName": "include_time_series",
+      "description": "Whether rolling metric time-series points were requested for emitted windows.",
+      "example": false,
+      "type": "boolean",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.include_underwater_series",
+      "canonicalTerm": "include_underwater_series",
+      "preferredName": "include_underwater_series",
+      "description": "Whether underwater drawdown time series points should be included in responses.",
+      "example": false,
+      "type": "boolean",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.input_mode",
+      "canonicalTerm": "input_mode",
+      "preferredName": "input_mode",
+      "description": "Canonical input mode used by lotus-risk APIs.",
+      "example": "stateless",
+      "type": "AttributionInputMode",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "AttributionInputMode",
+        "ConcentrationInputMode",
+        "DrawdownInputMode",
+        "RollingInputMode",
+        "RiskInputMode"
       ]
     },
     {
@@ -284,6 +890,78 @@
       ]
     },
     {
+      "semanticId": "lotus.issue_code",
+      "canonicalTerm": "issue_code",
+      "preferredName": "issue_code",
+      "description": "Optional machine-readable issue code for degraded or unavailable dependency state.",
+      "example": "RISK_FREE_SERIES_EMPTY",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.issuer_concentration",
+      "canonicalTerm": "issuer_concentration",
+      "preferredName": "issuer_concentration",
+      "description": "Canonical issuer concentration used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "IssuerConcentration",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "IssuerConcentration"
+      ]
+    },
+    {
+      "semanticId": "lotus.issuer_grouping_level",
+      "canonicalTerm": "issuer_grouping_level",
+      "preferredName": "issuer_grouping_level",
+      "description": "Canonical issuer grouping level used by lotus-risk APIs.",
+      "example": "legal_issuer",
+      "type": "IssuerGroupingLevel",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "IssuerGroupingLevel"
+      ]
+    },
+    {
+      "semanticId": "lotus.issuer_id",
+      "canonicalTerm": "issuer_id",
+      "preferredName": "issuer_id",
+      "description": "Issuer identifier of the top concentration-driving issuer bucket.",
+      "example": "ULTIMATE_PIMCO",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.issuer_name",
+      "canonicalTerm": "issuer_name",
+      "preferredName": "issuer_name",
+      "description": "Display name of the top concentration-driving issuer bucket when available.",
+      "example": "Pacific Investment Management Company LLC",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
       "semanticId": "lotus.key",
       "canonicalTerm": "key",
       "preferredName": "key",
@@ -294,6 +972,35 @@
         "body"
       ],
       "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.lifecycle_status",
+      "canonicalTerm": "lifecycle_status",
+      "preferredName": "lifecycle_status",
+      "description": "Repo-owned lifecycle status mirrored from the governed product declaration.",
+      "example": "active",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.lineage_version",
+      "canonicalTerm": "lineage_version",
+      "preferredName": "lineage_version",
+      "description": "Audit lineage schema version carried by the product response when available.",
+      "example": "risk_audit_lineage.v1",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object",
         "string"
       ]
     },
@@ -315,7 +1022,7 @@
       "semanticId": "lotus.mar_annual_rate",
       "canonicalTerm": "mar_annual_rate",
       "preferredName": "mar_annual_rate",
-      "description": "Annualized minimum acceptable return used for Sortino ratio.",
+      "description": "Applied annual minimum acceptable return for Sortino calculations.",
       "example": 0.0,
       "type": "number",
       "locations": [
@@ -326,11 +1033,31 @@
       ]
     },
     {
-      "semanticId": "lotus.method",
-      "canonicalTerm": "method",
-      "preferredName": "method",
-      "description": "Value-at-Risk calculation method.",
-      "example": "HISTORICAL",
+      "semanticId": "lotus.metadata",
+      "canonicalTerm": "metadata",
+      "preferredName": "metadata",
+      "description": "Canonical metadata used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "HistoricalAttributionMetadata",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "HistoricalAttributionMetadata",
+        "object",
+        "DrawdownMetadata",
+        "RollingMetadata",
+        "RiskResponseMetadata"
+      ]
+    },
+    {
+      "semanticId": "lotus.methodology_version",
+      "canonicalTerm": "methodology_version",
+      "preferredName": "methodology_version",
+      "description": "Methodology version used for historical attribution formulas.",
+      "example": "historical_attribution.v1",
       "type": "string",
       "locations": [
         "body"
@@ -340,14 +1067,15 @@
       ]
     },
     {
-      "semanticId": "lotus.metrics",
-      "canonicalTerm": "metrics",
-      "preferredName": "metrics",
-      "description": "Requested risk metrics.",
+      "semanticId": "lotus.metric_labels",
+      "canonicalTerm": "metric_labels",
+      "preferredName": "metric_labels",
+      "description": "Bounded Prometheus label keys emitted by lotus_risk_calculation_supportability_total. Identifiers, trace or correlation values, and request or response payload fields must not be metric labels.",
       "example": [
-        "VOLATILITY",
-        "SHARPE",
-        "VAR"
+        "operation",
+        "supportability_state",
+        "reason",
+        "freshness_bucket"
       ],
       "type": "array",
       "locations": [
@@ -358,17 +1086,74 @@
       ]
     },
     {
-      "semanticId": "lotus.name",
-      "canonicalTerm": "name",
-      "preferredName": "name",
-      "description": "Optional display label for this period.",
-      "example": "explicit_q1_2025",
-      "type": "object",
+      "semanticId": "lotus.min_observations_policy",
+      "canonicalTerm": "min_observations_policy",
+      "preferredName": "min_observations_policy",
+      "description": "Minimum observation policy used for attribution decomposition.",
+      "example": "STRICT",
+      "type": "string",
       "locations": [
         "body"
       ],
       "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.minimum_episode_depth_bps",
+      "canonicalTerm": "minimum_episode_depth_bps",
+      "preferredName": "minimum_episode_depth_bps",
+      "description": "Minimum episode depth (in basis points) required to include an episode in the list.",
+      "example": 25.0,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.missing_benchmark_policy",
+      "canonicalTerm": "missing_benchmark_policy",
+      "preferredName": "missing_benchmark_policy",
+      "description": "Behavior when benchmark drawdown is requested but benchmark series is unavailable.",
+      "example": "IGNORE",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string",
         "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.missing_runtime_service_count",
+      "canonicalTerm": "missing_runtime_service_count",
+      "preferredName": "missing_runtime_service_count",
+      "description": "Count of declared upstream dependencies whose producer service has no current runtime view.",
+      "example": 0,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.missing_runtime_services",
+      "canonicalTerm": "missing_runtime_services",
+      "preferredName": "missing_runtime_services",
+      "description": "Declared upstream producer services that currently have no runtime view.",
+      "example": [],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
       ]
     },
     {
@@ -386,32 +1171,27 @@
       ]
     },
     {
-      "semanticId": "lotus.options",
-      "canonicalTerm": "options",
-      "preferredName": "options",
-      "description": "Canonical options used by lotus-risk APIs.",
-      "example": {
-        "key": "value"
-      },
-      "type": "RiskOptions",
+      "semanticId": "lotus.note",
+      "canonicalTerm": "note",
+      "preferredName": "note",
+      "description": "Optional diagnostics note when issuer coverage is partial or unavailable.",
+      "example": "issuer_id missing in lotus-core instrument_enrichment",
+      "type": "object",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "RiskOptions"
+        "object"
       ]
     },
     {
-      "semanticId": "lotus.periods",
-      "canonicalTerm": "periods",
-      "preferredName": "periods",
-      "description": "List of periods to evaluate.",
+      "semanticId": "lotus.notes",
+      "canonicalTerm": "notes",
+      "preferredName": "notes",
+      "description": "Deterministic implementation notes or support boundaries for this workflow.",
       "example": [
-        {
-          "from_date": "2025-01-01",
-          "to_date": "2025-03-31",
-          "type": "EXPLICIT"
-        }
+        "stateful active-risk supports POSITION, SECTOR, and ASSET_CLASS",
+        "stateful active-risk ISSUER remains gated"
       ],
       "type": "array",
       "locations": [
@@ -419,6 +1199,34 @@
       ],
       "observedTypes": [
         "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.ops_status",
+      "canonicalTerm": "ops_status",
+      "preferredName": "ops_status",
+      "description": "Current service operations posture used as raw input for future certification.",
+      "example": "ok",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.periodic_rate",
+      "canonicalTerm": "periodic_rate",
+      "preferredName": "periodic_rate",
+      "description": "Applied periodic risk-free rate as a decimal return after annualization.",
+      "example": 3.949e-05,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
       ]
     },
     {
@@ -436,11 +1244,11 @@
       ]
     },
     {
-      "semanticId": "lotus.portfolio_open_date",
-      "canonicalTerm": "portfolio_open_date",
-      "preferredName": "portfolio_open_date",
-      "description": "Portfolio inception date used for SI period handling.",
-      "example": "2024-01-01",
+      "semanticId": "lotus.producer_repository",
+      "canonicalTerm": "producer_repository",
+      "preferredName": "producer_repository",
+      "description": "Owning repository for the required upstream product.",
+      "example": "lotus-performance",
       "type": "string",
       "locations": [
         "body"
@@ -450,14 +1258,94 @@
       ]
     },
     {
-      "semanticId": "lotus.projected_positions",
-      "canonicalTerm": "projected_positions",
-      "preferredName": "projected_positions",
-      "description": "Projected positions used to compute post-change concentration.",
+      "semanticId": "lotus.product_family",
+      "canonicalTerm": "product_family",
+      "preferredName": "product_family",
+      "description": "Declared product family used to classify the product for governance.",
+      "example": "analytics_output",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.product_name",
+      "canonicalTerm": "product_name",
+      "preferredName": "product_name",
+      "description": "Governed upstream product required by lotus-risk.",
+      "example": "ReturnsSeriesBundle",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.product_version",
+      "canonicalTerm": "product_version",
+      "preferredName": "product_version",
+      "description": "Governed product version emitted by lotus-risk.",
+      "example": "v1",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.products",
+      "canonicalTerm": "products",
+      "preferredName": "products",
+      "description": "Current raw telemetry seeds for each repo-native declared product.",
       "example": [
         {
-          "proposed_quantity": 1200.0,
-          "security_id": "AAPL.US"
+          "approved_consumers": [
+            "lotus-gateway"
+          ],
+          "authoritative_domain": "risk_analytics",
+          "current_routes": [
+            "/analytics/risk/calculate"
+          ],
+          "dependency_signals": [
+            {
+              "category": "transport",
+              "detail": "high_latency",
+              "issue_code": "UPSTREAM_HIGH_LATENCY",
+              "service": "lotus-performance",
+              "status": "degraded"
+            }
+          ],
+          "draining": false,
+          "emitted_at": "2026-04-19T00:00:00Z",
+          "lifecycle_status": "active",
+          "lineage_version": "risk_audit_lineage.v1",
+          "ops_status": "degraded",
+          "product_family": "analytics_output",
+          "product_name": "RiskMetricsReport",
+          "product_version": "v1",
+          "readiness_status": "degraded",
+          "request_fingerprint": "sha256:6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "lineage_version",
+            "request_fingerprint"
+          ],
+          "source_services": [
+            "lotus-risk",
+            "lotus-performance"
+          ],
+          "upstream_request_fingerprints": {
+            "lotus-performance:/integration/returns/series": "sha256:8d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a1"
+          }
         }
       ],
       "type": "array",
@@ -469,31 +1357,17 @@
       ]
     },
     {
-      "semanticId": "lotus.proposed_quantity",
-      "canonicalTerm": "proposed_quantity",
-      "preferredName": "proposed_quantity",
-      "description": "Projected quantity used for simulation or concentration what-if analysis.",
-      "example": 1200.0,
-      "type": "object",
+      "semanticId": "lotus.readiness_status",
+      "canonicalTerm": "readiness_status",
+      "preferredName": "readiness_status",
+      "description": "Current service readiness posture used as raw input for future certification.",
+      "example": "ready",
+      "type": "string",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "object"
-      ]
-    },
-    {
-      "semanticId": "lotus.quantity",
-      "canonicalTerm": "quantity",
-      "preferredName": "quantity",
-      "description": "Current quantity in the baseline portfolio state.",
-      "example": 1000.0,
-      "type": "object",
-      "locations": [
-        "body"
-      ],
-      "observedTypes": [
-        "object"
+        "string"
       ]
     },
     {
@@ -511,6 +1385,20 @@
       ]
     },
     {
+      "semanticId": "lotus.reason",
+      "canonicalTerm": "reason",
+      "preferredName": "reason",
+      "description": "Bounded supportability reason that is safe for UI and operator metrics.",
+      "example": "calculation_complete",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
       "semanticId": "lotus.reporting_currency",
       "canonicalTerm": "reporting_currency",
       "preferredName": "reporting_currency",
@@ -525,19 +1413,126 @@
       ]
     },
     {
+      "semanticId": "lotus.request_fingerprint",
+      "canonicalTerm": "request_fingerprint",
+      "preferredName": "request_fingerprint",
+      "description": "Current product request fingerprint when response lineage is available.",
+      "example": "sha256:6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c6f36c1f0f3f0f08c",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.requested",
+      "canonicalTerm": "requested",
+      "preferredName": "requested",
+      "description": "Whether this dependency family is required by any requested rolling metric.",
+      "example": true,
+      "type": "boolean",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "boolean"
+      ]
+    },
+    {
+      "semanticId": "lotus.requested_attribution_types",
+      "canonicalTerm": "requested_attribution_types",
+      "preferredName": "requested_attribution_types",
+      "description": "Requested attribution decomposition types in canonical execution order.",
+      "example": [
+        "TOTAL_RISK",
+        "ACTIVE_RISK"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.requested_grouping_dimensions",
+      "canonicalTerm": "requested_grouping_dimensions",
+      "preferredName": "requested_grouping_dimensions",
+      "description": "Requested grouping dimensions in canonical execution order.",
+      "example": [
+        "POSITION",
+        "SECTOR"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.requested_metrics",
+      "canonicalTerm": "requested_metrics",
+      "preferredName": "requested_metrics",
+      "description": "Requested attribution metrics in canonical execution order.",
+      "example": [
+        "VOLATILITY",
+        "TRACKING_ERROR"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.required_product_version",
+      "canonicalTerm": "required_product_version",
+      "preferredName": "required_product_version",
+      "description": "Governed upstream product version required by lotus-risk.",
+      "example": "v1",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.required_trust_metadata",
+      "canonicalTerm": "required_trust_metadata",
+      "preferredName": "required_trust_metadata",
+      "description": "Trust metadata required from the upstream product declaration.",
+      "example": [
+        "generated_at",
+        "as_of_date",
+        "correlation_id"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
       "semanticId": "lotus.results",
       "canonicalTerm": "results",
       "preferredName": "results",
-      "description": "Risk results keyed by period name or period type.",
+      "description": "Period-level attribution results keyed by period name.",
       "example": {
-        "explicit_q1_2025": {
-          "end_date": "2025-03-31",
-          "metrics": {
-            "VOLATILITY": {
-              "value": 0.23
-            }
-          },
-          "start_date": "2025-01-01"
+        "YTD": {
+          "attribution_sets": [],
+          "end_date": "2026-02-28",
+          "start_date": "2026-01-01"
         }
       },
       "type": "object",
@@ -549,29 +1544,10 @@
       ]
     },
     {
-      "semanticId": "lotus.returns",
-      "canonicalTerm": "returns",
-      "preferredName": "returns",
-      "description": "Portfolio return observations.",
-      "example": [
-        {
-          "date": "2025-01-02",
-          "value": 1.0
-        }
-      ],
-      "type": "array",
-      "locations": [
-        "body"
-      ],
-      "observedTypes": [
-        "array"
-      ]
-    },
-    {
       "semanticId": "lotus.risk_free_annual_rate",
       "canonicalTerm": "risk_free_annual_rate",
       "preferredName": "risk_free_annual_rate",
-      "description": "Annualized risk-free rate when risk_free_mode=ANNUAL_RATE.",
+      "description": "Applied annual risk-free rate when risk_free_mode=ANNUAL_RATE.",
       "example": 0.01,
       "type": "object",
       "locations": [
@@ -582,11 +1558,28 @@
       ]
     },
     {
+      "semanticId": "lotus.risk_free_context",
+      "canonicalTerm": "risk_free_context",
+      "preferredName": "risk_free_context",
+      "description": "Canonical risk free context used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "RollingRequestDependencyContext",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "RollingRequestDependencyContext",
+        "RiskFreeContext"
+      ]
+    },
+    {
       "semanticId": "lotus.risk_free_mode",
       "canonicalTerm": "risk_free_mode",
       "preferredName": "risk_free_mode",
-      "description": "Risk-free rate mode used for Sharpe calculations.",
-      "example": "ANNUAL_RATE",
+      "description": "Applied risk-free mode for Sharpe calculations.",
+      "example": "ZERO",
       "type": "string",
       "locations": [
         "body"
@@ -626,6 +1619,62 @@
       ]
     },
     {
+      "semanticId": "lotus.runtime_category",
+      "canonicalTerm": "runtime_category",
+      "preferredName": "runtime_category",
+      "description": "Current structured runtime issue category for the declared upstream producer service.",
+      "example": "transport",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.runtime_detail",
+      "canonicalTerm": "runtime_detail",
+      "preferredName": "runtime_detail",
+      "description": "Current runtime detail observed for the declared upstream producer service.",
+      "example": "high_latency",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.runtime_issue_code",
+      "canonicalTerm": "runtime_issue_code",
+      "preferredName": "runtime_issue_code",
+      "description": "Current machine-readable runtime issue code for the declared upstream producer service.",
+      "example": "UPSTREAM_HIGH_LATENCY",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.runtime_status",
+      "canonicalTerm": "runtime_status",
+      "preferredName": "runtime_status",
+      "description": "Current runtime status observed for the declared upstream producer service.",
+      "example": "degraded",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
       "semanticId": "lotus.scope",
       "canonicalTerm": "scope",
       "preferredName": "scope",
@@ -645,14 +1694,28 @@
       "semanticId": "lotus.security_id",
       "canonicalTerm": "security_id",
       "preferredName": "security_id",
-      "description": "Canonical security identifier in the portfolio position set.",
-      "example": "AAPL.US",
-      "type": "string",
+      "description": "Security identifier of the top concentration-driving position.",
+      "example": "FO_FUND_PIMCO_INC",
+      "type": "object",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "string"
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.security_name",
+      "canonicalTerm": "security_name",
+      "preferredName": "security_name",
+      "description": "Display name of the top concentration-driving position when available.",
+      "example": "PIMCO GIS Income Fund",
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
       ]
     },
     {
@@ -670,6 +1733,48 @@
       ]
     },
     {
+      "semanticId": "lotus.simulation_input",
+      "canonicalTerm": "simulation_input",
+      "preferredName": "simulation_input",
+      "description": "Simulation execution payload orchestrated through lotus-core simulation session APIs.",
+      "example": {
+        "as_of_date": "2026-02-27",
+        "expected_version": 3,
+        "portfolio_id": "DEMO_DPM_EUR_001",
+        "session_id": "SIM_0001",
+        "simulation_changes": [
+          {
+            "security_id": "SEC_AAPL_US",
+            "transaction_type": "BUY"
+          }
+        ],
+        "top_n": 10
+      },
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.single_position_concentration",
+      "canonicalTerm": "single_position_concentration",
+      "preferredName": "single_position_concentration",
+      "description": "Canonical single position concentration used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "SinglePositionConcentration",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "SinglePositionConcentration"
+      ]
+    },
+    {
       "semanticId": "lotus.source_service",
       "canonicalTerm": "source_service",
       "preferredName": "source_service",
@@ -684,11 +1789,198 @@
       ]
     },
     {
+      "semanticId": "lotus.source_services",
+      "canonicalTerm": "source_services",
+      "preferredName": "source_services",
+      "description": "Ordered source-service lineage already published by lotus-risk.",
+      "example": [
+        "lotus-risk",
+        "lotus-performance"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.state",
+      "canonicalTerm": "state",
+      "preferredName": "state",
+      "description": "Bounded supportability state for the risk calculation payload.",
+      "example": "ready",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.stateful_active_risk_gate_reason",
+      "canonicalTerm": "stateful_active_risk_gate_reason",
+      "preferredName": "stateful_active_risk_gate_reason",
+      "description": "Deterministic reason for any gated stateful ACTIVE_RISK grouping dimensions.",
+      "example": "benchmark issuer exposure semantics unavailable",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.stateful_active_risk_gated_grouping_dimensions",
+      "canonicalTerm": "stateful_active_risk_gated_grouping_dimensions",
+      "preferredName": "stateful_active_risk_gated_grouping_dimensions",
+      "description": "Grouping dimensions intentionally gated for stateful ACTIVE_RISK attribution.",
+      "example": [
+        "ISSUER"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.stateful_active_risk_supported_grouping_dimensions",
+      "canonicalTerm": "stateful_active_risk_supported_grouping_dimensions",
+      "preferredName": "stateful_active_risk_supported_grouping_dimensions",
+      "description": "Grouping dimensions currently supported for stateful ACTIVE_RISK attribution.",
+      "example": [
+        "POSITION",
+        "SECTOR",
+        "ASSET_CLASS"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.stateful_input",
+      "canonicalTerm": "stateful_input",
+      "preferredName": "stateful_input",
+      "description": "Stateful payload for returns/exposure sourcing through lotus-performance and lotus-core. Stateful ACTIVE_RISK currently supports POSITION, SECTOR, and ASSET_CLASS; ISSUER remains gated until benchmark issuer exposure semantics are available. CUSTOM grouping is not supported in stateful mode.",
+      "example": {
+        "as_of_date": "2026-02-28",
+        "attribution_options": {
+          "annualization_basis": 252,
+          "attribution_types": [
+            "ACTIVE_RISK"
+          ],
+          "covariance_method": "EMPIRICAL",
+          "grouping_dimensions": [
+            "SECTOR"
+          ],
+          "metrics": [
+            "TRACKING_ERROR"
+          ],
+          "min_observations_policy": "STRICT"
+        },
+        "net_or_gross": "NET",
+        "periods": [
+          {
+            "name": "YTD",
+            "type": "YTD"
+          }
+        ],
+        "portfolio_id": "DEMO_DPM_EUR_001",
+        "reporting_currency": "USD"
+      },
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.stateless_input",
+      "canonicalTerm": "stateless_input",
+      "preferredName": "stateless_input",
+      "description": "Stateless payload with fully supplied returns and exposure history.",
+      "example": {
+        "exposure_history": [
+          {
+            "date": "2026-01-02",
+            "group_key": "SECTOR_TECH",
+            "grouping_dimension": "SECTOR",
+            "weight": 0.245
+          }
+        ],
+        "periods": [
+          {
+            "name": "YTD",
+            "type": "YTD"
+          }
+        ],
+        "returns": [
+          {
+            "date": "2026-01-02",
+            "value": 0.62
+          }
+        ],
+        "scope": {
+          "as_of_date": "2026-02-28",
+          "net_or_gross": "NET"
+        }
+      },
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
       "semanticId": "lotus.status",
       "canonicalTerm": "status",
       "preferredName": "status",
       "description": "Health status indicator.",
       "example": "ok",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.summary",
+      "canonicalTerm": "summary",
+      "preferredName": "summary",
+      "description": "Canonical summary used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "TrustTelemetryReviewSummary",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "TrustTelemetryReviewSummary"
+      ]
+    },
+    {
+      "semanticId": "lotus.support_status",
+      "canonicalTerm": "support_status",
+      "preferredName": "support_status",
+      "description": "Whether the workflow is fully implemented or intentionally partial.",
+      "example": "full",
       "type": "string",
       "locations": [
         "body"
@@ -716,11 +2008,315 @@
       ]
     },
     {
-      "semanticId": "lotus.to_date",
-      "canonicalTerm": "to_date",
-      "preferredName": "to_date",
-      "description": "Explicit period end date (required when type=EXPLICIT).",
-      "example": "2025-03-31",
+      "semanticId": "lotus.top_issuer_current",
+      "canonicalTerm": "top_issuer_current",
+      "preferredName": "top_issuer_current",
+      "description": "Canonical top issuer current used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "TopIssuerDriver",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "TopIssuerDriver"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_issuer_proposed",
+      "canonicalTerm": "top_issuer_proposed",
+      "preferredName": "top_issuer_proposed",
+      "description": "Canonical top issuer proposed used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "TopIssuerDriver",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "TopIssuerDriver"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_issuer_weight_current",
+      "canonicalTerm": "top_issuer_weight_current",
+      "preferredName": "top_issuer_weight_current",
+      "description": "Highest issuer-level baseline concentration weight.",
+      "example": 0.18,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_issuer_weight_delta",
+      "canonicalTerm": "top_issuer_weight_delta",
+      "preferredName": "top_issuer_weight_delta",
+      "description": "Difference between proposed and baseline top issuer weights.",
+      "example": 0.03,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_issuer_weight_proposed",
+      "canonicalTerm": "top_issuer_weight_proposed",
+      "preferredName": "top_issuer_weight_proposed",
+      "description": "Highest issuer-level proposed concentration weight.",
+      "example": 0.21,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_n",
+      "canonicalTerm": "top_n",
+      "preferredName": "top_n",
+      "description": "Top-N parameter used for cumulative concentration calculations.",
+      "example": 10,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_n_cumulative_weight_current",
+      "canonicalTerm": "top_n_cumulative_weight_current",
+      "preferredName": "top_n_cumulative_weight_current",
+      "description": "Cumulative baseline weight of top-N positions.",
+      "example": 0.4123,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_n_cumulative_weight_delta",
+      "canonicalTerm": "top_n_cumulative_weight_delta",
+      "preferredName": "top_n_cumulative_weight_delta",
+      "description": "Difference between proposed and baseline top-N cumulative weights.",
+      "example": 0.0428,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_n_cumulative_weight_proposed",
+      "canonicalTerm": "top_n_cumulative_weight_proposed",
+      "preferredName": "top_n_cumulative_weight_proposed",
+      "description": "Cumulative proposed weight of top-N positions.",
+      "example": 0.4551,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_n_episodes",
+      "canonicalTerm": "top_n_episodes",
+      "preferredName": "top_n_episodes",
+      "description": "Maximum number of worst drawdown episodes to return per period.",
+      "example": 5,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_position_current",
+      "canonicalTerm": "top_position_current",
+      "preferredName": "top_position_current",
+      "description": "Canonical top position current used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "TopPositionDriver",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "TopPositionDriver"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_position_proposed",
+      "canonicalTerm": "top_position_proposed",
+      "preferredName": "top_position_proposed",
+      "description": "Canonical top position proposed used by lotus-risk APIs.",
+      "example": {
+        "key": "value"
+      },
+      "type": "TopPositionDriver",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "TopPositionDriver"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_position_weight_current",
+      "canonicalTerm": "top_position_weight_current",
+      "preferredName": "top_position_weight_current",
+      "description": "Highest single-position weight in baseline state.",
+      "example": 0.1245,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_position_weight_delta",
+      "canonicalTerm": "top_position_weight_delta",
+      "preferredName": "top_position_weight_delta",
+      "description": "Difference between proposed and baseline top-position weights.",
+      "example": 0.0175,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.top_position_weight_proposed",
+      "canonicalTerm": "top_position_weight_proposed",
+      "preferredName": "top_position_weight_proposed",
+      "description": "Highest single-position weight in proposed state.",
+      "example": 0.142,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.total_position_count_current",
+      "canonicalTerm": "total_position_count_current",
+      "preferredName": "total_position_count_current",
+      "description": "Total baseline positions evaluated for issuer coverage.",
+      "example": 30,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.total_position_count_proposed",
+      "canonicalTerm": "total_position_count_proposed",
+      "preferredName": "total_position_count_proposed",
+      "description": "Total proposed positions evaluated for issuer coverage.",
+      "example": 31,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.unavailable_dependency_count",
+      "canonicalTerm": "unavailable_dependency_count",
+      "preferredName": "unavailable_dependency_count",
+      "description": "Count of declared upstream dependencies whose producer runtime status is unavailable.",
+      "example": 0,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.unavailable_dependency_products",
+      "canonicalTerm": "unavailable_dependency_products",
+      "preferredName": "unavailable_dependency_products",
+      "description": "Declared upstream product names currently backed by unavailable producer services.",
+      "example": [],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.uncovered_position_count_current",
+      "canonicalTerm": "uncovered_position_count_current",
+      "preferredName": "uncovered_position_count_current",
+      "description": "Baseline positions without issuer coverage after enrichment resolution.",
+      "example": 5,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.uncovered_position_count_proposed",
+      "canonicalTerm": "uncovered_position_count_proposed",
+      "preferredName": "uncovered_position_count_proposed",
+      "description": "Proposed positions without issuer coverage after enrichment resolution.",
+      "example": 4,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.upstream_request_fingerprints",
+      "canonicalTerm": "upstream_request_fingerprints",
+      "preferredName": "upstream_request_fingerprints",
+      "description": "Upstream request fingerprints already published by lotus-risk.",
+      "example": {
+        "lotus-performance:/integration/returns/series": "sha256:8d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a18d7411c13a0a25a1"
+      },
       "type": "object",
       "locations": [
         "body"
@@ -730,24 +2326,10 @@
       ]
     },
     {
-      "semanticId": "lotus.type",
-      "canonicalTerm": "type",
-      "preferredName": "type",
-      "description": "Period type used for metric aggregation.",
-      "example": "EXPLICIT",
-      "type": "string",
-      "locations": [
-        "body"
-      ],
-      "observedTypes": [
-        "string"
-      ]
-    },
-    {
       "semanticId": "lotus.use_log_returns",
       "canonicalTerm": "use_log_returns",
       "preferredName": "use_log_returns",
-      "description": "Whether to transform arithmetic returns to log returns.",
+      "description": "Whether returns were transformed to log returns before metric evaluation.",
       "example": false,
       "type": "boolean",
       "locations": [
@@ -758,11 +2340,47 @@
       ]
     },
     {
-      "semanticId": "lotus.value",
-      "canonicalTerm": "value",
-      "preferredName": "value",
-      "description": "Return value in percentage points.",
-      "example": 0.85,
+      "semanticId": "lotus.validation_lanes",
+      "canonicalTerm": "validation_lanes",
+      "preferredName": "validation_lanes",
+      "description": "Validation lanes in which this dependency is expected to be checked.",
+      "example": [
+        "feature",
+        "pr-merge"
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
+      ]
+    },
+    {
+      "semanticId": "lotus.valuation_context",
+      "canonicalTerm": "valuation_context",
+      "preferredName": "valuation_context",
+      "description": "Valuation context sourced from lotus-core for stateful/simulation mode.",
+      "example": {
+        "portfolio_currency": "EUR",
+        "position_basis": "market_value_base",
+        "reporting_currency": "USD",
+        "weight_basis": "total_market_value_base"
+      },
+      "type": "object",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "object"
+      ]
+    },
+    {
+      "semanticId": "lotus.var_confidence",
+      "canonicalTerm": "var_confidence",
+      "preferredName": "var_confidence",
+      "description": "Applied Value-at-Risk confidence level.",
+      "example": 0.95,
       "type": "number",
       "locations": [
         "body"
@@ -772,19 +2390,31 @@
       ]
     },
     {
-      "semanticId": "lotus.var",
-      "canonicalTerm": "var",
-      "preferredName": "var",
-      "description": "Canonical var used by lotus-risk APIs.",
-      "example": {
-        "key": "value"
-      },
-      "type": "VaROptions",
+      "semanticId": "lotus.var_horizon_days",
+      "canonicalTerm": "var_horizon_days",
+      "preferredName": "var_horizon_days",
+      "description": "Applied Value-at-Risk horizon in business days.",
+      "example": 1,
+      "type": "integer",
       "locations": [
         "body"
       ],
       "observedTypes": [
-        "VaROptions"
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.var_method",
+      "canonicalTerm": "var_method",
+      "preferredName": "var_method",
+      "description": "Applied Value-at-Risk method.",
+      "example": "HISTORICAL",
+      "type": "string",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "string"
       ]
     },
     {
@@ -799,6 +2429,52 @@
       ],
       "observedTypes": [
         "string"
+      ]
+    },
+    {
+      "semanticId": "lotus.weight",
+      "canonicalTerm": "weight",
+      "preferredName": "weight",
+      "description": "Portfolio weight of the top concentration-driving position.",
+      "example": 0.23014,
+      "type": "number",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "number"
+      ]
+    },
+    {
+      "semanticId": "lotus.window_count_requested",
+      "canonicalTerm": "window_count_requested",
+      "preferredName": "window_count_requested",
+      "description": "Number of rolling window lengths requested for this response.",
+      "example": 3,
+      "type": "integer",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "integer"
+      ]
+    },
+    {
+      "semanticId": "lotus.window_lengths_requested",
+      "canonicalTerm": "window_lengths_requested",
+      "preferredName": "window_lengths_requested",
+      "description": "Rolling window lengths requested for this response.",
+      "example": [
+        21,
+        63,
+        126
+      ],
+      "type": "array",
+      "locations": [
+        "body"
+      ],
+      "observedTypes": [
+        "array"
       ]
     },
     {
@@ -823,6 +2499,15 @@
       "example": [
         {
           "enabled": true,
+          "endpoint_path": "/analytics/risk/calculate",
+          "notes": [
+            "simulation is intentionally unsupported"
+          ],
+          "support_status": "full",
+          "supported_input_modes": [
+            "stateless",
+            "stateful"
+          ],
           "workflow_key": "risk_snapshot"
         }
       ],
@@ -832,20 +2517,6 @@
       ],
       "observedTypes": [
         "array"
-      ]
-    },
-    {
-      "semanticId": "lotus.year",
-      "canonicalTerm": "year",
-      "preferredName": "year",
-      "description": "Calendar year (required when type=YEAR).",
-      "example": 2025,
-      "type": "object",
-      "locations": [
-        "body"
-      ],
-      "observedTypes": [
-        "object"
       ]
     }
   ],
@@ -921,6 +2592,62 @@
             "type": "string",
             "semanticId": "lotus.status",
             "attributeRef": "#/attributeCatalog/lotus.status"
+          },
+          {
+            "name": "dependencies",
+            "location": "body",
+            "required": true,
+            "type": "array",
+            "semanticId": "lotus.dependencies",
+            "attributeRef": "#/attributeCatalog/lotus.dependencies"
+          },
+          {
+            "name": "dependencies[].service",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.service",
+            "attributeRef": "#/attributeCatalog/lotus.service"
+          },
+          {
+            "name": "dependencies[].base_url",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.base_url",
+            "attributeRef": "#/attributeCatalog/lotus.base_url"
+          },
+          {
+            "name": "dependencies[].status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.status",
+            "attributeRef": "#/attributeCatalog/lotus.status"
+          },
+          {
+            "name": "dependencies[].detail",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.detail",
+            "attributeRef": "#/attributeCatalog/lotus.detail"
+          },
+          {
+            "name": "dependencies[].category",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.category",
+            "attributeRef": "#/attributeCatalog/lotus.category"
+          },
+          {
+            "name": "dependencies[].issue_code",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issue_code",
+            "attributeRef": "#/attributeCatalog/lotus.issue_code"
           }
         ]
       }
@@ -1037,6 +2764,468 @@
             "type": "array",
             "semanticId": "lotus.input_modes",
             "attributeRef": "#/attributeCatalog/lotus.input_modes"
+          },
+          {
+            "name": "dependencies",
+            "location": "body",
+            "required": true,
+            "type": "array",
+            "semanticId": "lotus.dependencies",
+            "attributeRef": "#/attributeCatalog/lotus.dependencies"
+          },
+          {
+            "name": "dependencies[].service",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.service",
+            "attributeRef": "#/attributeCatalog/lotus.service"
+          },
+          {
+            "name": "dependencies[].base_url",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.base_url",
+            "attributeRef": "#/attributeCatalog/lotus.base_url"
+          },
+          {
+            "name": "dependencies[].status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.status",
+            "attributeRef": "#/attributeCatalog/lotus.status"
+          },
+          {
+            "name": "dependencies[].detail",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.detail",
+            "attributeRef": "#/attributeCatalog/lotus.detail"
+          },
+          {
+            "name": "dependencies[].category",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.category",
+            "attributeRef": "#/attributeCatalog/lotus.category"
+          },
+          {
+            "name": "dependencies[].issue_code",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issue_code",
+            "attributeRef": "#/attributeCatalog/lotus.issue_code"
+          }
+        ]
+      }
+    },
+    {
+      "domain": "operational",
+      "method": "GET",
+      "path": "/ops/trust-telemetry",
+      "operationId": "ops_trust_telemetry_ops_trust_telemetry_get",
+      "summary": "Local trust telemetry snapshot",
+      "request": {
+        "fields": []
+      },
+      "response": {
+        "fields": [
+          {
+            "name": "service",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.service",
+            "attributeRef": "#/attributeCatalog/lotus.service"
+          },
+          {
+            "name": "declaration_source",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.declaration_source",
+            "attributeRef": "#/attributeCatalog/lotus.declaration_source"
+          },
+          {
+            "name": "declaration_fingerprint",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.declaration_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.declaration_fingerprint"
+          },
+          {
+            "name": "consumer_declaration_source",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.consumer_declaration_source",
+            "attributeRef": "#/attributeCatalog/lotus.consumer_declaration_source"
+          },
+          {
+            "name": "consumer_declaration_fingerprint",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.consumer_declaration_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.consumer_declaration_fingerprint"
+          },
+          {
+            "name": "declared_dependencies",
+            "location": "body",
+            "required": true,
+            "type": "array",
+            "semanticId": "lotus.declared_dependencies",
+            "attributeRef": "#/attributeCatalog/lotus.declared_dependencies"
+          },
+          {
+            "name": "declared_dependencies[].product_name",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.product_name",
+            "attributeRef": "#/attributeCatalog/lotus.product_name"
+          },
+          {
+            "name": "declared_dependencies[].producer_repository",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.producer_repository",
+            "attributeRef": "#/attributeCatalog/lotus.producer_repository"
+          },
+          {
+            "name": "declared_dependencies[].required_product_version",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.required_product_version",
+            "attributeRef": "#/attributeCatalog/lotus.required_product_version"
+          },
+          {
+            "name": "declared_dependencies[].consumption_mode",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.consumption_mode",
+            "attributeRef": "#/attributeCatalog/lotus.consumption_mode"
+          },
+          {
+            "name": "declared_dependencies[].failure_posture",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.failure_posture",
+            "attributeRef": "#/attributeCatalog/lotus.failure_posture"
+          },
+          {
+            "name": "declared_dependencies[].validation_lanes",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.validation_lanes",
+            "attributeRef": "#/attributeCatalog/lotus.validation_lanes"
+          },
+          {
+            "name": "declared_dependencies[].required_trust_metadata",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.required_trust_metadata",
+            "attributeRef": "#/attributeCatalog/lotus.required_trust_metadata"
+          },
+          {
+            "name": "declared_dependencies[].runtime_status",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.runtime_status",
+            "attributeRef": "#/attributeCatalog/lotus.runtime_status"
+          },
+          {
+            "name": "declared_dependencies[].runtime_detail",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.runtime_detail",
+            "attributeRef": "#/attributeCatalog/lotus.runtime_detail"
+          },
+          {
+            "name": "declared_dependencies[].runtime_category",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.runtime_category",
+            "attributeRef": "#/attributeCatalog/lotus.runtime_category"
+          },
+          {
+            "name": "declared_dependencies[].runtime_issue_code",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.runtime_issue_code",
+            "attributeRef": "#/attributeCatalog/lotus.runtime_issue_code"
+          },
+          {
+            "name": "summary",
+            "location": "body",
+            "required": true,
+            "type": "TrustTelemetryReviewSummary",
+            "semanticId": "lotus.summary",
+            "attributeRef": "#/attributeCatalog/lotus.summary"
+          },
+          {
+            "name": "summary.declared_product_count",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.declared_product_count",
+            "attributeRef": "#/attributeCatalog/lotus.declared_product_count"
+          },
+          {
+            "name": "summary.declared_dependency_count",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.declared_dependency_count",
+            "attributeRef": "#/attributeCatalog/lotus.declared_dependency_count"
+          },
+          {
+            "name": "summary.degraded_dependency_count",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.degraded_dependency_count",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_dependency_count"
+          },
+          {
+            "name": "summary.unavailable_dependency_count",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.unavailable_dependency_count",
+            "attributeRef": "#/attributeCatalog/lotus.unavailable_dependency_count"
+          },
+          {
+            "name": "summary.missing_runtime_service_count",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.missing_runtime_service_count",
+            "attributeRef": "#/attributeCatalog/lotus.missing_runtime_service_count"
+          },
+          {
+            "name": "summary.degraded_dependency_products",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.degraded_dependency_products",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_dependency_products"
+          },
+          {
+            "name": "summary.unavailable_dependency_products",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.unavailable_dependency_products",
+            "attributeRef": "#/attributeCatalog/lotus.unavailable_dependency_products"
+          },
+          {
+            "name": "summary.missing_runtime_services",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.missing_runtime_services",
+            "attributeRef": "#/attributeCatalog/lotus.missing_runtime_services"
+          },
+          {
+            "name": "products",
+            "location": "body",
+            "required": true,
+            "type": "array",
+            "semanticId": "lotus.products",
+            "attributeRef": "#/attributeCatalog/lotus.products"
+          },
+          {
+            "name": "products[].product_name",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.product_name",
+            "attributeRef": "#/attributeCatalog/lotus.product_name"
+          },
+          {
+            "name": "products[].product_version",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.product_version",
+            "attributeRef": "#/attributeCatalog/lotus.product_version"
+          },
+          {
+            "name": "products[].authoritative_domain",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.authoritative_domain",
+            "attributeRef": "#/attributeCatalog/lotus.authoritative_domain"
+          },
+          {
+            "name": "products[].product_family",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.product_family",
+            "attributeRef": "#/attributeCatalog/lotus.product_family"
+          },
+          {
+            "name": "products[].approved_consumers",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.approved_consumers",
+            "attributeRef": "#/attributeCatalog/lotus.approved_consumers"
+          },
+          {
+            "name": "products[].required_trust_metadata",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.required_trust_metadata",
+            "attributeRef": "#/attributeCatalog/lotus.required_trust_metadata"
+          },
+          {
+            "name": "products[].lifecycle_status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.lifecycle_status",
+            "attributeRef": "#/attributeCatalog/lotus.lifecycle_status"
+          },
+          {
+            "name": "products[].current_routes",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.current_routes",
+            "attributeRef": "#/attributeCatalog/lotus.current_routes"
+          },
+          {
+            "name": "products[].emitted_at",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.emitted_at",
+            "attributeRef": "#/attributeCatalog/lotus.emitted_at"
+          },
+          {
+            "name": "products[].readiness_status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.readiness_status",
+            "attributeRef": "#/attributeCatalog/lotus.readiness_status"
+          },
+          {
+            "name": "products[].ops_status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.ops_status",
+            "attributeRef": "#/attributeCatalog/lotus.ops_status"
+          },
+          {
+            "name": "products[].draining",
+            "location": "body",
+            "required": true,
+            "type": "boolean",
+            "semanticId": "lotus.draining",
+            "attributeRef": "#/attributeCatalog/lotus.draining"
+          },
+          {
+            "name": "products[].lineage_version",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.lineage_version",
+            "attributeRef": "#/attributeCatalog/lotus.lineage_version"
+          },
+          {
+            "name": "products[].request_fingerprint",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.request_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.request_fingerprint"
+          },
+          {
+            "name": "products[].source_services",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.source_services",
+            "attributeRef": "#/attributeCatalog/lotus.source_services"
+          },
+          {
+            "name": "products[].upstream_request_fingerprints",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.upstream_request_fingerprints",
+            "attributeRef": "#/attributeCatalog/lotus.upstream_request_fingerprints"
+          },
+          {
+            "name": "products[].dependency_signals",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.dependency_signals",
+            "attributeRef": "#/attributeCatalog/lotus.dependency_signals"
+          },
+          {
+            "name": "products[].dependency_signals[].service",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.service",
+            "attributeRef": "#/attributeCatalog/lotus.service"
+          },
+          {
+            "name": "products[].dependency_signals[].status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.status",
+            "attributeRef": "#/attributeCatalog/lotus.status"
+          },
+          {
+            "name": "products[].dependency_signals[].detail",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.detail",
+            "attributeRef": "#/attributeCatalog/lotus.detail"
+          },
+          {
+            "name": "products[].dependency_signals[].category",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.category",
+            "attributeRef": "#/attributeCatalog/lotus.category"
+          },
+          {
+            "name": "products[].dependency_signals[].issue_code",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issue_code",
+            "attributeRef": "#/attributeCatalog/lotus.issue_code"
           }
         ]
       }
@@ -1123,6 +3312,38 @@
             "type": "boolean",
             "semanticId": "lotus.enabled",
             "attributeRef": "#/attributeCatalog/lotus.enabled"
+          },
+          {
+            "name": "workflows[].endpoint_path",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.endpoint_path",
+            "attributeRef": "#/attributeCatalog/lotus.endpoint_path"
+          },
+          {
+            "name": "workflows[].supported_input_modes",
+            "location": "body",
+            "required": true,
+            "type": "array",
+            "semanticId": "lotus.supported_input_modes",
+            "attributeRef": "#/attributeCatalog/lotus.supported_input_modes"
+          },
+          {
+            "name": "workflows[].support_status",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.support_status",
+            "attributeRef": "#/attributeCatalog/lotus.support_status"
+          },
+          {
+            "name": "workflows[].notes",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.notes",
+            "attributeRef": "#/attributeCatalog/lotus.notes"
           }
         ]
       }
@@ -1143,74 +3364,34 @@
     {
       "domain": "risk_analytics",
       "method": "POST",
-      "path": "/analytics/risk/concentration",
-      "operationId": "analytics_risk_concentration_analytics_risk_concentration_post",
-      "summary": "Calculate concentration risk analytics",
+      "path": "/analytics/risk/historical-attribution",
+      "operationId": "analytics_risk_historical_attribution_analytics_risk_historical_attribution_post",
+      "summary": "Calculate historical risk attribution analytics",
       "request": {
         "fields": [
           {
-            "name": "current_positions",
+            "name": "input_mode",
             "location": "body",
             "required": false,
-            "type": "array",
-            "semanticId": "lotus.current_positions",
-            "attributeRef": "#/attributeCatalog/lotus.current_positions"
+            "type": "AttributionInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
           },
           {
-            "name": "current_positions[].security_id",
-            "location": "body",
-            "required": true,
-            "type": "string",
-            "semanticId": "lotus.security_id",
-            "attributeRef": "#/attributeCatalog/lotus.security_id"
-          },
-          {
-            "name": "current_positions[].proposed_quantity",
+            "name": "stateless_input",
             "location": "body",
             "required": false,
             "type": "object",
-            "semanticId": "lotus.proposed_quantity",
-            "attributeRef": "#/attributeCatalog/lotus.proposed_quantity"
+            "semanticId": "lotus.stateless_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateless_input"
           },
           {
-            "name": "current_positions[].quantity",
+            "name": "stateful_input",
             "location": "body",
             "required": false,
             "type": "object",
-            "semanticId": "lotus.quantity",
-            "attributeRef": "#/attributeCatalog/lotus.quantity"
-          },
-          {
-            "name": "projected_positions",
-            "location": "body",
-            "required": false,
-            "type": "array",
-            "semanticId": "lotus.projected_positions",
-            "attributeRef": "#/attributeCatalog/lotus.projected_positions"
-          },
-          {
-            "name": "projected_positions[].security_id",
-            "location": "body",
-            "required": true,
-            "type": "string",
-            "semanticId": "lotus.security_id",
-            "attributeRef": "#/attributeCatalog/lotus.security_id"
-          },
-          {
-            "name": "projected_positions[].proposed_quantity",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.proposed_quantity",
-            "attributeRef": "#/attributeCatalog/lotus.proposed_quantity"
-          },
-          {
-            "name": "projected_positions[].quantity",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.quantity",
-            "attributeRef": "#/attributeCatalog/lotus.quantity"
+            "semanticId": "lotus.stateful_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_input"
           }
         ]
       },
@@ -1219,54 +3400,19 @@
           {
             "name": "source_service",
             "location": "body",
-            "required": true,
+            "required": false,
             "type": "string",
             "semanticId": "lotus.source_service",
             "attributeRef": "#/attributeCatalog/lotus.source_service"
           },
           {
-            "name": "risk_proxy",
+            "name": "input_mode",
             "location": "body",
             "required": true,
-            "type": "ConcentrationRiskProxy",
-            "semanticId": "lotus.risk_proxy",
-            "attributeRef": "#/attributeCatalog/lotus.risk_proxy"
+            "type": "AttributionInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
           },
-          {
-            "name": "risk_proxy.hhi_current",
-            "location": "body",
-            "required": true,
-            "type": "number",
-            "semanticId": "lotus.hhi_current",
-            "attributeRef": "#/attributeCatalog/lotus.hhi_current"
-          },
-          {
-            "name": "risk_proxy.hhi_proposed",
-            "location": "body",
-            "required": true,
-            "type": "number",
-            "semanticId": "lotus.hhi_proposed",
-            "attributeRef": "#/attributeCatalog/lotus.hhi_proposed"
-          },
-          {
-            "name": "risk_proxy.hhi_delta",
-            "location": "body",
-            "required": true,
-            "type": "number",
-            "semanticId": "lotus.hhi_delta",
-            "attributeRef": "#/attributeCatalog/lotus.hhi_delta"
-          }
-        ]
-      }
-    },
-    {
-      "domain": "risk_analytics",
-      "method": "POST",
-      "path": "/analytics/risk/calculate",
-      "operationId": "analytics_risk_calculate_analytics_risk_calculate_post",
-      "summary": "Calculate portfolio risk metrics",
-      "request": {
-        "fields": [
           {
             "name": "scope",
             "location": "body",
@@ -1300,212 +3446,1372 @@
             "attributeRef": "#/attributeCatalog/lotus.net_or_gross"
           },
           {
-            "name": "periods",
+            "name": "results",
             "location": "body",
             "required": true,
+            "type": "object",
+            "semanticId": "lotus.results",
+            "attributeRef": "#/attributeCatalog/lotus.results"
+          },
+          {
+            "name": "metadata",
+            "location": "body",
+            "required": true,
+            "type": "HistoricalAttributionMetadata",
+            "semanticId": "lotus.metadata",
+            "attributeRef": "#/attributeCatalog/lotus.metadata"
+          },
+          {
+            "name": "metadata.lineage_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.lineage_version",
+            "attributeRef": "#/attributeCatalog/lotus.lineage_version"
+          },
+          {
+            "name": "metadata.request_fingerprint",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.request_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.request_fingerprint"
+          },
+          {
+            "name": "metadata.source_services",
+            "location": "body",
+            "required": false,
             "type": "array",
-            "semanticId": "lotus.periods",
-            "attributeRef": "#/attributeCatalog/lotus.periods"
+            "semanticId": "lotus.source_services",
+            "attributeRef": "#/attributeCatalog/lotus.source_services"
           },
           {
-            "name": "periods[].type",
+            "name": "metadata.upstream_request_fingerprints",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.upstream_request_fingerprints",
+            "attributeRef": "#/attributeCatalog/lotus.upstream_request_fingerprints"
+          },
+          {
+            "name": "metadata.contract_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.contract_version",
+            "attributeRef": "#/attributeCatalog/lotus.contract_version"
+          },
+          {
+            "name": "metadata.methodology_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.methodology_version",
+            "attributeRef": "#/attributeCatalog/lotus.methodology_version"
+          },
+          {
+            "name": "metadata.covariance_method",
             "location": "body",
             "required": true,
             "type": "string",
-            "semanticId": "lotus.type",
-            "attributeRef": "#/attributeCatalog/lotus.type"
+            "semanticId": "lotus.covariance_method",
+            "attributeRef": "#/attributeCatalog/lotus.covariance_method"
           },
           {
-            "name": "periods[].name",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.name",
-            "attributeRef": "#/attributeCatalog/lotus.name"
-          },
-          {
-            "name": "periods[].from_date",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.from_date",
-            "attributeRef": "#/attributeCatalog/lotus.from_date"
-          },
-          {
-            "name": "periods[].to_date",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.to_date",
-            "attributeRef": "#/attributeCatalog/lotus.to_date"
-          },
-          {
-            "name": "periods[].year",
-            "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.year",
-            "attributeRef": "#/attributeCatalog/lotus.year"
-          },
-          {
-            "name": "metrics",
+            "name": "metadata.annualization_basis",
             "location": "body",
             "required": true,
+            "type": "integer",
+            "semanticId": "lotus.annualization_basis",
+            "attributeRef": "#/attributeCatalog/lotus.annualization_basis"
+          },
+          {
+            "name": "metadata.requested_attribution_types",
+            "location": "body",
+            "required": false,
             "type": "array",
-            "semanticId": "lotus.metrics",
-            "attributeRef": "#/attributeCatalog/lotus.metrics"
+            "semanticId": "lotus.requested_attribution_types",
+            "attributeRef": "#/attributeCatalog/lotus.requested_attribution_types"
           },
           {
-            "name": "options",
+            "name": "metadata.requested_metrics",
             "location": "body",
             "required": false,
-            "type": "RiskOptions",
-            "semanticId": "lotus.options",
-            "attributeRef": "#/attributeCatalog/lotus.options"
+            "type": "array",
+            "semanticId": "lotus.requested_metrics",
+            "attributeRef": "#/attributeCatalog/lotus.requested_metrics"
           },
           {
-            "name": "options.frequency",
+            "name": "metadata.requested_grouping_dimensions",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.requested_grouping_dimensions",
+            "attributeRef": "#/attributeCatalog/lotus.requested_grouping_dimensions"
+          },
+          {
+            "name": "metadata.min_observations_policy",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.min_observations_policy",
+            "attributeRef": "#/attributeCatalog/lotus.min_observations_policy"
+          },
+          {
+            "name": "metadata.stateful_active_risk_supported_grouping_dimensions",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.stateful_active_risk_supported_grouping_dimensions",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_active_risk_supported_grouping_dimensions"
+          },
+          {
+            "name": "metadata.stateful_active_risk_gated_grouping_dimensions",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.stateful_active_risk_gated_grouping_dimensions",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_active_risk_gated_grouping_dimensions"
+          },
+          {
+            "name": "metadata.stateful_active_risk_gate_reason",
             "location": "body",
             "required": false,
             "type": "string",
-            "semanticId": "lotus.frequency",
-            "attributeRef": "#/attributeCatalog/lotus.frequency"
+            "semanticId": "lotus.stateful_active_risk_gate_reason",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_active_risk_gate_reason"
           },
           {
-            "name": "options.annualization_factor",
+            "name": "metadata.calculation_supportability",
             "location": "body",
             "required": false,
-            "type": "object",
-            "semanticId": "lotus.annualization_factor",
-            "attributeRef": "#/attributeCatalog/lotus.annualization_factor"
+            "type": "RiskCalculationSupportability",
+            "semanticId": "lotus.calculation_supportability",
+            "attributeRef": "#/attributeCatalog/lotus.calculation_supportability"
           },
           {
-            "name": "options.use_log_returns",
+            "name": "metadata.calculation_supportability.state",
             "location": "body",
-            "required": false,
-            "type": "boolean",
-            "semanticId": "lotus.use_log_returns",
-            "attributeRef": "#/attributeCatalog/lotus.use_log_returns"
-          },
-          {
-            "name": "options.risk_free_mode",
-            "location": "body",
-            "required": false,
+            "required": true,
             "type": "string",
-            "semanticId": "lotus.risk_free_mode",
-            "attributeRef": "#/attributeCatalog/lotus.risk_free_mode"
+            "semanticId": "lotus.state",
+            "attributeRef": "#/attributeCatalog/lotus.state"
           },
           {
-            "name": "options.risk_free_annual_rate",
+            "name": "metadata.calculation_supportability.reason",
             "location": "body",
-            "required": false,
-            "type": "object",
-            "semanticId": "lotus.risk_free_annual_rate",
-            "attributeRef": "#/attributeCatalog/lotus.risk_free_annual_rate"
-          },
-          {
-            "name": "options.mar_annual_rate",
-            "location": "body",
-            "required": false,
-            "type": "number",
-            "semanticId": "lotus.mar_annual_rate",
-            "attributeRef": "#/attributeCatalog/lotus.mar_annual_rate"
-          },
-          {
-            "name": "options.var",
-            "location": "body",
-            "required": false,
-            "type": "VaROptions",
-            "semanticId": "lotus.var",
-            "attributeRef": "#/attributeCatalog/lotus.var"
-          },
-          {
-            "name": "options.var.method",
-            "location": "body",
-            "required": false,
+            "required": true,
             "type": "string",
-            "semanticId": "lotus.method",
-            "attributeRef": "#/attributeCatalog/lotus.method"
+            "semanticId": "lotus.reason",
+            "attributeRef": "#/attributeCatalog/lotus.reason"
           },
           {
-            "name": "options.var.confidence",
+            "name": "metadata.calculation_supportability.freshness_bucket",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.freshness_bucket",
+            "attributeRef": "#/attributeCatalog/lotus.freshness_bucket"
+          },
+          {
+            "name": "metadata.calculation_supportability.metric_labels",
             "location": "body",
             "required": false,
-            "type": "number",
-            "semanticId": "lotus.confidence",
-            "attributeRef": "#/attributeCatalog/lotus.confidence"
+            "type": "array",
+            "semanticId": "lotus.metric_labels",
+            "attributeRef": "#/attributeCatalog/lotus.metric_labels"
           },
           {
-            "name": "options.var.horizon_days",
+            "name": "metadata.calculation_supportability.degraded_metric_count",
             "location": "body",
             "required": false,
             "type": "integer",
-            "semanticId": "lotus.horizon_days",
-            "attributeRef": "#/attributeCatalog/lotus.horizon_days"
+            "semanticId": "lotus.degraded_metric_count",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_metric_count"
           },
           {
-            "name": "options.var.include_expected_shortfall",
+            "name": "metadata.calculation_supportability.empty_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.empty_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.empty_period_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.evaluated_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.evaluated_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.evaluated_period_count"
+          }
+        ]
+      }
+    },
+    {
+      "domain": "risk_analytics",
+      "method": "POST",
+      "path": "/analytics/risk/concentration",
+      "operationId": "analytics_risk_concentration_analytics_risk_concentration_post",
+      "summary": "Calculate concentration risk analytics",
+      "request": {
+        "fields": [
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": false,
+            "type": "ConcentrationInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "stateless_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateless_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateless_input"
+          },
+          {
+            "name": "stateful_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateful_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_input"
+          },
+          {
+            "name": "simulation_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.simulation_input",
+            "attributeRef": "#/attributeCatalog/lotus.simulation_input"
+          },
+          {
+            "name": "issuer_grouping_level",
+            "location": "body",
+            "required": false,
+            "type": "IssuerGroupingLevel",
+            "semanticId": "lotus.issuer_grouping_level",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_grouping_level"
+          },
+          {
+            "name": "enrichment_policy",
+            "location": "body",
+            "required": false,
+            "type": "EnrichmentPolicy",
+            "semanticId": "lotus.enrichment_policy",
+            "attributeRef": "#/attributeCatalog/lotus.enrichment_policy"
+          }
+        ]
+      },
+      "response": {
+        "fields": [
+          {
+            "name": "source_service",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.source_service",
+            "attributeRef": "#/attributeCatalog/lotus.source_service"
+          },
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": true,
+            "type": "ConcentrationInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "risk_proxy",
+            "location": "body",
+            "required": true,
+            "type": "ConcentrationRiskProxy",
+            "semanticId": "lotus.risk_proxy",
+            "attributeRef": "#/attributeCatalog/lotus.risk_proxy"
+          },
+          {
+            "name": "risk_proxy.hhi_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_current",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_current"
+          },
+          {
+            "name": "risk_proxy.hhi_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_proposed"
+          },
+          {
+            "name": "risk_proxy.hhi_delta",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_delta",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_delta"
+          },
+          {
+            "name": "single_position_concentration",
+            "location": "body",
+            "required": true,
+            "type": "SinglePositionConcentration",
+            "semanticId": "lotus.single_position_concentration",
+            "attributeRef": "#/attributeCatalog/lotus.single_position_concentration"
+          },
+          {
+            "name": "single_position_concentration.top_position_weight_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_position_weight_current",
+            "attributeRef": "#/attributeCatalog/lotus.top_position_weight_current"
+          },
+          {
+            "name": "single_position_concentration.top_position_weight_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_position_weight_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.top_position_weight_proposed"
+          },
+          {
+            "name": "single_position_concentration.top_position_weight_delta",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_position_weight_delta",
+            "attributeRef": "#/attributeCatalog/lotus.top_position_weight_delta"
+          },
+          {
+            "name": "single_position_concentration.top_n_cumulative_weight_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_n_cumulative_weight_current",
+            "attributeRef": "#/attributeCatalog/lotus.top_n_cumulative_weight_current"
+          },
+          {
+            "name": "single_position_concentration.top_n_cumulative_weight_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_n_cumulative_weight_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.top_n_cumulative_weight_proposed"
+          },
+          {
+            "name": "single_position_concentration.top_n_cumulative_weight_delta",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_n_cumulative_weight_delta",
+            "attributeRef": "#/attributeCatalog/lotus.top_n_cumulative_weight_delta"
+          },
+          {
+            "name": "single_position_concentration.top_n",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.top_n",
+            "attributeRef": "#/attributeCatalog/lotus.top_n"
+          },
+          {
+            "name": "single_position_concentration.top_position_current",
+            "location": "body",
+            "required": true,
+            "type": "TopPositionDriver",
+            "semanticId": "lotus.top_position_current",
+            "attributeRef": "#/attributeCatalog/lotus.top_position_current"
+          },
+          {
+            "name": "single_position_concentration.top_position_current.security_id",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.security_id",
+            "attributeRef": "#/attributeCatalog/lotus.security_id"
+          },
+          {
+            "name": "single_position_concentration.top_position_current.security_name",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.security_name",
+            "attributeRef": "#/attributeCatalog/lotus.security_name"
+          },
+          {
+            "name": "single_position_concentration.top_position_current.weight",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.weight",
+            "attributeRef": "#/attributeCatalog/lotus.weight"
+          },
+          {
+            "name": "single_position_concentration.top_position_proposed",
+            "location": "body",
+            "required": true,
+            "type": "TopPositionDriver",
+            "semanticId": "lotus.top_position_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.top_position_proposed"
+          },
+          {
+            "name": "single_position_concentration.top_position_proposed.security_id",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.security_id",
+            "attributeRef": "#/attributeCatalog/lotus.security_id"
+          },
+          {
+            "name": "single_position_concentration.top_position_proposed.security_name",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.security_name",
+            "attributeRef": "#/attributeCatalog/lotus.security_name"
+          },
+          {
+            "name": "single_position_concentration.top_position_proposed.weight",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.weight",
+            "attributeRef": "#/attributeCatalog/lotus.weight"
+          },
+          {
+            "name": "issuer_concentration",
+            "location": "body",
+            "required": true,
+            "type": "IssuerConcentration",
+            "semanticId": "lotus.issuer_concentration",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_concentration"
+          },
+          {
+            "name": "issuer_concentration.hhi_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_current",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_current"
+          },
+          {
+            "name": "issuer_concentration.hhi_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_proposed"
+          },
+          {
+            "name": "issuer_concentration.hhi_delta",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.hhi_delta",
+            "attributeRef": "#/attributeCatalog/lotus.hhi_delta"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_weight_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_issuer_weight_current",
+            "attributeRef": "#/attributeCatalog/lotus.top_issuer_weight_current"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_weight_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_issuer_weight_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.top_issuer_weight_proposed"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_weight_delta",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.top_issuer_weight_delta",
+            "attributeRef": "#/attributeCatalog/lotus.top_issuer_weight_delta"
+          },
+          {
+            "name": "issuer_concentration.coverage_status",
+            "location": "body",
+            "required": true,
+            "type": "IssuerCoverageStatus",
+            "semanticId": "lotus.coverage_status",
+            "attributeRef": "#/attributeCatalog/lotus.coverage_status"
+          },
+          {
+            "name": "issuer_concentration.covered_position_count_current",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.covered_position_count_current",
+            "attributeRef": "#/attributeCatalog/lotus.covered_position_count_current"
+          },
+          {
+            "name": "issuer_concentration.covered_position_count_proposed",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.covered_position_count_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.covered_position_count_proposed"
+          },
+          {
+            "name": "issuer_concentration.total_position_count_current",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.total_position_count_current",
+            "attributeRef": "#/attributeCatalog/lotus.total_position_count_current"
+          },
+          {
+            "name": "issuer_concentration.total_position_count_proposed",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.total_position_count_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.total_position_count_proposed"
+          },
+          {
+            "name": "issuer_concentration.uncovered_position_count_current",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.uncovered_position_count_current",
+            "attributeRef": "#/attributeCatalog/lotus.uncovered_position_count_current"
+          },
+          {
+            "name": "issuer_concentration.uncovered_position_count_proposed",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.uncovered_position_count_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.uncovered_position_count_proposed"
+          },
+          {
+            "name": "issuer_concentration.coverage_ratio_current",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.coverage_ratio_current",
+            "attributeRef": "#/attributeCatalog/lotus.coverage_ratio_current"
+          },
+          {
+            "name": "issuer_concentration.coverage_ratio_proposed",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.coverage_ratio_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.coverage_ratio_proposed"
+          },
+          {
+            "name": "issuer_concentration.note",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.note",
+            "attributeRef": "#/attributeCatalog/lotus.note"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_current",
+            "location": "body",
+            "required": true,
+            "type": "TopIssuerDriver",
+            "semanticId": "lotus.top_issuer_current",
+            "attributeRef": "#/attributeCatalog/lotus.top_issuer_current"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_current.issuer_id",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issuer_id",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_id"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_current.issuer_name",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issuer_name",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_name"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_current.weight",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.weight",
+            "attributeRef": "#/attributeCatalog/lotus.weight"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_proposed",
+            "location": "body",
+            "required": true,
+            "type": "TopIssuerDriver",
+            "semanticId": "lotus.top_issuer_proposed",
+            "attributeRef": "#/attributeCatalog/lotus.top_issuer_proposed"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_proposed.issuer_id",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issuer_id",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_id"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_proposed.issuer_name",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.issuer_name",
+            "attributeRef": "#/attributeCatalog/lotus.issuer_name"
+          },
+          {
+            "name": "issuer_concentration.top_issuer_proposed.weight",
+            "location": "body",
+            "required": true,
+            "type": "number",
+            "semanticId": "lotus.weight",
+            "attributeRef": "#/attributeCatalog/lotus.weight"
+          },
+          {
+            "name": "valuation_context",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.valuation_context",
+            "attributeRef": "#/attributeCatalog/lotus.valuation_context"
+          },
+          {
+            "name": "metadata",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.metadata",
+            "attributeRef": "#/attributeCatalog/lotus.metadata"
+          }
+        ]
+      }
+    },
+    {
+      "domain": "risk_analytics",
+      "method": "POST",
+      "path": "/analytics/risk/drawdown",
+      "operationId": "analytics_risk_drawdown_analytics_risk_drawdown_post",
+      "summary": "Calculate realized drawdown analytics",
+      "request": {
+        "fields": [
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": false,
+            "type": "DrawdownInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "stateless_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateless_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateless_input"
+          },
+          {
+            "name": "stateful_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateful_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_input"
+          },
+          {
+            "name": "benchmark_policy",
+            "location": "body",
+            "required": false,
+            "type": "BenchmarkDrawdownPolicy",
+            "semanticId": "lotus.benchmark_policy",
+            "attributeRef": "#/attributeCatalog/lotus.benchmark_policy"
+          },
+          {
+            "name": "benchmark_policy.include_benchmark",
             "location": "body",
             "required": false,
             "type": "boolean",
-            "semanticId": "lotus.include_expected_shortfall",
-            "attributeRef": "#/attributeCatalog/lotus.include_expected_shortfall"
+            "semanticId": "lotus.include_benchmark",
+            "attributeRef": "#/attributeCatalog/lotus.include_benchmark"
           },
           {
-            "name": "portfolio_open_date",
+            "name": "benchmark_policy.missing_benchmark_policy",
             "location": "body",
-            "required": true,
+            "required": false,
             "type": "string",
-            "semanticId": "lotus.portfolio_open_date",
-            "attributeRef": "#/attributeCatalog/lotus.portfolio_open_date"
+            "semanticId": "lotus.missing_benchmark_policy",
+            "attributeRef": "#/attributeCatalog/lotus.missing_benchmark_policy"
           },
           {
-            "name": "returns",
+            "name": "analysis_options",
             "location": "body",
-            "required": true,
-            "type": "array",
-            "semanticId": "lotus.returns",
-            "attributeRef": "#/attributeCatalog/lotus.returns"
+            "required": false,
+            "type": "DrawdownAnalysisOptions",
+            "semanticId": "lotus.analysis_options",
+            "attributeRef": "#/attributeCatalog/lotus.analysis_options"
           },
           {
-            "name": "returns[].date",
+            "name": "analysis_options.include_underwater_series",
             "location": "body",
-            "required": true,
-            "type": "string",
-            "semanticId": "lotus.date",
-            "attributeRef": "#/attributeCatalog/lotus.date"
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.include_underwater_series",
+            "attributeRef": "#/attributeCatalog/lotus.include_underwater_series"
           },
           {
-            "name": "returns[].value",
+            "name": "analysis_options.include_episode_list",
             "location": "body",
-            "required": true,
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.include_episode_list",
+            "attributeRef": "#/attributeCatalog/lotus.include_episode_list"
+          },
+          {
+            "name": "analysis_options.top_n_episodes",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.top_n_episodes",
+            "attributeRef": "#/attributeCatalog/lotus.top_n_episodes"
+          },
+          {
+            "name": "analysis_options.cdar_alpha",
+            "location": "body",
+            "required": false,
             "type": "number",
-            "semanticId": "lotus.value",
-            "attributeRef": "#/attributeCatalog/lotus.value"
+            "semanticId": "lotus.cdar_alpha",
+            "attributeRef": "#/attributeCatalog/lotus.cdar_alpha"
           },
           {
-            "name": "benchmark_returns",
+            "name": "analysis_options.minimum_episode_depth_bps",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.minimum_episode_depth_bps",
+            "attributeRef": "#/attributeCatalog/lotus.minimum_episode_depth_bps"
+          },
+          {
+            "name": "analysis_options.duration_unit",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.duration_unit",
+            "attributeRef": "#/attributeCatalog/lotus.duration_unit"
+          }
+        ]
+      },
+      "response": {
+        "fields": [
+          {
+            "name": "source_service",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.source_service",
+            "attributeRef": "#/attributeCatalog/lotus.source_service"
+          },
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": true,
+            "type": "DrawdownInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "scope",
+            "location": "body",
+            "required": true,
+            "type": "RiskRequestScope",
+            "semanticId": "lotus.scope",
+            "attributeRef": "#/attributeCatalog/lotus.scope"
+          },
+          {
+            "name": "scope.as_of_date",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.as_of_date",
+            "attributeRef": "#/attributeCatalog/lotus.as_of_date"
+          },
+          {
+            "name": "scope.reporting_currency",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.reporting_currency",
+            "attributeRef": "#/attributeCatalog/lotus.reporting_currency"
+          },
+          {
+            "name": "scope.net_or_gross",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.net_or_gross",
+            "attributeRef": "#/attributeCatalog/lotus.net_or_gross"
+          },
+          {
+            "name": "results",
+            "location": "body",
+            "required": true,
+            "type": "object",
+            "semanticId": "lotus.results",
+            "attributeRef": "#/attributeCatalog/lotus.results"
+          },
+          {
+            "name": "metadata",
+            "location": "body",
+            "required": false,
+            "type": "DrawdownMetadata",
+            "semanticId": "lotus.metadata",
+            "attributeRef": "#/attributeCatalog/lotus.metadata"
+          },
+          {
+            "name": "metadata.lineage_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.lineage_version",
+            "attributeRef": "#/attributeCatalog/lotus.lineage_version"
+          },
+          {
+            "name": "metadata.request_fingerprint",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.request_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.request_fingerprint"
+          },
+          {
+            "name": "metadata.source_services",
             "location": "body",
             "required": false,
             "type": "array",
-            "semanticId": "lotus.benchmark_returns",
-            "attributeRef": "#/attributeCatalog/lotus.benchmark_returns"
+            "semanticId": "lotus.source_services",
+            "attributeRef": "#/attributeCatalog/lotus.source_services"
           },
           {
-            "name": "benchmark_returns[].date",
+            "name": "metadata.upstream_request_fingerprints",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.upstream_request_fingerprints",
+            "attributeRef": "#/attributeCatalog/lotus.upstream_request_fingerprints"
+          },
+          {
+            "name": "metadata.contract_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.contract_version",
+            "attributeRef": "#/attributeCatalog/lotus.contract_version"
+          },
+          {
+            "name": "metadata.methodology_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.methodology_version",
+            "attributeRef": "#/attributeCatalog/lotus.methodology_version"
+          },
+          {
+            "name": "metadata.include_underwater_series",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.include_underwater_series",
+            "attributeRef": "#/attributeCatalog/lotus.include_underwater_series"
+          },
+          {
+            "name": "metadata.include_episode_list",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.include_episode_list",
+            "attributeRef": "#/attributeCatalog/lotus.include_episode_list"
+          },
+          {
+            "name": "metadata.top_n_episodes",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.top_n_episodes",
+            "attributeRef": "#/attributeCatalog/lotus.top_n_episodes"
+          },
+          {
+            "name": "metadata.cdar_alpha",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.cdar_alpha",
+            "attributeRef": "#/attributeCatalog/lotus.cdar_alpha"
+          },
+          {
+            "name": "metadata.minimum_episode_depth_bps",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.minimum_episode_depth_bps",
+            "attributeRef": "#/attributeCatalog/lotus.minimum_episode_depth_bps"
+          },
+          {
+            "name": "metadata.duration_unit",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.duration_unit",
+            "attributeRef": "#/attributeCatalog/lotus.duration_unit"
+          },
+          {
+            "name": "metadata.include_benchmark",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.include_benchmark",
+            "attributeRef": "#/attributeCatalog/lotus.include_benchmark"
+          },
+          {
+            "name": "metadata.missing_benchmark_policy",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.missing_benchmark_policy",
+            "attributeRef": "#/attributeCatalog/lotus.missing_benchmark_policy"
+          },
+          {
+            "name": "metadata.calculation_supportability",
+            "location": "body",
+            "required": false,
+            "type": "RiskCalculationSupportability",
+            "semanticId": "lotus.calculation_supportability",
+            "attributeRef": "#/attributeCatalog/lotus.calculation_supportability"
+          },
+          {
+            "name": "metadata.calculation_supportability.state",
             "location": "body",
             "required": true,
             "type": "string",
-            "semanticId": "lotus.date",
-            "attributeRef": "#/attributeCatalog/lotus.date"
+            "semanticId": "lotus.state",
+            "attributeRef": "#/attributeCatalog/lotus.state"
           },
           {
-            "name": "benchmark_returns[].value",
+            "name": "metadata.calculation_supportability.reason",
             "location": "body",
             "required": true,
-            "type": "number",
-            "semanticId": "lotus.value",
-            "attributeRef": "#/attributeCatalog/lotus.value"
+            "type": "string",
+            "semanticId": "lotus.reason",
+            "attributeRef": "#/attributeCatalog/lotus.reason"
+          },
+          {
+            "name": "metadata.calculation_supportability.freshness_bucket",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.freshness_bucket",
+            "attributeRef": "#/attributeCatalog/lotus.freshness_bucket"
+          },
+          {
+            "name": "metadata.calculation_supportability.metric_labels",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.metric_labels",
+            "attributeRef": "#/attributeCatalog/lotus.metric_labels"
+          },
+          {
+            "name": "metadata.calculation_supportability.degraded_metric_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.degraded_metric_count",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_metric_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.empty_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.empty_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.empty_period_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.evaluated_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.evaluated_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.evaluated_period_count"
+          }
+        ]
+      }
+    },
+    {
+      "domain": "risk_analytics",
+      "method": "POST",
+      "path": "/analytics/risk/rolling-metrics",
+      "operationId": "analytics_risk_rolling_metrics_analytics_risk_rolling_metrics_post",
+      "summary": "Calculate rolling risk metrics",
+      "request": {
+        "fields": [
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": false,
+            "type": "RollingInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "stateless_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateless_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateless_input"
+          },
+          {
+            "name": "stateful_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateful_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_input"
+          }
+        ]
+      },
+      "response": {
+        "fields": [
+          {
+            "name": "source_service",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.source_service",
+            "attributeRef": "#/attributeCatalog/lotus.source_service"
+          },
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": true,
+            "type": "RollingInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "scope",
+            "location": "body",
+            "required": true,
+            "type": "RiskRequestScope",
+            "semanticId": "lotus.scope",
+            "attributeRef": "#/attributeCatalog/lotus.scope"
+          },
+          {
+            "name": "scope.as_of_date",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.as_of_date",
+            "attributeRef": "#/attributeCatalog/lotus.as_of_date"
+          },
+          {
+            "name": "scope.reporting_currency",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.reporting_currency",
+            "attributeRef": "#/attributeCatalog/lotus.reporting_currency"
+          },
+          {
+            "name": "scope.net_or_gross",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.net_or_gross",
+            "attributeRef": "#/attributeCatalog/lotus.net_or_gross"
+          },
+          {
+            "name": "results",
+            "location": "body",
+            "required": true,
+            "type": "object",
+            "semanticId": "lotus.results",
+            "attributeRef": "#/attributeCatalog/lotus.results"
+          },
+          {
+            "name": "metadata",
+            "location": "body",
+            "required": true,
+            "type": "RollingMetadata",
+            "semanticId": "lotus.metadata",
+            "attributeRef": "#/attributeCatalog/lotus.metadata"
+          },
+          {
+            "name": "metadata.lineage_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.lineage_version",
+            "attributeRef": "#/attributeCatalog/lotus.lineage_version"
+          },
+          {
+            "name": "metadata.request_fingerprint",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.request_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.request_fingerprint"
+          },
+          {
+            "name": "metadata.source_services",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.source_services",
+            "attributeRef": "#/attributeCatalog/lotus.source_services"
+          },
+          {
+            "name": "metadata.upstream_request_fingerprints",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.upstream_request_fingerprints",
+            "attributeRef": "#/attributeCatalog/lotus.upstream_request_fingerprints"
+          },
+          {
+            "name": "metadata.contract_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.contract_version",
+            "attributeRef": "#/attributeCatalog/lotus.contract_version"
+          },
+          {
+            "name": "metadata.methodology_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.methodology_version",
+            "attributeRef": "#/attributeCatalog/lotus.methodology_version"
+          },
+          {
+            "name": "metadata.annualization_basis",
+            "location": "body",
+            "required": true,
+            "type": "integer",
+            "semanticId": "lotus.annualization_basis",
+            "attributeRef": "#/attributeCatalog/lotus.annualization_basis"
+          },
+          {
+            "name": "metadata.requested_metrics",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.requested_metrics",
+            "attributeRef": "#/attributeCatalog/lotus.requested_metrics"
+          },
+          {
+            "name": "metadata.window_lengths_requested",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.window_lengths_requested",
+            "attributeRef": "#/attributeCatalog/lotus.window_lengths_requested"
+          },
+          {
+            "name": "metadata.window_count_requested",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.window_count_requested",
+            "attributeRef": "#/attributeCatalog/lotus.window_count_requested"
+          },
+          {
+            "name": "metadata.alignment_policy",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.alignment_policy",
+            "attributeRef": "#/attributeCatalog/lotus.alignment_policy"
+          },
+          {
+            "name": "metadata.min_observations_policy",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.min_observations_policy",
+            "attributeRef": "#/attributeCatalog/lotus.min_observations_policy"
+          },
+          {
+            "name": "metadata.include_time_series",
+            "location": "body",
+            "required": true,
+            "type": "boolean",
+            "semanticId": "lotus.include_time_series",
+            "attributeRef": "#/attributeCatalog/lotus.include_time_series"
+          },
+          {
+            "name": "metadata.benchmark_context",
+            "location": "body",
+            "required": true,
+            "type": "RollingRequestDependencyContext",
+            "semanticId": "lotus.benchmark_context",
+            "attributeRef": "#/attributeCatalog/lotus.benchmark_context"
+          },
+          {
+            "name": "metadata.benchmark_context.requested",
+            "location": "body",
+            "required": true,
+            "type": "boolean",
+            "semanticId": "lotus.requested",
+            "attributeRef": "#/attributeCatalog/lotus.requested"
+          },
+          {
+            "name": "metadata.benchmark_context.requested_metrics",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.requested_metrics",
+            "attributeRef": "#/attributeCatalog/lotus.requested_metrics"
+          },
+          {
+            "name": "metadata.risk_free_context",
+            "location": "body",
+            "required": true,
+            "type": "RollingRequestDependencyContext",
+            "semanticId": "lotus.risk_free_context",
+            "attributeRef": "#/attributeCatalog/lotus.risk_free_context"
+          },
+          {
+            "name": "metadata.risk_free_context.requested",
+            "location": "body",
+            "required": true,
+            "type": "boolean",
+            "semanticId": "lotus.requested",
+            "attributeRef": "#/attributeCatalog/lotus.requested"
+          },
+          {
+            "name": "metadata.risk_free_context.requested_metrics",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.requested_metrics",
+            "attributeRef": "#/attributeCatalog/lotus.requested_metrics"
+          },
+          {
+            "name": "metadata.calculation_supportability",
+            "location": "body",
+            "required": false,
+            "type": "RiskCalculationSupportability",
+            "semanticId": "lotus.calculation_supportability",
+            "attributeRef": "#/attributeCatalog/lotus.calculation_supportability"
+          },
+          {
+            "name": "metadata.calculation_supportability.state",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.state",
+            "attributeRef": "#/attributeCatalog/lotus.state"
+          },
+          {
+            "name": "metadata.calculation_supportability.reason",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.reason",
+            "attributeRef": "#/attributeCatalog/lotus.reason"
+          },
+          {
+            "name": "metadata.calculation_supportability.freshness_bucket",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.freshness_bucket",
+            "attributeRef": "#/attributeCatalog/lotus.freshness_bucket"
+          },
+          {
+            "name": "metadata.calculation_supportability.metric_labels",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.metric_labels",
+            "attributeRef": "#/attributeCatalog/lotus.metric_labels"
+          },
+          {
+            "name": "metadata.calculation_supportability.degraded_metric_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.degraded_metric_count",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_metric_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.empty_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.empty_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.empty_period_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.evaluated_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.evaluated_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.evaluated_period_count"
+          }
+        ]
+      }
+    },
+    {
+      "domain": "risk_analytics",
+      "method": "POST",
+      "path": "/analytics/risk/calculate",
+      "operationId": "analytics_risk_calculate_analytics_risk_calculate_post",
+      "summary": "Calculate portfolio risk metrics",
+      "request": {
+        "fields": [
+          {
+            "name": "input_mode",
+            "location": "body",
+            "required": false,
+            "type": "RiskInputMode",
+            "semanticId": "lotus.input_mode",
+            "attributeRef": "#/attributeCatalog/lotus.input_mode"
+          },
+          {
+            "name": "stateless_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateless_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateless_input"
+          },
+          {
+            "name": "stateful_input",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.stateful_input",
+            "attributeRef": "#/attributeCatalog/lotus.stateful_input"
           }
         ]
       },
@@ -1550,6 +4856,262 @@
             "type": "object",
             "semanticId": "lotus.results",
             "attributeRef": "#/attributeCatalog/lotus.results"
+          },
+          {
+            "name": "metadata",
+            "location": "body",
+            "required": false,
+            "type": "RiskResponseMetadata",
+            "semanticId": "lotus.metadata",
+            "attributeRef": "#/attributeCatalog/lotus.metadata"
+          },
+          {
+            "name": "metadata.lineage_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.lineage_version",
+            "attributeRef": "#/attributeCatalog/lotus.lineage_version"
+          },
+          {
+            "name": "metadata.request_fingerprint",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.request_fingerprint",
+            "attributeRef": "#/attributeCatalog/lotus.request_fingerprint"
+          },
+          {
+            "name": "metadata.source_services",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.source_services",
+            "attributeRef": "#/attributeCatalog/lotus.source_services"
+          },
+          {
+            "name": "metadata.upstream_request_fingerprints",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.upstream_request_fingerprints",
+            "attributeRef": "#/attributeCatalog/lotus.upstream_request_fingerprints"
+          },
+          {
+            "name": "metadata.contract_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.contract_version",
+            "attributeRef": "#/attributeCatalog/lotus.contract_version"
+          },
+          {
+            "name": "metadata.methodology_version",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.methodology_version",
+            "attributeRef": "#/attributeCatalog/lotus.methodology_version"
+          },
+          {
+            "name": "metadata.frequency",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.frequency",
+            "attributeRef": "#/attributeCatalog/lotus.frequency"
+          },
+          {
+            "name": "metadata.annualization_factor",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.annualization_factor",
+            "attributeRef": "#/attributeCatalog/lotus.annualization_factor"
+          },
+          {
+            "name": "metadata.use_log_returns",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.use_log_returns",
+            "attributeRef": "#/attributeCatalog/lotus.use_log_returns"
+          },
+          {
+            "name": "metadata.risk_free_mode",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.risk_free_mode",
+            "attributeRef": "#/attributeCatalog/lotus.risk_free_mode"
+          },
+          {
+            "name": "metadata.risk_free_annual_rate",
+            "location": "body",
+            "required": false,
+            "type": "object",
+            "semanticId": "lotus.risk_free_annual_rate",
+            "attributeRef": "#/attributeCatalog/lotus.risk_free_annual_rate"
+          },
+          {
+            "name": "metadata.risk_free_context",
+            "location": "body",
+            "required": false,
+            "type": "RiskFreeContext",
+            "semanticId": "lotus.risk_free_context",
+            "attributeRef": "#/attributeCatalog/lotus.risk_free_context"
+          },
+          {
+            "name": "metadata.risk_free_context.requested",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.requested",
+            "attributeRef": "#/attributeCatalog/lotus.requested"
+          },
+          {
+            "name": "metadata.risk_free_context.applied",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.applied",
+            "attributeRef": "#/attributeCatalog/lotus.applied"
+          },
+          {
+            "name": "metadata.risk_free_context.reason",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.reason",
+            "attributeRef": "#/attributeCatalog/lotus.reason"
+          },
+          {
+            "name": "metadata.risk_free_context.periodic_rate",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.periodic_rate",
+            "attributeRef": "#/attributeCatalog/lotus.periodic_rate"
+          },
+          {
+            "name": "metadata.benchmark_context",
+            "location": "body",
+            "required": false,
+            "type": "BenchmarkRequestContext",
+            "semanticId": "lotus.benchmark_context",
+            "attributeRef": "#/attributeCatalog/lotus.benchmark_context"
+          },
+          {
+            "name": "metadata.benchmark_context.requested",
+            "location": "body",
+            "required": false,
+            "type": "boolean",
+            "semanticId": "lotus.requested",
+            "attributeRef": "#/attributeCatalog/lotus.requested"
+          },
+          {
+            "name": "metadata.benchmark_context.requested_metrics",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.requested_metrics",
+            "attributeRef": "#/attributeCatalog/lotus.requested_metrics"
+          },
+          {
+            "name": "metadata.calculation_supportability",
+            "location": "body",
+            "required": false,
+            "type": "RiskCalculationSupportability",
+            "semanticId": "lotus.calculation_supportability",
+            "attributeRef": "#/attributeCatalog/lotus.calculation_supportability"
+          },
+          {
+            "name": "metadata.calculation_supportability.state",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.state",
+            "attributeRef": "#/attributeCatalog/lotus.state"
+          },
+          {
+            "name": "metadata.calculation_supportability.reason",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.reason",
+            "attributeRef": "#/attributeCatalog/lotus.reason"
+          },
+          {
+            "name": "metadata.calculation_supportability.freshness_bucket",
+            "location": "body",
+            "required": true,
+            "type": "string",
+            "semanticId": "lotus.freshness_bucket",
+            "attributeRef": "#/attributeCatalog/lotus.freshness_bucket"
+          },
+          {
+            "name": "metadata.calculation_supportability.metric_labels",
+            "location": "body",
+            "required": false,
+            "type": "array",
+            "semanticId": "lotus.metric_labels",
+            "attributeRef": "#/attributeCatalog/lotus.metric_labels"
+          },
+          {
+            "name": "metadata.calculation_supportability.degraded_metric_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.degraded_metric_count",
+            "attributeRef": "#/attributeCatalog/lotus.degraded_metric_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.empty_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.empty_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.empty_period_count"
+          },
+          {
+            "name": "metadata.calculation_supportability.evaluated_period_count",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.evaluated_period_count",
+            "attributeRef": "#/attributeCatalog/lotus.evaluated_period_count"
+          },
+          {
+            "name": "metadata.mar_annual_rate",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.mar_annual_rate",
+            "attributeRef": "#/attributeCatalog/lotus.mar_annual_rate"
+          },
+          {
+            "name": "metadata.var_method",
+            "location": "body",
+            "required": false,
+            "type": "string",
+            "semanticId": "lotus.var_method",
+            "attributeRef": "#/attributeCatalog/lotus.var_method"
+          },
+          {
+            "name": "metadata.var_confidence",
+            "location": "body",
+            "required": false,
+            "type": "number",
+            "semanticId": "lotus.var_confidence",
+            "attributeRef": "#/attributeCatalog/lotus.var_confidence"
+          },
+          {
+            "name": "metadata.var_horizon_days",
+            "location": "body",
+            "required": false,
+            "type": "integer",
+            "semanticId": "lotus.var_horizon_days",
+            "attributeRef": "#/attributeCatalog/lotus.var_horizon_days"
           }
         ]
       }

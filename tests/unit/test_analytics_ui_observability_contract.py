@@ -308,6 +308,16 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert "supportability_reason" in ai_evidence
     assert "metric_labels" in ai_evidence
     assert "Prometheus metric-label tests" in ai_evidence
+    risk_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"] == "risk.observability.calculation_supportability"
+    )
+    assert "lotus-risk PR #109" in risk_evidence
+    assert "metric_labels" in risk_evidence
+    assert "lotus_risk_calculation_supportability_total" in risk_evidence
+    assert "lotus_analytics_freshness_bucket_total" in risk_evidence
+    assert "no-sensitive label rejection" in risk_evidence
     assert (
         feature_status["workbench.analytics.observability.all_supported_surfaces"]
         == "planned"

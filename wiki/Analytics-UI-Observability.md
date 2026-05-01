@@ -14,7 +14,7 @@ the platform contracts under [`context/contracts/`](../context/contracts/), and 
 | Gateway | Selected analytics fan-out paths, protected diagnostics, performance/risk source supportability, portfolio readiness, manage action-register, report evidence-surface, AI advisor-brief, advisory supportability, and advisor-brief caller-context/audit proof are preserved with bounded labels and no sensitive payload fields. | Gateway PRs #166 through #172, Gateway PRs #176 and #177, and protected diagnostics OpenAPI evidence. |
 | Core portfolio readiness | Portfolio readiness exposes source-owned supportability posture and explicit metric-label truth. The `lotus_core_portfolio_supportability_total` metric is bounded to `state`, `reason`, and `freshness_bucket`; portfolio, client, correlation, trace, security, request-body, and response-body values are proven absent from metric labels. | lotus-core PR #329, Gateway PR #167, Workbench PR #120, and published core wiki source. |
 | Performance backend | TWR, MWR, contribution, and attribution supportability emit bounded source-owned supportability state; the RFC-0108 backend freshness metric is implemented; capability publication remains enabled when any implemented performance supportability operation is enabled. | lotus-performance PRs #138, #139, and #140. |
-| Risk backend | Risk calculate, drawdown, rolling metrics, historical attribution, and concentration supportability emit bounded source-owned supportability state and the RFC-0108 backend freshness metric. | lotus-risk PRs #107 and #108. |
+| Risk backend | Risk calculate, drawdown, rolling metrics, historical attribution, and concentration supportability emit bounded source-owned supportability state, explicit `metric_labels`, no-sensitive Prometheus label proof, and the RFC-0108 backend freshness metric. | lotus-risk PRs #107, #108, and #109. |
 | AI surface supportability | Advisor brief, TWR inspection support brief, and workspace rationale AI surface supportability is source-backed by workflow-pack runtime, provider operations, and safety runtime; bounded `supportability_reason` and explicit `metric_labels` proof prevent sensitive diagnostics from becoming operator telemetry. | lotus-ai PR #57, Gateway PR #170, and Workbench PR #123. |
 | Platform observability | Dashboard, alert rules, runbook anchors, ecosystem proof, hardening certification, final closure, and wiki publication requirements are machine-reviewed. | `analytics-ui-observability-contract.json`, ecosystem completion/proof/hardening/final-closure contracts, and platform validators. |
 
@@ -92,6 +92,22 @@ assert that only the bounded labels are emitted, integration tests assert the re
 `metric_labels`, and OpenAPI tests assert that callers can see the label contract. The core wiki now
 documents the feature state, upstream/downstream integration flow, supportability runbook posture,
 and operator/business interpretation for portfolio readiness.
+
+## Risk Supportability Metric Labels
+
+`lotus-risk` PR #109 applies the same implementation-backed pattern to the risk analytics family.
+Risk responses publish `metadata.calculation_supportability.metric_labels`, and the two Prometheus
+metric families use shared bounded label tuples:
+
+| Metric | Allowed labels | Forbidden label classes |
+| --- | --- | --- |
+| `lotus_risk_calculation_supportability_total` | `operation`, `supportability_state`, `reason`, `freshness_bucket` | portfolio/account/client identifiers, correlation or trace identifiers, transaction/security identifiers, request bodies, and response bodies |
+| `lotus_analytics_freshness_bucket_total` | `service`, `operation`, `freshness_bucket`, `supportability_state` | portfolio/account/client identifiers, correlation or trace identifiers, transaction/security identifiers, request bodies, and response bodies |
+
+The proof inspects real Prometheus exposition, asserts the API/OpenAPI label contract, regenerates
+the risk API vocabulary, and publishes the risk wiki runbook with the operator flow from endpoint
+supportability metadata through Gateway source supportability, dashboards, alerts, and Workbench
+risk panel state.
 
 ## Gold-Pass Evidence
 
