@@ -44,7 +44,7 @@ The engineering goal is a premium, production-critical, banking-grade platform w
    Advisory workflow and recommendation capability.
 
 5. `lotus-manage`
-   Portfolio-management and operational workflow capability.
+   Discretionary mandate portfolio-management execution and operational supportability capability.
 
 6. `lotus-report`
    Reporting and document generation capability.

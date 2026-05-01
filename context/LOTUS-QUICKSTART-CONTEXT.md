@@ -42,7 +42,7 @@ The core application and service landscape is:
 6. `lotus-advise`
    The advisory workflow service for portfolio recommendation and related decision-support flows.
 7. `lotus-manage`
-   The management and operational workflow service for portfolio and mandate operations.
+   The discretionary mandate portfolio-management execution and operational supportability service.
 8. `lotus-report`
    The reporting and document-generation service.
 9. `lotus-render`

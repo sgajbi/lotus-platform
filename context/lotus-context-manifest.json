@@ -215,7 +215,7 @@
                          {
                              "repository":  "lotus-manage",
                              "category":  "domain-service",
-                             "business_role":  "Portfolio-management and operational workflow service",
+                             "business_role":  "Discretionary mandate portfolio-management execution and operational supportability service",
                              "primary_runtime":  "python-fastapi",
                              "canonical_commands":  {
                                                         "quality":  "make ci-local"
