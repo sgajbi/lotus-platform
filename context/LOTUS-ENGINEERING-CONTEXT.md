@@ -368,7 +368,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     portfolio readiness supportability proof with explicit `metric_labels`,
     `lotus_core_portfolio_supportability_total` labels bounded to `state`, `reason`, and
     `freshness_bucket`, no-sensitive Prometheus label tests, full local and GitHub runtime gates,
-    and published wiki source. Full all-supported-surface promotion remains separately gated.
+    and published wiki source. lotus-risk PR #109 hardens risk supportability proof with explicit
+    `metric_labels`, shared bounded label tuples for `lotus_risk_calculation_supportability_total`
+    and `lotus_analytics_freshness_bucket_total`, no-sensitive Prometheus label tests, full local
+    and GitHub runtime gates, and published wiki source. Full all-supported-surface promotion
+    remains separately gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

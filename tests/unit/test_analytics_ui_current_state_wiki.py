@@ -25,6 +25,9 @@ ECOSYSTEM_HARDENING_PATH = (
 ECOSYSTEM_FINAL_CLOSURE_PATH = (
     ROOT / "context" / "contracts" / "analytics-ui-observability-ecosystem-final-closure.json"
 )
+RISK_API_VOCABULARY_PATH = (
+    ROOT / "platform-contracts" / "api-vocabulary" / "lotus-risk-api-vocabulary.v1.json"
+)
 
 
 def _read(path: Path) -> str:
@@ -69,8 +72,9 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
 
     required_evidence = [
         "lotus-performance PRs #138, #139, and #140",
-        "lotus-risk PRs #107 and #108",
+        "lotus-risk PRs #107, #108, and #109",
         "lotus-core PR #329",
+        "`lotus-risk` PR #109",
         "state`, `reason`, and `freshness_bucket",
         "Gateway PRs #166 through #172",
         "Workbench PRs #118 through #129",
@@ -90,6 +94,10 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     ]
     assert "PR #140" in performance_row["blockers"][0]
     assert "PR #140" in performance_row["wiki_source_decision"]
+    risk_evidence = feature_evidence["risk.observability.calculation_supportability"]
+    assert "lotus-risk PR #109" in risk_evidence
+    assert "metric_labels" in risk_evidence
+    assert "no-sensitive label rejection" in risk_evidence
     assert "metric_labels" in feature_evidence[
         "core.observability.portfolio_supportability"
     ]
@@ -100,9 +108,32 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     assert "PR #329" in str(ecosystem["ecosystem_completion_slices"])
     assert "PR #140" in str(proof["residual_scope"])
     assert "PR #140" in str(hardening["repository_reviews"])
+    assert "PR #109" in str(hardening["repository_reviews"])
     assert "PR #329" in str(hardening["repository_reviews"])
     assert "PR #140" in str(final_closure["residual_scope"])
+    assert "PR #109" in str(final_closure["residual_scope"])
     assert "PR #329" in str(final_closure["residual_scope"])
+
+
+def test_platform_risk_api_vocabulary_records_supportability_metric_labels() -> None:
+    vocabulary = _load_json(RISK_API_VOCABULARY_PATH)
+    metric_labels_attribute = next(
+        attribute
+        for attribute in vocabulary["attributeCatalog"]
+        if attribute["semanticId"] == "lotus.metric_labels"
+    )
+    observed_names = {
+        field["name"]
+        for endpoint in vocabulary["endpoints"]
+        for payload in (endpoint["request"], endpoint["response"])
+        for field in payload["fields"]
+    }
+
+    assert metric_labels_attribute["canonicalTerm"] == "metric_labels"
+    assert "lotus_risk_calculation_supportability_total" in (
+        metric_labels_attribute["description"]
+    )
+    assert "metadata.calculation_supportability.metric_labels" in observed_names
 
 
 def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None:
@@ -115,3 +146,4 @@ def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None
     assert "lotus-platform/platform-stack" in wiki
     assert "governed `lotus-workbench` runtime" in wiki
     assert "lotus-performance PR #140" in rfc_index
+    assert "lotus-risk PR #109" in rfc_index
