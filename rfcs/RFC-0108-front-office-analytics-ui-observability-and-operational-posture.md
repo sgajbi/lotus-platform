@@ -2,7 +2,7 @@
 
 - Status: Reopened For Ecosystem Completion; Slice 17 Ecosystem Hardening Certified
 - Date: 2026-04-29
-- Gold-pass hardened: 2026-04-29
+- Gold-pass hardened: 2026-05-01
 - Owners:
   - `lotus-platform` observability/governance
   - `lotus-workbench` owners
@@ -1334,3 +1334,64 @@ RFC/context documentation flow, and PR/merge discipline through the pre-merge go
 deliberate outcome is therefore no skill-map or AGENTS operating-contract change in the final
 slice. Wiki source is updated in this repository and must be published with
 `automation/Sync-RepoWikis.ps1 -Publish -Repository lotus-platform` after the final PR merges.
+
+## Gold-Pass Assessment Addendum - 2026-05-01
+
+This final gold-pass audit reviewed RFC-0108 slice by slice against implementation completeness,
+correctness, test quality, proof quality, clean-code posture, and production readiness. The
+implementation has reached the expected standard for the current implementation-backed RFC-0108
+scope, with residual boundaries preserved instead of converted into unsupported success claims.
+
+What was truly completed:
+
+1. Workbench, Gateway, domain-service supportability, dashboard, alert, proof, hardening,
+   entitlement-evidence, and final-closure slices are implemented for the governed current scope.
+2. The canonical front-office runtime passed on 2026-05-01 for `PB_SG_GLOBAL_BAL_001` and
+   `BMK_PB_GLOBAL_BALANCED_60_40`, generating the platform-owned evidence bundle at
+   `output/front-office-qa/canonical-front-office-qa-20260501-140359.json`, runtime transcript
+   `output/front-office-qa/canonical-front-office-qa-20260501-140359.log`, and screenshots under
+   `output/rfc-0108-gold-pass-transcript-qa/`.
+3. Gateway caller-context and read-audit proof is recorded for performance summary, risk summary,
+   and advisor-brief paths through Workbench PR #131 and Gateway PRs #159, #174, #175, #176, and
+   #177.
+
+Quality improvements made during the gold pass:
+
+1. The platform canonical QA wrapper now preserves a timestamped runtime transcript and exposes it
+   in JSON/Markdown evidence so seed readiness progression, transient route retries, and teardown
+   output remain reviewable after the terminal session ends.
+2. The live-evidence review identified a transient Workbench portfolio-route `502` during startup
+   warmup and a long but converging seed pipeline. The run passed only after seed quality,
+   valuation, aggregation, Gateway API checks, and browser screenshots completed.
+3. Operator documentation now states that `latest.log` is part of the canonical evidence bundle,
+   not disposable console noise.
+
+Debt removed:
+
+1. Canonical proof no longer depends on ephemeral console output for warning and retry evidence.
+2. The RFC now records the gold-pass assessment as implementation truth instead of relying on
+   scattered PR descriptions or prior chat state.
+3. The wiki summary has been aligned to the current evidence posture for demo and operator use.
+
+What testing and evidence proved:
+
+1. The governed canonical stack validated DNS, Gateway readiness, Workbench portfolio and
+   performance routes, manage/report/archive/render readiness, integration capabilities, Gateway
+   foundation workspace, platform capabilities, Workbench overview, performance summary, risk
+   summary, and advisor brief.
+2. Browser evidence captured portfolio summary, portfolio detailed, performance summary,
+   performance analysis, advisor brief, risk, and evidence panels after validation.
+3. The evidence panel remains truthfully degraded/partial where full RFC-0079 evidence scope is
+   not implemented; this is a correct production posture, not a gap hidden by screenshots.
+
+Expected-standard decision:
+
+RFC-0108 has genuinely reached the expected observability, caller-context, supportability,
+evidence-governance, and residual-scope standard for current implementation-backed claims. This is
+not a claim that every future front-office surface, full RFC-0079 risk/evidence scope, or complete
+all-supported-surface entitlement proof is finished. Those remain explicitly planned residuals and
+must be promoted only through separate implementation-backed slices with live proof, tests, PR
+evidence, wiki publication, and clean repository state. The 2026-05-01 screenshot review also
+identified a Workbench visual hardening follow-up: the performance summary driver content can clip
+horizontally in the captured desktop viewport. That UI quality issue must be fixed in the next
+Workbench slice before demo-ready product presentation is considered fully gold-standard.

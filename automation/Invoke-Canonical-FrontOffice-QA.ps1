@@ -141,9 +141,12 @@ New-Item -ItemType Directory -Path $resolvedOutputDirectory -Force | Out-Null
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $summaryJsonPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.json"
 $summaryMarkdownPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.md"
+$runtimeTranscriptPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.log"
 $latestJsonPath = Join-Path $resolvedOutputDirectory "latest.json"
 $latestMarkdownPath = Join-Path $resolvedOutputDirectory "latest.md"
+$latestTranscriptPath = Join-Path $resolvedOutputDirectory "latest.log"
 $runStartedAt = Get-Date
+$transcriptStarted = $false
 
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
@@ -163,6 +166,7 @@ $summary = [ordered]@{
   governed_runbook = (Join-Path $WorkbenchRepoPath "docs\operations\canonical-front-office-local-runtime.md")
   governed_live_summary = $liveSummaryPath
   screenshot_directory = $resolvedScreenshotDirectory
+  runtime_transcript = $runtimeTranscriptPath
   docker_before = Get-LotusDockerArtifacts
   docker_after_clean = $null
   docker_after = $null
@@ -185,6 +189,9 @@ $validationArguments = @{
 }
 
 try {
+  Start-Transcript -Path $runtimeTranscriptPath -Force | Out-Null
+  $transcriptStarted = $true
+
   if ($Clean) {
     $cleanArguments = @{
       ProjectsRoot = $ProjectsRoot
@@ -276,6 +283,7 @@ $markdown += "- Workbench repo: $WorkbenchRepoPath"
 $markdown += "- Governed runbook: $($summary.governed_runbook)"
 $markdown += "- Live summary: $liveSummaryPath"
 $markdown += "- Screenshot directory: $resolvedScreenshotDirectory"
+$markdown += "- Runtime transcript: $runtimeTranscriptPath"
 $markdown += ""
 $markdown += "## Steps"
 $markdown += ""
@@ -321,6 +329,11 @@ $markdown | Set-Content -Path $latestMarkdownPath
 
 Write-Host "Wrote $summaryJsonPath"
 Write-Host "Wrote $summaryMarkdownPath"
+
+if ($transcriptStarted) {
+  Stop-Transcript | Out-Null
+  Copy-Item -Path $runtimeTranscriptPath -Destination $latestTranscriptPath -Force
+}
 
 if ($summary.status -ne "ok") {
   exit 1

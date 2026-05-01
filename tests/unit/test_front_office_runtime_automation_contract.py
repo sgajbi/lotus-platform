@@ -22,6 +22,11 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "output/front-office-qa" in wrapper
     assert "[string]$ScreenshotDirectory" in wrapper
     assert "screenshot_directory" in wrapper
+    assert "runtime_transcript" in wrapper
+    assert "canonical-front-office-qa-$timestamp.log" in wrapper
+    assert "latest.log" in wrapper
+    assert "Start-Transcript" in wrapper
+    assert "Stop-Transcript" in wrapper
     assert "output\\playwright\\live-canonical" in wrapper
     assert "live-validation-summary.json" in wrapper
     assert "canonical_contract" in wrapper
@@ -36,6 +41,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
     assert "Screenshot directory" in wrapper
+    assert "Runtime transcript" in wrapper
     assert "Canonical contract:" in wrapper
     assert "Governed by:" in wrapper
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
@@ -74,12 +80,14 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "canonical contract identity and version" in automation_readme
     assert "calculationChecks" in automation_readme
     assert "panelClassifications" in automation_readme
+    assert "runtime transcript" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
     assert "Docker cleanup scope" in automation_guide
+    assert "runtime transcript" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
     assert "`qa-platform-readiness`" in profile_reference
     assert "`qa-platform-readiness-clean-core`" in profile_reference

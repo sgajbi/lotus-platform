@@ -181,7 +181,7 @@ route to the governed `lotus-workbench` runtime first:
 2. `npm run live:stack:up`
 3. `npm run live:validate`
 4. `npm run live:stack:down`
-5. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` from `lotus-platform` when the task requires a platform-owned run summary and caller-directed screenshot pack.
+5. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` from `lotus-platform` when the task requires a platform-owned run summary, runtime transcript, and caller-directed screenshot pack.
 6. `../../context/contracts/canonical-front-office-demo-data-contract.json`
 7. `../../context/contracts/canonical-front-office-demo-data-invariants.json`
 8. `../../context/contracts/workbench-panel-registry.json`
