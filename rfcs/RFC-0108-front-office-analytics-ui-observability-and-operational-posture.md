@@ -1,6 +1,6 @@
 # RFC-0108: Front-Office Analytics UI Observability And Operational Posture
 
-- Status: Reopened For Ecosystem Completion; Slice 17 Ecosystem Hardening Certified
+- Status: Gold-Pass Current Scope Implemented; Entitlement Certification Evidence Partial
 - Date: 2026-04-29
 - Gold-pass hardened: 2026-05-01
 - Owners:
@@ -1391,7 +1391,21 @@ evidence-governance, and residual-scope standard for current implementation-back
 not a claim that every future front-office surface, full RFC-0079 risk/evidence scope, or complete
 all-supported-surface entitlement proof is finished. Those remain explicitly planned residuals and
 must be promoted only through separate implementation-backed slices with live proof, tests, PR
-evidence, wiki publication, and clean repository state. The 2026-05-01 screenshot review also
-identified a Workbench visual hardening follow-up: the performance summary driver content can clip
-horizontally in the captured desktop viewport. That UI quality issue must be fixed in the next
-Workbench slice before demo-ready product presentation is considered fully gold-standard.
+evidence, wiki publication, and clean repository state.
+
+Workbench visual hardening follow-up:
+
+The 2026-05-01 screenshot review identified a Workbench performance-summary presentation defect:
+the Horizon Comparison support columns and Performance Drivers content could clip horizontally in
+the captured desktop viewport. That follow-up is now implementation-backed through
+`lotus-workbench` PR #132, merge `4285d5c00910e8347f47976a4aec73a45c422724`, and wiki publication
+commit `764f778`. The fix changed the summary detail grid to use shrink-safe columns, moved
+Horizon support values into labeled compact row details, converted ready-with-empty
+attribution/contribution detail contracts into truthful partial panel states, strengthened live
+Playwright layout/state assertions, and refreshed the governed canonical screenshot pack at
+`lotus-workbench/output/rfc-0108-performance-layout-hardening-qa/`. Local proof included focused
+unit/integration tests, `npm run typecheck`, `npm run lint`, live Workbench e2e, and canonical
+front-office validation for `PB_SG_GLOBAL_BAL_001`. GitHub Feature Lane and PR Merge Gate passed,
+including Playwright smoke, Docker build, and CI local Docker parity. The resulting product
+presentation is suitable for current implementation-backed demo material, with the residual
+boundaries above still preserved.
