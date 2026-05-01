@@ -40,7 +40,9 @@ Triage steps:
 ## analytics-ui-api-request-latency-p95
 
 Use this alert when selected Workbench analytics API request p95 latency exceeds three seconds for
-at least ten minutes.
+at least ten minutes. This metric family now includes the Advisor Brief review-action mutation
+where Workbench records the bounded `performance-advisor-brief-review-action` surface and
+`performance.workspace.advisor-brief.review-action` operation.
 
 Triage steps:
 
@@ -48,7 +50,11 @@ Triage steps:
 2. Review Gateway fan-out logs for matching operation latency and degraded-source reasons.
 3. Confirm whether backend analytics services are returning stale, partial, degraded, or error
    responses.
-4. Keep remediation notes bounded to route, panel, service, operation, status class, and state.
+4. For Advisor Brief review actions, confirm Workbench `/api/metrics/events` accepted bounded
+   browser-originated metric events and `/api/metrics` exported the mutation surface.
+5. Keep remediation notes bounded to route, panel, service, operation, status class, and state.
+   Do not add reviewed-by identity, portfolio, client, correlation, trace, free-form review reason,
+   request-body, or response-body values.
 
 ## gateway-analytics-fanout-latency-p95
 

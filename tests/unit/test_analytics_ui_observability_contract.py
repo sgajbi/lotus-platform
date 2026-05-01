@@ -174,6 +174,23 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
         )
     )
     assert (
+        feature_status[
+            "workbench.analytics.observability.advisor_brief_review_action_metrics"
+        ]
+        == "implemented"
+    )
+    review_action_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"]
+        == "workbench.analytics.observability.advisor_brief_review_action_metrics"
+    )
+    assert "Workbench PR #134" in review_action_evidence
+    assert "4d8bc144c8ce07cf13087c704deeec9f177987de" in review_action_evidence
+    assert "performance-advisor-brief-review-action" in review_action_evidence
+    assert "/api/metrics/events" in review_action_evidence
+    assert "portfolio/client/advisor/correlation/free-form reason labels" in review_action_evidence
+    assert (
         feature_status["workbench.analytics.observability.safe_dashboard"]
         == "implemented"
     )
@@ -289,6 +306,7 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
             "workbench.analytics.observability.correlation_trace",
             "workbench.analytics.observability.contract_vocabulary",
             "workbench.analytics.observability.panel_state_metrics",
+            "workbench.analytics.observability.advisor_brief_review_action_metrics",
             "workbench.analytics.observability.safe_dashboard",
             "workbench.analytics.observability.attention_events",
             "workbench.analytics.observability.entitlement_audit_events",
@@ -448,6 +466,13 @@ def test_analytics_ui_observability_contract_records_telemetry_contract() -> Non
         "workbench.analytics.api_request",
         "workbench.analytics.attention",
     }
+    api_request_event = next(
+        event
+        for event in telemetry_contract["browser_events"]
+        if event["event_name"] == "workbench.analytics.api_request"
+    )
+    assert "/api/metrics/events" in api_request_event["purpose"]
+    assert "Advisor Brief review-action mutation" in api_request_event["purpose"]
     assert {
         event["event_name"] for event in telemetry_contract["gateway_log_events"]
     } == {
@@ -661,3 +686,5 @@ def test_analytics_ui_observability_alert_rules_align_with_contract() -> None:
             forbidden not in serialized_annotations
             for forbidden in forbidden_annotations
         )
+    assert "performance-advisor-brief-review-action" in runbook
+    assert "/api/metrics/events" in runbook

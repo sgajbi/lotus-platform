@@ -299,8 +299,12 @@ The current reporting and analytics observability governance references are:
    separately implemented and proved. Workbench PR #133 closes the current certified read-path
    entitlement proof gap for performance Summary, Risk Review, and Advisor Brief; future certified
    read paths must add equivalent Gateway allow/deny audit, caller-context, BFF forwarding,
-   permission-blocked UI, tests, live evidence, and wiki proof before promotion. Workbench archive
-   retrieval is supported only through the BFF/Gateway boundary.
+   permission-blocked UI, tests, live evidence, and wiki proof before promotion. Workbench PR #134
+   adds implementation-backed Advisor Brief review-action mutation observability through the
+   bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser metric
+   ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and no-sensitive
+   metric label assertions. Workbench archive retrieval is supported only through the BFF/Gateway
+   boundary.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

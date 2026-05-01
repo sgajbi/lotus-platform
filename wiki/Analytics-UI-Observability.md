@@ -32,6 +32,39 @@ flowchart LR
     Platform --> Operators[Operators and demo-readiness evidence]
 ```
 
+## Advisor Brief Review Action Observability
+
+Workbench PR #134 adds implementation-backed observability for the Advisor Brief review-action
+mutation. The browser still sends the mutation through the Workbench BFF and Gateway; Workbench
+records the mutation as the bounded `performance-advisor-brief-review-action` observed surface with
+operation `performance.workspace.advisor-brief.review-action`. Browser-originated metric events are
+accepted only by the same-origin Workbench `/api/metrics/events` route and are exported through
+`/api/metrics`.
+
+```mermaid
+sequenceDiagram
+    participant Browser as Advisor browser
+    participant Workbench as Workbench UI and BFF
+    participant Gateway as Gateway review-action API
+    participant MetricsEvents as /api/metrics/events
+    participant Metrics as /api/metrics
+    participant Logs as Gateway logs and traces
+
+    Browser->>Workbench: Submit Advisor Brief review action
+    Workbench->>Gateway: POST review action with caller context
+    Gateway-->>Workbench: Bounded success or failure status
+    Workbench->>MetricsEvents: Bounded api_request metric event
+    MetricsEvents-->>Metrics: In-process metric registry update
+    Gateway-->>Logs: correlation_id, request_id, trace_id, bounded operation log
+```
+
+The proof excludes portfolio, client, advisor, correlation, free-form reason, request-body, and
+response-body values from metric labels. Mutation failures are surfaced through bounded Workbench
+API errors instead of raw Gateway response bodies. Local proof included focused Workbench tests,
+full Workbench tests, typecheck, lint, live canonical validation for `PB_SG_GLOBAL_BAL_001`,
+`/api/metrics` export inspection, Gateway log/trace review, green GitHub CI, and Workbench wiki
+publication commit `8bec78e`.
+
 ## Gold-Pass Evidence
 
 The 2026-05-01 gold-pass canonical run passed for `PB_SG_GLOBAL_BAL_001` with benchmark
