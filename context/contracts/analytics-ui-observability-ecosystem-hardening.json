@@ -158,7 +158,7 @@
       "repository": "lotus-ai",
       "review_status": "planned_residual",
       "feature_keys_reviewed": ["ai.observability.ai_surface_supportability"],
-      "ci_evidence": "AI surface supportability is implementation-backed in lotus-ai, consumed through lotus-gateway PR #170 for advisor-brief supportability, and consumed by lotus-workbench PR #123 for bounded advisor-brief supportability metrics without sensitive labels.",
+      "ci_evidence": "AI surface supportability is implementation-backed in lotus-ai, consumed through lotus-gateway PR #170 for advisor-brief supportability, and consumed by lotus-workbench PR #123 for bounded advisor-brief supportability metrics without sensitive labels. lotus-ai PR #57 hardens the source response with bounded supportability_reason values, explicit metric_labels truth, sensitive-diagnostic rejection tests, Prometheus label-boundary tests, make check, make ci, and published wiki source.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     }
