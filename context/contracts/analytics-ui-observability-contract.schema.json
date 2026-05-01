@@ -12,6 +12,7 @@
     "state_vocabulary",
     "metric_families",
     "telemetry_contract",
+    "observation_boundaries",
     "dashboards",
     "alerts",
     "supported_feature_keys",
@@ -190,6 +191,44 @@
         }
       },
       "additionalProperties": false
+    },
+    "observation_boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "boundary_id",
+          "owner_repo",
+          "implemented",
+          "mutation_surfaces",
+          "included_metric_families",
+          "excluded_metric_families",
+          "evidence"
+        ],
+        "properties": {
+          "boundary_id": { "type": "string" },
+          "owner_repo": { "type": "string" },
+          "implemented": { "type": "boolean" },
+          "mutation_surfaces": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "included_metric_families": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "excluded_metric_families": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "evidence": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
     },
     "alerts": {
       "type": "array",

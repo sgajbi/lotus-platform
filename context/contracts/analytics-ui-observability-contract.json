@@ -347,6 +347,22 @@
       "raw_request_response_capture_allowed": false
     }
   },
+  "observation_boundaries": [
+    {
+      "boundary_id": "workbench-mutation-actions-exclude-panel-hydration",
+      "owner_repo": "lotus-workbench",
+      "implemented": true,
+      "mutation_surfaces": ["performance-advisor-brief-review-action"],
+      "included_metric_families": [
+        "lotus_workbench_api_request_duration_seconds",
+        "lotus_workbench_panel_state_total"
+      ],
+      "excluded_metric_families": [
+        "lotus_workbench_panel_hydration_duration_seconds"
+      ],
+      "evidence": "Workbench PR #136, merge 3dfdbd90878a82562ae38d8df66b1947ec16154f, implements a mutation-observation helper so state-changing Workbench actions record bounded API request and panel-state metrics without incrementing panel hydration. Browser proof for performance-advisor-brief-review-action returned reviewActionStatus=200, reviewActionLineCount=11, hydrationReviewActionLineCount=0, hasApiRequestMetric=true, hasPanelStateMetric=true, and leakedForbidden=[]. Gateway logs showed ai.workflow-packs.runs.review-actions state=ready status_class=2xx with bounded correlation/request/trace context. Workbench wiki publication commit 2864f2c records the operator-facing rule."
+    }
+  ],
   "dashboards": [
     {
       "dashboard_id": "analytics-ui-observability-overview",
@@ -551,7 +567,13 @@
       "feature_key": "workbench.analytics.observability.advisor_brief_review_action_metrics",
       "status": "implemented",
       "owner_repo": "lotus-workbench",
-      "promotion_evidence": "Workbench PR #134, merge 4d8bc144c8ce07cf13087c704deeec9f177987de, implements RFC-0108 observability for the Advisor Brief review-action mutation. The slice adds the performance-advisor-brief-review-action observed surface, wraps the BFF review-action POST in bounded Workbench API metrics, records browser-originated metric events through the same-origin /api/metrics/events ingest route, exports them through /api/metrics, suppresses portfolio/client/advisor/correlation/free-form reason labels, bounds mutation failures through WorkbenchApiError without copying Gateway response bodies, hardens local canonical Workbench BFF env selection, and proves the path through focused tests, full Workbench tests, live canonical validation for PB_SG_GLOBAL_BAL_001, Gateway log/trace inspection, green CI, and Workbench wiki publication 8bec78e."
+      "promotion_evidence": "Workbench PR #134, merge 4d8bc144c8ce07cf13087c704deeec9f177987de, implements RFC-0108 observability for the Advisor Brief review-action mutation. The slice adds the performance-advisor-brief-review-action observed surface, wraps the BFF review-action POST in bounded Workbench API metrics, records browser-originated metric events through the same-origin /api/metrics/events ingest route, exports them through /api/metrics, suppresses portfolio/client/advisor/correlation/free-form reason labels, bounds mutation failures through WorkbenchApiError without copying Gateway response bodies, hardens local canonical Workbench BFF env selection, and proves the path through focused tests, full Workbench tests, live canonical validation for PB_SG_GLOBAL_BAL_001, Gateway log/trace inspection, green CI, and Workbench wiki publication 8bec78e. Workbench PR #136, merge 3dfdbd90878a82562ae38d8df66b1947ec16154f, then hardens the observation boundary so the review-action mutation emits API request and panel-state metrics without incrementing panel hydration; live proof returned hydrationReviewActionLineCount=0 and leakedForbidden=[]."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.mutation_hydration_boundary",
+      "status": "implemented",
+      "owner_repo": "lotus-workbench",
+      "promotion_evidence": "Workbench PR #136, merge 3dfdbd90878a82562ae38d8df66b1947ec16154f, adds a mutation-observation helper for state-changing Workbench actions and proves the Advisor Brief review-action mutation records bounded lotus_workbench_api_request_duration_seconds and lotus_workbench_panel_state_total events while excluding lotus_workbench_panel_hydration_duration_seconds. Focused tests prove no hydration event and no advisor/free-form reason leakage; browser proof against the rebuilt canonical Workbench stack returned reviewActionStatus=200, reviewActionLineCount=11, hydrationReviewActionLineCount=0, hasApiRequestMetric=true, hasPanelStateMetric=true, and leakedForbidden=[]. Workbench wiki publication commit 2864f2c records the durable operator rule."
     },
     {
       "feature_key": "workbench.analytics.observability.canonical_proof",

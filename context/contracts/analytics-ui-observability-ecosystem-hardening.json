@@ -59,12 +59,13 @@
         "workbench.analytics.observability.correlation_trace",
         "workbench.analytics.observability.panel_state_metrics",
         "workbench.analytics.observability.advisor_brief_review_action_metrics",
+        "workbench.analytics.observability.mutation_hydration_boundary",
         "workbench.analytics.observability.attention_events",
         "workbench.analytics.observability.canonical_proof",
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "ci_evidence": "Current implemented Workbench scope is protected by prior repo-native proof, Slice 16 canonical evidence, PR #118 source_supportability reconciliation proof, and clean governed canonical runtime proof from Workbench PR #119 plus lotus-core PR #328; freshness/degraded and all-supported-surface promotion remain planned until full RFC-0079 risk/evidence and complete all-supported-surface coverage are implemented.",
+      "ci_evidence": "Current implemented Workbench scope is protected by prior repo-native proof, Slice 16 canonical evidence, PR #118 source_supportability reconciliation proof, clean governed canonical runtime proof from Workbench PR #119 plus lotus-core PR #328, and Workbench PR #136 mutation-boundary proof that review-action mutations emit API request and panel-state metrics without incrementing panel hydration; freshness/degraded and all-supported-surface promotion remain planned until full RFC-0079 risk/evidence and complete all-supported-surface coverage are implemented.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -202,6 +203,7 @@
       "workbench.analytics.observability.contract_vocabulary",
       "workbench.analytics.observability.panel_state_metrics",
       "workbench.analytics.observability.advisor_brief_review_action_metrics",
+      "workbench.analytics.observability.mutation_hydration_boundary",
       "workbench.analytics.observability.safe_dashboard",
       "workbench.analytics.observability.attention_events",
       "workbench.analytics.observability.entitlement_audit_events",

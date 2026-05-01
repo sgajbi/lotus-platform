@@ -303,8 +303,11 @@ The current reporting and analytics observability governance references are:
    adds implementation-backed Advisor Brief review-action mutation observability through the
    bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser metric
    ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and no-sensitive
-   metric label assertions. Workbench archive retrieval is supported only through the BFF/Gateway
-   boundary.
+   metric label assertions. Workbench PR #136 hardens the mutation hydration boundary: the same
+   review-action mutation emits API request and panel-state metrics but must not increment
+   `lotus_workbench_panel_hydration_duration_seconds`; live proof recorded
+   `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. Workbench archive retrieval is
+   supported only through the BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

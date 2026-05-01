@@ -52,9 +52,32 @@ Triage steps:
    responses.
 4. For Advisor Brief review actions, confirm Workbench `/api/metrics/events` accepted bounded
    browser-originated metric events and `/api/metrics` exported the mutation surface.
-5. Keep remediation notes bounded to route, panel, service, operation, status class, and state.
+5. Confirm the mutation did not increment
+   `lotus_workbench_panel_hydration_duration_seconds`. State-changing Workbench actions should
+   produce API request and panel-state evidence, not route/panel hydration evidence.
+6. Keep remediation notes bounded to route, panel, service, operation, status class, and state.
    Do not add reviewed-by identity, portfolio, client, correlation, trace, free-form review reason,
    request-body, or response-body values.
+
+## Workbench mutation hydration boundary
+
+Use this boundary when reviewing state-changing Workbench actions such as Advisor Brief review
+actions, sandbox operations, or report-batch commands.
+
+Expected posture:
+
+1. The action may emit `lotus_workbench_api_request_duration_seconds`.
+2. The action may emit `lotus_workbench_panel_state_total` when the UI state changes.
+3. The action must not emit `lotus_workbench_panel_hydration_duration_seconds`; hydration is
+   reserved for route or panel load behavior, not mutations.
+4. Browser metric ingest must remain same-origin through Workbench `/api/metrics/events`.
+5. Metric labels must not include portfolio, client, advisor, correlation, trace, free-form reason,
+   request-body, or response-body values.
+
+The implementation-backed proof is Workbench PR #136, merge
+`3dfdbd90878a82562ae38d8df66b1947ec16154f`, with live browser evidence showing
+`hydrationReviewActionLineCount=0`, `hasApiRequestMetric=true`, `hasPanelStateMetric=true`, and
+`leakedForbidden=[]`.
 
 ## gateway-analytics-fanout-latency-p95
 

@@ -43,6 +43,7 @@
       "workbench.analytics.observability.contract_vocabulary",
       "workbench.analytics.observability.panel_state_metrics",
       "workbench.analytics.observability.advisor_brief_review_action_metrics",
+      "workbench.analytics.observability.mutation_hydration_boundary",
       "workbench.analytics.observability.safe_dashboard",
       "workbench.analytics.observability.attention_events",
       "workbench.analytics.observability.entitlement_audit_events",
