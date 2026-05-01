@@ -120,6 +120,46 @@
   ],
   "implementation_evidence": [
     {
+      "evidence_id": "lotus-workbench-pr-131-bff-caller-context",
+      "status": "implemented",
+      "path_id": "workbench-performance-summary",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#131",
+      "merge_commit": "f20dbb31115634a6192d01a6d1e9776e21e3a216",
+      "evidence_types": ["caller-context-bff-forwarding"],
+      "description": "Workbench BFF injects governed caller-context defaults so browser requests can reach Gateway routes that require actor, tenant, and region context."
+    },
+    {
+      "evidence_id": "lotus-gateway-pr-174-performance-summary-caller-context",
+      "status": "implemented",
+      "path_id": "workbench-performance-summary",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#174",
+      "merge_commit": "382b0a82bf5665a75370c9fe6529105e67e695c6",
+      "evidence_types": ["caller-context-contract-test"],
+      "description": "Gateway requires caller context on the Workbench performance summary read path and tests the standard missing-caller-context rejection shape."
+    },
+    {
+      "evidence_id": "lotus-workbench-pr-131-bff-caller-context-risk-summary",
+      "status": "implemented",
+      "path_id": "workbench-risk-summary",
+      "owner_repo": "lotus-workbench",
+      "pull_request": "sgajbi/lotus-workbench#131",
+      "merge_commit": "f20dbb31115634a6192d01a6d1e9776e21e3a216",
+      "evidence_types": ["caller-context-bff-forwarding"],
+      "description": "Workbench BFF caller-context defaults also cover the browser risk summary route before Gateway enforcement."
+    },
+    {
+      "evidence_id": "lotus-gateway-pr-175-risk-summary-caller-context",
+      "status": "implemented",
+      "path_id": "workbench-risk-summary",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#175",
+      "merge_commit": "e5cd41e0657d28f9f466adb142b6123d901ca262",
+      "evidence_types": ["caller-context-contract-test"],
+      "description": "Gateway requires caller context on the Workbench risk summary read path and tests the standard missing-caller-context rejection shape."
+    },
+    {
       "evidence_id": "lotus-gateway-pr-176-advisor-brief-caller-context",
       "status": "implemented",
       "path_id": "workbench-advisor-brief",
