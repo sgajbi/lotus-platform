@@ -40,6 +40,18 @@ REQUIRED_EVIDENCE_TYPES = {
     "workbench-permission-blocked-panel-proof",
     "protected-diagnostics-proof",
 }
+REQUIRED_IMPLEMENTATION_EVIDENCE = {
+    (
+        "workbench-advisor-brief",
+        "caller-context-contract-test",
+        "sgajbi/lotus-gateway#176",
+    ),
+    (
+        "workbench-advisor-brief",
+        "gateway-allow-deny-audit-log",
+        "sgajbi/lotus-gateway#177",
+    ),
+}
 REQUIRED_CHECKS = {
     "Feature Lane / Platform Repo Contracts",
     "Feature Lane / Workflow Lint",
@@ -82,6 +94,7 @@ def validate_entitlement_certification(
     _validate_denial_semantics(errors, certification)
     _validate_forbidden_fields(errors, observability_contract, certification)
     _validate_evidence(errors, certification)
+    _validate_implementation_evidence(errors, certification)
     _validate_residual_scope(errors, observability_contract, certification)
     _validate_required_proof(errors, certification)
     return errors
@@ -206,6 +219,47 @@ def _validate_evidence(errors: list[str], certification: dict[str, Any]) -> None
                 errors.append("protected-diagnostics-proof must remain implemented")
         elif item.get("status") != "required_before_promotion":
             errors.append(f"{item.get('evidence_type')}: status must be required_before_promotion")
+
+
+def _validate_implementation_evidence(
+    errors: list[str],
+    certification: dict[str, Any],
+) -> None:
+    evidence = certification.get("implementation_evidence", [])
+    if not isinstance(evidence, list) or not evidence:
+        errors.append("implementation_evidence must record implementation-backed proof references")
+        return
+
+    path_ids = {
+        str(path.get("path_id"))
+        for path in certification.get("certified_read_paths", [])
+        if isinstance(path, dict)
+    }
+    observed: set[tuple[str, str, str]] = set()
+    for item in evidence:
+        if not isinstance(item, dict):
+            errors.append("implementation_evidence entries must be objects")
+            continue
+        evidence_id = str(item.get("evidence_id", "<missing>"))
+        path_id = str(item.get("path_id", ""))
+        if path_id not in path_ids:
+            errors.append(f"{evidence_id}: path_id must reference a certified_read_paths entry")
+        if item.get("status") != "implemented":
+            errors.append(f"{evidence_id}: status must be implemented for recorded PR evidence")
+        if item.get("owner_repo") != "lotus-gateway":
+            errors.append(f"{evidence_id}: owner_repo must be lotus-gateway for this evidence")
+        pull_request = str(item.get("pull_request", ""))
+        merge_commit = str(item.get("merge_commit", ""))
+        if not pull_request.startswith("sgajbi/lotus-gateway#"):
+            errors.append(f"{evidence_id}: pull_request must reference sgajbi/lotus-gateway")
+        if len(merge_commit) != 40:
+            errors.append(f"{evidence_id}: merge_commit must be a 40-character SHA")
+        for evidence_type in item.get("evidence_types", []):
+            observed.add((path_id, str(evidence_type), pull_request))
+
+    missing = sorted(REQUIRED_IMPLEMENTATION_EVIDENCE - observed)
+    if missing:
+        errors.append(f"implementation_evidence missing required proof references: {missing}")
 
 
 def _validate_residual_scope(
