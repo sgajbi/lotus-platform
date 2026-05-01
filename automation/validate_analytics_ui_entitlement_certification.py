@@ -43,6 +43,11 @@ REQUIRED_EVIDENCE_TYPES = {
 REQUIRED_IMPLEMENTATION_EVIDENCE = {
     (
         "workbench-performance-summary",
+        "gateway-allow-deny-audit-log",
+        "sgajbi/lotus-gateway#159",
+    ),
+    (
+        "workbench-performance-summary",
         "caller-context-bff-forwarding",
         "sgajbi/lotus-workbench#131",
     ),
@@ -50,6 +55,11 @@ REQUIRED_IMPLEMENTATION_EVIDENCE = {
         "workbench-performance-summary",
         "caller-context-contract-test",
         "sgajbi/lotus-gateway#174",
+    ),
+    (
+        "workbench-risk-summary",
+        "gateway-allow-deny-audit-log",
+        "sgajbi/lotus-gateway#159",
     ),
     (
         "workbench-risk-summary",

@@ -124,6 +124,20 @@ def test_entitlement_certification_rejects_missing_summary_caller_context_eviden
     assert any("implementation_evidence missing required proof references" in error for error in errors)
 
 
+def test_entitlement_certification_rejects_missing_summary_read_audit_evidence() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    certification = copy.deepcopy(_load_json(CERTIFICATION_PATH))
+    certification["implementation_evidence"] = [
+        item
+        for item in certification["implementation_evidence"]
+        if item["pull_request"] != "sgajbi/lotus-gateway#159"
+    ]
+
+    errors = _validate(observability, certification)
+
+    assert any("implementation_evidence missing required proof references" in error for error in errors)
+
+
 def test_entitlement_certification_rejects_unknown_evidence_path() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     certification = copy.deepcopy(_load_json(CERTIFICATION_PATH))
