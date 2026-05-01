@@ -12,6 +12,7 @@ the platform contracts under [`context/contracts/`](../context/contracts/), and 
 | --- | --- | --- |
 | Workbench browser and BFF | Supported Portfolio, Intake, Performance, Risk, reporting operator, archive metadata, legacy advisor Workbench, and Data Products reads emit bounded panel, hydration, API, attention, and supportability posture where implemented. | Workbench PRs #118 through #129, canonical proof for `PB_SG_GLOBAL_BAL_001`, and the governed Workbench runtime flow. |
 | Gateway | Selected analytics fan-out paths, protected diagnostics, performance/risk source supportability, portfolio readiness, manage action-register, report evidence-surface, AI advisor-brief, advisory supportability, and advisor-brief caller-context/audit proof are preserved with bounded labels and no sensitive payload fields. | Gateway PRs #166 through #172, Gateway PRs #176 and #177, and protected diagnostics OpenAPI evidence. |
+| Core portfolio readiness | Portfolio readiness exposes source-owned supportability posture and explicit metric-label truth. The `lotus_core_portfolio_supportability_total` metric is bounded to `state`, `reason`, and `freshness_bucket`; portfolio, client, correlation, trace, security, request-body, and response-body values are proven absent from metric labels. | lotus-core PR #329, Gateway PR #167, Workbench PR #120, and published core wiki source. |
 | Performance backend | TWR, MWR, contribution, and attribution supportability emit bounded source-owned supportability state; the RFC-0108 backend freshness metric is implemented; capability publication remains enabled when any implemented performance supportability operation is enabled. | lotus-performance PRs #138, #139, and #140. |
 | Risk backend | Risk calculate, drawdown, rolling metrics, historical attribution, and concentration supportability emit bounded source-owned supportability state and the RFC-0108 backend freshness metric. | lotus-risk PRs #107 and #108. |
 | AI surface supportability | Advisor brief, TWR inspection support brief, and workspace rationale AI surface supportability is source-backed by workflow-pack runtime, provider operations, and safety runtime; bounded `supportability_reason` and explicit `metric_labels` proof prevent sensitive diagnostics from becoming operator telemetry. | lotus-ai PR #57, Gateway PR #170, and Workbench PR #123. |
@@ -23,9 +24,11 @@ the platform contracts under [`context/contracts/`](../context/contracts/), and 
 flowchart LR
     Workbench[Workbench observed surfaces] --> BFF[Workbench BFF caller context]
     BFF --> Gateway[Gateway analytics experience APIs]
+    Gateway --> Core[lotus-core readiness supportability]
     Gateway --> Perf[lotus-performance supportability]
     Gateway --> Risk[lotus-risk supportability]
-    Gateway --> Other[core/manage/report/render/archive/advise/ai supportability]
+    Gateway --> Other[manage/report/render/archive/advise/ai supportability]
+    Core --> Metrics
     Perf --> Metrics[bounded metric families]
     Risk --> Metrics
     Other --> Metrics
@@ -73,6 +76,22 @@ Operator rule: use `lotus_workbench_panel_hydration_duration_seconds` for route 
 latency only. Use `lotus_workbench_api_request_duration_seconds` and
 `lotus_workbench_panel_state_total` when investigating Advisor Brief review actions or other
 state-changing Workbench commands.
+
+## Portfolio Readiness Metric Labels
+
+`lotus-core` PR #329 hardens portfolio readiness supportability as an implementation-backed source
+contract instead of only a narrative operator claim. The readiness DTO publishes `metric_labels`,
+and the Prometheus metric uses the same shared label tuple:
+
+| Metric | Allowed labels | Forbidden label classes |
+| --- | --- | --- |
+| `lotus_core_portfolio_supportability_total` | `state`, `reason`, `freshness_bucket` | portfolio/account/client identifiers, correlation or trace identifiers, transaction/security identifiers, request bodies, and response bodies |
+
+The proof is source-level and runtime-shaped: unit tests inspect the real Prometheus exposition and
+assert that only the bounded labels are emitted, integration tests assert the readiness API carries
+`metric_labels`, and OpenAPI tests assert that callers can see the label contract. The core wiki now
+documents the feature state, upstream/downstream integration flow, supportability runbook posture,
+and operator/business interpretation for portfolio readiness.
 
 ## Gold-Pass Evidence
 

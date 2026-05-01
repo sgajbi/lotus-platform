@@ -364,8 +364,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens
     AI surface supportability proof with bounded `supportability_reason`, explicit
     `metric_labels`, sensitive-diagnostic rejection tests, Prometheus metric-label tests,
-    `make check`, `make ci`, Docker build, and published wiki source. Full
-    all-supported-surface promotion remains separately gated.
+    `make check`, `make ci`, Docker build, and published wiki source. lotus-core PR #329 hardens
+    portfolio readiness supportability proof with explicit `metric_labels`,
+    `lotus_core_portfolio_supportability_total` labels bounded to `state`, `reason`, and
+    `freshness_bucket`, no-sensitive Prometheus label tests, full local and GitHub runtime gates,
+    and published wiki source. Full all-supported-surface promotion remains separately gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.

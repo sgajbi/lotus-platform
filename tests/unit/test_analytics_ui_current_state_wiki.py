@@ -63,10 +63,15 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
         for row in ecosystem["app_gap_matrix"]
         if row["repository"] == "lotus-performance"
     )
+    core_row = next(
+        row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-core"
+    )
 
     required_evidence = [
         "lotus-performance PRs #138, #139, and #140",
         "lotus-risk PRs #107 and #108",
+        "lotus-core PR #329",
+        "state`, `reason`, and `freshness_bucket",
         "Gateway PRs #166 through #172",
         "Workbench PRs #118 through #129",
         "Workbench PR #132",
@@ -85,9 +90,19 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     ]
     assert "PR #140" in performance_row["blockers"][0]
     assert "PR #140" in performance_row["wiki_source_decision"]
+    assert "metric_labels" in feature_evidence[
+        "core.observability.portfolio_supportability"
+    ]
+    assert "PR #329" in feature_evidence[
+        "core.observability.portfolio_supportability"
+    ]
+    assert "no_sensitive_metric_labels_proven" in core_row["gap_classification"]
+    assert "PR #329" in str(ecosystem["ecosystem_completion_slices"])
     assert "PR #140" in str(proof["residual_scope"])
     assert "PR #140" in str(hardening["repository_reviews"])
+    assert "PR #329" in str(hardening["repository_reviews"])
     assert "PR #140" in str(final_closure["residual_scope"])
+    assert "PR #329" in str(final_closure["residual_scope"])
 
 
 def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None:

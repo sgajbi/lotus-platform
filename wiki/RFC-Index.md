@@ -142,7 +142,10 @@
   Gateway PR #169 and Workbench PR #122, and AI surface supportability reconciliation through
   Gateway PR #170 and Workbench PR #123. lotus-ai PR #57 hardens AI supportability proof with
   bounded `supportability_reason`, explicit `metric_labels`, sensitive-diagnostic rejection,
-  Prometheus label-boundary tests, `make ci`, and published wiki source. Required remaining
+  Prometheus label-boundary tests, `make ci`, and published wiki source. lotus-core PR #329
+  hardens portfolio readiness supportability proof with explicit `metric_labels`, labels bounded to
+  `state`, `reason`, and `freshness_bucket`, no-sensitive Prometheus label tests, green local and
+  GitHub runtime gates, and published wiki source. Required remaining
   ecosystem Slice 12 residuals extend
   the same posture uniformly across all Lotus apps, including the remaining backend supportability
   metrics and all Workbench supported surfaces. Slice 13 has
