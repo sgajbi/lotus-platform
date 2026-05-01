@@ -48,8 +48,7 @@ def test_analytics_ui_ecosystem_completion_artifacts_are_present_and_governed() 
     assert ecosystem["contract_id"] == "analytics-ui-observability-ecosystem-completion"
     assert ecosystem["governed_by_rfc"] == "RFC-0108"
     assert (
-        ecosystem["lifecycle_status"]
-        == "slice-18-ecosystem-final-closure-implemented"
+        ecosystem["lifecycle_status"] == "slice-18-ecosystem-final-closure-implemented"
     )
 
 
@@ -72,21 +71,28 @@ def test_analytics_ui_ecosystem_completion_covers_every_lotus_repository() -> No
     assert gap_repositories == REQUIRED_REPOSITORIES
 
 
-def test_analytics_ui_ecosystem_completion_records_gateway_backed_archive_retrieval() -> None:
+def test_analytics_ui_ecosystem_completion_records_gateway_backed_archive_retrieval() -> (
+    None
+):
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     archive_row = next(
-        row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-archive"
+        row
+        for row in ecosystem["app_gap_matrix"]
+        if row["repository"] == "lotus-archive"
     )
 
     assert (
         "gateway_backed_workbench_archive_retrieval_implemented"
         in archive_row["gap_classification"]
     )
-    assert "workbench_archive_surface_reconciliation_not_supported" not in (
-        archive_row["gap_classification"]
+    assert (
+        "workbench_archive_surface_reconciliation_not_supported"
+        not in (archive_row["gap_classification"])
     )
     assert "workbenchRetrievalSupported=false" not in archive_row["blockers"][0]
-    assert "direct Workbench-to-archive non-support" in archive_row["wiki_source_decision"]
+    assert (
+        "direct Workbench-to-archive non-support" in archive_row["wiki_source_decision"]
+    )
 
 
 def test_analytics_ui_ecosystem_completion_records_core_metric_label_proof() -> None:
@@ -101,7 +107,9 @@ def test_analytics_ui_ecosystem_completion_records_core_metric_label_proof() -> 
     assert "state/reason/freshness_bucket" in core_row["blockers"][0]
     assert "Prometheus metric label proof" in core_row["required_proof"]
     assert "no-sensitive metric label proof" in core_row["required_proof"]
-    assert "operator/business feature-state diagrams" in core_row["wiki_source_decision"]
+    assert (
+        "operator/business feature-state diagrams" in core_row["wiki_source_decision"]
+    )
 
 
 def test_analytics_ui_ecosystem_completion_records_risk_metric_label_proof() -> None:
@@ -187,7 +195,10 @@ def test_analytics_ui_ecosystem_completion_rejects_all_path_regression() -> None
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
-        if feature["feature_key"] == "gateway.analytics.observability.all_ui_fanout_paths":
+        if (
+            feature["feature_key"]
+            == "gateway.analytics.observability.all_ui_fanout_paths"
+        ):
             feature["status"] = "planned"
 
     errors = _validate(observability, ecosystem)
@@ -231,7 +242,9 @@ def test_analytics_ui_ecosystem_completion_requires_slice_12_features_implemente
     )
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemented() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemented() -> (
+    None
+):
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
@@ -256,7 +269,9 @@ def test_analytics_ui_ecosystem_completion_requires_slice_13_features_implemente
     )
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_15_feature_implemented() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_15_feature_implemented() -> (
+    None
+):
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:
@@ -277,7 +292,9 @@ def test_analytics_ui_ecosystem_completion_requires_slice_15_feature_implemented
     )
 
 
-def test_analytics_ui_ecosystem_completion_requires_slice_16_feature_implemented() -> None:
+def test_analytics_ui_ecosystem_completion_requires_slice_16_feature_implemented() -> (
+    None
+):
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
     for feature in observability["supported_feature_keys"]:

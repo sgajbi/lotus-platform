@@ -340,9 +340,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, supported-feature
     posture, residual planned scope, local/GitHub proof requirements, wiki publication, branch
     hygiene, and skills guidance. Performance/risk backend freshness is now implementation-backed
-    through lotus-performance PR #139 and lotus-risk PR #108, and lotus-performance PR #140
-    hardens capability publication so completed MWR, contribution, or attribution supportability
-    cannot be hidden by a disabled TWR capability. Workbench PR #132 closes the 2026-05-01
+    through lotus-performance PR #139 and lotus-risk PR #108, lotus-performance PR #140 hardening
+    capability publication so completed MWR, contribution, or attribution supportability cannot be
+    hidden by a disabled TWR capability, and lotus-performance PR #141 hardening explicit
+    performance `metric_labels`, shared bounded Prometheus label tuples, and no-sensitive
+    metric-label proof. Workbench PR #132 closes the 2026-05-01
     gold-pass visual hardening follow-up for the performance Summary surface: Horizon support
     values and Performance Drivers now fit the governed desktop viewport, ready-with-empty
     attribution/contribution detail contracts render truthful partial states, live Workbench e2e and

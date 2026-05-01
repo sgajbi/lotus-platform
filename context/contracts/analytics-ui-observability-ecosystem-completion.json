@@ -19,7 +19,14 @@
   ],
   "first_wave_evidence": {
     "implemented_scope_status": "first_wave_implemented",
-    "merge_prs": [225, 233, 234, 235, 236, 237],
+    "merge_prs": [
+      225,
+      233,
+      234,
+      235,
+      236,
+      237
+    ],
     "protected_feature_keys": [
       "platform.scaffolding.analytics_ui_observability_baseline",
       "platform.analytics.observability.telemetry_contract",
@@ -55,49 +62,93 @@
       "slice_id": 11,
       "status": "implemented",
       "purpose": "Make uniform observability the platform default through scaffolding and CI enforcement.",
-      "required_proof": ["scaffold tests", "workflow checks", "context and wiki updates"]
+      "required_proof": [
+        "scaffold tests",
+        "workflow checks",
+        "context and wiki updates"
+      ]
     },
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, the RFC-0108 backend freshness metric for performance/risk calculation supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads. lotus-performance PR #140 hardens performance capability publication so completed MWR, contribution, or attribution supportability cannot be hidden by a disabled TWR capability. lotus-core PR #329 adds explicit metric_labels truth and Prometheus no-sensitive label proof for the portfolio readiness supportability response and metric. lotus-risk PR #109 adds explicit metric_labels truth and Prometheus no-sensitive label proof for risk calculation supportability and the backend freshness companion metric. lotus-ai PR #57 adds bounded supportability_reason and explicit metric_labels proof for the AI surface supportability response and metric.",
-      "required_proof": ["repo-native service tests", "metrics proof", "no-sensitive telemetry checks"]
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, the RFC-0108 backend freshness metric for performance/risk calculation supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads. lotus-performance PR #140 hardens performance capability publication so completed MWR, contribution, or attribution supportability cannot be hidden by a disabled TWR capability. lotus-performance PR #141 adds explicit metric_labels truth and Prometheus no-sensitive label proof for performance calculation supportability and the backend freshness companion metric. lotus-core PR #329 adds explicit metric_labels truth and Prometheus no-sensitive label proof for the portfolio readiness supportability response and metric. lotus-risk PR #109 adds explicit metric_labels truth and Prometheus no-sensitive label proof for risk calculation supportability and the backend freshness companion metric. lotus-ai PR #57 adds bounded supportability_reason and explicit metric_labels proof for the AI surface supportability response and metric.",
+      "required_proof": [
+        "repo-native service tests",
+        "metrics proof",
+        "no-sensitive telemetry checks"
+      ]
     },
     {
       "slice_id": 13,
       "status": "implemented",
       "purpose": "Complete Gateway fan-out metrics and protected diagnostics for selected Workbench performance and risk analytics fan-out, central manage/report/archive/AI client seams, and direct lotus-core query/control-plane plus ingestion client seams.",
-      "required_proof": ["gateway tests", "metric label proof", "no-sensitive telemetry checks", "protected diagnostics audit proof", "all-path rollout proof"]
+      "required_proof": [
+        "gateway tests",
+        "metric label proof",
+        "no-sensitive telemetry checks",
+        "protected diagnostics audit proof",
+        "all-path rollout proof"
+      ]
     },
     {
       "slice_id": 14,
       "status": "partially_implemented",
       "purpose": "Roll observability out to supported Workbench reads; supported Portfolio workspace, Intake portfolio-bundle and lookup reads, client-side Performance, Risk, explicit report-batch operator reads, Gateway-backed archive metadata/download reads, legacy advisor Workbench gateway-backed reads/mutations, and Data Products catalog/dependency graph/trust certification reads are instrumented through a code-owned observed-surface registry reconciled to the governed endpoint registry, with canonical browser proof, source support-state proof, backend freshness metric proof for performance/risk calculation supportability, and partial RFC-0079 performance evidence-context reconciliation captured while full RFC-0079 risk/evidence scope stays planned.",
-      "required_proof": ["Workbench unit tests", "typecheck", "lint", "repo-local wiki source", "browser proof", "Gateway/backend reconciliation"]
+      "required_proof": [
+        "Workbench unit tests",
+        "typecheck",
+        "lint",
+        "repo-local wiki source",
+        "browser proof",
+        "Gateway/backend reconciliation"
+      ]
     },
     {
       "slice_id": 15,
       "status": "implemented",
       "purpose": "Extend dashboards, alerts, runbooks, and operator diagnostics across every currently implemented RFC-0108 metric family without sensitive dashboard variables, annotations, or alert labels.",
-      "required_proof": ["dashboard validators", "alert validators", "runbook link checks", "implemented-metric-only assertions"]
+      "required_proof": [
+        "dashboard validators",
+        "alert validators",
+        "runbook link checks",
+        "implemented-metric-only assertions"
+      ]
     },
     {
       "slice_id": 16,
       "status": "implemented",
       "purpose": "Prove the complete supported Lotus user journey end to end across the current implemented RFC-0108 scope while preserving full RFC-0079 residuals as planned.",
-      "required_proof": ["live proof bundle", "proof review automation", "protected diagnostics proof", "OpenAPI diagnostics proof", "dashboard/alert reconciliation", "no-sensitive evidence assertions"]
+      "required_proof": [
+        "live proof bundle",
+        "proof review automation",
+        "protected diagnostics proof",
+        "OpenAPI diagnostics proof",
+        "dashboard/alert reconciliation",
+        "no-sensitive evidence assertions"
+      ]
     },
     {
       "slice_id": 17,
       "status": "implemented",
       "purpose": "Perform ecosystem hardening, API certification, and no-open-P0/P1 review.",
-      "required_proof": ["ecosystem hardening contract", "API certification reconciliation", "changed-repo CI", "supported-features audit", "no-open-P0/P1 validator"]
+      "required_proof": [
+        "ecosystem hardening contract",
+        "API certification reconciliation",
+        "changed-repo CI",
+        "supported-features audit",
+        "no-open-P0/P1 validator"
+      ]
     },
     {
       "slice_id": 18,
       "status": "implemented",
       "purpose": "Close RFC-0108 for the current implementation-backed ecosystem observability scope while preserving full Workbench promotion residuals as planned.",
-      "required_proof": ["ecosystem final closure contract", "wiki publication evidence", "clean repo evidence", "residual scope reconciliation"]
+      "required_proof": [
+        "ecosystem final closure contract",
+        "wiki publication evidence",
+        "clean repo evidence",
+        "residual scope reconciliation"
+      ]
     }
   ],
   "app_gap_matrix": [
@@ -113,11 +164,24 @@
         "platform.analytics.observability.ecosystem_hardening_certification",
         "platform.analytics.observability.ecosystem_final_closure"
       ],
-      "gap_classification": ["slices_10_11_15_16_17_18_implemented"],
-      "blockers": ["no platform-owned Slice 18 blockers remain for implementation-backed scope"],
-      "required_proof": ["platform validators", "workflow checks", "wiki publication", "clean branch evidence"],
+      "gap_classification": [
+        "slices_10_11_15_16_17_18_implemented"
+      ],
+      "blockers": [
+        "no platform-owned Slice 18 blockers remain for implementation-backed scope"
+      ],
+      "required_proof": [
+        "platform validators",
+        "workflow checks",
+        "wiki publication",
+        "clean branch evidence"
+      ],
       "wiki_source_decision": "repo-local wiki source must be updated and published when operator truth changes",
-      "runbook_requirements": ["ecosystem rollout runbook", "dashboard and alert runbooks", "final closure handoff"]
+      "runbook_requirements": [
+        "ecosystem rollout runbook",
+        "dashboard and alert runbooks",
+        "final closure handoff"
+      ]
     },
     {
       "repository": "lotus-workbench",
@@ -133,11 +197,31 @@
         "workbench.analytics.observability.freshness_degraded_state",
         "workbench.analytics.observability.all_supported_surfaces"
       ],
-      "gap_classification": ["supported_portfolio_intake_performance_risk_reporting_advisor_archive_data_products_reads_instrumented", "legacy_advisor_workbench_gateway_reads_mutations_instrumented", "browser_proof_captured", "support_state_proof_captured", "mutation_hydration_boundary_proven", "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive", "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive", "performance_evidence_context_partially_reconciled"],
-      "blockers": ["full RFC-0079 risk/evidence scope remains planned", "complete all-supported-surface promotion remains planned"],
-      "required_proof": ["Workbench unit tests", "browser proof", "BFF route proof", "sensitive-content screenshot assertions"],
+      "gap_classification": [
+        "supported_portfolio_intake_performance_risk_reporting_advisor_archive_data_products_reads_instrumented",
+        "legacy_advisor_workbench_gateway_reads_mutations_instrumented",
+        "browser_proof_captured",
+        "support_state_proof_captured",
+        "mutation_hydration_boundary_proven",
+        "gateway_source_supportability_reconciled_for_performance_risk_report_ai_archive",
+        "workbench_source_supportability_reconciled_for_performance_risk_report_ai_archive",
+        "performance_evidence_context_partially_reconciled"
+      ],
+      "blockers": [
+        "full RFC-0079 risk/evidence scope remains planned",
+        "complete all-supported-surface promotion remains planned"
+      ],
+      "required_proof": [
+        "Workbench unit tests",
+        "browser proof",
+        "BFF route proof",
+        "sensitive-content screenshot assertions"
+      ],
       "wiki_source_decision": "Workbench repo-local wiki source documents supported client-read observability, source supportability reconciliation, Gateway-backed archive metadata/download retrieval, legacy advisor Workbench gateway-backed read/mutation observability, Data Products catalog/dependency graph/trust certification observability, Intake portfolio-bundle and lookup observability, and the mutation hydration boundary; published after PR #136 as wiki commit 2864f2c. Final supported-surface posture must be updated again after full RFC-0079 risk/evidence completion.",
-      "runbook_requirements": ["front-office panel degradation runbook", "user-visible attention event runbook"]
+      "runbook_requirements": [
+        "front-office panel degradation runbook",
+        "user-visible attention event runbook"
+      ]
     },
     {
       "repository": "lotus-gateway",
@@ -151,22 +235,59 @@
         "gateway.analytics.observability.protected_diagnostics",
         "gateway.analytics.observability.all_ui_fanout_paths"
       ],
-      "gap_classification": ["structured_logs_implemented", "selected_fanout_metrics_implemented", "central_client_fanout_metrics_implemented", "protected_diagnostics_implemented", "core_query_fanout_paths_implemented", "all_ui_fanout_paths_implemented", "performance_risk_report_ai_source_supportability_reconciled"],
-      "blockers": ["no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics, portfolio readiness, manage action-register, report evidence-surface, or AI advisor-brief supportability for the supported reads now implemented"],
-      "required_proof": ["Gateway unit tests", "OpenAPI certification", "metrics scrape proof", "audit proof", "source supportability reconciliation proof"],
+      "gap_classification": [
+        "structured_logs_implemented",
+        "selected_fanout_metrics_implemented",
+        "central_client_fanout_metrics_implemented",
+        "protected_diagnostics_implemented",
+        "core_query_fanout_paths_implemented",
+        "all_ui_fanout_paths_implemented",
+        "performance_risk_report_ai_source_supportability_reconciled"
+      ],
+      "blockers": [
+        "no Gateway-owned RFC-0108 source supportability reconciliation blockers remain for performance/risk analytics, portfolio readiness, manage action-register, report evidence-surface, or AI advisor-brief supportability for the supported reads now implemented"
+      ],
+      "required_proof": [
+        "Gateway unit tests",
+        "OpenAPI certification",
+        "metrics scrape proof",
+        "audit proof",
+        "source supportability reconciliation proof"
+      ],
       "wiki_source_decision": "Gateway repo-local wiki source documents diagnostics, fan-out metrics, and performance/risk source supportability reconciliation; published after PR #166",
-      "runbook_requirements": ["Gateway fan-out degradation runbook", "protected diagnostics runbook"]
+      "runbook_requirements": [
+        "Gateway fan-out degradation runbook",
+        "protected diagnostics runbook"
+      ]
     },
     {
       "repository": "lotus-core",
       "role": "Portfolio, account, holding, mandate, transaction, and entitlement source supportability.",
       "posture": "partially_implemented",
-      "feature_keys": ["core.observability.portfolio_supportability"],
-      "gap_classification": ["portfolio_readiness_supportability_implemented", "explicit_metric_labels_proven", "no_sensitive_metric_labels_proven", "gateway_workbench_reconciliation_implemented_for_supported_portfolio_reads"],
-      "blockers": ["portfolio readiness supportability is implemented in lotus-core, metric_labels is explicit on the readiness supportability contract, lotus_core_portfolio_supportability_total is bounded to state/reason/freshness_bucket without sensitive identifier or payload labels through lotus-core PR #329, consumed by lotus-gateway PR #167, and consumed by lotus-workbench PR #120 for supported portfolio reads"],
-      "required_proof": ["repo-native tests", "metrics/log proof", "Prometheus metric label proof", "no-sensitive metric label proof", "OpenAPI certification where APIs change", "Gateway/Workbench portfolio supportability reconciliation"],
+      "feature_keys": [
+        "core.observability.portfolio_supportability"
+      ],
+      "gap_classification": [
+        "portfolio_readiness_supportability_implemented",
+        "explicit_metric_labels_proven",
+        "no_sensitive_metric_labels_proven",
+        "gateway_workbench_reconciliation_implemented_for_supported_portfolio_reads"
+      ],
+      "blockers": [
+        "portfolio readiness supportability is implemented in lotus-core, metric_labels is explicit on the readiness supportability contract, lotus_core_portfolio_supportability_total is bounded to state/reason/freshness_bucket without sensitive identifier or payload labels through lotus-core PR #329, consumed by lotus-gateway PR #167, and consumed by lotus-workbench PR #120 for supported portfolio reads"
+      ],
+      "required_proof": [
+        "repo-native tests",
+        "metrics/log proof",
+        "Prometheus metric label proof",
+        "no-sensitive metric label proof",
+        "OpenAPI certification where APIs change",
+        "Gateway/Workbench portfolio supportability reconciliation"
+      ],
       "wiki_source_decision": "Core wiki source updated and published for portfolio readiness supportability, explicit metric_labels, no-sensitive metric-label proof, and operator/business feature-state diagrams after PR #329; update again when Gateway/Workbench reconciliation changes",
-      "runbook_requirements": ["portfolio supportability runbook"]
+      "runbook_requirements": [
+        "portfolio supportability runbook"
+      ]
     },
     {
       "repository": "lotus-performance",
@@ -176,11 +297,32 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "gap_classification": ["twr_mwr_contribution_attribution_supportability_implemented", "rfc_0108_backend_freshness_metric_implemented", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
-      "blockers": ["TWR, MWR, contribution, and attribution supportability are implemented in lotus-performance, the generic RFC-0108 backend freshness metric is implemented through PR #139, capability publication is hardened by PR #140 so any enabled implemented performance supportability surface advertises performance.observability.calculation_supportability, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"],
-      "required_proof": ["repo-native performance tests", "calculation supportability metric proof", "RFC-0108 backend freshness metric proof", "OpenAPI quality proof", "API vocabulary proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
-      "wiki_source_decision": "Performance wiki source updated for TWR, MWR, contribution, attribution supportability, the RFC-0108 backend freshness metric, and PR #140 capability-scope hardening; platform current-state wiki summarizes the implementation-backed ecosystem posture",
-      "runbook_requirements": ["performance calculation supportability runbook"]
+      "gap_classification": [
+        "twr_mwr_contribution_attribution_supportability_implemented",
+        "rfc_0108_backend_freshness_metric_implemented",
+        "gateway_supportability_consumption_implemented",
+        "workbench_supportability_consumption_implemented_for_supported_reads",
+        "explicit_metric_labels_proven",
+        "no_sensitive_metric_labels_proven"
+      ],
+      "blockers": [
+        "TWR, MWR, contribution, and attribution supportability are implemented in lotus-performance, the generic RFC-0108 backend freshness metric is implemented through PR #139, capability publication is hardened by PR #140 so any enabled implemented performance supportability surface advertises performance.observability.calculation_supportability, explicit metric_labels and no-sensitive Prometheus label proof are implemented through PR #141, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"
+      ],
+      "required_proof": [
+        "repo-native performance tests",
+        "calculation supportability metric proof",
+        "RFC-0108 backend freshness metric proof",
+        "OpenAPI quality proof",
+        "API vocabulary proof",
+        "Gateway source supportability reconciliation proof",
+        "Workbench source supportability reconciliation proof",
+        "explicit metric_labels proof",
+        "no-sensitive metric-label proof"
+      ],
+      "wiki_source_decision": "Performance wiki source updated for TWR, MWR, contribution, attribution supportability, the RFC-0108 backend freshness metric, PR #140 capability-scope hardening, and PR #141 explicit metric_labels plus no-sensitive Prometheus label proof; platform current-state wiki summarizes the implementation-backed ecosystem posture",
+      "runbook_requirements": [
+        "performance calculation supportability runbook"
+      ]
     },
     {
       "repository": "lotus-risk",
@@ -190,77 +332,183 @@
         "analytics.backend.observability.freshness_supportability",
         "risk.observability.calculation_supportability"
       ],
-      "gap_classification": ["risk_calculate_drawdown_rolling_historical_attribution_concentration_supportability_implemented", "rfc_0108_backend_freshness_metric_implemented", "explicit_metric_labels_proven", "no_sensitive_metric_labels_proven", "gateway_supportability_consumption_implemented", "workbench_supportability_consumption_implemented_for_supported_reads"],
-      "blockers": ["risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implemented in lotus-risk, the generic RFC-0108 backend freshness metric is implemented through PR #108, explicit metric_labels and no-sensitive Prometheus label proof are implemented through lotus-risk PR #109, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"],
-      "required_proof": ["repo-native risk tests", "calculation supportability metric proof", "RFC-0108 backend freshness metric proof", "explicit metric_labels proof", "no-sensitive metric label proof", "OpenAPI quality proof", "Gateway source supportability reconciliation proof", "Workbench source supportability reconciliation proof"],
+      "gap_classification": [
+        "risk_calculate_drawdown_rolling_historical_attribution_concentration_supportability_implemented",
+        "rfc_0108_backend_freshness_metric_implemented",
+        "explicit_metric_labels_proven",
+        "no_sensitive_metric_labels_proven",
+        "gateway_supportability_consumption_implemented",
+        "workbench_supportability_consumption_implemented_for_supported_reads"
+      ],
+      "blockers": [
+        "risk/calculate, drawdown, rolling metrics, historical attribution, and concentration supportability are implemented in lotus-risk, the generic RFC-0108 backend freshness metric is implemented through PR #108, explicit metric_labels and no-sensitive Prometheus label proof are implemented through lotus-risk PR #109, source supportability is consumed by lotus-gateway PR #166, and it is consumed by lotus-workbench PR #118 for supported reads"
+      ],
+      "required_proof": [
+        "repo-native risk tests",
+        "calculation supportability metric proof",
+        "RFC-0108 backend freshness metric proof",
+        "explicit metric_labels proof",
+        "no-sensitive metric label proof",
+        "OpenAPI quality proof",
+        "Gateway source supportability reconciliation proof",
+        "Workbench source supportability reconciliation proof"
+      ],
       "wiki_source_decision": "Risk wiki source updated and published for risk/calculate, drawdown, rolling metrics, historical attribution, concentration supportability, RFC-0108 backend freshness metric, explicit metric_labels, no-sensitive metric-label proof, and operator flow diagram after PR #109",
-      "runbook_requirements": ["risk calculation supportability runbook"]
+      "runbook_requirements": [
+        "risk calculation supportability runbook"
+      ]
     },
     {
       "repository": "lotus-advise",
       "role": "Advisory proposal, recommendation, suitability, and decision-support supportability source.",
       "posture": "partially_implemented",
-      "feature_keys": ["advise.observability.advisory_supportability"],
-      "gap_classification": ["advisory_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"],
-      "blockers": ["advisory supportability is implemented in lotus-advise and reconciled through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads"],
-      "required_proof": ["repo-native advisory tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench advisory surface reconciliation"],
+      "feature_keys": [
+        "advise.observability.advisory_supportability"
+      ],
+      "gap_classification": [
+        "advisory_supportability_implemented",
+        "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"
+      ],
+      "blockers": [
+        "advisory supportability is implemented in lotus-advise and reconciled through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads"
+      ],
+      "required_proof": [
+        "repo-native advisory tests",
+        "supportability metric proof",
+        "OpenAPI supportability docs proof",
+        "Gateway/Workbench advisory surface reconciliation"
+      ],
       "wiki_source_decision": "Advise wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #172 and Workbench PR #125 advisory supportability reconciliation evidence",
-      "runbook_requirements": ["advisory supportability runbook"]
+      "runbook_requirements": [
+        "advisory supportability runbook"
+      ]
     },
     {
       "repository": "lotus-manage",
       "role": "Management action register, mandate operation, task/action workflow, and operational supportability source.",
       "posture": "partially_implemented",
-      "feature_keys": ["manage.observability.action_register_supportability"],
-      "gap_classification": ["action_register_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_portfolio_workspace_rebalance_reads"],
-      "blockers": ["action-register summary supportability is implemented in lotus-manage, consumed by lotus-gateway PR #168, and consumed by lotus-workbench PR #121 for supported portfolio workspace rebalance reads"],
-      "required_proof": ["repo-native management tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench reconciliation"],
+      "feature_keys": [
+        "manage.observability.action_register_supportability"
+      ],
+      "gap_classification": [
+        "action_register_supportability_implemented",
+        "gateway_workbench_reconciliation_implemented_for_supported_portfolio_workspace_rebalance_reads"
+      ],
+      "blockers": [
+        "action-register summary supportability is implemented in lotus-manage, consumed by lotus-gateway PR #168, and consumed by lotus-workbench PR #121 for supported portfolio workspace rebalance reads"
+      ],
+      "required_proof": [
+        "repo-native management tests",
+        "supportability metric proof",
+        "OpenAPI supportability docs proof",
+        "Gateway/Workbench reconciliation"
+      ],
       "wiki_source_decision": "Manage wiki source updated for action-register supportability; update again when Gateway/Workbench reconciliation ships",
-      "runbook_requirements": ["management action-register supportability runbook"]
+      "runbook_requirements": [
+        "management action-register supportability runbook"
+      ]
     },
     {
       "repository": "lotus-report",
       "role": "Report evidence-pack supportability source for front-office evidence surfaces.",
       "posture": "partially_implemented",
-      "feature_keys": ["report.observability.evidence_surface_supportability"],
-      "gap_classification": ["evidence_surface_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"],
-      "blockers": ["report evidence-surface supportability is implemented in lotus-report, consumed by lotus-gateway PR #169, and consumed by lotus-workbench PR #122 for supported report-batch operator reads"],
-      "required_proof": ["repo-native report evidence tests", "supportability metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench evidence reconciliation"],
+      "feature_keys": [
+        "report.observability.evidence_surface_supportability"
+      ],
+      "gap_classification": [
+        "evidence_surface_supportability_implemented",
+        "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"
+      ],
+      "blockers": [
+        "report evidence-surface supportability is implemented in lotus-report, consumed by lotus-gateway PR #169, and consumed by lotus-workbench PR #122 for supported report-batch operator reads"
+      ],
+      "required_proof": [
+        "repo-native report evidence tests",
+        "supportability metric proof",
+        "OpenAPI supportability docs proof",
+        "Gateway/Workbench evidence reconciliation"
+      ],
       "wiki_source_decision": "Report wiki source updated for evidence-surface supportability; update again when Gateway/Workbench reconciliation ships",
-      "runbook_requirements": ["report evidence-surface supportability runbook"]
+      "runbook_requirements": [
+        "report evidence-surface supportability runbook"
+      ]
     },
     {
       "repository": "lotus-render",
       "role": "Deterministic render service supportability for report/evidence surfaces.",
       "posture": "partially_implemented",
-      "feature_keys": ["render.observability.render_supportability"],
-      "gap_classification": ["render_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"],
-      "blockers": ["render supportability is implemented in lotus-render and reconciled through lotus-gateway PR #171 plus lotus-workbench PR #124 for supported report-batch operator reads"],
-      "required_proof": ["repo-native render tests", "render metric proof", "OpenAPI supportability docs proof", "report/evidence reconciliation", "Gateway/Workbench render supportability reconciliation"],
+      "feature_keys": [
+        "render.observability.render_supportability"
+      ],
+      "gap_classification": [
+        "render_supportability_implemented",
+        "gateway_workbench_reconciliation_implemented_for_supported_report_batch_operator_reads"
+      ],
+      "blockers": [
+        "render supportability is implemented in lotus-render and reconciled through lotus-gateway PR #171 plus lotus-workbench PR #124 for supported report-batch operator reads"
+      ],
+      "required_proof": [
+        "repo-native render tests",
+        "render metric proof",
+        "OpenAPI supportability docs proof",
+        "report/evidence reconciliation",
+        "Gateway/Workbench render supportability reconciliation"
+      ],
       "wiki_source_decision": "Render wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #171 and Workbench PR #124 reconciliation evidence",
-      "runbook_requirements": ["render supportability runbook"]
+      "runbook_requirements": [
+        "render supportability runbook"
+      ]
     },
     {
       "repository": "lotus-archive",
       "role": "Archive retrieval, retention, legal-hold, document availability, and access-audit supportability source.",
       "posture": "partially_implemented",
-      "feature_keys": ["archive.observability.archive_supportability"],
-      "gap_classification": ["archive_supportability_implemented", "gateway_document_retrieval_implemented", "gateway_backed_workbench_archive_retrieval_implemented"],
-      "blockers": ["archive supportability is implemented in lotus-archive, Gateway document retrieval exists, Workbench PR #126 retrieves archive metadata and downloads through the BFF/Gateway boundary, and lotus-archive commit 203ec6d records workbenchRetrievalSupported=true for Gateway-backed Workbench retrieval only"],
-      "required_proof": ["repo-native archive tests", "archive metric proof", "OpenAPI supportability docs proof", "Gateway/Workbench archive reconciliation"],
+      "feature_keys": [
+        "archive.observability.archive_supportability"
+      ],
+      "gap_classification": [
+        "archive_supportability_implemented",
+        "gateway_document_retrieval_implemented",
+        "gateway_backed_workbench_archive_retrieval_implemented"
+      ],
+      "blockers": [
+        "archive supportability is implemented in lotus-archive, Gateway document retrieval exists, Workbench PR #126 retrieves archive metadata and downloads through the BFF/Gateway boundary, and lotus-archive commit 203ec6d records workbenchRetrievalSupported=true for Gateway-backed Workbench retrieval only"
+      ],
+      "required_proof": [
+        "repo-native archive tests",
+        "archive metric proof",
+        "OpenAPI supportability docs proof",
+        "Gateway/Workbench archive reconciliation"
+      ],
       "wiki_source_decision": "Archive wiki source documents Gateway-backed Workbench retrieval support and preserves the direct Workbench-to-archive non-support boundary; Workbench wiki source was published after PR #126",
-      "runbook_requirements": ["archive supportability runbook"]
+      "runbook_requirements": [
+        "archive supportability runbook"
+      ]
     },
     {
       "repository": "lotus-ai",
       "role": "AI-backed feature supportability, degraded model posture, and bounded workflow-pack status source.",
       "posture": "partially_implemented",
-      "feature_keys": ["ai.observability.ai_surface_supportability"],
-      "gap_classification": ["ai_surface_supportability_implemented", "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"],
-      "blockers": ["AI surface supportability is implemented in lotus-ai, consumed by lotus-gateway PR #170, and consumed by lotus-workbench PR #123 for supported advisor-brief reads"],
-      "required_proof": ["repo-native AI tests", "model posture proof", "no-sensitive prompt/output telemetry checks", "Gateway/Workbench AI-backed surface reconciliation"],
+      "feature_keys": [
+        "ai.observability.ai_surface_supportability"
+      ],
+      "gap_classification": [
+        "ai_surface_supportability_implemented",
+        "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"
+      ],
+      "blockers": [
+        "AI surface supportability is implemented in lotus-ai, consumed by lotus-gateway PR #170, and consumed by lotus-workbench PR #123 for supported advisor-brief reads"
+      ],
+      "required_proof": [
+        "repo-native AI tests",
+        "model posture proof",
+        "no-sensitive prompt/output telemetry checks",
+        "Gateway/Workbench AI-backed surface reconciliation"
+      ],
       "wiki_source_decision": "AI wiki source updated for AI surface supportability; update again when Gateway/Workbench reconciliation ships",
-      "runbook_requirements": ["AI surface supportability runbook"]
+      "runbook_requirements": [
+        "AI surface supportability runbook"
+      ]
     }
   ],
   "required_github_checks": [

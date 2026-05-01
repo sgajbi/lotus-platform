@@ -92,6 +92,15 @@ def test_ecosystem_final_closure_preserves_risk_metric_label_hardening() -> None
     assert "no-sensitive metric-label proof" in residual_text
 
 
+def test_ecosystem_final_closure_preserves_performance_metric_label_hardening() -> None:
+    final_closure = _load_json(FINAL_CLOSURE_PATH)
+    residual_text = str(final_closure["residual_scope"])
+
+    assert "lotus-performance PR #141" in residual_text
+    assert "metric_labels" in residual_text
+    assert "no-sensitive metric-label proof" in residual_text
+
+
 def test_ecosystem_final_closure_rejects_unimplemented_slice_18_feature() -> None:
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
@@ -124,7 +133,10 @@ def test_ecosystem_final_closure_rejects_residual_scope_drift() -> None:
 
     errors = _validate(observability, ecosystem, proof, hardening, final_closure)
 
-    assert any("final residual scope must match proof and hardening" in error for error in errors)
+    assert any(
+        "final residual scope must match proof and hardening" in error
+        for error in errors
+    )
 
 
 def test_ecosystem_final_closure_rejects_missing_wiki_publish_command() -> None:
@@ -146,7 +158,9 @@ def test_ecosystem_final_closure_rejects_missing_required_check() -> None:
     proof = _load_json(ECOSYSTEM_PROOF_PATH)
     hardening = _load_json(HARDENING_PATH)
     final_closure = copy.deepcopy(_load_json(FINAL_CLOSURE_PATH))
-    final_closure["required_github_checks"].remove("PR Merge Gate / Platform Repo Contracts")
+    final_closure["required_github_checks"].remove(
+        "PR Merge Gate / Platform Repo Contracts"
+    )
 
     errors = _validate(observability, ecosystem, proof, hardening, final_closure)
 

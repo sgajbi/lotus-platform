@@ -14,19 +14,34 @@ OBSERVABILITY_CONTRACT_PATH = (
     ROOT / "context" / "contracts" / "analytics-ui-observability-contract.json"
 )
 ECOSYSTEM_CONTRACT_PATH = (
-    ROOT / "context" / "contracts" / "analytics-ui-observability-ecosystem-completion.json"
+    ROOT
+    / "context"
+    / "contracts"
+    / "analytics-ui-observability-ecosystem-completion.json"
 )
 ECOSYSTEM_PROOF_PATH = (
     ROOT / "context" / "contracts" / "analytics-ui-observability-ecosystem-proof.json"
 )
 ECOSYSTEM_HARDENING_PATH = (
-    ROOT / "context" / "contracts" / "analytics-ui-observability-ecosystem-hardening.json"
+    ROOT
+    / "context"
+    / "contracts"
+    / "analytics-ui-observability-ecosystem-hardening.json"
 )
 ECOSYSTEM_FINAL_CLOSURE_PATH = (
-    ROOT / "context" / "contracts" / "analytics-ui-observability-ecosystem-final-closure.json"
+    ROOT
+    / "context"
+    / "contracts"
+    / "analytics-ui-observability-ecosystem-final-closure.json"
 )
 RISK_API_VOCABULARY_PATH = (
     ROOT / "platform-contracts" / "api-vocabulary" / "lotus-risk-api-vocabulary.v1.json"
+)
+PERFORMANCE_API_VOCABULARY_PATH = (
+    ROOT
+    / "platform-contracts"
+    / "api-vocabulary"
+    / "lotus-performance-api-vocabulary.v1.json"
 )
 
 
@@ -71,7 +86,7 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     )
 
     required_evidence = [
-        "lotus-performance PRs #138, #139, and #140",
+        "lotus-performance PRs #138, #139, #140, and #141",
         "lotus-risk PRs #107, #108, and #109",
         "lotus-core PR #329",
         "`lotus-risk` PR #109",
@@ -86,31 +101,52 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     for evidence in required_evidence:
         assert evidence in wiki
 
-    assert "PR #140" in feature_evidence[
-        "performance.observability.calculation_supportability"
-    ]
-    assert "PR #140" in feature_evidence[
-        "analytics.backend.observability.freshness_supportability"
-    ]
+    assert (
+        "PR #140"
+        in feature_evidence["performance.observability.calculation_supportability"]
+    )
+    assert (
+        "PR #141"
+        in feature_evidence["performance.observability.calculation_supportability"]
+    )
+    assert (
+        "metric_labels"
+        in feature_evidence["performance.observability.calculation_supportability"]
+    )
+    assert (
+        "no-sensitive Prometheus exposition proof"
+        in feature_evidence["performance.observability.calculation_supportability"]
+    )
+    assert (
+        "PR #140"
+        in feature_evidence["analytics.backend.observability.freshness_supportability"]
+    )
+    assert (
+        "PR #141"
+        in feature_evidence["analytics.backend.observability.freshness_supportability"]
+    )
     assert "PR #140" in performance_row["blockers"][0]
+    assert "PR #141" in performance_row["blockers"][0]
     assert "PR #140" in performance_row["wiki_source_decision"]
+    assert "PR #141" in performance_row["wiki_source_decision"]
     risk_evidence = feature_evidence["risk.observability.calculation_supportability"]
     assert "lotus-risk PR #109" in risk_evidence
     assert "metric_labels" in risk_evidence
     assert "no-sensitive label rejection" in risk_evidence
-    assert "metric_labels" in feature_evidence[
-        "core.observability.portfolio_supportability"
-    ]
-    assert "PR #329" in feature_evidence[
-        "core.observability.portfolio_supportability"
-    ]
+    assert (
+        "metric_labels"
+        in feature_evidence["core.observability.portfolio_supportability"]
+    )
+    assert "PR #329" in feature_evidence["core.observability.portfolio_supportability"]
     assert "no_sensitive_metric_labels_proven" in core_row["gap_classification"]
     assert "PR #329" in str(ecosystem["ecosystem_completion_slices"])
     assert "PR #140" in str(proof["residual_scope"])
     assert "PR #140" in str(hardening["repository_reviews"])
+    assert "PR #141" in str(hardening["repository_reviews"])
     assert "PR #109" in str(hardening["repository_reviews"])
     assert "PR #329" in str(hardening["repository_reviews"])
     assert "PR #140" in str(final_closure["residual_scope"])
+    assert "PR #141" in str(final_closure["residual_scope"])
     assert "PR #109" in str(final_closure["residual_scope"])
     assert "PR #329" in str(final_closure["residual_scope"])
 
@@ -130,10 +166,35 @@ def test_platform_risk_api_vocabulary_records_supportability_metric_labels() -> 
     }
 
     assert metric_labels_attribute["canonicalTerm"] == "metric_labels"
-    assert "lotus_risk_calculation_supportability_total" in (
-        metric_labels_attribute["description"]
+    assert (
+        "lotus_risk_calculation_supportability_total"
+        in (metric_labels_attribute["description"])
     )
     assert "metadata.calculation_supportability.metric_labels" in observed_names
+
+
+def test_platform_performance_api_vocabulary_records_supportability_metric_labels() -> (
+    None
+):
+    vocabulary = _load_json(PERFORMANCE_API_VOCABULARY_PATH)
+    metric_labels_attribute = next(
+        attribute
+        for attribute in vocabulary["attributeCatalog"]
+        if attribute["semanticId"] == "lotus.metric_labels"
+    )
+    observed_names = {
+        field["name"]
+        for endpoint in vocabulary["endpoints"]
+        for payload in (endpoint["request"], endpoint["response"])
+        for field in payload["fields"]
+    }
+
+    assert metric_labels_attribute["canonicalTerm"] == "metric_labels"
+    assert (
+        "lotus_performance_calculation_supportability_total"
+        in (metric_labels_attribute["description"])
+    )
+    assert "calculation_supportability.metric_labels" in observed_names
 
 
 def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None:
@@ -146,4 +207,5 @@ def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None
     assert "lotus-platform/platform-stack" in wiki
     assert "governed `lotus-workbench` runtime" in wiki
     assert "lotus-performance PR #140" in rfc_index
+    assert "lotus-performance PR #141" in rfc_index
     assert "lotus-risk PR #109" in rfc_index
