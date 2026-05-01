@@ -285,6 +285,15 @@ def test_analytics_ui_observability_contract_limits_promotion_to_implemented_fou
     assert (
         feature_status["advise.observability.advisory_supportability"] == "implemented"
     )
+    advise_evidence = next(
+        entry["promotion_evidence"]
+        for entry in contract["supported_feature_keys"]
+        if entry["feature_key"] == "advise.observability.advisory_supportability"
+    )
+    assert "lotus-advise PR #109" in advise_evidence
+    assert "supportability.metric_labels" in advise_evidence
+    assert "lotus_advise_advisory_supportability_total" in advise_evidence
+    assert "no-sensitive label rejection" in advise_evidence
     assert (
         feature_status["archive.observability.archive_supportability"] == "implemented"
     )

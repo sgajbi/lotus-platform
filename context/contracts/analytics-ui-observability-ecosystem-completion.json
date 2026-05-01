@@ -71,7 +71,7 @@
     {
       "slice_id": 12,
       "status": "partially_implemented",
-      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, the RFC-0108 backend freshness metric for performance/risk calculation supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads. lotus-performance PR #140 hardens performance capability publication so completed MWR, contribution, or attribution supportability cannot be hidden by a disabled TWR capability. lotus-performance PR #141 adds explicit metric_labels truth and Prometheus no-sensitive label proof for performance calculation supportability and the backend freshness companion metric. lotus-core PR #329 adds explicit metric_labels truth and Prometheus no-sensitive label proof for the portfolio readiness supportability response and metric. lotus-risk PR #109 adds explicit metric_labels truth and Prometheus no-sensitive label proof for risk calculation supportability and the backend freshness companion metric. lotus-ai PR #57 adds bounded supportability_reason and explicit metric_labels proof for the AI surface supportability response and metric.",
+      "purpose": "Implement backend freshness, data-quality, and supportability signals in participating services; lotus-core portfolio readiness supportability, lotus-risk risk/calculate/drawdown/rolling/historical-attribution/concentration supportability, lotus-performance TWR/MWR/contribution/attribution supportability, the RFC-0108 backend freshness metric for performance/risk calculation supportability, lotus-advise advisory supportability, lotus-manage action-register supportability, lotus-report evidence-surface supportability, lotus-render render supportability, lotus-archive archive supportability, and lotus-ai AI surface supportability are implemented. Gateway PR #166 now reconciles performance/risk source supportability through the experience API; Workbench PR #118 reconciles Gateway source_supportability arrays into supported Workbench freshness/supportability derivation and validation summaries; Gateway PR #169 and Workbench PR #122 reconcile report evidence-surface supportability into supported report-batch operator reads; Gateway PR #170 and Workbench PR #123 reconcile AI surface supportability into supported advisor-brief reads. lotus-performance PR #140 hardens performance capability publication so completed MWR, contribution, or attribution supportability cannot be hidden by a disabled TWR capability. lotus-performance PR #141 adds explicit metric_labels truth and Prometheus no-sensitive label proof for performance calculation supportability and the backend freshness companion metric. lotus-core PR #329 adds explicit metric_labels truth and Prometheus no-sensitive label proof for the portfolio readiness supportability response and metric. lotus-risk PR #109 adds explicit metric_labels truth and Prometheus no-sensitive label proof for risk calculation supportability and the backend freshness companion metric. lotus-advise PR #109 adds explicit supportability.metric_labels truth and Prometheus no-sensitive label proof for advisory supportability. lotus-ai PR #57 adds bounded supportability_reason and explicit metric_labels proof for the AI surface supportability response and metric.",
       "required_proof": [
         "repo-native service tests",
         "metrics proof",
@@ -367,18 +367,22 @@
       ],
       "gap_classification": [
         "advisory_supportability_implemented",
-        "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads"
+        "gateway_workbench_reconciliation_implemented_for_supported_advisor_brief_reads",
+        "explicit_metric_labels_proven",
+        "no_sensitive_metric_labels_proven"
       ],
       "blockers": [
-        "advisory supportability is implemented in lotus-advise and reconciled through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads"
+        "advisory supportability is implemented in lotus-advise, explicit supportability.metric_labels and no-sensitive Prometheus label proof are implemented through lotus-advise PR #109, and advisory supportability is reconciled through Gateway PR #172 plus Workbench PR #125 for supported advisor-brief reads"
       ],
       "required_proof": [
         "repo-native advisory tests",
         "supportability metric proof",
+        "explicit metric_labels proof",
+        "no-sensitive metric label proof",
         "OpenAPI supportability docs proof",
         "Gateway/Workbench advisory surface reconciliation"
       ],
-      "wiki_source_decision": "Advise wiki source remains valid for source supportability; platform RFC/wiki source updated for Gateway PR #172 and Workbench PR #125 advisory supportability reconciliation evidence",
+      "wiki_source_decision": "Advise wiki source updated and published for explicit supportability.metric_labels, no-sensitive metric-label proof, and advisory supportability operator/API surface docs after PR #109; platform RFC/wiki source records Gateway PR #172 and Workbench PR #125 advisory supportability reconciliation evidence",
       "runbook_requirements": [
         "advisory supportability runbook"
       ]

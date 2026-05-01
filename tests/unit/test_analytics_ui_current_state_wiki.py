@@ -43,6 +43,12 @@ PERFORMANCE_API_VOCABULARY_PATH = (
     / "api-vocabulary"
     / "lotus-performance-api-vocabulary.v1.json"
 )
+ADVISE_API_VOCABULARY_PATH = (
+    ROOT
+    / "platform-contracts"
+    / "api-vocabulary"
+    / "lotus-advise-api-vocabulary.v1.json"
+)
 
 
 def _read(path: Path) -> str:
@@ -84,12 +90,19 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     core_row = next(
         row for row in ecosystem["app_gap_matrix"] if row["repository"] == "lotus-core"
     )
+    advise_row = next(
+        row
+        for row in ecosystem["app_gap_matrix"]
+        if row["repository"] == "lotus-advise"
+    )
 
     required_evidence = [
         "lotus-performance PRs #138, #139, #140, and #141",
         "lotus-risk PRs #107, #108, and #109",
         "lotus-core PR #329",
+        "lotus-advise PR #109",
         "`lotus-risk` PR #109",
+        "`lotus-advise` PR #109",
         "state`, `reason`, and `freshness_bucket",
         "Gateway PRs #166 through #172",
         "Workbench PRs #118 through #129",
@@ -139,16 +152,20 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
     )
     assert "PR #329" in feature_evidence["core.observability.portfolio_supportability"]
     assert "no_sensitive_metric_labels_proven" in core_row["gap_classification"]
+    assert "no_sensitive_metric_labels_proven" in advise_row["gap_classification"]
     assert "PR #329" in str(ecosystem["ecosystem_completion_slices"])
+    assert "lotus-advise PR #109" in str(ecosystem["ecosystem_completion_slices"])
     assert "PR #140" in str(proof["residual_scope"])
     assert "PR #140" in str(hardening["repository_reviews"])
     assert "PR #141" in str(hardening["repository_reviews"])
     assert "PR #109" in str(hardening["repository_reviews"])
     assert "PR #329" in str(hardening["repository_reviews"])
+    assert "lotus-advise PR #109" in str(hardening["repository_reviews"])
     assert "PR #140" in str(final_closure["residual_scope"])
     assert "PR #141" in str(final_closure["residual_scope"])
     assert "PR #109" in str(final_closure["residual_scope"])
     assert "PR #329" in str(final_closure["residual_scope"])
+    assert "lotus-advise PR #109" in str(final_closure["residual_scope"])
 
 
 def test_platform_risk_api_vocabulary_records_supportability_metric_labels() -> None:
@@ -197,6 +214,28 @@ def test_platform_performance_api_vocabulary_records_supportability_metric_label
     assert "calculation_supportability.metric_labels" in observed_names
 
 
+def test_platform_advise_api_vocabulary_records_supportability_metric_labels() -> None:
+    vocabulary = _load_json(ADVISE_API_VOCABULARY_PATH)
+    metric_labels_attribute = next(
+        attribute
+        for attribute in vocabulary["attributeCatalog"]
+        if attribute["semanticId"] == "lotus.metric_labels"
+    )
+    observed_names = {
+        field["name"]
+        for endpoint in vocabulary["endpoints"]
+        for payload in (endpoint["request"], endpoint["response"])
+        for field in payload["fields"]
+    }
+
+    assert metric_labels_attribute["canonicalTerm"] == "metric_labels"
+    assert (
+        "lotus_advise_advisory_supportability_total"
+        in (metric_labels_attribute["description"])
+    )
+    assert "supportability.metric_labels" in observed_names
+
+
 def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None:
     wiki = _read(WIKI_PATH)
     rfc_index = _read(RFC_INDEX_PATH)
@@ -209,3 +248,4 @@ def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None
     assert "lotus-performance PR #140" in rfc_index
     assert "lotus-performance PR #141" in rfc_index
     assert "lotus-risk PR #109" in rfc_index
+    assert "lotus-advise PR #109" in rfc_index
