@@ -41,12 +41,13 @@ promotion remain planned until separately implemented and certified. Do not use
 front-office validation must use the governed `lotus-workbench` runtime.
 
 The caller-context entitlement certification contract now records implementation evidence for the
-certified Workbench read paths. Workbench PR #131 proves BFF caller-context defaults; Gateway PR
-#174 proves performance-summary caller-context enforcement, PR #175 proves risk-summary
-caller-context enforcement, PR #176 proves advisor-brief caller-context rejection on read and
-review-action routes, and PR #177 proves bounded advisor-brief read allow/deny audit records. The
-overall certification feature remains planned until every certified read path has Gateway, Core,
-and Workbench allow, deny, caller-context, and permission-blocked UI proof.
+certified Workbench read paths. Gateway PR #159 proves bounded selected analytics read allow/deny
+audit records for performance and risk summary paths; Workbench PR #131 proves BFF caller-context
+defaults; Gateway PR #174 proves performance-summary caller-context enforcement, PR #175 proves
+risk-summary caller-context enforcement, PR #176 proves advisor-brief caller-context rejection on
+read and review-action routes, and PR #177 proves bounded advisor-brief read allow/deny audit
+records. The overall certification feature remains planned until every certified read path has
+Gateway, Core, and Workbench allow, deny, caller-context, and permission-blocked UI proof.
 
 ## Operator Use
 

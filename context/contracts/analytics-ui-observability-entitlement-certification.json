@@ -120,6 +120,16 @@
   ],
   "implementation_evidence": [
     {
+      "evidence_id": "lotus-gateway-pr-159-performance-summary-read-audit",
+      "status": "implemented",
+      "path_id": "workbench-performance-summary",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#159",
+      "merge_commit": "37a641d06ac47425a1f0707143e97b9e7c7a8cab",
+      "evidence_types": ["gateway-allow-deny-audit-log"],
+      "description": "Gateway emits bounded selected analytics read allow and upstream-denial audit records for the performance summary path without portfolio, client, payload, or raw entitlement fields."
+    },
+    {
       "evidence_id": "lotus-workbench-pr-131-bff-caller-context",
       "status": "implemented",
       "path_id": "workbench-performance-summary",
@@ -138,6 +148,16 @@
       "merge_commit": "382b0a82bf5665a75370c9fe6529105e67e695c6",
       "evidence_types": ["caller-context-contract-test"],
       "description": "Gateway requires caller context on the Workbench performance summary read path and tests the standard missing-caller-context rejection shape."
+    },
+    {
+      "evidence_id": "lotus-gateway-pr-159-risk-summary-read-audit",
+      "status": "implemented",
+      "path_id": "workbench-risk-summary",
+      "owner_repo": "lotus-gateway",
+      "pull_request": "sgajbi/lotus-gateway#159",
+      "merge_commit": "37a641d06ac47425a1f0707143e97b9e7c7a8cab",
+      "evidence_types": ["gateway-allow-deny-audit-log"],
+      "description": "Gateway emits bounded selected analytics read allow and upstream-denial audit records for the risk summary path without portfolio, client, payload, or raw entitlement fields."
     },
     {
       "evidence_id": "lotus-workbench-pr-131-bff-caller-context-risk-summary",
