@@ -67,6 +67,7 @@ This generates a production-grade backend baseline with:
 - product-safe problem-details error scaffolding
 - structured JSON application event logging
 - OpenAPI gate script
+- endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)
 - operations docs for observability and API certification

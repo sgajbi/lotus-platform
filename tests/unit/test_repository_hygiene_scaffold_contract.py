@@ -15,24 +15,40 @@ def _powershell_executable() -> str:
         return "powershell"
     candidate = shutil.which("pwsh") or shutil.which("powershell")
     if candidate is None:
-        raise AssertionError("PowerShell executable not available for scaffold contract test")
+        raise AssertionError(
+            "PowerShell executable not available for scaffold contract test"
+        )
     return candidate
 
 
 def test_repository_hygiene_standard_and_templates_exist() -> None:
-    standards_readme = (ROOT / "platform-standards" / "README.md").read_text(encoding="utf-8")
+    standards_readme = (ROOT / "platform-standards" / "README.md").read_text(
+        encoding="utf-8"
+    )
     hygiene_standard = (
-        ROOT / "platform-standards" / "Repository-Hygiene-and-Dependency-Model-Standard.md"
+        ROOT
+        / "platform-standards"
+        / "Repository-Hygiene-and-Dependency-Model-Standard.md"
     ).read_text(encoding="utf-8")
-    scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(
+        encoding="utf-8"
+    )
     makefile_template = (
         ROOT / "platform-standards" / "templates" / "Makefile.backend.template"
     ).read_text(encoding="utf-8")
     feature_lane_template = (
-        ROOT / "platform-standards" / "templates" / "workflows" / "feature-lane.backend.template.yml"
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "feature-lane.backend.template.yml"
     ).read_text(encoding="utf-8")
     pr_merge_template = (
-        ROOT / "platform-standards" / "templates" / "workflows" / "pr-merge-gate.backend.template.yml"
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "pr-merge-gate.backend.template.yml"
     ).read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
@@ -45,12 +61,30 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "requirements/ci-tooling.lock.txt" in hygiene_standard
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")' in scaffold_script
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")'
+        in scaffold_script
+    )
     assert "Ensure-GitInitialCommit" in scaffold_script
     assert "git -C $TargetRepoRoot push -u origin main" in scaffold_script
     assert "missing summary" in scaffold_script
@@ -67,8 +101,15 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
-    assert 'require_response_headers = @("x-correlation-id", "x-trace-id")' in scaffold_script
-    assert '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")' in scaffold_script
+    assert "scripts/endpoint_certification_gate.py" in scaffold_script
+    assert (
+        'require_response_headers = @("x-correlation-id", "x-trace-id")'
+        in scaffold_script
+    )
+    assert (
+        '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")'
+        in scaffold_script
+    )
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
@@ -76,6 +117,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "supported-features-gate:" in makefile_template
     assert "$(MAKE) supported-features-gate" in makefile_template
+    assert "endpoint-certification-gate:" in makefile_template
+    assert "$(MAKE) endpoint-certification-gate" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
     assert (
@@ -83,7 +126,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         in makefile_template
     )
     assert "run: ./.venv/bin/python -m pytest tests/unit" in feature_lane_template
-    assert "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report=" in pr_merge_template
+    assert (
+        "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report="
+        in pr_merge_template
+    )
     assert "./.venv/bin/python -m coverage combine coverage-data" in pr_merge_template
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
 
@@ -134,28 +180,51 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    endpoint_gate = subprocess.run(
+        [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
-    observability_py = (repo_root / "src/app/observability.py").read_text(encoding="utf-8")
-    correlation_middleware = (repo_root / "src/app/middleware/correlation.py").read_text(
+    observability_py = (repo_root / "src/app/observability.py").read_text(
         encoding="utf-8"
     )
-    health_tests = (repo_root / "tests/integration/test_health.py").read_text(encoding="utf-8")
-    service_contract_tests = (repo_root / "tests/unit/test_service_contract.py").read_text(
+    correlation_middleware = (
+        repo_root / "src/app/middleware/correlation.py"
+    ).read_text(encoding="utf-8")
+    health_tests = (repo_root / "tests/integration/test_health.py").read_text(
         encoding="utf-8"
     )
-    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
-    sensitive_content_guard = (repo_root / "scripts/no_sensitive_content_guard.py").read_text(
+    service_contract_tests = (
+        repo_root / "tests/unit/test_service_contract.py"
+    ).read_text(encoding="utf-8")
+    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(
         encoding="utf-8"
     )
-    supported_features_gate = (repo_root / "scripts/supported_features_gate.py").read_text(
-        encoding="utf-8"
-    )
+    sensitive_content_guard = (
+        repo_root / "scripts/no_sensitive_content_guard.py"
+    ).read_text(encoding="utf-8")
+    supported_features_gate = (
+        repo_root / "scripts/supported_features_gate.py"
+    ).read_text(encoding="utf-8")
+    endpoint_certification_gate = (
+        repo_root / "scripts/endpoint_certification_gate.py"
+    ).read_text(encoding="utf-8")
     supported_features = json.loads(
-        (repo_root / "supported-features/supported-features.json").read_text(encoding="utf-8")
+        (repo_root / "supported-features/supported-features.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    endpoint_certification = json.loads(
+        (repo_root / "docs/operations/endpoint-certification-ledger.json").read_text(
+            encoding="utf-8"
+        )
     )
     evidence_readme = (repo_root / "evidence/rfc-implementation/README.md").read_text(
         encoding="utf-8"
@@ -163,9 +232,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     observability_doc = (repo_root / "docs/operations/observability.md").read_text(
         encoding="utf-8"
     )
-    api_certification_doc = (repo_root / "docs/operations/api-certification.md").read_text(
-        encoding="utf-8"
-    )
+    api_certification_doc = (
+        repo_root / "docs/operations/api-certification.md"
+    ).read_text(encoding="utf-8")
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -182,6 +251,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) no-sensitive-content-guard" in makefile
     assert "supported-features-gate:" in makefile
     assert "$(MAKE) supported-features-gate" in makefile
+    assert "endpoint-certification-gate:" in makefile
+    assert "$(MAKE) endpoint-certification-gate" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
     assert "include_in_schema=False" in main_py
@@ -196,9 +267,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Product-safe remediation guidance" in errors_py
     assert "json.dumps(payload, sort_keys=True, default=str)" in observability_py
     assert '"event": event_name' in observability_py
-    assert 'request.state.correlation_id = correlation_id' in correlation_middleware
-    assert 'request.state.trace_id = trace_id' in correlation_middleware
-    assert 'response.headers["X-Correlation-Id"] = correlation_id' in correlation_middleware
+    assert "request.state.correlation_id = correlation_id" in correlation_middleware
+    assert "request.state.trace_id = trace_id" in correlation_middleware
+    assert (
+        'response.headers["X-Correlation-Id"] = correlation_id'
+        in correlation_middleware
+    )
     assert 'response.headers["X-Trace-Id"] = trace_id' in correlation_middleware
     assert "test_correlation_and_trace_header_propagation" in health_tests
     assert "test_correlation_and_trace_headers_are_generated" in health_tests
@@ -212,10 +286,28 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "response_body" in sensitive_content_guard
     assert "Supported-features gate passed" in supported_features_gate
     assert "implemented feature missing promotion_evidence" in supported_features_gate
+    assert "Endpoint certification gate passed" in endpoint_certification_gate
+    assert "missing endpoint certification ledger entry" in endpoint_certification_gate
+    assert "stale endpoint certification ledger entry" in endpoint_certification_gate
+    assert "Endpoint certification gate passed" in endpoint_gate.stdout
     assert supported_features == {
         "repository": service_name,
         "features": [],
         "policy": "Only implementation-backed behavior may be promoted to supported.",
+    }
+    assert endpoint_certification["repository"] == service_name
+    assert (
+        endpoint_certification["policy"]
+        == "Every public OpenAPI operation requires certification evidence before promotion."
+    )
+    assert {
+        (endpoint["method"], endpoint["path"])
+        for endpoint in endpoint_certification["endpoints"]
+    } == {
+        ("GET", "/health"),
+        ("GET", "/health/live"),
+        ("GET", "/health/ready"),
+        ("GET", "/metadata"),
     }
     assert "machine-readable implementation evidence" in evidence_readme
     assert "client, portfolio, holding" in evidence_readme
@@ -223,6 +315,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc
     assert "product-safe error examples" in api_certification_doc
+    assert "endpoint-certification-ledger.json" in api_certification_doc
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile
