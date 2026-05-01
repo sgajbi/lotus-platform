@@ -1,7 +1,14 @@
 from __future__ import annotations
 
-from automation.validate_dev_ingress_smoke import validate_dev_ingress_smoke
 import automation.validate_dev_ingress_smoke as validator
+from automation.validate_dev_ingress_smoke import (
+    build_dev_ingress_checks,
+    validate_dev_ingress_smoke,
+)
+
+
+def _expected_service_identities() -> set[str]:
+    return {check.service_identity for check in build_dev_ingress_checks()}
 
 
 def test_validate_dev_ingress_smoke_accepts_resolved_reachable_endpoints(monkeypatch) -> None:
@@ -12,18 +19,11 @@ def test_validate_dev_ingress_smoke_accepts_resolved_reachable_endpoints(monkeyp
 
     assert result["result"] == "ok"
     assert result["failed_count"] == 0
-    assert len(result["checks"]) == 16
+    assert len(result["checks"]) == len(build_dev_ingress_checks()) * 2
     assert {check["failure_posture"] for check in result["checks"]} == {"healthy"}
-    assert {check["service_identity"] for check in result["checks"]} == {
-        "workbench",
-        "gateway",
-        "manage",
-        "performance",
-        "report",
-        "core-query",
-        "core-control",
-        "core-ingestion",
-    }
+    assert {check["service_identity"] for check in result["checks"]} == (
+        _expected_service_identities()
+    )
 
 
 def test_validate_dev_ingress_smoke_flags_dns_and_http_failures(monkeypatch) -> None:

@@ -6,6 +6,9 @@ implemented metric families and must not include portfolio identifiers, client n
 identifiers, request bodies, response bodies, raw entitlement failure text, raw prompts, generated
 AI output, or screen content.
 
+For a concise implementation-backed current-state summary and demo-readiness orientation, use the
+repo-local wiki page `wiki/Analytics-UI-Observability.md`.
+
 ## analytics-ui-panel-hydration-latency-p95
 
 Use this alert when selected Workbench analytics panel hydration p95 exceeds three seconds for at

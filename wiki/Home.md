@@ -20,6 +20,7 @@ Use it for:
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
+- [Analytics UI Observability](Analytics-UI-Observability)
 - [Troubleshooting](Troubleshooting)
 - [Business Benefits](Business-Benefits)
 - [Market Landscape](Market-Landscape)

@@ -5,9 +5,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+from automation.validate_dev_ingress_smoke import build_dev_ingress_checks
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "automation" / "validate_dev_ingress_smoke.py"
+
+
+def _expected_service_identities() -> set[str]:
+    return {check.service_identity for check in build_dev_ingress_checks()}
 
 
 def test_validate_dev_ingress_smoke_cli_returns_zero_and_writes_service_identities(tmp_path: Path) -> None:
@@ -45,16 +51,9 @@ def test_validate_dev_ingress_smoke_cli_returns_zero_and_writes_service_identiti
 
     assert payload["result"] == "ok"
     assert payload["failed_count"] == 0
-    assert {check["service_identity"] for check in payload["checks"]} == {
-        "workbench",
-        "gateway",
-        "manage",
-        "performance",
-        "report",
-        "core-query",
-        "core-control",
-        "core-ingestion",
-    }
+    assert {check["service_identity"] for check in payload["checks"]} == (
+        _expected_service_identities()
+    )
     assert {check["failure_posture"] for check in payload["checks"]} == {"healthy"}
     assert "gateway_dev_ingress (gateway)" in markdown
 

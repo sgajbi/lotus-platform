@@ -292,9 +292,12 @@ The current reporting and analytics observability governance references are:
    validator. Slice 18 implements ecosystem final closure with a separate machine-readable
    contract, validator, and tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem
    completion status, residual planned scope, local/GitHub proof requirements, wiki publication,
-   branch hygiene, and skills guidance. Backend freshness and full Workbench supported-surface
-   promotion remain planned residuals until separately implemented and proved; Workbench archive
-   retrieval is supported only through the BFF/Gateway boundary.
+   branch hygiene, and skills guidance. Performance/risk backend freshness is now
+   implementation-backed through lotus-performance PR #139 and lotus-risk PR #108, with
+   lotus-performance PR #140 hardening capability publication across completed performance
+   supportability surfaces; full Workbench supported-surface promotion remains planned until
+   separately implemented and proved. Workbench archive retrieval is supported only through the
+   BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 
 Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.

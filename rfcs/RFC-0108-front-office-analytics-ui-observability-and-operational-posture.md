@@ -1017,8 +1017,10 @@ rows, residual planned scope, local proof commands, GitHub check expectations, a
 findings. It promotes
 `platform.analytics.observability.ecosystem_hardening_certification`; the performance/risk
 backend freshness metric is implementation-backed through lotus-performance PR #139 and lotus-risk
-PR #108, while Workbench freshness/degraded-state promotion, all-supported-surface promotion, and
-final ecosystem closure remain planned at this boundary.
+PR #108, and lotus-performance PR #140 hardens performance capability publication so completed
+MWR, contribution, or attribution supportability remains advertised even when TWR is disabled.
+Workbench freshness/degraded-state promotion, all-supported-surface promotion, and final ecosystem
+closure remain planned at this boundary.
 
 Purpose: perform the required second-last review for the reopened ecosystem scope.
 
@@ -1101,7 +1103,7 @@ Candidate supported-feature keys must remain planned until implementation-backed
 | `platform.analytics.observability.ecosystem_dashboards_alerts` | Implemented | `lotus-platform` | Slice 15 extends the platform Grafana dashboard, Prometheus alert rules, operator runbook, contract validator, and platform-stack tests across every currently implemented RFC-0108 metric family: Workbench panel state, panel hydration, API request latency, attention events, Gateway fan-out duration/degradation, AI surface supportability, and the performance/risk backend freshness metric. |
 | `platform.analytics.observability.ecosystem_implementation_proof` | Implemented | `lotus-platform` | Slice 16 adds a platform-owned ecosystem proof contract and reviewer that reconciles the live canonical Workbench proof bundle, supported portfolio/performance/risk/advisory/manage/report/evidence/AI journeys, browser screenshots, Gateway-backed API checks, workflow-pack supportability actions, dashboard and alert implemented-metric references, protected diagnostics lookup, Gateway OpenAPI diagnostics route evidence, residual planned scope, and no-sensitive-content assertions. Later backend metric proof promotes the performance/risk RFC-0108 freshness counter; full RFC-0079 risk/evidence scope and full Workbench all-surface promotion remain planned. |
 | `platform.analytics.observability.ecosystem_hardening_certification` | Implemented | `lotus-platform` | Slice 17 adds a machine-readable ecosystem hardening contract, schema, validator, and unit tests that reconcile supported-features posture, per-repository gap-matrix reviews, Slice 16 proof, protected diagnostics OpenAPI evidence, dashboard and alert review, performance/risk backend freshness metric proof, residual planned scope, and no-open-P0/P1 findings before final closure. |
-| `platform.analytics.observability.ecosystem_final_closure` | Implemented | `lotus-platform` | Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving full Workbench supported-surface and full RFC-0079 residuals as planned. A later backend metric slice promotes performance/risk RFC-0108 backend freshness supportability through lotus-performance PR #139 and lotus-risk PR #108. |
+| `platform.analytics.observability.ecosystem_final_closure` | Implemented | `lotus-platform` | Slice 18 adds a separate machine-readable ecosystem final closure contract, schema, validator, and unit tests that reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, residual planned scope, required local and GitHub proof, wiki publication requirements, and branch hygiene while preserving full Workbench supported-surface and full RFC-0079 residuals as planned. Later backend metric slices promote performance/risk RFC-0108 backend freshness supportability through lotus-performance PR #139 and lotus-risk PR #108, with lotus-performance PR #140 hardening capability publication across the completed performance supportability surfaces. |
 | `workbench.analytics.observability.correlation_trace` | Implemented | `lotus-workbench` | Slice 3 adds Workbench analytics UI correlation helpers, client-side BFF request headers, BFF proxy correlation/trace generation and malformed traceparent replacement tests, while keeping correlation and trace identifiers out of metric labels. |
 | `workbench.analytics.observability.contract_vocabulary` | Implemented | `lotus-workbench` | Slice 1 adds code-owned analytics UI observability vocabulary and tests for allowed labels, forbidden sensitive fields, state vocabulary, and planned Workbench metric-family names without emitting product telemetry. |
 | `workbench.analytics.observability.panel_state_metrics` | Implemented | `lotus-workbench` | Slice 5 adds local Workbench analytics UI metric events, `/api/metrics` Prometheus text export, and tests for ready, empty, partial, stale, degraded, error, permission-blocked, unsupported, API duration, panel state, panel hydration, and sensitive-field exclusion for selected performance-summary, performance-details, and risk-summary reads. Slice 14 partial proof expands the same wrapper to supported Portfolio workspace, client-side Performance, Risk, and explicit report-batch operator reads with an explicit observed-surface registry and no portfolio, client, session, report batch, trace, request-body, response-body, or screen-content metric labels. |
@@ -1200,7 +1202,9 @@ screenshots, Slice 17 no-open-P0/P1 hardening, residual planned scope, wiki publ
 requirements, branch hygiene, and no-sensitive-content assertions. Full RFC-0079 risk/evidence
 scope and full Workbench supported-surface promotion remain planned residual scope until
 separately implemented and proved; the performance/risk backend freshness metric is now
-implementation-backed through lotus-performance PR #139 and lotus-risk PR #108.
+implementation-backed through lotus-performance PR #139 and lotus-risk PR #108, and
+lotus-performance PR #140 proves the performance capability summary remains implementation-backed
+when any completed performance supportability surface is enabled.
 Slice 0 is complete for platform automation and scaffolding improvement. Slice 1 is complete for
 cleanup and structure: Workbench and Gateway now have code-owned analytics UI observability
 vocabulary modules, focused tests reject sensitive/ad hoc labels, repo-local wiki operations
