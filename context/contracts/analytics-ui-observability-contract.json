@@ -39,6 +39,9 @@
     "session_id",
     "advisor_id",
     "advisor_behavior",
+    "model_output",
+    "raw_prompt",
+    "upload_id",
     "screen_content",
     "request_body",
     "response_body",
@@ -301,6 +304,9 @@
         "session_id",
         "advisor_id",
         "advisor_behavior",
+        "model_output",
+        "raw_prompt",
+        "upload_id",
         "screen_content",
         "request_body",
         "response_body",
@@ -326,6 +332,9 @@
         "session_id",
         "advisor_id",
         "advisor_behavior",
+        "model_output",
+        "raw_prompt",
+        "upload_id",
         "screen_content",
         "request_body",
         "response_body",
@@ -531,6 +540,12 @@
       "status": "implemented",
       "owner_repo": "lotus-gateway",
       "promotion_evidence": "RFC-0108 Slice 7 adds Gateway product-safe analytics read audit logs for selected Workbench performance and risk analytics reads. Successful upstream reads emit analytics_read_allowed, 401/403 upstream denials emit analytics_read_denied, and tests prove bounded audit fields plus exclusion of portfolio, client, request, response, and raw entitlement failure content. RFC-0108 Slice 13 adds protected_diagnostics_lookup audit through the protected diagnostics API."
+    },
+    {
+      "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
+      "status": "planned",
+      "owner_repo": "lotus-gateway/lotus-core/lotus-workbench",
+      "promotion_evidence": "RFC-0108 Slice 19 adds the platform-owned entitlement certification contract and validator for caller context, allow/deny audit evidence, safe permission-blocked denial semantics, forbidden evidence fields, and required Workbench permission-blocked panel proof. Runtime promotion remains planned until Gateway/Core/Workbench provide implementation-backed evidence for every certified read path."
     },
     {
       "feature_key": "workbench.analytics.observability.canonical_proof",

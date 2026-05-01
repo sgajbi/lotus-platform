@@ -1,0 +1,140 @@
+{
+  "contract_id": "analytics-ui-observability-entitlement-certification",
+  "contract_version": "0.1.0",
+  "governed_by_rfc": "RFC-0108",
+  "lifecycle_status": "slice-19-entitlement-certification-governance",
+  "certification_scope": {
+    "status": "governance_ready_implementation_pending",
+    "policy": "implementation_backed_only",
+    "source_contract": "analytics-ui-observability-contract"
+  },
+  "caller_context_requirements": [
+    {
+      "requirement_id": "caller-service-identity",
+      "status": "governed",
+      "description": "Every certified read must carry bounded caller service identity without portfolio, client, household, advisor, session, trace, correlation, request-body, or response-body values in telemetry.",
+      "required_fields": ["service", "route", "panel", "operation", "region", "environment"]
+    },
+    {
+      "requirement_id": "entitlement-decision-boundary",
+      "status": "implementation_pending",
+      "description": "Gateway/Core certification must prove allowed and denied outcomes for each certified read path using product-safe audit records and no raw entitlement text.",
+      "required_fields": ["state", "reason", "status_class"]
+    },
+    {
+      "requirement_id": "operator-diagnostics-boundary",
+      "status": "governed",
+      "description": "Operator diagnostics must use opaque support references and must not expose support references or raw identifiers in audit fields.",
+      "required_fields": ["operation", "service", "state", "reason"]
+    }
+  ],
+  "certified_read_paths": [
+    {
+      "path_id": "workbench-performance-summary",
+      "status": "implementation_pending",
+      "route": "workbench.performance",
+      "panel": "performance-summary",
+      "operation": "performance.workspace.summary",
+      "owner_repositories": ["lotus-workbench", "lotus-gateway", "lotus-core", "lotus-performance"],
+      "required_audit_events": [
+        "gateway.analytics.audit.analytics_read_allowed",
+        "gateway.analytics.audit.analytics_read_denied"
+      ]
+    },
+    {
+      "path_id": "workbench-risk-summary",
+      "status": "implementation_pending",
+      "route": "workbench.risk",
+      "panel": "risk-summary",
+      "operation": "risk.workspace.summary",
+      "owner_repositories": ["lotus-workbench", "lotus-gateway", "lotus-core", "lotus-risk"],
+      "required_audit_events": [
+        "gateway.analytics.audit.analytics_read_allowed",
+        "gateway.analytics.audit.analytics_read_denied"
+      ]
+    },
+    {
+      "path_id": "workbench-advisor-brief",
+      "status": "implementation_pending",
+      "route": "workbench.advisor_brief",
+      "panel": "advisor-brief",
+      "operation": "advisor_brief.summary",
+      "owner_repositories": ["lotus-workbench", "lotus-gateway", "lotus-core", "lotus-advise", "lotus-ai"],
+      "required_audit_events": [
+        "gateway.analytics.audit.analytics_read_allowed",
+        "gateway.analytics.audit.analytics_read_denied"
+      ]
+    }
+  ],
+  "denial_semantics": {
+    "required_audit_event": "gateway.analytics.audit.analytics_read_denied",
+    "required_reason": "upstream_authorization_denied",
+    "required_state": "permission_blocked",
+    "allowed_status_classes": ["4xx"]
+  },
+  "forbidden_evidence_fields": [
+    "account_id",
+    "advisor_behavior",
+    "advisor_id",
+    "client_id",
+    "client_name",
+    "correlation_id",
+    "document_id",
+    "holding_id",
+    "household_id",
+    "instrument_id",
+    "model_output",
+    "portfolio_id",
+    "raw_entitlement_failure",
+    "raw_prompt",
+    "request_body",
+    "response_body",
+    "screen_content",
+    "session_id",
+    "support_reference",
+    "trace_id",
+    "transaction_id",
+    "upload_id"
+  ],
+  "required_evidence": [
+    {
+      "evidence_type": "gateway-allow-deny-audit-log",
+      "status": "required_before_promotion",
+      "description": "Each certified path must include successful read and permission-blocked denial audit evidence with bounded route, panel, operation, state, reason, status class, region, and environment fields only."
+    },
+    {
+      "evidence_type": "caller-context-contract-test",
+      "status": "required_before_promotion",
+      "description": "Gateway/Core tests must prove caller context is required, malformed or missing caller context is rejected, and raw entitlement failure text is never copied into telemetry."
+    },
+    {
+      "evidence_type": "workbench-permission-blocked-panel-proof",
+      "status": "required_before_promotion",
+      "description": "Workbench proof must show permission-blocked panel state and attention semantics without exposing restricted portfolio, client, entitlement, or screen-content details."
+    },
+    {
+      "evidence_type": "protected-diagnostics-proof",
+      "status": "implemented",
+      "description": "Protected diagnostics lookup is already implementation-backed by the RFC-0108 protected diagnostics proof and must remain bounded to opaque gdiag references."
+    }
+  ],
+  "residual_scope": [
+    {
+      "feature_key": "workbench.analytics.observability.caller_context_entitlement_certification",
+      "status": "planned",
+      "owner_repo": "lotus-gateway/lotus-core/lotus-workbench",
+      "reason": "This slice defines the certification contract and validator. Runtime promotion remains planned until Gateway/Core/Workbench provide implementation-backed allow, deny, caller-context, and permission-blocked UI proof for every certified read path."
+    }
+  ],
+  "local_proof_commands": [
+    "python automation\\validate_analytics_ui_entitlement_certification.py",
+    "python -m pytest tests\\unit\\test_analytics_ui_entitlement_certification.py tests\\unit\\test_analytics_ui_observability_contract.py -q",
+    "python -m ruff check automation\\validate_analytics_ui_entitlement_certification.py tests\\unit\\test_analytics_ui_entitlement_certification.py"
+  ],
+  "required_github_checks": [
+    "Feature Lane / Platform Repo Contracts",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Platform Repo Contracts",
+    "PR Merge Gate / Workflow Lint"
+  ]
+}

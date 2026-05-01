@@ -140,3 +140,28 @@ Triage steps:
    support references and operator caller context. The protected diagnostics lookup must not expose
    support references, portfolio identifiers, trace identifiers, correlation identifiers, raw
    entitlement failures, request bodies, or response bodies in audit fields.
+
+## Caller-Context Entitlement Certification
+
+Full caller-context entitlement certification is governed by
+`context/contracts/analytics-ui-observability-entitlement-certification.json`.
+
+Certification rules:
+
+1. Do not promote a Workbench read path until both `analytics_read_allowed` and
+   `analytics_read_denied` evidence exists for that path.
+2. Denied reads must use `permission_blocked` state and the bounded
+   `upstream_authorization_denied` reason.
+3. Evidence must prove caller context is required and malformed or missing caller context is
+   rejected.
+4. Evidence must prove raw entitlement failures, support references, portfolio identifiers, client
+   identifiers, trace identifiers, correlation identifiers, request bodies, response bodies, and
+   screen content are absent from audit logs, dashboards, screenshots, and tickets.
+5. Workbench proof must show a permission-blocked panel state without exposing restricted details.
+
+Run the platform gate before claiming certification:
+
+```powershell
+python automation\validate_analytics_ui_entitlement_certification.py
+python -m pytest tests\unit\test_analytics_ui_entitlement_certification.py tests\unit\test_analytics_ui_observability_contract.py -q
+```

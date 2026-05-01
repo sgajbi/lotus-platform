@@ -26,6 +26,7 @@ powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
 python automation\validate_agent_engineering_contracts.py
 python automation\delegation_task_ledger.py --help
+python automation\validate_analytics_ui_entitlement_certification.py
 ```
 
 ## Operational rules
@@ -58,6 +59,28 @@ python automation\delegation_task_ledger.py --help
 7. if multiple operational surfaces may be stale or degraded, run `Run-Heartbeat.ps1` and inspect
    `output/heartbeat/heartbeat-status.md` for deduplicated attention items before jumping between
    tools manually
+
+## Analytics UI entitlement certification
+
+RFC-0108 caller-context entitlement certification is governed by
+`context/contracts/analytics-ui-observability-entitlement-certification.json`.
+
+Before promoting full caller-context entitlement certification:
+
+1. prove both `gateway.analytics.audit.analytics_read_allowed` and
+   `gateway.analytics.audit.analytics_read_denied` for each certified Workbench read path
+2. prove denied reads use `permission_blocked` and `upstream_authorization_denied`
+3. prove malformed or missing caller context is rejected
+4. prove raw entitlement failures, support references, portfolio/client identifiers, trace or
+   correlation identifiers, request/response bodies, and screen content are absent from evidence
+5. prove Workbench renders permission-blocked state without restricted details
+
+Run:
+
+```powershell
+python automation\validate_analytics_ui_entitlement_certification.py
+python -m pytest tests\unit\test_analytics_ui_entitlement_certification.py tests\unit\test_analytics_ui_observability_contract.py -q
+```
 
 ## Delegated engineering tasks
 
