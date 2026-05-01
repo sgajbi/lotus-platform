@@ -8,7 +8,7 @@ http://workbench.dev.lotus {
 }
 
 http://gateway.dev.lotus {
-	reverse_proxy host.docker.internal:8111
+	reverse_proxy host.docker.internal:8100
 }
 
 http://performance.dev.lotus {
@@ -45,4 +45,12 @@ http://risk.dev.lotus {
 
 http://report.dev.lotus {
 	reverse_proxy host.docker.internal:8300
+}
+
+http://archive.dev.lotus {
+	reverse_proxy host.docker.internal:8150
+}
+
+http://render.dev.lotus {
+	reverse_proxy host.docker.internal:8310
 }

@@ -376,7 +376,14 @@ function Test-IngressPosture {
     }
 
     $hosts = Get-Content -Raw $hostsPath
-    $requiredHosts = @("workbench.dev.lotus", "gateway.dev.lotus")
+    $requiredHosts = @(
+        "workbench.dev.lotus",
+        "gateway.dev.lotus",
+        "manage.dev.lotus",
+        "report.dev.lotus",
+        "archive.dev.lotus",
+        "render.dev.lotus"
+    )
     $missingHosts = @($requiredHosts | Where-Object { $hosts -notmatch [regex]::Escape($_) })
     $status = if ($missingHosts.Count -gt 0) { "warning" } else { "ready" }
     Add-Check $Checks "ingress-posture" $status "Canonical dev ingress host posture evaluated; no stack startup was attempted." @{

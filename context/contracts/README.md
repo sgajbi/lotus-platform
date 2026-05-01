@@ -85,6 +85,12 @@ Current contracts:
     slice-status reconciliation, supported-feature audit, residual planned-scope preservation,
     proof/hardening reconciliation, local and GitHub proof requirements, wiki publication, branch
     hygiene, and skills guidance review.
+25. `analytics-ui-observability-entitlement-certification.schema.json`
+    The governed schema for RFC-0108 caller-context entitlement certification.
+26. `analytics-ui-observability-entitlement-certification.json`
+    The RFC-0108 Slice 19 governance contract that defines the caller-context requirements,
+    certified read-path candidates, safe denial semantics, forbidden evidence fields, proof
+    requirements, and residual promotion boundary for full entitlement certification.
 
 Rules:
 

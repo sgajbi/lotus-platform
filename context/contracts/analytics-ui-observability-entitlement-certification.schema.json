@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.platform/contracts/analytics-ui-observability-entitlement-certification.schema.json",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "certification_scope",
+    "caller_context_requirements",
+    "certified_read_paths",
+    "denial_semantics",
+    "forbidden_evidence_fields",
+    "required_evidence",
+    "residual_scope",
+    "local_proof_commands",
+    "required_github_checks"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "analytics-ui-observability-entitlement-certification"
+    },
+    "contract_version": { "type": "string" },
+    "governed_by_rfc": { "const": "RFC-0108" },
+    "lifecycle_status": {
+      "const": "slice-19-entitlement-certification-governance"
+    },
+    "certification_scope": {
+      "type": "object",
+      "required": ["status", "policy", "source_contract"],
+      "properties": {
+        "status": { "const": "governance_ready_implementation_pending" },
+        "policy": { "const": "implementation_backed_only" },
+        "source_contract": { "const": "analytics-ui-observability-contract" }
+      },
+      "additionalProperties": false
+    },
+    "caller_context_requirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/requirement" },
+      "minItems": 1
+    },
+    "certified_read_paths": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/readPath" },
+      "minItems": 1
+    },
+    "denial_semantics": {
+      "type": "object",
+      "required": [
+        "required_audit_event",
+        "required_reason",
+        "required_state",
+        "allowed_status_classes"
+      ],
+      "properties": {
+        "required_audit_event": {
+          "const": "gateway.analytics.audit.analytics_read_denied"
+        },
+        "required_reason": { "const": "upstream_authorization_denied" },
+        "required_state": { "const": "permission_blocked" },
+        "allowed_status_classes": {
+          "type": "array",
+          "items": { "enum": ["4xx"] },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "forbidden_evidence_fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" },
+      "minItems": 1
+    },
+    "residual_scope": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/residual" },
+      "minItems": 1
+    },
+    "local_proof_commands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_github_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "requirement": {
+      "type": "object",
+      "required": ["requirement_id", "status", "description", "required_fields"],
+      "properties": {
+        "requirement_id": { "type": "string" },
+        "status": {
+          "enum": ["governed", "implementation_pending", "implemented"]
+        },
+        "description": { "type": "string" },
+        "required_fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "readPath": {
+      "type": "object",
+      "required": [
+        "path_id",
+        "status",
+        "route",
+        "panel",
+        "operation",
+        "owner_repositories",
+        "required_audit_events"
+      ],
+      "properties": {
+        "path_id": { "type": "string" },
+        "status": { "enum": ["implementation_pending", "implemented"] },
+        "route": { "type": "string" },
+        "panel": { "type": "string" },
+        "operation": { "type": "string" },
+        "owner_repositories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "required_audit_events": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "gateway.analytics.audit.analytics_read_allowed",
+              "gateway.analytics.audit.analytics_read_denied"
+            ]
+          },
+          "minItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_type", "status", "description"],
+      "properties": {
+        "evidence_type": { "type": "string" },
+        "status": {
+          "enum": ["required_before_promotion", "implemented"]
+        },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "residual": {
+      "type": "object",
+      "required": ["feature_key", "status", "owner_repo", "reason"],
+      "properties": {
+        "feature_key": { "type": "string" },
+        "status": { "const": "planned" },
+        "owner_repo": { "type": "string" },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

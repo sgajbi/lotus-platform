@@ -145,6 +145,8 @@ Canonical service identities:
 - Core ingestion readiness: `http://core-ingestion.dev.lotus/health/ready`
 - Performance readiness: `http://performance.dev.lotus/health/ready`
 - Report readiness: `http://report.dev.lotus/health/ready`
+- Archive readiness: `http://archive.dev.lotus/health/ready`
+- Render readiness: `http://render.dev.lotus/health/ready`
 
 Report readiness is PostgreSQL-backed in the centralized stack. The `lotus-report` service uses
 the dedicated `lotus-report-postgres` service through `REPORT_JOB_LEDGER_DATABASE_URL`; do not
@@ -164,8 +166,8 @@ If you are not using full `platform-stack` but still need canonical local URLs, 
 
 - `platform-stack/dev-ingress/Caddyfile.direct-host`
 
-This fallback proxies canonical hostnames to direct local service ports such as `3000`, `8111`,
-`8201`, and `8002`. It is intended for mixed standalone bring-up and should not run alongside the
+This fallback proxies canonical hostnames to direct local service ports such as `3000`, `8100`,
+`8201`, `8002`, `8150`, and `8310`. It is intended for mixed standalone bring-up and should not run alongside the
 full ingress-first stack on the same host port.
 
 ## 4) Logs
