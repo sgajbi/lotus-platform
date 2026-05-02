@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 32,
-  "edge_count": 97,
+  "node_count": 38,
+  "edge_count": 110,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -51,6 +51,36 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:DiscretionaryMandateBinding:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:DiscretionaryMandateBinding:v1",
+      "product_name": "DiscretionaryMandateBinding",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:DpmModelPortfolioTarget:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:DpmModelPortfolioTarget:v1",
+      "product_name": "DpmModelPortfolioTarget",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:DpmSourceReadiness:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:DpmSourceReadiness:v1",
+      "product_name": "DpmSourceReadiness",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:HoldingsAsOf:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:HoldingsAsOf:v1",
@@ -81,6 +111,16 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:InstrumentEligibilityProfile:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:InstrumentEligibilityProfile:v1",
+      "product_name": "InstrumentEligibilityProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:InstrumentReferenceBundle:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:InstrumentReferenceBundle:v1",
@@ -88,6 +128,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:MarketDataCoverageWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:MarketDataCoverageWindow:v1",
+      "product_name": "MarketDataCoverageWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -118,6 +168,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "simulation_and_projected_state",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioTaxLotWindow:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioTaxLotWindow:v1",
+      "product_name": "PortfolioTaxLotWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -349,6 +409,26 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DiscretionaryMandateBinding:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DpmModelPortfolioTarget:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DpmSourceReadiness:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DpmSourceReadiness:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:HoldingsAsOf:v1",
       "to": "repo:lotus-advise"
     },
@@ -399,6 +479,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:InstrumentEligibilityProfile:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:InstrumentReferenceBundle:v1",
       "to": "repo:lotus-advise"
     },
@@ -416,6 +501,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:InstrumentReferenceBundle:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:MarketDataCoverageWindow:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -456,6 +546,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioStateSnapshot:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioTaxLotWindow:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -784,6 +879,21 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:DiscretionaryMandateBinding:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:DpmModelPortfolioTarget:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:DpmSourceReadiness:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:HoldingsAsOf:v1"
     },
     {
@@ -799,7 +909,17 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:InstrumentEligibilityProfile:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:InstrumentReferenceBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:MarketDataCoverageWindow:v1"
     },
     {
       "edge_type": "produces",
@@ -815,6 +935,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:PortfolioStateSnapshot:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioTaxLotWindow:v1"
     },
     {
       "edge_type": "produces",

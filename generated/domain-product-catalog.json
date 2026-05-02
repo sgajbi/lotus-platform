@@ -74,7 +74,7 @@
       }
     ]
   },
-  "product_count": 25,
+  "product_count": 31,
   "dependency_count": 17,
   "repository_count": 6,
   "repositories": [
@@ -85,7 +85,7 @@
     },
     {
       "repository": "lotus-core",
-      "produced_product_count": 15,
+      "produced_product_count": 21,
       "consumed_dependency_count": 0
     },
     {
@@ -372,6 +372,202 @@
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
+      "product_id": "lotus-core:DiscretionaryMandateBinding:v1",
+      "product_name": "DiscretionaryMandateBinding",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_management",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "DPM mandate, model, policy, jurisdiction, and rebalance constraints."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/mandate-binding"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:DpmModelPortfolioTarget:v1",
+      "product_name": "DpmModelPortfolioTarget",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_management",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "model_portfolio_id",
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Approved DPM model target weights, bands, and cash reserve policy."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/model-portfolios/{model_portfolio_id}/targets"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:DpmSourceReadiness:v1",
+      "product_name": "DpmSourceReadiness",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_management",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "model_portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "DPM source-family readiness is evaluated on demand for the requested as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "operator_only",
+        "lineage_bundle_class_ref": "operator_quality_evidence"
+      },
+      "security_profile_ref": "operator_access:internal_operational:retain_for_operational_audit:audit_operator_access",
+      "approved_consumers": [
+        "lotus-manage",
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/dpm-source-readiness"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
       "product_id": "lotus-core:HoldingsAsOf:v1",
       "product_name": "HoldingsAsOf",
       "product_version": "v1",
@@ -579,6 +775,70 @@
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
+      "product_id": "lotus-core:InstrumentEligibilityProfile:v1",
+      "product_name": "InstrumentEligibilityProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "instrument_reference",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "instrument",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "DPM instrument shelf, restriction, liquidity, and settlement eligibility."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/instruments/eligibility-bulk"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
       "product_id": "lotus-core:InstrumentReferenceBundle:v1",
       "product_name": "InstrumentReferenceBundle",
       "product_version": "v1",
@@ -640,6 +900,71 @@
       "current_routes": [
         "/integration/instruments/enrichment-bulk",
         "/integration/reference/classification-taxonomy"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:MarketDataCoverageWindow:v1",
+      "product_name": "MarketDataCoverageWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "market_reference_data",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "instrument",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "instrument_id",
+        "currency_pair",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "DPM price and FX coverage diagnostics for target-universe valuation."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/market-data/coverage"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
@@ -839,6 +1164,71 @@
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/core-snapshot"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PortfolioTaxLotWindow:v1",
+      "product_name": "PortfolioTaxLotWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_state",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "instrument_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "DPM tax-lot and cost-basis state for tax-aware sells."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "system_access:client_sensitive:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/tax-lots"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
