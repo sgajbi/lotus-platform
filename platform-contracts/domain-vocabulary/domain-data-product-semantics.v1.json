@@ -34,6 +34,13 @@
       "description": "Canonical instrument identifier used for holdings, exposure, enrichment, and reference products."
     },
     {
+      "key": "model_portfolio_id",
+      "semantic_id": "lotus.model_portfolio_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical model portfolio identifier used for discretionary mandate model binding, target allocation, and versioned model portfolio source products."
+    },
+    {
       "key": "issuer_id",
       "semantic_id": "lotus.issuer_id",
       "stability": "stable",
@@ -53,6 +60,13 @@
       "stability": "stable",
       "lifecycle": "active",
       "description": "Canonical risk-free curve identifier for governed risk-free source series."
+    },
+    {
+      "key": "currency_pair",
+      "semantic_id": "lotus.currency_pair",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical currency-pair identifier used for FX coverage and valuation-source data products."
     },
     {
       "key": "calculation_id",
