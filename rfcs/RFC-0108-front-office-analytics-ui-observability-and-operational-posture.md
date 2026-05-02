@@ -1560,3 +1560,55 @@ proof included focused proposal/platform/workbench tests (`175 passed`), `make c
 `make test-integration`, non-live workflow e2e, `git diff --check`, and wiki drift publication.
 GitHub Feature Lane and PR Merge Gate passed, including coverage, integration, Docker build, and CI
 local Docker parity. Gateway wiki source was published as commit `94ca9c7`.
+
+Workbench live-evidence boundary and screenshot proof hardening:
+
+`lotus-workbench` PR #137, merge `65740af`, closes the 2026-05-02 live gold-pass
+evidence gap found after the Gateway ownership cleanup. The canonical Workbench live validator no
+longer probes stale direct manage `/integration/capabilities` paths; it now proves the strategic
+manage supportability boundary through `GET /api/v1/rebalance/supportability/summary` and requires
+`supportability.state=ready`. Gateway platform-capability proof remains gateway-first and requires
+explicit `normalized.moduleHealth.lotus_manage` posture without treating manage feature flags as a
+Workbench product commitment while the manage revamp is underway.
+
+The same slice tightened the product evidence itself. Critical screenshot review found a risk-panel
+concentration scale label collapse, empty rolling-window detail table chrome, and a hover-tooltip
+artifact in the performance summary capture. The implementation added a context-only risk-module
+layout, relaxed concentration scale label constraints, replaced ready-with-empty rolling detail
+rows with a compact explanatory state, and cleared hover/keyboard overlays before canonical
+screenshots. These are production-readiness fixes because evidence screenshots are used for
+operator review and client-demo preparation, not decorative artifacts.
+
+What was proven is implementation-backed: focused Workbench tests passed for live validation,
+observability evidence capture, browser workflows, risk concentration, and rolling risk panels
+(`24` focused tests); full `make check` passed with `680` tests; `git diff --check` passed; live
+canonical validation passed for `PB_SG_GLOBAL_BAL_001` with `24` API checks, `8` UI checks, `7`
+screenshots, `12` panel classifications, and `4` workflow-pack checks; observability capture
+recorded app API samples with HTTP 200 including manage readiness and manage supportability
+summary; Gateway and Performance logs showed bounded correlation/request/trace identifiers; and
+manual screenshot review confirmed the tooltip, scale-label, and empty-table issues were removed.
+GitHub Feature Lane and PR Merge Gate passed after the Playwright browser install step was hardened
+against external Ubuntu package mirror resolution failure. Workbench wiki source was published as
+commit `ad4d0ba`.
+
+Final 2026-05-02 gold-pass decision:
+
+RFC-0108 remains complete for current implementation-backed claims after this final Workbench
+evidence-boundary slice. What was truly completed is the current governed analytics observability
+path from Workbench browser/BFF through Gateway and domain supportability, including caller-context
+certification for current read paths, bounded metric labels, supportability summaries, advisory
+proposal ownership through `lotus-advise`, manage readiness through strategic versioned manage
+supportability endpoints, live canonical validation, observability capture, screenshot review, and
+wiki publication. Quality improvements made during the final pass include removal of stale manage
+capability evidence, stricter gateway-first capability proof, stronger screenshot hygiene, clearer
+risk empty-state rendering, and CI hardening for Playwright smoke setup. Debt removed includes the
+old direct manage integration-capabilities assumption, ambiguous manage feature-flag proof, empty
+analytical table chrome for unavailable rolling-risk detail rows, and tooltip-contaminated
+screenshots.
+
+The implementation has genuinely reached the expected standard for the current RFC-0108 scope:
+completed slices are implementation-backed, local and GitHub evidence are green, operator/demo wiki
+truth has been published in the owning repos, and residuals remain explicit. The residuals are not
+closure blockers because they are outside current implementation-backed claims: full RFC-0079
+risk/evidence scope, future Workbench all-supported-surface promotion, and future manage execution
+APIs after the manage revamp must each be delivered by their own implementation-backed slices.

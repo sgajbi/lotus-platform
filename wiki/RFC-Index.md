@@ -203,6 +203,9 @@
   and Advisor Brief; future certified read paths must provide equivalent proof before promotion.
   Workbench PR #136 adds the current mutation hydration boundary proof: Advisor Brief review-action
   mutations emit bounded API request and panel-state metrics without incrementing panel hydration.
+  Gateway PR #179 moves proposal ownership to lotus-advise and limits manage to strategic
+  versioned run/supportability/capability endpoints. Workbench PR #137 hardens the live evidence
+  boundary and screenshot quality for strategic manage supportability proof.
   This is not an extension of RFC-0105 reporting
   observability.
 

@@ -105,8 +105,14 @@ def test_analytics_ui_observability_wiki_records_implementation_backed_scope() -
         "`lotus-advise` PR #109",
         "state`, `reason`, and `freshness_bucket",
         "Gateway PRs #166 through #172",
+        "Gateway PRs #176 through #179",
         "Workbench PRs #118 through #129",
         "Workbench PR #132",
+        "Workbench PR #137",
+        "65740af",
+        "ad4d0ba",
+        "/api/v1/rebalance/supportability/summary",
+        "stale direct `/integration/capabilities`",
         "PB_SG_GLOBAL_BAL_001",
         "context/contracts/",
         "rfc-0108-performance-layout-hardening-qa",
@@ -249,3 +255,26 @@ def test_analytics_ui_observability_wiki_preserves_residual_boundaries() -> None
     assert "lotus-performance PR #141" in rfc_index
     assert "lotus-risk PR #109" in rfc_index
     assert "lotus-advise PR #109" in rfc_index
+    assert "Workbench PR #137" in rfc_index
+    assert "Gateway PR #179" in rfc_index
+
+
+def test_analytics_ui_observability_wiki_records_live_evidence_boundary() -> None:
+    wiki = _read(WIKI_PATH)
+
+    for expected in [
+        "## Workbench Live Evidence Boundary",
+        "normalized.moduleHealth.lotus_manage",
+        "GET /api/v1/rebalance/supportability/summary",
+        "stale direct `/integration/capabilities` probe is not valid evidence",
+        "24` API checks",
+        "8` UI checks",
+        "7` screenshots",
+        "12` panel classifications",
+        "Gateway and Performance logs carried bounded correlation, request, and trace identifiers",
+        "risk concentration scale no",
+        "longer collapses labels",
+        "ready-with-empty rolling risk detail rows",
+        "published after the merge as commit `ad4d0ba`",
+    ]:
+        assert expected in wiki
