@@ -179,8 +179,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    skills-routing, and branch-hygiene readiness updates.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
-   emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
-   evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
+   emits telemetry, and passes certification. RFC-0087/RFC-0091 onboarding scaffolds now include
+   source-data API profile, API certification, and ingestion-pipeline checklists so new source
+   products start with explicit ingestion, serving API, downstream consumption, OpenAPI,
+   observability, and live-evidence expectations. Static telemetry fixtures remain explicit
+   fallback evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
    evidence-pack drift are certification evidence and must not be handled as separate decorative
    reports. Public customer evidence packs must not expose restricted telemetry paths, source
    artifacts, or consumer entitlement details.

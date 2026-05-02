@@ -45,6 +45,14 @@ Use these files to continue without old chat history:
 - [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
 - `generated/enterprise-mesh-closure-ledger.json`
 
+## Source-Data Product Onboarding
+
+`automation/generate_domain_product_onboarding.py` is the platform self-service scaffold for new
+mesh products. It now generates the repo-owned declaration and trust files plus a source-data API
+profile, API certification checklist, and ingestion pipeline checklist. Product teams should use
+that bundle before implementing new source products so ingestion, serving APIs, downstream
+consumption, OpenAPI quality, observability, and live-evidence proof are designed together.
+
 ## Current Proof Commands
 
 ```powershell

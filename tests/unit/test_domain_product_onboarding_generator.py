@@ -36,17 +36,18 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
         output_directory=tmp_path,
     )
 
-    relative_paths = {
-        path.relative_to(tmp_path).as_posix() for path in written_paths
-    }
+    relative_paths = {path.relative_to(tmp_path).as_posix() for path in written_paths}
     assert relative_paths == {
         "contracts/domain-data-products/lotus-report-products.v1.json",
+        "contracts/source-data-products/client-report-evidence-pack.api-profile.v1.json",
         "contracts/trust-telemetry/client-report-evidence-pack.telemetry.v1.json",
         "platform-contracts/mesh-slo/lotus-report-client-report-evidence-pack.slo.v1.json",
         "platform-contracts/mesh-access/lotus-report-client-report-evidence-pack.access.v1.json",
         "platform-contracts/mesh-evidence/lotus-report-client-report-evidence-pack.evidence-pack-policy.v1.json",
         "README.md",
         "PRODUCT-ONBOARDING-CHECKLIST.md",
+        "docs/API-CERTIFICATION-CHECKLIST.md",
+        "docs/INGESTION-PIPELINE-CHECKLIST.md",
     }
 
     product_declaration = json.loads(
@@ -77,17 +78,62 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
     assert telemetry["producer_repository"] == "lotus-report"
     assert telemetry["lineage"]["lineage_materialized"] is True
 
-    assert generator.validate_domain_product_onboarding_bundle(
-        output_directory=tmp_path,
-        repository="lotus-report",
-        product_name="ClientReportEvidencePack",
-        product_version="v1",
-    ) == []
+    source_api_profile = json.loads(
+        (
+            tmp_path
+            / "contracts"
+            / "source-data-products"
+            / "client-report-evidence-pack.api-profile.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert source_api_profile["contract_id"] == "lotus-source-data-product-api-profile"
+    assert (
+        source_api_profile["product_id"] == "lotus-report:ClientReportEvidencePack:v1"
+    )
+    assert source_api_profile["source_ingestion"]["required"] is True
+    assert source_api_profile["serving_api"]["required"] is True
+    assert source_api_profile["certification"]["api_certification_required"] is True
+    assert (
+        source_api_profile["certification"]["live_canonical_evidence_required"] is True
+    )
+    assert (
+        source_api_profile["downstream_consumption"][
+            "duplicate_endpoint_review_required"
+        ]
+        is True
+    )
+
+    assert (
+        generator.validate_domain_product_onboarding_bundle(
+            output_directory=tmp_path,
+            repository="lotus-report",
+            product_name="ClientReportEvidencePack",
+            product_version="v1",
+        )
+        == []
+    )
 
     checklist = (tmp_path / "PRODUCT-ONBOARDING-CHECKLIST.md").read_text(
         encoding="utf-8"
     )
-    assert "--repository lotus-report --product-name ClientReportEvidencePack" in checklist
+    assert (
+        "--repository lotus-report --product-name ClientReportEvidencePack" in checklist
+    )
+    assert "Source API profile" in checklist
+
+    api_certification = (
+        tmp_path / "docs" / "API-CERTIFICATION-CHECKLIST.md"
+    ).read_text(encoding="utf-8")
+    assert "every request option" in api_certification
+    assert "every output family" in api_certification
+    assert "Live canonical validation" in api_certification
+
+    ingestion = (tmp_path / "docs" / "INGESTION-PIPELINE-CHECKLIST.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Authoritative source systems" in ingestion
+    assert "Idempotency keys" in ingestion
+    assert "Canonical demo seed data" in ingestion
 
 
 def test_domain_product_onboarding_validation_rejects_identity_drift(
@@ -121,6 +167,43 @@ def test_domain_product_onboarding_validation_rejects_identity_drift(
 
     assert issues == [
         "telemetry policy product_id does not match lotus-manage:PortfolioActionRegister:v1"
+    ]
+
+
+def test_domain_product_onboarding_validation_rejects_weak_source_api_profile(
+    tmp_path: Path,
+) -> None:
+    generator = _load_generator_module()
+    generator.scaffold_domain_product_onboarding(
+        repository="lotus-core",
+        product_name="DiscretionaryMandateBinding",
+        product_version="v1",
+        authoritative_domain="portfolio_management",
+        product_family="dpm_source_data",
+        output_directory=tmp_path,
+    )
+    source_profile_path = (
+        tmp_path
+        / "contracts"
+        / "source-data-products"
+        / "discretionary-mandate-binding.api-profile.v1.json"
+    )
+    source_profile = json.loads(source_profile_path.read_text(encoding="utf-8"))
+    source_profile["certification"]["mesh_certification_required"] = False
+    source_profile_path.write_text(
+        json.dumps(source_profile, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = generator.validate_domain_product_onboarding_bundle(
+        output_directory=tmp_path,
+        repository="lotus-core",
+        product_name="DiscretionaryMandateBinding",
+        product_version="v1",
+    )
+
+    assert issues == [
+        "source_api_profile certification.mesh_certification_required must be true"
     ]
 
 

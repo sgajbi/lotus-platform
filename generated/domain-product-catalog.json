@@ -1236,7 +1236,10 @@
         "lotus-gateway"
       ],
       "current_routes": [
-        "/manage/portfolio-actions/{portfolio_id}"
+        "/api/v1/rebalance/supportability/summary",
+        "/api/v1/rebalance/runs/{rebalance_run_id}/artifact",
+        "/api/v1/rebalance/runs/{rebalance_run_id}/workflow",
+        "/api/v1/rebalance/workflow/decisions"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",

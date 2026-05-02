@@ -61,6 +61,21 @@ Discovery drift-check command:
 python .\automation\generate_domain_product_discovery.py --check --generated-at-utc 2026-04-19T00:00:00Z
 ```
 
+Onboarding scaffold command:
+
+```powershell
+python .\automation\generate_domain_product_onboarding.py --repository lotus-core --product-name ExampleSourceProduct --product-version v1 --authoritative-domain portfolio_management --product-family source_data
+```
+
+Generated onboarding bundles include:
+
+1. repo-native producer declaration scaffold,
+2. trust telemetry scaffold,
+3. SLO, access, and evidence policy scaffolds,
+4. source-data product API profile scaffold covering ingestion, serving API, certification, and downstream consumption posture,
+5. API certification checklist for OpenAPI, output-family, error, security, non-functional, and live-evidence proof,
+6. ingestion pipeline checklist for source acquisition, idempotency, lineage, reconciliation, backfill, runtime telemetry, and canonical seed-data readiness.
+
 Generated discovery artifacts:
 
 1. `../../generated/domain-product-catalog.json`
