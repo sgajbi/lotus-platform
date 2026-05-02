@@ -314,7 +314,11 @@ The current reporting and analytics observability governance references are:
    downstream ownership boundary so proposal simulation/create/list/detail/version/workflow/
    approval/lineage uses `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
    consumption is limited to versioned strategic run, supportability summary, and capability
-   endpoints. lotus-ai PR #57 hardens AI surface
+   endpoints. Workbench PR #137 hardens the canonical live evidence boundary so Workbench no
+   longer treats stale direct manage `/integration/capabilities` as proof, validates strategic
+   manage supportability through `/api/v1/rebalance/supportability/summary`, preserves
+   gateway-first capability proof, and fixes screenshot evidence defects in the performance and
+   risk panels before publishing wiki truth. lotus-ai PR #57 hardens AI surface
    supportability proof with bounded `supportability_reason`, explicit `metric_labels`,
    sensitive-diagnostic rejection tests, Prometheus metric-label tests, `make check`, `make ci`,
    Docker build, and published wiki source. lotus-core PR #329 hardens portfolio readiness

@@ -150,6 +150,11 @@ Reference baseline:
 
 ## Recommended Next Implementation Order
 
+RFC-0108 latest current-scope gold-pass updates: Gateway PR #179 moves proposal ownership to
+`lotus-advise` and limits manage to strategic versioned run/supportability/capability endpoints;
+Workbench PR #137 hardens the live evidence boundary and screenshot quality for strategic manage
+supportability proof.
+
 1. Review and approve `RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md`
    before implementation starts for enterprise reporting, rendering, batch production, or document
    archival.
