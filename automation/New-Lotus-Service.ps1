@@ -1229,10 +1229,11 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/README.md") -V
 
 Use this directory for machine-readable implementation evidence referenced by RFCs and PRs.
 
-Evidence must name the repository, branch, commit SHA, PR number, command, endpoint or route,
-operational identifiers, and result. Do not store sensitive client, portfolio, holding,
-transaction, entitlement, request-body, response-body, trace, or correlation details here unless a
-later security review explicitly certifies the artifact.
+Evidence must name the repository, branch, commit SHA, PR number, RFC slice, validation command,
+endpoint or route, state-machine or lifecycle decision where applicable, supported-feature posture,
+wiki publication posture, operational identifiers, and result. Do not store sensitive client,
+portfolio, holding, transaction, entitlement, request-body, response-body, trace, or correlation
+details here unless a later security review explicitly certifies the artifact.
 "@
 Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
 {
@@ -1245,6 +1246,38 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manif
   "pull_request": null,
   "status": "draft",
   "summary": "Replace with the evidence package purpose and scope.",
+  "slice_closure": {
+    "implementation_complete": false,
+    "tests_complete": false,
+    "documentation_complete": false,
+    "review_complete": false,
+    "unsupported_claims_removed": false,
+    "notes": "Replace with the slice closure decision."
+  },
+  "api_certification": {
+    "openapi_gate": "not_run",
+    "certified_endpoints": [],
+    "degraded_error_examples_reviewed": false,
+    "attribute_examples_reviewed": false
+  },
+  "state_machine_review": {
+    "applies": false,
+    "transition_matrix_path": null,
+    "allowed_transition_tests": [],
+    "rejected_transition_tests": []
+  },
+  "supported_features_review": {
+    "supported_features_path": "supported-features/supported-features.json",
+    "promoted_features": [],
+    "deferred_features": [],
+    "no_aspirational_claims": false
+  },
+  "wiki_publication": {
+    "wiki_source_changed": false,
+    "check_only_status": "not_run",
+    "publish_required_after_merge": false,
+    "published_commit": null
+  },
   "validation_commands": [
     {
       "command": "make check",
@@ -1262,6 +1295,7 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manif
     }
   ],
   "cross_app_evidence": [],
+  "downstream_realization": [],
   "review_notes": [],
   "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
 }
