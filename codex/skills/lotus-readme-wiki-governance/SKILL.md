@@ -59,49 +59,58 @@ as the durable home for Lotus documentation workflow guidance.
 10. Keep the README short enough to orient a new engineer quickly. Route to deeper docs instead of
    copying them.
 11. Keep the wiki operator- and onboarding-focused. It should summarize, organize, and link; it
-   should not become an unbounded duplicate of `docs/`.
-12. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
+    should not become an unbounded duplicate of `docs/`.
+12. For business applications, make the wiki useful beyond developers:
+   - business users should understand the product role, feature behavior, and operating model,
+   - sales and marketing should understand implementation-backed value propositions and demo
+     stories without target-state overclaim,
+   - operations should understand runtime posture, supportability, upstream/downstream dependencies,
+     degraded states, monitoring, and escalation paths,
+   - engineers should have links to APIs, contracts, tests, RFCs, and runbooks.
+   Include diagrams where they clarify flows, upstream and downstream integrations,
+   feature behavior, functional capability groupings, or non-functional posture.
+13. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
-13. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
+14. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
    disabled navigation entries, and target future topology. Do not treat every historical route or
    shell label as an active product commitment.
-14. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
+15. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
    business or market framing only when it clarifies why the platform exists, never as a substitute
    for actual automation, standards, and runtime ownership.
-15. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
+16. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
    ecosystem-level platform narrative under the platform-governance repository instead of leaving it
    stranded inside one application repo. Keep numeric pricing and deal-specific terms high-level
    unless the user explicitly asks for detailed commercial mechanics.
-16. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
+17. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
    comparisons, or unverified market-size numbers, translate the durable business meaning into
    current Lotus ecosystem language instead of copying the old claims forward. Prefer operating-model
    value, ownership clarity, delivery leverage, and supportability posture over brittle legacy
    specifics.
-17. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
+18. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
    competitor assertions unless they are freshly verified for the current date. For evergreen repo
    wiki pages, prefer structural market forces, buyer pain, and Lotus positioning over brittle
    point-in-time statistics.
-18. Use this content split:
+19. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-19. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+20. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-20. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
+21. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
    than editing the GitHub wiki clone directly. Treat publication as a synchronization step, not as
    a second authoring workflow.
-21. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
+22. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
     carry only the intended slice or also other pending authored wiki edits.
-22. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
+23. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
    fails because of old characters such as `:`, use a bare clone publication path instead of
    mutating the repo-local `wiki/` source or skipping the publish.
-23. When replacing a legacy wiki with the current governed page set, preserve durable business or
+24. When replacing a legacy wiki with the current governed page set, preserve durable business or
    operator signal by migrating it into grounded Lotus language first; then retire the stale page
    names from the live wiki.
-24. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+25. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
 
 ## README Standard
@@ -146,6 +155,17 @@ The wiki should provide a stable operator and onboarding surface with:
 9. `RFC Index`
 10. `Integrations`
 11. `Roadmap`
+12. `Supported Features` when a product or service has implementation-backed feature claims that
+    business, operations, or demo teams need to trust.
+
+For business applications, the wiki should also include:
+
+1. a current-state functional capability matrix,
+2. a current-state non-functional capability matrix,
+3. upstream and downstream integration diagrams,
+4. feature-flow diagrams for the main product workflows,
+5. explicit target-state roadmap material separated from implemented support,
+6. demo-preparation notes that identify which claims are implementation-backed.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
