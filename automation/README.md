@@ -1233,7 +1233,9 @@ Scaffolded backend repositories now also default to:
 - product-safe problem-details errors, structured JSON application events, supported-features placeholders, RFC implementation evidence scaffolding, operations observability documentation, and API certification documentation from day one
 - `evidence/rfc-implementation/evidence-manifest.template.json`, so RFC implementation slices can
   publish comparable machine-readable evidence across repositories without inventing local manifest
-  shapes
+  shapes; the template now includes slice closure, API certification, state-machine review,
+  supported-feature review, wiki-publication, and downstream-realization sections for
+  stateful/API-heavy RFC programs
 
 RFC-0108 Slice 0 added the analytics UI observability scaffold baseline. Validate that baseline with:
 

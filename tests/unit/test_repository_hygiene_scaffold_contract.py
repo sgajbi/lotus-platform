@@ -15,24 +15,40 @@ def _powershell_executable() -> str:
         return "powershell"
     candidate = shutil.which("pwsh") or shutil.which("powershell")
     if candidate is None:
-        raise AssertionError("PowerShell executable not available for scaffold contract test")
+        raise AssertionError(
+            "PowerShell executable not available for scaffold contract test"
+        )
     return candidate
 
 
 def test_repository_hygiene_standard_and_templates_exist() -> None:
-    standards_readme = (ROOT / "platform-standards" / "README.md").read_text(encoding="utf-8")
+    standards_readme = (ROOT / "platform-standards" / "README.md").read_text(
+        encoding="utf-8"
+    )
     hygiene_standard = (
-        ROOT / "platform-standards" / "Repository-Hygiene-and-Dependency-Model-Standard.md"
+        ROOT
+        / "platform-standards"
+        / "Repository-Hygiene-and-Dependency-Model-Standard.md"
     ).read_text(encoding="utf-8")
-    scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(
+        encoding="utf-8"
+    )
     makefile_template = (
         ROOT / "platform-standards" / "templates" / "Makefile.backend.template"
     ).read_text(encoding="utf-8")
     feature_lane_template = (
-        ROOT / "platform-standards" / "templates" / "workflows" / "feature-lane.backend.template.yml"
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "feature-lane.backend.template.yml"
     ).read_text(encoding="utf-8")
     pr_merge_template = (
-        ROOT / "platform-standards" / "templates" / "workflows" / "pr-merge-gate.backend.template.yml"
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "pr-merge-gate.backend.template.yml"
     ).read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
@@ -45,12 +61,30 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "requirements/ci-tooling.lock.txt" in hygiene_standard
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")' in scaffold_script
-    assert 'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")' in scaffold_script
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".editorconfig.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".gitattributes.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".gitignore.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot ".dockerignore.backend.template")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot "requirements.shared-runtime.lock.template.txt")'
+        in scaffold_script
+    )
+    assert (
+        'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")'
+        in scaffold_script
+    )
     assert "Ensure-GitInitialCommit" in scaffold_script
     assert "git -C $TargetRepoRoot push -u origin main" in scaffold_script
     assert "missing summary" in scaffold_script
@@ -64,12 +98,26 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "structured JSON application events" in scaffold_script
     assert "supported-features/supported-features.json" in scaffold_script
     assert "evidence/rfc-implementation/README.md" in scaffold_script
-    assert "evidence/rfc-implementation/evidence-manifest.template.json" in scaffold_script
+    assert (
+        "evidence/rfc-implementation/evidence-manifest.template.json" in scaffold_script
+    )
+    assert '"slice_closure"' in scaffold_script
+    assert '"api_certification"' in scaffold_script
+    assert '"state_machine_review"' in scaffold_script
+    assert '"supported_features_review"' in scaffold_script
+    assert '"wiki_publication"' in scaffold_script
+    assert '"downstream_realization"' in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
-    assert 'require_response_headers = @("x-correlation-id", "x-trace-id")' in scaffold_script
-    assert '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")' in scaffold_script
+    assert (
+        'require_response_headers = @("x-correlation-id", "x-trace-id")'
+        in scaffold_script
+    )
+    assert (
+        '[string[]]$RequiredLogPatterns = @("correlation", "trace", "service")'
+        in scaffold_script
+    )
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
@@ -84,7 +132,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         in makefile_template
     )
     assert "run: ./.venv/bin/python -m pytest tests/unit" in feature_lane_template
-    assert "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report=" in pr_merge_template
+    assert (
+        "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report="
+        in pr_merge_template
+    )
     assert "./.venv/bin/python -m coverage combine coverage-data" in pr_merge_template
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
 
@@ -140,38 +191,46 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
-    observability_py = (repo_root / "src/app/observability.py").read_text(encoding="utf-8")
-    correlation_middleware = (repo_root / "src/app/middleware/correlation.py").read_text(
+    observability_py = (repo_root / "src/app/observability.py").read_text(
         encoding="utf-8"
     )
-    health_tests = (repo_root / "tests/integration/test_health.py").read_text(encoding="utf-8")
-    service_contract_tests = (repo_root / "tests/unit/test_service_contract.py").read_text(
+    correlation_middleware = (
+        repo_root / "src/app/middleware/correlation.py"
+    ).read_text(encoding="utf-8")
+    health_tests = (repo_root / "tests/integration/test_health.py").read_text(
         encoding="utf-8"
     )
-    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(encoding="utf-8")
-    sensitive_content_guard = (repo_root / "scripts/no_sensitive_content_guard.py").read_text(
+    service_contract_tests = (
+        repo_root / "tests/unit/test_service_contract.py"
+    ).read_text(encoding="utf-8")
+    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(
         encoding="utf-8"
     )
-    supported_features_gate = (repo_root / "scripts/supported_features_gate.py").read_text(
-        encoding="utf-8"
-    )
+    sensitive_content_guard = (
+        repo_root / "scripts/no_sensitive_content_guard.py"
+    ).read_text(encoding="utf-8")
+    supported_features_gate = (
+        repo_root / "scripts/supported_features_gate.py"
+    ).read_text(encoding="utf-8")
     supported_features = json.loads(
-        (repo_root / "supported-features/supported-features.json").read_text(encoding="utf-8")
+        (repo_root / "supported-features/supported-features.json").read_text(
+            encoding="utf-8"
+        )
     )
     evidence_readme = (repo_root / "evidence/rfc-implementation/README.md").read_text(
         encoding="utf-8"
     )
     evidence_manifest_template = json.loads(
-        (repo_root / "evidence/rfc-implementation/evidence-manifest.template.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            repo_root / "evidence/rfc-implementation/evidence-manifest.template.json"
+        ).read_text(encoding="utf-8")
     )
     observability_doc = (repo_root / "docs/operations/observability.md").read_text(
         encoding="utf-8"
     )
-    api_certification_doc = (repo_root / "docs/operations/api-certification.md").read_text(
-        encoding="utf-8"
-    )
+    api_certification_doc = (
+        repo_root / "docs/operations/api-certification.md"
+    ).read_text(encoding="utf-8")
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -202,9 +261,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Product-safe remediation guidance" in errors_py
     assert "json.dumps(payload, sort_keys=True, default=str)" in observability_py
     assert '"event": event_name' in observability_py
-    assert 'request.state.correlation_id = correlation_id' in correlation_middleware
-    assert 'request.state.trace_id = trace_id' in correlation_middleware
-    assert 'response.headers["X-Correlation-Id"] = correlation_id' in correlation_middleware
+    assert "request.state.correlation_id = correlation_id" in correlation_middleware
+    assert "request.state.trace_id = trace_id" in correlation_middleware
+    assert (
+        'response.headers["X-Correlation-Id"] = correlation_id'
+        in correlation_middleware
+    )
     assert 'response.headers["X-Trace-Id"] = trace_id' in correlation_middleware
     assert "test_correlation_and_trace_header_propagation" in health_tests
     assert "test_correlation_and_trace_headers_are_generated" in health_tests
@@ -223,14 +285,53 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "features": [],
         "policy": "Only implementation-backed behavior may be promoted to supported.",
     }
+    evidence_readme_normalized = " ".join(evidence_readme.split())
     assert "machine-readable implementation evidence" in evidence_readme
-    assert "client, portfolio, holding" in evidence_readme
+    assert "client, portfolio, holding" in evidence_readme_normalized
     assert evidence_manifest_template["repository"] == service_name
     assert evidence_manifest_template["rfc_id"] == "RFC-0000"
     assert evidence_manifest_template["slice_id"] == "slice-0"
-    assert evidence_manifest_template["validation_commands"][0]["command"] == "make check"
-    assert evidence_manifest_template["artifacts"][0]["hash"] == "sha256:replace-after-generation"
+    assert evidence_manifest_template["slice_closure"] == {
+        "implementation_complete": False,
+        "tests_complete": False,
+        "documentation_complete": False,
+        "review_complete": False,
+        "unsupported_claims_removed": False,
+        "notes": "Replace with the slice closure decision.",
+    }
+    assert evidence_manifest_template["api_certification"] == {
+        "openapi_gate": "not_run",
+        "certified_endpoints": [],
+        "degraded_error_examples_reviewed": False,
+        "attribute_examples_reviewed": False,
+    }
+    assert evidence_manifest_template["state_machine_review"] == {
+        "applies": False,
+        "transition_matrix_path": None,
+        "allowed_transition_tests": [],
+        "rejected_transition_tests": [],
+    }
+    assert evidence_manifest_template["supported_features_review"] == {
+        "supported_features_path": "supported-features/supported-features.json",
+        "promoted_features": [],
+        "deferred_features": [],
+        "no_aspirational_claims": False,
+    }
+    assert evidence_manifest_template["wiki_publication"] == {
+        "wiki_source_changed": False,
+        "check_only_status": "not_run",
+        "publish_required_after_merge": False,
+        "published_commit": None,
+    }
+    assert (
+        evidence_manifest_template["validation_commands"][0]["command"] == "make check"
+    )
+    assert (
+        evidence_manifest_template["artifacts"][0]["hash"]
+        == "sha256:replace-after-generation"
+    )
     assert evidence_manifest_template["cross_app_evidence"] == []
+    assert evidence_manifest_template["downstream_realization"] == []
     assert "structured JSON application events" in observability_doc
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc
