@@ -64,6 +64,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "structured JSON application events" in scaffold_script
     assert "supported-features/supported-features.json" in scaffold_script
     assert "evidence/rfc-implementation/README.md" in scaffold_script
+    assert "evidence/rfc-implementation/evidence-manifest.template.json" in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
@@ -160,6 +161,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     evidence_readme = (repo_root / "evidence/rfc-implementation/README.md").read_text(
         encoding="utf-8"
     )
+    evidence_manifest_template = json.loads(
+        (repo_root / "evidence/rfc-implementation/evidence-manifest.template.json").read_text(
+            encoding="utf-8"
+        )
+    )
     observability_doc = (repo_root / "docs/operations/observability.md").read_text(
         encoding="utf-8"
     )
@@ -219,6 +225,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     }
     assert "machine-readable implementation evidence" in evidence_readme
     assert "client, portfolio, holding" in evidence_readme
+    assert evidence_manifest_template["repository"] == service_name
+    assert evidence_manifest_template["rfc_id"] == "RFC-0000"
+    assert evidence_manifest_template["slice_id"] == "slice-0"
+    assert evidence_manifest_template["validation_commands"][0]["command"] == "make check"
+    assert evidence_manifest_template["artifacts"][0]["hash"] == "sha256:replace-after-generation"
+    assert evidence_manifest_template["cross_app_evidence"] == []
     assert "structured JSON application events" in observability_doc
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc

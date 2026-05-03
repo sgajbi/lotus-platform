@@ -1231,6 +1231,9 @@ Scaffolded backend repositories now also default to:
 - repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
 - baseline health, readiness, metrics, correlation-id and trace-id propagation, OpenAPI quality, coverage gate, and wiki-source posture from day one
 - product-safe problem-details errors, structured JSON application events, supported-features placeholders, RFC implementation evidence scaffolding, operations observability documentation, and API certification documentation from day one
+- `evidence/rfc-implementation/evidence-manifest.template.json`, so RFC implementation slices can
+  publish comparable machine-readable evidence across repositories without inventing local manifest
+  shapes
 
 RFC-0108 Slice 0 added the analytics UI observability scaffold baseline. Validate that baseline with:
 
