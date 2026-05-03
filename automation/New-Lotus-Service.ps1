@@ -1234,6 +1234,38 @@ operational identifiers, and result. Do not store sensitive client, portfolio, h
 transaction, entitlement, request-body, response-body, trace, or correlation details here unless a
 later security review explicitly certifies the artifact.
 "@
+Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "rfc_id": "RFC-0000",
+  "slice_id": "slice-0",
+  "generated_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "branch": "feature-branch",
+  "commit_sha": "unknown",
+  "pull_request": null,
+  "status": "draft",
+  "summary": "Replace with the evidence package purpose and scope.",
+  "validation_commands": [
+    {
+      "command": "make check",
+      "status": "not_run",
+      "evidence_ref": "output/path-to-command-summary.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "example-artifact",
+      "artifact_type": "json",
+      "path": "output/example/example-artifact.json",
+      "hash": "sha256:replace-after-generation",
+      "description": "Replace with the source-backed evidence artifact description."
+    }
+  ],
+  "cross_app_evidence": [],
+  "review_notes": [],
+  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
+}
+"@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
 APP_ENV=local
 LOG_LEVEL=INFO
