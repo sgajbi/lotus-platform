@@ -166,6 +166,14 @@ Definition of green:
 3. no known flaky required check is being ignored,
 4. PR evidence matches what actually ran.
 
+Definition of done:
+
+1. implementation and durable closure truth are merged to `main`,
+2. required local and GitHub validation has passed,
+3. local repository state is synced clean from `main`,
+4. repo-local wiki source has been checked when documentation truth changed,
+5. published wiki has been updated after merge when wiki truth changed.
+
 ### 4) Merge decision gate
 
 Allow merge only when all conditions are true:
