@@ -467,6 +467,14 @@ Do not improvise a parallel front-office stack sequence from `lotus-platform/pla
 
 Demo-ready screenshots must be captured only after canonical API, calculation, and panel validation passes. Pre-validation captures are diagnostic artifacts and must not be presented as demo-ready evidence.
 Machine-readable runtime evidence should preserve canonical contract identity and version, not just portfolio and route parameters.
+
+When live canonical proof follows code, route, BFF, panel, Dockerfile, or seed-data changes, rebuild
+or targeted-refresh the impacted service images before accepting evidence. Stale containers can
+produce false route 404s, missing panel fields, and empty business surfaces even after merged code
+exists. Treat those symptoms as diagnostic failures until the changed services are refreshed and
+validation is rerun. If a panel proves a newly implemented business capability, create or seed a real
+implementation-backed entity first and record that evidence path; an empty panel is not product
+proof for a populated business workflow.
 This runtime and dataset posture is governed by `RFC-0076` and the governed panel-surface posture by `RFC-0077`.
 
 ## Engineering Standards
