@@ -1374,6 +1374,18 @@ Every endpoint added after scaffold creation must include:
 5. attribute descriptions, types, and examples,
 6. focused unit or integration tests for success and failure behavior,
 7. OpenAPI gate coverage before merge.
+
+## Source-Degraded And Reconciliation Endpoints
+
+Endpoints that reconcile expected-versus-realized state or consume another Lotus app as source
+authority must also include:
+
+1. explicit source-owner fields in success and degraded responses,
+2. source freshness, lineage, and supportability fields where the source owner exposes them,
+3. `READY`, `DEGRADED`, `BLOCKED`, and `NOT_SUPPORTED` examples where those states are applicable,
+4. tests for missing, stale, unavailable, partial, malformed, and conflicting upstream evidence,
+5. proof that the service does not clone calculations owned by another Lotus app,
+6. README, wiki, supported-feature, and RFC evidence updates before any product support claim.
 "@
 
 if (-not $SkipAutomationRegistration) {

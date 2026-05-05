@@ -336,6 +336,15 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc
     assert "product-safe error examples" in api_certification_doc
+    assert "Source-Degraded And Reconciliation Endpoints" in api_certification_doc
+    assert "explicit source-owner fields" in api_certification_doc
+    assert (
+        "READY, DEGRADED, BLOCKED, and NOT_SUPPORTED examples" in api_certification_doc
+    )
+    assert (
+        "does not clone calculations owned by another Lotus app"
+        in api_certification_doc
+    )
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile
