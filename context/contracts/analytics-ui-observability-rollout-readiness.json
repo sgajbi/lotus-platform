@@ -68,6 +68,12 @@
       "panel_ids": ["performance.evidence"],
       "evidence_basis": "Slice 8 canonical proof validated truthful partial evidence state instead of overclaiming unsupported lineage behavior.",
       "residual_scope": "Full evidence and lineage behavior remains governed by RFC-0079."
+    },
+    {
+      "route": "/workbench/{portfolio_id}",
+      "certification_status": "certified",
+      "panel_ids": ["dpm.outcome_review"],
+      "evidence_basis": "RFC-0042 Workbench proof validates the embedded post-trade outcome-review panel against live Gateway and lotus-manage outcome-review contracts."
     }
   ],
   "rollout_checklist": [

@@ -5,7 +5,8 @@
   "related_rfcs": [
     "RFC-0075",
     "RFC-0076",
-    "RFC-0079"
+    "RFC-0079",
+    "RFC-0042"
   ],
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
   "panels": [
@@ -391,6 +392,48 @@
       ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": "RFC-0079"
+    },
+    {
+      "panel_id": "dpm.outcome_review",
+      "display_name": "Post-Trade Outcome Review",
+      "screen_id": "workbench.dpm_outcome_review",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/outcome-reviews",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "post-trade outcome review heading renders",
+          "outcome-review table has at least one manage-backed row",
+          "dimension matrix has at least one expected-versus-realized row",
+          "source lineage table has at least one source row",
+          "report and AI handoff availability is visible"
+        ],
+        "partial": [
+          "manage supportability state and blocked actions are explicit"
+        ],
+        "empty": [
+          "no materialized outcome-review record is explicit for the portfolio"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-outcome-review-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0042-post-trade-outcome-feedback-loop.md",
+      "known_limitations": [
+        "embedded /workbench/{portfolio_id} panel is implemented first; a dedicated /dpm/outcomes route remains planned under Workbench RFC-0098"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
     }
   ]
 }
