@@ -46,6 +46,51 @@ Before any PR, merge, or cleanup action:
    - `git diff --name-only origin/main...HEAD`
 3. If scope is broad, split into smaller PRs before proceeding.
 
+### 1.0.1) Stranded truth check for governance-bearing PRs
+
+Run this check for any PR that touches or depends on RFCs, README, wiki source, repository context,
+AGENTS.md, contracts, API vocabulary, OpenAPI snapshots, migrations, CI workflows, standards, or
+supported-features material:
+
+```powershell
+git fetch origin --prune
+git branch -r --no-merged origin/main
+```
+
+For each unmerged remote branch that touches durable governance paths, classify it before merge:
+
+1. `must-merge`
+2. `cherry-pick`
+3. `superseded`
+4. `delete`
+5. `active`
+
+Durable governance paths include:
+
+1. `docs/rfcs/`
+2. `wiki/`
+3. `README.md`
+4. `REPOSITORY-ENGINEERING-CONTEXT.md`
+5. `AGENTS.md`
+6. `contracts/`
+7. `platform-contracts/`
+8. `context/`
+9. `docs/standards/`
+10. `.github/workflows/`
+11. migrations, OpenAPI snapshots, API vocabulary inventories, and supported-features files
+
+Use:
+
+```powershell
+git diff --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git diff --diff-filter=A --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git cherry -v origin/main <remote-branch>
+```
+
+Rule: do not merge or close an RFC/documentation-governance PR while unique durable truth remains
+stranded on another unmerged branch unless that branch is explicitly recorded as `active` with owner,
+purpose, expected merge path, and risk.
+
 ### 1.1) Branch policy (single-developer optimized)
 
 1. Always branch from `main`.
@@ -152,6 +197,8 @@ After merge completes:
    - `git ls-remote --heads origin`
 6. Confirm GitHub PR state:
    - `gh pr list --state open --limit 100`
+7. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
+   is now superseded.
 
 Target end-state: local = remote = main.
 
@@ -169,6 +216,8 @@ Target end-state: local = remote = main.
 4. `Runtime:` docker smoke, latency, fast performance gate (if applicable)
 5. `Governance:` OpenAPI + RFC-0067 vocabulary checks (if applicable)
 6. `Tiering:` confirm whether heavy checks are PR-blocking or scheduled/manual for this change
+7. `Stranded truth:` unmerged governance-bearing branches classified, with any restored or
+   superseded durable truth named explicitly
 
 ## Additional Lotus Rules
 
@@ -187,3 +236,5 @@ Target end-state: local = remote = main.
 4. If a gate is flaky, stabilize the gate or make readiness explicit before merge.
 5. In single-developer mode, PR and CI checks replace human approval; they are mandatory.
 6. Branch cleanup must be verified with both local refs (`git branch -r`) and remote server truth (`git ls-remote --heads origin`).
+7. For RFC/docs/wiki/context/contract PRs, merged code or docs without reconciled mainline closure
+   truth is not complete.

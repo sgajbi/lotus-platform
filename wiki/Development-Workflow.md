@@ -5,9 +5,27 @@
 1. load the smallest correct context set
 2. use repo-native commands first
 3. run targeted local checks
-4. push early for GitHub-backed heavy validation
-5. monitor asynchronously and fix forward
-6. update context, skills, or validators when learning becomes durable
+4. reconcile stranded governance truth before RFC/docs/wiki/context/contract closure
+5. push early for GitHub-backed heavy validation
+6. monitor asynchronously and fix forward
+7. update context, skills, or validators when learning becomes durable
+
+## Stranded governance truth
+
+Before RFC tightening, implementation start, final closure, post-merge audit, supported-feature
+promotion, or moving to the next RFC:
+
+```powershell
+git fetch origin --prune
+git branch -r --no-merged origin/main
+```
+
+Inspect unmerged branches that touch RFCs, wiki source, README, context, AGENTS, contracts,
+standards, OpenAPI/vocabulary inventories, migrations, CI workflows, or supported-feature truth.
+Classify each branch as `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active`.
+
+Do not claim RFC closure or product support while durable governance truth exists only on an
+unmerged side branch.
 
 ## Common commands
 

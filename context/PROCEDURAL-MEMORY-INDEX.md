@@ -9,7 +9,8 @@ These playbooks turn recurring delivery practice into durable operating guidance
 1. [Change Playbooks](./playbooks/CHANGE-PLAYBOOKS.md)
    How to execute backend, frontend, cross-repo, RFC-driven, and documentation-change work.
 2. [PR Loop Playbook](./playbooks/PR-LOOP-PLAYBOOK.md)
-   How to validate, push, monitor, fix forward, merge, and clean up.
+   How to validate, reconcile stranded governance truth, push, monitor, fix forward, merge, and
+   clean up.
 3. [Validation Playbook](./playbooks/VALIDATION-PLAYBOOK.md)
    How to choose the right validation path from repo-local checks up to full platform proof.
 4. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)
@@ -31,3 +32,5 @@ Use these playbooks when:
 5. you want to turn a repeated workflow into a reusable practice instead of improvising again.
 6. you are resuming or handing off long-running work and need exact repository, branch, PR, commit,
    RFC, file, endpoint, contract, portfolio, or task-status identifiers preserved.
+7. you are starting, closing, or auditing RFC/docs/wiki/context/contract work and need to ensure
+   no durable truth remains stranded on unmerged remote branches.

@@ -20,6 +20,13 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
    - Evaluate whether each delta is still relevant given current app state and lotus-platform standards.
    - Mark as `done`/`deferred` when appropriate; avoid duplicate future work.
 5. **Cross-app clarity**: If capability ownership moved out of repo, archive with full migration rationale and destination ownership.
+6. **Mainline truth only**: RFC closure, tightening, implementation planning, and supported-feature
+   promotion must be based on `main`, not on an active side branch or local memory. Durable RFC,
+   wiki, context, supported-features, source-map, ledger, and proof-index truth stranded on an
+   unmerged branch is not complete.
+7. **No stranded RFC truth**: Before starting or closing RFC work, reconcile every unmerged remote
+   branch that touches governance artifacts. Unique truth must be merged, cherry-picked, explicitly
+   superseded with rationale, or deleted.
 6. **Business outcome clarity**: Business application RFCs must explain the business outcome in
    private-banking or platform-operating language, not only technical deliverables.
 7. **Domain vocabulary discipline**: Use industry-standard, domain-driven terminology. For banking
@@ -33,12 +40,61 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
 ## Loop Workflow
 
 1. Set review scope and batch size.
-2. Build or refresh RFC inventory/index.
-3. Review RFCs one by one in the batch with evidence.
-4. Classify each RFC.
-5. Standardize RFC document structure/content.
-6. Record next actions and priority.
-7. Commit loop outputs and prepare next batch.
+2. Run stranded RFC truth reconciliation.
+3. Build or refresh RFC inventory/index.
+4. Review RFCs one by one in the batch with evidence.
+5. Classify each RFC.
+6. Standardize RFC document structure/content.
+7. Record next actions and priority.
+8. Commit loop outputs and prepare next batch.
+
+## Stranded RFC Truth Reconciliation (Required)
+
+Run this before RFC tightening, RFC implementation start, post-merge audit, final closure, or any
+supported-feature promotion:
+
+```powershell
+git fetch origin --prune
+git branch -r --no-merged origin/main
+```
+
+For each unmerged remote branch, classify it in the RFC output or task ledger:
+
+1. `must-merge`: contains unique RFC/docs/wiki/context/contract/proof truth that must reach `main`.
+2. `cherry-pick`: contains some useful truth, but the branch as a whole is obsolete.
+3. `superseded`: all useful truth is already present on `main`; record the evidence.
+4. `delete`: branch is merged, obsolete, or contains no durable truth.
+5. `active`: branch is intentionally still in flight; record owner, RFC/slice, and expected closure.
+
+High-risk paths that require inspection when present in an unmerged branch:
+
+1. `docs/rfcs/`
+2. `wiki/`
+3. `README.md`
+4. `REPOSITORY-ENGINEERING-CONTEXT.md`
+5. `AGENTS.md`
+6. `contracts/`
+7. `platform-contracts/`
+8. `context/`
+9. `docs/standards/`
+10. `.github/workflows/`
+11. migrations, OpenAPI snapshots, API vocabulary inventories, and supported-features files
+
+Use these commands to identify unique truth:
+
+```powershell
+git diff --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git diff --diff-filter=A --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git cherry -v origin/main <remote-branch>
+```
+
+Do not interpret large `D` rows against an older branch as deleted mainline truth without checking
+direction and ancestry. Verify whether the branch predates newer mainline work. A file is lost only
+when it is absent from `main` and exists as unique useful truth on an unmerged branch.
+
+Record the reconciliation result in the RFC, source-map, closure slice, or task ledger. If useful
+truth is restored, add or update a regression test or index reference so it cannot disappear
+silently again.
 
 ## Step 1: Set Scope and Batch Size
 
@@ -48,6 +104,14 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
   - Runtime-critical RFCs first.
   - Cross-app contract RFCs second.
   - Historical/legacy RFCs last.
+
+## Step 1.5: Confirm Mainline Baseline
+
+- Start from a clean, current `main`.
+- If the work continues on a feature branch, verify the branch was created from current `main` or
+  explicitly rebased/merged after stranded-truth reconciliation.
+- Do not use old side branches as execution guides until their durable truth has been reconciled
+  onto `main` or intentionally superseded.
 
 ## Step 2: Build/Refresh RFC Inventory
 
