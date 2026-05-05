@@ -200,7 +200,7 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 2. [Change Playbooks](./playbooks/CHANGE-PLAYBOOKS.md)
    Task-type delivery sequences.
 3. [PR Loop Playbook](./playbooks/PR-LOOP-PLAYBOOK.md)
-   Push, GitHub monitoring, merge, and cleanup guidance.
+   Push, GitHub monitoring, stranded governance truth reconciliation, merge, and cleanup guidance.
 4. [Validation Playbook](./playbooks/VALIDATION-PLAYBOOK.md)
    Validation depth and evidence selection.
 5. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)

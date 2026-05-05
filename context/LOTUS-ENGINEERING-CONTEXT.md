@@ -409,7 +409,19 @@ For RFC governance:
    loose-end-tightening, API certification, and platform-governance slice,
 2. they must also include a final documentation, agent context, wiki, skills/guidance assessment,
    and branch-hygiene slice,
-3. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
+3. final closure must prove that durable RFC/docs/wiki/context/contract truth is present on
+   `main`; truth that exists only on an unmerged side branch is not complete,
+4. before RFC tightening, implementation start, post-merge audit, final closure, or
+   supported-feature promotion, agents must run stranded-truth reconciliation:
+   `git fetch origin --prune` and `git branch -r --no-merged origin/main`,
+5. any unmerged branch touching `docs/rfcs/`, `wiki/`, `README.md`,
+   `REPOSITORY-ENGINEERING-CONTEXT.md`, `AGENTS.md`, `contracts/`, `platform-contracts/`,
+   `context/`, `docs/standards/`, `.github/workflows/`, migrations, OpenAPI snapshots, API
+   vocabulary inventories, or supported-features material must be classified as `must-merge`,
+   `cherry-pick`, `superseded`, `delete`, or `active`,
+6. restored durable truth must be indexed from a stable navigation page and pinned by an existing
+   docs/current-state test pack when one exists,
+7. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
 
 For RFC-0093/RFC-0094 agent engineering governance:
 

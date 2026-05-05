@@ -63,6 +63,11 @@ Before changing code:
 3. Update docs and runbooks in the same slice when contracts or operator flow change.
 4. Keep security and governance checks first-class; do not treat them as optional cleanup.
 5. Prefer fixing root-cause quality issues over updating allowlists or suppressions, unless the allowlist is the truthful current state.
+6. Treat closure truth as mainline truth. A backend RFC or product capability is not complete if
+   RFC docs, source maps, work-to-be-done ledgers, wiki source, supported-features, repository
+   context, API contracts, or proof references exist only on an unmerged side branch.
+7. For RFC-driven backend work, run stranded-truth reconciliation before implementation starts,
+   before final closure, and before moving to the next RFC.
 
 ## Required Validation Thinking
 
@@ -100,6 +105,10 @@ If the backend change affects governed front-office proof:
 6. Cross-app impacts are validated at the right layer.
 7. Front-office truth claims are supported by governed runtime evidence when the slice affects
    product surfaces.
+8. Unmerged remote branches containing durable governance artifacts have been classified as
+   `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active`.
+9. Any restored durable truth is indexed and pinned by tests or explicit governance evidence where
+   the repository has a docs/current-state test pack.
 
 ## Cross-App Rule
 
