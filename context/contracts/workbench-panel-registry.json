@@ -394,6 +394,47 @@
       "owner_follow_up_rfc": "RFC-0079"
     },
     {
+      "panel_id": "dpm.command_center",
+      "display_name": "DPM Command Center",
+      "screen_id": "workbench.dpm_command_center",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "summary_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "command-center summary renders from Gateway",
+          "mandate lookup by portfolio resolves the canonical manage mandate",
+          "mandate health dimensions are present",
+          "active exceptions and attention queue states are explicit",
+          "source lineage records core source products"
+        ],
+        "partial": [
+          "manage supportability state and blocked actions are explicit",
+          "partial source readiness is labelled without hiding the persisted mandate"
+        ],
+        "empty": [
+          "absence of command-center work is explicit for the portfolio after a valid seed"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-command-center-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0036-discretionary-portfolio-management.md",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
       "panel_id": "dpm.outcome_review",
       "display_name": "Post-Trade Outcome Review",
       "screen_id": "workbench.dpm_outcome_review",

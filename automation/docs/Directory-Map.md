@@ -29,6 +29,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Sync-RepoWikis.ps1`
 - `Invoke-Platform-QA.ps1`
 - `Invoke-Canonical-FrontOffice-QA.ps1`
+- `Invoke-DpmCommandCenterSeed.ps1`
 
 ### Cross-App Validation
 

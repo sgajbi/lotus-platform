@@ -72,8 +72,8 @@
     {
       "route": "/workbench/{portfolio_id}",
       "certification_status": "certified",
-      "panel_ids": ["dpm.outcome_review"],
-      "evidence_basis": "RFC-0042 Workbench proof validates the embedded post-trade outcome-review panel against live Gateway and lotus-manage outcome-review contracts."
+      "panel_ids": ["dpm.command_center", "dpm.outcome_review"],
+      "evidence_basis": "RFC-0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
     }
   ],
   "rollout_checklist": [

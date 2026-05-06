@@ -84,6 +84,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
 
     assert schema["properties"]["contract_id"]["const"] == "workbench-panel-registry"
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0077"
+    assert "lotus-manage" in schema["$defs"]["panelEntry"]["properties"]["owning_service"]["enum"]
 
     assert registry["contract_id"] == "workbench-panel-registry"
     assert registry["contract_version"] == "1.0.0"
@@ -108,6 +109,8 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "performance.risk.rolling": "/api/v1/workbench/{portfolio_id}/risk/rolling",
         "performance.risk.historical_attribution": "/api/v1/workbench/{portfolio_id}/risk/attribution",
         "performance.evidence": None,
+        "dpm.command_center": "/api/v1/dpm/command-center",
+        "dpm.outcome_review": "/api/v1/dpm/command-center/outcome-reviews",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -121,3 +124,16 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "ready"
     assert panel_by_id["performance.analysis.attribution"]["known_limitations"] == []
     assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]
+    assert panel_by_id["dpm.command_center"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.command_center"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.command_center"]["allowed_states"] == [
+        "ready",
+        "partial",
+        "empty",
+        "loading",
+        "error",
+    ]
+    assert panel_by_id["dpm.command_center"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-command-center-live.png"
+    )
+    assert panel_by_id["dpm.command_center"]["known_limitations"] == []

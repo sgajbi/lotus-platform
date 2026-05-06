@@ -623,6 +623,14 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 
 - `output/front-office-qa/latest.json`
 - `output/front-office-qa/latest.md`
+- `output/front-office-qa/dpm-command-center-seed-latest.json`
+
+By default the wrapper also runs the DPM command-center seed after stack bring-up and before
+Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
+`lotus-manage`, then verifies the manage lookup and Gateway command-center read paths so
+`DPM_MANDATE_NOT_FOUND` is treated as a seed failure rather than a valid populated-panel state.
+Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
+empty/error posture.
 
 Use `-LotusAiEnvFile .env.example` when the proof should exercise deterministic
 provider-disabled Advisor Brief execution. Use the repo-local `lotus-ai/.env` only when its live
@@ -666,7 +674,7 @@ Run full explicit Lotus cleanup, including matching local Lotus images, without 
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
 ```
 
-`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, seed wait, and run status.
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, DPM command-center seed status, seed wait, and run status.
 
 For a clean demo rebuild from stale local state:
 
