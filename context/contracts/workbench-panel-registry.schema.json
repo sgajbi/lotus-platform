@@ -140,6 +140,7 @@
           "type": "string",
           "enum": [
             "lotus-gateway",
+            "lotus-manage",
             "lotus-performance",
             "lotus-risk"
           ]

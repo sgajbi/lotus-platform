@@ -142,6 +142,26 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert benchmark["benchmark_code"] == "BMK_PB_GLOBAL_BALANCED_60_40"
     assert benchmark["weight_model"] == {"equity": 0.6, "fixed_income": 0.4}
 
+    dpm_command_center = contract["dpm_command_center"]
+    assert dpm_command_center["portfolio_id"] == "PB_SG_GLOBAL_BAL_001"
+    assert dpm_command_center["mandate_id"] == "MANDATE_PB_SG_GLOBAL_BAL_001"
+    assert dpm_command_center["portfolio_manager_id"] == "PM_SG_DPM_001"
+    assert dpm_command_center["book_id"] == "BOOK_SG_BALANCED_DPM"
+    assert dpm_command_center["tenant_id"] == "default"
+    assert dpm_command_center["model_portfolio_id"] == "MODEL_PB_SG_GLOBAL_BAL_DPM"
+    assert dpm_command_center["command_center_as_of_date"] == "2026-05-03"
+    assert dpm_command_center["seed_refresh_endpoint"] == (
+        "lotus-manage:/api/v1/mandates/{mandate_id}/refresh-from-core"
+    )
+    assert "DiscretionaryMandateBinding:v1" in dpm_command_center["source_products"]
+    assert "DpmMarketDataCoverage:v1" in dpm_command_center["source_products"]
+    assert (
+        "/api/v1/dpm/command-center/mandates/by-portfolio/{portfolio_id}"
+        in dpm_command_center["gateway_validation_endpoints"]
+    )
+    assert dpm_command_center["validated_surface_states"] == ["ready"]
+    assert dpm_command_center["future_surface_states"] == ["partial", "empty"]
+
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"
     assert date_policy["refresh_policy"] == "fixed_until_governed_change"
@@ -154,9 +174,11 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
 
     ownership = contract["ownership"]
     assert "seed_identity" in ownership["lotus-core"]
+    assert "dpm_source_product_contracts" in ownership["lotus-core"]
     assert "return_path_support" in ownership["lotus-performance"]
     assert "rolling_risk_support" in ownership["lotus-risk"]
     assert "truthful_downstream_contracts" in ownership["lotus-gateway"]
+    assert "dpm_mandate_refresh_from_core" in ownership["lotus-manage"]
     assert "no_fake_supportability" in ownership["lotus-workbench"]
 
     assert contract["validation_layers"] == [
@@ -180,21 +202,41 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     assert minimums["valued_positions"] >= 6
     assert minimums["risk_rolling_windows"] >= 4
     assert minimums["risk_attribution_contributors"] >= 7
+    assert minimums["dpm_command_center_mandates"] >= 1
+    assert minimums["dpm_command_center_health_dimensions"] >= 1
 
     support_states = invariants["required_support_states"]
     assert support_states["portfolio.summary"] == "ready"
     assert support_states["performance.summary"] == "ready"
     assert support_states["performance.evidence"] == "truthfully_degraded"
+    assert support_states["dpm.command_center"] == "ready"
+    assert support_states["dpm.outcome_review"] == "ready"
 
     required_coverage = invariants["required_coverage_assertions"]
     assert (
         "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation"
         in required_coverage
     )
+    assert (
+        "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation"
+        in required_coverage
+    )
+    assert (
+        "dpm_command_center_validation_must_cover_populated_ready_state"
+        in required_coverage
+    )
+    assert (
+        "dpm_command_center_partial_and_empty_states_require_future_seed_fixtures"
+        in required_coverage
+    )
+    assert (
+        "dpm_command_center_evidence_must_record_source_product_lineage" in required_coverage
+    )
 
     economic_invariants = invariants["economic_invariants"]
     assert "transaction_ids_are_deterministic" in economic_invariants
     assert "positions_and_cash_legs_reconcile_after_seeded_activity" in economic_invariants
+    assert "dpm_mandate_binding_identity_is_deterministic" in economic_invariants
 
 
 def test_rfc_0076_slice_five_evidence_records_context_and_skill_decisions() -> None:
