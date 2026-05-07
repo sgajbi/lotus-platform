@@ -475,6 +475,49 @@
       ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.proof_pack",
+      "display_name": "Proof-Pack Evidence",
+      "screen_id": "workbench.dpm_proof_pack",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/proof-packs/{proof_pack_id}",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "proof-pack evidence heading renders",
+          "proof-pack identity and immutable content hash are visible",
+          "section posture table has at least one manage-backed row",
+          "source-hash lineage table has at least one source row",
+          "Markdown, report-input, and AI-evidence availability is visible"
+        ],
+        "partial": [
+          "manage supportability state and degraded reasons are explicit",
+          "missing Markdown, report-input, or AI-evidence posture is labelled without local synthesis"
+        ],
+        "empty": [
+          "no linked proof pack is explicit for the portfolio"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage proof-pack route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-proof-pack-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0040-source-map-and-gap-analysis.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage proof-pack truth only; local proof-pack construction, hash generation, report-input synthesis, and AI-evidence synthesis remain out of scope"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
     }
   ]
 }
