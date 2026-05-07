@@ -111,6 +111,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "performance.evidence": None,
         "dpm.command_center": "/api/v1/dpm/command-center",
         "dpm.outcome_review": "/api/v1/dpm/command-center/outcome-reviews",
+        "dpm.proof_pack": "/api/v1/dpm/command-center/proof-packs/{proof_pack_id}",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -137,3 +138,9 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm-command-center-live.png"
     )
     assert panel_by_id["dpm.command_center"]["known_limitations"] == []
+    assert panel_by_id["dpm.proof_pack"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.proof_pack"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.proof_pack"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-proof-pack-live.png"
+    )
+    assert "hash generation" in panel_by_id["dpm.proof_pack"]["known_limitations"][0]

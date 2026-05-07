@@ -204,6 +204,8 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     assert minimums["risk_attribution_contributors"] >= 7
     assert minimums["dpm_command_center_mandates"] >= 1
     assert minimums["dpm_command_center_health_dimensions"] >= 1
+    assert minimums["dpm_proof_pack_sections"] >= 1
+    assert minimums["dpm_proof_pack_source_hashes"] >= 1
 
     support_states = invariants["required_support_states"]
     assert support_states["portfolio.summary"] == "ready"
@@ -211,6 +213,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     assert support_states["performance.evidence"] == "truthfully_degraded"
     assert support_states["dpm.command_center"] == "ready"
     assert support_states["dpm.outcome_review"] == "ready"
+    assert support_states["dpm.proof_pack"] == "ready"
 
     required_coverage = invariants["required_coverage_assertions"]
     assert (
@@ -227,6 +230,10 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     )
     assert (
         "dpm_command_center_partial_and_empty_states_require_future_seed_fixtures"
+        in required_coverage
+    )
+    assert (
+        "dpm_proof_pack_evidence_must_preserve_manage_hashes_without_workbench_recomputation"
         in required_coverage
     )
     assert (

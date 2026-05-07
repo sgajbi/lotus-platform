@@ -17,7 +17,9 @@
     "risk_rolling_windows": 4,
     "risk_attribution_contributors": 7,
     "dpm_command_center_mandates": 1,
-    "dpm_command_center_health_dimensions": 1
+    "dpm_command_center_health_dimensions": 1,
+    "dpm_proof_pack_sections": 1,
+    "dpm_proof_pack_source_hashes": 1
   },
   "required_support_states": {
     "portfolio.summary": "ready",
@@ -28,7 +30,8 @@
     "performance.risk": "ready",
     "performance.evidence": "truthfully_degraded",
     "dpm.command_center": "ready",
-    "dpm.outcome_review": "ready"
+    "dpm.outcome_review": "ready",
+    "dpm.proof_pack": "ready"
   },
   "required_coverage_assertions": [
     "all_seeded_instruments_have_market_price_covering_canonical_as_of_date",
@@ -39,7 +42,10 @@
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
     "dpm_command_center_validation_must_cover_populated_ready_state",
     "dpm_command_center_partial_and_empty_states_require_future_seed_fixtures",
-    "dpm_command_center_evidence_must_record_source_product_lineage"
+    "dpm_command_center_evidence_must_record_source_product_lineage",
+    "dpm_proof_pack_validation_must_cover_populated_ready_state",
+    "dpm_proof_pack_partial_and_empty_states_require_future_seed_fixtures",
+    "dpm_proof_pack_evidence_must_preserve_manage_hashes_without_workbench_recomputation"
   ],
   "economic_invariants": [
     "transaction_ids_are_deterministic",
