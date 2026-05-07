@@ -6,6 +6,7 @@
     "RFC-0075",
     "RFC-0076",
     "RFC-0079",
+    "RFC-0041",
     "RFC-0042"
   ],
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
@@ -472,6 +473,49 @@
       "methodology_reference": "lotus-manage/docs/rfcs/RFC-0042-post-trade-outcome-feedback-loop.md",
       "known_limitations": [
         "embedded /workbench/{portfolio_id} panel is implemented first; a dedicated /dpm/outcomes route remains planned under Workbench RFC-0098"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.wave_command_center",
+      "display_name": "Rebalance Wave Command Center",
+      "screen_id": "workbench.dpm_wave_command_center",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "analytic_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/waves",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "rebalance-wave command-center heading renders",
+          "Gateway wave list supportability is present",
+          "explicit portfolio-list preview and creation controls call Gateway only",
+          "source-check, simulation, approval, staging, handoff, proof-posture, and supportability actions call Gateway only",
+          "selected wave state, item count, supportability, proof-pack posture, and handoff posture are visible"
+        ],
+        "partial": [
+          "manage supportability state, reason codes, and blocked actions are explicit",
+          "degraded source, proof-pack, or handoff posture is shown without Workbench recomputation"
+        ],
+        "empty": [
+          "absence of durable rebalance waves is explicit while preview/create remain Gateway-backed"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage wave route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-wave-command-center-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0041-rebalance-wave-orchestration.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage wave truth only; external OMS execution, PM-book discovery, CIO approval workflow, and local readiness calculation remain out of scope"
       ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": "RFC-0098"

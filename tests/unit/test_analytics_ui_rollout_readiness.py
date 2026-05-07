@@ -97,6 +97,9 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert "dpm.proof_pack" in certified_groups["/workbench/{portfolio_id}"][
         "panel_ids"
     ]
+    assert "dpm.wave_command_center" in certified_groups["/workbench/{portfolio_id}"][
+        "panel_ids"
+    ]
 
 
 def test_analytics_ui_rollout_readiness_requires_known_panel_ids() -> None:
