@@ -59,9 +59,16 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "dpm_command_center" in dpm_seed
     assert "MANDATE_PB_SG_GLOBAL_BAL_001" not in dpm_seed
     assert "refresh-from-core" in dpm_seed
+    assert "/api/v1/dpm/monitoring/run-once" in dpm_seed
+    assert "manage-monitoring-run-once" in dpm_seed
     assert "/api/v1/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "dpm-command-center-seed-latest.json" in dpm_seed
+    assert "posture_checks" in dpm_seed
+    assert "ready-populated-command-center" in dpm_seed
+    assert "gateway-command-center-partial-posture" in dpm_seed
+    assert "gateway-command-center-empty-posture" in dpm_seed
+    assert "DPM command-center posture validation failed" in dpm_seed
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}

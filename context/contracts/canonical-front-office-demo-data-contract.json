@@ -54,11 +54,13 @@
       "/api/v1/dpm/command-center/mandates/{mandate_id}/health"
     ],
     "validated_surface_states": [
-      "ready"
-    ],
-    "future_surface_states": [
+      "ready",
       "partial",
       "empty"
+    ],
+    "future_surface_states": [
+      "degraded",
+      "blocked"
     ]
   },
   "date_policy": {

@@ -159,8 +159,8 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
         "/api/v1/dpm/command-center/mandates/by-portfolio/{portfolio_id}"
         in dpm_command_center["gateway_validation_endpoints"]
     )
-    assert dpm_command_center["validated_surface_states"] == ["ready"]
-    assert dpm_command_center["future_surface_states"] == ["partial", "empty"]
+    assert dpm_command_center["validated_surface_states"] == ["ready", "partial", "empty"]
+    assert dpm_command_center["future_surface_states"] == ["degraded", "blocked"]
 
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"
@@ -225,11 +225,11 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
         in required_coverage
     )
     assert (
-        "dpm_command_center_validation_must_cover_populated_ready_state"
+        "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states"
         in required_coverage
     )
     assert (
-        "dpm_command_center_partial_and_empty_states_require_future_seed_fixtures"
+        "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases"
         in required_coverage
     )
     assert (

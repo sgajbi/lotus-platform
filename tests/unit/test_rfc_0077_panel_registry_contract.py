@@ -140,6 +140,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm-command-center-live.png"
     )
     assert panel_by_id["dpm.command_center"]["known_limitations"] == []
+    assert panel_by_id["dpm.command_center"]["owner_follow_up_rfc"] is None
     assert panel_by_id["dpm.wave_command_center"]["owning_service"] == "lotus-manage"
     assert panel_by_id["dpm.wave_command_center"]["required_support_state"] == "ready"
     assert panel_by_id["dpm.wave_command_center"]["screenshot_policy"]["screenshot_name"] == (
