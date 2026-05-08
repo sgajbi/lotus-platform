@@ -40,8 +40,8 @@
     "risk_free_series_cover_supported_performance_and_risk_windows",
     "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
-    "dpm_command_center_validation_must_cover_populated_ready_state",
-    "dpm_command_center_partial_and_empty_states_require_future_seed_fixtures",
+    "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
+    "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
     "dpm_command_center_evidence_must_record_source_product_lineage",
     "dpm_proof_pack_validation_must_cover_populated_ready_state",
     "dpm_proof_pack_partial_and_empty_states_require_future_seed_fixtures",
@@ -57,6 +57,7 @@
   ],
   "notes": [
     "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
-    "Performance evidence remains truthfully degraded until a governed evidence contract is implemented."
+    "Performance evidence remains truthfully degraded until a governed evidence contract is implemented.",
+    "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters."
   ]
 }
