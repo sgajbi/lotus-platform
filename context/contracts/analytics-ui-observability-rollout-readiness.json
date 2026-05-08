@@ -75,10 +75,11 @@
       "panel_ids": [
         "dpm.command_center",
         "dpm.wave_command_center",
+        "dpm.portfolio_memory",
         "dpm.outcome_review",
         "dpm.proof_pack"
       ],
-      "evidence_basis": "RFC-0040/0041/0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit, rebalance-wave command center, proof-pack evidence panel, and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
+      "evidence_basis": "RFC-0040/0041/0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit, portfolio-memory timeline, rebalance-wave command center, proof-pack evidence panel, and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
     }
   ],
   "rollout_checklist": [

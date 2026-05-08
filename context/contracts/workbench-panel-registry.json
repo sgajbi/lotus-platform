@@ -521,6 +521,49 @@
       "owner_follow_up_rfc": "RFC-0098"
     },
     {
+      "panel_id": "dpm.portfolio_memory",
+      "display_name": "Portfolio Memory",
+      "screen_id": "workbench.dpm_portfolio_memory",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/portfolios/{portfolio_id}/memory",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "portfolio-memory heading renders",
+          "Gateway portfolio-memory supportability is populated and bounded as READY, PARTIAL, or BLOCKED",
+          "event type count table has at least one manage-backed row",
+          "event timeline table has at least one manage-backed row",
+          "source systems, source refs, artifact refs, reason codes, and content hash are visible"
+        ],
+        "partial": [
+          "manage supportability state and reason codes are explicit",
+          "degraded source, proof-pack, wave, or outcome-review lineage is shown without Workbench reconstruction"
+        ],
+        "empty": [
+          "absence of portfolio-memory events is explicit"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage portfolio-memory route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-portfolio-memory-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0040-source-map-and-gap-analysis.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage portfolio-memory truth only; event filters, detail drawers, retention controls, lifecycle export, and local timeline reconstruction remain out of scope"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
       "panel_id": "dpm.proof_pack",
       "display_name": "Proof-Pack Evidence",
       "screen_id": "workbench.dpm_proof_pack",
