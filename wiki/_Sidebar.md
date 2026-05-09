@@ -9,6 +9,7 @@
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
 - [Analytics UI Observability](Analytics-UI-Observability)
+- [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Enterprise Mesh Status](Enterprise-Mesh-Status)
 - [Troubleshooting](Troubleshooting)
 - [Security and Governance](Security-and-Governance)

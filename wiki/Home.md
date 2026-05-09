@@ -21,6 +21,7 @@ Use it for:
 - [Validation and CI](Validation-and-CI)
 - [Operations Runbook](Operations-Runbook)
 - [Analytics UI Observability](Analytics-UI-Observability)
+- [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Troubleshooting](Troubleshooting)
 - [Business Benefits](Business-Benefits)
 - [Market Landscape](Market-Landscape)
