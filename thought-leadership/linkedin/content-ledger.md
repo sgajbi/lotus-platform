@@ -18,7 +18,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-09-003 | A mandate is an operating contract, not a label | draft | mandates | front office and platform leaders | 2026-05-09 |  | Initial draft. |
 | LI-2026-05-09-004 | Production support teaches product truth | draft | production-readiness | engineering and operations leaders | 2026-05-09 |  | Initial draft. |
 | LI-2026-05-09-005 | Good advisory platforms reduce translation work | draft | advisory-workflows | advisory and product leaders | 2026-05-09 |  | Initial draft. |
-| LI-2026-05-09-006 | Portfolio analytics are only useful when users can trust the answer | reviewed | product-reality-performance-explainability | wealth technology leaders | 2026-05-09 |  | User-selected first post candidate; employer-safe wording applied. |
+| LI-2026-05-09-006 | Portfolio analytics are only useful when users can trust the answer | posted | product-reality-performance-explainability | wealth technology leaders | 2026-05-09 | 2026-05-09 | Published: https://www.linkedin.com/posts/sandeep-gajbi_in-portfolio-analytics-a-polished-screen-share-7458864643470516224-Vcr9 |
 
 ## Theme Rotation Notes
 

@@ -1,13 +1,13 @@
 ---
 title: Portfolio analytics are only useful when users can trust the answer
-status: reviewed
+status: posted
 theme: product-reality-performance-explainability
 audience: wealth technology leaders
 source_refs: Employer-safe polish from LI-2026-05-09-001 and LI-2026-05-09-002
 risk_notes: Industry-wide framing only; no employer, client, product, internal architecture, active-work, or negative-bank implication.
 created_date: 2026-05-09
-posted_date:
-linkedin_url:
+posted_date: 2026-05-09
+linkedin_url: https://www.linkedin.com/posts/sandeep-gajbi_in-portfolio-analytics-a-polished-screen-share-7458864643470516224-Vcr9
 ---
 
 In portfolio analytics, a polished screen is only one part of the product.
