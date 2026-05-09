@@ -67,6 +67,11 @@ Primary areas:
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
 10. `docs/documentation/`
    deep documentation governance and layering guidance for Lotus documentation surfaces.
+11. `thought-leadership/`
+   non-product personal-brand content workflows, including LinkedIn thought-leadership drafts,
+   ledgers, themes, and voice guidance. This area preserves drafting memory for authentic,
+   non-confidential, Lotus-adjacent professional content and must not be treated as product truth,
+   customer evidence, or platform marketing material.
 
 ## Runtime And Integration Boundaries
 
