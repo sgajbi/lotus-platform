@@ -106,6 +106,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert '"state_machine_review"' in scaffold_script
     assert '"supported_features_review"' in scaffold_script
     assert '"wiki_publication"' in scaffold_script
+    assert '"upstream_realization"' in scaffold_script
+    assert '"source_contract_realization"' in scaffold_script
     assert '"downstream_realization"' in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
@@ -331,6 +333,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         == "sha256:replace-after-generation"
     )
     assert evidence_manifest_template["cross_app_evidence"] == []
+    assert evidence_manifest_template["upstream_realization"] == []
+    assert evidence_manifest_template["source_contract_realization"] == []
     assert evidence_manifest_template["downstream_realization"] == []
     assert "structured JSON application events" in observability_doc
     assert "must not include client names" in observability_doc
@@ -338,6 +342,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "product-safe error examples" in api_certification_doc
     assert "Source-Degraded And Reconciliation Endpoints" in api_certification_doc
     assert "explicit source-owner fields" in api_certification_doc
+    assert "source-contract and downstream consumer realization evidence" in api_certification_doc
     assert (
         "READY, DEGRADED, BLOCKED, and NOT_SUPPORTED examples" in api_certification_doc
     )
