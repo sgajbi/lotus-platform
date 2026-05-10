@@ -4,8 +4,8 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `42`
-- Dependency count: `19`
+- Product count: `43`
+- Dependency count: `21`
 
 ## Products
 
@@ -42,6 +42,7 @@ This file is generated from governed domain-data-product declarations.
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
+| `ContributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/contribution, /performance/contribution/results/{calculation_id} |
 | `MoneyWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/mwr |
 | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/returns/series, /integration/returns/series/results/{calculation_id} |
 | `TimeWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/twr, /performance/twr/results/{calculation_id} |
@@ -63,11 +64,13 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
 | `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
+| `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
+| `lotus-performance` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-report` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-report` | `TransactionLedgerWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` |

@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 49,
-  "edge_count": 140,
+  "node_count": 50,
+  "edge_count": 144,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -315,6 +315,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
       "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:ContributionAnalytics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:ContributionAnalytics:v1",
+      "product_name": "ContributionAnalytics",
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "product_family": "analytics_output",
@@ -804,6 +814,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:ContributionAnalytics:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:MoneyWeightedReturnAnalytics:v1",
       "to": "repo:lotus-gateway"
     },
@@ -921,6 +936,17 @@
     },
     {
       "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-risk:RiskEventAffectedCohort:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
       "from": "repo:lotus-performance",
       "to": "product:lotus-core:BenchmarkAssignment:v1",
       "consumption_mode": "api_read",
@@ -968,6 +994,17 @@
       "from": "repo:lotus-performance",
       "to": "product:lotus-core:PortfolioTimeseriesInput:v1",
       "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:PositionTimeseriesInput:v1",
+      "consumption_mode": "paged_api_read",
       "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
@@ -1227,6 +1264,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-performance",
       "to": "product:lotus-performance:BenchmarkExposureContext:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:ContributionAnalytics:v1"
     },
     {
       "edge_type": "produces",

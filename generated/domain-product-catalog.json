@@ -74,8 +74,8 @@
       }
     ]
   },
-  "product_count": 42,
-  "dependency_count": 19,
+  "product_count": 43,
+  "dependency_count": 21,
   "repository_count": 6,
   "repositories": [
     {
@@ -91,12 +91,12 @@
     {
       "repository": "lotus-manage",
       "produced_product_count": 1,
-      "consumed_dependency_count": 3
+      "consumed_dependency_count": 4
     },
     {
       "repository": "lotus-performance",
-      "produced_product_count": 4,
-      "consumed_dependency_count": 6
+      "produced_product_count": 5,
+      "consumed_dependency_count": 7
     },
     {
       "repository": "lotus-report",
@@ -542,7 +542,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "daily",
-        "max_allowed_age_description": "DPM mandate, model, policy, jurisdiction, and rebalance constraints."
+        "max_allowed_age_description": "DPM mandate objective, model, policy, jurisdiction, review cadence, review dates, and rebalance constraints."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -2154,6 +2154,72 @@
       "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json"
     },
     {
+      "product_id": "lotus-performance:ContributionAnalytics:v1",
+      "product_name": "ContributionAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "owner_repository": "lotus-performance",
+      "authoritative_domain": "performance_analytics",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "valuation_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "position_id",
+        "calculation_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date",
+        "correlation_id",
+        "request_fingerprint",
+        "source_services",
+        "upstream_request_fingerprints",
+        "data_quality_status",
+        "coverage_status",
+        "coverage_ratio"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Stateful contribution is recalculated from governed lotus-core portfolio and position analytics inputs for the requested as-of date and measurement window."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable",
+        "lineage_bundle_class_ref": "customer_lineage_summary"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/performance/contribution",
+        "/performance/contribution/results/{calculation_id}"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json"
+    },
+    {
       "product_id": "lotus-performance:MoneyWeightedReturnAnalytics:v1",
       "product_name": "MoneyWeightedReturnAnalytics",
       "product_version": "v1",
@@ -2871,7 +2937,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 3,
+      "dependency_count": 4,
       "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json",
       "dependencies": [
         {
@@ -2958,12 +3024,36 @@
             "pr-merge"
           ],
           "failure_posture": "degrade_or_pending_review"
+        },
+        {
+          "dependency_id": "lotus-risk:RiskEventAffectedCohort:v1",
+          "product_name": "RiskEventAffectedCohort",
+          "producer_repository": "lotus-risk",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "lineage_version",
+            "request_fingerprint",
+            "source_services"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve source-owned risk-event affected portfolio cohorts for discretionary rebalance wave preview and creation while preserving lotus-risk lineage, supportability, request fingerprint, and reason codes without recalculating risk-event impact in lotus-manage.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
         }
       ]
     },
     {
       "consumer_repository": "lotus-performance",
-      "dependency_count": 6,
+      "dependency_count": 7,
       "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json",
       "dependencies": [
         {
@@ -3068,6 +3158,29 @@
           },
           "consumption_mode": "api_read",
           "business_purpose": "Source canonical portfolio return observations for stateful returns-series workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PositionTimeseriesInput:v1",
+          "product_name": "PositionTimeseriesInput",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "paged_api_read",
+          "business_purpose": "Source canonical position market values, cash-flow labels, FX metadata, and classification dimensions for stateful contribution analytics.",
           "validation_lanes": [
             "feature",
             "pr-merge"

@@ -1,0 +1,38 @@
+{
+  "contract_id": "lotus-mesh-access-policy",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0091",
+    "RFC-047"
+  ],
+  "product_id": "lotus-performance:ContributionAnalytics:v1",
+  "producer_repository": "lotus-performance",
+  "default_posture": "restricted",
+  "allowed_consumers": [
+    {
+      "consumer_repository": "lotus-gateway",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator",
+        "advisor"
+      ],
+      "use_cases": [
+        "performance_explanation",
+        "portfolio_review",
+        "client_conversation"
+      ]
+    }
+  ],
+  "denial_posture": {
+    "customer_visible_state": "requestable",
+    "operator_visible_state": "restricted_with_reason",
+    "reason": "Contribution analytics evidence is client-confidential and requires explicit tenant and role authorization."
+  },
+  "audit": {
+    "owner_repository": "lotus-performance",
+    "policy_owner": "performance-product-owner",
+    "decision_evidence": "access-policy:lotus-performance:contribution-analytics:v1"
+  }
+}
