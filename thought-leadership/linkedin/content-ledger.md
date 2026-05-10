@@ -26,6 +26,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-10-010 | A work-to-be-done ledger keeps product truth honest | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-10 |  | User-requested WTBD-inspired draft on closure discipline and evidence-backed product truth. |
 | LI-2026-05-10-011 | A capability is more than the feature path | draft | functional-nonfunctional-product-readiness | wealth technology leaders | 2026-05-10 |  | User-clarified WTBD lesson draft on functional and non-functional readiness moving together. |
 | LI-2026-05-10-012 | Evidence has to travel with the workflow | draft | evidence-backed-workflows | wealth technology leaders | 2026-05-10 |  | Final WTBD implementation insight draft on evidence, lineage, and workflow continuity. |
+| LI-2026-05-10-013 | Contribution analytics need method evidence | draft | portfolio-analytics-production-readiness | portfolio analytics leaders | 2026-05-10 |  | RFC-047 post-completion draft; grounded in implemented contribution method evidence, source economics posture, downstream UI proof, and live validation. |
 
 ## Theme Rotation Notes
 
