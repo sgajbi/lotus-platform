@@ -39,6 +39,7 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
     relative_paths = {path.relative_to(tmp_path).as_posix() for path in written_paths}
     assert relative_paths == {
         "contracts/domain-data-products/lotus-report-products.v1.json",
+        "contracts/analytics-products/client-report-evidence-pack.analytics-profile.v1.json",
         "contracts/source-data-products/client-report-evidence-pack.api-profile.v1.json",
         "contracts/trust-telemetry/client-report-evidence-pack.telemetry.v1.json",
         "platform-contracts/mesh-slo/lotus-report-client-report-evidence-pack.slo.v1.json",
@@ -48,6 +49,7 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
         "PRODUCT-ONBOARDING-CHECKLIST.md",
         "docs/API-CERTIFICATION-CHECKLIST.md",
         "docs/INGESTION-PIPELINE-CHECKLIST.md",
+        "docs/ANALYTICS-DATA-PRODUCT-CERTIFICATION-CHECKLIST.md",
     }
 
     product_declaration = json.loads(
@@ -102,6 +104,34 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
         ]
         is True
     )
+    analytics_profile = json.loads(
+        (
+            tmp_path
+            / "contracts"
+            / "analytics-products"
+            / "client-report-evidence-pack.analytics-profile.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert analytics_profile["contract_id"] == "lotus-analytics-data-product-profile"
+    assert analytics_profile["product_id"] == "lotus-report:ClientReportEvidencePack:v1"
+    assert (
+        analytics_profile["analytics_methodology"][
+            "deterministic_worked_examples_required"
+        ]
+        is True
+    )
+    assert (
+        analytics_profile["computation_contract"][
+            "raw_vs_final_result_evidence_required"
+        ]
+        is True
+    )
+    assert (
+        analytics_profile["downstream_realization"][
+            "same_rfc_consumer_updates_required"
+        ]
+        is True
+    )
 
     assert (
         generator.validate_domain_product_onboarding_bundle(
@@ -120,6 +150,7 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
         "--repository lotus-report --product-name ClientReportEvidencePack" in checklist
     )
     assert "Source API profile" in checklist
+    assert "Analytics product profile" in checklist
 
     api_certification = (
         tmp_path / "docs" / "API-CERTIFICATION-CHECKLIST.md"
@@ -134,6 +165,16 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
     assert "Authoritative source systems" in ingestion
     assert "Idempotency keys" in ingestion
     assert "Canonical demo seed data" in ingestion
+
+    analytics_certification = (
+        tmp_path / "docs" / "ANALYTICS-DATA-PRODUCT-CERTIFICATION-CHECKLIST.md"
+    ).read_text(encoding="utf-8")
+    assert "Methodology documentation" in analytics_certification
+    assert "Raw result" in analytics_certification
+    assert "Gateway preserves" in analytics_certification
+    assert "Workbench renders" in analytics_certification
+    assert "All downstream consumers" in analytics_certification
+    assert "mesh certification" in analytics_certification
 
 
 def test_domain_product_onboarding_validation_rejects_identity_drift(
@@ -204,6 +245,45 @@ def test_domain_product_onboarding_validation_rejects_weak_source_api_profile(
 
     assert issues == [
         "source_api_profile certification.mesh_certification_required must be true"
+    ]
+
+
+def test_domain_product_onboarding_validation_rejects_weak_analytics_profile(
+    tmp_path: Path,
+) -> None:
+    generator = _load_generator_module()
+    generator.scaffold_domain_product_onboarding(
+        repository="lotus-performance",
+        product_name="ContributionAnalytics",
+        product_version="v1",
+        authoritative_domain="performance_analytics",
+        product_family="analytics_output",
+        output_directory=tmp_path,
+    )
+    analytics_profile_path = (
+        tmp_path
+        / "contracts"
+        / "analytics-products"
+        / "contribution-analytics.analytics-profile.v1.json"
+    )
+    analytics_profile = json.loads(analytics_profile_path.read_text(encoding="utf-8"))
+    analytics_profile["computation_contract"][
+        "raw_vs_final_result_evidence_required"
+    ] = False
+    analytics_profile_path.write_text(
+        json.dumps(analytics_profile, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = generator.validate_domain_product_onboarding_bundle(
+        output_directory=tmp_path,
+        repository="lotus-performance",
+        product_name="ContributionAnalytics",
+        product_version="v1",
+    )
+
+    assert issues == [
+        "analytics_product_profile computation_contract.raw_vs_final_result_evidence_required must be true"
     ]
 
 
