@@ -127,6 +127,23 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
         is True
     )
     assert (
+        analytics_profile["computation_contract"][
+            "materiality_threshold_policy_required"
+        ]
+        is True
+    )
+    assert analytics_profile["computation_contract"]["status_contract_required"] is True
+    assert (
+        analytics_profile["computation_contract"]["source_alignment_controls_required"]
+        is True
+    )
+    assert (
+        analytics_profile["computation_contract"][
+            "support_safe_daily_evidence_required"
+        ]
+        is True
+    )
+    assert (
         analytics_profile["downstream_realization"][
             "same_rfc_consumer_updates_required"
         ]
@@ -171,6 +188,9 @@ def test_domain_product_onboarding_scaffold_writes_complete_bundle(
     ).read_text(encoding="utf-8")
     assert "Methodology documentation" in analytics_certification
     assert "Raw result" in analytics_certification
+    assert "materiality classification" in analytics_certification
+    assert "source-alignment controls" in analytics_certification
+    assert "Support-safe daily" in analytics_certification
     assert "Gateway preserves" in analytics_certification
     assert "Workbench renders" in analytics_certification
     assert "All downstream consumers" in analytics_certification
