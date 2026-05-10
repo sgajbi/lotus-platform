@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `43`
+- Product count: `44`
 - Dependency count: `21`
 
 ## Products
@@ -41,6 +41,7 @@ This file is generated from governed domain-data-product declarations.
 | `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
+| `AttributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/attribution, /performance/attribution/results/{calculation_id} |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
 | `ContributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/contribution, /performance/contribution/results/{calculation_id} |
 | `MoneyWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/mwr |

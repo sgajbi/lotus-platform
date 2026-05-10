@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 50,
-  "edge_count": 144,
+  "node_count": 51,
+  "edge_count": 146,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -308,6 +308,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-manage",
       "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:AttributionAnalytics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:AttributionAnalytics:v1",
+      "product_name": "AttributionAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
       "lifecycle_status": "active"
     },
     {
@@ -809,6 +819,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:AttributionAnalytics:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:BenchmarkExposureContext:v1",
       "to": "repo:lotus-risk"
     },
@@ -1259,6 +1274,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-manage",
       "to": "product:lotus-manage:PortfolioActionRegister:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:AttributionAnalytics:v1"
     },
     {
       "edge_type": "produces",
