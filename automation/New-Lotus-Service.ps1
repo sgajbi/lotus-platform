@@ -1231,9 +1231,10 @@ Use this directory for machine-readable implementation evidence referenced by RF
 
 Evidence must name the repository, branch, commit SHA, PR number, RFC slice, validation command,
 endpoint or route, state-machine or lifecycle decision where applicable, supported-feature posture,
-wiki publication posture, operational identifiers, and result. Do not store sensitive client,
-portfolio, holding, transaction, entitlement, request-body, response-body, trace, or correlation
-details here unless a later security review explicitly certifies the artifact.
+wiki publication posture, source-contract realization, downstream realization, operational
+identifiers, and result. Do not store sensitive client, portfolio, holding, transaction,
+entitlement, request-body, response-body, trace, or correlation details here unless a later
+security review explicitly certifies the artifact.
 "@
 Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
 {
@@ -1295,6 +1296,8 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manif
     }
   ],
   "cross_app_evidence": [],
+  "upstream_realization": [],
+  "source_contract_realization": [],
   "downstream_realization": [],
   "review_notes": [],
   "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
@@ -1385,7 +1388,9 @@ authority must also include:
 3. `READY`, `DEGRADED`, `BLOCKED`, and `NOT_SUPPORTED` examples where those states are applicable,
 4. tests for missing, stale, unavailable, partial, malformed, and conflicting upstream evidence,
 5. proof that the service does not clone calculations owned by another Lotus app,
-6. README, wiki, supported-feature, and RFC evidence updates before any product support claim.
+6. same-RFC upstream source-contract and downstream consumer realization evidence when contracts
+   change,
+7. README, wiki, supported-feature, and RFC evidence updates before any product support claim.
 "@
 
 if (-not $SkipAutomationRegistration) {

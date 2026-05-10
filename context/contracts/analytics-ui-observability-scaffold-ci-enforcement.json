@@ -43,6 +43,8 @@
         "evidence/rfc-implementation/README.md",
         "docs/operations/api-certification.md",
         "docs/operations/observability.md",
+        "upstream_realization",
+        "source_contract_realization",
         "Write-WikiBaseline"
       ]
     },
