@@ -4,8 +4,8 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `31`
-- Dependency count: `17`
+- Product count: `42`
+- Dependency count: `19`
 
 ## Products
 
@@ -14,6 +14,8 @@ This file is generated from governed domain-data-product declarations.
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway | /advisory/proposals/{proposal_id}, /advisory/proposals/{proposal_id}/versions/{version_no}, /advisory/proposals/{proposal_id}/timeline, /advisory/proposals/{proposal_id}/approvals |
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report | /integration/portfolios/{portfolio_id}/benchmark-assignment |
 | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/composition-window |
+| `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/affected-mandates |
+| `ClientRestrictionProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-restriction-profile |
 | `DataQualityCoverageReport` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-manage | /integration/benchmarks/{benchmark_id}/coverage, /integration/reference/risk-free-series/coverage |
 | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/mandate-binding |
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
@@ -26,20 +28,29 @@ This file is generated from governed domain-data-product declarations.
 | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/market-data/coverage |
 | `MarketDataWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/market-series |
 | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/reference |
+| `PortfolioCashflowProjection` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/cashflow-projection |
+| `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
+| `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
 | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `simulation_and_projected_state` | `active` | lotus-gateway, lotus-advise, lotus-manage, lotus-risk | /integration/portfolios/{portfolio_id}/core-snapshot |
 | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/tax-lots |
 | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/portfolio-timeseries |
 | `PositionTimeseriesInput` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/position-timeseries |
 | `ReconciliationEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-manage | /support/portfolios/{portfolio_id}/reconciliation-runs, /support/portfolios/{portfolio_id}/reconciliation-runs/{run_id}/findings |
 | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/reference/risk-free-series |
+| `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/sustainability-preference-profile |
+| `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
+| `MoneyWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/mwr |
 | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/returns/series, /integration/returns/series/results/{calculation_id} |
+| `TimeWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/twr, /performance/twr/results/{calculation_id} |
 | `ClientReportEvidencePack` | `lotus-report` | `v1` | `client_reporting_evidence` | `active` | lotus-gateway | /reports/client-evidence-packs/{portfolio_id}, /reports/portfolios/{portfolio_id}/review |
 | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/concentration |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/drawdown |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/historical-attribution |
+| `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-manage | /analytics/risk/regime-scenario-pack/evaluate |
+| `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `cohort_membership` | `active` | lotus-manage | /analytics/risk/risk-event-cohorts/evaluate |
 | `RiskMetricsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/calculate |
 | `RollingRiskMetricsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/rolling-metrics |
 
@@ -49,7 +60,9 @@ This file is generated from governed domain-data-product declarations.
 | --- | --- | --- | --- | --- | --- |
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
+| `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
