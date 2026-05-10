@@ -19,6 +19,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-09-004 | Production support teaches product truth | draft | production-readiness | engineering and operations leaders | 2026-05-09 |  | Initial draft. |
 | LI-2026-05-09-005 | Good advisory platforms reduce translation work | draft | advisory-workflows | advisory and product leaders | 2026-05-09 |  | Initial draft. |
 | LI-2026-05-09-006 | Portfolio analytics are only useful when users can trust the answer | posted | product-reality-performance-explainability | wealth technology leaders | 2026-05-09 | 2026-05-09 | Published: https://www.linkedin.com/posts/sandeep-gajbi_in-portfolio-analytics-a-polished-screen-share-7458864643470516224-Vcr9 |
+| LI-2026-05-10-001 | Performance evidence is part of the product contract | draft | performance-explainability-production-readiness | portfolio analytics leaders | 2026-05-10 |  | RFC-046 post-completion draft; implementation-backed but employer-safe and not marked as posted. |
 
 ## Theme Rotation Notes
 
