@@ -210,7 +210,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     support_states = invariants["required_support_states"]
     assert support_states["portfolio.summary"] == "ready"
     assert support_states["performance.summary"] == "ready"
-    assert support_states["performance.evidence"] == "truthfully_degraded"
+    assert support_states["performance.evidence"] == "ready"
     assert support_states["dpm.command_center"] == "ready"
     assert support_states["dpm.outcome_review"] == "ready"
     assert support_states["dpm.proof_pack"] == "ready"

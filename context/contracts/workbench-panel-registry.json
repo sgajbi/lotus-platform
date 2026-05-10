@@ -369,9 +369,13 @@
       "owning_service": "lotus-gateway",
       "gateway_endpoint": null,
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "partial",
-      "allowed_states": ["partial", "unavailable", "loading", "error"],
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "unavailable", "loading", "error"],
       "validation_rules": {
+        "ready": [
+          "execution status, lineage status, and artifact inventory are exposed",
+          "gateway preserves lotus-performance calculation identity and artifact refs"
+        ],
         "partial": [
           "truthful degraded posture is rendered",
           "owner reason is explicit"
@@ -389,7 +393,7 @@
       "evidence_required": true,
       "methodology_reference": null,
       "known_limitations": [
-        "full evidence and lineage support is deferred pending RFC-0079"
+        "broader RFC-0079 risk/evidence scope remains outside this performance evidence panel certification"
       ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": "RFC-0079"
