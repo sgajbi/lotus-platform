@@ -6,7 +6,7 @@ audience: wealth technology leaders
 source_refs: Employer-safe polish from LI-2026-05-09-001 and LI-2026-05-09-002
 risk_notes: Industry-wide framing only; no employer, client, product, internal architecture, active-work, or negative-bank implication.
 created_date: 2026-05-09
-posted_date: 2026-05-09
+posted_date: 2026-05-10
 linkedin_url: https://www.linkedin.com/posts/sandeep-gajbi_in-portfolio-analytics-a-polished-screen-share-7458864643470516224-Vcr9
 ---
 
