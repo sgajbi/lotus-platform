@@ -19,6 +19,9 @@ HARDENING_PATH = CONTRACT_DIR / "analytics-ui-observability-ecosystem-hardening.
 FINAL_CLOSURE_PATH = (
     CONTRACT_DIR / "analytics-ui-observability-ecosystem-final-closure.json"
 )
+MANAGE_API_VOCABULARY_PATH = (
+    ROOT / "platform-contracts" / "api-vocabulary" / "lotus-manage-api-vocabulary.v1.json"
+)
 
 
 def _load_json(path: Path) -> dict:
@@ -202,6 +205,22 @@ def test_ecosystem_final_closure_rejects_stale_manage_proposal_boundary() -> Non
     errors = _validate(observability, ecosystem, proof, hardening, final_closure)
 
     assert any("lotus_manage_allowed_paths must be exactly" in error for error in errors)
+
+
+def test_platform_manage_api_vocabulary_excludes_retired_manage_routes() -> None:
+    vocabulary = _load_json(MANAGE_API_VOCABULARY_PATH)
+    observed_paths = {endpoint["path"] for endpoint in vocabulary["endpoints"]}
+
+    retired_paths = {
+        "/integration/capabilities",
+        "/rebalance/proposals",
+        "/api/v1/rebalance/proposals",
+        "/rebalance/proposals/{proposal_id}",
+        "/api/v1/rebalance/proposals/{proposal_id}",
+    }
+
+    assert retired_paths.isdisjoint(observed_paths)
+    assert "/api/v1/integration/capabilities" in observed_paths
 
 
 def test_ecosystem_final_closure_rejects_missing_advise_proposal_path() -> None:
