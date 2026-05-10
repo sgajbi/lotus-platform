@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 38,
-  "edge_count": 110,
+  "node_count": 49,
+  "edge_count": 140,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -38,6 +38,26 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:CioModelChangeAffectedCohort:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:CioModelChangeAffectedCohort:v1",
+      "product_name": "CioModelChangeAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:ClientRestrictionProfile:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ClientRestrictionProfile:v1",
+      "product_name": "ClientRestrictionProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -161,6 +181,36 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioCashflowProjection:v1",
+      "product_name": "PortfolioCashflowProjection",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioLiquidityLadder:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioLiquidityLadder:v1",
+      "product_name": "PortfolioLiquidityLadder",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioManagerBookMembership:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioManagerBookMembership:v1",
+      "product_name": "PortfolioManagerBookMembership",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:PortfolioStateSnapshot:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:PortfolioStateSnapshot:v1",
@@ -221,6 +271,26 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:SustainabilityPreferenceProfile:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:SustainabilityPreferenceProfile:v1",
+      "product_name": "SustainabilityPreferenceProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:TransactionCostCurve:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:TransactionCostCurve:v1",
+      "product_name": "TransactionCostCurve",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:TransactionLedgerWindow:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:TransactionLedgerWindow:v1",
@@ -251,10 +321,30 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-performance:MoneyWeightedReturnAnalytics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:MoneyWeightedReturnAnalytics:v1",
+      "product_name": "MoneyWeightedReturnAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-performance:ReturnsSeriesBundle:v1",
       "node_type": "domain_product",
       "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
       "product_name": "ReturnsSeriesBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:TimeWeightedReturnAnalytics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:TimeWeightedReturnAnalytics:v1",
+      "product_name": "TimeWeightedReturnAnalytics",
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "product_family": "analytics_output",
@@ -298,6 +388,26 @@
       "product_version": "v1",
       "producer_repository": "lotus-risk",
       "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "product_name": "RegimeScenarioPackEvaluation",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-risk:RiskEventAffectedCohort:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:RiskEventAffectedCohort:v1",
+      "product_name": "RiskEventAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "cohort_membership",
       "lifecycle_status": "active"
     },
     {
@@ -386,6 +496,16 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:BenchmarkConstituentWindow:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:CioModelChangeAffectedCohort:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ClientRestrictionProfile:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -529,6 +649,46 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioLiquidityLadder:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioLiquidityLadder:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioLiquidityLadder:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioLiquidityLadder:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioManagerBookMembership:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioStateSnapshot:v1",
       "to": "repo:lotus-advise"
     },
@@ -604,6 +764,16 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:SustainabilityPreferenceProfile:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:TransactionCostCurve:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:TransactionLedgerWindow:v1",
       "to": "repo:lotus-gateway"
     },
@@ -634,8 +804,18 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:MoneyWeightedReturnAnalytics:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:ReturnsSeriesBundle:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:TimeWeightedReturnAnalytics:v1",
+      "to": "repo:lotus-gateway"
     },
     {
       "edge_type": "approves_consumer",
@@ -656,6 +836,21 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-risk:HistoricalRiskAttributionReport:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RiskEventAffectedCohort:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -694,9 +889,31 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ClientRestrictionProfile:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:PortfolioStateSnapshot:v1",
       "consumption_mode": "caller_supplied_contract_payload",
       "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:SustainabilityPreferenceProfile:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
       "validation_lanes": [
         "feature",
         "pr-merge"
@@ -874,6 +1091,16 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:CioModelChangeAffectedCohort:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:ClientRestrictionProfile:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:DataQualityCoverageReport:v1"
     },
     {
@@ -934,6 +1161,21 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioCashflowProjection:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioLiquidityLadder:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioManagerBookMembership:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:PortfolioStateSnapshot:v1"
     },
     {
@@ -964,6 +1206,16 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:SustainabilityPreferenceProfile:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:TransactionCostCurve:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:TransactionLedgerWindow:v1"
     },
     {
@@ -979,7 +1231,17 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:MoneyWeightedReturnAnalytics:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
       "to": "product:lotus-performance:ReturnsSeriesBundle:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:TimeWeightedReturnAnalytics:v1"
     },
     {
       "edge_type": "produces",
@@ -1000,6 +1262,16 @@
       "edge_type": "produces",
       "from": "repo:lotus-risk",
       "to": "product:lotus-risk:HistoricalRiskAttributionReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:RegimeScenarioPackEvaluation:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:RiskEventAffectedCohort:v1"
     },
     {
       "edge_type": "produces",
