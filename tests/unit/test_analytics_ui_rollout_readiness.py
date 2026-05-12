@@ -80,6 +80,7 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/performance?portfolioId={portfolio_id}&mode=advisor",
         "/performance?portfolioId={portfolio_id}&mode=risk",
         "/performance?portfolioId={portfolio_id}&mode=evidence",
+        "/workbench/{portfolio_id}",
     }
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
@@ -87,6 +88,18 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert "performance.evidence" in certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
     ]["panel_ids"]
+    assert certified_groups["/workbench/{portfolio_id}"][
+        "certification_status"
+    ] == "certified"
+    assert "dpm.outcome_review" in certified_groups["/workbench/{portfolio_id}"][
+        "panel_ids"
+    ]
+    assert "dpm.proof_pack" in certified_groups["/workbench/{portfolio_id}"][
+        "panel_ids"
+    ]
+    assert "dpm.wave_command_center" in certified_groups["/workbench/{portfolio_id}"][
+        "panel_ids"
+    ]
 
 
 def test_analytics_ui_rollout_readiness_requires_known_panel_ids() -> None:

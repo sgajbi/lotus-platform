@@ -76,7 +76,7 @@
       "feature_key": "workbench.analytics.observability.freshness_degraded_state",
       "status": "planned",
       "owner_repo": "lotus-workbench/lotus-performance/lotus-risk",
-      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 reconciles Gateway source_supportability arrays into freshness/supportability derivation and validation supportabilityChecks. lotus-performance PR #140 hardens performance capability publication across completed supportability surfaces. lotus-risk PR #109 hardens risk supportability metric_labels and no-sensitive metric-label proof. lotus-core PR #329 hardens portfolio readiness supportability metric_labels and no-sensitive metric-label proof. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
+      "reason": "Gateway PR #166 now reconciles performance/risk source supportability into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 reconciles Gateway source_supportability arrays into freshness/supportability derivation and validation supportabilityChecks. lotus-performance PR #140 hardens performance capability publication across completed supportability surfaces, and lotus-performance PR #141 hardens performance supportability metric_labels and no-sensitive metric-label proof. lotus-risk PR #109 hardens risk supportability metric_labels and no-sensitive metric-label proof. lotus-core PR #329 hardens portfolio readiness supportability metric_labels and no-sensitive metric-label proof. lotus-advise PR #109 hardens advisory supportability metric_labels and no-sensitive metric-label proof. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution. Full promotion remains planned for complete RFC-0079 risk/evidence and all-supported-surface coverage."
     },
     {
       "feature_key": "workbench.analytics.observability.all_supported_surfaces",
@@ -92,6 +92,53 @@
     "dashboard_alerts_reviewed": true,
     "no_sensitive_content_reviewed": true,
     "no_open_p0_p1_reviewed": true
+  },
+  "downstream_boundary_hardening": {
+    "status": "implemented",
+    "gateway_pr": 179,
+    "gateway_merge_commit": "2414e7e",
+    "gateway_wiki_publish_commit": "94ca9c7",
+    "lotus_manage_allowed_paths": [
+      "GET /api/v1/rebalance/runs",
+      "GET /api/v1/rebalance/supportability/summary",
+      "GET /api/v1/platform/capabilities"
+    ],
+    "lotus_advise_proposal_paths": [
+      "POST /advisory/proposals/simulate",
+      "POST /advisory/proposals",
+      "GET /advisory/proposals",
+      "GET /advisory/proposals/{proposal_id}",
+      "GET /advisory/proposals/{proposal_id}/versions/{version_no}",
+      "POST /advisory/proposals/{proposal_id}/versions",
+      "POST /advisory/proposals/{proposal_id}/transitions",
+      "POST /advisory/proposals/{proposal_id}/approvals",
+      "GET /advisory/proposals/{proposal_id}/workflow-events",
+      "GET /advisory/proposals/{proposal_id}/approvals",
+      "GET /advisory/proposals/{proposal_id}/lineage"
+    ],
+    "forbidden_gateway_patterns": [
+      "lotus-manage /rebalance/proposals*",
+      "lotus-manage /api/v1/rebalance/proposals*",
+      "Gateway unversioned lotus-manage /rebalance/*"
+    ],
+    "ownership_decision": "Gateway proposal simulation, create, list, detail, version, workflow, approval, and lineage operations target lotus-advise. Gateway lotus-manage consumption is limited to strategic DPM runs, supportability summary, and platform capabilities until a separately implemented strategic execution use case exists.",
+    "local_proof": [
+      "175 focused Gateway proposal/platform/workbench tests passed",
+      "make check passed",
+      "make test-integration passed",
+      "non-live workflow e2e passed",
+      "git diff --check passed"
+    ],
+    "github_checks": [
+      "Feature Lane / Lint Typecheck Unit",
+      "Feature Lane / Workflow Lint",
+      "PR Merge Gate / Lint Typecheck Unit",
+      "PR Merge Gate / Integration Tests",
+      "PR Merge Gate / Coverage Gate",
+      "PR Merge Gate / Validate Docker Build",
+      "PR Merge Gate / CI Local Docker Parity",
+      "PR Merge Gate / Workflow Lint"
+    ]
   },
   "local_proof_commands": [
     "python automation\\validate_analytics_ui_observability_contract.py",

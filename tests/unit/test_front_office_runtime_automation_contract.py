@@ -18,6 +18,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Start-LotusFrontOfficeCanonical.ps1" in wrapper
     assert "Validate-LotusFrontOfficeCanonical.ps1" in wrapper
     assert "Stop-LotusFrontOfficeCanonical.ps1" in wrapper
+    assert "Invoke-DpmCommandCenterSeed.ps1" in wrapper
     assert "PB_SG_GLOBAL_BAL_001" in wrapper
     assert "output/front-office-qa" in wrapper
     assert "[string]$ScreenshotDirectory" in wrapper
@@ -34,12 +35,15 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$Clean" in wrapper
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RemoveImages" in wrapper
+    assert "[switch]$SkipDpmCommandCenterSeed" in wrapper
     assert "Get-LotusDockerArtifacts" in wrapper
     assert "Remove-LotusDockerArtifacts" in wrapper
     assert "Assert-NoLotusDockerArtifacts" in wrapper
     assert "docker_before" in wrapper
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
+    assert "dpm_command_center_seed_summary" in wrapper
+    assert "DPM command-center seed status" in wrapper
     assert "Screenshot directory" in wrapper
     assert "Runtime transcript" in wrapper
     assert "Canonical contract:" in wrapper
@@ -47,6 +51,24 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
     assert "validation did not produce a live summary" in wrapper
     assert "validation summary is stale" in wrapper
+
+    dpm_seed = (ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1").read_text(
+        encoding="utf-8"
+    )
+    assert "canonical-front-office-demo-data-contract.json" in dpm_seed
+    assert "dpm_command_center" in dpm_seed
+    assert "MANDATE_PB_SG_GLOBAL_BAL_001" not in dpm_seed
+    assert "refresh-from-core" in dpm_seed
+    assert "/api/v1/dpm/monitoring/run-once" in dpm_seed
+    assert "manage-monitoring-run-once" in dpm_seed
+    assert "/api/v1/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
+    assert "/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
+    assert "dpm-command-center-seed-latest.json" in dpm_seed
+    assert "posture_checks" in dpm_seed
+    assert "ready-populated-command-center" in dpm_seed
+    assert "gateway-command-center-partial-posture" in dpm_seed
+    assert "gateway-command-center-empty-posture" in dpm_seed
+    assert "DPM command-center posture validation failed" in dpm_seed
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}
@@ -81,6 +103,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "calculationChecks" in automation_readme
     assert "panelClassifications" in automation_readme
     assert "runtime transcript" in automation_readme
+    assert "DPM command-center seed" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
@@ -88,7 +111,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
     assert "Docker cleanup scope" in automation_guide
     assert "runtime transcript" in automation_guide
+    assert "DPM command-center seed" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
+    assert "Invoke-DpmCommandCenterSeed.ps1" in directory_map
     assert "`qa-platform-readiness`" in profile_reference
     assert "`qa-platform-readiness-clean-core`" in profile_reference
     assert "`qa-platform-readiness-clean-core-build`" in profile_reference

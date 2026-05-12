@@ -39,6 +39,12 @@ Do not route those tasks through generic platform QA by default.
 6. Surface `ready`, `partial`, `empty`, `unavailable`, and `error` truthfully.
 7. Do not use timestamped smoke portfolios when the canonical dataset is required.
 8. Prefer targeted local checks and let GitHub run heavyweight CI asynchronously when appropriate.
+9. Before accepting live canonical evidence after code, route, BFF, panel, Dockerfile, or seed-data
+   changes, rebuild or targeted-refresh the impacted service images. Treat route 404s, missing UI
+   fields, or absent seeded entities from stale containers as diagnostic failures, not proof.
+10. If a validated panel depends on a newly implemented business entity, seed or generate a real
+    implementation-backed entity first and record the generation evidence path. Do not accept an
+    empty panel as proof for a feature whose business outcome requires populated data.
 
 ## Canonical Commands
 
@@ -49,6 +55,17 @@ npm run live:stack:up
 npm run live:validate
 npm run live:stack:down
 ```
+
+When the audit or implementation changed one or more runtime services, prefer the Workbench
+start script option or targeted Docker rebuild before validation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/live/Start-LotusFrontOfficeCanonical.ps1 `
+  -BuildImages -RunValidation -ScreenshotDirectory <target-directory>
+```
+
+If a full Workbench bring-up is already running, rebuild only the impacted owning service where
+possible, then rerun `npm run live:validate` or `scripts/live/Validate-LotusFrontOfficeCanonical.ps1`.
 
 From `lotus-platform`:
 

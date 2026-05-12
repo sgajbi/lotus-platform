@@ -132,7 +132,8 @@ For RFC-0084 work, the highest-signal machine-readable files are:
     Human-readable RFC-0091 Slice 0 matrix for implementation planning and operator review.
 32. `../automation/generate_domain_product_onboarding.py`
     Generates and validates RFC-0091 self-service onboarding bundles for repo-native product
-    declarations, trust telemetry, SLO, access, evidence, README, and onboarding checklist files.
+    declarations, trust telemetry, SLO, access, evidence, source-data API profile, API
+    certification checklist, ingestion pipeline checklist, README, and onboarding checklist files.
     The generated bundle is an onboarding aid for owning repositories, not platform product truth.
 33. `../automation/collect_trust_telemetry.py`
     Collects RFC-0087 trust telemetry snapshots for RFC-0091 certification. Runtime snapshots from
@@ -199,7 +200,7 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 2. [Change Playbooks](./playbooks/CHANGE-PLAYBOOKS.md)
    Task-type delivery sequences.
 3. [PR Loop Playbook](./playbooks/PR-LOOP-PLAYBOOK.md)
-   Push, GitHub monitoring, merge, and cleanup guidance.
+   Push, GitHub monitoring, stranded governance truth reconciliation, merge, and cleanup guidance.
 4. [Validation Playbook](./playbooks/VALIDATION-PLAYBOOK.md)
    Validation depth and evidence selection.
 5. [Fix-Forward Patterns](./playbooks/FIX-FORWARD-PATTERNS.md)
@@ -280,8 +281,10 @@ The current reporting and analytics observability governance references are:
    generated backend no-sensitive-content and supported-features gates, reusable Workbench/UI
    observability template, and platform repo check wiring. Slice 12 is partially implemented in
    `lotus-risk` and `lotus-manage` for risk calculation and management action-register
-   supportability posture with bounded metrics. Slice 12 remains partially implemented while
-   remaining performance/risk endpoint families and Gateway/Workbench reconciliation stay planned.
+   supportability posture with bounded metrics. Later PRs completed performance/risk backend
+   freshness supportability and Gateway/Workbench source-supportability reconciliation for current
+   supported reads; Slice 12 remains partially implemented only because full Workbench
+   all-supported-surface and full RFC-0079 risk/evidence promotion stay planned.
    Slice 13 has implementation-backed Gateway proof for selected fan-out metrics, protected
    diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
    lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially implemented
@@ -295,8 +298,10 @@ The current reporting and analytics observability governance references are:
    branch hygiene, and skills guidance. Performance/risk backend freshness is now
    implementation-backed through lotus-performance PR #139 and lotus-risk PR #108, with
    lotus-performance PR #140 hardening capability publication across completed performance
-   supportability surfaces; full Workbench supported-surface promotion remains planned until
-   separately implemented and proved. Workbench PR #133 closes the current certified read-path
+   supportability surfaces and lotus-performance PR #141 hardening explicit performance
+   `metric_labels`, shared bounded Prometheus label tuples, and no-sensitive metric-label proof;
+   full Workbench supported-surface promotion remains planned until separately implemented and
+   proved. Workbench PR #133 closes the current certified read-path
    entitlement proof gap for performance Summary, Risk Review, and Advisor Brief; future certified
    read paths must add equivalent Gateway allow/deny audit, caller-context, BFF forwarding,
    permission-blocked UI, tests, live evidence, and wiki proof before promotion. Workbench PR #134
@@ -306,7 +311,15 @@ The current reporting and analytics observability governance references are:
    metric label assertions. Workbench PR #136 hardens the mutation hydration boundary: the same
    review-action mutation emits API request and panel-state metrics but must not increment
    `lotus_workbench_panel_hydration_duration_seconds`; live proof recorded
-   `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens AI surface
+   `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. Gateway PR #179 hardens the
+   downstream ownership boundary so proposal simulation/create/list/detail/version/workflow/
+   approval/lineage uses `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
+   consumption is limited to versioned strategic run, supportability summary, and capability
+   endpoints. Workbench PR #137 hardens the canonical live evidence boundary so Workbench no
+   longer treats stale direct manage `/integration/capabilities` as proof, validates strategic
+   manage supportability through `/api/v1/rebalance/supportability/summary`, preserves
+   gateway-first capability proof, and fixes screenshot evidence defects in the performance and
+   risk panels before publishing wiki truth. lotus-ai PR #57 hardens AI surface
    supportability proof with bounded `supportability_reason`, explicit `metric_labels`,
    sensitive-diagnostic rejection tests, Prometheus metric-label tests, `make check`, `make ci`,
    Docker build, and published wiki source. lotus-core PR #329 hardens portfolio readiness
@@ -314,7 +327,9 @@ The current reporting and analytics observability governance references are:
    metric-label tests, full local and GitHub runtime gates, and published wiki source. lotus-risk
    PR #109 hardens risk supportability proof with explicit `metric_labels`, bounded Prometheus
    labels, no-sensitive metric-label tests, full local and GitHub runtime gates, and published wiki
-   source. Workbench
+   source. lotus-advise PR #109 hardens advisory supportability proof with explicit
+   `supportability.metric_labels`, bounded Prometheus labels, no-sensitive metric-label tests,
+   full local and GitHub runtime gates, and published wiki source. Workbench
    archive retrieval is supported only through the BFF/Gateway boundary.
    It is not an extension of RFC-0105.
 

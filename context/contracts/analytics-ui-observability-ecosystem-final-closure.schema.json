@@ -13,6 +13,7 @@
     "supported_features_audit",
     "residual_scope",
     "proof_reconciliation",
+    "downstream_boundary_hardening",
     "local_proof_commands",
     "required_github_checks",
     "wiki_publication",
@@ -97,6 +98,54 @@
         "dashboard_alerts_reviewed": { "const": true },
         "no_sensitive_content_reviewed": { "const": true },
         "no_open_p0_p1_reviewed": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "downstream_boundary_hardening": {
+      "type": "object",
+      "required": [
+        "status",
+        "gateway_pr",
+        "gateway_merge_commit",
+        "gateway_wiki_publish_commit",
+        "lotus_manage_allowed_paths",
+        "lotus_advise_proposal_paths",
+        "forbidden_gateway_patterns",
+        "ownership_decision",
+        "local_proof",
+        "github_checks"
+      ],
+      "properties": {
+        "status": { "const": "implemented" },
+        "gateway_pr": { "const": 179 },
+        "gateway_merge_commit": { "type": "string", "minLength": 7 },
+        "gateway_wiki_publish_commit": { "type": "string", "minLength": 7 },
+        "lotus_manage_allowed_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 3
+        },
+        "lotus_advise_proposal_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "forbidden_gateway_patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "ownership_decision": { "type": "string", "minLength": 1 },
+        "local_proof": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "github_checks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
       },
       "additionalProperties": false
     },

@@ -75,14 +75,17 @@ def test_ecosystem_hardening_records_archive_reconciliation_evidence() -> None:
         if review["repository"] == "lotus-archive"
     )
 
-    assert "Workbench PR #126 implements Gateway/BFF-backed archive metadata" in (
-        archive_review["ci_evidence"]
+    assert (
+        "Workbench PR #126 implements Gateway/BFF-backed archive metadata"
+        in (archive_review["ci_evidence"])
     )
-    assert "direct Workbench-to-archive calls remain unsupported" in (
-        archive_review["ci_evidence"]
+    assert (
+        "direct Workbench-to-archive calls remain unsupported"
+        in (archive_review["ci_evidence"])
     )
-    assert "archive-surface reconciliation remain planned" not in (
-        archive_review["ci_evidence"]
+    assert (
+        "archive-surface reconciliation remain planned"
+        not in (archive_review["ci_evidence"])
     )
 
 
@@ -116,6 +119,38 @@ def test_ecosystem_hardening_records_risk_metric_label_proof() -> None:
     assert "lotus_risk_calculation_supportability_total" in risk_review["ci_evidence"]
     assert "lotus_analytics_freshness_bucket_total" in risk_review["ci_evidence"]
     assert "no-sensitive label rejection" in risk_review["ci_evidence"]
+
+
+def test_ecosystem_hardening_records_performance_metric_label_proof() -> None:
+    hardening = _load_json(HARDENING_PATH)
+    performance_review = next(
+        review
+        for review in hardening["repository_reviews"]
+        if review["repository"] == "lotus-performance"
+    )
+
+    assert "PR #141" in performance_review["ci_evidence"]
+    assert (
+        "calculation_supportability.metric_labels" in performance_review["ci_evidence"]
+    )
+    assert "no-sensitive Prometheus label proof" in performance_review["ci_evidence"]
+    assert "lotus-performance supportability" in str(
+        hardening["api_certification_review"]
+    )
+
+
+def test_ecosystem_hardening_records_advise_metric_label_proof() -> None:
+    hardening = _load_json(HARDENING_PATH)
+    advise_review = next(
+        review
+        for review in hardening["repository_reviews"]
+        if review["repository"] == "lotus-advise"
+    )
+
+    assert "lotus-advise PR #109" in advise_review["ci_evidence"]
+    assert "supportability.metric_labels" in advise_review["ci_evidence"]
+    assert "lotus_advise_advisory_supportability_total" in advise_review["ci_evidence"]
+    assert "no-sensitive label rejection" in advise_review["ci_evidence"]
 
 
 def test_ecosystem_hardening_rejects_missing_repository_review() -> None:

@@ -1348,10 +1348,79 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/README.md") -V
 
 Use this directory for machine-readable implementation evidence referenced by RFCs and PRs.
 
-Evidence must name the repository, branch, commit SHA, PR number, command, endpoint or route,
-operational identifiers, and result. Do not store sensitive client, portfolio, holding,
-transaction, entitlement, request-body, response-body, trace, or correlation details here unless a
-later security review explicitly certifies the artifact.
+Evidence must name the repository, branch, commit SHA, PR number, RFC slice, validation command,
+endpoint or route, state-machine or lifecycle decision where applicable, supported-feature posture,
+wiki publication posture, source-contract realization, downstream realization, operational
+identifiers, and result. Do not store sensitive client, portfolio, holding, transaction,
+entitlement, request-body, response-body, trace, or correlation details here unless a later
+security review explicitly certifies the artifact.
+"@
+Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "rfc_id": "RFC-0000",
+  "slice_id": "slice-0",
+  "generated_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "branch": "feature-branch",
+  "commit_sha": "unknown",
+  "pull_request": null,
+  "status": "draft",
+  "summary": "Replace with the evidence package purpose and scope.",
+  "slice_closure": {
+    "implementation_complete": false,
+    "tests_complete": false,
+    "documentation_complete": false,
+    "review_complete": false,
+    "unsupported_claims_removed": false,
+    "notes": "Replace with the slice closure decision."
+  },
+  "api_certification": {
+    "openapi_gate": "not_run",
+    "certified_endpoints": [],
+    "degraded_error_examples_reviewed": false,
+    "attribute_examples_reviewed": false
+  },
+  "state_machine_review": {
+    "applies": false,
+    "transition_matrix_path": null,
+    "allowed_transition_tests": [],
+    "rejected_transition_tests": []
+  },
+  "supported_features_review": {
+    "supported_features_path": "supported-features/supported-features.json",
+    "promoted_features": [],
+    "deferred_features": [],
+    "no_aspirational_claims": false
+  },
+  "wiki_publication": {
+    "wiki_source_changed": false,
+    "check_only_status": "not_run",
+    "publish_required_after_merge": false,
+    "published_commit": null
+  },
+  "validation_commands": [
+    {
+      "command": "make check",
+      "status": "not_run",
+      "evidence_ref": "output/path-to-command-summary.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "example-artifact",
+      "artifact_type": "json",
+      "path": "output/example/example-artifact.json",
+      "hash": "sha256:replace-after-generation",
+      "description": "Replace with the source-backed evidence artifact description."
+    }
+  ],
+  "cross_app_evidence": [],
+  "upstream_realization": [],
+  "source_contract_realization": [],
+  "downstream_realization": [],
+  "review_notes": [],
+  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
+}
 "@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
 APP_ENV=local
@@ -1433,6 +1502,19 @@ The machine-readable source for endpoint certification tracking is:
 - `docs/operations/endpoint-certification-ledger.json`
 
 Run `make endpoint-certification-gate` before promoting any endpoint as supported.
+## Source-Degraded And Reconciliation Endpoints
+
+Endpoints that reconcile expected-versus-realized state or consume another Lotus app as source
+authority must also include:
+
+1. explicit source-owner fields in success and degraded responses,
+2. source freshness, lineage, and supportability fields where the source owner exposes them,
+3. `READY`, `DEGRADED`, `BLOCKED`, and `NOT_SUPPORTED` examples where those states are applicable,
+4. tests for missing, stale, unavailable, partial, malformed, and conflicting upstream evidence,
+5. proof that the service does not clone calculations owned by another Lotus app,
+6. same-RFC upstream source-contract and downstream consumer realization evidence when contracts
+   change,
+7. README, wiki, supported-feature, and RFC evidence updates before any product support claim.
 "@
 Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-ledger.json") -Value @"
 {

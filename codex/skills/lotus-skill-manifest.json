@@ -16,7 +16,7 @@
       "path": "codex/skills/lotus-backend-delivery-governance",
       "category": "backend-delivery-governance",
       "directly_lotus_owned": true,
-      "reason": "Backend delivery governance for Lotus domain and capability services."
+      "reason": "Backend delivery governance for Lotus domain and capability services, including mainline RFC/docs/wiki/context truth discipline."
     },
     {
       "name": "lotus-codebase-review-ledger",
@@ -51,14 +51,14 @@
       "path": "codex/skills/lotus-pr-premerge-gate",
       "category": "pr-governance",
       "directly_lotus_owned": true,
-      "reason": "Lotus pre-merge verification workflow aligned to RFC-0072."
+      "reason": "Lotus pre-merge verification workflow aligned to RFC-0072, including stranded governance branch reconciliation."
     },
     {
       "name": "lotus-readme-wiki-governance",
       "path": "codex/skills/lotus-readme-wiki-governance",
       "category": "documentation-governance",
       "directly_lotus_owned": true,
-      "reason": "Gold-standard README and wiki structure for Lotus repositories, including doc-contract-aware validation."
+      "reason": "Gold-standard README and wiki structure for Lotus repositories, including doc-contract-aware validation, durable documentation control artifacts, business-application feature material, diagrams, and implementation-backed demo readiness."
     },
     {
       "name": "lotus-qa-platform-validator",
@@ -72,7 +72,7 @@
       "path": "codex/skills/lotus-rfc-review-loop",
       "category": "rfc-governance",
       "directly_lotus_owned": true,
-      "reason": "RFC review and governance workflow for Lotus repositories."
+      "reason": "RFC review and governance workflow for Lotus repositories, including gold-standard implementation RFC authoring, stranded-truth reconciliation, business outcomes, supported-feature ledgers, mandatory closure slices, and enterprise/data-mesh baselines."
     },
     {
       "name": "lotus-rfc0067-rollout",
@@ -107,7 +107,7 @@
       "path": "codex/skills/platform-pulse-monitor",
       "category": "platform-monitoring",
       "directly_lotus_owned": true,
-      "reason": "Cross-repo sync and PR monitoring pulse workflow."
+      "reason": "Cross-repo sync, PR monitoring, and stranded governance branch pulse workflow."
     },
     {
       "name": "targeted-service-refresh",

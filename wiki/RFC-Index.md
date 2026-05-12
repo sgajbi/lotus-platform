@@ -148,7 +148,10 @@
   GitHub runtime gates, and published wiki source. lotus-risk PR #109 hardens risk supportability
   proof with explicit `metric_labels`, bounded `lotus_risk_calculation_supportability_total` and
   `lotus_analytics_freshness_bucket_total` labels, no-sensitive Prometheus label tests, green local
-  and GitHub runtime gates, and published wiki source. Required remaining
+  and GitHub runtime gates, and published wiki source. lotus-advise PR #109 hardens advisory
+  supportability proof with explicit `supportability.metric_labels`, bounded
+  `lotus_advise_advisory_supportability_total` labels, no-sensitive Prometheus label tests, green
+  local and GitHub runtime gates, and published wiki source. Required remaining
   ecosystem Slice 12 residuals extend
   the same posture uniformly across all Lotus apps, including the remaining backend supportability
   metrics and all Workbench supported surfaces. Slice 13 has
@@ -178,8 +181,10 @@
   planned; backend freshness reconciliation is implemented for performance/risk calculation
   supportability through lotus-performance PR #139 and lotus-risk PR #108, and
   lotus-performance PR #140 hardens capability publication so completed MWR, contribution, or
-  attribution supportability cannot be hidden by a disabled TWR capability. Slice 15
-  implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
+  attribution supportability cannot be hidden by a disabled TWR capability. lotus-performance PR #141
+  hardens explicit performance `metric_labels`, shared bounded Prometheus label tuples, and
+  no-sensitive metric-label proof for calculation supportability and backend freshness metrics.
+  Slice 15 implements platform dashboard, alert, runbook, validator, and platform-stack test coverage across
   every currently implemented RFC-0108 metric family without sensitive dashboard variables or alert
   labels. Slice 16 implements platform-owned ecosystem proof automation for the current supported
   Lotus journey across portfolio state, performance analytics, risk analytics, advisory workflow
@@ -198,6 +203,9 @@
   and Advisor Brief; future certified read paths must provide equivalent proof before promotion.
   Workbench PR #136 adds the current mutation hydration boundary proof: Advisor Brief review-action
   mutations emit bounded API request and panel-state metrics without incrementing panel hydration.
+  Gateway PR #179 moves proposal ownership to lotus-advise and limits manage to strategic
+  versioned run/supportability/capability endpoints. Workbench PR #137 hardens the live evidence
+  boundary and screenshot quality for strategic manage supportability proof.
   This is not an extension of RFC-0105 reporting
   observability.
 

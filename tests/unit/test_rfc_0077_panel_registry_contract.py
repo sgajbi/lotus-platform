@@ -84,6 +84,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
 
     assert schema["properties"]["contract_id"]["const"] == "workbench-panel-registry"
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0077"
+    assert "lotus-manage" in schema["$defs"]["panelEntry"]["properties"]["owning_service"]["enum"]
 
     assert registry["contract_id"] == "workbench-panel-registry"
     assert registry["contract_version"] == "1.0.0"
@@ -108,12 +109,18 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "performance.risk.rolling": "/api/v1/workbench/{portfolio_id}/risk/rolling",
         "performance.risk.historical_attribution": "/api/v1/workbench/{portfolio_id}/risk/attribution",
         "performance.evidence": None,
+        "dpm.command_center": "/api/v1/dpm/command-center",
+        "dpm.outcome_review": "/api/v1/dpm/command-center/outcome-reviews",
+        "dpm.wave_command_center": "/api/v1/dpm/command-center/waves",
+        "dpm.portfolio_memory": "/api/v1/dpm/command-center/portfolios/{portfolio_id}/memory",
+        "dpm.proof_pack": "/api/v1/dpm/command-center/proof-packs/{proof_pack_id}",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
         assert panel_by_id[panel_id]["gateway_endpoint"] == expected_endpoint
 
-    assert panel_by_id["performance.evidence"]["required_support_state"] == "partial"
+    assert panel_by_id["performance.evidence"]["required_support_state"] == "ready"
+    assert "ready" in panel_by_id["performance.evidence"]["allowed_states"]
     assert panel_by_id["performance.evidence"]["owner_follow_up_rfc"] == "RFC-0079"
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"
@@ -121,3 +128,41 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "ready"
     assert panel_by_id["performance.analysis.attribution"]["known_limitations"] == []
     assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]
+    assert panel_by_id["dpm.command_center"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.command_center"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.command_center"]["allowed_states"] == [
+        "ready",
+        "partial",
+        "empty",
+        "loading",
+        "error",
+    ]
+    assert panel_by_id["dpm.command_center"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-command-center-live.png"
+    )
+    assert panel_by_id["dpm.command_center"]["known_limitations"] == []
+    assert panel_by_id["dpm.command_center"]["owner_follow_up_rfc"] is None
+    assert panel_by_id["dpm.wave_command_center"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.wave_command_center"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.wave_command_center"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-wave-command-center-live.png"
+    )
+    assert "external OMS execution" in panel_by_id["dpm.wave_command_center"]["known_limitations"][0]
+    assert panel_by_id["dpm.portfolio_memory"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.portfolio_memory"]["required_support_state"] == "ready"
+    assert (
+        "READY, PARTIAL, or BLOCKED"
+        in panel_by_id["dpm.portfolio_memory"]["validation_rules"]["ready"][1]
+    )
+    assert panel_by_id["dpm.portfolio_memory"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-portfolio-memory-live.png"
+    )
+    assert "local timeline reconstruction" in panel_by_id["dpm.portfolio_memory"][
+        "known_limitations"
+    ][0]
+    assert panel_by_id["dpm.proof_pack"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.proof_pack"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.proof_pack"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-proof-pack-live.png"
+    )
+    assert "hash generation" in panel_by_id["dpm.proof_pack"]["known_limitations"][0]

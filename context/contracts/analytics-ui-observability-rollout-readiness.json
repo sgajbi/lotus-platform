@@ -68,6 +68,18 @@
       "panel_ids": ["performance.evidence"],
       "evidence_basis": "Slice 8 canonical proof validated truthful partial evidence state instead of overclaiming unsupported lineage behavior.",
       "residual_scope": "Full evidence and lineage behavior remains governed by RFC-0079."
+    },
+    {
+      "route": "/workbench/{portfolio_id}",
+      "certification_status": "certified",
+      "panel_ids": [
+        "dpm.command_center",
+        "dpm.wave_command_center",
+        "dpm.portfolio_memory",
+        "dpm.outcome_review",
+        "dpm.proof_pack"
+      ],
+      "evidence_basis": "RFC-0040/0041/0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit, portfolio-memory timeline, rebalance-wave command center, proof-pack evidence panel, and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
     }
   ],
   "rollout_checklist": [

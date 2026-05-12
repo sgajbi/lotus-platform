@@ -87,7 +87,9 @@
     {
       "repository": "lotus-core",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["core.observability.portfolio_supportability"],
+      "feature_keys_reviewed": [
+        "core.observability.portfolio_supportability"
+      ],
       "ci_evidence": "Portfolio supportability is implementation-backed in lotus-core, consumed through lotus-gateway PR #167 for portfolio readiness, and consumed by lotus-workbench PR #120 for supported detailed portfolio reads and no-sensitive readiness metrics. lotus-core PR #329 hardens the source contract with explicit metric_labels, a shared label tuple for lotus_core_portfolio_supportability_total, Prometheus exposition tests proving only state, reason, and freshness_bucket labels, no-sensitive label rejection for portfolio/client/correlation/trace/security/request/response identifiers, local ci-local/security/dividend-contract proof, green Feature Lane and PR Merge Gate runtime gates, and published wiki source.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -99,7 +101,7 @@
         "analytics.backend.observability.freshness_supportability",
         "performance.observability.calculation_supportability"
       ],
-      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138, consumed through lotus-gateway PR #166, consumed by lotus-workbench PR #118 for supported reads, the RFC-0108 lotus_analytics_freshness_bucket_total companion metric is implementation-backed through PR #139, and capability publication is hardened across completed performance supportability surfaces through PR #140.",
+      "ci_evidence": "TWR, MWR, contribution, and attribution calculation supportability are implementation-backed in lotus-performance through PR #138, consumed through lotus-gateway PR #166, consumed by lotus-workbench PR #118 for supported reads, the RFC-0108 lotus_analytics_freshness_bucket_total companion metric is implementation-backed through PR #139, capability publication is hardened across completed performance supportability surfaces through PR #140, and PR #141 hardens explicit calculation_supportability.metric_labels plus no-sensitive Prometheus label proof for performance supportability and backend freshness metrics.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
@@ -117,15 +119,19 @@
     {
       "repository": "lotus-advise",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["advise.observability.advisory_supportability"],
-      "ci_evidence": "Advisory supportability is implementation-backed; Gateway and Workbench advisory reconciliation remain planned.",
+      "feature_keys_reviewed": [
+        "advise.observability.advisory_supportability"
+      ],
+      "ci_evidence": "Advisory supportability is implementation-backed in lotus-advise, consumed through lotus-gateway PR #172 for advisor-brief supportability, and consumed by lotus-workbench PR #125 for bounded advisor-brief advisory supportability metrics without sensitive labels. lotus-advise PR #109 hardens the source response with explicit supportability.metric_labels, a shared label tuple for lotus_advise_advisory_supportability_total, OpenAPI and API-vocabulary proof, Prometheus exposition tests proving only state, reason, and freshness_bucket labels, no-sensitive label rejection for portfolio/account/client/advisor/proposal/workspace/correlation/trace/request/transaction/security/request-body/response-body identifiers, make check, ci-local with 586 unit, 54 integration, 12 e2e passed and 97% coverage, green Feature Lane and PR Merge Gate including Docker build, and published wiki source.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
     },
     {
       "repository": "lotus-manage",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["manage.observability.action_register_supportability"],
+      "feature_keys_reviewed": [
+        "manage.observability.action_register_supportability"
+      ],
       "ci_evidence": "Action-register supportability is implementation-backed in lotus-manage, consumed through lotus-gateway PR #168 for portfolio workspace rebalance supportability, and consumed by lotus-workbench PR #121 for portfolio operational support copy plus no-sensitive nested supportability metrics.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -133,7 +139,9 @@
     {
       "repository": "lotus-report",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["report.observability.evidence_surface_supportability"],
+      "feature_keys_reviewed": [
+        "report.observability.evidence_surface_supportability"
+      ],
       "ci_evidence": "Evidence-surface supportability is implementation-backed in lotus-report, consumed through lotus-gateway PR #169 for report-batch create/status/run-once supportability, and consumed by lotus-workbench PR #122 for bounded report-batch supportability metrics without sensitive labels.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -141,7 +149,9 @@
     {
       "repository": "lotus-render",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["render.observability.render_supportability"],
+      "feature_keys_reviewed": [
+        "render.observability.render_supportability"
+      ],
       "ci_evidence": "Render supportability is implementation-backed; report/evidence reconciliation remains planned.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -149,7 +159,9 @@
     {
       "repository": "lotus-archive",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["archive.observability.archive_supportability"],
+      "feature_keys_reviewed": [
+        "archive.observability.archive_supportability"
+      ],
       "ci_evidence": "Archive supportability is implementation-backed; Workbench PR #126 implements Gateway/BFF-backed archive metadata and binary download retrieval, and lotus-archive commit 203ec6d updates source metadata/docs/tests for Gateway-backed Workbench retrieval while direct Workbench-to-archive calls remain unsupported.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -157,7 +169,9 @@
     {
       "repository": "lotus-ai",
       "review_status": "planned_residual",
-      "feature_keys_reviewed": ["ai.observability.ai_surface_supportability"],
+      "feature_keys_reviewed": [
+        "ai.observability.ai_surface_supportability"
+      ],
       "ci_evidence": "AI surface supportability is implementation-backed in lotus-ai, consumed through lotus-gateway PR #170 for advisor-brief supportability, and consumed by lotus-workbench PR #123 for bounded advisor-brief supportability metrics without sensitive labels. lotus-ai PR #57 hardens the source response with bounded supportability_reason values, explicit metric_labels truth, sensitive-diagnostic rejection tests, Prometheus label-boundary tests, make check, make ci, and published wiki source.",
       "api_certification_posture": "planned_residual",
       "no_open_p0_p1": true
@@ -183,7 +197,7 @@
       "owner_repo": "lotus-performance/lotus-risk",
       "certification_status": "certified",
       "openapi_required": false,
-      "evidence": "lotus-performance supportability covers completed TWR, MWR, contribution, and attribution calculations through PR #138, emits the RFC-0108 lotus_analytics_freshness_bucket_total companion metric through PR #139, and hardens capability publication across completed performance supportability surfaces through PR #140. lotus-risk supportability covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, emits the RFC-0108 companion metric through PR #108, and exposes explicit metric_labels plus bounded Prometheus labels with no-sensitive metric-label proof through PR #109. lotus-core portfolio readiness supportability exposes explicit metric_labels and bounded Prometheus labels with no-sensitive metric-label proof through PR #329. Gateway PR #166 consumes performance/risk source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution for the current supported surface."
+      "evidence": "lotus-performance supportability covers completed TWR, MWR, contribution, and attribution calculations through PR #138, emits the RFC-0108 lotus_analytics_freshness_bucket_total companion metric through PR #139, hardens capability publication across completed performance supportability surfaces through PR #140, and exposes explicit metric_labels plus bounded Prometheus labels with no-sensitive metric-label proof through PR #141. lotus-risk supportability covers risk/calculate, drawdown, rolling metrics, historical attribution, and concentration through PR #107, emits the RFC-0108 companion metric through PR #108, and exposes explicit metric_labels plus bounded Prometheus labels with no-sensitive metric-label proof through PR #109. lotus-core portfolio readiness supportability exposes explicit metric_labels and bounded Prometheus labels with no-sensitive metric-label proof through PR #329. lotus-advise advisory supportability exposes explicit supportability.metric_labels and bounded Prometheus labels with no-sensitive metric-label proof through PR #109. Gateway PR #166 consumes performance/risk source supportability blocks into fan-out state, risk workspace supportability, and performance evidence context. Workbench PR #118 consumes Gateway source_supportability arrays into freshness/supportability derivation and validation summaries. Workbench PR #119 and lotus-core PR #328 prove clean governed canonical runtime execution for the current supported surface."
     }
   ],
   "supported_features_audit": {

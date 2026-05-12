@@ -20,6 +20,7 @@ powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1
 powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.ps1
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+powershell -ExecutionPolicy Bypass -File automation\Invoke-DpmCommandCenterSeed.ps1
 python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
@@ -42,6 +43,23 @@ python automation\validate_analytics_ui_entitlement_certification.py
    workflow-pack runtime APIs
 7. treat delegated-agent output as evidence for the accountable main agent, not as review, PR
    approval, wiki publication, or merge authority
+
+## Canonical DPM command-center seed
+
+`Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` runs the DPM command-center seed by default before
+Workbench validation. The seed refreshes `MANDATE_PB_SG_GLOBAL_BAL_001` from `lotus-core` through
+`lotus-manage`, runs one Manage monitoring pass for command-center evidence, then verifies manage lookup, Gateway mandate lookup, Gateway mandate health, and
+Gateway command-center summary before browser proof starts. The seed evidence records
+`posture_checks` for populated source-ready `ready`, selector-driven `partial`, and empty-date `empty`
+command-center states before Workbench screenshots can be promoted.
+
+Use `Invoke-DpmCommandCenterSeed.ps1` directly only when the stack is already running and the goal
+is to diagnose or refresh the DPM command-center data path without rerunning the full browser proof.
+Use `-SkipDpmCommandCenterSeed` on canonical QA only for diagnostics that intentionally validate an
+unseeded or degraded DPM state. Current governed seed proof covers populated ready, partial, and
+empty command-center supportability postures. Explicitly degraded and blocked command-center
+fixtures remain source-owner follow-up because the platform seed must not fabricate unavailable or
+blocked source truth.
 
 ## First-response sequence
 

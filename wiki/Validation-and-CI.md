@@ -29,6 +29,8 @@
   `python automation\generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
 - enterprise mesh operating report check:
   `python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check`
+- source-data product onboarding scaffold check:
+  `python automation\generate_domain_product_onboarding.py --repository lotus-core --product-name ExampleSourceProduct --product-version v1 --output-directory output\domain-product-onboarding\example --check`
 
 ## What the gates protect
 
@@ -43,6 +45,9 @@
   catalog, gateway, and Workbench check families
 - RFC-0092 production mesh operations: operating state, limited-history posture, drift trend,
   regression detection, escalation queue, and product operating posture
+- source-data product onboarding scaffolds: source API profile, API certification checklist,
+  ingestion pipeline checklist, trust telemetry, SLO/access/evidence policy, and repo-owned
+  declaration readiness
 
 ## Mesh certification outputs
 

@@ -20,16 +20,81 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
    - Evaluate whether each delta is still relevant given current app state and lotus-platform standards.
    - Mark as `done`/`deferred` when appropriate; avoid duplicate future work.
 5. **Cross-app clarity**: If capability ownership moved out of repo, archive with full migration rationale and destination ownership.
+6. **Mainline truth only**: RFC closure, tightening, implementation planning, and supported-feature
+   promotion must be based on `main`, not on an active side branch or local memory. Durable RFC,
+   wiki, context, supported-features, source-map, ledger, and proof-index truth stranded on an
+   unmerged branch is not complete.
+7. **No stranded RFC truth**: Before starting or closing RFC work, reconcile every unmerged remote
+   branch that touches governance artifacts. Unique truth must be merged, cherry-picked, explicitly
+   superseded with rationale, or deleted.
+6. **Business outcome clarity**: Business application RFCs must explain the business outcome in
+   private-banking or platform-operating language, not only technical deliverables.
+7. **Domain vocabulary discipline**: Use industry-standard, domain-driven terminology. For banking
+   apps, prefer precise language such as mandate, investment policy, strategic asset allocation,
+   tactical tilt, house view, risk budget, tracking error, source readiness, proof pack, decision
+   timeline, and outcome review over generic software labels.
+8. **Enterprise posture must improve**: New features must strengthen API quality, data-mesh posture,
+   observability, logging, auditability, supportability, tests, documentation, or operational
+   resilience. If a feature adds unavoidable complexity, require compensating controls.
 
 ## Loop Workflow
 
 1. Set review scope and batch size.
-2. Build or refresh RFC inventory/index.
-3. Review RFCs one by one in the batch with evidence.
-4. Classify each RFC.
-5. Standardize RFC document structure/content.
-6. Record next actions and priority.
-7. Commit loop outputs and prepare next batch.
+2. Run stranded RFC truth reconciliation.
+3. Build or refresh RFC inventory/index.
+4. Review RFCs one by one in the batch with evidence.
+5. Classify each RFC.
+6. Standardize RFC document structure/content.
+7. Record next actions and priority.
+8. Commit loop outputs and prepare next batch.
+
+## Stranded RFC Truth Reconciliation (Required)
+
+Run this before RFC tightening, RFC implementation start, post-merge audit, final closure, or any
+supported-feature promotion:
+
+```powershell
+git fetch origin --prune
+git branch -r --no-merged origin/main
+```
+
+For each unmerged remote branch, classify it in the RFC output or task ledger:
+
+1. `must-merge`: contains unique RFC/docs/wiki/context/contract/proof truth that must reach `main`.
+2. `cherry-pick`: contains some useful truth, but the branch as a whole is obsolete.
+3. `superseded`: all useful truth is already present on `main`; record the evidence.
+4. `delete`: branch is merged, obsolete, or contains no durable truth.
+5. `active`: branch is intentionally still in flight; record owner, RFC/slice, and expected closure.
+
+High-risk paths that require inspection when present in an unmerged branch:
+
+1. `docs/rfcs/`
+2. `wiki/`
+3. `README.md`
+4. `REPOSITORY-ENGINEERING-CONTEXT.md`
+5. `AGENTS.md`
+6. `contracts/`
+7. `platform-contracts/`
+8. `context/`
+9. `docs/standards/`
+10. `.github/workflows/`
+11. migrations, OpenAPI snapshots, API vocabulary inventories, and supported-features files
+
+Use these commands to identify unique truth:
+
+```powershell
+git diff --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git diff --diff-filter=A --name-status origin/main..<remote-branch> -- docs/rfcs wiki README.md REPOSITORY-ENGINEERING-CONTEXT.md AGENTS.md contracts platform-contracts context docs/standards .github/workflows
+git cherry -v origin/main <remote-branch>
+```
+
+Do not interpret large `D` rows against an older branch as deleted mainline truth without checking
+direction and ancestry. Verify whether the branch predates newer mainline work. A file is lost only
+when it is absent from `main` and exists as unique useful truth on an unmerged branch.
+
+Record the reconciliation result in the RFC, source-map, closure slice, or task ledger. If useful
+truth is restored, add or update a regression test or index reference so it cannot disappear
+silently again.
 
 ## Step 1: Set Scope and Batch Size
 
@@ -39,6 +104,14 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
   - Runtime-critical RFCs first.
   - Cross-app contract RFCs second.
   - Historical/legacy RFCs last.
+
+## Step 1.5: Confirm Mainline Baseline
+
+- Start from a clean, current `main`.
+- If the work continues on a feature branch, verify the branch was created from current `main` or
+  explicitly rebased/merged after stranded-truth reconciliation.
+- Do not use old side branches as execution guides until their durable truth has been reconciled
+  onto `main` or intentionally superseded.
 
 ## Step 2: Build/Refresh RFC Inventory
 
@@ -95,6 +168,112 @@ Use RFC lifecycle statuses:
   - gap assessment
   - next actions
   - ownership
+- For new or reopened implementation-bearing RFCs, also add explicit:
+  - business outcomes
+  - domain vocabulary and architecture direction
+  - supported-features ledger with implementation-backed promotion rules
+  - source-authority and dependency map
+  - compatibility posture, including whether strategic redesign can delete stale APIs
+  - platform automation/scaffolding improvement slice when applicable
+  - cleanup and structure slice
+  - implementation proof slice with live evidence expectations
+  - second-last hardening and review slice
+  - final documentation/context/wiki/supported-features/branch-hygiene closure slice
+  - enterprise data-mesh, observability, structured logging, audit, API certification, and CI baseline
+  - documentation-as-product expectations for README, wiki, demos, sales, operations, and developers
+
+## Gold-Standard Implementation RFC Authoring
+
+Use this section when the user asks to prepare, tighten, or create an implementation RFC before
+coding begins.
+
+### Critical Review Before Implementation
+
+Before writing implementation code:
+
+1. read the current RFC and classify ambiguity in scope, sequencing, APIs, source ownership,
+   dependencies, evidence, tests, acceptance criteria, and closure,
+2. verify current repo truth from code, tests, contracts, OpenAPI, README, wiki, and repo context,
+3. identify duplicated, dead, legacy, or misleading scope,
+4. record whether backward compatibility is required; do not preserve old endpoints by default
+   without proven downstream dependency,
+5. strengthen the RFC until a strong implementer can execute with minimal clarification.
+
+### Required Slices For New/Reopened Implementation RFCs
+
+Every new or reopened implementation-bearing RFC must include these slices explicitly:
+
+1. **Platform automation and scaffolding improvement slice**
+   - Identify repeatable gaps that belong in `lotus-platform`, not one app.
+   - Cover API certification, Swagger quality, observability, health/readiness, structured logging,
+     error handling, test scaffolding, CI defaults, documentation scaffolding, governance hooks,
+     data-mesh onboarding, and live-evidence patterns where applicable.
+   - If no platform change is needed, record a deliberate no-change decision.
+2. **Cleanup and structure slice**
+   - Remove dead code, duplicate docs, stale endpoints, old aliases, misleading target-state
+     claims, and repo/document sprawl.
+   - Improve module boundaries and documentation layering before adding more scope.
+3. **Implementation proof slice**
+   - Prove endpoints and workflows end to end with live or canonical evidence.
+   - Capture full request/response artifacts under non-git-tracked `output/`.
+   - Critically review every returned figure, reason code, lineage ref, readiness state, and
+     degraded state.
+4. **Second-last hardening and review slice**
+   - Perform proper code review and tighten bugs, duplication, tests, error handling, API
+     certification, OpenAPI examples, data-mesh posture, logs, metrics, health, readiness, and
+     platform governance before closure.
+5. **Final closure slice**
+   - Update README, wiki source, RFC status, supported-features, agent context, skills/guidance
+     decisions, evidence summary, branch hygiene, and PR/CI posture.
+
+### Supported-Features Ledger
+
+Every implementation RFC must include a supported-features ledger:
+
+1. list each feature or endpoint delivered by the RFC,
+2. state whether it is proposed, gated, supported, deprecated, or removed,
+3. define the exact promotion rule from target-state wording to implementation-backed product
+   material,
+4. include the evidence required for README/wiki/supported-features updates,
+5. separate business-demo claims from unimplemented target-state design.
+
+### Enterprise Baseline
+
+Every implementation RFC must state how it will satisfy:
+
+1. API certification and OpenAPI field-level quality,
+2. data-mesh producer/consumer declarations, trust telemetry, SLO/access/evidence posture where
+   applicable,
+3. structured logs, bounded metrics, trace/correlation propagation, supportability, health,
+   liveness, readiness, and safe operator diagnostics,
+4. source-authority lineage and degraded-source behavior,
+5. test-pyramid coverage with meaningful unit, contract, integration, e2e, and live proof where
+   appropriate,
+6. GitHub Feature Lane, PR Merge Gate, and fix-forward monitoring expectations.
+
+### Documentation-As-Product
+
+For product or business application RFCs:
+
+1. documentation must be useful to business, engineering, sales, marketing, operations, and demo
+   preparation,
+2. wiki pages should explain current feature behavior, integrations, operational posture, diagrams,
+   and target-state roadmap without duplicating deep RFC mechanics,
+3. README should remain concise and command-accurate,
+4. RFCs should carry architecture, sequencing, acceptance criteria, risks, dependencies, evidence,
+   and delivery standards,
+5. avoid brittle market-size claims or competitor assertions unless freshly verified; prefer
+   durable market patterns and source-backed methodology.
+
+### Research and Vocabulary
+
+When domain expertise matters:
+
+1. use current official sources, industry methodology, and durable textbooks or professional bodies,
+2. cite or reference sources where the RFC relies on market or methodology claims,
+3. translate research into implementation requirements, not marketing prose,
+4. normalize vocabulary before implementation begins,
+5. avoid copying vendor wording; write in Lotus domain language.
 
 ## Step 6: Handle Archive Candidates
 

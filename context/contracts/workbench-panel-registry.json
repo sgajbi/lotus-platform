@@ -5,7 +5,9 @@
   "related_rfcs": [
     "RFC-0075",
     "RFC-0076",
-    "RFC-0079"
+    "RFC-0079",
+    "RFC-0041",
+    "RFC-0042"
   ],
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
   "panels": [
@@ -367,9 +369,13 @@
       "owning_service": "lotus-gateway",
       "gateway_endpoint": null,
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "partial",
-      "allowed_states": ["partial", "unavailable", "loading", "error"],
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "unavailable", "loading", "error"],
       "validation_rules": {
+        "ready": [
+          "execution status, lineage status, and artifact inventory are exposed",
+          "gateway preserves lotus-performance calculation identity and artifact refs"
+        ],
         "partial": [
           "truthful degraded posture is rendered",
           "owner reason is explicit"
@@ -387,10 +393,222 @@
       "evidence_required": true,
       "methodology_reference": null,
       "known_limitations": [
-        "full evidence and lineage support is deferred pending RFC-0079"
+        "broader RFC-0079 risk/evidence scope remains outside this performance evidence panel certification"
       ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": "RFC-0079"
+    },
+    {
+      "panel_id": "dpm.command_center",
+      "display_name": "DPM Command Center",
+      "screen_id": "workbench.dpm_command_center",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "summary_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "command-center summary renders from Gateway",
+          "mandate lookup by portfolio resolves the canonical manage mandate",
+          "mandate health dimensions are present",
+          "active exceptions and attention queue states are explicit",
+          "source lineage records core source products"
+        ],
+        "partial": [
+          "manage supportability state and blocked actions are explicit",
+          "partial source readiness is labelled without hiding the persisted mandate"
+        ],
+        "empty": [
+          "absence of command-center work is explicit for the portfolio after a valid seed"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-command-center-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0036-discretionary-portfolio-management.md",
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "dpm.outcome_review",
+      "display_name": "Post-Trade Outcome Review",
+      "screen_id": "workbench.dpm_outcome_review",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/outcome-reviews",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "post-trade outcome review heading renders",
+          "outcome-review table has at least one manage-backed row",
+          "dimension matrix has at least one expected-versus-realized row",
+          "source lineage table has at least one source row",
+          "report and AI handoff availability is visible"
+        ],
+        "partial": [
+          "manage supportability state and blocked actions are explicit"
+        ],
+        "empty": [
+          "no materialized outcome-review record is explicit for the portfolio"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-outcome-review-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0042-post-trade-outcome-feedback-loop.md",
+      "known_limitations": [
+        "embedded /workbench/{portfolio_id} panel is implemented first; a dedicated /dpm/outcomes route remains planned under Workbench RFC-0098"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.wave_command_center",
+      "display_name": "Rebalance Wave Command Center",
+      "screen_id": "workbench.dpm_wave_command_center",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "analytic_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/waves",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "rebalance-wave command-center heading renders",
+          "Gateway wave list supportability is present",
+          "explicit portfolio-list preview and creation controls call Gateway only",
+          "source-check, simulation, approval, staging, handoff, proof-posture, and supportability actions call Gateway only",
+          "selected wave state, item count, supportability, proof-pack posture, and handoff posture are visible"
+        ],
+        "partial": [
+          "manage supportability state, reason codes, and blocked actions are explicit",
+          "degraded source, proof-pack, or handoff posture is shown without Workbench recomputation"
+        ],
+        "empty": [
+          "absence of durable rebalance waves is explicit while preview/create remain Gateway-backed"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage wave route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-wave-command-center-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0041-rebalance-wave-orchestration.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage wave truth only; external OMS execution, PM-book discovery, CIO approval workflow, and local readiness calculation remain out of scope"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.portfolio_memory",
+      "display_name": "Portfolio Memory",
+      "screen_id": "workbench.dpm_portfolio_memory",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/portfolios/{portfolio_id}/memory",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "portfolio-memory heading renders",
+          "Gateway portfolio-memory supportability is populated and bounded as READY, PARTIAL, or BLOCKED",
+          "event type count table has at least one manage-backed row",
+          "event timeline table has at least one manage-backed row",
+          "source systems, source refs, artifact refs, reason codes, and content hash are visible"
+        ],
+        "partial": [
+          "manage supportability state and reason codes are explicit",
+          "degraded source, proof-pack, wave, or outcome-review lineage is shown without Workbench reconstruction"
+        ],
+        "empty": [
+          "absence of portfolio-memory events is explicit"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage portfolio-memory route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-portfolio-memory-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0040-source-map-and-gap-analysis.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage portfolio-memory truth only; event filters, detail drawers, retention controls, lifecycle export, and local timeline reconstruction remain out of scope"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.proof_pack",
+      "display_name": "Proof-Pack Evidence",
+      "screen_id": "workbench.dpm_proof_pack",
+      "route": "/workbench/{portfolio_id}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/proof-packs/{proof_pack_id}",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "proof-pack evidence heading renders",
+          "proof-pack identity and immutable content hash are visible",
+          "section posture table has at least one manage-backed row",
+          "source-hash lineage table has at least one source row",
+          "Markdown, report-input, and AI-evidence availability is visible"
+        ],
+        "partial": [
+          "manage supportability state and degraded reasons are explicit",
+          "missing Markdown, report-input, or AI-evidence posture is labelled without local synthesis"
+        ],
+        "empty": [
+          "no linked proof pack is explicit for the portfolio"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage proof-pack route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-proof-pack-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0040-source-map-and-gap-analysis.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage proof-pack truth only; local proof-pack construction, hash generation, report-input synthesis, and AI-evidence synthesis remain out of scope"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
     }
   ]
 }

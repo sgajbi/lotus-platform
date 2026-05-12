@@ -797,6 +797,12 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
         "workbench.analytics.observability.caller_context_entitlement_certification",
         "certified read-path entitlement closure",
         "workbench pr #133",
+        "`lotus-workbench` pr #137",
+        "merge `65740af`",
+        "ad4d0ba",
+        "/api/v1/rebalance/supportability/summary",
+        "stale direct manage `/integration/capabilities`",
+        "final 2026-05-02 gold-pass decision",
         "slice 11 implementation evidence",
         "supported features governance",
         "implementation proof ledger",
@@ -861,6 +867,21 @@ def test_rfc_0108_preserves_analytics_ui_observability_gold_pass_contract() -> N
     assert text.index("ecosystem completion slice 10") < text.index(
         "ecosystem completion slice 11"
     )
+
+
+def test_rfc_0108_current_scope_closure_language_is_not_stale() -> None:
+    text = _read(
+        ROOT
+        / "rfcs"
+        / "RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md"
+    )
+
+    assert "closed for current implementation-backed claims" in text
+    assert "future workbench all-supported-surface promotion" in text
+    assert "full rfc-0079 risk/evidence scope remain planned residuals" in text
+    assert "rfc-0108 is now reopened" not in text
+    assert "the rfc is now reopened" not in text
+    assert "before overall rfc-0108 closure" not in text
 
 
 def test_current_implementation_rfcs_include_second_last_and_final_closure_slices() -> (

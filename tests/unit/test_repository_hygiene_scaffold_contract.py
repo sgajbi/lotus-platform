@@ -98,6 +98,17 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "structured JSON application events" in scaffold_script
     assert "supported-features/supported-features.json" in scaffold_script
     assert "evidence/rfc-implementation/README.md" in scaffold_script
+    assert (
+        "evidence/rfc-implementation/evidence-manifest.template.json" in scaffold_script
+    )
+    assert '"slice_closure"' in scaffold_script
+    assert '"api_certification"' in scaffold_script
+    assert '"state_machine_review"' in scaffold_script
+    assert '"supported_features_review"' in scaffold_script
+    assert '"wiki_publication"' in scaffold_script
+    assert '"upstream_realization"' in scaffold_script
+    assert '"source_contract_realization"' in scaffold_script
+    assert '"downstream_realization"' in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
@@ -229,6 +240,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     evidence_readme = (repo_root / "evidence/rfc-implementation/README.md").read_text(
         encoding="utf-8"
     )
+    evidence_manifest_template = json.loads(
+        (
+            repo_root / "evidence/rfc-implementation/evidence-manifest.template.json"
+        ).read_text(encoding="utf-8")
+    )
     observability_doc = (repo_root / "docs/operations/observability.md").read_text(
         encoding="utf-8"
     )
@@ -309,13 +325,70 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         ("GET", "/health/ready"),
         ("GET", "/metadata"),
     }
+    evidence_readme_normalized = " ".join(evidence_readme.split())
     assert "machine-readable implementation evidence" in evidence_readme
-    assert "client, portfolio, holding" in evidence_readme
+    assert "client, portfolio, holding" in evidence_readme_normalized
+    assert evidence_manifest_template["repository"] == service_name
+    assert evidence_manifest_template["rfc_id"] == "RFC-0000"
+    assert evidence_manifest_template["slice_id"] == "slice-0"
+    assert evidence_manifest_template["slice_closure"] == {
+        "implementation_complete": False,
+        "tests_complete": False,
+        "documentation_complete": False,
+        "review_complete": False,
+        "unsupported_claims_removed": False,
+        "notes": "Replace with the slice closure decision.",
+    }
+    assert evidence_manifest_template["api_certification"] == {
+        "openapi_gate": "not_run",
+        "certified_endpoints": [],
+        "degraded_error_examples_reviewed": False,
+        "attribute_examples_reviewed": False,
+    }
+    assert evidence_manifest_template["state_machine_review"] == {
+        "applies": False,
+        "transition_matrix_path": None,
+        "allowed_transition_tests": [],
+        "rejected_transition_tests": [],
+    }
+    assert evidence_manifest_template["supported_features_review"] == {
+        "supported_features_path": "supported-features/supported-features.json",
+        "promoted_features": [],
+        "deferred_features": [],
+        "no_aspirational_claims": False,
+    }
+    assert evidence_manifest_template["wiki_publication"] == {
+        "wiki_source_changed": False,
+        "check_only_status": "not_run",
+        "publish_required_after_merge": False,
+        "published_commit": None,
+    }
+    assert (
+        evidence_manifest_template["validation_commands"][0]["command"] == "make check"
+    )
+    assert (
+        evidence_manifest_template["artifacts"][0]["hash"]
+        == "sha256:replace-after-generation"
+    )
+    assert evidence_manifest_template["cross_app_evidence"] == []
+    assert evidence_manifest_template["upstream_realization"] == []
+    assert evidence_manifest_template["source_contract_realization"] == []
+    assert evidence_manifest_template["downstream_realization"] == []
     assert "structured JSON application events" in observability_doc
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc
     assert "product-safe error examples" in api_certification_doc
     assert "endpoint-certification-ledger.json" in api_certification_doc
+    assert "Source-Degraded And Reconciliation Endpoints" in api_certification_doc
+    assert "explicit source-owner fields" in api_certification_doc
+    assert "source-contract and downstream consumer realization evidence" in api_certification_doc
+    assert (
+        "READY, DEGRADED, BLOCKED, and NOT_SUPPORTED examples" in api_certification_doc
+    )
+    assert (
+        "does not clone calculations owned by another Lotus app"
+        in api_certification_doc
+    )
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile

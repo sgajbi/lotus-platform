@@ -38,6 +38,34 @@ REQUIRED_GITHUB_CHECKS = {
     "PR Merge Gate / Platform Repo Contracts",
     "PR Merge Gate / Workflow Lint",
 }
+REQUIRED_MANAGE_PATHS = {
+    "GET /api/v1/rebalance/runs",
+    "GET /api/v1/rebalance/supportability/summary",
+    "GET /api/v1/platform/capabilities",
+}
+REQUIRED_ADVISE_PROPOSAL_PATHS = {
+    "POST /advisory/proposals/simulate",
+    "POST /advisory/proposals",
+    "GET /advisory/proposals",
+    "GET /advisory/proposals/{proposal_id}",
+    "GET /advisory/proposals/{proposal_id}/versions/{version_no}",
+    "POST /advisory/proposals/{proposal_id}/versions",
+    "POST /advisory/proposals/{proposal_id}/transitions",
+    "POST /advisory/proposals/{proposal_id}/approvals",
+    "GET /advisory/proposals/{proposal_id}/workflow-events",
+    "GET /advisory/proposals/{proposal_id}/approvals",
+    "GET /advisory/proposals/{proposal_id}/lineage",
+}
+REQUIRED_GATEWAY_CHECKS = {
+    "Feature Lane / Lint Typecheck Unit",
+    "Feature Lane / Workflow Lint",
+    "PR Merge Gate / Lint Typecheck Unit",
+    "PR Merge Gate / Integration Tests",
+    "PR Merge Gate / Coverage Gate",
+    "PR Merge Gate / Validate Docker Build",
+    "PR Merge Gate / CI Local Docker Parity",
+    "PR Merge Gate / Workflow Lint",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -69,6 +97,7 @@ def validate_ecosystem_final_closure(
         errors, observability_contract, ecosystem_proof, hardening, final_closure
     )
     _validate_proof_reconciliation(errors, ecosystem_proof, hardening, final_closure)
+    _validate_downstream_boundary_hardening(errors, final_closure)
     _validate_required_proof(errors, final_closure)
     _validate_wiki_and_branch_hygiene(errors, final_closure)
     _validate_skills_guidance_review(errors, final_closure)
@@ -254,6 +283,90 @@ def _validate_proof_reconciliation(
         if isinstance(finding, dict)
     ):
         errors.append("hardening findings contain open P0/P1 work")
+
+
+def _validate_downstream_boundary_hardening(
+    errors: list[str], final_closure: dict[str, Any]
+) -> None:
+    boundary = final_closure.get("downstream_boundary_hardening", {})
+    if boundary.get("status") != "implemented":
+        errors.append("downstream_boundary_hardening.status must be implemented")
+    if boundary.get("gateway_pr") != 179:
+        errors.append("downstream_boundary_hardening.gateway_pr must be 179")
+    if not str(boundary.get("gateway_merge_commit", "")).startswith("2414e7e"):
+        errors.append(
+            "downstream_boundary_hardening.gateway_merge_commit must reference 2414e7e"
+        )
+    if not str(boundary.get("gateway_wiki_publish_commit", "")).startswith("94ca9c7"):
+        errors.append(
+            "downstream_boundary_hardening.gateway_wiki_publish_commit must reference 94ca9c7"
+        )
+
+    manage_paths = set(boundary.get("lotus_manage_allowed_paths", []))
+    if manage_paths != REQUIRED_MANAGE_PATHS:
+        errors.append(
+            "downstream_boundary_hardening.lotus_manage_allowed_paths must be exactly "
+            f"{sorted(REQUIRED_MANAGE_PATHS)}"
+        )
+    stale_manage_paths = [
+        path
+        for path in manage_paths
+        if "/rebalance/proposals" in path or " /rebalance/" in path
+    ]
+    if stale_manage_paths:
+        errors.append(
+            "downstream_boundary_hardening must not allow stale lotus-manage "
+            f"proposal or unversioned rebalance paths: {stale_manage_paths}"
+        )
+
+    advise_paths = set(boundary.get("lotus_advise_proposal_paths", []))
+    missing_advise_paths = sorted(REQUIRED_ADVISE_PROPOSAL_PATHS - advise_paths)
+    if missing_advise_paths:
+        errors.append(
+            "downstream_boundary_hardening.lotus_advise_proposal_paths missing "
+            f"{missing_advise_paths}"
+        )
+    if any("/rebalance/proposals" in path for path in advise_paths):
+        errors.append(
+            "downstream_boundary_hardening.lotus_advise_proposal_paths must use "
+            "/advisory/proposals, not rebalance proposal paths"
+        )
+
+    forbidden_patterns = " ".join(boundary.get("forbidden_gateway_patterns", []))
+    for required_fragment in (
+        "lotus-manage /rebalance/proposals",
+        "lotus-manage /api/v1/rebalance/proposals",
+        "unversioned lotus-manage /rebalance",
+    ):
+        if required_fragment not in forbidden_patterns:
+            errors.append(
+                "downstream_boundary_hardening.forbidden_gateway_patterns must include "
+                f"{required_fragment}"
+            )
+
+    ownership = str(boundary.get("ownership_decision", ""))
+    for required_fragment in ("lotus-advise", "lotus-manage", "strategic DPM runs"):
+        if required_fragment not in ownership:
+            errors.append(
+                "downstream_boundary_hardening.ownership_decision must record "
+                f"{required_fragment}"
+            )
+
+    local_proof = " ".join(boundary.get("local_proof", []))
+    for required_fragment in ("make check passed", "make test-integration passed"):
+        if required_fragment not in local_proof:
+            errors.append(
+                "downstream_boundary_hardening.local_proof must include "
+                f"{required_fragment}"
+            )
+
+    github_checks = set(boundary.get("github_checks", []))
+    missing_gateway_checks = sorted(REQUIRED_GATEWAY_CHECKS - github_checks)
+    if missing_gateway_checks:
+        errors.append(
+            "downstream_boundary_hardening.github_checks missing "
+            f"{missing_gateway_checks}"
+        )
 
 
 def _validate_required_proof(

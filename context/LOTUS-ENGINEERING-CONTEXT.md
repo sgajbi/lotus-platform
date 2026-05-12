@@ -179,8 +179,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    skills-routing, and branch-hygiene readiness updates.
    Generated onboarding bundles are starter artifacts for owning repositories; they are not
    platform-owned product truth until the owner replaces placeholders, adds repo-native tests,
-   emits telemetry, and passes certification. Static telemetry fixtures remain explicit fallback
-   evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
+   emits telemetry, and passes certification. RFC-0087/RFC-0091 onboarding scaffolds now include
+   source-data API profile, API certification, and ingestion-pipeline checklists so new source
+   products start with explicit ingestion, serving API, downstream consumption, OpenAPI,
+   observability, and live-evidence expectations. Static telemetry fixtures remain explicit
+   fallback evidence and must not masquerade as runtime telemetry. Mesh SLO, access-policy, and
    evidence-pack drift are certification evidence and must not be handled as separate decorative
    reports. Public customer evidence packs must not expose restricted telemetry paths, source
    artifacts, or consumer entitlement details.
@@ -303,8 +306,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     merged PR evidence, required proof commands, required GitHub checks, wiki publication
     requirements, clean-state branch hygiene, residual planned scope, and an explicit no-change
     decision for skills/guidance because existing Lotus routing already covers canonical Workbench
-    proof, RFC/context governance, and PR pre-merge discipline. The reopened ecosystem-completion
-    wave adds required Slices 10-18 to finish uniform observability and operational posture across
+    proof, RFC/context governance, and PR pre-merge discipline. The ecosystem-completion wave added
+    required Slices 10-18 to finish current-scope uniform observability and operational posture across
     `lotus-workbench`, `lotus-gateway`, `lotus-core`, `lotus-performance`, `lotus-risk`,
     `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`,
     and `lotus-platform`. Slices 10 and 11 are complete with
@@ -320,12 +323,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `metadata.calculation_supportability`, bounded
     `lotus_risk_calculation_supportability_total` labels, and the implemented feature key
     `risk.observability.calculation_supportability`; `lotus-manage`
-    `GET /rebalance/supportability/summary` emits `supportability.state`,
+    `GET /api/v1/rebalance/supportability/summary` emits `supportability.state`,
     `supportability.reason`, `supportability.freshness_bucket`, bounded
     `lotus_manage_action_register_supportability_total` labels, and the implemented feature key
-    `manage.observability.action_register_supportability`. The remaining backend services,
-    remaining risk endpoint families, and Gateway/Workbench reconciliation still need
-    implementation-backed supportability before Slice 12 can close. Slice 13 now has
+    `manage.observability.action_register_supportability`. Later PRs completed performance/risk
+    backend freshness supportability and Gateway/Workbench source-supportability reconciliation for
+    current supported reads; Slice 12 remains partially implemented only because full Workbench
+    all-supported-surface and full RFC-0079 risk/evidence promotion stay planned. Slice 13 now has
     implementation-backed Gateway proof for selected analytics fan-out metrics, protected
     diagnostics lookup, central manage/report/archive/AI client fan-out metrics, and direct
     lotus-core query/control-plane plus ingestion fan-out metrics. Slice 14 is partially
@@ -340,9 +344,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     reconcile Slice 17 hardening, Slice 16 proof, ecosystem completion status, supported-feature
     posture, residual planned scope, local/GitHub proof requirements, wiki publication, branch
     hygiene, and skills guidance. Performance/risk backend freshness is now implementation-backed
-    through lotus-performance PR #139 and lotus-risk PR #108, and lotus-performance PR #140
-    hardens capability publication so completed MWR, contribution, or attribution supportability
-    cannot be hidden by a disabled TWR capability. Workbench PR #132 closes the 2026-05-01
+    through lotus-performance PR #139 and lotus-risk PR #108, lotus-performance PR #140 hardening
+    capability publication so completed MWR, contribution, or attribution supportability cannot be
+    hidden by a disabled TWR capability, and lotus-performance PR #141 hardening explicit
+    performance `metric_labels`, shared bounded Prometheus label tuples, and no-sensitive
+    metric-label proof. Workbench PR #132 closes the 2026-05-01
     gold-pass visual hardening follow-up for the performance Summary surface: Horizon support
     values and Performance Drivers now fit the governed desktop viewport, ready-with-empty
     attribution/contribution detail contracts render truthful partial states, live Workbench e2e and
@@ -358,7 +364,13 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     implementation-backed Advisor Brief review-action mutation observability through the
     bounded `performance-advisor-brief-review-action` surface, `/api/metrics/events` browser
     metric ingest, `/api/metrics` export, bounded mutation errors, Gateway log/trace proof, and
-    no-sensitive metric label assertions. Workbench PR #136 adds the production boundary that
+    no-sensitive metric label assertions. Gateway PR #179 hardens the downstream ownership
+    boundary: proposal simulation, create, list, detail, version, workflow, approval, and lineage
+    calls now target `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
+    consumption is limited to `GET /api/v1/rebalance/runs`,
+    `GET /api/v1/rebalance/supportability/summary`, and
+    `GET /api/v1/platform/capabilities`; stale manage proposal and unversioned rebalance paths are
+    prohibited by tests, docs, and wiki proof. Workbench PR #136 adds the production boundary that
     state-changing Workbench actions, including the Advisor Brief review-action mutation, record
     API request and panel-state metrics without incrementing panel hydration; the live proof
     recorded `hydrationReviewActionLineCount=0` and `leakedForbidden=[]`. lotus-ai PR #57 hardens
@@ -371,8 +383,11 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     and published wiki source. lotus-risk PR #109 hardens risk supportability proof with explicit
     `metric_labels`, shared bounded label tuples for `lotus_risk_calculation_supportability_total`
     and `lotus_analytics_freshness_bucket_total`, no-sensitive Prometheus label tests, full local
-    and GitHub runtime gates, and published wiki source. Full all-supported-surface promotion
-    remains separately gated.
+    and GitHub runtime gates, and published wiki source. lotus-advise PR #109 hardens advisory
+    supportability proof with explicit `supportability.metric_labels`, bounded
+    `lotus_advise_advisory_supportability_total` labels, no-sensitive Prometheus label tests, full
+    local and GitHub runtime gates, and published wiki source. Full all-supported-surface
+    promotion remains separately gated.
 13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
     performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
     management action register.
@@ -394,7 +409,19 @@ For RFC governance:
    loose-end-tightening, API certification, and platform-governance slice,
 2. they must also include a final documentation, agent context, wiki, skills/guidance assessment,
    and branch-hygiene slice,
-3. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
+3. final closure must prove that durable RFC/docs/wiki/context/contract truth is present on
+   `main`; truth that exists only on an unmerged side branch is not complete,
+4. before RFC tightening, implementation start, post-merge audit, final closure, or
+   supported-feature promotion, agents must run stranded-truth reconciliation:
+   `git fetch origin --prune` and `git branch -r --no-merged origin/main`,
+5. any unmerged branch touching `docs/rfcs/`, `wiki/`, `README.md`,
+   `REPOSITORY-ENGINEERING-CONTEXT.md`, `AGENTS.md`, `contracts/`, `platform-contracts/`,
+   `context/`, `docs/standards/`, `.github/workflows/`, migrations, OpenAPI snapshots, API
+   vocabulary inventories, or supported-features material must be classified as `must-merge`,
+   `cherry-pick`, `superseded`, `delete`, or `active`,
+6. restored durable truth must be indexed from a stable navigation page and pinned by an existing
+   docs/current-state test pack when one exists,
+7. legacy RFCs are not rewritten only for formatting, but must be upgraded when reopened.
 
 For RFC-0093/RFC-0094 agent engineering governance:
 
@@ -440,6 +467,14 @@ Do not improvise a parallel front-office stack sequence from `lotus-platform/pla
 
 Demo-ready screenshots must be captured only after canonical API, calculation, and panel validation passes. Pre-validation captures are diagnostic artifacts and must not be presented as demo-ready evidence.
 Machine-readable runtime evidence should preserve canonical contract identity and version, not just portfolio and route parameters.
+
+When live canonical proof follows code, route, BFF, panel, Dockerfile, or seed-data changes, rebuild
+or targeted-refresh the impacted service images before accepting evidence. Stale containers can
+produce false route 404s, missing panel fields, and empty business surfaces even after merged code
+exists. Treat those symptoms as diagnostic failures until the changed services are refreshed and
+validation is rerun. If a panel proves a newly implemented business capability, create or seed a real
+implementation-backed entity first and record that evidence path; an empty panel is not product
+proof for a populated business workflow.
 This runtime and dataset posture is governed by `RFC-0076` and the governed panel-surface posture by `RFC-0077`.
 
 ## Engineering Standards

@@ -137,7 +137,7 @@ def _valid_live_summary(evidence_dir: Path) -> dict:
             {"panel": "performance.risk.rolling", "state": "ready"},
             {"panel": "performance.risk.historical_attribution", "state": "ready"},
             {"panel": "performance.advisor_brief", "state": "ready"},
-            {"panel": "performance.evidence", "state": "partial"},
+            {"panel": "performance.evidence", "state": "ready"},
         ],
         "screenshots": screenshots,
     }

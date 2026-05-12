@@ -18,6 +18,7 @@ Use when the work is about:
 - ingress diagnostics
 - QA entrypoints
 - cross-app validation wrappers
+- canonical demo evidence wrappers and governed screenshot packs
 
 ### `context/`
 
@@ -28,6 +29,7 @@ Use when the work is about:
 - registries and manifests
 - playbooks and procedural memory
 - governed operating contract content
+- canonical front-office demo-data and panel-registry contracts
 
 ### `platform-standards/`
 
@@ -87,4 +89,5 @@ Use when the work is about:
 
 - [Architecture](Architecture)
 - [Operations Runbook](Operations-Runbook)
+- [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Troubleshooting](Troubleshooting)

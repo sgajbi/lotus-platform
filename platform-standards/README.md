@@ -71,7 +71,9 @@ This generates a production-grade backend baseline with:
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)
 - operations docs for observability and API certification
-- supported-features placeholder and RFC implementation evidence directory
+- supported-features placeholder and RFC implementation evidence directory with a machine-readable
+  evidence manifest template covering slice closure, API certification, state-machine review,
+  supported-feature review, wiki-publication posture, and downstream realization
 - automation registration in `automation/repos.json` and `automation/service-map.json`
 
 RFC-0072 note:

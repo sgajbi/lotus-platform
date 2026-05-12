@@ -19,6 +19,9 @@ HARDENING_PATH = CONTRACT_DIR / "analytics-ui-observability-ecosystem-hardening.
 FINAL_CLOSURE_PATH = (
     CONTRACT_DIR / "analytics-ui-observability-ecosystem-final-closure.json"
 )
+MANAGE_API_VOCABULARY_PATH = (
+    ROOT / "platform-contracts" / "api-vocabulary" / "lotus-manage-api-vocabulary.v1.json"
+)
 
 
 def _load_json(path: Path) -> dict:
@@ -92,6 +95,37 @@ def test_ecosystem_final_closure_preserves_risk_metric_label_hardening() -> None
     assert "no-sensitive metric-label proof" in residual_text
 
 
+def test_ecosystem_final_closure_preserves_performance_metric_label_hardening() -> None:
+    final_closure = _load_json(FINAL_CLOSURE_PATH)
+    residual_text = str(final_closure["residual_scope"])
+
+    assert "lotus-performance PR #141" in residual_text
+    assert "metric_labels" in residual_text
+    assert "no-sensitive metric-label proof" in residual_text
+
+
+def test_ecosystem_final_closure_records_gateway_downstream_boundary_hardening() -> None:
+    final_closure = _load_json(FINAL_CLOSURE_PATH)
+    boundary = final_closure["downstream_boundary_hardening"]
+
+    assert boundary["gateway_pr"] == 179
+    assert boundary["gateway_merge_commit"].startswith("2414e7e")
+    assert boundary["gateway_wiki_publish_commit"].startswith("94ca9c7")
+    assert set(boundary["lotus_manage_allowed_paths"]) == {
+        "GET /api/v1/rebalance/runs",
+        "GET /api/v1/rebalance/supportability/summary",
+        "GET /api/v1/platform/capabilities",
+    }
+    assert "POST /advisory/proposals/simulate" in boundary["lotus_advise_proposal_paths"]
+    assert "GET /advisory/proposals/{proposal_id}/lineage" in boundary[
+        "lotus_advise_proposal_paths"
+    ]
+    assert all(
+        "/rebalance/proposals" not in path
+        for path in boundary["lotus_manage_allowed_paths"]
+    )
+
+
 def test_ecosystem_final_closure_rejects_unimplemented_slice_18_feature() -> None:
     observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
     ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
@@ -124,7 +158,10 @@ def test_ecosystem_final_closure_rejects_residual_scope_drift() -> None:
 
     errors = _validate(observability, ecosystem, proof, hardening, final_closure)
 
-    assert any("final residual scope must match proof and hardening" in error for error in errors)
+    assert any(
+        "final residual scope must match proof and hardening" in error
+        for error in errors
+    )
 
 
 def test_ecosystem_final_closure_rejects_missing_wiki_publish_command() -> None:
@@ -146,11 +183,59 @@ def test_ecosystem_final_closure_rejects_missing_required_check() -> None:
     proof = _load_json(ECOSYSTEM_PROOF_PATH)
     hardening = _load_json(HARDENING_PATH)
     final_closure = copy.deepcopy(_load_json(FINAL_CLOSURE_PATH))
-    final_closure["required_github_checks"].remove("PR Merge Gate / Platform Repo Contracts")
+    final_closure["required_github_checks"].remove(
+        "PR Merge Gate / Platform Repo Contracts"
+    )
 
     errors = _validate(observability, ecosystem, proof, hardening, final_closure)
 
     assert any("required_github_checks missing" in error for error in errors)
+
+
+def test_ecosystem_final_closure_rejects_stale_manage_proposal_boundary() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    proof = _load_json(ECOSYSTEM_PROOF_PATH)
+    hardening = _load_json(HARDENING_PATH)
+    final_closure = copy.deepcopy(_load_json(FINAL_CLOSURE_PATH))
+    final_closure["downstream_boundary_hardening"]["lotus_manage_allowed_paths"].append(
+        "GET /api/v1/rebalance/proposals"
+    )
+
+    errors = _validate(observability, ecosystem, proof, hardening, final_closure)
+
+    assert any("lotus_manage_allowed_paths must be exactly" in error for error in errors)
+
+
+def test_platform_manage_api_vocabulary_excludes_retired_manage_routes() -> None:
+    vocabulary = _load_json(MANAGE_API_VOCABULARY_PATH)
+    observed_paths = {endpoint["path"] for endpoint in vocabulary["endpoints"]}
+
+    retired_paths = {
+        "/integration/capabilities",
+        "/rebalance/proposals",
+        "/api/v1/rebalance/proposals",
+        "/rebalance/proposals/{proposal_id}",
+        "/api/v1/rebalance/proposals/{proposal_id}",
+    }
+
+    assert retired_paths.isdisjoint(observed_paths)
+    assert "/api/v1/integration/capabilities" in observed_paths
+
+
+def test_ecosystem_final_closure_rejects_missing_advise_proposal_path() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    proof = _load_json(ECOSYSTEM_PROOF_PATH)
+    hardening = _load_json(HARDENING_PATH)
+    final_closure = copy.deepcopy(_load_json(FINAL_CLOSURE_PATH))
+    final_closure["downstream_boundary_hardening"]["lotus_advise_proposal_paths"].remove(
+        "POST /advisory/proposals/simulate"
+    )
+
+    errors = _validate(observability, ecosystem, proof, hardening, final_closure)
+
+    assert any("lotus_advise_proposal_paths missing" in error for error in errors)
 
 
 def test_ecosystem_final_closure_rejects_open_p1_hardening_finding() -> None:

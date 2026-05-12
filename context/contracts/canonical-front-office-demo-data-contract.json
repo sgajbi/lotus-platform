@@ -28,6 +28,41 @@
       "fixed_income": 0.4
     }
   },
+  "dpm_command_center": {
+    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "mandate_id": "MANDATE_PB_SG_GLOBAL_BAL_001",
+    "portfolio_manager_id": "PM_SG_DPM_001",
+    "book_id": "BOOK_SG_BALANCED_DPM",
+    "tenant_id": "default",
+    "booking_center_code": "Singapore",
+    "model_portfolio_id": "MODEL_PB_SG_GLOBAL_BAL_DPM",
+    "policy_pack_id": "POLICY_DPM_SG_BALANCED_V1",
+    "reference_currency": "USD",
+    "command_center_as_of_date": "2026-05-03",
+    "source_products": [
+      "DiscretionaryMandateBinding:v1",
+      "ModelPortfolioTargets:v1",
+      "DpmEligibilitySnapshot:v1",
+      "DpmTaxLotSnapshot:v1",
+      "DpmMarketDataCoverage:v1"
+    ],
+    "seed_refresh_endpoint": "lotus-manage:/api/v1/mandates/{mandate_id}/refresh-from-core",
+    "gateway_validation_endpoints": [
+      "/api/v1/dpm/command-center",
+      "/api/v1/dpm/command-center/exceptions",
+      "/api/v1/dpm/command-center/mandates/by-portfolio/{portfolio_id}",
+      "/api/v1/dpm/command-center/mandates/{mandate_id}/health"
+    ],
+    "validated_surface_states": [
+      "ready",
+      "partial",
+      "empty"
+    ],
+    "future_surface_states": [
+      "degraded",
+      "blocked"
+    ]
+  },
   "date_policy": {
     "canonical_as_of_date": "2026-04-10",
     "refresh_policy": "fixed_until_governed_change",
@@ -87,6 +122,7 @@
       "transaction_economics",
       "holdings_and_valuations",
       "benchmark_and_reference_seed_inputs",
+      "dpm_source_product_contracts",
       "seed_readiness_validation"
     ],
     "lotus-performance": [
@@ -105,6 +141,11 @@
       "portfolio_metadata_exposure",
       "benchmark_linkage_exposure",
       "truthful_downstream_contracts"
+    ],
+    "lotus-manage": [
+      "dpm_mandate_refresh_from_core",
+      "dpm_command_center_stateful_seed",
+      "command_center_supportability"
     ],
     "lotus-workbench": [
       "truthful_panel_rendering",

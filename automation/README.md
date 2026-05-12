@@ -623,6 +623,17 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 
 - `output/front-office-qa/latest.json`
 - `output/front-office-qa/latest.md`
+- `output/front-office-qa/dpm-command-center-seed-latest.json`
+
+By default the wrapper also runs the DPM command-center seed after stack bring-up and before
+Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
+`lotus-manage`, runs one Manage monitoring pass for command-center evidence, then verifies the manage lookup and Gateway command-center read paths so
+`DPM_MANDATE_NOT_FOUND` is treated as a seed failure rather than a valid populated-panel state.
+The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
+center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
+blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
+Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
+empty/error posture.
 
 Use `-LotusAiEnvFile .env.example` when the proof should exercise deterministic
 provider-disabled Advisor Brief execution. Use the repo-local `lotus-ai/.env` only when its live
@@ -666,7 +677,7 @@ Run full explicit Lotus cleanup, including matching local Lotus images, without 
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
 ```
 
-`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, seed wait, and run status.
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, DPM command-center seed status, ready/partial/empty posture checks, seed wait, and run status.
 
 For a clean demo rebuild from stale local state:
 
@@ -1231,6 +1242,11 @@ Scaffolded backend repositories now also default to:
 - repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
 - baseline health, readiness, metrics, correlation-id and trace-id propagation, OpenAPI quality, coverage gate, and wiki-source posture from day one
 - product-safe problem-details errors, structured JSON application events, supported-features placeholders, RFC implementation evidence scaffolding, operations observability documentation, and API certification documentation from day one
+- `evidence/rfc-implementation/evidence-manifest.template.json`, so RFC implementation slices can
+  publish comparable machine-readable evidence across repositories without inventing local manifest
+  shapes; the template now includes slice closure, API certification, state-machine review,
+  supported-feature review, wiki-publication, and downstream-realization sections for
+  stateful/API-heavy RFC programs
 
 RFC-0108 Slice 0 added the analytics UI observability scaffold baseline. Validate that baseline with:
 

@@ -15,7 +15,11 @@
     "performance_contribution_rows": 4,
     "risk_ready_metrics": 6,
     "risk_rolling_windows": 4,
-    "risk_attribution_contributors": 7
+    "risk_attribution_contributors": 7,
+    "dpm_command_center_mandates": 1,
+    "dpm_command_center_health_dimensions": 1,
+    "dpm_proof_pack_sections": 1,
+    "dpm_proof_pack_source_hashes": 1
   },
   "required_support_states": {
     "portfolio.summary": "ready",
@@ -24,24 +28,36 @@
     "performance.analysis": "ready",
     "performance.advisor_brief": "ready",
     "performance.risk": "ready",
-    "performance.evidence": "truthfully_degraded"
+    "performance.evidence": "ready",
+    "dpm.command_center": "ready",
+    "dpm.outcome_review": "ready",
+    "dpm.proof_pack": "ready"
   },
   "required_coverage_assertions": [
     "all_seeded_instruments_have_market_price_covering_canonical_as_of_date",
     "all_required_currency_pairs_have_fx_rate_covering_projected_horizon_end_date",
     "benchmark_returns_cover_warmup_and_reporting_windows",
     "risk_free_series_cover_supported_performance_and_risk_windows",
-    "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation"
+    "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation",
+    "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
+    "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
+    "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
+    "dpm_command_center_evidence_must_record_source_product_lineage",
+    "dpm_proof_pack_validation_must_cover_populated_ready_state",
+    "dpm_proof_pack_partial_and_empty_states_require_future_seed_fixtures",
+    "dpm_proof_pack_evidence_must_preserve_manage_hashes_without_workbench_recomputation"
   ],
   "economic_invariants": [
     "transaction_ids_are_deterministic",
     "source_record_ids_are_deterministic",
     "economic_event_ids_are_deterministic",
     "transaction_sign_conventions_are_governed",
-    "positions_and_cash_legs_reconcile_after_seeded_activity"
+    "positions_and_cash_legs_reconcile_after_seeded_activity",
+    "dpm_mandate_binding_identity_is_deterministic"
   ],
   "notes": [
     "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
-    "Performance evidence remains truthfully degraded until a governed evidence contract is implemented."
+    "Performance evidence is ready when Gateway exposes execution status, lineage status, and artifact inventory for the canonical performance view.",
+    "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters."
   ]
 }

@@ -12,6 +12,7 @@ param(
   [switch]$CleanCoreState,
   [switch]$BuildImages,
   [switch]$RemoveImages,
+  [switch]$SkipDpmCommandCenterSeed,
   [switch]$KeepRunning
 )
 
@@ -31,6 +32,7 @@ if (-not (Test-Path $WorkbenchRepoPath)) {
 $startScript = Join-Path $WorkbenchRepoPath "scripts\live\Start-LotusFrontOfficeCanonical.ps1"
 $validateScript = Join-Path $WorkbenchRepoPath "scripts\live\Validate-LotusFrontOfficeCanonical.ps1"
 $stopScript = Join-Path $WorkbenchRepoPath "scripts\live\Stop-LotusFrontOfficeCanonical.ps1"
+$dpmSeedScript = Join-Path $PSScriptRoot "Invoke-DpmCommandCenterSeed.ps1"
 $defaultScreenshotDirectory = Join-Path $WorkbenchRepoPath "output\playwright\live-canonical"
 if ([string]::IsNullOrWhiteSpace($ScreenshotDirectory)) {
   $resolvedScreenshotDirectory = $defaultScreenshotDirectory
@@ -41,7 +43,7 @@ if ([string]::IsNullOrWhiteSpace($ScreenshotDirectory)) {
 }
 $liveSummaryPath = Join-Path $resolvedScreenshotDirectory "live-validation-summary.json"
 
-foreach ($requiredPath in @($startScript, $validateScript, $stopScript)) {
+foreach ($requiredPath in @($startScript, $validateScript, $stopScript, $dpmSeedScript)) {
   if (-not (Test-Path $requiredPath)) {
     throw "Required canonical front-office runtime artifact not found: $requiredPath"
   }
@@ -55,7 +57,11 @@ function Invoke-CanonicalRuntimeStep {
   )
 
   Write-Host "[$StepName] $ScriptPath"
+  $global:LASTEXITCODE = 0
   & $ScriptPath @Arguments
+  if ($LASTEXITCODE -ne 0) {
+    throw "$StepName failed with exit code $LASTEXITCODE."
+  }
 }
 
 function Get-LotusDockerArtifacts {
@@ -158,6 +164,7 @@ $summary = [ordered]@{
   clean_core_state = [bool]$CleanCoreState
   build_images = [bool]$BuildImages
   remove_images = [bool]$RemoveImages
+  dpm_command_center_seed_enabled = -not [bool]$SkipDpmCommandCenterSeed
   keep_running = [bool]$KeepRunning
   lotus_ai_env_file = $LotusAiEnvFile
   seed_wait_seconds = $SeedWaitSeconds
@@ -167,6 +174,7 @@ $summary = [ordered]@{
   governed_live_summary = $liveSummaryPath
   screenshot_directory = $resolvedScreenshotDirectory
   runtime_transcript = $runtimeTranscriptPath
+  dpm_command_center_seed_summary = $null
   docker_before = Get-LotusDockerArtifacts
   docker_after_clean = $null
   docker_after = $null
@@ -219,10 +227,27 @@ try {
       $bringUpArguments.CleanCoreState = $true
     }
     $bringUpArguments.SeedWaitSeconds = $SeedWaitSeconds
-    $bringUpArguments.RunValidation = $true
+    $bringUpArguments.Remove("ScreenshotDirectory")
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
-  } elseif (-not $Clean) {
+  }
+
+  if ($BringUp -or (-not $Clean)) {
+    if (-not $SkipDpmCommandCenterSeed) {
+      $dpmSeedArguments = @{
+        OutputDirectory = $resolvedOutputDirectory
+        PortfolioId = $PortfolioId
+      }
+      Invoke-CanonicalRuntimeStep -StepName "dpm-command-center-seed" -ScriptPath $dpmSeedScript -Arguments $dpmSeedArguments
+      $summary.steps += "dpm-command-center-seed"
+
+      $dpmSeedSummaryPath = Join-Path $resolvedOutputDirectory "dpm-command-center-seed-latest.json"
+      if (-not (Test-Path $dpmSeedSummaryPath)) {
+        throw "DPM command-center seed did not produce evidence: $dpmSeedSummaryPath"
+      }
+      $summary.dpm_command_center_seed_summary = Get-Content -Raw $dpmSeedSummaryPath | ConvertFrom-Json
+    }
+
     Invoke-CanonicalRuntimeStep -StepName "validate" -ScriptPath $validateScript -Arguments $validationArguments
     $summary.steps += "validate"
   }
@@ -272,6 +297,7 @@ $markdown += "- Clean: $($summary.clean)"
 $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Remove images: $($summary.remove_images)"
+$markdown += "- DPM command-center seed enabled: $($summary.dpm_command_center_seed_enabled)"
 $markdown += "- Keep running: $($summary.keep_running)"
 $markdown += "- Lotus AI env file: $($summary.lotus_ai_env_file)"
 $markdown += "- Seed wait seconds: $($summary.seed_wait_seconds)"
@@ -284,6 +310,10 @@ $markdown += "- Governed runbook: $($summary.governed_runbook)"
 $markdown += "- Live summary: $liveSummaryPath"
 $markdown += "- Screenshot directory: $resolvedScreenshotDirectory"
 $markdown += "- Runtime transcript: $runtimeTranscriptPath"
+if ($summary.dpm_command_center_seed_summary) {
+  $markdown += "- DPM command-center seed status: $($summary.dpm_command_center_seed_summary.status)"
+  $markdown += "- DPM command-center seed mandate: $($summary.dpm_command_center_seed_summary.mandate_id)"
+}
 $markdown += ""
 $markdown += "## Steps"
 $markdown += ""

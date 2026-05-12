@@ -138,7 +138,9 @@ def _telemetry_payload(
             "lineage_materialized": True,
             "lineage_bundle_id": f"lineage:{repository}:{_kebab(product_name)}:replace",
             "evidence_access_class": "customer_consumable",
-            "evidence_uris": [f"{repository}://evidence/{_kebab(product_name)}/replace"],
+            "evidence_uris": [
+                f"{repository}://evidence/{_kebab(product_name)}/replace"
+            ],
         },
         "blocking": {"blocked": False},
         "observed_trust_metadata": {
@@ -176,7 +178,10 @@ def _slo_payload(
             "max_allowed_age_seconds": 86400,
             "violation_severity": "blocking",
         },
-        "completeness": {"required_status": "complete", "violation_severity": "blocking"},
+        "completeness": {
+            "required_status": "complete",
+            "violation_severity": "blocking",
+        },
         "reconciliation": {
             "required_status": "reconciled",
             "violation_severity": "blocking",
@@ -262,6 +267,144 @@ def _evidence_payload(
     }
 
 
+def _source_api_profile_payload(
+    *,
+    repository: str,
+    product_name: str,
+    product_version: str,
+    authoritative_domain: str,
+    product_family: str,
+) -> dict[str, Any]:
+    product_id = _product_id(repository, product_name, product_version)
+    return {
+        "contract_id": "lotus-source-data-product-api-profile",
+        "contract_version": "1.0.0",
+        "governed_by_rfcs": ["RFC-0084", "RFC-0087", "RFC-0091"],
+        "product_id": product_id,
+        "producer_repository": repository,
+        "authoritative_domain": authoritative_domain,
+        "product_family": product_family,
+        "source_ingestion": {
+            "required": True,
+            "mode": "replace_with_batch_stream_or_hybrid",
+            "source_systems": ["replace_with_authoritative_upstream_system"],
+            "idempotency_key_fields": [
+                "tenant_id",
+                "portfolio_id",
+                "as_of_date",
+                "source_batch_id",
+            ],
+            "lineage_fields": [
+                "source_system",
+                "source_record_id",
+                "source_batch_id",
+                "ingested_at",
+                "correlation_id",
+            ],
+            "reconciliation_required": True,
+            "backfill_required": True,
+        },
+        "serving_api": {
+            "required": True,
+            "route_family": "replace_with_rfc_0082_route_family",
+            "routes": [
+                {
+                    "method": "GET",
+                    "path": "replace_with_product_route",
+                    "purpose": "Read the governed source-data product from the authoritative producer.",
+                    "request_examples_required": True,
+                    "response_examples_required": True,
+                    "every_attribute_documented": True,
+                    "error_examples_required": True,
+                }
+            ],
+        },
+        "certification": {
+            "api_certification_required": True,
+            "openapi_quality_required": True,
+            "source_data_product_contract_guard_required": True,
+            "domain_product_validation_required": True,
+            "trust_telemetry_required": True,
+            "mesh_certification_required": True,
+            "live_canonical_evidence_required": True,
+        },
+        "downstream_consumption": {
+            "approved_consumers": ["lotus-gateway"],
+            "direct_service_consumers": [],
+            "consumer_contract_required": True,
+            "duplicate_endpoint_review_required": True,
+        },
+    }
+
+
+def _analytics_product_profile_payload(
+    *,
+    repository: str,
+    product_name: str,
+    product_version: str,
+    authoritative_domain: str,
+    product_family: str,
+) -> dict[str, Any]:
+    product_id = _product_id(repository, product_name, product_version)
+    return {
+        "contract_id": "lotus-analytics-data-product-profile",
+        "contract_version": "1.0.0",
+        "governed_by_rfcs": ["RFC-0084", "RFC-0087", "RFC-0091"],
+        "product_id": product_id,
+        "producer_repository": repository,
+        "authoritative_domain": authoritative_domain,
+        "product_family": product_family,
+        "analytics_methodology": {
+            "methodology_document_required": True,
+            "formula_dictionary_required": True,
+            "deterministic_worked_examples_required": True,
+            "edge_case_and_failure_behavior_required": True,
+            "unsupported_state_catalog_required": True,
+        },
+        "computation_contract": {
+            "source_authority_map_required": True,
+            "raw_vs_final_result_evidence_required": True,
+            "reconciliation_evidence_required": True,
+            "materiality_threshold_policy_required": True,
+            "status_contract_required": True,
+            "reason_codes_required": True,
+            "source_alignment_controls_required": True,
+            "support_safe_daily_evidence_required": True,
+            "lineage_required": True,
+            "restatement_policy_required": True,
+        },
+        "serving_api": {
+            "required": True,
+            "routes": [
+                {
+                    "method": "POST",
+                    "path": "replace_with_analytics_route",
+                    "purpose": "Calculate or retrieve the governed analytics product from the authoritative producer.",
+                    "what_when_how_guidance_required": True,
+                    "request_examples_required": True,
+                    "response_examples_required": True,
+                    "every_attribute_documented": True,
+                    "error_examples_required": True,
+                }
+            ],
+        },
+        "downstream_realization": {
+            "gateway_contract_required": True,
+            "workbench_product_surface_required": True,
+            "consumer_search_required_before_api_change": True,
+            "same_rfc_consumer_updates_required": True,
+        },
+        "proof_requirements": {
+            "unit_tests_required": True,
+            "integration_tests_required": True,
+            "contract_openapi_tests_required": True,
+            "e2e_or_live_canonical_proof_required": True,
+            "observability_and_safe_diagnostics_required": True,
+            "data_mesh_certification_required": True,
+        },
+    }
+
+
 def _readme(
     *,
     repository: str,
@@ -335,6 +478,8 @@ def _checklist(
             "- Workbench discovery: consume gateway/BFF only and render degraded states truthfully.",
             "- Tests: add repo-native unit/contract tests and platform cross-repo certification proof.",
             "- Documentation: update repo context, operator docs, and customer/operator evidence notes.",
+            "- Source API profile: define ingestion, serving API, certification, and downstream consumption before implementation.",
+            "- Analytics product profile: define methodology, raw/final evidence, status, materiality thresholds, reason codes, source alignment, downstream realization, and live proof before promoting analytics outputs.",
             "",
             "## Validation Commands",
             "",
@@ -351,6 +496,127 @@ def _checklist(
         ]
     )
     return "\n".join(lines)
+
+
+def _api_certification_checklist(
+    *,
+    repository: str,
+    product_name: str,
+    product_version: str,
+) -> str:
+    product_id = _product_id(repository, product_name, product_version)
+    return "\n".join(
+        [
+            f"# API Certification Checklist - {product_id}",
+            "",
+            "Use this checklist before promoting a source-data product API.",
+            "",
+            "## Contract Quality",
+            "",
+            "- Endpoint purpose, when-to-use, and when-not-to-use guidance is explicit.",
+            "- OpenAPI documentation is complete, grouped correctly, and implementation-backed.",
+            "- Every request and response attribute has a description, type, and example.",
+            "- Success, validation-error, authorization-error, stale-data, and upstream-unavailable examples exist.",
+            "- Route family and product identity match the platform source-data product catalog.",
+            "",
+            "## Functional Proof",
+            "",
+            "- Tests cover every request option, default, filter, and pagination/export decision.",
+            "- Tests assert every output family, not only headline totals.",
+            "- Reconciliation, freshness, completeness, lineage, and data-quality fields are tested.",
+            "- Duplicate or deprecated endpoints are recorded with downstream migration issues.",
+            "",
+            "## Non-Functional Proof",
+            "",
+            "- Latency, timeout, retry, paging, and bulk-read behavior are bounded.",
+            "- Structured logs, metrics, and traces use safe bounded labels only.",
+            "- Authorization, entitlement, retention, audit, and evidence-access posture are tested.",
+            "- Live canonical validation captures evidence from the authoritative runtime.",
+            "",
+        ]
+    )
+
+
+def _ingestion_pipeline_checklist(
+    *,
+    repository: str,
+    product_name: str,
+    product_version: str,
+) -> str:
+    product_id = _product_id(repository, product_name, product_version)
+    return "\n".join(
+        [
+            f"# Ingestion Pipeline Checklist - {product_id}",
+            "",
+            "Use this checklist before claiming source-data product readiness.",
+            "",
+            "## Source Acquisition",
+            "",
+            "- Authoritative source systems, files, topics, or APIs are named.",
+            "- Tenant, portfolio, account, instrument, and as-of identifiers are mapped.",
+            "- Idempotency keys prevent duplicate loads across replay and backfill.",
+            "- Source batch, record, correction, and restatement lineage are persisted.",
+            "",
+            "## Validation And Reconciliation",
+            "",
+            "- Schema validation rejects malformed records with governed problem details.",
+            "- Business validation covers missing identifiers, stale dates, invalid weights, and unsupported instruments.",
+            "- Reconciliation compares source counts, accepted counts, rejected counts, and materialized counts.",
+            "- Data-quality status and completeness status are derived from persisted facts.",
+            "",
+            "## Operations",
+            "",
+            "- Backfill, replay, partial reload, and operator diagnosis flows are documented.",
+            "- Runtime telemetry feeds trust certification without hand-edited artifacts.",
+            "- Failure modes are observable with safe labels and actionable remediation.",
+            "- Canonical demo seed data includes enough realistic rows for live validation.",
+            "",
+        ]
+    )
+
+
+def _analytics_product_certification_checklist(
+    *,
+    repository: str,
+    product_name: str,
+    product_version: str,
+) -> str:
+    product_id = _product_id(repository, product_name, product_version)
+    return "\n".join(
+        [
+            f"# Analytics Data Product Certification Checklist - {product_id}",
+            "",
+            "Use this checklist before promoting an analytics output as a governed Lotus data product.",
+            "",
+            "## Methodology Proof",
+            "",
+            "- Methodology documentation states variables, formulas, units, deterministic steps, validation behavior, and failure behavior.",
+            "- Worked examples reconcile from source inputs through raw results, final results, residuals, materiality thresholds, statuses, and reason codes.",
+            "- Unsupported, degraded, partial, stale, and invalid-domain states are explicit.",
+            "",
+            "## Computation Evidence",
+            "",
+            "- Source authority and upstream snapshot references are named.",
+            "- Raw result, final result, reconciliation residual, materiality classification, and status evidence are available without recomputing internals.",
+            "- Benchmark-relative, model-relative, or source-comparative analytics define source-alignment controls before promotion.",
+            "- Support-safe daily or observation-level evidence is available when operations need to explain period-level output.",
+            "- Restatement and lineage behavior are documented and tested.",
+            "",
+            "## API And Product Realization",
+            "",
+            "- OpenAPI explains what the endpoint does, when to use it, and how to interpret the response.",
+            "- Gateway preserves source-owned totals, evidence, status, and degraded states.",
+            "- Workbench renders source-owned status and does not invent analytics quality locally.",
+            "- All downstream consumers are searched and updated in the same RFC when contracts change.",
+            "",
+            "## Enterprise Readiness",
+            "",
+            "- Unit, integration, contract/OpenAPI, e2e or live canonical proof, docs, and mesh certification pass.",
+            "- Logs, metrics, traces, and support artifacts use bounded safe labels and do not expose sensitive payloads.",
+            "- Supported-feature and wiki claims are promoted only after implementation proof exists.",
+            "",
+        ]
+    )
 
 
 def scaffold_domain_product_onboarding(
@@ -389,6 +655,14 @@ def scaffold_domain_product_onboarding(
         / "platform-contracts"
         / "mesh-evidence"
         / f"{repository}-{product_slug}.evidence-pack-policy.v1.json",
+        output_directory
+        / "contracts"
+        / "source-data-products"
+        / f"{product_slug}.api-profile.v1.json",
+        output_directory
+        / "contracts"
+        / "analytics-products"
+        / f"{product_slug}.analytics-profile.v1.json",
     ]
     payloads = [
         _product_payload(
@@ -418,6 +692,20 @@ def scaffold_domain_product_onboarding(
             product_name=product_name,
             product_version=product_version,
         ),
+        _source_api_profile_payload(
+            repository=repository,
+            product_name=product_name,
+            product_version=product_version,
+            authoritative_domain=authoritative_domain,
+            product_family=product_family,
+        ),
+        _analytics_product_profile_payload(
+            repository=repository,
+            product_name=product_name,
+            product_version=product_version,
+            authoritative_domain=authoritative_domain,
+            product_family=product_family,
+        ),
     ]
     for path, payload in zip(written_paths, payloads, strict=True):
         _write_json(path, payload)
@@ -446,7 +734,47 @@ def scaffold_domain_product_onboarding(
         ),
         encoding="utf-8",
     )
-    return [*written_paths, readme_path, checklist_path]
+    api_certification_path = (
+        output_directory / "docs" / "API-CERTIFICATION-CHECKLIST.md"
+    )
+    api_certification_path.parent.mkdir(parents=True, exist_ok=True)
+    api_certification_path.write_text(
+        _api_certification_checklist(
+            repository=repository,
+            product_name=product_name,
+            product_version=product_version,
+        ),
+        encoding="utf-8",
+    )
+
+    ingestion_path = output_directory / "docs" / "INGESTION-PIPELINE-CHECKLIST.md"
+    ingestion_path.write_text(
+        _ingestion_pipeline_checklist(
+            repository=repository,
+            product_name=product_name,
+            product_version=product_version,
+        ),
+        encoding="utf-8",
+    )
+    analytics_certification_path = (
+        output_directory / "docs" / "ANALYTICS-DATA-PRODUCT-CERTIFICATION-CHECKLIST.md"
+    )
+    analytics_certification_path.write_text(
+        _analytics_product_certification_checklist(
+            repository=repository,
+            product_name=product_name,
+            product_version=product_version,
+        ),
+        encoding="utf-8",
+    )
+    return [
+        *written_paths,
+        readme_path,
+        checklist_path,
+        api_certification_path,
+        ingestion_path,
+        analytics_certification_path,
+    ]
 
 
 def _validate_identity_inputs(
@@ -506,14 +834,38 @@ def validate_domain_product_onboarding_bundle(
         / "platform-contracts"
         / "mesh-evidence"
         / f"{repository}-{product_slug}.evidence-pack-policy.v1.json",
+        "source_api_profile": output_directory
+        / "contracts"
+        / "source-data-products"
+        / f"{product_slug}.api-profile.v1.json",
+        "analytics_product_profile": output_directory
+        / "contracts"
+        / "analytics-products"
+        / f"{product_slug}.analytics-profile.v1.json",
         "readme": output_directory / "README.md",
         "checklist": output_directory / "PRODUCT-ONBOARDING-CHECKLIST.md",
+        "api_certification": output_directory
+        / "docs"
+        / "API-CERTIFICATION-CHECKLIST.md",
+        "ingestion_pipeline": output_directory
+        / "docs"
+        / "INGESTION-PIPELINE-CHECKLIST.md",
+        "analytics_certification": output_directory
+        / "docs"
+        / "ANALYTICS-DATA-PRODUCT-CERTIFICATION-CHECKLIST.md",
     }
     issues: list[str] = []
     payloads = {
         key: _load_required_json(path, issues)
         for key, path in required_paths.items()
-        if key not in {"readme", "checklist"}
+        if key
+        not in {
+            "readme",
+            "checklist",
+            "api_certification",
+            "ingestion_pipeline",
+            "analytics_certification",
+        }
     }
 
     product_payload = payloads.get("product", {})
@@ -533,12 +885,84 @@ def validate_domain_product_onboarding_bundle(
         if product.get("owner_repository") != repository:
             issues.append("product declaration owner_repository does not match")
 
-    for key in ("telemetry", "slo", "access", "evidence"):
+    for key in (
+        "telemetry",
+        "slo",
+        "access",
+        "evidence",
+        "source_api_profile",
+        "analytics_product_profile",
+    ):
         payload = payloads.get(key, {})
         if payload.get("product_id") != product_id:
             issues.append(f"{key} policy product_id does not match {product_id}")
         if payload.get("producer_repository") != repository:
             issues.append(f"{key} policy producer_repository does not match")
+
+    source_api_profile = payloads.get("source_api_profile", {})
+    if source_api_profile.get("contract_id") != "lotus-source-data-product-api-profile":
+        issues.append(
+            "source_api_profile contract_id must be lotus-source-data-product-api-profile"
+        )
+    certification = source_api_profile.get("certification", {})
+    for field in (
+        "api_certification_required",
+        "openapi_quality_required",
+        "source_data_product_contract_guard_required",
+        "domain_product_validation_required",
+        "trust_telemetry_required",
+        "mesh_certification_required",
+        "live_canonical_evidence_required",
+    ):
+        if certification.get(field) is not True:
+            issues.append(f"source_api_profile certification.{field} must be true")
+
+    analytics_profile = payloads.get("analytics_product_profile", {})
+    if analytics_profile.get("contract_id") != "lotus-analytics-data-product-profile":
+        issues.append(
+            "analytics_product_profile contract_id must be lotus-analytics-data-product-profile"
+        )
+    for section_name, required_fields in {
+        "analytics_methodology": (
+            "methodology_document_required",
+            "formula_dictionary_required",
+            "deterministic_worked_examples_required",
+            "edge_case_and_failure_behavior_required",
+            "unsupported_state_catalog_required",
+        ),
+        "computation_contract": (
+            "source_authority_map_required",
+            "raw_vs_final_result_evidence_required",
+            "reconciliation_evidence_required",
+            "materiality_threshold_policy_required",
+            "status_contract_required",
+            "reason_codes_required",
+            "source_alignment_controls_required",
+            "support_safe_daily_evidence_required",
+            "lineage_required",
+            "restatement_policy_required",
+        ),
+        "downstream_realization": (
+            "gateway_contract_required",
+            "workbench_product_surface_required",
+            "consumer_search_required_before_api_change",
+            "same_rfc_consumer_updates_required",
+        ),
+        "proof_requirements": (
+            "unit_tests_required",
+            "integration_tests_required",
+            "contract_openapi_tests_required",
+            "e2e_or_live_canonical_proof_required",
+            "observability_and_safe_diagnostics_required",
+            "data_mesh_certification_required",
+        ),
+    }.items():
+        section = analytics_profile.get(section_name, {})
+        for field in required_fields:
+            if section.get(field) is not True:
+                issues.append(
+                    f"analytics_product_profile {section_name}.{field} must be true"
+                )
 
     readme_path = required_paths["readme"]
     if not readme_path.exists():
@@ -570,9 +994,67 @@ def validate_domain_product_onboarding_bundle(
             "Workbench discovery",
             "Tests",
             "Documentation",
+            "Analytics product profile",
         ):
             if section not in checklist:
                 issues.append(f"checklist missing section: {section}")
+
+    api_certification_path = required_paths["api_certification"]
+    if not api_certification_path.exists():
+        issues.append(f"{api_certification_path}: required onboarding file is missing")
+    else:
+        api_certification = api_certification_path.read_text(encoding="utf-8")
+        for required_text in (
+            "every request option",
+            "every output family",
+            "OpenAPI",
+            "Live canonical validation",
+        ):
+            if required_text not in api_certification:
+                issues.append(
+                    f"API certification checklist missing guidance: {required_text}"
+                )
+
+    ingestion_path = required_paths["ingestion_pipeline"]
+    if not ingestion_path.exists():
+        issues.append(f"{ingestion_path}: required onboarding file is missing")
+    else:
+        ingestion = ingestion_path.read_text(encoding="utf-8")
+        for required_text in (
+            "Authoritative source systems",
+            "Idempotency keys",
+            "Source batch",
+            "Runtime telemetry",
+            "Canonical demo seed data",
+        ):
+            if required_text not in ingestion:
+                issues.append(f"ingestion checklist missing guidance: {required_text}")
+
+    analytics_certification_path = required_paths["analytics_certification"]
+    if not analytics_certification_path.exists():
+        issues.append(
+            f"{analytics_certification_path}: required onboarding file is missing"
+        )
+    else:
+        analytics_certification = analytics_certification_path.read_text(
+            encoding="utf-8"
+        )
+        for required_text in (
+            "Methodology documentation",
+            "Raw result",
+            "materiality classification",
+            "source-alignment controls",
+            "Support-safe daily",
+            "Gateway preserves",
+            "Workbench renders",
+            "All downstream consumers",
+            "mesh certification",
+        ):
+            if required_text not in analytics_certification:
+                issues.append(
+                    "analytics certification checklist missing guidance: "
+                    f"{required_text}"
+                )
 
     return issues
 
