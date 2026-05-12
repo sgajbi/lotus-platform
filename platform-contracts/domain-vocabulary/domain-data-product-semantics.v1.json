@@ -13,6 +13,13 @@
       "description": "Canonical portfolio identifier used across source-data, performance, and risk products."
     },
     {
+      "key": "composite_id",
+      "semantic_id": "lotus.composite_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical composite identifier used for governed multi-portfolio performance products, membership policy, and composite result lineage."
+    },
+    {
       "key": "benchmark_id",
       "semantic_id": "lotus.benchmark_id",
       "stability": "stable",
@@ -109,6 +116,18 @@
       "semantic_id": "lotus.valuation_date",
       "category": "observation_date",
       "description": "Observation date used for valuation, market-series, and benchmark exposure rows."
+    },
+    {
+      "key": "period_start",
+      "semantic_id": "lotus.period_start",
+      "category": "business_effective_date",
+      "description": "Inclusive start date for a governed analytics calculation period or reporting window."
+    },
+    {
+      "key": "period_end",
+      "semantic_id": "lotus.period_end",
+      "category": "business_effective_date",
+      "description": "Inclusive end date for a governed analytics calculation period or reporting window."
     },
     {
       "key": "generated_at",
