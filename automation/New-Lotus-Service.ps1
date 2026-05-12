@@ -1048,6 +1048,110 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/supported_features_gate.py") -Value $supportedFeaturesGate
 
+$endpointCertificationGate = @"
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from app.main import app  # noqa: E402
+
+LEDGER_PATH = Path("docs/operations/endpoint-certification-ledger.json")
+REQUIRED_FIELDS = (
+    "method",
+    "path",
+    "certification_status",
+    "owner",
+    "purpose",
+    "when_to_use",
+    "when_not_to_use",
+    "request_examples",
+    "response_examples",
+    "error_examples",
+    "test_evidence",
+    "openapi_evidence",
+)
+
+
+def _openapi_operations() -> set[tuple[str, str]]:
+    operations: set[tuple[str, str]] = set()
+    for path, path_item in app.openapi().get("paths", {}).items():
+        if not isinstance(path_item, dict):
+            continue
+        for method in path_item:
+            if method.lower() in {"get", "post", "put", "patch", "delete"}:
+                operations.add((method.upper(), path))
+    return operations
+
+
+def main() -> int:
+    if not LEDGER_PATH.exists():
+        print(f"Missing {LEDGER_PATH}")
+        return 1
+
+    payload = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
+    errors: list[str] = []
+
+    if payload.get("policy") != "Every public OpenAPI operation requires certification evidence before promotion.":
+        errors.append("endpoint certification policy must preserve evidence-backed promotion")
+
+    entries = payload.get("endpoints")
+    if not isinstance(entries, list):
+        errors.append("endpoints must be a list")
+        entries = []
+
+    openapi_operations = _openapi_operations()
+    ledger_operations: set[tuple[str, str]] = set()
+    allowed_statuses = {"baseline_certified", "certified", "planned", "not_applicable"}
+
+    for index, endpoint in enumerate(entries):
+        if not isinstance(endpoint, dict):
+            errors.append(f"endpoints[{index}] must be an object")
+            continue
+
+        missing = [field for field in REQUIRED_FIELDS if field not in endpoint]
+        if missing:
+            errors.append(f"endpoints[{index}] missing fields: {', '.join(missing)}")
+            continue
+
+        operation = (str(endpoint["method"]).upper(), str(endpoint["path"]))
+        ledger_operations.add(operation)
+
+        if endpoint["certification_status"] not in allowed_statuses:
+            errors.append(f"{operation}: invalid certification_status {endpoint['certification_status']!r}")
+
+        for field in ("purpose", "when_to_use", "when_not_to_use", "owner", "openapi_evidence"):
+            if not str(endpoint.get(field, "")).strip():
+                errors.append(f"{operation}: {field} is required")
+
+        for field in ("request_examples", "response_examples", "error_examples", "test_evidence"):
+            value = endpoint.get(field)
+            if not isinstance(value, list) or not value:
+                errors.append(f"{operation}: {field} must be a non-empty list")
+
+    missing_from_ledger = sorted(openapi_operations - ledger_operations)
+    stale_in_ledger = sorted(ledger_operations - openapi_operations)
+
+    for method, path in missing_from_ledger:
+        errors.append(f"{method} {path}: missing endpoint certification ledger entry")
+    for method, path in stale_in_ledger:
+        errors.append(f"{method} {path}: stale endpoint certification ledger entry")
+
+    if errors:
+        print("\n".join(errors))
+        return 1
+
+    print("Endpoint certification gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+"@
+Set-Content -Path (Join-Path $target "scripts/endpoint_certification_gate.py") -Value $endpointCertificationGate
+
 $unitTest = @"
 from app.errors import ProblemDetails
 from app.main import SERVICE_NAME
@@ -1080,6 +1184,21 @@ def test_supported_features_policy_starts_unpromoted() -> None:
     payload = json.loads(Path("supported-features/supported-features.json").read_text())
     assert payload["features"] == []
     assert payload["policy"] == "Only implementation-backed behavior may be promoted to supported."
+
+
+def test_endpoint_certification_ledger_starts_with_scaffold_operations() -> None:
+    import json
+    from pathlib import Path
+
+    payload = json.loads(Path("docs/operations/endpoint-certification-ledger.json").read_text())
+    operations = {(endpoint["method"], endpoint["path"]) for endpoint in payload["endpoints"]}
+    assert operations == {
+        ("GET", "/health"),
+        ("GET", "/health/live"),
+        ("GET", "/health/ready"),
+        ("GET", "/metadata"),
+    }
+    assert payload["policy"] == "Every public OpenAPI operation requires certification evidence before promotion."
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_service_contract.py") -Value $unitTest
 
@@ -1378,6 +1497,11 @@ Every endpoint added after scaffold creation must include:
 6. focused unit or integration tests for success and failure behavior,
 7. OpenAPI gate coverage before merge.
 
+The machine-readable source for endpoint certification tracking is:
+
+- `docs/operations/endpoint-certification-ledger.json`
+
+Run `make endpoint-certification-gate` before promoting any endpoint as supported.
 ## Source-Degraded And Reconciliation Endpoints
 
 Endpoints that reconcile expected-versus-realized state or consume another Lotus app as source
@@ -1391,6 +1515,70 @@ authority must also include:
 6. same-RFC upstream source-contract and downstream consumer realization evidence when contracts
    change,
 7. README, wiki, supported-feature, and RFC evidence updates before any product support claim.
+"@
+Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-ledger.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "policy": "Every public OpenAPI operation requires certification evidence before promotion.",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "certification_status": "baseline_certified",
+      "owner": "$ServiceName owners",
+      "purpose": "Report lightweight service health for diagnostics and platform smoke checks.",
+      "when_to_use": "Use for simple service health probes and local diagnostics.",
+      "when_not_to_use": "Do not use as a readiness or dependency-quality signal.",
+      "request_examples": ["No request body."],
+      "response_examples": ["{\"status\":\"ok\",\"service\":\"$ServiceName\"}"],
+      "error_examples": ["Unhandled service errors return product-safe Problem Details."],
+      "test_evidence": ["tests/integration/test_health.py::test_health_endpoints"],
+      "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
+    },
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "certification_status": "baseline_certified",
+      "owner": "$ServiceName owners",
+      "purpose": "Report whether the service process is live.",
+      "when_to_use": "Use for liveness probes that should only prove the process is running.",
+      "when_not_to_use": "Do not use to decide whether the service is ready for traffic.",
+      "request_examples": ["No request body."],
+      "response_examples": ["{\"status\":\"live\"}"],
+      "error_examples": ["Unhandled service errors return product-safe Problem Details."],
+      "test_evidence": ["tests/integration/test_health.py::test_health_endpoints"],
+      "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "certification_status": "baseline_certified",
+      "owner": "$ServiceName owners",
+      "purpose": "Report whether the service is ready to receive traffic.",
+      "when_to_use": "Use for readiness probes and deployment routing decisions.",
+      "when_not_to_use": "Do not use as a business capability or upstream data-quality signal.",
+      "request_examples": ["No request body."],
+      "response_examples": ["{\"status\":\"ready\"}", "{\"status\":\"draining\"}"],
+      "error_examples": ["503 readiness response returns {\"status\":\"draining\"} during intentional drain."],
+      "test_evidence": ["tests/integration/test_health.py::test_health_endpoints", "tests/integration/test_health.py::test_readiness_reports_draining_state"],
+      "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
+    },
+    {
+      "method": "GET",
+      "path": "/metadata",
+      "certification_status": "baseline_certified",
+      "owner": "$ServiceName owners",
+      "purpose": "Report service identity and policy-version metadata for operators and validators.",
+      "when_to_use": "Use for operator diagnostics, inventory, and validation metadata checks.",
+      "when_not_to_use": "Do not use as a business data or supportability endpoint.",
+      "request_examples": ["No request body."],
+      "response_examples": ["{\"service\":\"$ServiceName\",\"version\":\"0.1.0\",\"roundingPolicyVersion\":\"v1\"}"],
+      "error_examples": ["Unhandled service errors return product-safe Problem Details."],
+      "test_evidence": ["tests/e2e/test_smoke.py::test_metadata_endpoint"],
+      "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
+    }
+  ]
+}
 "@
 
 if (-not $SkipAutomationRegistration) {

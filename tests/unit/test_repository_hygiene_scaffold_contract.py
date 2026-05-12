@@ -112,6 +112,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
+    assert "scripts/endpoint_certification_gate.py" in scaffold_script
     assert (
         'require_response_headers = @("x-correlation-id", "x-trace-id")'
         in scaffold_script
@@ -127,6 +128,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "supported-features-gate:" in makefile_template
     assert "$(MAKE) supported-features-gate" in makefile_template
+    assert "endpoint-certification-gate:" in makefile_template
+    assert "$(MAKE) endpoint-certification-gate" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
     assert (
@@ -188,6 +191,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    endpoint_gate = subprocess.run(
+        [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
@@ -214,8 +224,16 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     supported_features_gate = (
         repo_root / "scripts/supported_features_gate.py"
     ).read_text(encoding="utf-8")
+    endpoint_certification_gate = (
+        repo_root / "scripts/endpoint_certification_gate.py"
+    ).read_text(encoding="utf-8")
     supported_features = json.loads(
         (repo_root / "supported-features/supported-features.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    endpoint_certification = json.loads(
+        (repo_root / "docs/operations/endpoint-certification-ledger.json").read_text(
             encoding="utf-8"
         )
     )
@@ -249,6 +267,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) no-sensitive-content-guard" in makefile
     assert "supported-features-gate:" in makefile
     assert "$(MAKE) supported-features-gate" in makefile
+    assert "endpoint-certification-gate:" in makefile
+    assert "$(MAKE) endpoint-certification-gate" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
     assert "include_in_schema=False" in main_py
@@ -282,10 +302,28 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "response_body" in sensitive_content_guard
     assert "Supported-features gate passed" in supported_features_gate
     assert "implemented feature missing promotion_evidence" in supported_features_gate
+    assert "Endpoint certification gate passed" in endpoint_certification_gate
+    assert "missing endpoint certification ledger entry" in endpoint_certification_gate
+    assert "stale endpoint certification ledger entry" in endpoint_certification_gate
+    assert "Endpoint certification gate passed" in endpoint_gate.stdout
     assert supported_features == {
         "repository": service_name,
         "features": [],
         "policy": "Only implementation-backed behavior may be promoted to supported.",
+    }
+    assert endpoint_certification["repository"] == service_name
+    assert (
+        endpoint_certification["policy"]
+        == "Every public OpenAPI operation requires certification evidence before promotion."
+    )
+    assert {
+        (endpoint["method"], endpoint["path"])
+        for endpoint in endpoint_certification["endpoints"]
+    } == {
+        ("GET", "/health"),
+        ("GET", "/health/live"),
+        ("GET", "/health/ready"),
+        ("GET", "/metadata"),
     }
     evidence_readme_normalized = " ".join(evidence_readme.split())
     assert "machine-readable implementation evidence" in evidence_readme
@@ -340,6 +378,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "must not include client names" in observability_doc
     assert "clear what/when/how description" in api_certification_doc
     assert "product-safe error examples" in api_certification_doc
+    assert "endpoint-certification-ledger.json" in api_certification_doc
     assert "Source-Degraded And Reconciliation Endpoints" in api_certification_doc
     assert "explicit source-owner fields" in api_certification_doc
     assert "source-contract and downstream consumer realization evidence" in api_certification_doc
