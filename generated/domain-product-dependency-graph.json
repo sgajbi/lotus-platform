@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "generated_at_utc": "2026-05-12T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 51,
-  "edge_count": 146,
+  "node_count": 52,
+  "edge_count": 148,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -325,6 +325,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
       "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:CompositePerformanceAnalytics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:CompositePerformanceAnalytics:v1",
+      "product_name": "CompositePerformanceAnalytics",
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "product_family": "analytics_output",
@@ -829,6 +839,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:CompositePerformanceAnalytics:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:ContributionAnalytics:v1",
       "to": "repo:lotus-gateway"
     },
@@ -1284,6 +1299,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-performance",
       "to": "product:lotus-performance:BenchmarkExposureContext:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:CompositePerformanceAnalytics:v1"
     },
     {
       "edge_type": "produces",
