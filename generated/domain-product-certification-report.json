@@ -11,8 +11,8 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 42,
-    "dependency_count": 19,
+    "product_count": 48,
+    "dependency_count": 23,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -34,6 +34,23 @@
       "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "producer_repository": "lotus-advise",
       "product_name": "AdvisoryProposalLifecycleRecord",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "producer_repository": "lotus-advise",
+      "product_name": "TacticalHouseViewAffectedCohort",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
@@ -524,6 +541,40 @@
       "issue_count": 0
     },
     {
+      "product_id": "lotus-manage:BulkReviewCampaignMembership:v1",
+      "producer_repository": "lotus-manage",
+      "product_name": "BulkReviewCampaignMembership",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-manage:PmOperatingQualityScoreRun:v1",
+      "producer_repository": "lotus-manage",
+      "product_name": "PmOperatingQualityScoreRun",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
       "product_id": "lotus-manage:PortfolioActionRegister:v1",
       "producer_repository": "lotus-manage",
       "product_name": "PortfolioActionRegister",
@@ -541,9 +592,60 @@
       "issue_count": 0
     },
     {
+      "product_id": "lotus-performance:AttributionAnalytics:v1",
+      "producer_repository": "lotus-performance",
+      "product_name": "AttributionAnalytics",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
       "producer_repository": "lotus-performance",
       "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-performance:CompositePerformanceAnalytics:v1",
+      "producer_repository": "lotus-performance",
+      "product_name": "CompositePerformanceAnalytics",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-performance:ContributionAnalytics:v1",
+      "producer_repository": "lotus-performance",
+      "product_name": "ContributionAnalytics",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
@@ -786,14 +888,44 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 3,
+      "dependency_count": 6,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
         {
+          "dependency_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+          "producer_repository": "lotus-advise",
+          "product_name": "TacticalHouseViewAffectedCohort",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
           "dependency_id": "lotus-core:ClientRestrictionProfile:v1",
           "producer_repository": "lotus-core",
           "product_name": "ClientRestrictionProfile",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioManagerBookMembership:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "PortfolioManagerBookMembership",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
@@ -834,12 +966,27 @@
             "validation_lanes_declared": true,
             "failure_posture_declared": true
           }
+        },
+        {
+          "dependency_id": "lotus-risk:RiskEventAffectedCohort:v1",
+          "producer_repository": "lotus-risk",
+          "product_name": "RiskEventAffectedCohort",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
         }
       ]
     },
     {
       "consumer_repository": "lotus-performance",
-      "dependency_count": 6,
+      "dependency_count": 7,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -907,6 +1054,21 @@
           "dependency_id": "lotus-core:PortfolioTimeseriesInput:v1",
           "producer_repository": "lotus-core",
           "product_name": "PortfolioTimeseriesInput",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:PositionTimeseriesInput:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "PositionTimeseriesInput",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {

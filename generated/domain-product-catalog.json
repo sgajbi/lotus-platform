@@ -5,7 +5,7 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-05-12T00:00:00Z",
+  "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_declaration_directory": "federated:domain-product-source-manifest",
   "source_manifest_path": "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
   "source_manifest": {
@@ -74,13 +74,13 @@
       }
     ]
   },
-  "product_count": 45,
-  "dependency_count": 21,
+  "product_count": 48,
+  "dependency_count": 23,
   "repository_count": 6,
   "repositories": [
     {
       "repository": "lotus-advise",
-      "produced_product_count": 1,
+      "produced_product_count": 2,
       "consumed_dependency_count": 2
     },
     {
@@ -90,8 +90,8 @@
     },
     {
       "repository": "lotus-manage",
-      "produced_product_count": 1,
-      "consumed_dependency_count": 4
+      "produced_product_count": 3,
+      "consumed_dependency_count": 6
     },
     {
       "repository": "lotus-performance",
@@ -161,6 +161,64 @@
         "/advisory/proposals/{proposal_id}/versions/{version_no}",
         "/advisory/proposals/{proposal_id}/timeline",
         "/advisory/proposals/{proposal_id}/approvals"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json"
+    },
+    {
+      "product_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "product_name": "TacticalHouseViewAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "owner_repository": "lotus-advise",
+      "authoritative_domain": "advisory_workflow",
+      "product_family": "cohort_membership",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio_set",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date",
+        "cohort_id",
+        "content_hash",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Tactical house-view affected cohorts are generated from a governed bank tactical house-view instruction and caller-supplied source-backed candidate portfolios for the requested as-of date. The product does not discover the global portfolio universe."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": false,
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/advisory/tactical-house-view/cohorts/evaluate"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
@@ -2031,6 +2089,132 @@
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
+      "product_id": "lotus-manage:BulkReviewCampaignMembership:v1",
+      "product_name": "BulkReviewCampaignMembership",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "owner_repository": "lotus-manage",
+      "authoritative_domain": "portfolio_management_operations",
+      "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio_cohort",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date",
+        "data_quality_status",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Bulk review campaign membership is generated from the source-backed candidate set supplied inline or through an immutable BulkReviewCampaignDefinition:v1 definition plus optional governance evidence for the requested campaign as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/api/v1/rebalance/waves/campaign-definitions",
+        "/api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}",
+        "/api/v1/rebalance/waves/preview",
+        "/api/v1/rebalance/waves"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json"
+    },
+    {
+      "product_id": "lotus-manage:PmOperatingQualityScoreRun:v1",
+      "product_name": "PmOperatingQualityScoreRun",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "owner_repository": "lotus-manage",
+      "authoritative_domain": "portfolio_management_operations",
+      "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio_manager_book",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "generated_at",
+        "as_of_date",
+        "data_quality_status",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "PM operating quality score runs are generated from explicit bank policy, bank approval and fairness-review evidence, current source-backed evidence supplied or referenced by the request, and optional lotus-core PortfolioManagerBookMembership:v1 scope materialization. Portfolio memory projects bounded score-run lineage only when persisted Core PM-book member evidence includes the requested portfolio."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [
+        "/api/v1/rebalance/pm-operating-quality/score-runs/preview",
+        "/api/v1/rebalance/pm-operating-quality/policies",
+        "/api/v1/rebalance/pm-operating-quality/policies/{policy_id}/versions/{policy_version}",
+        "/api/v1/rebalance/pm-operating-quality/score-runs",
+        "/api/v1/rebalance/pm-operating-quality/score-runs/{score_run_id}",
+        "/api/v1/rebalance/portfolio-memory/{portfolio_id}"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json"
+    },
+    {
       "product_id": "lotus-manage:PortfolioActionRegister:v1",
       "product_name": "PortfolioActionRegister",
       "product_version": "v1",
@@ -3073,9 +3257,33 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 4,
+      "dependency_count": 6,
       "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json",
       "dependencies": [
+        {
+          "dependency_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+          "product_name": "TacticalHouseViewAffectedCohort",
+          "producer_repository": "lotus-advise",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "cohort_id",
+            "content_hash",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve Advise-owned tactical house-view affected cohorts for discretionary rebalance wave preview and creation while preserving lotus-advise house-view, candidate, supportability, content hash, and source refs without recomputing advisory, house-view, holdings, exposure, alignment, or mandate facts in lotus-manage.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
         {
           "dependency_id": "lotus-core:ClientRestrictionProfile:v1",
           "product_name": "ClientRestrictionProfile",
@@ -3106,6 +3314,29 @@
             "pr-merge"
           ],
           "failure_posture": "degrade_or_block"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioManagerBookMembership:v1",
+          "product_name": "PortfolioManagerBookMembership",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "source_batch_fingerprint",
+            "snapshot_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve source-owned PM-book scope for rebalance-wave discovery and optional PM operating quality score-run materialization without inferring book membership in lotus-manage.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
         },
         {
           "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",

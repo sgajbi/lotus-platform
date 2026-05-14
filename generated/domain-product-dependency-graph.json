@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-05-12T00:00:00Z",
+  "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 52,
-  "edge_count": 148,
+  "node_count": 55,
+  "edge_count": 156,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -18,6 +18,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-advise",
       "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "product_name": "TacticalHouseViewAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "cohort_membership",
       "lifecycle_status": "active"
     },
     {
@@ -301,6 +311,26 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-manage:BulkReviewCampaignMembership:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-manage:BulkReviewCampaignMembership:v1",
+      "product_name": "BulkReviewCampaignMembership",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-manage:PmOperatingQualityScoreRun:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-manage:PmOperatingQualityScoreRun:v1",
+      "product_name": "PmOperatingQualityScoreRun",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "product_family": "portfolio_management_workflow",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-manage:PortfolioActionRegister:v1",
       "node_type": "domain_product",
       "product_id": "lotus-manage:PortfolioActionRegister:v1",
@@ -501,6 +531,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -824,6 +859,16 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-manage:BulkReviewCampaignMembership:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-manage:PmOperatingQualityScoreRun:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-manage:PortfolioActionRegister:v1",
       "to": "repo:lotus-gateway"
     },
@@ -934,9 +979,31 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:ClientRestrictionProfile:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:PortfolioManagerBookMembership:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
         "pr-merge"
@@ -1147,6 +1214,11 @@
     },
     {
       "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1"
+    },
+    {
+      "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:BenchmarkAssignment:v1"
     },
@@ -1284,6 +1356,16 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:TransactionLedgerWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-manage:BulkReviewCampaignMembership:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-manage:PmOperatingQualityScoreRun:v1"
     },
     {
       "edge_type": "produces",

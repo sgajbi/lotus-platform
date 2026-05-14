@@ -82,6 +82,18 @@
       "description": "Snapshot identifier for reproducible point-in-time source truth."
     },
     {
+      "key": "cohort_id",
+      "semantic_id": "lotus.cohort_id",
+      "evidence_access_class": "customer_consumable",
+      "description": "Deterministic cohort identifier for source-owned membership products."
+    },
+    {
+      "key": "content_hash",
+      "semantic_id": "lotus.content_hash",
+      "evidence_access_class": "customer_consumable",
+      "description": "Deterministic hash of the product payload or source-owned evidence snapshot."
+    },
+    {
       "key": "policy_version",
       "semantic_id": "lotus.policy_version",
       "evidence_access_class": "operator_only",
