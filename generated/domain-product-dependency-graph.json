@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 55,
-  "edge_count": 156,
+  "node_count": 61,
+  "edge_count": 173,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -61,10 +61,40 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:ClientIncomeNeedsSchedule:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ClientIncomeNeedsSchedule:v1",
+      "product_name": "ClientIncomeNeedsSchedule",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:ClientRestrictionProfile:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:ClientRestrictionProfile:v1",
       "product_name": "ClientRestrictionProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:ClientTaxProfile:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ClientTaxProfile:v1",
+      "product_name": "ClientTaxProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:ClientTaxRuleSet:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ClientTaxRuleSet:v1",
+      "product_name": "ClientTaxRuleSet",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
@@ -161,6 +191,16 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-core:LiquidityReserveRequirement:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:LiquidityReserveRequirement:v1",
+      "product_name": "LiquidityReserveRequirement",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-core:MarketDataCoverageWindow:v1",
       "node_type": "domain_product",
       "product_id": "lotus-core:MarketDataCoverageWindow:v1",
@@ -178,6 +218,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PlannedWithdrawalSchedule:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PlannedWithdrawalSchedule:v1",
+      "product_name": "PlannedWithdrawalSchedule",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -218,6 +268,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioRealizedTaxSummary:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioRealizedTaxSummary:v1",
+      "product_name": "PortfolioRealizedTaxSummary",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "operational_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -569,7 +629,22 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ClientIncomeNeedsSchedule:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:ClientRestrictionProfile:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ClientTaxProfile:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ClientTaxRuleSet:v1",
       "to": "repo:lotus-manage"
     },
     {
@@ -689,6 +764,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:LiquidityReserveRequirement:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:MarketDataCoverageWindow:v1",
       "to": "repo:lotus-manage"
     },
@@ -701,6 +781,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:MarketDataWindow:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PlannedWithdrawalSchedule:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -751,6 +836,21 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioManagerBookMembership:v1",
       "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioRealizedTaxSummary:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioRealizedTaxSummary:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioRealizedTaxSummary:v1",
+      "to": "repo:lotus-report"
     },
     {
       "edge_type": "approves_consumer",
@@ -990,9 +1090,42 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ClientIncomeNeedsSchedule:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:ClientRestrictionProfile:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:LiquidityReserveRequirement:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:PlannedWithdrawalSchedule:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
       "validation_lanes": [
         "feature",
         "pr-merge"
@@ -1235,7 +1368,22 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:ClientIncomeNeedsSchedule:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:ClientRestrictionProfile:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:ClientTaxProfile:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:ClientTaxRuleSet:v1"
     },
     {
       "edge_type": "produces",
@@ -1285,12 +1433,22 @@
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
+      "to": "product:lotus-core:LiquidityReserveRequirement:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
       "to": "product:lotus-core:MarketDataCoverageWindow:v1"
     },
     {
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:MarketDataWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PlannedWithdrawalSchedule:v1"
     },
     {
       "edge_type": "produces",
@@ -1311,6 +1469,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:PortfolioManagerBookMembership:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioRealizedTaxSummary:v1"
     },
     {
       "edge_type": "produces",

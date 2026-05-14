@@ -4,8 +4,8 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `48`
-- Dependency count: `23`
+- Product count: `54`
+- Dependency count: `26`
 
 ## Products
 
@@ -16,7 +16,10 @@ This file is generated from governed domain-data-product declarations.
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report | /integration/portfolios/{portfolio_id}/benchmark-assignment |
 | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/composition-window |
 | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/affected-mandates |
+| `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-income-needs-schedule |
 | `ClientRestrictionProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-restriction-profile |
+| `ClientTaxProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-tax-profile |
+| `ClientTaxRuleSet` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-tax-rule-set |
 | `DataQualityCoverageReport` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-manage | /integration/benchmarks/{benchmark_id}/coverage, /integration/reference/risk-free-series/coverage |
 | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/mandate-binding |
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
@@ -26,12 +29,15 @@ This file is generated from governed domain-data-product declarations.
 | `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
 | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/instruments/eligibility-bulk |
 | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-advise | /integration/instruments/enrichment-bulk, /integration/reference/classification-taxonomy |
+| `LiquidityReserveRequirement` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/liquidity-reserve-requirement |
 | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/market-data/coverage |
 | `MarketDataWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/market-series |
+| `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/planned-withdrawal-schedule |
 | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/reference |
 | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/cashflow-projection |
 | `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
 | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
+| `PortfolioRealizedTaxSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/realized-tax-summary |
 | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `simulation_and_projected_state` | `active` | lotus-gateway, lotus-advise, lotus-manage, lotus-risk | /integration/portfolios/{portfolio_id}/core-snapshot |
 | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/tax-lots |
 | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/portfolio-timeseries |
@@ -67,7 +73,10 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
+| `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
+| `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
+| `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
 | `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |

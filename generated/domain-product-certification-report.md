@@ -4,8 +4,8 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Certification state: `certified`
-- Product count: `48`
-- Dependency count: `23`
+- Product count: `54`
+- Dependency count: `26`
 - Included repositories: `6`
 - Pending repositories: `0`
 - Issue count: `0`
@@ -19,7 +19,10 @@ This file is generated from the governed domain-product catalog and dependency g
 | `BenchmarkAssignment` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `BenchmarkConstituentWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `CioModelChangeAffectedCohort` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ClientIncomeNeedsSchedule` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ClientRestrictionProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ClientTaxProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ClientTaxRuleSet` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DataQualityCoverageReport` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DiscretionaryMandateBinding` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DpmModelPortfolioTarget` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -29,12 +32,15 @@ This file is generated from the governed domain-product catalog and dependency g
 | `IngestionEvidenceBundle` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `InstrumentEligibilityProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `InstrumentReferenceBundle` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `LiquidityReserveRequirement` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `MarketDataCoverageWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `MarketDataWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PlannedWithdrawalSchedule` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioAnalyticsReference` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioCashflowProjection` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioLiquidityLadder` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioManagerBookMembership` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioRealizedTaxSummary` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioStateSnapshot` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioTaxLotWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioTimeseriesInput` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -68,7 +74,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
-| `lotus-manage` | `certified` | `6` | `0` |
+| `lotus-manage` | `certified` | `9` | `0` |
 | `lotus-performance` | `certified` | `7` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |
 | `lotus-risk` | `certified` | `6` | `0` |
