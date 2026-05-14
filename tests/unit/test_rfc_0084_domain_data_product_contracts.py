@@ -1327,6 +1327,11 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
                 "CioModelChangeAffectedCohort",
                 "ClientRestrictionProfile",
                 "SustainabilityPreferenceProfile",
+                "ClientTaxProfile",
+                "ClientTaxRuleSet",
+                "ClientIncomeNeedsSchedule",
+                "LiquidityReserveRequirement",
+                "PlannedWithdrawalSchedule",
             }
             else family_map[source_product.route_family]
         )
