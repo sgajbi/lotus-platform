@@ -25,7 +25,7 @@
   },
   "summary": {
     "repository_count": 10,
-    "product_count": 25,
+    "product_count": 48,
     "certified_first_wave_product_count": 6,
     "candidate_product_count": 0,
     "ambiguous_repository_count": 0
@@ -47,7 +47,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 15,
+      "produced_product_count": 28,
       "first_wave_product_count": 1,
       "consumed_dependency_count": 0,
       "repo_native_status": "implemented",
@@ -60,9 +60,9 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 2,
+      "produced_product_count": 7,
       "first_wave_product_count": 1,
-      "consumed_dependency_count": 6,
+      "consumed_dependency_count": 7,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
@@ -73,7 +73,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 5,
+      "produced_product_count": 7,
       "first_wave_product_count": 1,
       "consumed_dependency_count": 6,
       "repo_native_status": "implemented",
@@ -86,7 +86,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 1,
+      "produced_product_count": 2,
       "first_wave_product_count": 1,
       "consumed_dependency_count": 2,
       "repo_native_status": "implemented",
@@ -112,9 +112,9 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 1,
+      "produced_product_count": 3,
       "first_wave_product_count": 1,
-      "consumed_dependency_count": 1,
+      "consumed_dependency_count": 6,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
@@ -167,6 +167,17 @@
       "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
+      "product_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
+      "product_name": "TacticalHouseViewAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-core:BenchmarkAssignment:v1",
       "product_name": "BenchmarkAssignment",
       "product_version": "v1",
@@ -189,8 +200,63 @@
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
+      "product_id": "lotus-core:CioModelChangeAffectedCohort:v1",
+      "product_name": "CioModelChangeAffectedCohort",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:ClientRestrictionProfile:v1",
+      "product_name": "ClientRestrictionProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-core:DataQualityCoverageReport:v1",
       "product_name": "DataQualityCoverageReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:DiscretionaryMandateBinding:v1",
+      "product_name": "DiscretionaryMandateBinding",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:DpmModelPortfolioTarget:v1",
+      "product_name": "DpmModelPortfolioTarget",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:DpmSourceReadiness:v1",
+      "product_name": "DpmSourceReadiness",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "classification": "deferred",
@@ -233,8 +299,30 @@
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
+      "product_id": "lotus-core:InstrumentEligibilityProfile:v1",
+      "product_name": "InstrumentEligibilityProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-core:InstrumentReferenceBundle:v1",
       "product_name": "InstrumentReferenceBundle",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:MarketDataCoverageWindow:v1",
+      "product_name": "MarketDataCoverageWindow",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "classification": "deferred",
@@ -266,6 +354,39 @@
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
+      "product_id": "lotus-core:PortfolioCashflowProjection:v1",
+      "product_name": "PortfolioCashflowProjection",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:PortfolioLiquidityLadder:v1",
+      "product_name": "PortfolioLiquidityLadder",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:PortfolioManagerBookMembership:v1",
+      "product_name": "PortfolioManagerBookMembership",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-core:PortfolioStateSnapshot:v1",
       "product_name": "PortfolioStateSnapshot",
       "product_version": "v1",
@@ -275,6 +396,17 @@
       "lifecycle_status": "active",
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
       "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
+    },
+    {
+      "product_id": "lotus-core:PortfolioTaxLotWindow:v1",
+      "product_name": "PortfolioTaxLotWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
       "product_id": "lotus-core:PortfolioTimeseriesInput:v1",
@@ -321,6 +453,28 @@
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
+      "product_id": "lotus-core:SustainabilityPreferenceProfile:v1",
+      "product_name": "SustainabilityPreferenceProfile",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:TransactionCostCurve:v1",
+      "product_name": "TransactionCostCurve",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-core:TransactionLedgerWindow:v1",
       "product_name": "TransactionLedgerWindow",
       "product_version": "v1",
@@ -329,6 +483,28 @@
       "maturity_wave": "future_wave",
       "lifecycle_status": "active",
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-manage:BulkReviewCampaignMembership:v1",
+      "product_name": "BulkReviewCampaignMembership",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-manage:PmOperatingQualityScoreRun:v1",
+      "product_name": "PmOperatingQualityScoreRun",
+      "product_version": "v1",
+      "producer_repository": "lotus-manage",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json",
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
@@ -343,8 +519,52 @@
       "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
     },
     {
+      "product_id": "lotus-performance:AttributionAnalytics:v1",
+      "product_name": "AttributionAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-performance:BenchmarkExposureContext:v1",
       "product_name": "BenchmarkExposureContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-performance:CompositePerformanceAnalytics:v1",
+      "product_name": "CompositePerformanceAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-performance:ContributionAnalytics:v1",
+      "product_name": "ContributionAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-performance:MoneyWeightedReturnAnalytics:v1",
+      "product_name": "MoneyWeightedReturnAnalytics",
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "classification": "deferred",
@@ -363,6 +583,17 @@
       "lifecycle_status": "active",
       "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
       "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
+    },
+    {
+      "product_id": "lotus-performance:TimeWeightedReturnAnalytics:v1",
+      "product_name": "TimeWeightedReturnAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
       "product_id": "lotus-report:ClientReportEvidencePack:v1",
@@ -400,6 +631,28 @@
     {
       "product_id": "lotus-risk:HistoricalRiskAttributionReport:v1",
       "product_name": "HistoricalRiskAttributionReport",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "product_name": "RegimeScenarioPackEvaluation",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-risk:RiskEventAffectedCohort:v1",
+      "product_name": "RiskEventAffectedCohort",
       "product_version": "v1",
       "producer_repository": "lotus-risk",
       "classification": "deferred",

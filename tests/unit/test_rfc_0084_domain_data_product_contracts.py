@@ -1467,6 +1467,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         "HistoricalRiskAttributionReport",
         "ConcentrationRiskReport",
         "RegimeScenarioPackEvaluation",
+        "RiskEventAffectedCohort",
     }
 
     assert performance_products["ReturnsSeriesBundle"]["approved_consumers"] == ["lotus-risk"]

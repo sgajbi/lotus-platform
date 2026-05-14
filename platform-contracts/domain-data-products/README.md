@@ -30,6 +30,9 @@ Current aligned producer declarations:
    First analytics-output producer declaration for the performance authority wave.
 3. `lotus-risk-products.v1.json`
    First analytics-output producer declaration for the risk authority wave.
+4. `lotus-advise-products.v1.json`
+   Advisory workflow producer declaration including the governed tactical house-view affected-cohort
+   product consumed by `lotus-manage`.
 
 Current aligned consumer declarations:
 

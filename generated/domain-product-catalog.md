@@ -2,16 +2,17 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-05-12T00:00:00Z`
+- Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `45`
-- Dependency count: `21`
+- Product count: `48`
+- Dependency count: `23`
 
 ## Products
 
 | Product | Producer | Version | Family | Lifecycle | Approved Consumers | Routes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway | /advisory/proposals/{proposal_id}, /advisory/proposals/{proposal_id}/versions/{version_no}, /advisory/proposals/{proposal_id}/timeline, /advisory/proposals/{proposal_id}/approvals |
+| `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `cohort_membership` | `active` | lotus-manage | /advisory/tactical-house-view/cohorts/evaluate |
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report | /integration/portfolios/{portfolio_id}/benchmark-assignment |
 | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/composition-window |
 | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/affected-mandates |
@@ -40,6 +41,8 @@ This file is generated from governed domain-data-product declarations.
 | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/sustainability-preference-profile |
 | `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
+| `BulkReviewCampaignMembership` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/waves/campaign-definitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}, /api/v1/rebalance/waves/preview, /api/v1/rebalance/waves |
+| `PmOperatingQualityScoreRun` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/pm-operating-quality/score-runs/preview, /api/v1/rebalance/pm-operating-quality/policies, /api/v1/rebalance/pm-operating-quality/policies/{policy_id}/versions/{policy_version}, /api/v1/rebalance/pm-operating-quality/score-runs, /api/v1/rebalance/pm-operating-quality/score-runs/{score_run_id}, /api/v1/rebalance/portfolio-memory/{portfolio_id} |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
 | `AttributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/attribution, /performance/attribution/results/{calculation_id} |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
@@ -63,7 +66,9 @@ This file is generated from governed domain-data-product declarations.
 | --- | --- | --- | --- | --- | --- |
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
+| `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
 | `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` |
