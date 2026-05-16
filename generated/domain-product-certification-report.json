@@ -256,7 +256,7 @@
       "producer_repository": "lotus-core",
       "product_name": "ExternalCurrencyExposure",
       "product_version": "v1",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "certification_state": "certified",
       "checks": {
         "trust_metadata_declared": true,

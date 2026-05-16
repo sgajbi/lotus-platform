@@ -24,7 +24,7 @@ This file is generated from governed domain-data-product declarations.
 | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/mandate-binding |
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
 | `DpmSourceReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolios/{portfolio_id}/dpm-source-readiness |
-| `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
+| `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
 | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/instruments/external-eligible-hedge-instruments |
 | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/market-data/external-fx-forward-curve |
 | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-execution-readiness |
