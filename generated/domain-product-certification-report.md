@@ -2,10 +2,10 @@
 
 This file is generated from the governed domain-product catalog and dependency graph.
 
-- Generated at UTC: `2026-04-19T00:00:00Z`
+- Generated at UTC: `2026-05-16T00:00:00Z`
 - Certification state: `certified`
-- Product count: `54`
-- Dependency count: `26`
+- Product count: `60`
+- Dependency count: `27`
 - Included repositories: `6`
 - Pending repositories: `0`
 - Issue count: `0`
@@ -27,6 +27,11 @@ This file is generated from the governed domain-product catalog and dependency g
 | `DiscretionaryMandateBinding` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DpmModelPortfolioTarget` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DpmSourceReadiness` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ExternalCurrencyExposure` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ExternalEligibleHedgeInstrument` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ExternalFXForwardCurve` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ExternalHedgeExecutionReadiness` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `ExternalHedgePolicy` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `HoldingsAsOf` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `IndexSeriesWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `IngestionEvidenceBundle` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -37,6 +42,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `MarketDataWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PlannedWithdrawalSchedule` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioAnalyticsReference` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioCashMovementSummary` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioCashflowProjection` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioLiquidityLadder` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioManagerBookMembership` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -74,7 +80,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
-| `lotus-manage` | `certified` | `9` | `0` |
+| `lotus-manage` | `certified` | `10` | `0` |
 | `lotus-performance` | `certified` | `7` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |
 | `lotus-risk` | `certified` | `6` | `0` |
