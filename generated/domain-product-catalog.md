@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `60`
-- Dependency count: `28`
+- Dependency count: `29`
 
 ## Products
 
@@ -26,7 +26,7 @@ This file is generated from governed domain-data-product declarations.
 | `DpmSourceReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolios/{portfolio_id}/dpm-source-readiness |
 | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
 | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/instruments/external-eligible-hedge-instruments |
-| `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/market-data/external-fx-forward-curve |
+| `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/market-data/external-fx-forward-curve |
 | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-execution-readiness |
 | `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
@@ -83,6 +83,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `ExternalHedgePolicy` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |

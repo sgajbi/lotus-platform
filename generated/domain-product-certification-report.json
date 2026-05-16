@@ -12,7 +12,7 @@
   "summary": {
     "certification_state": "certified",
     "product_count": 60,
-    "dependency_count": 28,
+    "dependency_count": 29,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -290,7 +290,7 @@
       "producer_repository": "lotus-core",
       "product_name": "ExternalFXForwardCurve",
       "product_version": "v1",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "certification_state": "certified",
       "checks": {
         "trust_metadata_declared": true,
@@ -1092,7 +1092,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 11,
+      "dependency_count": 12,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -1160,6 +1160,21 @@
           "dependency_id": "lotus-core:ExternalHedgeExecutionReadiness:v1",
           "producer_repository": "lotus-core",
           "product_name": "ExternalHedgeExecutionReadiness",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:ExternalHedgePolicy:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "ExternalHedgePolicy",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {

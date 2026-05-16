@@ -20,7 +20,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-risk` | `certified_first_wave` | `producer` | `7` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `2` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-report` | `certified_first_wave` | `producer` | `1` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
-| `lotus-manage` | `certified_first_wave` | `producer` | `3` | `11` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-manage` | `certified_first_wave` | `producer` | `3` | `12` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
 | `lotus-ai` | `not_mesh_participant` | `explicit_posture_decision` | `0` | `0` | Not included until it owns a stable governed product or a catalog-consuming capability. |
@@ -44,7 +44,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:DpmSourceReadiness:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalCurrencyExposure:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalEligibleHedgeInstrument:v1` | `lotus-core` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
-| `lotus-core:ExternalFXForwardCurve:v1` | `lotus-core` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:ExternalFXForwardCurve:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalHedgeExecutionReadiness:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalHedgePolicy:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:HoldingsAsOf:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
