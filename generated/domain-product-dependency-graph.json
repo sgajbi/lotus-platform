@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-05-16T00:00:00Z",
+  "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 67,
-  "edge_count": 188,
+  "edge_count": 189,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -188,7 +188,7 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
-      "lifecycle_status": "proposed"
+      "lifecycle_status": "active"
     },
     {
       "node_id": "product:lotus-core:HoldingsAsOf:v1",
@@ -1204,6 +1204,17 @@
       "to": "product:lotus-core:ClientRestrictionProfile:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ExternalCurrencyExposure:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
         "pr-merge"

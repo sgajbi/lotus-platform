@@ -238,9 +238,13 @@ def _load_lotus_core_modules():
         QUERY_CONTROL_PLANE_SERVICE,
         QUERY_SERVICE,
         SNAPSHOT_AND_SIMULATION,
+        DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG,
         SOURCE_DATA_PRODUCT_CATALOG,
     )
-    from portfolio_common.source_data_security import get_source_data_security_profile  # type: ignore
+    from portfolio_common.source_data_security import (  # type: ignore
+        DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES,
+        SOURCE_DATA_SECURITY_PROFILES,
+    )
 
     return {
         "ANALYTICS_INPUT": ANALYTICS_INPUT,
@@ -249,8 +253,10 @@ def _load_lotus_core_modules():
         "QUERY_CONTROL_PLANE_SERVICE": QUERY_CONTROL_PLANE_SERVICE,
         "QUERY_SERVICE": QUERY_SERVICE,
         "SNAPSHOT_AND_SIMULATION": SNAPSHOT_AND_SIMULATION,
+        "DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG": DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG,
         "SOURCE_DATA_PRODUCT_CATALOG": SOURCE_DATA_PRODUCT_CATALOG,
-        "get_source_data_security_profile": get_source_data_security_profile,
+        "SOURCE_DATA_SECURITY_PROFILES": SOURCE_DATA_SECURITY_PROFILES,
+        "DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES": DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES,
     }
 
 
@@ -1300,7 +1306,17 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
         core_modules["CONTROL_PLANE_AND_POLICY"]: "supportability_and_control_plane",
     }
 
-    catalog = core_modules["SOURCE_DATA_PRODUCT_CATALOG"]
+    catalog = (
+        *core_modules["SOURCE_DATA_PRODUCT_CATALOG"],
+        *core_modules["DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG"],
+    )
+    security_profiles = {
+        profile.product_name: profile
+        for profile in (
+            *core_modules["SOURCE_DATA_SECURITY_PROFILES"],
+            *core_modules["DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES"],
+        )
+    }
     by_name = {product["product_name"]: product for product in declaration["products"]}
 
     assert declaration["producer_repository"] == "lotus-core"
@@ -1308,7 +1324,7 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
 
     for source_product in catalog:
         declared = by_name[source_product.product_name]
-        profile = core_modules["get_source_data_security_profile"](source_product.product_name)
+        profile = security_profiles[source_product.product_name]
 
         assert declared["product_version"] == source_product.product_version
         assert declared["owner_repository"] == source_product.owner
@@ -1332,6 +1348,11 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
                 "ClientIncomeNeedsSchedule",
                 "LiquidityReserveRequirement",
                 "PlannedWithdrawalSchedule",
+                "ExternalCurrencyExposure",
+                "ExternalHedgePolicy",
+                "ExternalFXForwardCurve",
+                "ExternalEligibleHedgeInstrument",
+                "ExternalHedgeExecutionReadiness",
             }
             else family_map[source_product.route_family]
         )

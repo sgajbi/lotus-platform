@@ -2,10 +2,10 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-05-16T00:00:00Z`
+- Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `60`
-- Dependency count: `27`
+- Dependency count: `28`
 
 ## Products
 
@@ -28,7 +28,7 @@ This file is generated from governed domain-data-product declarations.
 | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/instruments/external-eligible-hedge-instruments |
 | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/market-data/external-fx-forward-curve |
 | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-execution-readiness |
-| `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
+| `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
 | `IndexSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/{index_id}/price-series, /integration/indices/{index_id}/return-series |
 | `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
@@ -81,6 +81,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
+| `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
