@@ -69,7 +69,7 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
         "federated:domain-product-source-manifest"
     )
     assert catalog["product_count"] == 60
-    assert catalog["dependency_count"] == 27
+    assert catalog["dependency_count"] == 28
     assert not any(
         source_path.startswith("platform-contracts/domain-data-products/")
         for source_path in source_paths

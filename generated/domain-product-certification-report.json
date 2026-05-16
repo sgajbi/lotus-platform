@@ -6,13 +6,13 @@
     "RFC-0087",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-05-16T00:00:00Z",
+  "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
     "product_count": 60,
-    "dependency_count": 27,
+    "dependency_count": 28,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -324,7 +324,7 @@
       "producer_repository": "lotus-core",
       "product_name": "ExternalHedgePolicy",
       "product_version": "v1",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "certification_state": "certified",
       "checks": {
         "trust_metadata_declared": true,
@@ -1092,7 +1092,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 10,
+      "dependency_count": 11,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -1130,6 +1130,21 @@
           "dependency_id": "lotus-core:ClientRestrictionProfile:v1",
           "producer_repository": "lotus-core",
           "product_name": "ClientRestrictionProfile",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:ExternalCurrencyExposure:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "ExternalCurrencyExposure",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
