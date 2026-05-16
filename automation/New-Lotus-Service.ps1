@@ -1049,6 +1049,7 @@ if __name__ == "__main__":
 Set-Content -Path (Join-Path $target "scripts/supported_features_gate.py") -Value $supportedFeaturesGate
 
 $endpointCertificationGate = @"
+import ast
 import json
 import sys
 from pathlib import Path
@@ -1056,9 +1057,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from app.main import app  # noqa: E402
-
 LEDGER_PATH = Path("docs/operations/endpoint-certification-ledger.json")
+APP_MAIN_PATH = Path("src/app/main.py")
 REQUIRED_FIELDS = (
     "method",
     "path",
@@ -1075,7 +1075,9 @@ REQUIRED_FIELDS = (
 )
 
 
-def _openapi_operations() -> set[tuple[str, str]]:
+def _openapi_operations_from_app() -> set[tuple[str, str]]:
+    from app.main import app
+
     operations: set[tuple[str, str]] = set()
     for path, path_item in app.openapi().get("paths", {}).items():
         if not isinstance(path_item, dict):
@@ -1084,6 +1086,37 @@ def _openapi_operations() -> set[tuple[str, str]]:
             if method.lower() in {"get", "post", "put", "patch", "delete"}:
                 operations.add((method.upper(), path))
     return operations
+
+
+def _openapi_operations_from_source() -> set[tuple[str, str]]:
+    operations: set[tuple[str, str]] = set()
+    tree = ast.parse(APP_MAIN_PATH.read_text(encoding="utf-8"), filename=str(APP_MAIN_PATH))
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call):
+                continue
+            if not isinstance(decorator.func, ast.Attribute):
+                continue
+            method = decorator.func.attr.lower()
+            if method not in {"get", "post", "put", "patch", "delete"}:
+                continue
+            if not decorator.args or not isinstance(decorator.args[0], ast.Constant):
+                continue
+            path = decorator.args[0].value
+            if isinstance(path, str):
+                operations.add((method.upper(), path))
+    return operations
+
+
+def _openapi_operations() -> set[tuple[str, str]]:
+    try:
+        return _openapi_operations_from_app()
+    except ModuleNotFoundError as exc:
+        if APP_MAIN_PATH.exists():
+            return _openapi_operations_from_source()
+        raise exc
 
 
 def main() -> int:
