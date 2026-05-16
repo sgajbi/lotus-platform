@@ -2,10 +2,10 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-04-19T00:00:00Z`
+- Generated at UTC: `2026-05-16T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `54`
-- Dependency count: `26`
+- Product count: `60`
+- Dependency count: `27`
 
 ## Products
 
@@ -24,6 +24,11 @@ This file is generated from governed domain-data-product declarations.
 | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/mandate-binding |
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
 | `DpmSourceReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolios/{portfolio_id}/dpm-source-readiness |
+| `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
+| `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/instruments/external-eligible-hedge-instruments |
+| `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/market-data/external-fx-forward-curve |
+| `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-execution-readiness |
+| `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
 | `IndexSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/{index_id}/price-series, /integration/indices/{index_id}/return-series |
 | `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
@@ -34,6 +39,7 @@ This file is generated from governed domain-data-product declarations.
 | `MarketDataWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/market-series |
 | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/planned-withdrawal-schedule |
 | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/reference |
+| `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/cash-movement-summary |
 | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/cashflow-projection |
 | `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
 | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
@@ -75,6 +81,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
+| `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
