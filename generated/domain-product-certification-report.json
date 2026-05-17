@@ -11,8 +11,8 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 60,
-    "dependency_count": 29,
+    "product_count": 61,
+    "dependency_count": 31,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -273,7 +273,7 @@
       "producer_repository": "lotus-core",
       "product_name": "ExternalEligibleHedgeInstrument",
       "product_version": "v1",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "certification_state": "certified",
       "checks": {
         "trust_metadata_declared": true,
@@ -323,6 +323,23 @@
       "product_id": "lotus-core:ExternalHedgePolicy:v1",
       "producer_repository": "lotus-core",
       "product_name": "ExternalHedgePolicy",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "producer_repository": "lotus-core",
+      "product_name": "ExternalOrderExecutionAcknowledgement",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
@@ -1092,7 +1109,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 12,
+      "dependency_count": 14,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -1145,6 +1162,36 @@
           "dependency_id": "lotus-core:ExternalCurrencyExposure:v1",
           "producer_repository": "lotus-core",
           "product_name": "ExternalCurrencyExposure",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:ExternalEligibleHedgeInstrument:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "ExternalEligibleHedgeInstrument",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:ExternalFXForwardCurve:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "ExternalFXForwardCurve",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {

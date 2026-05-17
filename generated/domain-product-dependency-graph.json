@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 67,
-  "edge_count": 190,
+  "node_count": 68,
+  "edge_count": 194,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -158,7 +158,7 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
-      "lifecycle_status": "proposed"
+      "lifecycle_status": "active"
     },
     {
       "node_id": "product:lotus-core:ExternalFXForwardCurve:v1",
@@ -185,6 +185,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-core:ExternalHedgePolicy:v1",
       "product_name": "ExternalHedgePolicy",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "product_name": "ExternalOrderExecutionAcknowledgement",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
@@ -774,6 +784,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:HoldingsAsOf:v1",
       "to": "repo:lotus-advise"
     },
@@ -1223,6 +1238,28 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ExternalEligibleHedgeInstrument:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ExternalFXForwardCurve:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:ExternalHedgeExecutionReadiness:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "fail_closed",
@@ -1562,6 +1599,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:ExternalHedgePolicy:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1"
     },
     {
       "edge_type": "produces",
