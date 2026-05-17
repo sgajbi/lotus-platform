@@ -1353,6 +1353,7 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
                 "ExternalFXForwardCurve",
                 "ExternalEligibleHedgeInstrument",
                 "ExternalHedgeExecutionReadiness",
+                "ExternalOrderExecutionAcknowledgement",
             }
             else family_map[source_product.route_family]
         )

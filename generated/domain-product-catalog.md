@@ -4,8 +4,8 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `60`
-- Dependency count: `29`
+- Product count: `61`
+- Dependency count: `31`
 
 ## Products
 
@@ -25,10 +25,11 @@ This file is generated from governed domain-data-product declarations.
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
 | `DpmSourceReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolios/{portfolio_id}/dpm-source-readiness |
 | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
-| `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `proposed` | lotus-manage | /integration/instruments/external-eligible-hedge-instruments |
+| `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-eligible-hedge-instruments |
 | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/market-data/external-fx-forward-curve |
 | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-execution-readiness |
 | `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
+| `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-order-execution-acknowledgement |
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
 | `IndexSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/{index_id}/price-series, /integration/indices/{index_id}/return-series |
 | `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
@@ -53,7 +54,7 @@ This file is generated from governed domain-data-product declarations.
 | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/sustainability-preference-profile |
 | `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
-| `BulkReviewCampaignMembership` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/waves/campaign-definitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}, /api/v1/rebalance/waves/preview, /api/v1/rebalance/waves |
+| `BulkReviewCampaignMembership` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/waves/campaign-definitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch-package, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/preview-readiness, /api/v1/rebalance/waves/preview, /api/v1/rebalance/waves |
 | `PmOperatingQualityScoreRun` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/pm-operating-quality/score-runs/preview, /api/v1/rebalance/pm-operating-quality/policies, /api/v1/rebalance/pm-operating-quality/policies/{policy_id}/versions/{policy_version}, /api/v1/rebalance/pm-operating-quality/score-runs, /api/v1/rebalance/pm-operating-quality/score-runs/{score_run_id}, /api/v1/rebalance/portfolio-memory/{portfolio_id} |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
 | `AttributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/attribution, /performance/attribution/results/{calculation_id} |
@@ -82,6 +83,8 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgePolicy` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
