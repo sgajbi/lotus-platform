@@ -15,7 +15,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `lotus-performance` | `domain-service` | Authoritative performance analytics and review service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-risk` | `domain-service` | Authoritative risk analytics service for drawdown, attribution, concentration, and rolling risk | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-advise` | `domain-service` | Advisory workflow and recommendation service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
-| `lotus-manage` | `domain-service` | Portfolio-management and operational workflow service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci-local` | Yes |
+| `lotus-manage` | `domain-service` | Discretionary mandate portfolio-management execution and operational supportability service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci-local` | Yes |
 | `lotus-report` | `domain-service` | Reporting and document-generation service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-render` | `domain-service` | Deterministic document rendering service for Lotus reporting | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-ai` | `shared-capability-service` | Shared AI capability service for governed AI-backed flows | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
