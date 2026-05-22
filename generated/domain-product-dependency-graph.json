@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 70,
-  "edge_count": 214,
+  "edge_count": 215,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -1242,6 +1242,17 @@
       "to": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1",
       "consumption_mode": "api_read",
       "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:BenchmarkAssignment:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
       "validation_lanes": [
         "feature",
         "pr-merge"

@@ -75,7 +75,7 @@
     ]
   },
   "product_count": 63,
-  "dependency_count": 44,
+  "dependency_count": 45,
   "repository_count": 6,
   "repositories": [
     {
@@ -91,7 +91,7 @@
     {
       "repository": "lotus-manage",
       "produced_product_count": 3,
-      "consumed_dependency_count": 27
+      "consumed_dependency_count": 28
     },
     {
       "repository": "lotus-performance",
@@ -4248,7 +4248,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 27,
+      "dependency_count": 28,
       "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json",
       "dependencies": [
         {
@@ -4274,6 +4274,37 @@
             "pr-merge"
           ],
           "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:BenchmarkAssignment:v1",
+          "product_name": "BenchmarkAssignment",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "restatement_version",
+            "reconciliation_status",
+            "data_quality_status",
+            "latest_evidence_timestamp",
+            "source_batch_fingerprint",
+            "snapshot_id",
+            "policy_version",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "stateful_core_sourcing",
+          "business_purpose": "Preserve source-owned benchmark identity in mandate-health lineage and DPM supportability evidence without calculating benchmark composition, active-risk, performance attribution, model approval, or benchmark analytics methodology in lotus-manage.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "degrade_or_pending_review"
         },
         {
           "dependency_id": "lotus-core:CioModelChangeAffectedCohort:v1",
