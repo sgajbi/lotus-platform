@@ -51,8 +51,17 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
         "lotus-manage",
     ):
         assert repositories[repository]["classification"] == "certified_first_wave"
-        assert repositories[repository]["first_wave_product_count"] == 1
         assert repositories[repository]["ambiguous_participation"] is False
+
+    assert repositories["lotus-core"]["first_wave_product_count"] == 2
+    for repository in (
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-advise",
+        "lotus-report",
+        "lotus-manage",
+    ):
+        assert repositories[repository]["first_wave_product_count"] == 1
 
     assert repositories["lotus-ai"]["classification"] == "not_mesh_participant"
     assert repositories["lotus-gateway"]["mesh_role"] == "api_face"

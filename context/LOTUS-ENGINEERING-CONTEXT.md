@@ -173,7 +173,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Slice 7 turns mesh certification into an enterprise maturity gate with operator-facing
    telemetry, SLO, access, lifecycle, evidence, catalog, gateway, and Workbench check families,
    evidence-policy validation, lifecycle drift validation, and RFC-0091 `enterprise-mesh-*`
-   artifacts. Slice 8 centralizes the six-product maturity-wave scope in
+   artifacts. Slice 8 centralizes the maturity-wave scope in
    `automation/mesh_maturity_scope.py`; new platform mesh automation should import that module
    instead of copying product lists. Slice 9 completed the final documentation, context, wiki,
    skills-routing, and branch-hygiene readiness updates.
@@ -388,9 +388,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     `lotus_advise_advisory_supportability_total` labels, no-sensitive Prometheus label tests, full
     local and GitHub runtime gates, and published wiki source. Full all-supported-surface
     promotion remains separately gated.
-13. The current RFC-0091 maturity-wave required product set is six products: core portfolio state,
-    performance returns, risk metrics, advisory proposal lifecycle, report evidence pack, and
-    management action register.
+13. The current RFC-0091 maturity-wave required product set is seven products: core portfolio
+    state, core DPM source readiness, performance returns, risk metrics, advisory proposal
+    lifecycle, report evidence pack, and management action register.
 14. RFC-0092 is implemented for production mesh operations. The mesh certification gate now writes
     `enterprise-mesh-operating-report.json` and `.md` alongside certification status artifacts.
     The operating report consumes current certification status and optional certification-history

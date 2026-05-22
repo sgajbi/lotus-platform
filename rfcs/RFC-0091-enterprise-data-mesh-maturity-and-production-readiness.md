@@ -137,15 +137,15 @@ Implemented evidence:
 23. `lotus-manage/contracts/trust-telemetry/portfolio-action-register.telemetry.v1.json`
     Adds RFC-0087/RFC-0091 trust telemetry for the promoted management product.
 24. `automation/mesh_certification_gate.py`
-    Enforces the six-product enterprise maturity wave with telemetry, SLO, access, lifecycle,
-    evidence, catalog, gateway, and Workbench maturity check families.
+    Enforces the enterprise maturity wave with telemetry, SLO, access, lifecycle, evidence,
+    catalog, gateway, and Workbench maturity check families.
 25. `.github/workflows/mesh-certification-gate.yml`
     Checks out `lotus-report` and `lotus-manage` alongside the existing mesh repositories and
     uploads both RFC-0089 and RFC-0091 enterprise certification artifacts.
 26. `docs/operations/mesh-certification-gate-runbook.md`
     Documents the RFC-0091 operator status taxonomy and fix-forward path.
 27. `automation/mesh_maturity_scope.py`
-    Centralizes the RFC-0091 six-product maturity-wave scope so telemetry collection, SLO,
+    Centralizes the RFC-0091 maturity-wave scope so telemetry collection, SLO,
     access, evidence, maturity matrix, and certification gate automation cannot silently drift.
 28. `tests/unit/test_mesh_maturity_scope.py`
     Protects the shared maturity-wave scope and default telemetry directory derivation.
@@ -217,7 +217,7 @@ Slice 6 review result:
 3. platform discovery, certification, and maturity matrix artifacts are regenerated from repo
    truth,
 4. SLO, access, and evidence policies cover all six maturity-wave products,
-5. the mesh certification gate certifies all six required products with zero issues in advisory
+5. the mesh certification gate certifies all required products with zero issues in advisory
    platform proof.
 
 Slice 7 review result:
@@ -235,7 +235,7 @@ Slice 7 review result:
 
 Slice 8 review result:
 
-1. the code review found duplicated six-product maturity-wave scope across platform automation,
+1. the code review found duplicated maturity-wave scope across platform automation,
 2. `automation/mesh_maturity_scope.py` now owns the required product set and telemetry directory
    derivation used by collection, SLO, access, evidence, maturity matrix, and certification gate
    code,
@@ -329,7 +329,7 @@ RFC-0091 must not be marked implemented if:
 | Access-governed discovery | Mesh access policies and gateway/Workbench certification checks | Implemented | Tenant, role, use-case, denial-posture, and gateway-only policy are validated before publication proof |
 | Operational SLO enforcement | Mesh SLO policies and certification-gate drift checks | Implemented | SLO policy contract, drift issues, escalation owner, remediation, and evidence history are enforced |
 | Audit/customer evidence | Evidence policies and generated evidence-pack manifests | Implemented | Certification history and audience-filtered evidence packs can be generated |
-| Broader rollout | Report and manage products promoted into the six-product maturity wave | Implemented | Additional products are promoted through repo-native declarations, telemetry, and platform certification |
+| Broader rollout | Report, manage, and DPM source-readiness products promoted into the maturity wave | Implemented | Additional products are promoted through repo-native declarations, telemetry, and platform certification |
 | Lifecycle governance | Enterprise gate checks required product lifecycle posture | Implemented | Required products must remain active/not-deprecated unless governed successor and consumer-impact evidence exists |
 
 ## Design Principles

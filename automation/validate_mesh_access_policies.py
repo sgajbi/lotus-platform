@@ -98,8 +98,15 @@ def validate_mesh_access_policies(
         if not isinstance(allowed_consumers, list) or not allowed_consumers:
             issues.append(f"{path}: allowed_consumers must be a non-empty array")
         else:
+            approved_consumers = product.get("approved_consumers", [])
             for index, consumer in enumerate(allowed_consumers):
-                _validate_allowed_consumer(issues, path, index, consumer)
+                _validate_allowed_consumer(
+                    issues,
+                    path,
+                    index,
+                    consumer,
+                    approved_consumers=approved_consumers,
+                )
 
         denial_posture = payload.get("denial_posture", {})
         if not isinstance(denial_posture, dict):
@@ -146,13 +153,26 @@ def _validate_allowed_consumer(
     path: Path,
     index: int,
     consumer: object,
+    *,
+    approved_consumers: object,
 ) -> None:
     prefix = f"allowed_consumers[{index}]"
     if not isinstance(consumer, dict):
         issues.append(f"{path}: {prefix} must be an object")
         return
-    if consumer.get("consumer_repository") != "lotus-gateway":
-        issues.append(f"{path}: {prefix}.consumer_repository must be lotus-gateway")
+    consumer_repository = consumer.get("consumer_repository")
+    if not isinstance(consumer_repository, str) or not consumer_repository:
+        issues.append(f"{path}: {prefix}.consumer_repository must be a non-empty string")
+    elif (
+        consumer_repository != "lotus-gateway"
+        and (
+            not isinstance(approved_consumers, list)
+            or consumer_repository not in approved_consumers
+        )
+    ):
+        issues.append(
+            f"{path}: {prefix}.consumer_repository must be lotus-gateway or approved by the product catalog"
+        )
     for field_name in ("tenant_scope", "roles", "use_cases"):
         value = consumer.get(field_name)
         if (

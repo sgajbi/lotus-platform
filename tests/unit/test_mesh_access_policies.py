@@ -49,7 +49,7 @@ def test_mesh_access_policy_validation_rejects_missing_required_product(
     ]
 
 
-def test_mesh_access_policy_validation_requires_gateway_consumer(
+def test_mesh_access_policy_validation_requires_catalog_approved_consumer(
     tmp_path: Path,
 ) -> None:
     validator = _load_validator_module()
@@ -68,7 +68,7 @@ def test_mesh_access_policy_validation_requires_gateway_consumer(
     )
 
     assert issues == [
-        f"{policy_path}: allowed_consumers[0].consumer_repository must be lotus-gateway"
+        f"{policy_path}: allowed_consumers[0].consumer_repository must be lotus-gateway or approved by the product catalog"
     ]
 
 

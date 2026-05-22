@@ -6,7 +6,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `10`
 - Product count: `63`
-- Certified first-wave products: `6`
+- Certified first-wave products: `7`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
 
@@ -41,7 +41,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:DataQualityCoverageReport:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:DiscretionaryMandateBinding:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:DpmModelPortfolioTarget:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
-| `lotus-core:DpmSourceReadiness:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:DpmSourceReadiness:v1` | `lotus-core` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
 | `lotus-core:ExternalCurrencyExposure:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalEligibleHedgeInstrument:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalFXForwardCurve:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
