@@ -4,8 +4,8 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Certification state: `certified`
-- Product count: `61`
-- Dependency count: `31`
+- Product count: `63`
+- Dependency count: `44`
 - Included repositories: `6`
 - Pending repositories: `0`
 - Issue count: `0`
@@ -64,6 +64,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `BenchmarkExposureContext` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `CompositePerformanceAnalytics` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `ContributionAnalytics` | `lotus-performance` | `certified` | `0` | `True` | `True` |
+| `MandatePerformanceHealthContext` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `MoneyWeightedReturnAnalytics` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `ReturnsSeriesBundle` | `lotus-performance` | `certified` | `0` | `True` | `True` |
 | `TimeWeightedReturnAnalytics` | `lotus-performance` | `certified` | `0` | `True` | `True` |
@@ -71,6 +72,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `ConcentrationRiskReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
+| `MandateRiskHealthContext` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `RegimeScenarioPackEvaluation` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `RiskEventAffectedCohort` | `lotus-risk` | `certified` | `0` | `True` | `True` |
 | `RiskMetricsReport` | `lotus-risk` | `certified` | `0` | `True` | `True` |
@@ -81,7 +83,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
-| `lotus-manage` | `certified` | `14` | `0` |
+| `lotus-manage` | `certified` | `27` | `0` |
 | `lotus-performance` | `certified` | `7` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |
 | `lotus-risk` | `certified` | `6` | `0` |

@@ -11,8 +11,8 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 61,
-    "dependency_count": 31,
+    "product_count": 63,
+    "dependency_count": 44,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -881,6 +881,23 @@
       "issue_count": 0
     },
     {
+      "product_id": "lotus-performance:MandatePerformanceHealthContext:v1",
+      "producer_repository": "lotus-performance",
+      "product_name": "MandatePerformanceHealthContext",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
       "product_id": "lotus-performance:MoneyWeightedReturnAnalytics:v1",
       "producer_repository": "lotus-performance",
       "product_name": "MoneyWeightedReturnAnalytics",
@@ -986,6 +1003,23 @@
       "product_id": "lotus-risk:HistoricalRiskAttributionReport:v1",
       "producer_repository": "lotus-risk",
       "product_name": "HistoricalRiskAttributionReport",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-risk:MandateRiskHealthContext:v1",
+      "producer_repository": "lotus-risk",
+      "product_name": "MandateRiskHealthContext",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
@@ -1109,7 +1143,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 14,
+      "dependency_count": 27,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -1117,6 +1151,21 @@
           "dependency_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
           "producer_repository": "lotus-advise",
           "product_name": "TacticalHouseViewAffectedCohort",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:CioModelChangeAffectedCohort:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "CioModelChangeAffectedCohort",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
@@ -1147,6 +1196,51 @@
           "dependency_id": "lotus-core:ClientRestrictionProfile:v1",
           "producer_repository": "lotus-core",
           "product_name": "ClientRestrictionProfile",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:DiscretionaryMandateBinding:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "DiscretionaryMandateBinding",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:DpmModelPortfolioTarget:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "DpmModelPortfolioTarget",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:DpmSourceReadiness:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "DpmSourceReadiness",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
@@ -1234,6 +1328,36 @@
           }
         },
         {
+          "dependency_id": "lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "ExternalOrderExecutionAcknowledgement",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:InstrumentEligibilityProfile:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "InstrumentEligibilityProfile",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
           "dependency_id": "lotus-core:LiquidityReserveRequirement:v1",
           "producer_repository": "lotus-core",
           "product_name": "LiquidityReserveRequirement",
@@ -1249,9 +1373,39 @@
           }
         },
         {
+          "dependency_id": "lotus-core:MarketDataCoverageWindow:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "MarketDataCoverageWindow",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
           "dependency_id": "lotus-core:PlannedWithdrawalSchedule:v1",
           "producer_repository": "lotus-core",
           "product_name": "PlannedWithdrawalSchedule",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioCashflowProjection:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "PortfolioCashflowProjection",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
@@ -1294,9 +1448,84 @@
           }
         },
         {
+          "dependency_id": "lotus-core:PortfolioTaxLotWindow:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "PortfolioTaxLotWindow",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
           "dependency_id": "lotus-core:SustainabilityPreferenceProfile:v1",
           "producer_repository": "lotus-core",
           "product_name": "SustainabilityPreferenceProfile",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:TransactionCostCurve:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "TransactionCostCurve",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-performance:MandatePerformanceHealthContext:v1",
+          "producer_repository": "lotus-performance",
+          "product_name": "MandatePerformanceHealthContext",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-risk:MandateRiskHealthContext:v1",
+          "producer_repository": "lotus-risk",
+          "product_name": "MandateRiskHealthContext",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-risk:RegimeScenarioPackEvaluation:v1",
+          "producer_repository": "lotus-risk",
+          "product_name": "RegimeScenarioPackEvaluation",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {
