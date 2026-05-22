@@ -30,6 +30,7 @@ The current maturity-wave producer products are:
 | Product ID | Owner repo | Mesh role |
 | --- | --- | --- |
 | `lotus-core:PortfolioStateSnapshot:v1` | `lotus-core` | authoritative portfolio state snapshot |
+| `lotus-core:DpmSourceReadiness:v1` | `lotus-core` | governed DPM source-family readiness |
 | `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | governed return-series and performance evidence |
 | `lotus-risk:RiskMetricsReport:v1` | `lotus-risk` | governed risk metrics report |
 | `lotus-advise:AdvisoryProposalLifecycleRecord:v1` | `lotus-advise` | governed advisory proposal lifecycle record |

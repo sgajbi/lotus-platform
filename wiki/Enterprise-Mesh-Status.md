@@ -22,6 +22,7 @@ published cross-repo documentation.
 ## Maturity-Wave Products
 
 - `lotus-core:PortfolioStateSnapshot:v1`
+- `lotus-core:DpmSourceReadiness:v1`
 - `lotus-performance:ReturnsSeriesBundle:v1`
 - `lotus-risk:RiskMetricsReport:v1`
 - `lotus-advise:AdvisoryProposalLifecycleRecord:v1`

@@ -24,6 +24,19 @@ REQUIRED_PRODUCT_METADATA = {
         "policy_version": "portfolio-state-snapshot-policy.v1",
         "correlation_id": "corr-lotus-core",
     },
+    "lotus-core:DpmSourceReadiness:v1": {
+        "tenant_id": "TENANT_PRIVATE_BANKING_DEMO",
+        "generated_at": GENERATED_AT_UTC,
+        "as_of_date": "2026-04-20",
+        "restatement_version": "restatement:2026-04-20:0",
+        "reconciliation_status": "reconciled",
+        "data_quality_status": "quality_passed",
+        "latest_evidence_timestamp": GENERATED_AT_UTC,
+        "source_batch_fingerprint": "sha256:dpm-source-readiness-test",
+        "snapshot_id": "dpm-source-readiness-test",
+        "policy_version": "dpm-source-readiness-policy.v1",
+        "correlation_id": "corr-lotus-core-dpm",
+    },
     "lotus-performance:ReturnsSeriesBundle:v1": {
         "generated_at": GENERATED_AT_UTC,
         "as_of_date": "2026-04-20",
@@ -170,7 +183,7 @@ def test_trust_telemetry_collection_prefers_runtime_over_static_fixture(
     assert returns_entry["source_path"] == runtime_path.as_posix()
     assert returns_entry["fixture_fallback"] is False
     assert manifest["summary"]["runtime_snapshot_count"] == 1
-    assert manifest["summary"]["static_fixture_snapshot_count"] == 5
+    assert manifest["summary"]["static_fixture_snapshot_count"] == 6
     assert manifest["summary"]["error_count"] == 0
     assert Path(returns_entry["collected_path"]).exists()
 
@@ -191,7 +204,7 @@ def test_trust_telemetry_collection_marks_fixture_fallback_explicitly(
     )
 
     assert manifest["summary"]["runtime_snapshot_count"] == 0
-    assert manifest["summary"]["static_fixture_snapshot_count"] == 6
+    assert manifest["summary"]["static_fixture_snapshot_count"] == 7
     assert all(entry["fixture_fallback"] is True for entry in manifest["snapshots"])
     assert all(
         entry["fallback_reason"] == "No runtime telemetry snapshot was available for this product."
@@ -223,10 +236,11 @@ def test_trust_telemetry_collection_reports_missing_required_products(
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
         "lotus-report:ClientReportEvidencePack:v1",
         "lotus-manage:PortfolioActionRegister:v1",
+        "lotus-core:DpmSourceReadiness:v1",
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
     }
-    assert manifest["summary"]["error_count"] == 5
+    assert manifest["summary"]["error_count"] == 6
 
 
 def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:
@@ -253,7 +267,7 @@ def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 0
-    assert "6 static fixture fallback(s)" in result.stdout
+    assert "7 static fixture fallback(s)" in result.stdout
     manifest = json.loads(
         (output_dir / "trust-telemetry-collection-manifest.json").read_text(
             encoding="utf-8"

@@ -159,13 +159,14 @@ Boundary rules:
     manifests are generated from derived mesh certification artifacts with audience-based field
     filtering.
 27. RFC-0091 Slice 6 promotes `lotus-report:ClientReportEvidencePack:v1` and
-    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Mesh
-    certification now treats six products as required.
+    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. The later
+    DPM source-readiness expansion promotes `lotus-core:DpmSourceReadiness:v1`, so mesh
+    certification now treats seven products as required.
 28. RFC-0091 Slice 7 extends the mesh certification gate into the enterprise maturity gate. The gate
     now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
     evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
     and writes both RFC-0089 `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts.
-29. RFC-0091 Slice 8 centralizes the six-product maturity-wave scope in
+29. RFC-0091 Slice 8 centralizes the maturity-wave scope in
     `automation/mesh_maturity_scope.py`; platform automation must import that module rather than
     copying required-product lists into new validators or generators.
 30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and

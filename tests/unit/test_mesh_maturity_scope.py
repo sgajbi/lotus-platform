@@ -32,6 +32,7 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
 
     assert scope.REQUIRED_PRODUCTS == {
         "lotus-core:PortfolioStateSnapshot:v1": "lotus-core",
+        "lotus-core:DpmSourceReadiness:v1": "lotus-core",
         "lotus-performance:ReturnsSeriesBundle:v1": "lotus-performance",
         "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",

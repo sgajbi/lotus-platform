@@ -247,7 +247,8 @@ def test_mesh_evidence_policy_validation_rejects_missing_required_product(
     issues = generator.validate_mesh_evidence_policies(tmp_path)
 
     assert issues == [
-        f"{tmp_path}: missing required mesh evidence policy for lotus-core product lotus-core:PortfolioStateSnapshot:v1"
+        f"{tmp_path}: missing required mesh evidence policy for lotus-core product lotus-core:PortfolioStateSnapshot:v1",
+        f"{tmp_path}: missing required mesh evidence policy for lotus-core product lotus-core:DpmSourceReadiness:v1",
     ]
 
 

@@ -29,7 +29,15 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
         "product_name": product_name,
         "product_version": product_version,
     }
-    if product_id == "lotus-core:PortfolioStateSnapshot:v1":
+    if product_id in {
+        "lotus-core:PortfolioStateSnapshot:v1",
+        "lotus-core:DpmSourceReadiness:v1",
+    }:
+        snapshot_id = (
+            "dpm-source-readiness-001"
+            if product_id == "lotus-core:DpmSourceReadiness:v1"
+            else "snapshot-001"
+        )
         return {
             **common,
             "tenant_id": "tenant-private-bank",
@@ -40,7 +48,7 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "data_quality_status": "quality_passed",
             "latest_evidence_timestamp": "2026-04-19T00:00:00Z",
             "source_batch_fingerprint": "batch-001",
-            "snapshot_id": "snapshot-001",
+            "snapshot_id": snapshot_id,
             "policy_version": "2026.04",
             "correlation_id": "corr-001",
         }
@@ -100,6 +108,7 @@ def _snapshot(product_id: str) -> dict:
         if product_id
         in {
             "lotus-core:PortfolioStateSnapshot:v1",
+            "lotus-core:DpmSourceReadiness:v1",
             "lotus-performance:ReturnsSeriesBundle:v1",
             "lotus-risk:RiskMetricsReport:v1",
             "lotus-report:ClientReportEvidencePack:v1",
@@ -172,7 +181,7 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     assert status["contract_id"] == "lotus-mesh-certification-status"
     assert status["governed_by_rfcs"] == ["RFC-0089", "RFC-0091"]
     assert status["certification_state"] == "certified"
-    assert status["summary"]["certified_required_product_count"] == 6
+    assert status["summary"]["certified_required_product_count"] == 7
     assert status["summary"]["error_count"] == 0
     assert status["summary"]["mesh_lifecycle_issue_count"] == 0
     assert status["summary"]["mesh_evidence_issue_count"] == 0
@@ -191,6 +200,7 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     )
     assert [product["product_id"] for product in status["required_products"]] == [
         "lotus-core:PortfolioStateSnapshot:v1",
+        "lotus-core:DpmSourceReadiness:v1",
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -424,7 +434,7 @@ def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> 
     )
 
     assert status["certification_state"] == "certified_with_warnings"
-    assert status["summary"]["missing_telemetry_count"] == 6
+    assert status["summary"]["missing_telemetry_count"] == 7
     assert status["summary"]["error_count"] == 0
     assert gate._exit_code(status) == 0
 

@@ -19,6 +19,10 @@ REQUIRED_MATURITY_PRODUCTS: tuple[MeshMaturityProduct, ...] = (
         producer_repository="lotus-core",
     ),
     MeshMaturityProduct(
+        product_id="lotus-core:DpmSourceReadiness:v1",
+        producer_repository="lotus-core",
+    ),
+    MeshMaturityProduct(
         product_id="lotus-performance:ReturnsSeriesBundle:v1",
         producer_repository="lotus-performance",
     ),
