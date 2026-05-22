@@ -2,9 +2,9 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-05-22T01:20:13Z`
+- Generated at UTC: `2026-05-22T01:36:03Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `62`
+- Product count: `63`
 - Dependency count: `42`
 
 ## Products
@@ -61,6 +61,7 @@ This file is generated from governed domain-data-product declarations.
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
 | `CompositePerformanceAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/composites/twr |
 | `ContributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/contribution, /performance/contribution/results/{calculation_id} |
+| `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-manage | /performance/mandate-health-context |
 | `MoneyWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/mwr |
 | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/returns/series, /integration/returns/series/results/{calculation_id} |
 | `TimeWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/twr, /performance/twr/results/{calculation_id} |
