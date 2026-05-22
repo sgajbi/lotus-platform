@@ -5,7 +5,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Generated at: `2026-04-20T00:00:00Z`
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `10`
-- Product count: `61`
+- Product count: `63`
 - Certified first-wave products: `6`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
@@ -16,11 +16,11 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | --- | --- | --- | ---: | ---: | --- |
 | `lotus-platform` | `not_mesh_participant` | `platform_governance` | `0` | `0` | Owns contracts, validators, generated evidence, CI, and certification enforcement rather than product truth. |
 | `lotus-core` | `certified_first_wave` | `producer` | `41` | `0` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
-| `lotus-performance` | `certified_first_wave` | `producer` | `7` | `7` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
-| `lotus-risk` | `certified_first_wave` | `producer` | `7` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-performance` | `certified_first_wave` | `producer` | `8` | `7` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-risk` | `certified_first_wave` | `producer` | `8` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `2` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-report` | `certified_first_wave` | `producer` | `1` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
-| `lotus-manage` | `certified_first_wave` | `producer` | `3` | `14` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-manage` | `certified_first_wave` | `producer` | `3` | `27` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
 | `lotus-ai` | `not_mesh_participant` | `explicit_posture_decision` | `0` | `0` | Not included until it owns a stable governed product or a catalog-consuming capability. |
@@ -79,6 +79,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-performance:BenchmarkExposureContext:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:CompositePerformanceAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:ContributionAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-performance:MandatePerformanceHealthContext:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:MoneyWeightedReturnAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
 | `lotus-performance:TimeWeightedReturnAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
@@ -86,6 +87,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-risk:ConcentrationRiskReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:DrawdownAnalyticsReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:HistoricalRiskAttributionReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-risk:MandateRiskHealthContext:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:RegimeScenarioPackEvaluation:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:RiskEventAffectedCohort:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:RiskMetricsReport:v1` | `lotus-risk` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |

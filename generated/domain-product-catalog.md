@@ -2,10 +2,10 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-05-22T01:36:03Z`
+- Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `63`
-- Dependency count: `42`
+- Dependency count: `44`
 
 ## Products
 
@@ -104,6 +104,8 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `TransactionCostCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
+| `lotus-manage` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review` |
+| `lotus-manage` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review` |
 | `lotus-manage` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_or_pending_review` |
 | `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
