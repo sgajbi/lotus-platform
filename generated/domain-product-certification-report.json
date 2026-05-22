@@ -11,8 +11,8 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 63,
-    "dependency_count": 44,
+    "product_count": 64,
+    "dependency_count": 45,
     "producer_repository_count": 6,
     "included_repository_count": 6,
     "pending_repository_count": 0,
@@ -34,6 +34,23 @@
       "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "producer_repository": "lotus-advise",
       "product_name": "AdvisoryProposalLifecycleRecord",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-advise:ProposalNarrativeEvidence:v1",
+      "producer_repository": "lotus-advise",
+      "product_name": "ProposalNarrativeEvidence",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
@@ -1143,7 +1160,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 27,
+      "dependency_count": 28,
       "certification_state": "certified",
       "issue_count": 0,
       "dependencies": [
@@ -1151,6 +1168,21 @@
           "dependency_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",
           "producer_repository": "lotus-advise",
           "product_name": "TacticalHouseViewAffectedCohort",
+          "required_product_version": "v1",
+          "certification_state": "certified",
+          "checks": {
+            "product_exists": true,
+            "approved_by_producer": true,
+            "required_metadata_subset_of_product": true,
+            "graph_consume_edge_present": true,
+            "validation_lanes_declared": true,
+            "failure_posture_declared": true
+          }
+        },
+        {
+          "dependency_id": "lotus-core:BenchmarkAssignment:v1",
+          "producer_repository": "lotus-core",
+          "product_name": "BenchmarkAssignment",
           "required_product_version": "v1",
           "certification_state": "certified",
           "checks": {

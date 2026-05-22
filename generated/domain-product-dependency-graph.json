@@ -7,14 +7,24 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 70,
-  "edge_count": 215,
+  "node_count": 73,
+  "edge_count": 220,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "node_type": "domain_product",
       "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "product_name": "AdvisoryProposalLifecycleRecord",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-advise:ProposalNarrativeEvidence:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:ProposalNarrativeEvidence:v1",
+      "product_name": "ProposalNarrativeEvidence",
       "product_version": "v1",
       "producer_repository": "lotus-advise",
       "product_family": "workflow_and_decision_state",
@@ -646,6 +656,11 @@
       "repository": "lotus-advise"
     },
     {
+      "node_id": "repo:lotus-archive",
+      "node_type": "repository",
+      "repository": "lotus-archive"
+    },
+    {
       "node_id": "repo:lotus-core",
       "node_type": "repository",
       "repository": "lotus-core"
@@ -666,6 +681,11 @@
       "repository": "lotus-performance"
     },
     {
+      "node_id": "repo:lotus-render",
+      "node_type": "repository",
+      "repository": "lotus-render"
+    },
+    {
       "node_id": "repo:lotus-report",
       "node_type": "repository",
       "repository": "lotus-report"
@@ -681,6 +701,26 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:ProposalNarrativeEvidence:v1",
+      "to": "repo:lotus-archive"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:ProposalNarrativeEvidence:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:ProposalNarrativeEvidence:v1",
+      "to": "repo:lotus-render"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:ProposalNarrativeEvidence:v1",
+      "to": "repo:lotus-report"
     },
     {
       "edge_type": "approves_consumer",
@@ -1713,6 +1753,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-advise",
       "to": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:ProposalNarrativeEvidence:v1"
     },
     {
       "edge_type": "produces",
