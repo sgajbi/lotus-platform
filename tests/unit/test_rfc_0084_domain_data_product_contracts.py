@@ -1493,6 +1493,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         "RollingRiskMetricsReport",
         "HistoricalRiskAttributionReport",
         "ConcentrationRiskReport",
+        "MandateRiskHealthContext",
         "RegimeScenarioPackEvaluation",
         "RiskEventAffectedCohort",
     }
@@ -1549,6 +1550,15 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         assert route in risk_main
         assert route in risk_endpoint_matrix
 
+    assert risk_products["MandateRiskHealthContext"]["approved_consumers"] == [
+        "lotus-gateway",
+        "lotus-manage",
+    ]
+    assert risk_products["MandateRiskHealthContext"]["current_routes"] == [
+        "/analytics/risk/mandate-health-context"
+    ]
+    assert "/analytics/risk/mandate-health-context" in risk_main
+    assert "| `POST /analytics/risk/mandate-health-context` | Domain analytics |" in risk_endpoint_matrix
     assert "| `POST /analytics/risk/historical-attribution` | Domain analytics |" in risk_endpoint_matrix
     assert "| `POST /analytics/risk/concentration` | Domain analytics |" in risk_endpoint_matrix
     assert "primarily consumed through `lotus-gateway`" in risk_repo_context
