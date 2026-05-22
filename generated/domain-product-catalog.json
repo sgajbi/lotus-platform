@@ -282,7 +282,8 @@
       "approved_consumers": [
         "lotus-performance",
         "lotus-risk",
-        "lotus-report"
+        "lotus-report",
+        "lotus-manage"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/benchmark-assignment"
