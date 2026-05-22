@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "generated_at_utc": "2026-05-22T01:20:13Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 68,
-  "edge_count": 194,
+  "node_count": 69,
+  "edge_count": 208,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -581,6 +581,16 @@
       "lifecycle_status": "active"
     },
     {
+      "node_id": "product:lotus-risk:MandateRiskHealthContext:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-risk:MandateRiskHealthContext:v1",
+      "product_name": "MandateRiskHealthContext",
+      "product_version": "v1",
+      "producer_repository": "lotus-risk",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
       "node_id": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
       "node_type": "domain_product",
       "product_id": "lotus-risk:RegimeScenarioPackEvaluation:v1",
@@ -1144,6 +1154,16 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:MandateRiskHealthContext:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:MandateRiskHealthContext:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
       "to": "repo:lotus-gateway"
     },
@@ -1205,6 +1225,17 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:CioModelChangeAffectedCohort:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:ClientIncomeNeedsSchedule:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade",
@@ -1219,6 +1250,39 @@
       "to": "product:lotus-core:ClientRestrictionProfile:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:DiscretionaryMandateBinding:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:DpmModelPortfolioTarget:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:DpmSourceReadiness:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
         "pr-merge"
@@ -1282,6 +1346,28 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:InstrumentEligibilityProfile:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:LiquidityReserveRequirement:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_pending_review",
@@ -1293,7 +1379,29 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:MarketDataCoverageWindow:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:PlannedWithdrawalSchedule:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:PortfolioCashflowProjection:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "degrade_or_pending_review",
       "validation_lanes": [
@@ -1326,8 +1434,41 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:PortfolioTaxLotWindow:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_block",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:SustainabilityPreferenceProfile:v1",
       "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade_or_pending_review",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-core:TransactionCostCurve:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "degrade",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
+      "to": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "consumption_mode": "api_read",
       "failure_posture": "degrade_or_pending_review",
       "validation_lanes": [
         "feature",
@@ -1794,6 +1935,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-risk",
       "to": "product:lotus-risk:HistoricalRiskAttributionReport:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-risk",
+      "to": "product:lotus-risk:MandateRiskHealthContext:v1"
     },
     {
       "edge_type": "produces",

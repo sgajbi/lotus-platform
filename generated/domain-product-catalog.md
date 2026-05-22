@@ -2,10 +2,10 @@
 
 This file is generated from governed domain-data-product declarations.
 
-- Generated at UTC: `2026-04-19T00:00:00Z`
+- Generated at UTC: `2026-05-22T01:20:13Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `61`
-- Dependency count: `31`
+- Product count: `62`
+- Dependency count: `42`
 
 ## Products
 
@@ -54,8 +54,8 @@ This file is generated from governed domain-data-product declarations.
 | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/sustainability-preference-profile |
 | `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
 | `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
-| `BulkReviewCampaignMembership` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/waves/campaign-definitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch-package, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/preview-readiness, /api/v1/rebalance/waves/preview, /api/v1/rebalance/waves |
-| `PmOperatingQualityScoreRun` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/pm-operating-quality/score-runs/preview, /api/v1/rebalance/pm-operating-quality/policies, /api/v1/rebalance/pm-operating-quality/policies/{policy_id}/versions/{policy_version}, /api/v1/rebalance/pm-operating-quality/score-runs, /api/v1/rebalance/pm-operating-quality/score-runs/{score_run_id}, /api/v1/rebalance/portfolio-memory/{portfolio_id} |
+| `BulkReviewCampaignMembership` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/waves/campaign-definitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch-package, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/launch, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/approval-decisions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/assignment-actions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/assignment-tasks, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/assignment-tasks/{task_ref}/transitions, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/maker-checker-controls, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/workflow-overview, /api/v1/rebalance/waves/campaign-definitions/{campaign_id}/versions/{campaign_version}/preview-readiness, /api/v1/rebalance/waves/campaign-operating-queue, /api/v1/rebalance/waves/campaign-approval-inbox, /api/v1/rebalance/waves/campaign-workflow-board, /api/v1/rebalance/waves/campaign-assignment-plan, /api/v1/rebalance/waves/campaign-workflow-automation, /api/v1/rebalance/waves/preview, /api/v1/rebalance/waves |
+| `PmOperatingQualityScoreRun` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/pm-operating-quality/score-runs/preview, /api/v1/rebalance/pm-operating-quality/policies, /api/v1/rebalance/pm-operating-quality/policies/{policy_id}/versions/{policy_version}, /api/v1/rebalance/pm-operating-quality/score-runs, /api/v1/rebalance/pm-operating-quality/score-runs/{score_run_id}, /api/v1/rebalance/pm-operating-quality/fairness-analyses/preview, /api/v1/rebalance/pm-operating-quality/fairness-analyses, /api/v1/rebalance/pm-operating-quality/fairness-analyses/{fairness_analysis_id}, /api/v1/rebalance/pm-operating-quality/review-actions/preview, /api/v1/rebalance/pm-operating-quality/review-actions, /api/v1/rebalance/pm-operating-quality/review-actions/{review_action_id}, /api/v1/rebalance/pm-operating-quality/summary-invocations/preview, /api/v1/rebalance/pm-operating-quality/summary-invocations, /api/v1/rebalance/pm-operating-quality/summary-invocations/{summary_invocation_id}, /api/v1/rebalance/portfolio-memory/search, /api/v1/rebalance/portfolio-memory/{portfolio_id} |
 | `PortfolioActionRegister` | `lotus-manage` | `v1` | `portfolio_management_workflow` | `active` | lotus-gateway | /api/v1/rebalance/supportability/summary, /api/v1/rebalance/runs/{rebalance_run_id}/artifact, /api/v1/rebalance/runs/{rebalance_run_id}/workflow, /api/v1/rebalance/workflow/decisions |
 | `AttributionAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/attribution, /performance/attribution/results/{calculation_id} |
 | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk | /integration/benchmarks/exposure-context |
@@ -68,6 +68,7 @@ This file is generated from governed domain-data-product declarations.
 | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/concentration |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/drawdown |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/historical-attribution |
+| `MandateRiskHealthContext` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-manage | /analytics/risk/mandate-health-context |
 | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-manage | /analytics/risk/regime-scenario-pack/evaluate |
 | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `cohort_membership` | `active` | lotus-manage | /analytics/risk/risk-event-cohorts/evaluate |
 | `RiskMetricsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/calculate |
@@ -80,18 +81,29 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
+| `lotus-manage` | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
+| `lotus-manage` | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `DpmSourceReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalHedgePolicy` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
+| `lotus-manage` | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
+| `lotus-manage` | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` |
+| `lotus-manage` | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
+| `lotus-manage` | `TransactionCostCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
+| `lotus-manage` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_or_pending_review` |
 | `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
