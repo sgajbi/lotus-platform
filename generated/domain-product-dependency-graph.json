@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-05-22T01:20:13Z",
+  "generated_at_utc": "2026-05-22T01:36:03Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 69,
-  "edge_count": 208,
+  "node_count": 70,
+  "edge_count": 211,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -505,6 +505,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-performance:ContributionAnalytics:v1",
       "product_name": "ContributionAnalytics",
+      "product_version": "v1",
+      "producer_repository": "lotus-performance",
+      "product_family": "analytics_output",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-performance:MandatePerformanceHealthContext:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-performance:MandatePerformanceHealthContext:v1",
+      "product_name": "MandatePerformanceHealthContext",
       "product_version": "v1",
       "producer_repository": "lotus-performance",
       "product_family": "analytics_output",
@@ -1116,6 +1126,16 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-performance:ContributionAnalytics:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:MandatePerformanceHealthContext:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:MandatePerformanceHealthContext:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -1900,6 +1920,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-performance",
       "to": "product:lotus-performance:ContributionAnalytics:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-performance:MandatePerformanceHealthContext:v1"
     },
     {
       "edge_type": "produces",
