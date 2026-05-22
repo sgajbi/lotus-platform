@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `63`
-- Dependency count: `44`
+- Dependency count: `45`
 
 ## Products
 
@@ -82,6 +82,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` |
+| `lotus-manage` | `BenchmarkAssignment` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` |
 | `lotus-manage` | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` |
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
