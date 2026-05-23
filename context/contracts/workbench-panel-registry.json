@@ -204,6 +204,38 @@
       "owner_follow_up_rfc": null
     },
     {
+      "panel_id": "proposal.narrative_posture",
+      "display_name": "Proposal Narrative Posture",
+      "screen_id": "proposal.detail",
+      "route": "/proposals/{proposalId}",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-advise",
+      "gateway_endpoint": "/api/v1/proposals/{proposal_id}/delivery-summary",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "advisor-review narrative posture renders",
+          "advisor-use review action records through Gateway",
+          "reviewed narrative report package is requested through Gateway"
+        ],
+        "loading": ["proposal detail route hydration only"],
+        "error": ["proposal detail or narrative delivery posture failure is explicit"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "proposal-narrative-posture-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
       "panel_id": "performance.risk.snapshot",
       "display_name": "Risk Snapshot",
       "screen_id": "performance.risk",
