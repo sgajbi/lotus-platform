@@ -25,7 +25,7 @@
   },
   "summary": {
     "repository_count": 10,
-    "product_count": 63,
+    "product_count": 65,
     "certified_first_wave_product_count": 7,
     "candidate_product_count": 0,
     "ambiguous_repository_count": 0
@@ -86,7 +86,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 2,
+      "produced_product_count": 4,
       "first_wave_product_count": 1,
       "consumed_dependency_count": 2,
       "repo_native_status": "implemented",
@@ -114,7 +114,7 @@
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
       "produced_product_count": 3,
       "first_wave_product_count": 1,
-      "consumed_dependency_count": 27,
+      "consumed_dependency_count": 28,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
@@ -165,6 +165,28 @@
       "lifecycle_status": "active",
       "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
       "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
+    },
+    {
+      "product_id": "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "product_name": "AdvisoryProposalMemoEvidencePack",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-advise:ProposalNarrativeEvidence:v1",
+      "product_name": "ProposalNarrativeEvidence",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {
       "product_id": "lotus-advise:TacticalHouseViewAffectedCohort:v1",

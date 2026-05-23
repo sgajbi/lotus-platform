@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `64`
+- Product count: `65`
 - Dependency count: `45`
 
 ## Products
@@ -12,6 +12,7 @@ This file is generated from governed domain-data-product declarations.
 | Product | Producer | Version | Family | Lifecycle | Approved Consumers | Routes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway | /advisory/proposals/{proposal_id}, /advisory/proposals/{proposal_id}/versions/{version_no}, /advisory/proposals/{proposal_id}/timeline, /advisory/proposals/{proposal_id}/approvals |
+| `AdvisoryProposalMemoEvidencePack` | `lotus-advise` | `v1` | `reporting_and_evidence` | `proposed` | lotus-gateway, lotus-report, lotus-render, lotus-archive, lotus-workbench | Not published |
 | `ProposalNarrativeEvidence` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway, lotus-report, lotus-render, lotus-archive | /advisory/proposals/artifact, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative/regenerate, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative/review, /advisory/proposals/{proposal_id}/versions/{version_no}/replay-evidence, /advisory/proposals/{proposal_id}/report-requests, /advisory/proposals/{proposal_id}/delivery-summary |
 | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `cohort_membership` | `active` | lotus-manage | /advisory/tactical-house-view/cohorts/evaluate |
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report, lotus-manage | /integration/portfolios/{portfolio_id}/benchmark-assignment |

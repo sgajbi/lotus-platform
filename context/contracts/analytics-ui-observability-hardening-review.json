@@ -56,7 +56,8 @@
       "/performance?portfolioId={portfolio_id}&mode=advisor",
       "/performance?portfolioId={portfolio_id}&mode=risk",
       "/performance?portfolioId={portfolio_id}&mode=evidence",
-      "/workbench/{portfolio_id}"
+      "/workbench/{portfolio_id}",
+      "/proposals/{proposalId}"
     ],
     "non_telemetry_registry_states": ["unavailable"]
   },
