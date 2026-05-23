@@ -164,6 +164,10 @@ $resolvedTenantId = Resolve-ContractValue -Candidate $TenantId -Fallback $dpm.te
 $resolvedBookingCenterCode = Resolve-ContractValue -Candidate $BookingCenterCode -Fallback $dpm.booking_center_code
 $resolvedModelPortfolioId = Resolve-ContractValue -Candidate $ModelPortfolioId -Fallback $dpm.model_portfolio_id
 $resolvedReferenceCurrency = Resolve-ContractValue -Candidate $ReferenceCurrency -Fallback $dpm.reference_currency
+$resolvedActionRegisterAsOfDate = [string]$contract.date_policy.canonical_as_of_date
+if ([string]::IsNullOrWhiteSpace($resolvedActionRegisterAsOfDate)) {
+  $resolvedActionRegisterAsOfDate = $resolvedAsOfDate
+}
 
 $resolvedOutputDirectory = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
   $OutputDirectory
@@ -180,6 +184,7 @@ $manageApiBaseUrl = $ManageBaseUrl.TrimEnd("/")
 $gatewayApiBaseUrl = $GatewayBaseUrl.TrimEnd("/")
 $refreshUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/refresh-from-core"
 $monitoringRunUri = "$manageApiBaseUrl/api/v1/dpm/monitoring/run-once"
+$actionRegisterSimulationUri = "$manageApiBaseUrl/api/v1/rebalance/simulate"
 $manageLookupUri = "$manageApiBaseUrl/api/v1/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayMandateUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayHealthUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/$resolvedMandateId/health"
@@ -234,9 +239,11 @@ $summary = [ordered]@{
   policy_pack_id = $dpm.policy_pack_id
   reference_currency = $resolvedReferenceCurrency
   command_center_as_of_date = $resolvedAsOfDate
+  action_register_as_of_date = $resolvedActionRegisterAsOfDate
   source_products = @($dpm.source_products)
   manage_refresh_uri = $refreshUri
   manage_monitoring_run_uri = $monitoringRunUri
+  manage_action_register_simulation_uri = $actionRegisterSimulationUri
   manage_lookup_uri = $manageLookupUri
   gateway_mandate_uri = $gatewayMandateUri
   gateway_health_uri = $gatewayHealthUri
@@ -248,6 +255,7 @@ $summary = [ordered]@{
   posture_checks = @()
   refresh_response = $null
   monitoring_run_response = $null
+  action_register_simulation_response = $null
   manage_lookup_response = $null
   gateway_mandate_response = $null
   gateway_health_response = $null
@@ -273,6 +281,35 @@ try {
     requested_by = "platform-seed-automation"
   })
   $summary.steps += "manage-monitoring-run-once"
+
+  Write-Host "[dpm-seed] recording stateful action-register simulation evidence"
+  $actionRegisterIdempotencyKey = (
+    "canonical-dpm-action-register:${resolvedPortfolioId}:${resolvedActionRegisterAsOfDate}:$timestamp"
+  )
+  $summary.action_register_simulation_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri $actionRegisterSimulationUri `
+    -Headers @{
+      "Idempotency-Key" = $actionRegisterIdempotencyKey
+      "X-Correlation-Id" = (
+        "corr-canonical-dpm-action-register-$resolvedPortfolioId-$resolvedActionRegisterAsOfDate-$timestamp"
+      )
+      "X-Tenant-Id" = $resolvedTenantId
+      "X-Policy-Pack-Id" = $dpm.policy_pack_id
+    } `
+    -Body ([ordered]@{
+      input_mode = "stateful"
+      stateful_input = [ordered]@{
+        portfolio_id = $resolvedPortfolioId
+        as_of = $resolvedActionRegisterAsOfDate
+        mandate_id = $resolvedMandateId
+        model_portfolio_id = $resolvedModelPortfolioId
+        tenant_id = $resolvedTenantId
+        booking_center_code = $resolvedBookingCenterCode
+        policy_pack_id = $dpm.policy_pack_id
+      }
+    })
+  $summary.steps += "manage-action-register-stateful-simulation"
 
   Write-Host "[dpm-seed] verifying manage mandate lookup for $resolvedPortfolioId"
   $summary.manage_lookup_response = Invoke-JsonRequest -Method "Get" -Uri $manageLookupUri
