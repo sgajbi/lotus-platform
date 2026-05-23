@@ -11,7 +11,7 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 64,
+    "product_count": 65,
     "dependency_count": 45,
     "producer_repository_count": 6,
     "included_repository_count": 6,
@@ -41,6 +41,23 @@
         "trust_metadata_declared": true,
         "approved_consumers_declared": true,
         "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "producer_repository": "lotus-advise",
+      "product_name": "AdvisoryProposalMemoEvidencePack",
+      "product_version": "v1",
+      "lifecycle_status": "proposed",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": false,
         "lineage_required": true,
         "graph_node_present": true,
         "deprecation_state": "not_deprecated"

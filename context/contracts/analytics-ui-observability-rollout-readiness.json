@@ -80,6 +80,12 @@
         "dpm.proof_pack"
       ],
       "evidence_basis": "RFC-0040/0041/0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit, portfolio-memory timeline, rebalance-wave command center, proof-pack evidence panel, and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
+    },
+    {
+      "route": "/proposals/{proposalId}",
+      "certification_status": "certified",
+      "panel_ids": ["proposal.narrative_posture"],
+      "evidence_basis": "RFC-0023 Slice 12 canonical proof validates the Gateway-backed advisor-use proposal narrative posture panel without promoting client-ready narrative scope."
     }
   ],
   "rollout_checklist": [

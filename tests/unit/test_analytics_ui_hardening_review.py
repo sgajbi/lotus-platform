@@ -74,11 +74,16 @@ def test_analytics_ui_hardening_review_artifacts_are_present_and_governed() -> N
 
 
 def test_analytics_ui_hardening_review_validator_accepts_baseline() -> None:
+    review = _load_json(HARDENING_REVIEW_PATH)
+
+    assert "/proposals/{proposalId}" in review["panel_state_review"][
+        "certified_route_groups_reviewed"
+    ]
     assert (
         _validate(
             _load_json(OBSERVABILITY_CONTRACT_PATH),
             _load_json(ROLLOUT_CONTRACT_PATH),
-            _load_json(HARDENING_REVIEW_PATH),
+            review,
         )
         == []
     )

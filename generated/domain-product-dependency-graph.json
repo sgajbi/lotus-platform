@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 73,
-  "edge_count": 220,
+  "node_count": 75,
+  "edge_count": 226,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -19,6 +19,16 @@
       "producer_repository": "lotus-advise",
       "product_family": "workflow_and_decision_state",
       "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "product_name": "AdvisoryProposalMemoEvidencePack",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "reporting_and_evidence",
+      "lifecycle_status": "proposed"
     },
     {
       "node_id": "product:lotus-advise:ProposalNarrativeEvidence:v1",
@@ -694,6 +704,11 @@
       "node_id": "repo:lotus-risk",
       "node_type": "repository",
       "repository": "lotus-risk"
+    },
+    {
+      "node_id": "repo:lotus-workbench",
+      "node_type": "repository",
+      "repository": "lotus-workbench"
     }
   ],
   "edges": [
@@ -701,6 +716,31 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "to": "repo:lotus-archive"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "to": "repo:lotus-render"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+      "to": "repo:lotus-workbench"
     },
     {
       "edge_type": "approves_consumer",
@@ -1753,6 +1793,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-advise",
       "to": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:AdvisoryProposalMemoEvidencePack:v1"
     },
     {
       "edge_type": "produces",

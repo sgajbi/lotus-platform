@@ -81,6 +81,7 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/performance?portfolioId={portfolio_id}&mode=risk",
         "/performance?portfolioId={portfolio_id}&mode=evidence",
         "/workbench/{portfolio_id}",
+        "/proposals/{proposalId}",
     }
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
@@ -98,6 +99,9 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "panel_ids"
     ]
     assert "dpm.wave_command_center" in certified_groups["/workbench/{portfolio_id}"][
+        "panel_ids"
+    ]
+    assert "proposal.narrative_posture" in certified_groups["/proposals/{proposalId}"][
         "panel_ids"
     ]
 
