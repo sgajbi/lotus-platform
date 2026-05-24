@@ -114,6 +114,9 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm.wave_command_center": "/api/v1/dpm/command-center/waves",
         "dpm.portfolio_memory": "/api/v1/dpm/command-center/portfolios/{portfolio_id}/memory",
         "dpm.proof_pack": "/api/v1/dpm/command-center/proof-packs/{proof_pack_id}",
+        "dpm.construction_alternatives": "/api/v1/dpm/command-center/construction/alternative-sets/generate",
+        "dpm.pm_operating_quality": "/api/v1/dpm/command-center/pm-operating-quality/score-runs",
+        "dpm.copilot_workspace": None,
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -166,3 +169,21 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm-proof-pack-live.png"
     )
     assert "hash generation" in panel_by_id["dpm.proof_pack"]["known_limitations"][0]
+    assert panel_by_id["dpm.construction_alternatives"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.construction_alternatives"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.construction_alternatives"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-construction-alternatives-live.png"
+    )
+    assert "OMS execution" in panel_by_id["dpm.construction_alternatives"]["known_limitations"][0]
+    assert panel_by_id["dpm.pm_operating_quality"]["owning_service"] == "lotus-manage"
+    assert panel_by_id["dpm.pm_operating_quality"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.pm_operating_quality"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-pm-operating-quality-live.png"
+    )
+    assert "rank PMs" in panel_by_id["dpm.pm_operating_quality"]["known_limitations"][0]
+    assert panel_by_id["dpm.copilot_workspace"]["owning_service"] == "lotus-ai"
+    assert panel_by_id["dpm.copilot_workspace"]["required_support_state"] == "ready"
+    assert panel_by_id["dpm.copilot_workspace"]["screenshot_policy"]["screenshot_name"] == (
+        "dpm-copilot-workspace-live.png"
+    )
+    assert "store prompts" in panel_by_id["dpm.copilot_workspace"]["known_limitations"][0]

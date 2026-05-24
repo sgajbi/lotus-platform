@@ -82,6 +82,24 @@
       "evidence_basis": "RFC-0040/0041/0042 and RFC38 WTBD-003 Workbench proof validates the embedded DPM command-center cockpit, portfolio-memory timeline, rebalance-wave command center, proof-pack evidence panel, and post-trade outcome-review panel against live Gateway and lotus-manage contracts."
     },
     {
+      "route": "/workbench/{portfolio_id}?mode=construction",
+      "certification_status": "certified",
+      "panel_ids": ["dpm.construction_alternatives"],
+      "evidence_basis": "RFC37-WTBD-003 front-office closure proof validates the Gateway-backed construction alternatives route without local construction methodology, order-routing, trade-execution, or OMS claims."
+    },
+    {
+      "route": "/workbench/{portfolio_id}?mode=quality",
+      "certification_status": "certified",
+      "panel_ids": ["dpm.pm_operating_quality"],
+      "evidence_basis": "RFC37-WTBD-003 front-office closure proof validates the Gateway/manage PM operating-quality route with score-run, fairness, policy, authority, and summary-invocation posture, without PM ranking, HR, client-contact, or execution claims."
+    },
+    {
+      "route": "/workbench/{portfolio_id}?mode=copilot",
+      "certification_status": "certified",
+      "panel_ids": ["dpm.copilot_workspace"],
+      "evidence_basis": "RFC37-WTBD-003 front-office closure proof validates the bounded Gateway/lotus-ai PM copilot workspace route without prompt storage, generated-response storage, client-contact, order-routing, or OMS claims."
+    },
+    {
       "route": "/proposals/{proposalId}",
       "certification_status": "certified",
       "panel_ids": ["proposal.narrative_posture"],
