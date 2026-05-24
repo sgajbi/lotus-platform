@@ -1499,6 +1499,7 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
                 "DpmSourceReadiness",
                 "PortfolioManagerBookMembership",
                 "CioModelChangeAffectedCohort",
+                "DpmPortfolioUniverseCandidate",
                 "ClientRestrictionProfile",
                 "SustainabilityPreferenceProfile",
                 "ClientTaxProfile",
