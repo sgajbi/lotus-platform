@@ -53,6 +53,59 @@
       "/api/v1/dpm/command-center/mandates/by-portfolio/{portfolio_id}",
       "/api/v1/dpm/command-center/mandates/{mandate_id}/health"
     ],
+    "multi_portfolio_wave_scenario": {
+      "scenario_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
+      "trigger_type": "EXPLICIT_PORTFOLIO_LIST",
+      "source_scope": "manage_live_validation_scenario_seed",
+      "minimum_portfolio_count": 3,
+      "portfolios": [
+        {
+          "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+          "mandate_id": "MANDATE_PB_SG_GLOBAL_BAL_001",
+          "portfolio_manager_id": "PM_SG_DPM_001",
+          "portfolio_type": "DISCRETIONARY",
+          "source_refs": [
+            {
+              "source_system": "lotus-platform",
+              "source_type": "CanonicalFrontOfficeDemoDataContract",
+              "source_id": "canonical-front-office-demo-data-contract",
+              "source_version": "1.0.0",
+              "supportability_state": "READY"
+            }
+          ]
+        },
+        {
+          "portfolio_id": "PB_SG_GLOBAL_INC_002",
+          "mandate_id": "MANDATE_PB_SG_GLOBAL_INC_002",
+          "portfolio_manager_id": "PM_SG_DPM_001",
+          "portfolio_type": "DISCRETIONARY",
+          "source_refs": [
+            {
+              "source_system": "lotus-platform",
+              "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
+              "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
+              "source_version": "1.0.0",
+              "supportability_state": "READY"
+            }
+          ]
+        },
+        {
+          "portfolio_id": "PB_SG_GLOBAL_GROWTH_003",
+          "mandate_id": "MANDATE_PB_SG_GLOBAL_GROWTH_003",
+          "portfolio_manager_id": "PM_SG_DPM_001",
+          "portfolio_type": "DISCRETIONARY",
+          "source_refs": [
+            {
+              "source_system": "lotus-platform",
+              "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
+              "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
+              "source_version": "1.0.0",
+              "supportability_state": "READY"
+            }
+          ]
+        }
+      ]
+    },
     "validated_surface_states": [
       "ready",
       "partial",

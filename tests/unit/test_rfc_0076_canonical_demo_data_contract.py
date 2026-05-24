@@ -161,6 +161,18 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     )
     assert dpm_command_center["validated_surface_states"] == ["ready", "partial", "empty"]
     assert dpm_command_center["future_surface_states"] == ["degraded", "blocked"]
+    multi_portfolio_wave = dpm_command_center["multi_portfolio_wave_scenario"]
+    assert multi_portfolio_wave["scenario_id"] == "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL"
+    assert multi_portfolio_wave["trigger_type"] == "EXPLICIT_PORTFOLIO_LIST"
+    assert multi_portfolio_wave["source_scope"] == "manage_live_validation_scenario_seed"
+    assert multi_portfolio_wave["minimum_portfolio_count"] == 3
+    assert len(multi_portfolio_wave["portfolios"]) >= 3
+    assert {item["portfolio_id"] for item in multi_portfolio_wave["portfolios"]} >= {
+        "PB_SG_GLOBAL_BAL_001",
+        "PB_SG_GLOBAL_INC_002",
+        "PB_SG_GLOBAL_GROWTH_003",
+    }
+    assert all(item["source_refs"] for item in multi_portfolio_wave["portfolios"])
 
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"
@@ -204,6 +216,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     assert minimums["risk_attribution_contributors"] >= 7
     assert minimums["dpm_command_center_mandates"] >= 1
     assert minimums["dpm_command_center_health_dimensions"] >= 1
+    assert minimums["dpm_multi_portfolio_wave_candidates"] >= 3
     assert minimums["dpm_proof_pack_sections"] >= 1
     assert minimums["dpm_proof_pack_source_hashes"] >= 1
 
@@ -226,6 +239,10 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     )
     assert (
         "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states"
+        in required_coverage
+    )
+    assert (
+        "dpm_rebalance_wave_validation_must_cover_multi_portfolio_explicit_list_preview"
         in required_coverage
     )
     assert (

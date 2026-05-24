@@ -18,6 +18,7 @@
     "risk_attribution_contributors": 7,
     "dpm_command_center_mandates": 1,
     "dpm_command_center_health_dimensions": 1,
+    "dpm_multi_portfolio_wave_candidates": 3,
     "dpm_proof_pack_sections": 1,
     "dpm_proof_pack_source_hashes": 1
   },
@@ -41,6 +42,7 @@
     "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
+    "dpm_rebalance_wave_validation_must_cover_multi_portfolio_explicit_list_preview",
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
     "dpm_command_center_evidence_must_record_source_product_lineage",
     "dpm_proof_pack_validation_must_cover_populated_ready_state",

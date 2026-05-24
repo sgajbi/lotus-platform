@@ -12,7 +12,7 @@ business, operations, engineering, sales, pre-sales, and client-facing preparati
 | Canonical portfolio | `PB_SG_GLOBAL_BAL_001`, Singapore booking center, USD reference currency, global balanced mandate, and benchmark `BMK_PB_GLOBAL_BALANCED_60_40` are governed by the canonical demo-data contract. |
 | DPM command center | The platform seed persists the canonical mandate, runs monitoring, validates Manage and Gateway reads, and Workbench renders `dpm.command_center`. |
 | Portfolio memory | Workbench renders Gateway/manage timeline truth for `dpm.portfolio_memory`; report and AI source-event families are recorded only where owning apps implemented them. |
-| Proof packs and waves | Workbench renders Gateway/manage truth for `dpm.proof_pack` and `dpm.wave_command_center` without local proof-pack construction, hash generation, or wave readiness calculation. |
+| Proof packs and waves | Workbench renders Gateway/manage truth for `dpm.proof_pack` and `dpm.wave_command_center` without local proof-pack construction, hash generation, or wave readiness calculation. RFC-0041 live validation includes the governed `RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL` multi-portfolio explicit-list preview. |
 | Outcome review | `dpm.outcome_review` product support, report materialization, archive lifecycle, and governed AI narrative request posture are implemented for first-wave scope. |
 | Analytics | Performance and risk panels render from owning analytics services through Gateway and Workbench. |
 | Runtime evidence | Demo screenshots are governed by canonical API, calculation, panel, and browser validation; pre-validation captures must be diagnostic only. |
