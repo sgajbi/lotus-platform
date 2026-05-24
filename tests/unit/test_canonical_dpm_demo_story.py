@@ -65,6 +65,7 @@ def test_canonical_dpm_demo_story_uses_current_contract_identity() -> None:
         "BOOK_SG_BALANCED_DPM",
         "MODEL_PB_SG_GLOBAL_BAL_DPM",
         "POLICY_DPM_SG_BALANCED_V1",
+        "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
         "2026-05-03",
     ):
         assert required_value in contract

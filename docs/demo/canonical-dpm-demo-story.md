@@ -26,6 +26,7 @@ current Lotus front-office stack can truthfully show.
 | Model portfolio | `MODEL_PB_SG_GLOBAL_BAL_DPM` |
 | Policy pack | `POLICY_DPM_SG_BALANCED_V1` |
 | DPM command-center as-of date | `2026-05-03` |
+| RFC-0041 multi-portfolio wave scenario | `RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL` |
 
 Source of truth:
 
@@ -58,7 +59,7 @@ management:
 | DPM command center | Populated ready command-center state is seeded, validated through Manage and Gateway, and rendered by Workbench. Partial and empty posture checks are covered; degraded and blocked fixtures remain future source-owner scope. | `lotus-manage`, `lotus-gateway`, `lotus-workbench`, `lotus-platform` | `dpm-command-center-live.png`, seed summary, panel registry |
 | Construction alternatives | Manage owns alternative generation/read/selection; Gateway and Workbench render the first-wave construction lab without local optimization. | `lotus-manage`, `lotus-gateway`, `lotus-workbench` | Workbench construction proof and manage supported-feature truth |
 | Proof-pack review | Manage owns proof-pack evidence; Gateway composes it; Workbench renders identity, sections, source hashes, report posture, and AI evidence posture without browser-side synthesis. | `lotus-manage`, `lotus-gateway`, `lotus-workbench` | `dpm-proof-pack-live.png` |
-| Rebalance waves | Explicit portfolio-list waves and first-wave PM-book/CIO model-change source-owned cohort foundations are implementation-backed; Workbench renders Gateway/manage wave truth. | `lotus-manage`, `lotus-core`, `lotus-gateway`, `lotus-workbench` | `dpm-wave-command-center-live.png` |
+| Rebalance waves | Explicit portfolio-list waves now include governed single-portfolio and multi-portfolio preview proof. First-wave PM-book/CIO model-change source-owned cohort foundations are implementation-backed; broader source-owner cohort depth remains separate product scope. Workbench renders Gateway/manage wave truth. | `lotus-manage`, `lotus-core`, `lotus-gateway`, `lotus-workbench`, `lotus-platform` | `dpm-wave-command-center-live.png`, RFC-0041 multi-portfolio preview evidence |
 | Portfolio memory | Manage/Gateway/Workbench first-wave timeline is implementation-backed; report and AI source-event families are partially implemented in owning apps. | `lotus-manage`, `lotus-report`, `lotus-ai`, `lotus-gateway`, `lotus-workbench` | `dpm-portfolio-memory-live.png` |
 | Outcome review | Manage outcome authority, Gateway composition, Workbench product surface, report/archive materialization, and governed AI narrative request are implemented for first-wave scope. | `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`, `lotus-gateway`, `lotus-workbench` | `dpm-outcome-review-live.png` |
 | Performance and risk panels | Portfolio performance, contribution, selected attribution, risk summary, drawdown, concentration, rolling risk, and historical attribution render from owning analytics surfaces with supportability truth. | `lotus-performance`, `lotus-risk`, `lotus-gateway`, `lotus-workbench` | performance and risk live screenshots |
