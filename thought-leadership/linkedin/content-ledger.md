@@ -34,6 +34,11 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-24-018 | Observability belongs in product proof | draft | production-readiness | engineering and operations leaders | 2026-05-24 |  | Post-completion draft grounded in live evidence capture across API outputs, screenshots, logs, metrics, and operational evidence manifests. |
 | LI-2026-05-24-019 | Documentation is part of the validation loop | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-24 |  | Post-completion draft grounded in RFC36-43 current-state alignment, wiki publication, and drift-zero checks. |
 | LI-2026-05-24-020 | Precise UI validation is a quality signal | draft | production-readiness | engineering and operations leaders | 2026-05-24 |  | Post-completion draft grounded in scoped Workbench panel assertions replacing ambiguous text matching in canonical validation. |
+| LI-2026-05-24-021 | Realistic test data is a product decision | draft | production-readiness | front office and platform leaders | 2026-05-24 |  | Post-completion draft grounded in governed canonical multi-portfolio scenario data and live validation evidence. |
+| LI-2026-05-24-022 | Multi-portfolio proof changes the conversation | draft | discretionary-portfolio-management | wealth technology leaders | 2026-05-24 |  | Post-completion draft grounded in bounded multi-portfolio explicit-list wave preview proof without broad portfolio-universe discovery overclaim. |
+| LI-2026-05-24-023 | A feature matrix should be evidence, not inventory | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-24 |  | Post-completion draft grounded in RFC36-43 feature coverage validation requiring concrete API and panel evidence. |
+| LI-2026-05-24-024 | Supportability should gate the demo | draft | production-readiness | engineering and operations leaders | 2026-05-24 |  | Post-completion draft grounded in canonical supportability-ready panel states, live API checks, and operational evidence gates. |
+| LI-2026-05-24-025 | Bounded claims are a mark of maturity | draft | source-data-ownership | wealth technology leaders | 2026-05-24 |  | Post-completion draft grounded in preserving source-owner and external execution boundaries while proving bounded supported paths. |
 
 ## Theme Rotation Notes
 
