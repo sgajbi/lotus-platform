@@ -28,6 +28,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-10-012 | Evidence has to travel with the workflow | draft | evidence-backed-workflows | wealth technology leaders | 2026-05-10 |  | Final WTBD implementation insight draft on evidence, lineage, and workflow continuity. |
 | LI-2026-05-10-013 | Contribution analytics need method evidence | draft | portfolio-analytics-production-readiness | portfolio analytics leaders | 2026-05-10 |  | RFC-047 post-completion draft; grounded in implemented contribution method evidence, source economics posture, downstream UI proof, and live validation. |
 | LI-2026-05-12-014 | Composite performance needs persisted evidence | draft | portfolio-analytics-production-readiness | portfolio analytics leaders | 2026-05-12 |  | RFC-049 post-completion draft; grounded in implemented persisted-fact composite TWR, inspection evidence, downstream proof, and supported-feature closure without GIPS/compliance or advanced-composite overclaim. |
+| LI-2026-05-24-015 | Front-office validation needs real evidence | draft | production-readiness-evidence-backed-workflows | front office and platform leaders | 2026-05-24 |  | Post-completion draft grounded in canonical front-office validation hardening, Manage-backed PM operating-quality readback evidence, live stack proof, screenshots, operational signals, and documentation alignment. |
 
 ## Theme Rotation Notes
 
