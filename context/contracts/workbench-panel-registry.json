@@ -600,6 +600,132 @@
       "owner_follow_up_rfc": "RFC-0098"
     },
     {
+      "panel_id": "dpm.construction_alternatives",
+      "display_name": "Construction Alternatives",
+      "screen_id": "workbench.dpm_construction_alternatives",
+      "route": "/workbench/{portfolio_id}?mode=construction",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/construction/alternative-sets/generate",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "construction alternatives heading renders",
+          "Gateway-backed generation control is visible",
+          "alternative comparison posture renders after generation",
+          "source authority and no-local-methodology boundaries are visible"
+        ],
+        "partial": [
+          "manage supportability state and reason codes are explicit",
+          "missing source contribution or selected-alternative evidence is labelled without Workbench reconstruction"
+        ],
+        "empty": [
+          "absence of generated construction alternatives is explicit before Gateway-backed generation"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage construction route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-construction-alternatives-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0039-advanced-portfolio-construction-and-rebalance-alternatives.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage construction truth only; it does not calculate alternatives, route orders, execute trades, or claim OMS execution"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.pm_operating_quality",
+      "display_name": "PM Operating Quality",
+      "screen_id": "workbench.dpm_pm_operating_quality",
+      "route": "/workbench/{portfolio_id}?mode=quality",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-manage",
+      "gateway_endpoint": "/api/v1/dpm/command-center/pm-operating-quality/score-runs",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "PM operating quality heading renders",
+          "score-run, fairness, policy, and authority posture are visible",
+          "summary-invocation posture, control, readiness, and persisted evidence are visible",
+          "Gateway/manage source authority and non-ranking boundaries are visible"
+        ],
+        "partial": [
+          "manage supportability state and reason codes are explicit",
+          "missing summary-invocation, fairness, or score-run evidence is labelled without local scoring"
+        ],
+        "empty": [
+          "absence of PM operating-quality evidence is explicit"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway or manage PM operating-quality route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-pm-operating-quality-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0043-portfolio-manager-operating-quality.md",
+      "known_limitations": [
+        "Workbench renders Gateway/manage PM operating-quality truth only; it does not rank PMs, generate summary text, make HR decisions, contact clients, or execute trades"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
+      "panel_id": "dpm.copilot_workspace",
+      "display_name": "PM Copilot Workspace",
+      "screen_id": "workbench.dpm_copilot_workspace",
+      "route": "/workbench/{portfolio_id}?mode=copilot",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-ai",
+      "gateway_endpoint": null,
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "partial", "empty", "loading", "error"],
+      "validation_rules": {
+        "ready": [
+          "PM copilot workspace heading renders",
+          "Gateway-only and no-prompt-storage posture is visible",
+          "evidence owner, workflow owner, forbidden uses, and operating boundaries are visible",
+          "AI workflow-pack posture is visible without generated prompt or response storage"
+        ],
+        "partial": [
+          "workflow-pack supportability state and reason codes are explicit",
+          "missing AI workflow availability is labelled without local synthesis"
+        ],
+        "empty": [
+          "absence of workflow-pack evidence is explicit"
+        ],
+        "loading": ["route hydration only"],
+        "error": ["Gateway, manage, or AI workflow-pack route failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "dpm-copilot-workspace-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-manage/docs/rfcs/RFC-0043-portfolio-manager-operating-quality.md",
+      "known_limitations": [
+        "Workbench renders Gateway/lotus-ai workflow-pack posture only; it does not store prompts, store generated responses, contact clients, route orders, or claim OMS execution"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": "RFC-0098"
+    },
+    {
       "panel_id": "dpm.proof_pack",
       "display_name": "Proof-Pack Evidence",
       "screen_id": "workbench.dpm_proof_pack",
