@@ -84,7 +84,11 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
 
     assert schema["properties"]["contract_id"]["const"] == "workbench-panel-registry"
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0077"
-    assert "lotus-manage" in schema["$defs"]["panelEntry"]["properties"]["owning_service"]["enum"]
+    panel_schema = schema["$defs"]["panelEntry"]["properties"]
+    assert "workflow_panel" in panel_schema["panel_kind"]["enum"]
+    assert "lotus-advise" in panel_schema["owning_service"]["enum"]
+    assert "lotus-ai" in panel_schema["owning_service"]["enum"]
+    assert "lotus-manage" in panel_schema["owning_service"]["enum"]
 
     assert registry["contract_id"] == "workbench-panel-registry"
     assert registry["contract_version"] == "1.0.0"
@@ -117,6 +121,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm.construction_alternatives": "/api/v1/dpm/command-center/construction/alternative-sets/generate",
         "dpm.pm_operating_quality": "/api/v1/dpm/command-center/pm-operating-quality/score-runs",
         "dpm.copilot_workspace": None,
+        "proposal.memo_evidence_pack": "/api/v1/proposals/{proposal_id}/versions/{version_no}/memo",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -187,3 +192,19 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm-copilot-workspace-live.png"
     )
     assert "store prompts" in panel_by_id["dpm.copilot_workspace"]["known_limitations"][0]
+    assert panel_by_id["proposal.memo_evidence_pack"]["owning_service"] == "lotus-advise"
+    assert panel_by_id["proposal.memo_evidence_pack"]["required_support_state"] == "ready"
+    assert panel_by_id["proposal.memo_evidence_pack"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["proposal.memo_evidence_pack"]["screenshot_policy"]["screenshot_name"] == (
+        "proposal-memo-evidence-pack-live.png"
+    )
+    assert "client-ready release" in panel_by_id["proposal.memo_evidence_pack"][
+        "known_limitations"
+    ][0]

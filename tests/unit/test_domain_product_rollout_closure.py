@@ -68,8 +68,13 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     assert catalog["source_declaration_directory"] == (
         "federated:domain-product-source-manifest"
     )
-    assert catalog["product_count"] == 65
-    assert catalog["dependency_count"] == 45
+    assert catalog["product_count"] == 66
+    assert catalog["dependency_count"] == 46
+    assert any(
+        product["product_name"] == "DpmPortfolioUniverseCandidate"
+        and product["producer_repository"] == "lotus-core"
+        for product in catalog["products"]
+    )
     assert not any(
         source_path.startswith("platform-contracts/domain-data-products/")
         for source_path in source_paths

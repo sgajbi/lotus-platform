@@ -74,8 +74,8 @@
       }
     ]
   },
-  "product_count": 65,
-  "dependency_count": 45,
+  "product_count": 66,
+  "dependency_count": 46,
   "repository_count": 6,
   "repositories": [
     {
@@ -85,13 +85,13 @@
     },
     {
       "repository": "lotus-core",
-      "produced_product_count": 41,
+      "produced_product_count": 42,
       "consumed_dependency_count": 0
     },
     {
       "repository": "lotus-manage",
       "produced_product_count": 3,
-      "consumed_dependency_count": 28
+      "consumed_dependency_count": 29
     },
     {
       "repository": "lotus-performance",
@@ -200,7 +200,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "event_driven",
-        "max_allowed_age_description": "Memo evidence pack freshness will be measured against immutable proposal version evidence, memo section readiness, source-authority manifest, report/archive posture, and finalized memo review events. Until memo APIs and persistence are implemented, telemetry remains blocked and the product must not be advertised as supported."
+        "max_allowed_age_description": "Memo evidence pack freshness will be measured against immutable proposal version evidence, memo section readiness, source-authority manifest, report/archive posture, finalized memo review events, AI commentary lineage, Gateway/Workbench visibility, commercial claim-control evidence, and live-suite implementation proof. Until active data-product certification, access, SLO, and evidence-policy gates close, telemetry remains blocked and the product must not be advertised as an active supported data product."
       },
       "completeness_policy": {
         "default_status": "blocked",
@@ -1002,6 +1002,72 @@
       ],
       "current_routes": [
         "/integration/model-portfolios/{model_portfolio_id}/targets"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:DpmPortfolioUniverseCandidate:v1",
+      "product_name": "DpmPortfolioUniverseCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_management",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio_universe",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "model_portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "DPM portfolio-universe candidates are resolved on demand from effective discretionary mandate bindings for the requested as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "customer_consumable",
+        "lineage_bundle_class_ref": "customer_lineage_summary"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/dpm/portfolio-universe/candidates"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
@@ -4372,7 +4438,7 @@
     },
     {
       "consumer_repository": "lotus-manage",
-      "dependency_count": 28,
+      "dependency_count": 29,
       "source_path": "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json",
       "dependencies": [
         {
@@ -4555,6 +4621,30 @@
           },
           "consumption_mode": "stateful_core_sourcing",
           "business_purpose": "Resolve model portfolio target weights, model version, target bands, and source lineage for stateful discretionary mandate execution without making lotus-manage the model-governance authority.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:DpmPortfolioUniverseCandidate:v1",
+          "product_name": "DpmPortfolioUniverseCandidate",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "source_batch_fingerprint",
+            "snapshot_id",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "stateful_core_sourcing",
+          "business_purpose": "Resolve bounded Core-owned DPM portfolio-universe candidate pages for bulk-review campaign wave preview and creation without inferring relationship householding, PM ranking, execution readiness, client communication workflow, or global universe ownership in lotus-manage.",
           "validation_lanes": [
             "feature",
             "pr-merge"

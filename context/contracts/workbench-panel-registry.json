@@ -236,6 +236,48 @@
       "owner_follow_up_rfc": null
     },
     {
+      "panel_id": "proposal.memo_evidence_pack",
+      "display_name": "Proposal Memo Evidence Pack",
+      "screen_id": "proposal.detail",
+      "route": "/proposals/{proposalId}",
+      "panel_kind": "evidence_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-advise",
+      "gateway_endpoint": "/api/v1/proposals/{proposal_id}/versions/{version_no}/memo",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "empty", "partial", "unavailable", "error"],
+      "validation_rules": {
+        "ready": [
+          "advisor-use memo evidence pack renders",
+          "memo hash, evidence status, and source posture render from Gateway evidence",
+          "advisor-use review action records through Gateway",
+          "memo report package and advisor commentary requests are issued through Gateway",
+          "client-ready release, document rendering, and client communication remain explicitly absent"
+        ],
+        "partial": [
+          "missing memo evidence, report package, or commentary evidence is explicit without local synthesis"
+        ],
+        "empty": [
+          "absence of memo evidence is explicit before Gateway-backed creation or replay"
+        ],
+        "loading": ["proposal detail route hydration only"],
+        "error": ["proposal memo evidence-pack failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "proposal-memo-evidence-pack-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [
+        "Workbench validates advisor-use memo evidence only; client-ready release, document rendering, and client communication remain outside this surface"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
       "panel_id": "performance.risk.snapshot",
       "display_name": "Risk Snapshot",
       "screen_id": "performance.risk",

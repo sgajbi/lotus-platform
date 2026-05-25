@@ -125,7 +125,8 @@
             "summary_panel",
             "detail_panel",
             "analytic_panel",
-            "evidence_panel"
+            "evidence_panel",
+            "workflow_panel"
           ]
         },
         "panel_level": {
@@ -140,6 +141,8 @@
           "type": "string",
           "enum": [
             "lotus-gateway",
+            "lotus-advise",
+            "lotus-ai",
             "lotus-manage",
             "lotus-performance",
             "lotus-risk"

@@ -4,8 +4,8 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `65`
-- Dependency count: `45`
+- Product count: `66`
+- Dependency count: `46`
 
 ## Products
 
@@ -25,6 +25,7 @@ This file is generated from governed domain-data-product declarations.
 | `DataQualityCoverageReport` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-manage | /integration/benchmarks/{benchmark_id}/coverage, /integration/reference/risk-free-series/coverage |
 | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/mandate-binding |
 | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/targets |
+| `DpmPortfolioUniverseCandidate` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/dpm/portfolio-universe/candidates |
 | `DpmSourceReadiness` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolios/{portfolio_id}/dpm-source-readiness |
 | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-currency-exposure |
 | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-eligible-hedge-instruments |
@@ -90,6 +91,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` |
 | `lotus-manage` | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
+| `lotus-manage` | `DpmPortfolioUniverseCandidate` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `DpmSourceReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |
 | `lotus-manage` | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` |

@@ -122,6 +122,12 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert "proposal.narrative_posture" in certified_groups["/proposals/{proposalId}"][
         "panel_ids"
     ]
+    assert "proposal.memo_evidence_pack" in certified_groups["/proposals/{proposalId}"][
+        "panel_ids"
+    ]
+    assert "client-ready release" in certified_groups["/proposals/{proposalId}"][
+        "evidence_basis"
+    ]
 
 
 def test_analytics_ui_rollout_readiness_requires_known_panel_ids() -> None:
