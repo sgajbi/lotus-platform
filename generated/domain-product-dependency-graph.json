@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 75,
-  "edge_count": 226,
+  "node_count": 76,
+  "edge_count": 229,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -145,6 +145,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-core:DpmModelPortfolioTarget:v1",
       "product_name": "DpmModelPortfolioTarget",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:DpmPortfolioUniverseCandidate:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:DpmPortfolioUniverseCandidate:v1",
+      "product_name": "DpmPortfolioUniverseCandidate",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "dpm_source_data",
@@ -854,6 +864,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-core:DpmPortfolioUniverseCandidate:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-core:DpmSourceReadiness:v1",
       "to": "repo:lotus-gateway"
     },
@@ -1396,6 +1411,17 @@
     {
       "edge_type": "consumes",
       "from": "repo:lotus-manage",
+      "to": "product:lotus-core:DpmPortfolioUniverseCandidate:v1",
+      "consumption_mode": "stateful_core_sourcing",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-manage",
       "to": "product:lotus-core:DpmSourceReadiness:v1",
       "consumption_mode": "stateful_core_sourcing",
       "failure_posture": "fail_closed",
@@ -1858,6 +1884,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:DpmModelPortfolioTarget:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:DpmPortfolioUniverseCandidate:v1"
     },
     {
       "edge_type": "produces",

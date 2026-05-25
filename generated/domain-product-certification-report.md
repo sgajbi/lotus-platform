@@ -4,8 +4,8 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Certification state: `certified`
-- Product count: `65`
-- Dependency count: `45`
+- Product count: `66`
+- Dependency count: `46`
 - Included repositories: `6`
 - Pending repositories: `0`
 - Issue count: `0`
@@ -28,6 +28,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `DataQualityCoverageReport` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DiscretionaryMandateBinding` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DpmModelPortfolioTarget` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `DpmPortfolioUniverseCandidate` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `DpmSourceReadiness` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ExternalCurrencyExposure` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ExternalEligibleHedgeInstrument` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -85,7 +86,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
-| `lotus-manage` | `certified` | `28` | `0` |
+| `lotus-manage` | `certified` | `29` | `0` |
 | `lotus-performance` | `certified` | `7` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |
 | `lotus-risk` | `certified` | `6` | `0` |
