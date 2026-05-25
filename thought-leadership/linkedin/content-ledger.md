@@ -49,6 +49,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-25-033 | Lineage should survive the handoff | draft | evidence-backed-workflows | front office and platform leaders | 2026-05-25 |  | Post-completion draft grounded in preserving source references and source-product lineage through bounded campaign-candidate resolution. |
 | LI-2026-05-25-034 | Non-terminating source reads need boundaries | draft | production-readiness | engineering and operations leaders | 2026-05-25 |  | Post-completion draft grounded in bounded continuation-page consumption and explicit rejection of non-terminating source pagination. |
 | LI-2026-05-25-035 | Tests should prove the boundaries | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-25 |  | Post-completion draft grounded in focused tests for happy path and unavailable, incomplete, degraded, empty, truncated, duplicate, and non-terminating source evidence. |
+| LI-2026-05-25-036 | A proposal memo is an evidence product | draft | reporting-and-evidence-advisory-workflows | advisory and product leaders | 2026-05-25 |  | RFC-0024 post-completion draft grounded in implemented advisor-use memo evidence, Gateway/Workbench proof, active data-product posture, trust telemetry, wiki publication, and explicit non-claims for client-ready publication and external communication. |
 
 ## Theme Rotation Notes
 
