@@ -173,6 +173,12 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
         "PB_SG_GLOBAL_GROWTH_003",
     }
     assert all(item["source_refs"] for item in multi_portfolio_wave["portfolios"])
+    campaign_definition = dpm_command_center["campaign_definition_scenario"]
+    assert campaign_definition["scenario_id"] == "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL"
+    assert campaign_definition["campaign_id"] == "campaign-core-universe-202605"
+    assert campaign_definition["campaign_version"] == "2026.05"
+    assert campaign_definition["candidate_source_product"] == "DpmPortfolioUniverseCandidate:v1"
+    assert campaign_definition["governance"]["access_purpose"] == "SUPERVISORY_BULK_REVIEW"
 
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"

@@ -75,7 +75,7 @@ management:
 | Evidence and lineage | Demo surfaces carry source refs, content hashes, artifact refs, report refs, AI refs, or reason codes where implemented by the owner. |
 | Redaction and data boundaries | Demo documentation must not expose raw prompts, generated AI output, raw source payloads, or client-confidential identifiers beyond the canonical fixture. |
 | Runtime proof | Demo-ready screenshots are valid only after canonical API, calculation, panel, and browser validation pass. |
-| Operations | Platform QA writes summaries, transcripts, seed evidence, screenshot paths, and contract provenance under `output/front-office-qa/`. |
+| Operations | Platform QA writes summaries, transcripts, seed evidence, source-backed DPM campaign definition/discovery posture, screenshot paths, and contract provenance under `output/front-office-qa/`. |
 | Governance | Wiki truth is authored in repo-local `wiki/`, checked before merge, and published only after merge to `main`. |
 
 ## Integration Flow

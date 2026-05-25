@@ -106,6 +106,30 @@
         }
       ]
     },
+    "campaign_definition_scenario": {
+      "scenario_id": "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL",
+      "campaign_id": "campaign-core-universe-202605",
+      "campaign_version": "2026.05",
+      "display_name": "Core universe candidate review",
+      "as_of_date": "2026-05-03",
+      "rationale": "Canonical source-backed DPM campaign definition for bounded candidate-source review.",
+      "created_by": "platform-seed-automation",
+      "eligible_portfolio_types": [
+        "DISCRETIONARY"
+      ],
+      "candidate_source_product": "DpmPortfolioUniverseCandidate:v1",
+      "governance": {
+        "approval_ref": "CANONICAL-DPM-CAMPAIGN-APPROVAL-2026-05",
+        "approved_by": "canonical_dpm_control",
+        "approved_at": "2026-05-03T09:00:00+08:00",
+        "expires_on": "2026-06-30",
+        "entitled_actor_ids": [
+          "pm_sg_1",
+          "platform-seed-automation"
+        ],
+        "access_purpose": "SUPERVISORY_BULK_REVIEW"
+      }
+    },
     "validated_surface_states": [
       "ready",
       "partial",

@@ -61,8 +61,15 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "refresh-from-core" in dpm_seed
     assert "/api/v1/dpm/monitoring/run-once" in dpm_seed
     assert "manage-monitoring-run-once" in dpm_seed
+    assert "manage-campaign-definition-upsert" in dpm_seed
+    assert "function Upsert-CampaignDefinition" in dpm_seed
+    assert "Existing Manage campaign definition" in dpm_seed
+    assert "Assert-CampaignDefinitionMatchesSeed" in dpm_seed
+    assert "DpmPortfolioUniverseCandidate:v1" in dpm_seed
     assert "/api/v1/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
+    assert "/api/v1/dpm/command-center/waves/campaign-definitions" in dpm_seed
+    assert "/api/v1/dpm/command-center/waves/campaign-discovery" in dpm_seed
     assert "dpm-command-center-seed-latest.json" in dpm_seed
     assert "posture_checks" in dpm_seed
     assert "ready-populated-command-center" in dpm_seed
@@ -104,6 +111,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "panelClassifications" in automation_readme
     assert "runtime transcript" in automation_readme
     assert "DPM command-center seed" in automation_readme
+    assert "source-backed DPM campaign definition" in automation_readme
+    assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
@@ -112,6 +121,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Docker cleanup scope" in automation_guide
     assert "runtime transcript" in automation_guide
     assert "DPM command-center seed" in automation_guide
+    assert "DpmPortfolioUniverseCandidate:v1" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
     assert "Invoke-DpmCommandCenterSeed.ps1" in directory_map
     assert "`qa-platform-readiness`" in profile_reference
