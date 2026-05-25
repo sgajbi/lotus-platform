@@ -44,15 +44,21 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-24-028 | Lineage is a user experience feature | draft | evidence-backed-workflows | front office and platform leaders | 2026-05-24 |  | Post-completion draft grounded in source-ref preservation, Core source-product lineage, and API/RFC/wiki truth updates. |
 | LI-2026-05-24-029 | Mesh governance should block shortcuts | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-24 |  | Post-completion draft grounded in platform domain-product mirror alignment and Manage consumer validation catching missing producer catalog truth. |
 | LI-2026-05-24-030 | Product maturity is knowing what not to claim | draft | source-data-ownership | wealth technology leaders | 2026-05-24 |  | Post-completion draft grounded in bounded source-consumer support and explicit non-claims for global universe, workflow, client communication, and OMS/execution scope. |
+| LI-2026-05-25-031 | Pagination is a product control | draft | production-readiness | engineering and operations leaders | 2026-05-25 |  | Post-completion draft grounded in terminal exhaustion of bounded source-owned campaign-candidate continuation pages before durable workflow creation. |
+| LI-2026-05-25-032 | Duplicates are a business signal | draft | production-readiness | engineering and operations leaders | 2026-05-25 |  | Post-completion draft grounded in duplicate source-candidate rejection across continuation pages instead of silent deduplication. |
+| LI-2026-05-25-033 | Lineage should survive the handoff | draft | evidence-backed-workflows | front office and platform leaders | 2026-05-25 |  | Post-completion draft grounded in preserving source references and source-product lineage through bounded campaign-candidate resolution. |
+| LI-2026-05-25-034 | Non-terminating source reads need boundaries | draft | production-readiness | engineering and operations leaders | 2026-05-25 |  | Post-completion draft grounded in bounded continuation-page consumption and explicit rejection of non-terminating source pagination. |
+| LI-2026-05-25-035 | Tests should prove the boundaries | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-25 |  | Post-completion draft grounded in focused tests for happy path and unavailable, incomplete, degraded, empty, truncated, duplicate, and non-terminating source evidence. |
 
 ## Theme Rotation Notes
 
 Next recommended themes:
 
-1. source-data ownership in wealth platforms,
-2. why front-office adoption depends on trust states,
-3. non-functional requirements that banks actually notice,
-4. platform leadership beyond coding,
-5. reporting as evidence, not document generation.
+1. advisory workflow evidence,
+2. reporting as evidence, not document generation,
+3. portfolio analytics methodology explainability,
+4. leadership and delivery across product, engineering, and operations,
+5. front-office trust states without source-consumer wording.
 
-Avoid more than two consecutive posts on the same theme family.
+Avoid more than two consecutive posts on the same theme family; the latest batch is intentionally
+source-consumer heavy because it is grounded in a newly merged implementation slice.
