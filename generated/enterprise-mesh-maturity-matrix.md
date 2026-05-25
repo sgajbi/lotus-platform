@@ -6,7 +6,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `10`
 - Product count: `66`
-- Certified first-wave products: `7`
+- Certified first-wave products: `8`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
 
@@ -30,7 +30,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | Product | Producer | Classification | Wave | Lifecycle | Next step |
 | --- | --- | --- | --- | --- | --- |
 | `lotus-advise:AdvisoryProposalLifecycleRecord:v1` | `lotus-advise` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
-| `lotus-advise:AdvisoryProposalMemoEvidencePack:v1` | `lotus-advise` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-advise:AdvisoryProposalMemoEvidencePack:v1` | `lotus-advise` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
 | `lotus-advise:ProposalNarrativeEvidence:v1` | `lotus-advise` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-advise:TacticalHouseViewAffectedCohort:v1` | `lotus-advise` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:BenchmarkAssignment:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |

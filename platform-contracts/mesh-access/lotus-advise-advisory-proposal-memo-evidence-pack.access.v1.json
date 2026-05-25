@@ -1,0 +1,89 @@
+{
+  "contract_id": "lotus-mesh-access-policy",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0091",
+    "RFC-0024"
+  ],
+  "product_id": "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+  "producer_repository": "lotus-advise",
+  "default_posture": "restricted",
+  "allowed_consumers": [
+    {
+      "consumer_repository": "lotus-gateway",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator",
+        "advisor",
+        "compliance_reviewer"
+      ],
+      "use_cases": [
+        "discovery",
+        "advisor_memo_review",
+        "advisory_evidence_review"
+      ]
+    },
+    {
+      "consumer_repository": "lotus-report",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator"
+      ],
+      "use_cases": [
+        "advisor_use_report_package"
+      ]
+    },
+    {
+      "consumer_repository": "lotus-render",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator"
+      ],
+      "use_cases": [
+        "advisor_use_document_rendering"
+      ]
+    },
+    {
+      "consumer_repository": "lotus-archive",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "operator"
+      ],
+      "use_cases": [
+        "support_safe_archive_metadata"
+      ]
+    },
+    {
+      "consumer_repository": "lotus-workbench",
+      "tenant_scope": [
+        "TENANT_PRIVATE_BANKING_DEMO"
+      ],
+      "roles": [
+        "advisor",
+        "operator"
+      ],
+      "use_cases": [
+        "advisor_memo_review",
+        "supportability_display"
+      ]
+    }
+  ],
+  "denial_posture": {
+    "customer_visible_state": "requestable",
+    "operator_visible_state": "restricted_with_reason",
+    "reason": "Advisor proposal memo evidence is client-confidential advisor-use evidence and requires explicit tenant, role, and use-case authorization."
+  },
+  "audit": {
+    "owner_repository": "lotus-advise",
+    "policy_owner": "advisory-product-owner",
+    "decision_evidence": "access-policy:lotus-advise:advisory-proposal-memo-evidence-pack:v1"
+  }
+}

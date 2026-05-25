@@ -15,7 +15,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Product | Producer | State | Issues | Trust Metadata | Routes |
 | --- | --- | --- | --- | --- | --- |
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `certified` | `0` | `True` | `True` |
-| `AdvisoryProposalMemoEvidencePack` | `lotus-advise` | `certified` | `0` | `True` | `False` |
+| `AdvisoryProposalMemoEvidencePack` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `ProposalNarrativeEvidence` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `BenchmarkAssignment` | `lotus-core` | `certified` | `0` | `True` | `True` |

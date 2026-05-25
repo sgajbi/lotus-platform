@@ -28,7 +28,7 @@
       "product_version": "v1",
       "producer_repository": "lotus-advise",
       "product_family": "reporting_and_evidence",
-      "lifecycle_status": "proposed"
+      "lifecycle_status": "active"
     },
     {
       "node_id": "product:lotus-advise:ProposalNarrativeEvidence:v1",
