@@ -45,7 +45,8 @@ def test_mesh_access_policy_validation_rejects_missing_required_product(
     issues = validator.validate_mesh_access_policies(tmp_path)
 
     assert issues == [
-        f"{tmp_path}: missing required mesh access policy for lotus-advise product lotus-advise:AdvisoryProposalLifecycleRecord:v1"
+        f"{tmp_path}: missing required mesh access policy for lotus-advise product lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+        f"{tmp_path}: missing required mesh access policy for lotus-advise product lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
     ]
 
 

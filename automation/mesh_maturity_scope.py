@@ -35,6 +35,10 @@ REQUIRED_MATURITY_PRODUCTS: tuple[MeshMaturityProduct, ...] = (
         producer_repository="lotus-advise",
     ),
     MeshMaturityProduct(
+        product_id="lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
+        producer_repository="lotus-advise",
+    ),
+    MeshMaturityProduct(
         product_id="lotus-report:ClientReportEvidencePack:v1",
         producer_repository="lotus-report",
     ),

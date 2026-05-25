@@ -69,6 +69,13 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "generated_at": "2026-04-19T00:00:00Z",
             "correlation_id": "corr-001",
         }
+    if product_id == "lotus-advise:AdvisoryProposalMemoEvidencePack:v1":
+        return {
+            **common,
+            "generated_at": "2026-04-19T00:00:00Z",
+            "content_hash": "sha256:advisory-proposal-memo-evidence-pack",
+            "correlation_id": "corr-001",
+        }
     if product_id == "lotus-report:ClientReportEvidencePack:v1":
         return {
             **common,
@@ -181,7 +188,7 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     assert status["contract_id"] == "lotus-mesh-certification-status"
     assert status["governed_by_rfcs"] == ["RFC-0089", "RFC-0091"]
     assert status["certification_state"] == "certified"
-    assert status["summary"]["certified_required_product_count"] == 7
+    assert status["summary"]["certified_required_product_count"] == 8
     assert status["summary"]["error_count"] == 0
     assert status["summary"]["mesh_lifecycle_issue_count"] == 0
     assert status["summary"]["mesh_evidence_issue_count"] == 0
@@ -204,6 +211,7 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
         "lotus-performance:ReturnsSeriesBundle:v1",
         "lotus-risk:RiskMetricsReport:v1",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+        "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
         "lotus-report:ClientReportEvidencePack:v1",
         "lotus-manage:PortfolioActionRegister:v1",
     ]
@@ -434,7 +442,7 @@ def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> 
     )
 
     assert status["certification_state"] == "certified_with_warnings"
-    assert status["summary"]["missing_telemetry_count"] == 7
+    assert status["summary"]["missing_telemetry_count"] == 8
     assert status["summary"]["error_count"] == 0
     assert gate._exit_code(status) == 0
 

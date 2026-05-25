@@ -54,10 +54,10 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
         assert repositories[repository]["ambiguous_participation"] is False
 
     assert repositories["lotus-core"]["first_wave_product_count"] == 2
+    assert repositories["lotus-advise"]["first_wave_product_count"] == 2
     for repository in (
         "lotus-performance",
         "lotus-risk",
-        "lotus-advise",
         "lotus-report",
         "lotus-manage",
     ):

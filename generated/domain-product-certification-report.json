@@ -52,12 +52,12 @@
       "producer_repository": "lotus-advise",
       "product_name": "AdvisoryProposalMemoEvidencePack",
       "product_version": "v1",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "certification_state": "certified",
       "checks": {
         "trust_metadata_declared": true,
         "approved_consumers_declared": true,
-        "route_references_declared": false,
+        "route_references_declared": true,
         "lineage_required": true,
         "graph_node_present": true,
         "deprecation_state": "not_deprecated"
