@@ -168,6 +168,16 @@ $resolvedActionRegisterAsOfDate = [string]$contract.date_policy.canonical_as_of_
 if ([string]::IsNullOrWhiteSpace($resolvedActionRegisterAsOfDate)) {
   $resolvedActionRegisterAsOfDate = $resolvedAsOfDate
 }
+$campaignScenario = $dpm.campaign_definition_scenario
+if (-not $campaignScenario) {
+  throw "Canonical front-office data contract does not define dpm_command_center.campaign_definition_scenario."
+}
+$resolvedCampaignId = [string]$campaignScenario.campaign_id
+$resolvedCampaignVersion = [string]$campaignScenario.campaign_version
+$resolvedCampaignAsOfDate = Resolve-ContractValue -Candidate ([string]$campaignScenario.as_of_date) -Fallback $resolvedAsOfDate
+$resolvedCampaignCandidateSourceProduct = Resolve-ContractValue `
+  -Candidate ([string]$campaignScenario.candidate_source_product) `
+  -Fallback "DpmPortfolioUniverseCandidate:v1"
 
 $resolvedOutputDirectory = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
   $OutputDirectory
@@ -185,9 +195,21 @@ $gatewayApiBaseUrl = $GatewayBaseUrl.TrimEnd("/")
 $refreshUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/refresh-from-core"
 $monitoringRunUri = "$manageApiBaseUrl/api/v1/dpm/monitoring/run-once"
 $actionRegisterSimulationUri = "$manageApiBaseUrl/api/v1/rebalance/simulate"
+$campaignDefinitionUri = (
+  "$manageApiBaseUrl/api/v1/rebalance/waves/campaign-definitions/$resolvedCampaignId" +
+  "/versions/$resolvedCampaignVersion"
+)
 $manageLookupUri = "$manageApiBaseUrl/api/v1/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayMandateUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayHealthUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/$resolvedMandateId/health"
+$gatewayCampaignDefinitionsUri = (
+  "$gatewayApiBaseUrl/api/v1/dpm/command-center/waves/campaign-definitions" +
+  "?campaign_status=ACTIVE"
+)
+$gatewayCampaignDiscoveryUri = (
+  "$gatewayApiBaseUrl/api/v1/dpm/command-center/waves/campaign-discovery" +
+  "?campaign_status=ACTIVE&active_on=$resolvedCampaignAsOfDate&include_expired=false"
+)
 $gatewayCommandCenterUri = (
   "$gatewayApiBaseUrl/api/v1/dpm/command-center" +
   "?portfolio_manager_id=$($dpm.portfolio_manager_id)" +
@@ -224,6 +246,193 @@ $refreshBody = [ordered]@{
   include_market_data_coverage = $true
 }
 
+function Split-SourceProduct {
+  param([string]$SourceProduct)
+
+  $parts = $SourceProduct -split ":", 2
+  return [ordered]@{
+    source_type = $parts[0]
+    source_version = if ($parts.Count -gt 1) { $parts[1] } else { $null }
+  }
+}
+
+function New-SourceRef {
+  param(
+    [string]$SourceSystem,
+    [string]$SourceType,
+    [string]$SourceId,
+    [string]$SourceVersion = "",
+    [string]$SupportabilityState = "READY",
+    [string]$ContentHash = ""
+  )
+
+  $sourceRef = [ordered]@{
+    source_system = $SourceSystem
+    source_type = $SourceType
+    source_id = $SourceId
+    supportability_state = $SupportabilityState
+  }
+  if (-not [string]::IsNullOrWhiteSpace($SourceVersion)) {
+    $sourceRef.source_version = $SourceVersion
+  }
+  if (-not [string]::IsNullOrWhiteSpace($ContentHash)) {
+    $sourceRef.content_hash = $ContentHash
+  }
+  return $sourceRef
+}
+
+function New-CampaignDefinitionBody {
+  $sourceProduct = Split-SourceProduct -SourceProduct $resolvedCampaignCandidateSourceProduct
+  $candidateSourceType = [string]$sourceProduct.source_type
+  $candidateSourceVersion = [string]$sourceProduct.source_version
+  $candidatePortfolios = @($dpm.multi_portfolio_wave_scenario.portfolios)
+  $candidates = @(
+    $candidatePortfolios | ForEach-Object {
+      [ordered]@{
+        portfolio_id = [string]$_.portfolio_id
+        mandate_id = [string]$_.mandate_id
+        portfolio_manager_id = [string]$_.portfolio_manager_id
+        portfolio_type = [string]$_.portfolio_type
+        source_refs = @(
+          New-SourceRef `
+            -SourceSystem "lotus-core" `
+            -SourceType $candidateSourceType `
+            -SourceId "$($_.portfolio_id):$resolvedCampaignAsOfDate" `
+            -SourceVersion $candidateSourceVersion `
+            -SupportabilityState "READY" `
+            -ContentHash "sha256:canonical-dpm-candidate-$($_.portfolio_id)"
+        )
+      }
+    }
+  )
+  $governance = [ordered]@{
+    approval_ref = [string]$campaignScenario.governance.approval_ref
+    approved_by = [string]$campaignScenario.governance.approved_by
+    approved_at = [string]$campaignScenario.governance.approved_at
+    expires_on = [string]$campaignScenario.governance.expires_on
+    entitled_actor_ids = @($campaignScenario.governance.entitled_actor_ids)
+    access_purpose = [string]$campaignScenario.governance.access_purpose
+    source_refs = @(
+      New-SourceRef `
+        -SourceSystem "lotus-platform" `
+        -SourceType "CanonicalDpmCampaignApproval" `
+        -SourceId ([string]$campaignScenario.governance.approval_ref) `
+        -SourceVersion $contract.contract_version `
+        -SupportabilityState "READY"
+    )
+  }
+  return [ordered]@{
+    display_name = [string]$campaignScenario.display_name
+    status = "ACTIVE"
+    as_of_date = $resolvedCampaignAsOfDate
+    rationale = [string]$campaignScenario.rationale
+    eligible_portfolio_types = @($campaignScenario.eligible_portfolio_types)
+    candidates = $candidates
+    governance = $governance
+    source_refs = @(
+      New-SourceRef `
+        -SourceSystem "lotus-platform" `
+        -SourceType "CanonicalFrontOfficeDemoDataContract" `
+        -SourceId $contract.contract_id `
+        -SourceVersion $contract.contract_version `
+        -SupportabilityState "READY"
+    )
+    created_by = [string]$campaignScenario.created_by
+    correlation_id = "corr-canonical-dpm-campaign-$resolvedCampaignId-$timestamp"
+  }
+}
+
+function Assert-CampaignDefinitionMatchesSeed {
+  param(
+    [string]$Name,
+    [object]$Definition
+  )
+
+  if (-not $Definition) {
+    throw "$Name returned an empty campaign definition for $resolvedCampaignId/$resolvedCampaignVersion."
+  }
+  if ([string]$Definition.campaign_id -ne $resolvedCampaignId -or
+      [string]$Definition.campaign_version -ne $resolvedCampaignVersion) {
+    throw "$Name returned $($Definition.campaign_id)/$($Definition.campaign_version), expected $resolvedCampaignId/$resolvedCampaignVersion."
+  }
+  if ([string]$Definition.status -ne "ACTIVE") {
+    throw "$Name returned status $($Definition.status), expected ACTIVE."
+  }
+  if ([string]$Definition.as_of_date -ne $resolvedCampaignAsOfDate) {
+    throw "$Name returned as_of_date $($Definition.as_of_date), expected $resolvedCampaignAsOfDate."
+  }
+
+  $sourceProduct = Split-SourceProduct -SourceProduct $resolvedCampaignCandidateSourceProduct
+  $expectedSourceType = [string]$sourceProduct.source_type
+  $expectedSourceVersion = [string]$sourceProduct.source_version
+  $expectedPortfolioIds = @($dpm.multi_portfolio_wave_scenario.portfolios | ForEach-Object { [string]$_.portfolio_id })
+  $observedCandidates = @($Definition.candidates)
+  foreach ($portfolioId in $expectedPortfolioIds) {
+    $candidate = @($observedCandidates | Where-Object { [string]$_.portfolio_id -eq $portfolioId })
+    if ($candidate.Count -ne 1) {
+      throw "$Name did not include exactly one candidate for $portfolioId."
+    }
+    $sourceRef = @(
+      @($candidate[0].source_refs) | Where-Object {
+        [string]$_.source_system -eq "lotus-core" -and
+          [string]$_.source_type -eq $expectedSourceType -and
+          [string]$_.source_version -eq $expectedSourceVersion -and
+          [string]$_.source_id -eq "$portfolioId`:$resolvedCampaignAsOfDate" -and
+          [string]$_.supportability_state -eq "READY"
+      }
+    )
+    if ($sourceRef.Count -lt 1) {
+      throw "$Name candidate $portfolioId did not include READY lotus-core $resolvedCampaignCandidateSourceProduct source lineage."
+    }
+  }
+}
+
+function Upsert-CampaignDefinition {
+  $existingDefinition = $null
+  try {
+    $existingDefinition = Invoke-JsonRequest `
+      -Method "Get" `
+      -Uri $campaignDefinitionUri `
+      -Attempts 1
+  } catch {
+    $existingDefinition = $null
+  }
+
+  if ($existingDefinition) {
+    Assert-CampaignDefinitionMatchesSeed `
+      -Name "Existing Manage campaign definition" `
+      -Definition $existingDefinition
+    return $existingDefinition
+  }
+
+  $createdDefinition = Invoke-JsonRequest `
+    -Method "Put" `
+    -Uri $campaignDefinitionUri `
+    -Body (New-CampaignDefinitionBody)
+  Assert-CampaignDefinitionMatchesSeed `
+    -Name "Created Manage campaign definition" `
+    -Definition $createdDefinition
+  return $createdDefinition
+}
+
+function Assert-CampaignPageContainsSeed {
+  param(
+    [string]$Name,
+    [object]$Response
+  )
+
+  $items = @($Response.data.items)
+  $matched = @(
+    $items | Where-Object {
+      [string]$_.campaign_id -eq $resolvedCampaignId -and
+        [string]$_.campaign_version -eq $resolvedCampaignVersion
+    }
+  )
+  if ($matched.Count -lt 1) {
+    throw "$Name did not include canonical campaign definition $resolvedCampaignId/$resolvedCampaignVersion."
+  }
+}
+
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
   contract_id = $contract.contract_id
@@ -244,9 +453,12 @@ $summary = [ordered]@{
   manage_refresh_uri = $refreshUri
   manage_monitoring_run_uri = $monitoringRunUri
   manage_action_register_simulation_uri = $actionRegisterSimulationUri
+  manage_campaign_definition_uri = $campaignDefinitionUri
   manage_lookup_uri = $manageLookupUri
   gateway_mandate_uri = $gatewayMandateUri
   gateway_health_uri = $gatewayHealthUri
+  gateway_campaign_definitions_uri = $gatewayCampaignDefinitionsUri
+  gateway_campaign_discovery_uri = $gatewayCampaignDiscoveryUri
   gateway_command_center_uri = $gatewayCommandCenterUri
   gateway_command_center_partial_uri = $gatewayCommandCenterPartialUri
   gateway_command_center_empty_uri = $gatewayCommandCenterEmptyUri
@@ -256,9 +468,12 @@ $summary = [ordered]@{
   refresh_response = $null
   monitoring_run_response = $null
   action_register_simulation_response = $null
+  campaign_definition_response = $null
   manage_lookup_response = $null
   gateway_mandate_response = $null
   gateway_health_response = $null
+  gateway_campaign_definitions_response = $null
+  gateway_campaign_discovery_response = $null
   gateway_command_center_response = $null
   gateway_command_center_partial_response = $null
   gateway_command_center_empty_response = $null
@@ -311,6 +526,10 @@ try {
     })
   $summary.steps += "manage-action-register-stateful-simulation"
 
+  Write-Host "[dpm-seed] persisting source-backed campaign definition $resolvedCampaignId/$resolvedCampaignVersion"
+  $summary.campaign_definition_response = Upsert-CampaignDefinition
+  $summary.steps += "manage-campaign-definition-upsert"
+
   Write-Host "[dpm-seed] verifying manage mandate lookup for $resolvedPortfolioId"
   $summary.manage_lookup_response = Invoke-JsonRequest -Method "Get" -Uri $manageLookupUri
   $summary.steps += "manage-lookup-by-portfolio"
@@ -323,6 +542,26 @@ try {
     Write-Host "[dpm-seed] verifying Gateway command-center mandate health"
     $summary.gateway_health_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayHealthUri -Headers $headers
     $summary.steps += "gateway-mandate-health"
+
+    Write-Host "[dpm-seed] verifying Gateway campaign definitions"
+    $summary.gateway_campaign_definitions_response = Invoke-JsonRequest `
+      -Method "Get" `
+      -Uri $gatewayCampaignDefinitionsUri `
+      -Headers $headers
+    Assert-CampaignPageContainsSeed `
+      -Name "Gateway campaign definitions" `
+      -Response $summary.gateway_campaign_definitions_response
+    $summary.steps += "gateway-campaign-definitions"
+
+    Write-Host "[dpm-seed] verifying Gateway campaign discovery"
+    $summary.gateway_campaign_discovery_response = Invoke-JsonRequest `
+      -Method "Get" `
+      -Uri $gatewayCampaignDiscoveryUri `
+      -Headers $headers
+    Assert-CampaignPageContainsSeed `
+      -Name "Gateway campaign discovery" `
+      -Response $summary.gateway_campaign_discovery_response
+    $summary.steps += "gateway-campaign-discovery"
 
     Write-Host "[dpm-seed] verifying Gateway command-center summary"
     $summary.gateway_command_center_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterUri -Headers $headers

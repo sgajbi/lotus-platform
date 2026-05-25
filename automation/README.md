@@ -627,7 +627,10 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 
 By default the wrapper also runs the DPM command-center seed after stack bring-up and before
 Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
-`lotus-manage`, runs one Manage monitoring pass for command-center evidence, then verifies the manage lookup and Gateway command-center read paths so
+`lotus-manage`, runs one Manage monitoring pass for command-center evidence, persists or reuses
+the canonical source-backed DPM campaign definition for
+`lotus-core:DpmPortfolioUniverseCandidate:v1`, then verifies the manage lookup, Gateway campaign
+definition/discovery paths, and Gateway command-center read paths so
 `DPM_MANDATE_NOT_FOUND` is treated as a seed failure rather than a valid populated-panel state.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
