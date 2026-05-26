@@ -64,8 +64,13 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "manage-campaign-definition-upsert" in dpm_seed
     assert "function Upsert-CampaignDefinition" in dpm_seed
     assert "Existing Manage campaign definition" in dpm_seed
+    assert "Refreshing the seed-owned definition" in dpm_seed
     assert "Assert-CampaignDefinitionMatchesSeed" in dpm_seed
     assert "DpmPortfolioUniverseCandidate:v1" in dpm_seed
+    assert "campaignCandidateSelectionBasis" in dpm_seed
+    assert "selection_basis" in dpm_seed
+    assert "source-owned selection_basis evidence" in dpm_seed
+    assert "campaign_candidate_selection_basis" in dpm_seed
     assert "/api/v1/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/waves/campaign-definitions" in dpm_seed
@@ -112,6 +117,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "runtime transcript" in automation_readme
     assert "DPM command-center seed" in automation_readme
     assert "source-backed DPM campaign definition" in automation_readme
+    assert "source-owned selection-basis evidence" in automation_readme
     assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
@@ -121,6 +127,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Docker cleanup scope" in automation_guide
     assert "runtime transcript" in automation_guide
     assert "DPM command-center seed" in automation_guide
+    assert "source-owned selection-basis evidence" in automation_guide
     assert "DpmPortfolioUniverseCandidate:v1" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
     assert "Invoke-DpmCommandCenterSeed.ps1" in directory_map

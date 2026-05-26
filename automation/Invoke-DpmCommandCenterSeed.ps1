@@ -178,6 +178,10 @@ $resolvedCampaignAsOfDate = Resolve-ContractValue -Candidate ([string]$campaignS
 $resolvedCampaignCandidateSourceProduct = Resolve-ContractValue `
   -Candidate ([string]$campaignScenario.candidate_source_product) `
   -Fallback "DpmPortfolioUniverseCandidate:v1"
+$campaignCandidateSelectionBasis = $campaignScenario.candidate_selection_basis
+if (-not $campaignCandidateSelectionBasis) {
+  throw "Canonical front-office data contract does not define dpm_command_center.campaign_definition_scenario.candidate_selection_basis."
+}
 
 $resolvedOutputDirectory = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
   $OutputDirectory
@@ -263,7 +267,8 @@ function New-SourceRef {
     [string]$SourceId,
     [string]$SourceVersion = "",
     [string]$SupportabilityState = "READY",
-    [string]$ContentHash = ""
+    [string]$ContentHash = "",
+    [object]$SelectionBasis = $null
   )
 
   $sourceRef = [ordered]@{
@@ -277,6 +282,9 @@ function New-SourceRef {
   }
   if (-not [string]::IsNullOrWhiteSpace($ContentHash)) {
     $sourceRef.content_hash = $ContentHash
+  }
+  if ($null -ne $SelectionBasis) {
+    $sourceRef.selection_basis = $SelectionBasis
   }
   return $sourceRef
 }
@@ -300,7 +308,8 @@ function New-CampaignDefinitionBody {
             -SourceId "$($_.portfolio_id):$resolvedCampaignAsOfDate" `
             -SourceVersion $candidateSourceVersion `
             -SupportabilityState "READY" `
-            -ContentHash "sha256:canonical-dpm-candidate-$($_.portfolio_id)"
+            -ContentHash "sha256:canonical-dpm-candidate-$($_.portfolio_id)" `
+            -SelectionBasis $campaignCandidateSelectionBasis
         )
       }
     }
@@ -384,6 +393,23 @@ function Assert-CampaignDefinitionMatchesSeed {
     if ($sourceRef.Count -lt 1) {
       throw "$Name candidate $portfolioId did not include READY lotus-core $resolvedCampaignCandidateSourceProduct source lineage."
     }
+    $selectionBasis = $sourceRef[0].selection_basis
+    if (-not $selectionBasis) {
+      throw "$Name candidate $portfolioId did not include source-owned selection_basis evidence."
+    }
+    if ([string]$selectionBasis.basis_type -ne [string]$campaignCandidateSelectionBasis.basis_type) {
+      throw "$Name candidate $portfolioId returned selection_basis.basis_type $($selectionBasis.basis_type), expected $($campaignCandidateSelectionBasis.basis_type)."
+    }
+    if ([string]$selectionBasis.source_table -ne [string]$campaignCandidateSelectionBasis.source_table) {
+      throw "$Name candidate $portfolioId returned selection_basis.source_table $($selectionBasis.source_table), expected $($campaignCandidateSelectionBasis.source_table)."
+    }
+    $expectedPredicates = @($campaignCandidateSelectionBasis.included_when | ForEach-Object { [string]$_ })
+    $observedPredicates = @($selectionBasis.included_when | ForEach-Object { [string]$_ })
+    foreach ($predicate in $expectedPredicates) {
+      if ($observedPredicates -notcontains $predicate) {
+        throw "$Name candidate $portfolioId selection_basis did not include predicate $predicate."
+      }
+    }
   }
 }
 
@@ -399,10 +425,14 @@ function Upsert-CampaignDefinition {
   }
 
   if ($existingDefinition) {
-    Assert-CampaignDefinitionMatchesSeed `
-      -Name "Existing Manage campaign definition" `
-      -Definition $existingDefinition
-    return $existingDefinition
+    try {
+      Assert-CampaignDefinitionMatchesSeed `
+        -Name "Existing Manage campaign definition" `
+        -Definition $existingDefinition
+      return $existingDefinition
+    } catch {
+      Write-Warning "Existing canonical Manage campaign definition is stale against the governed seed contract: $($_.Exception.Message). Refreshing the seed-owned definition."
+    }
   }
 
   $createdDefinition = Invoke-JsonRequest `
@@ -450,6 +480,7 @@ $summary = [ordered]@{
   command_center_as_of_date = $resolvedAsOfDate
   action_register_as_of_date = $resolvedActionRegisterAsOfDate
   source_products = @($dpm.source_products)
+  campaign_candidate_selection_basis = $campaignCandidateSelectionBasis
   manage_refresh_uri = $refreshUri
   manage_monitoring_run_uri = $monitoringRunUri
   manage_action_register_simulation_uri = $actionRegisterSimulationUri
