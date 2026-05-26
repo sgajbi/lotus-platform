@@ -55,6 +55,7 @@ Daily posting is acceptable only when the backlog has enough reviewed posts to p
 | LI-2026-05-26-039 | Validation should read what users read | draft | production-readiness | engineering and operations leaders | 2026-05-26 |  | Post-completion draft grounded in Workbench live browser assertions for rendered selection basis, source table, predicate evidence, and explicit no-order/no-OMS/no-client-contact boundaries. |
 | LI-2026-05-26-040 | Boundaries should be visible | draft | source-data-ownership | wealth technology leaders | 2026-05-26 |  | Post-completion draft grounded in bounded campaign candidate review evidence and explicit non-claims for orders, OMS, client contact, fills, settlement, and reconciliation. |
 | LI-2026-05-26-041 | Audit history should survive refresh | draft | delivery-governance-product-truth | banking transformation leaders | 2026-05-26 |  | Post-completion draft grounded in canonical campaign-definition versioning and supersession while retaining prior definitions as auditable history. |
+| LI-2026-05-26-042 | Policy evidence should show its limits | draft | advisory-workflows-reporting-and-evidence | advisory and product leaders | 2026-05-26 |  | RFC-0025 post-completion draft grounded in implemented advisor/compliance policy evaluation evidence, current trust telemetry, `/platform/capabilities`, supportability gates, and explicit non-claims for completed approval, waiver, sign-off authority, client-ready publication, and external communication. |
 
 ## Theme Rotation Notes
 
