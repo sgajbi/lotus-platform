@@ -178,6 +178,15 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert campaign_definition["campaign_id"] == "campaign-core-universe-202605"
     assert campaign_definition["campaign_version"] == "2026.05"
     assert campaign_definition["candidate_source_product"] == "DpmPortfolioUniverseCandidate:v1"
+    selection_basis = campaign_definition["candidate_selection_basis"]
+    assert selection_basis["basis_type"] == "EFFECTIVE_DISCRETIONARY_MANDATE_BINDING"
+    assert selection_basis["source_table"] == "portfolio_mandate_bindings"
+    assert selection_basis["included_when"] == [
+        "mandate_type=discretionary",
+        "effective_from<=as_of_date",
+        "effective_to is null or effective_to>as_of_date",
+    ]
+    assert "does not discover a global universe" in selection_basis["downstream_boundary"]
     assert campaign_definition["governance"]["access_purpose"] == "SUPERVISORY_BULK_REVIEW"
 
     date_policy = contract["date_policy"]

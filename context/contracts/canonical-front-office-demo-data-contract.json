@@ -118,6 +118,16 @@
         "DISCRETIONARY"
       ],
       "candidate_source_product": "DpmPortfolioUniverseCandidate:v1",
+      "candidate_selection_basis": {
+        "basis_type": "EFFECTIVE_DISCRETIONARY_MANDATE_BINDING",
+        "source_table": "portfolio_mandate_bindings",
+        "included_when": [
+          "mandate_type=discretionary",
+          "effective_from<=as_of_date",
+          "effective_to is null or effective_to>as_of_date"
+        ],
+        "downstream_boundary": "Canonical candidate membership is sourced from lotus-core mandate binding evidence; platform seed automation does not discover a global universe, infer household membership, or calculate campaign membership locally."
+      },
       "governance": {
         "approval_ref": "CANONICAL-DPM-CAMPAIGN-APPROVAL-2026-05",
         "approved_by": "canonical_dpm_control",
