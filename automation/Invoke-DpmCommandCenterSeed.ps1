@@ -203,6 +203,7 @@ $campaignDefinitionUri = (
   "$manageApiBaseUrl/api/v1/rebalance/waves/campaign-definitions/$resolvedCampaignId" +
   "/versions/$resolvedCampaignVersion"
 )
+$campaignDefinitionBaseUri = "$manageApiBaseUrl/api/v1/rebalance/waves/campaign-definitions/$resolvedCampaignId"
 $manageLookupUri = "$manageApiBaseUrl/api/v1/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayMandateUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayHealthUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/$resolvedMandateId/health"
@@ -445,6 +446,39 @@ function Upsert-CampaignDefinition {
   return $createdDefinition
 }
 
+function Supersede-LegacyCampaignDefinitions {
+  $legacyVersions = @(
+    $campaignScenario.supersedes_campaign_versions |
+      ForEach-Object { [string]$_ } |
+      Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and $_ -ne $resolvedCampaignVersion }
+  )
+  foreach ($legacyVersion in $legacyVersions) {
+    $legacyDefinition = $null
+    $legacyUri = "$campaignDefinitionBaseUri/versions/$legacyVersion"
+    try {
+      $legacyDefinition = Invoke-JsonRequest `
+        -Method "Get" `
+        -Uri $legacyUri `
+        -Attempts 1
+    } catch {
+      $legacyDefinition = $null
+    }
+    if (-not $legacyDefinition -or [string]$legacyDefinition.status -ne "ACTIVE") {
+      continue
+    }
+    Write-Warning "Superseding stale canonical Manage campaign definition $resolvedCampaignId/$legacyVersion with $resolvedCampaignVersion."
+    [void](Invoke-JsonRequest `
+      -Method "Post" `
+      -Uri "$legacyUri/supersede" `
+      -Body ([ordered]@{
+        superseded_by_campaign_version = $resolvedCampaignVersion
+        superseded_by = "platform-seed-automation"
+        supersession_reason = "Canonical seed contract now carries source-owned candidate selection-basis evidence."
+        correlation_id = "corr-canonical-dpm-campaign-supersede-$resolvedCampaignId-$legacyVersion-$timestamp"
+      }))
+  }
+}
+
 function Assert-CampaignPageContainsSeed {
   param(
     [string]$Name,
@@ -560,6 +594,8 @@ try {
   Write-Host "[dpm-seed] persisting source-backed campaign definition $resolvedCampaignId/$resolvedCampaignVersion"
   $summary.campaign_definition_response = Upsert-CampaignDefinition
   $summary.steps += "manage-campaign-definition-upsert"
+  Supersede-LegacyCampaignDefinitions
+  $summary.steps += "manage-campaign-definition-supersede-legacy"
 
   Write-Host "[dpm-seed] verifying manage mandate lookup for $resolvedPortfolioId"
   $summary.manage_lookup_response = Invoke-JsonRequest -Method "Get" -Uri $manageLookupUri

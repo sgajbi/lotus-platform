@@ -71,6 +71,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "selection_basis" in dpm_seed
     assert "source-owned selection_basis evidence" in dpm_seed
     assert "campaign_candidate_selection_basis" in dpm_seed
+    assert "Supersede-LegacyCampaignDefinitions" in dpm_seed
+    assert "manage-campaign-definition-supersede-legacy" in dpm_seed
+    assert "source-owned candidate selection-basis evidence" in dpm_seed
     assert "/api/v1/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId" in dpm_seed
     assert "/api/v1/dpm/command-center/waves/campaign-definitions" in dpm_seed

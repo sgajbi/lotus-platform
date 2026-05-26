@@ -109,11 +109,15 @@
     "campaign_definition_scenario": {
       "scenario_id": "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL",
       "campaign_id": "campaign-core-universe-202605",
-      "campaign_version": "2026.05",
+      "campaign_version": "2026.05.2",
       "display_name": "Core universe candidate review",
       "as_of_date": "2026-05-03",
       "rationale": "Canonical source-backed DPM campaign definition for bounded candidate-source review.",
       "created_by": "platform-seed-automation",
+      "supersedes_campaign_versions": [
+        "2026.05",
+        "2026.05.1"
+      ],
       "eligible_portfolio_types": [
         "DISCRETIONARY"
       ],
