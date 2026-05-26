@@ -7,9 +7,19 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 76,
-  "edge_count": 229,
+  "node_count": 78,
+  "edge_count": 236,
   "nodes": [
+    {
+      "node_id": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "product_name": "AdvisoryPolicyEvaluationRecord",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
     {
       "node_id": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "node_type": "domain_product",
@@ -676,6 +686,11 @@
       "repository": "lotus-advise"
     },
     {
+      "node_id": "repo:lotus-ai",
+      "node_type": "repository",
+      "repository": "lotus-ai"
+    },
+    {
       "node_id": "repo:lotus-archive",
       "node_type": "repository",
       "repository": "lotus-archive"
@@ -722,6 +737,36 @@
     }
   ],
   "edges": [
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-ai"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-archive"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-render"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-workbench"
+    },
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
@@ -1814,6 +1859,11 @@
         "feature",
         "pr-merge"
       ]
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1"
     },
     {
       "edge_type": "produces",

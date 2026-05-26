@@ -11,7 +11,7 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 66,
+    "product_count": 67,
     "dependency_count": 46,
     "producer_repository_count": 6,
     "included_repository_count": 6,
@@ -30,6 +30,23 @@
     "pending_repositories": []
   },
   "product_certifications": [
+    {
+      "product_id": "lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "producer_repository": "lotus-advise",
+      "product_name": "AdvisoryPolicyEvaluationRecord",
+      "product_version": "v1",
+      "lifecycle_status": "proposed",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": false,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
     {
       "product_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "producer_repository": "lotus-advise",
