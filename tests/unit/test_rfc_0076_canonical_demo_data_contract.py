@@ -176,7 +176,8 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     campaign_definition = dpm_command_center["campaign_definition_scenario"]
     assert campaign_definition["scenario_id"] == "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL"
     assert campaign_definition["campaign_id"] == "campaign-core-universe-202605"
-    assert campaign_definition["campaign_version"] == "2026.05"
+    assert campaign_definition["campaign_version"] == "2026.05.2"
+    assert campaign_definition["supersedes_campaign_versions"] == ["2026.05", "2026.05.1"]
     assert campaign_definition["candidate_source_product"] == "DpmPortfolioUniverseCandidate:v1"
     selection_basis = campaign_definition["candidate_selection_basis"]
     assert selection_basis["basis_type"] == "EFFECTIVE_DISCRETIONARY_MANDATE_BINDING"
