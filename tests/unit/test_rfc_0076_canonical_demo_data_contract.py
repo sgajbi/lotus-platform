@@ -190,6 +190,29 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert "does not discover a global universe" in selection_basis["downstream_boundary"]
     assert campaign_definition["governance"]["access_purpose"] == "SUPERVISORY_BULK_REVIEW"
 
+    advisory_scenarios = contract["advisory_proposal_scenarios"]
+    assert advisory_scenarios["scenario_id"] == "RFC23_25_ADVISORY_PROPOSAL_POLICY_CANONICAL"
+    assert advisory_scenarios["source_scope"] == "workbench_live_validation_scenario_seed"
+    assert advisory_scenarios["proposal"]["narrative_request"]["audience"] == "ADVISOR_REVIEW"
+    assert advisory_scenarios["proposal"]["narrative_request"]["jurisdiction"] == "SG"
+    policy_evaluation = advisory_scenarios["policy_evaluation"]
+    assert policy_evaluation["scenario_id"] == "RFC25_SG_STRUCTURED_NOTE_PENDING_REVIEW"
+    assert policy_evaluation["policy_pack_id"] == "SG_PRIVATE_BANKING_REFERENCE"
+    assert policy_evaluation["policy_version"] == "2026.05"
+    assert policy_evaluation["expected_evaluation_status"] == "PENDING_REVIEW"
+    assert policy_evaluation["expected_client_ready_publication"] == "BLOCKED"
+    assert policy_evaluation["expected_workbench_panel"] == "advisory.suitability_review"
+    assert (
+        policy_evaluation["evidence_bundle"]["inputs"]["proposed_trades"][0]["instrument_id"]
+        == "SG_STRUCTURED_NOTE"
+    )
+    assert policy_evaluation["evidence_bundle"]["inputs"]["shelf_entries"][0]["complexity"] == (
+        "COMPLEX"
+    )
+    assert policy_evaluation["evidence_bundle"]["inputs"]["shelf_entries"][0][
+        "structured_product"
+    ] is True
+
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"
     assert date_policy["refresh_policy"] == "fixed_until_governed_change"

@@ -15,6 +15,7 @@ business, operations, engineering, sales, pre-sales, and client-facing preparati
 | Proof packs and waves | Workbench renders Gateway/manage truth for `dpm.proof_pack` and `dpm.wave_command_center` without local proof-pack construction, hash generation, or wave readiness calculation. RFC-0041 live validation includes the governed `RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL` multi-portfolio explicit-list preview and the source-backed campaign candidate review over `lotus-core:DpmPortfolioUniverseCandidate:v1`, including source-owned selection-basis evidence from the canonical contract. |
 | Outcome review | `dpm.outcome_review` product support, report materialization, archive lifecycle, and governed AI narrative request posture are implemented for first-wave scope. |
 | Analytics | Performance and risk panels render from owning analytics services through Gateway and Workbench. |
+| Advisory evidence | The governed `RFC23_25_ADVISORY_PROPOSAL_POLICY_CANONICAL` scenario proves advisor narrative, memo evidence, and a Singapore structured-note policy evaluation that remains `PENDING_REVIEW` and client-ready blocked until source-owned requirements are resolved. |
 | Runtime evidence | Demo screenshots are governed by canonical API, calculation, panel, and browser validation; pre-validation captures must be diagnostic only. |
 
 ## Demo Flow
