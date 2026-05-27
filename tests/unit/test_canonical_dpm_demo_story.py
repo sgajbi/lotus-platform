@@ -26,6 +26,8 @@ def test_canonical_dpm_demo_story_is_audience_ready_and_evidence_backed() -> Non
         assert "dpm.proof_pack" in content
         assert "dpm.wave_command_center" in content
         assert "dpm.outcome_review" in content
+        assert "advisory.advisor_cockpit" in content
+        assert "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED" in content
         assert "sales" in content.lower()
         assert "pre-sales" in content.lower()
         assert "operations" in content.lower()
@@ -66,6 +68,7 @@ def test_canonical_dpm_demo_story_uses_current_contract_identity() -> None:
         "MODEL_PB_SG_GLOBAL_BAL_DPM",
         "POLICY_DPM_SG_BALANCED_V1",
         "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
+        "RFC26_ADVISOR_COCKPIT_POLICY_ACTION_CANONICAL",
         "2026-05-03",
     ):
         assert required_value in contract
@@ -77,6 +80,7 @@ def test_canonical_dpm_demo_story_uses_current_contract_identity() -> None:
         "dpm.proof_pack",
         "dpm.wave_command_center",
         "dpm.outcome_review",
+        "advisory.advisor_cockpit",
     ):
         assert panel_id in panel_registry
         assert panel_id in deep_doc

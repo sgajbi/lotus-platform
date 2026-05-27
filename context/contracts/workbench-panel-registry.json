@@ -7,7 +7,8 @@
     "RFC-0076",
     "RFC-0079",
     "RFC-0041",
-    "RFC-0042"
+    "RFC-0042",
+    "RFC-0026"
   ],
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
   "panels": [
@@ -274,6 +275,46 @@
       "known_limitations": [
         "Workbench validates advisor-use memo evidence only; client-ready release, document rendering, and client communication remain outside this surface"
       ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "advisory.advisor_cockpit",
+      "display_name": "Advisor Cockpit Operating Workflow",
+      "screen_id": "advisory.advisor_cockpit",
+      "route": "/recommendations?portfolioId={portfolio_id}&mode=cockpit",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-advise",
+      "gateway_endpoint": "/api/v1/advisor-cockpit/actions",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "empty", "partial", "unavailable", "error"],
+      "validation_rules": {
+        "ready": [
+          "advisor cockpit action list renders through Gateway",
+          "operating snapshot counts and supportability posture render without browser-side advisory logic",
+          "meeting-preparation packets render from source evidence",
+          "advisor acknowledgement records with action-item version and idempotency key",
+          "client-ready release, client communication, order generation, and OMS execution remain explicitly absent"
+        ],
+        "partial": [
+          "source-owned supportability gaps and unsupported capabilities are explicit without local fallback worklists"
+        ],
+        "empty": [
+          "absence of advisor cockpit actions is explicit for the selected portfolio"
+        ],
+        "loading": ["advisor cockpit route hydration only"],
+        "error": ["Gateway advisor cockpit failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "advisory-advisor-cockpit-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-advise/docs/rfcs/RFC-0026-advisor-cockpit-operating-workflow.md",
+      "known_limitations": [],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": null
     },
