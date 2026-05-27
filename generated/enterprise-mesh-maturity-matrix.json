@@ -25,7 +25,7 @@
   },
   "summary": {
     "repository_count": 10,
-    "product_count": 67,
+    "product_count": 69,
     "certified_first_wave_product_count": 8,
     "candidate_product_count": 0,
     "ambiguous_repository_count": 0
@@ -86,7 +86,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 5,
+      "produced_product_count": 7,
       "first_wave_product_count": 2,
       "consumed_dependency_count": 2,
       "repo_native_status": "implemented",
@@ -156,13 +156,35 @@
   ],
   "products": [
     {
+      "product_id": "lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
+      "product_name": "AdvisorCockpitOperatingSnapshot",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-advise:AdvisoryActionItemRegister:v1",
+      "product_name": "AdvisoryActionItemRegister",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
       "product_id": "lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
       "product_name": "AdvisoryPolicyEvaluationRecord",
       "product_version": "v1",
       "producer_repository": "lotus-advise",
       "classification": "deferred",
       "maturity_wave": "future_wave",
-      "lifecycle_status": "proposed",
+      "lifecycle_status": "active",
       "source_path": "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json",
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
