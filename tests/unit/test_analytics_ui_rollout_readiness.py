@@ -85,6 +85,7 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/workbench/{portfolio_id}?mode=quality",
         "/workbench/{portfolio_id}?mode=copilot",
         "/proposals/{proposalId}",
+        "/recommendations?portfolioId={portfolio_id}&mode=cockpit",
     }
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
@@ -128,6 +129,12 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert "client-ready release" in certified_groups["/proposals/{proposalId}"][
         "evidence_basis"
     ]
+    assert "advisory.advisor_cockpit" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=cockpit"
+    ]["panel_ids"]
+    assert "OMS execution" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=cockpit"
+    ]["evidence_basis"]
 
 
 def test_analytics_ui_rollout_readiness_requires_known_panel_ids() -> None:
