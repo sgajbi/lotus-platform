@@ -321,6 +321,7 @@
       "expected_supportability_posture": "ADVISE_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED",
       "expected_workbench_posture": "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026",
       "expected_client_ready_publication": "BLOCKED",
+      "expected_min_preparation_packets": 1,
       "unsupported_capability_boundaries": [
         "CLIENT_READY_PUBLICATION",
         "EXTERNAL_CLIENT_COMMUNICATION",

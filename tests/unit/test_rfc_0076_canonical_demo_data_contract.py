@@ -227,6 +227,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert advisor_cockpit["expected_workbench_posture"] == (
         "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026"
     )
+    assert advisor_cockpit["expected_min_preparation_packets"] == 1
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
 
     date_policy = contract["date_policy"]
