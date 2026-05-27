@@ -218,6 +218,10 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert advisor_cockpit["role"] == "ADVISOR"
     assert advisor_cockpit["expected_workbench_panel"] == "advisory.advisor_cockpit"
     assert advisor_cockpit["expected_action_family"] == "POLICY_REVIEW_REQUIRED"
+    assert advisor_cockpit["expected_action_families"] == [
+        "POLICY_REVIEW_REQUIRED",
+        "HOUSE_VIEW_IMPACT_REVIEW",
+    ]
     assert advisor_cockpit["expected_acknowledgement_marker"] == (
         "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED"
     )
@@ -228,6 +232,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
         "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026"
     )
     assert advisor_cockpit["expected_min_preparation_packets"] == 1
+    assert advisor_cockpit["seed_house_view_cohort"] is True
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
 
     date_policy = contract["date_policy"]
