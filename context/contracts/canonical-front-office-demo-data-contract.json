@@ -154,6 +154,164 @@
       "blocked"
     ]
   },
+  "advisory_proposal_scenarios": {
+    "scenario_id": "RFC23_25_ADVISORY_PROPOSAL_POLICY_CANONICAL",
+    "source_scope": "workbench_live_validation_scenario_seed",
+    "proposal": {
+      "title": "Canonical advisor narrative and policy proof",
+      "created_by": "workbench-canonical-validator",
+      "jurisdiction": "SG",
+      "advisor_notes": "Workbench canonical validation proposal for RFC-0023, RFC-0024, and RFC-0025.",
+      "narrative_request": {
+        "audience": "ADVISOR_REVIEW",
+        "jurisdiction": "SG",
+        "client_audience": "ADVISOR_REVIEW",
+        "sections": [
+          "EXECUTIVE_SUMMARY",
+          "RISK_AND_CONCENTRATION"
+        ],
+        "requested_by": "workbench-canonical-validator"
+      }
+    },
+    "policy_evaluation": {
+      "scenario_id": "RFC25_SG_STRUCTURED_NOTE_PENDING_REVIEW",
+      "policy_pack_id": "SG_PRIVATE_BANKING_REFERENCE",
+      "policy_version": "2026.05",
+      "created_by": "advisor_1",
+      "expected_evaluation_status": "PENDING_REVIEW",
+      "expected_client_ready_publication": "BLOCKED",
+      "expected_workbench_panel": "advisory.suitability_review",
+      "evidence_bundle": {
+        "context_resolution": {
+          "advisory_policy_context": {
+            "household_id": "HH-PB-001",
+            "jurisdiction": "SG",
+            "client_classification": "ACCREDITED_INVESTOR",
+            "booking_center_code": "SG",
+            "account_id": "ACCT-PB-001",
+            "time_horizon": "5Y",
+            "liquidity_need": "MEDIUM",
+            "mandate_id": "MANDATE-BALANCED-001",
+            "objectives": [
+              "capital_preservation",
+              "balanced_growth"
+            ],
+            "restrictions": [
+              "no_single_name_above_10pct"
+            ]
+          }
+        },
+        "inputs": {
+          "portfolio_snapshot": {
+            "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+            "positions": [
+              {
+                "instrument_id": "US_EQ_ETF",
+                "quantity": "100"
+              }
+            ],
+            "cash_balances": [
+              {
+                "currency": "USD",
+                "amount": "50000"
+              }
+            ]
+          },
+          "market_data_snapshot": {
+            "prices": [
+              {
+                "instrument_id": "SG_STRUCTURED_NOTE",
+                "price": "100",
+                "currency": "USD"
+              }
+            ],
+            "fx_rates": [
+              {
+                "pair": "USD/SGD",
+                "rate": "1.35"
+              }
+            ]
+          },
+          "shelf_entries": [
+            {
+              "instrument_id": "SG_STRUCTURED_NOTE",
+              "eligibility": {
+                "jurisdictions": [
+                  "SG"
+                ]
+              },
+              "target_market": {
+                "client_segments": [
+                  "ACCREDITED_INVESTOR"
+                ]
+              },
+              "complexity": "COMPLEX",
+              "private_asset": false,
+              "structured_product": true
+            }
+          ],
+          "proposed_trades": [
+            {
+              "instrument_id": "SG_STRUCTURED_NOTE",
+              "side": "BUY"
+            }
+          ]
+        },
+        "risk_lens": {
+          "source_service": "lotus-risk",
+          "single_position_concentration": {
+            "top_position_weight_current": "0.10"
+          },
+          "issuer_concentration": {
+            "hhi_current": "1200"
+          },
+          "drawdown": {
+            "max_drawdown_1y": "0.08"
+          },
+          "var": {
+            "var_95_1m": "0.04"
+          },
+          "stress": {
+            "equity_down_20": "-0.09"
+          },
+          "liquidity_risk": {
+            "days_to_liquidate": "3"
+          },
+          "private_asset_risk": {
+            "private_asset_weight": "0.00"
+          },
+          "climate_geopolitical_risk": {
+            "status": "not_material"
+          }
+        },
+        "artifact": {
+          "assumptions_and_limits": {
+            "costs_and_fees": {
+              "included": true
+            },
+            "tax": {
+              "included": true
+            },
+            "execution": {
+              "included": true
+            }
+          },
+          "disclosures": {
+            "product_docs": [
+              {
+                "instrument_id": "SG_STRUCTURED_NOTE",
+                "doc_ref": "Term sheet"
+              }
+            ]
+          }
+        },
+        "conflict_evidence": {
+          "material_conflict": false,
+          "review_ref": "conflict-review-001"
+        }
+      }
+    }
+  },
   "date_policy": {
     "canonical_as_of_date": "2026-04-10",
     "refresh_policy": "fixed_until_governed_change",
