@@ -212,6 +212,28 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert policy_evaluation["evidence_bundle"]["inputs"]["shelf_entries"][0][
         "structured_product"
     ] is True
+    advisor_cockpit = advisory_scenarios["advisor_cockpit"]
+    assert advisor_cockpit["scenario_id"] == "RFC26_ADVISOR_COCKPIT_POLICY_ACTION_CANONICAL"
+    assert advisor_cockpit["advisor_id"] == "advisor_sg_001"
+    assert advisor_cockpit["role"] == "ADVISOR"
+    assert advisor_cockpit["expected_workbench_panel"] == "advisory.advisor_cockpit"
+    assert advisor_cockpit["expected_action_family"] == "POLICY_REVIEW_REQUIRED"
+    assert advisor_cockpit["expected_action_families"] == [
+        "POLICY_REVIEW_REQUIRED",
+        "HOUSE_VIEW_IMPACT_REVIEW",
+    ]
+    assert advisor_cockpit["expected_acknowledgement_marker"] == (
+        "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED"
+    )
+    assert advisor_cockpit["expected_supportability_posture"] == (
+        "ADVISE_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED"
+    )
+    assert advisor_cockpit["expected_workbench_posture"] == (
+        "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026"
+    )
+    assert advisor_cockpit["expected_min_preparation_packets"] == 1
+    assert advisor_cockpit["seed_house_view_cohort"] is True
+    assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
 
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"

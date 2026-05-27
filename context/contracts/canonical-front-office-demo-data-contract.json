@@ -310,6 +310,28 @@
           "review_ref": "conflict-review-001"
         }
       }
+    },
+    "advisor_cockpit": {
+      "scenario_id": "RFC26_ADVISOR_COCKPIT_POLICY_ACTION_CANONICAL",
+      "advisor_id": "advisor_sg_001",
+      "role": "ADVISOR",
+      "expected_workbench_panel": "advisory.advisor_cockpit",
+      "expected_action_family": "POLICY_REVIEW_REQUIRED",
+      "expected_action_families": [
+        "POLICY_REVIEW_REQUIRED",
+        "HOUSE_VIEW_IMPACT_REVIEW"
+      ],
+      "expected_acknowledgement_marker": "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED",
+      "expected_supportability_posture": "ADVISE_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED",
+      "expected_workbench_posture": "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026",
+      "expected_client_ready_publication": "BLOCKED",
+      "expected_min_preparation_packets": 1,
+      "seed_house_view_cohort": true,
+      "unsupported_capability_boundaries": [
+        "CLIENT_READY_PUBLICATION",
+        "EXTERNAL_CLIENT_COMMUNICATION",
+        "OMS_ORDER_LIFECYCLE"
+      ]
     }
   },
   "date_policy": {

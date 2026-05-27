@@ -122,6 +122,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm.pm_operating_quality": "/api/v1/dpm/command-center/pm-operating-quality/score-runs",
         "dpm.copilot_workspace": None,
         "proposal.memo_evidence_pack": "/api/v1/proposals/{proposal_id}/versions/{version_no}/memo",
+        "advisory.advisor_cockpit": "/api/v1/advisor-cockpit/actions",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -208,3 +209,22 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert "client-ready release" in panel_by_id["proposal.memo_evidence_pack"][
         "known_limitations"
     ][0]
+    assert panel_by_id["advisory.advisor_cockpit"]["owning_service"] == "lotus-advise"
+    assert panel_by_id["advisory.advisor_cockpit"]["required_support_state"] == "ready"
+    assert panel_by_id["advisory.advisor_cockpit"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["advisory.advisor_cockpit"]["screenshot_policy"]["screenshot_name"] == (
+        "advisory-advisor-cockpit-live.png"
+    )
+    assert "idempotency key" in panel_by_id["advisory.advisor_cockpit"]["validation_rules"][
+        "ready"
+    ][3]
+    assert "OMS execution" in panel_by_id["advisory.advisor_cockpit"]["validation_rules"][
+        "ready"
+    ][4]
