@@ -4,14 +4,16 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `67`
+- Product count: `69`
 - Dependency count: `46`
 
 ## Products
 
 | Product | Producer | Version | Family | Lifecycle | Approved Consumers | Routes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `proposed` | lotus-gateway, lotus-report, lotus-render, lotus-archive, lotus-workbench, lotus-ai | Not published |
+| `AdvisorCockpitOperatingSnapshot` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway, lotus-workbench | /advisory/cockpit/snapshot, /advisory/cockpit/supportability |
+| `AdvisoryActionItemRegister` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway, lotus-workbench | /advisory/cockpit/actions, /advisory/cockpit/actions/{action_item_id}, /advisory/cockpit/actions/{action_item_id}/acknowledgements |
+| `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway, lotus-report, lotus-render, lotus-archive, lotus-workbench, lotus-ai | /advisory/proposals/{proposal_id}/versions/{proposal_version_id}/policy-evaluations, /advisory/policy-evaluations/review-queue, /advisory/policy-evaluations/{evaluation_id}, /advisory/policy-evaluations/{evaluation_id}/replay, /advisory/policy-evaluations/{evaluation_id}/events, /advisory/policy-evaluations/{evaluation_id}/lineage, /advisory/policy-evaluations/{evaluation_id}/sign-off-package, /advisory/policy-evaluations/{evaluation_id}/workflow, /advisory/policy-evaluations/{evaluation_id}/sign-off-decisions, /advisory/policy-evaluations/{evaluation_id}/report-packages, /advisory/policy-evaluations/{evaluation_id}/ai-evidence |
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway | /advisory/proposals/{proposal_id}, /advisory/proposals/{proposal_id}/versions/{version_no}, /advisory/proposals/{proposal_id}/timeline, /advisory/proposals/{proposal_id}/approvals |
 | `AdvisoryProposalMemoEvidencePack` | `lotus-advise` | `v1` | `reporting_and_evidence` | `active` | lotus-gateway, lotus-report, lotus-render, lotus-archive, lotus-workbench | /advisory/proposals/{proposal_id}/versions/{version_no}/memos, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/projection, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/review, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/report-package-events, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/report-packages, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/ai-commentary, /advisory/proposals/{proposal_id}/memos/lineage, /advisory/proposals/{proposal_id}/versions/{version_no}/memos/{memo_id}/replay-evidence |
 | `ProposalNarrativeEvidence` | `lotus-advise` | `v1` | `workflow_and_decision_state` | `active` | lotus-gateway, lotus-report, lotus-render, lotus-archive | /advisory/proposals/artifact, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative/regenerate, /advisory/proposals/{proposal_id}/versions/{version_no}/narrative/review, /advisory/proposals/{proposal_id}/versions/{version_no}/replay-evidence, /advisory/proposals/{proposal_id}/report-requests, /advisory/proposals/{proposal_id}/delivery-summary |

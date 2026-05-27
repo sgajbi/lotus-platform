@@ -68,7 +68,7 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     assert catalog["source_declaration_directory"] == (
         "federated:domain-product-source-manifest"
     )
-    assert catalog["product_count"] == 67
+    assert catalog["product_count"] == 69
     assert catalog["dependency_count"] == 46
     assert any(
         product["product_name"] == "DpmPortfolioUniverseCandidate"
@@ -78,8 +78,22 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     assert any(
         product["product_name"] == "AdvisoryPolicyEvaluationRecord"
         and product["producer_repository"] == "lotus-advise"
-        and product["lifecycle_status"] == "proposed"
-        and product["current_routes"] == []
+        and product["lifecycle_status"] == "active"
+        and "/advisory/policy-evaluations/review-queue" in product["current_routes"]
+        for product in catalog["products"]
+    )
+    assert any(
+        product["product_name"] == "AdvisoryActionItemRegister"
+        and product["producer_repository"] == "lotus-advise"
+        and product["lifecycle_status"] == "active"
+        and "/advisory/cockpit/actions" in product["current_routes"]
+        for product in catalog["products"]
+    )
+    assert any(
+        product["product_name"] == "AdvisorCockpitOperatingSnapshot"
+        and product["producer_repository"] == "lotus-advise"
+        and product["lifecycle_status"] == "active"
+        and "/advisory/cockpit/snapshot" in product["current_routes"]
         for product in catalog["products"]
     )
     assert not any(
