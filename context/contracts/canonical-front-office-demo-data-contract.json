@@ -318,6 +318,8 @@
       "expected_workbench_panel": "advisory.advisor_cockpit",
       "expected_action_family": "POLICY_REVIEW_REQUIRED",
       "expected_acknowledgement_marker": "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED",
+      "expected_supportability_posture": "ADVISE_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED",
+      "expected_workbench_posture": "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026",
       "expected_client_ready_publication": "BLOCKED",
       "unsupported_capability_boundaries": [
         "CLIENT_READY_PUBLICATION",

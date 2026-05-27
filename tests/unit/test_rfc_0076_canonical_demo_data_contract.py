@@ -221,6 +221,12 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert advisor_cockpit["expected_acknowledgement_marker"] == (
         "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED"
     )
+    assert advisor_cockpit["expected_supportability_posture"] == (
+        "ADVISE_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED"
+    )
+    assert advisor_cockpit["expected_workbench_posture"] == (
+        "CANONICAL_WORKBENCH_PROOF_PASSED_RFC0026"
+    )
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
 
     date_policy = contract["date_policy"]
