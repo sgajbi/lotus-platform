@@ -234,6 +234,23 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert advisor_cockpit["expected_min_preparation_packets"] == 1
     assert advisor_cockpit["seed_house_view_cohort"] is True
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
+    advisory_copilot = advisory_scenarios["advisory_copilot"]
+    assert advisory_copilot["scenario_id"] == "RFC27_ADVISORY_COPILOT_CANONICAL"
+    assert advisory_copilot["expected_workbench_panel"] == "advisory.advisory_copilot"
+    assert advisory_copilot["expected_client_ready_publication"] == "BLOCKED"
+    assert advisory_copilot["expected_review_posture"] == "REVIEW_REQUIRED"
+    assert advisory_copilot["expected_guardrail_reason"] == "CLIENT_READY_PUBLICATION_FORBIDDEN"
+    assert advisory_copilot["action_families"] == [
+        "PROPOSAL_EXPLANATION",
+        "EVIDENCE_QA",
+        "MEETING_PREPARATION",
+        "COMPLIANCE_REVIEW_SUMMARY",
+        "OPERATIONS_REPORT_HANDOFF",
+        "CLIENT_FOLLOW_UP_DRAFT",
+    ]
+    assert "POLICY_APPROVAL_OR_SIGN_OFF" in advisory_copilot[
+        "unsupported_capability_boundaries"
+    ]
     bank_demo_proof = advisory_scenarios["bank_demo_proof"]
     assert bank_demo_proof["scenario_id"] == "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL"
     assert bank_demo_proof["expected_workbench_panel"] == "advisory.bank_demo_proof"

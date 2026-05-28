@@ -333,6 +333,30 @@
         "OMS_ORDER_LIFECYCLE"
       ]
     },
+    "advisory_copilot": {
+      "scenario_id": "RFC27_ADVISORY_COPILOT_CANONICAL",
+      "expected_workbench_panel": "advisory.advisory_copilot",
+      "expected_support_status": "ADVISE_COPILOT_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED",
+      "expected_client_ready_publication": "BLOCKED",
+      "expected_review_posture": "REVIEW_REQUIRED",
+      "expected_reviewed_posture": "APPROVED_FOR_INTERNAL_USE",
+      "expected_guardrail_posture": "GUARDRAIL_REJECTED",
+      "expected_guardrail_reason": "CLIENT_READY_PUBLICATION_FORBIDDEN",
+      "action_families": [
+        "PROPOSAL_EXPLANATION",
+        "EVIDENCE_QA",
+        "MEETING_PREPARATION",
+        "COMPLIANCE_REVIEW_SUMMARY",
+        "OPERATIONS_REPORT_HANDOFF",
+        "CLIENT_FOLLOW_UP_DRAFT"
+      ],
+      "unsupported_capability_boundaries": [
+        "CLIENT_READY_PUBLICATION",
+        "POLICY_APPROVAL_OR_SIGN_OFF",
+        "OMS_ORDER_LIFECYCLE",
+        "CLIENT_COMMUNICATION_DELIVERY"
+      ]
+    },
     "bank_demo_proof": {
       "scenario_id": "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL",
       "expected_workbench_panel": "advisory.bank_demo_proof",
