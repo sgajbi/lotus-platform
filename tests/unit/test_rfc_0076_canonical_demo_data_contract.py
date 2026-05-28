@@ -234,6 +234,24 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert advisor_cockpit["expected_min_preparation_packets"] == 1
     assert advisor_cockpit["seed_house_view_cohort"] is True
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
+    bank_demo_proof = advisory_scenarios["bank_demo_proof"]
+    assert bank_demo_proof["scenario_id"] == "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL"
+    assert bank_demo_proof["expected_workbench_panel"] == "advisory.bank_demo_proof"
+    assert "/api/v1/advisory/bank-demo-proof/scenario-contract" in bank_demo_proof[
+        "expected_gateway_routes"
+    ]
+    assert bank_demo_proof["expected_proof_marker"] == "BANK_DEMO_PROOF_PACK_CREATED"
+    assert bank_demo_proof["expected_client_ready_publication"] == "BLOCKED"
+    assert bank_demo_proof["expected_claim_postures"]["client_ready_publication_blocked"] == (
+        "UNSUPPORTED"
+    )
+    assert (
+        bank_demo_proof["expected_claim_postures"]["advisor_journey_backend_evidence_available"]
+        == "BACKEND_BACKED_UI_PENDING"
+    )
+    assert "ORDER_FILL_SETTLEMENT_SYSTEM_OF_RECORD" in bank_demo_proof[
+        "unsupported_capability_boundaries"
+    ]
 
     date_policy = contract["date_policy"]
     assert date_policy["canonical_as_of_date"] == "2026-04-10"

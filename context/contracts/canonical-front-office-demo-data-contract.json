@@ -332,6 +332,29 @@
         "EXTERNAL_CLIENT_COMMUNICATION",
         "OMS_ORDER_LIFECYCLE"
       ]
+    },
+    "bank_demo_proof": {
+      "scenario_id": "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL",
+      "expected_workbench_panel": "advisory.bank_demo_proof",
+      "expected_gateway_routes": [
+        "/api/v1/advisory/bank-demo-proof/scenario-contract",
+        "/api/v1/advisory/bank-demo-proof/supported-claim-register",
+        "/api/v1/advisory/bank-demo-proof/proof-packs"
+      ],
+      "expected_proof_marker": "BANK_DEMO_PROOF_PACK_CREATED",
+      "expected_client_ready_publication": "BLOCKED",
+      "expected_claim_postures": {
+        "backend_proof_capture_repeatable": "IMPLEMENTATION_BACKED",
+        "advisor_journey_backend_evidence_available": "BACKEND_BACKED_UI_PENDING",
+        "advisor_use_document_proof_available": "BACKEND_BACKED_UI_PENDING",
+        "client_ready_publication_blocked": "UNSUPPORTED"
+      },
+      "unsupported_capability_boundaries": [
+        "CLIENT_READY_PUBLICATION",
+        "EXTERNAL_CLIENT_COMMUNICATION",
+        "OMS_ORDER_LIFECYCLE",
+        "ORDER_FILL_SETTLEMENT_SYSTEM_OF_RECORD"
+      ]
     }
   },
   "date_policy": {
