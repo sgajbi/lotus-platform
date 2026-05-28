@@ -110,6 +110,12 @@
       "certification_status": "certified",
       "panel_ids": ["advisory.advisor_cockpit"],
       "evidence_basis": "RFC-0026 canonical proof validates the Gateway-backed advisor cockpit action list, operating snapshot, meeting-preparation packets, supportability posture, and idempotent acknowledgement without promoting client-ready release, client communication, order generation, or OMS execution."
+    },
+    {
+      "route": "/recommendations?portfolioId={portfolio_id}&mode=proof",
+      "certification_status": "certified",
+      "panel_ids": ["advisory.bank_demo_proof"],
+      "evidence_basis": "RFC-0028 Slice 8 canonical proof validates the Gateway-backed bank demo proof surface, supported-claim register, scenario steps, source-owned classifications, and blocked client-publication boundary without promoting external client communication, order generation, OMS execution, fill, or settlement scope."
     }
   ],
   "rollout_checklist": [
