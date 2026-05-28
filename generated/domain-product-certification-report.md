@@ -4,7 +4,7 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Certification state: `certified`
-- Product count: `69`
+- Product count: `70`
 - Dependency count: `46`
 - Included repositories: `6`
 - Pending repositories: `0`
@@ -16,6 +16,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | --- | --- | --- | --- | --- | --- |
 | `AdvisorCockpitOperatingSnapshot` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `AdvisoryActionItemRegister` | `lotus-advise` | `certified` | `0` | `True` | `True` |
+| `AdvisoryCopilotInteractionRecord` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `AdvisoryProposalMemoEvidencePack` | `lotus-advise` | `certified` | `0` | `True` | `True` |

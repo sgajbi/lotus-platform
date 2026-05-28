@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 80,
-  "edge_count": 242,
+  "node_count": 81,
+  "edge_count": 245,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -25,6 +25,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-advise:AdvisoryActionItemRegister:v1",
       "product_name": "AdvisoryActionItemRegister",
+      "product_version": "v1",
+      "producer_repository": "lotus-advise",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+      "product_name": "AdvisoryCopilotInteractionRecord",
       "product_version": "v1",
       "producer_repository": "lotus-advise",
       "product_family": "workflow_and_decision_state",
@@ -775,6 +785,16 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryActionItemRegister:v1",
+      "to": "repo:lotus-workbench"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
       "to": "repo:lotus-workbench"
     },
     {
@@ -1909,6 +1929,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-advise",
       "to": "product:lotus-advise:AdvisoryActionItemRegister:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-advise",
+      "to": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1"
     },
     {
       "edge_type": "produces",

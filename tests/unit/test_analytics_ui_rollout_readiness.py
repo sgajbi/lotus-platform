@@ -86,6 +86,7 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/workbench/{portfolio_id}?mode=copilot",
         "/proposals/{proposalId}",
         "/recommendations?portfolioId={portfolio_id}&mode=cockpit",
+        "/recommendations?portfolioId={portfolio_id}&mode=proof",
     }
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
@@ -134,6 +135,12 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     ]["panel_ids"]
     assert "OMS execution" in certified_groups[
         "/recommendations?portfolioId={portfolio_id}&mode=cockpit"
+    ]["evidence_basis"]
+    assert "advisory.bank_demo_proof" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=proof"
+    ]["panel_ids"]
+    assert "client-publication boundary" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=proof"
     ]["evidence_basis"]
 
 

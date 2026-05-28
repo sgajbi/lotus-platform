@@ -219,4 +219,4 @@ foreach ($repositoryName in Get-RepositoryNames) {
     }
 }
 
-$results | Format-Table -AutoSize
+$results | Select-Object Repository, DiffCount, Source, Published, Diffs | Format-Table -AutoSize

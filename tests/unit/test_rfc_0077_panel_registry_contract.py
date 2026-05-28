@@ -123,6 +123,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm.copilot_workspace": None,
         "proposal.memo_evidence_pack": "/api/v1/proposals/{proposal_id}/versions/{version_no}/memo",
         "advisory.advisor_cockpit": "/api/v1/advisor-cockpit/actions",
+        "advisory.bank_demo_proof": "/api/v1/advisory/bank-demo-proof/supported-claim-register",
     }
 
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
@@ -228,3 +229,24 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert "OMS execution" in panel_by_id["advisory.advisor_cockpit"]["validation_rules"][
         "ready"
     ][4]
+    assert panel_by_id["advisory.bank_demo_proof"]["owning_service"] == "lotus-advise"
+    assert panel_by_id["advisory.bank_demo_proof"]["required_support_state"] == "ready"
+    assert panel_by_id["advisory.bank_demo_proof"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "partial",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["advisory.bank_demo_proof"]["screenshot_policy"]["screenshot_name"] == (
+        "advisory-bank-demo-proof-live.png"
+    )
+    assert "supported-claim register" in panel_by_id["advisory.bank_demo_proof"][
+        "validation_rules"
+    ]["ready"][1]
+    assert "client-ready approval" in panel_by_id["advisory.bank_demo_proof"][
+        "validation_rules"
+    ]["ready"][3]
+    assert "proof-pack capture" in panel_by_id["advisory.bank_demo_proof"][
+        "known_limitations"
+    ][0]

@@ -61,7 +61,8 @@
       "/workbench/{portfolio_id}?mode=quality",
       "/workbench/{portfolio_id}?mode=copilot",
       "/proposals/{proposalId}",
-      "/recommendations?portfolioId={portfolio_id}&mode=cockpit"
+      "/recommendations?portfolioId={portfolio_id}&mode=cockpit",
+      "/recommendations?portfolioId={portfolio_id}&mode=proof"
     ],
     "non_telemetry_registry_states": ["unavailable"]
   },
