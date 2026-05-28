@@ -1,0 +1,92 @@
+{
+  "contract_id": "supported-claim-register",
+  "contract_version": "1.0.0",
+  "governed_by_rfc": "RFC-0028",
+  "owner_repository": "lotus-advise",
+  "scenario_id": "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL",
+  "primary_portfolio_id": "PB_SG_GLOBAL_BAL_001",
+  "proof_marker": "BANK_DEMO_PROOF_PACK_CREATED",
+  "claim_taxonomy": [
+    "IMPLEMENTATION_BACKED",
+    "BACKEND_BACKED_UI_PENDING",
+    "DEGRADED_SUPPORTED",
+    "PLANNED_RFC",
+    "UNSUPPORTED"
+  ],
+  "front_office_validation": {
+    "requires_gateway_backing": true,
+    "requires_browser_validation": true,
+    "required_evidence_markers": [
+      "BANK_DEMO_PROOF_PACK_CREATED"
+    ],
+    "required_panels": [
+      "advisory.bank_demo_journey",
+      "advisory.supported_claims"
+    ]
+  },
+  "artifact_policy": {
+    "commit_allowed_artifacts": [
+      "sanitized-proof-summary.json",
+      "supported-claim-register.json",
+      "demo-script.md",
+      "rfp-security-pack.md"
+    ],
+    "local_only_artifacts": [
+      "raw-live-validation-summary.json",
+      "diagnostic-screenshots",
+      "trace-logs",
+      "provider-payloads"
+    ],
+    "sensitive_artifact_rules": [
+      "Do not commit secrets, tokens, real client identifiers, raw prompts, or raw provider output.",
+      "Demo-ready screenshots require backend, Gateway, Workbench, privacy, and claim validation."
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "canonical_bank_demo_journey",
+      "title": "Canonical private-banking advisory demo journey",
+      "classification": "BACKEND_BACKED_UI_PENDING",
+      "audience": [
+        "ENGINEERING",
+        "PRE_SALES"
+      ],
+      "allowed_materials": [
+        "WIKI",
+        "SUPPORTED_FEATURES"
+      ],
+      "evidence_refs": [
+        "lotus-advise:docs/rfcs/RFC-0028-bank-demo-journey-and-client-ready-proof.md",
+        "lotus-platform:context/contracts/canonical-front-office-demo-data-contract.json"
+      ],
+      "wording_rules": [
+        "Say Slice 0 decisions are locked and implementation is in progress.",
+        "Do not call the journey client-demo ready until Workbench proof passes."
+      ],
+      "proof_requirements": [
+        "Advise proof-pack API evidence",
+        "Gateway contract evidence",
+        "Workbench browser validation evidence"
+      ],
+      "promotion_gate": "Promote only after BANK_DEMO_PROOF_PACK_CREATED and governed front-office validation pass."
+    },
+    {
+      "claim_id": "external_client_delivery",
+      "title": "External client communication delivery",
+      "classification": "UNSUPPORTED",
+      "audience": [
+        "ENGINEERING",
+        "SALES",
+        "PRE_SALES",
+        "CLIENT_DEMO"
+      ],
+      "allowed_materials": [],
+      "evidence_refs": [],
+      "wording_rules": [
+        "Do not claim external client delivery, legal approval, or regulatory sign-off."
+      ],
+      "proof_requirements": [],
+      "promotion_gate": "Requires separately implemented client-publication controls and approval authority."
+    }
+  ]
+}
