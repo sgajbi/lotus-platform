@@ -20,6 +20,9 @@ These playbooks turn recurring delivery practice into durable operating guidance
 6. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
    How to assemble scoped context, preserve identifiers through compaction, and track detached
    engineering work with governed ledger evidence.
+7. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
+   Detailed reusable instruction pack for refactoring Lotus backend applications into modular,
+   secure, observable, production-ready, bank-buyable services with measurable CI and PR evidence.
 
 ## When To Use This Layer
 
@@ -34,3 +37,6 @@ Use these playbooks when:
    RFC, file, endpoint, contract, portfolio, or task-status identifiers preserved.
 7. you are starting, closing, or auditing RFC/docs/wiki/context/contract work and need to ensure
    no durable truth remains stranded on unmerged remote branches.
+8. you are starting an enterprise backend refactor and need the baseline, quality-gate, testing,
+   security, observability, documentation, commit, and PR expectations in one durable instruction
+   pack.
