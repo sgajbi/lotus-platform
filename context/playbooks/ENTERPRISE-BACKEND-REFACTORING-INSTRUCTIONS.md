@@ -6,6 +6,23 @@ The Codex Goal prompt should name the target application and instruct the agent 
 
 ---
 
+## 0. Scope and Preconditions
+
+Before editing, confirm:
+
+- Repo governance for the target app (AGENTS.md, repository engineering context, and local conventions).
+- Target stack (language/runtime, web framework, persistence, auth mechanisms, deployment model).
+- Branching rule:
+  - For `lotus-risk`, use branch work anchored to `feat` if that repo policy requires it.
+  - For all other Lotus backend repos in active mode, branch from and target `main` by default.
+- Baseline evidence to compare against:
+  - build/test status,
+  - quality baseline reports,
+  - endpoint inventory and API trust/contract artifacts.
+- Any durable-truth area affected (RFC, API contract, wiki, context, runbooks): plan stranded-truth reconciliation before final closure.
+
+---
+
 ## 1. Mission
 
 Refactor the target Lotus backend application into a modular, reusable, maintainable, performant, secure, observable, enterprise-grade, production-ready, bank-buyable application.
@@ -22,13 +39,19 @@ The application must align with:
 
 The goal is not cosmetic cleanup. The goal is to make the application easier to understand, safer to change, easier to operate, easier to test, easier to explain, and suitable for enterprise adoption.
 
+Primary acceptance target: every refactor slice must improve these three dimensions together:
+
+- reliability and risk posture,
+- developer maintainability and execution speed,
+- production supportability and incident readiness.
+
 ---
 
 ## 2. Working Rules
 
 Work on a feature branch.
 
-Use small, meaningful commits. Target roughly 50 well-scoped commits.
+Use small, meaningful commits. Target roughly 25–50 well-scoped commits.
 
 Preserve normal commit history because the final PR will use a non-squash merge strategy.
 
@@ -39,6 +62,14 @@ Avoid large mechanical rewrites unless they create clear architectural value.
 Preserve existing behavior unless intentionally changing it.
 
 When behavior changes, document the reason, update tests, and explain the impact in the PR.
+
+Keep branch policy strict:
+
+- do not push directly to protected branches,
+- isolate one repository per Codex run,
+- do not mix non-orthogonal refactors in one PR unless clearly related.
+
+Before closing, include branch name, target branch, and validation evidence in PR metadata.
 
 ---
 
@@ -61,6 +92,10 @@ Improve the application across these areas:
 - improve resilience with timeouts, retries, circuit-breaker-style boundaries, graceful degradation, and consistent downstream error mapping
 - improve tests with meaningful unit, integration, contract, API, middleware, security, regression, and end-to-end coverage
 - update README, wiki, RFC, architecture diagrams, API catalog, operational runbooks, and supported-features material
+- enforce deterministic behavior for breaking changes through migration/deprecation strategies
+- improve data ownership, schema migration safety, and rollback strategy
+- standardize dependency lifecycle, lockfile hygiene, and reproducible install strategy
+- strengthen idempotency semantics and replay safety for state-changing flows
 
 ---
 
@@ -93,6 +128,9 @@ Rules:
 - relevant mutations must be auditable
 - idempotent operations must define explicit idempotency behavior
 - logs must be structured and must not leak sensitive data
+- enforce boundary violations through automated checks (import-linter, dependency maps, package boundaries)
+- keep orchestrator code out of domain entities/value objects
+- isolate config/feature flag readers from business logic for deterministic behavior
 
 ---
 
@@ -115,18 +153,24 @@ Every endpoint should have:
 - documented validation behavior
 - documented correlation ID behavior
 - documented idempotency behavior where relevant
+- documented paging stability and sort ordering
+- documented backward-compatibility policy and deprecation notices
+- documented authz and audit impact
 
 Standardize:
 
 - pagination
 - filtering
 - sorting
-- error format
 - status codes
 - versioning
 - deprecation strategy
 - internal versus public endpoints
 - health, readiness, liveness, and metrics endpoints
+- endpoint certification expectations against repository ledger/wiki truth where it exists
+- request strictness and unsupported-query behavior
+
+For public endpoints, keep backward compatibility rules explicit and codify migration windows.
 
 ---
 
@@ -143,6 +187,8 @@ The application should support:
 - latency metrics
 - downstream call metrics
 - error metrics
+- saturation metrics for queues, pools, thread/execution workers, and storage connectors
+- business-outcome metrics for critical financial workflows
 - health checks
 - readiness checks
 - liveness checks
@@ -150,6 +196,11 @@ The application should support:
 - clear operational diagnostics
 - meaningful startup and shutdown behavior
 - runbook documentation
+- explicit SLIs/SLOs and alert thresholds
+- dashboards and alerting rules bound to implemented metrics
+- startup dependency graphs and dependency timeout behavior
+
+Operational evidence should include failure-path expectations and recovery behavior, not only success-path monitoring.
 
 ---
 
@@ -173,8 +224,20 @@ Check and improve:
 - downstream error leakage
 - logs for sensitive-data exposure
 - test coverage for negative/security cases
+- secret scanning and credential leakage prevention in CI
+- container and image trust posture
+- identity and access control model clarity
 
 Do not expose tokens, secrets, credentials, internal stack traces, or sensitive client data.
+
+Required security posture checks:
+
+- threat-model for trust boundaries and abuse cases
+- RBAC/ABAC enforcement validation for protected flows
+- least-privilege service credentials
+- data-classification review for PII-like and market-sensitive identifiers
+- encryption requirements for transit and rest where applicable
+- security dependency and supply-chain scans with fail-on-regression policy
 
 ---
 
@@ -199,8 +262,14 @@ Add or strengthen:
 - sensitive-data masking tests
 - idempotency tests where relevant
 - performance smoke tests where practical
+- concurrency and retry-safety tests for state changes
+- migration/recovery tests where persistence behavior is changed
+- chaos-style dependency failure tests for key upstream/downstream paths
+- contract compatibility tests for API schema drift
 
 Tests should be meaningful, not just coverage fillers.
+
+For every behavior-sensitive change, include positive, negative, and backward-compatibility regression coverage.
 
 ---
 
@@ -232,6 +301,9 @@ Before major refactoring, create a baseline report covering:
 - middleware complexity
 - documentation gaps
 - observability gaps
+- policy enforcement gaps
+- resilience gaps
+- backward-compatibility break risks
 
 Create a before/after scorecard and update it during the refactor.
 
@@ -247,6 +319,8 @@ Recommended files:
 - `quality/architecture_rules.md`
 - `quality/api_governance_rules.md`
 - `quality/ci_quality_gates.md`
+- `quality/enterprise_readiness_checklist.md`
+- `quality/ops_slo_contract.md`
 
 Recommended tools where applicable:
 
@@ -264,6 +338,8 @@ Recommended tools where applicable:
 - optional: `schemathesis` for OpenAPI/property-based API testing
 - optional: `pytest-benchmark` for performance checks
 - optional: `locust` or `k6` for load/performance testing
+- optional: `grype`, `trivy`, or `snyk` for supply-chain scanning
+- optional: `semgrep` for policy/rule pattern enforcement
 
 Use progressive CI gating:
 
@@ -271,6 +347,8 @@ Use progressive CI gating:
 2. fail only on new regressions
 3. enforce agreed thresholds
 4. enforce strict enterprise-readiness gates
+
+Each gate should include deterministic pass criteria in `quality/ci_quality_gates.md`.
 
 ---
 
@@ -287,8 +365,15 @@ Update or create:
 - `docs/security.md`
 - `docs/operations-runbook.md`
 - `docs/supported-features.md`
+- `docs/configuration.md`
+- `docs/local-development.md`
+- `docs/data-classification.md` (or equivalent)
+- `docs/disaster-recovery.md`
 - RFCs where architectural decisions changed
 - wiki-ready diagrams and flow descriptions
+- `wiki/Endpoint-Certification.md` and related wiki operational pages when truth changes
+- `REPOSITORY-ENGINEERING-CONTEXT.md` when repository responsibilities change
+- `AGENTS.md` only when operating contract changes; keep synchronized with platform copy
 
 Documentation should support:
 
@@ -300,8 +385,16 @@ Documentation should support:
 - client pitches
 - future maintainers
 - production support
+- audit and compliance reviewers
 
 Documentation must be implementation-backed. Do not document capabilities that the code does not support.
+
+If durable truth changed (API, context, wiki, RFC, deployment/runbook, supported-features), run:
+
+1. `git fetch origin --prune`
+2. `git branch -r --no-merged origin/main`
+3. `lotus-platform/automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>`
+4. stranded-truth review as required by AGENTS
 
 ---
 
@@ -342,6 +435,8 @@ Use this sequence as guidance, adapting to the repository reality:
 31. tighten CI from report-only to regression-blocking
 32. tighten CI to enterprise-readiness thresholds
 33. produce final before/after refactor health report
+34. validate governance/docs truth synchronization checks
+35. validate run/rollback readiness for production-facing behavior changes
 
 ---
 
@@ -360,6 +455,10 @@ The final PR must include:
 - known limitations
 - follow-up backlog
 - migration notes if behavior or configuration changed
+- explicit quality gates executed and results
+- enterprise readiness evidence references
+- rollout and rollback guidance
+- references to changed API, mesh, and certification artifacts
 
 ---
 
@@ -377,3 +476,16 @@ The refactor is complete only when:
 - documentation is implementation-backed
 - application behavior is preserved unless changes are explicitly documented
 - final PR explains what changed, why it changed, what improved, what risks remain, and what should follow next
+- quality scorecards do not regress on critical governance, resilience, and security checks
+- API, mesh, and operational contract truth is synchronized with repo-local source docs
+- rollout evidence is reproducible from deterministic commands
+
+---
+
+## 14. Codex Goal Exit Checklist
+
+- confirm the target branch policy was followed for the repository,
+- confirm each mandatory section above was attempted and evidence attached,
+- confirm no accidental broad cross-repo scope changes,
+- confirm no unresolved `TODO`/`FIXME` without owners and dates,
+- confirm reproducible validation commands are included in PR description.
