@@ -226,7 +226,8 @@ Key standards to use frequently:
 6. [Platform Observability Standards](../Platform%20Observability%20Standards.md)
 7. [Domain Vocabulary Glossary](../Domain%20Vocabulary%20Glossary.md)
 8. [Platform Integration Architecture Bible](../Platform%20Integration%20Architecture%20Bible.md)
-9. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+9. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
+10. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 
 ## Active Governance RFCs
 

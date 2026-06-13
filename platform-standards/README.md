@@ -28,6 +28,7 @@ This folder is the reusable standards package for backend repositories.
 - `Repository-CI-Lane-Mapping-Baseline.md`
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
+- `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
 
 ## Usage
 
@@ -47,6 +48,10 @@ Authoritative cross-repository CI governance:
 
 1. `../Continuous Integration, Validation, and Release Governance Standard.md`
 2. `../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+
+Cross-application bank-buyable engineering posture:
+
+1. `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
 
 ## One-Command Lotus Service Scaffold
 

@@ -43,6 +43,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | Dependency Hygiene and Security Standard | `platform-wide` | `Dependency Hygiene and Security Standard.md` |
 | Platform Observability Standards | `platform-wide` | `Platform Observability Standards.md` |
 | Enterprise Readiness Standard | `platform-wide` | `Enterprise Readiness Standard.md` |
+| Lotus Bank-Buyable Engineering Contract | `platform-wide` | `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` |
 | Scalability and Availability Standard | `platform-wide` | `Scalability and Availability Standard.md` |
 | Domain Vocabulary Glossary | `platform-wide` | `Domain Vocabulary Glossary.md` |
 | Platform Integration Architecture Bible | `platform-wide` | `Platform Integration Architecture Bible.md` |
