@@ -169,6 +169,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
 
 def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     standards_readme = (ROOT / "platform-standards" / "README.md").read_text(encoding="utf-8")
+    bank_buyable_contract = (
+        ROOT / "platform-standards" / "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"
+    ).read_text(encoding="utf-8")
     workflow_standard = (ROOT / "platform-standards" / "Development-Workflow-and-CI-Strategy-Standard.md").read_text(
         encoding="utf-8"
     )
@@ -188,6 +191,15 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Platform-End-to-End-Validation-Coverage-Standard.md" in standards_readme
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
     assert "Repository-CI-Convergence-Gap-Audit.md" in standards_readme
+    assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in standards_readme
+
+    assert "Do not fake compliance" in bank_buyable_contract
+    assert "Remote Feature Lane" in bank_buyable_contract
+    assert "Pull Request Merge Gate" in bank_buyable_contract
+    assert "Main Releasability Gate" in bank_buyable_contract
+    assert "Platform End-to-End Validation" in bank_buyable_contract
+    assert "Unknown - requires owner review" in bank_buyable_contract
+    assert "merged-to-main and validated as the definition of done" in bank_buyable_contract
 
     assert "Authoritative CI governance now lives in" in workflow_standard
     assert "Remote Feature Lane" in workflow_standard

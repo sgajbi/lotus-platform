@@ -138,6 +138,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "Continuous Integration, Validation, and Release Governance Standard" in standard_names
     assert "Testing Pyramid and Coverage Standard" in standard_names
     assert "Enterprise Readiness Standard" in standard_names
+    assert "Lotus Bank-Buyable Engineering Contract" in standard_names
     assert "Scalability and Availability Standard" in standard_names
     assert "Domain Vocabulary Glossary" in standard_names
     assert "Platform Integration Architecture Bible" in standard_names
