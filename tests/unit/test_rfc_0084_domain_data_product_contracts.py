@@ -1711,7 +1711,18 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         "lotus-performance",
         "docs/technical/benchmark-exposure-context-endpoint-certification.md",
     )
-    risk_main = _load_repo_text("lotus-risk", "src/app/main.py")
+    risk_app_factory = _load_repo_text("lotus-risk", "src/app/app_factory.py")
+    risk_router_modules = "\n".join(
+        _load_repo_text("lotus-risk", relative_path)
+        for relative_path in (
+            "src/app/routers/concentration.py",
+            "src/app/routers/drawdown.py",
+            "src/app/routers/historical_attribution.py",
+            "src/app/routers/risk_calculation.py",
+            "src/app/routers/rolling.py",
+            "src/app/routers/source_products.py",
+        )
+    )
     risk_endpoint_matrix = _load_repo_text(
         "lotus-risk", "docs/domain-apis/endpoint-matrix.md"
     )
@@ -1868,7 +1879,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     }.items():
         assert risk_products[product_name]["approved_consumers"] == ["lotus-gateway"]
         assert risk_products[product_name]["current_routes"] == [route]
-        assert route in risk_main
+        assert route in risk_router_modules
         assert route in risk_endpoint_matrix
 
     assert risk_products["MandateRiskHealthContext"]["approved_consumers"] == [
@@ -1878,7 +1889,13 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert risk_products["MandateRiskHealthContext"]["current_routes"] == [
         "/analytics/risk/mandate-health-context"
     ]
-    assert "/analytics/risk/mandate-health-context" in risk_main
+    assert "risk_app.include_router(risk_calculation_router)" in risk_app_factory
+    assert "risk_app.include_router(drawdown_router)" in risk_app_factory
+    assert "risk_app.include_router(rolling_router)" in risk_app_factory
+    assert "risk_app.include_router(concentration_router)" in risk_app_factory
+    assert "risk_app.include_router(historical_attribution_router)" in risk_app_factory
+    assert "risk_app.include_router(source_products_router)" in risk_app_factory
+    assert "/analytics/risk/mandate-health-context" in risk_router_modules
     assert (
         "| `POST /analytics/risk/mandate-health-context` | Domain analytics |"
         in risk_endpoint_matrix
