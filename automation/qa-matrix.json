@@ -92,12 +92,12 @@
                                                                   "require_response_headers":  [
                                                                                                    "x-correlation-id"
                                                                                                ],
-                                                                  "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "audit",
-                                                                                                "service"
-                                                                                            ]
-                                                              }
+                                                                   "required_log_patterns":  [
+                                                                                                 "correlation",
+                                                                                                 "request.completed",
+                                                                                                 "service"
+                                                                                             ]
+                                                               }
                                         }
                          },
                          {
