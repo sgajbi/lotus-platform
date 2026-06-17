@@ -704,7 +704,15 @@ Run backend/runtime QA readiness automation (startup + API/log/metrics/standards
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp
 ```
 
-Run the seeded analytics maturity invariant against `lotus-core`:
+The `lotus-core` custom platform QA gate uses the governed canonical front-office verifier for
+`PB_SG_GLOBAL_BAL_001`. Run it directly when troubleshooting the demo-readiness lane:
+
+```powershell
+python ..\lotus-core\tools\front_office_portfolio_seed.py --verify-only --portfolio-id PB_SG_GLOBAL_BAL_001 --start-date 2025-03-31 --end-date 2026-04-10 --benchmark-start-date 2025-01-06 --ingestion-base-url http://core-ingestion.dev.lotus --query-base-url http://core-query.dev.lotus --query-control-plane-base-url http://core-control.dev.lotus --gateway-base-url http://gateway.dev.lotus --wait-seconds 300 --poll-interval-seconds 3
+```
+
+Run the generated seeded analytics maturity invariant against `lotus-core` as a clean-state
+hardening check:
 
 ```powershell
 python automation/core_seeded_analytics_maturity_validation.py --ingestion-url http://core-ingestion.dev.lotus --query-control-plane-url http://core-control.dev.lotus

@@ -38,6 +38,18 @@ def _post_json(url: str, payload: dict) -> tuple[int, dict | list | str]:
         return exc.code, parsed
 
 
+def _get_json(url: str) -> tuple[int, dict | list | str]:
+    request = urllib.request.Request(url, method="GET")
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            body = response.read().decode("utf-8")
+            return response.status, json.loads(body) if body else {}
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8")
+        parsed = json.loads(body) if body else body
+        return exc.code, parsed
+
+
 def _poll_until(description: str, timeout_seconds: int, poll_interval: float, predicate):
     deadline = time.time() + timeout_seconds
     last_value = None
@@ -63,6 +75,51 @@ def _assert_ingest_accepted(config: ValidationConfig, endpoint: str, payload: di
     status, body = _post_json(config.ingestion_url.rstrip("/") + endpoint, payload)
     if status != 202:
         raise AssertionError(f"Ingest {endpoint} failed with {status}: {body}")
+
+
+def _portfolio_visible(config: ValidationConfig, portfolio_id: str) -> bool:
+    status, body = _get_json(
+        config.query_url.rstrip("/") + f"/portfolios?portfolio_id={portfolio_id}"
+    )
+    if status != 200 or not isinstance(body, dict):
+        return False
+    return int(body.get("total", 0) or 0) > 0
+
+
+def _instrument_visible(config: ValidationConfig, security_id: str) -> bool:
+    status, body = _get_json(
+        config.query_url.rstrip("/") + f"/instruments/?security_id={security_id}"
+    )
+    if status != 200 or not isinstance(body, dict):
+        return False
+    return int(body.get("total", 0) or 0) > 0
+
+
+def _wait_for_seed_reference_visibility(
+    *,
+    config: ValidationConfig,
+    portfolio_id: str,
+    instrument_ids: list[str],
+    portfolio_payload: dict,
+    instrument_payload: dict,
+) -> dict | None:
+    if not _portfolio_visible(config, portfolio_id):
+        _assert_ingest_accepted(config, "/ingest/portfolios", portfolio_payload)
+        return None
+
+    missing_instruments = [
+        security_id
+        for security_id in instrument_ids
+        if not _instrument_visible(config, security_id)
+    ]
+    if missing_instruments:
+        _assert_ingest_accepted(config, "/ingest/instruments", instrument_payload)
+        return None
+
+    return {
+        "portfolio_visible": portfolio_id,
+        "instrument_ids_visible": sorted(instrument_ids),
+    }
 
 
 def _query_position_timeseries(
@@ -129,46 +186,55 @@ def run_validation(config: ValidationConfig) -> dict:
     end_date = "2026-03-20"
     seeded_days = _day_list(start_date, end_date)
 
-    _assert_ingest_accepted(
-        config,
-        "/ingest/portfolios",
-        {
-            "portfolios": [
-                {
-                    "portfolio_id": portfolio_id,
-                    "base_currency": "USD",
-                    "open_date": "2026-03-01",
-                    "risk_exposure": "High",
-                    "investment_time_horizon": "Long",
-                    "portfolio_type": "Discretionary",
-                    "booking_center_code": "SG",
-                    "client_id": "PLATFORM_QA",
-                    "status": "Active",
-                }
-            ]
-        },
-    )
-    _assert_ingest_accepted(
-        config,
-        "/ingest/instruments",
-        {
-            "instruments": [
-                {
-                    "security_id": stock_security_id,
-                    "name": "Platform Euro Stock",
-                    "isin": f"EU{suffix}",
-                    "currency": "EUR",
-                    "product_type": "Equity",
-                },
-                {
-                    "security_id": cash_security_id,
-                    "name": "US Dollar",
-                    "isin": f"USD_CASH_{suffix}",
-                    "currency": "USD",
-                    "product_type": "Cash",
-                },
-            ]
-        },
+    portfolio_payload = {
+        "portfolios": [
+            {
+                "portfolio_id": portfolio_id,
+                "base_currency": "USD",
+                "open_date": "2026-03-01",
+                "risk_exposure": "High",
+                "investment_time_horizon": "Long",
+                "portfolio_type": "Discretionary",
+                "booking_center_code": "SG",
+                "client_id": "PLATFORM_QA",
+                "status": "Active",
+            }
+        ]
+    }
+    instrument_payload = {
+        "instruments": [
+            {
+                "security_id": stock_security_id,
+                "name": "Platform Euro Stock",
+                "isin": f"EU{suffix}",
+                "currency": "EUR",
+                "product_type": "Equity",
+                "asset_class": "Equity",
+            },
+            {
+                "security_id": cash_security_id,
+                "name": "US Dollar",
+                "isin": f"USD_CASH_{suffix}",
+                "currency": "USD",
+                "product_type": "Cash",
+                "asset_class": "Cash",
+            },
+        ]
+    }
+
+    _assert_ingest_accepted(config, "/ingest/portfolios", portfolio_payload)
+    _assert_ingest_accepted(config, "/ingest/instruments", instrument_payload)
+    seed_reference_visibility = _poll_until(
+        "seed portfolio and instrument visibility",
+        config.timeout_seconds,
+        config.poll_interval_seconds,
+        lambda: _wait_for_seed_reference_visibility(
+            config=config,
+            portfolio_id=portfolio_id,
+            instrument_ids=[stock_security_id, cash_security_id],
+            portfolio_payload=portfolio_payload,
+            instrument_payload=instrument_payload,
+        ),
     )
     _assert_ingest_accepted(
         config,
@@ -314,6 +380,7 @@ def run_validation(config: ValidationConfig) -> dict:
             "performance_end_date": reference_payload["performance_end_date"],
             "resolved_as_of_date": reference_payload["resolved_as_of_date"],
         },
+        "seed_reference_visibility": seed_reference_visibility,
         "portfolio_timeseries": {
             "observation_dates": [obs["valuation_date"] for obs in portfolio_payload["observations"]],
         },
