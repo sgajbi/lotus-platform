@@ -86,6 +86,7 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/workbench/{portfolio_id}?mode=copilot",
         "/proposals/{proposalId}",
         "/recommendations?portfolioId={portfolio_id}&mode=cockpit",
+        "/recommendations?portfolioId={portfolio_id}&mode=copilot",
         "/recommendations?portfolioId={portfolio_id}&mode=proof",
     }
     assert certified_groups[
@@ -136,7 +137,12 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert "OMS execution" in certified_groups[
         "/recommendations?portfolioId={portfolio_id}&mode=cockpit"
     ]["evidence_basis"]
-    assert "/recommendations?portfolioId={portfolio_id}&mode=copilot" not in certified_groups
+    assert "advisory.advisory_copilot" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=copilot"
+    ]["panel_ids"]
+    assert "client-ready publication" in certified_groups[
+        "/recommendations?portfolioId={portfolio_id}&mode=copilot"
+    ]["evidence_basis"]
     assert "advisory.bank_demo_proof" in certified_groups[
         "/recommendations?portfolioId={portfolio_id}&mode=proof"
     ]["panel_ids"]
