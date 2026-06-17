@@ -112,6 +112,12 @@
       "evidence_basis": "RFC-0026 canonical proof validates the Gateway-backed advisor cockpit action list, operating snapshot, meeting-preparation packets, supportability posture, and idempotent acknowledgement without promoting client-ready release, client communication, order generation, or OMS execution."
     },
     {
+      "route": "/recommendations?portfolioId={portfolio_id}&mode=copilot",
+      "certification_status": "certified",
+      "panel_ids": ["advisory.advisory_copilot"],
+      "evidence_basis": "RFC-0027 canonical proof validates the Gateway-backed advisory copilot action and evidence-packet route with explicit review-required posture, idempotency protection, and blocked client-ready publication, autonomous advice, client communication, order generation, OMS execution, fill, and settlement scope."
+    },
+    {
       "route": "/recommendations?portfolioId={portfolio_id}&mode=proof",
       "certification_status": "certified",
       "panel_ids": ["advisory.bank_demo_proof"],
