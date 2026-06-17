@@ -236,7 +236,9 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
     advisory_copilot = advisory_scenarios["advisory_copilot"]
     assert advisory_copilot["scenario_id"] == "RFC27_ADVISORY_COPILOT_CANONICAL"
-    assert advisory_copilot["expected_workbench_panel"] == "advisory.advisory_copilot"
+    assert advisory_copilot["implementation_posture"] == "PLANNED_NOT_CANONICAL_DEMO_READY"
+    assert advisory_copilot["expected_workbench_panel"] is None
+    assert advisory_copilot["expected_support_status"] == "NOT_IN_CURRENT_CANONICAL_DEMO_SCOPE"
     assert advisory_copilot["expected_client_ready_publication"] == "BLOCKED"
     assert advisory_copilot["expected_review_posture"] == "REVIEW_REQUIRED"
     assert advisory_copilot["expected_guardrail_reason"] == "CLIENT_READY_PUBLICATION_FORBIDDEN"
@@ -264,7 +266,11 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     )
     assert (
         bank_demo_proof["expected_claim_postures"]["advisor_journey_backend_evidence_available"]
-        == "BACKEND_BACKED_UI_PENDING"
+        == "IMPLEMENTATION_BACKED"
+    )
+    assert (
+        bank_demo_proof["expected_claim_postures"]["advisor_use_document_proof_available"]
+        == "IMPLEMENTATION_BACKED"
     )
     assert "ORDER_FILL_SETTLEMENT_SYSTEM_OF_RECORD" in bank_demo_proof[
         "unsupported_capability_boundaries"
