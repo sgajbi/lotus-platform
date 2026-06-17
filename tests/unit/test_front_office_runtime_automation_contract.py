@@ -7,6 +7,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def test_platform_qa_core_gate_uses_canonical_front_office_verifier() -> None:
+    qa_matrix = json.loads((ROOT / "automation" / "qa-matrix.json").read_text(encoding="utf-8"))
+    core_entry = next(item for item in qa_matrix["repositories"] if item["repo"] == "lotus-core")
+    custom_checks = core_entry["checks"]["custom_checks"]
+    canonical_check = next(
+        item for item in custom_checks if item["id"] == "canonical-front-office-analytics-maturity"
+    )
+
+    command = canonical_check["command"]
+    assert "front_office_portfolio_seed.py" in command
+    assert "--verify-only" in command
+    assert "PB_SG_GLOBAL_BAL_001" in command
+    assert "BMK_PB_GLOBAL_BALANCED_60_40" not in command
+    assert "core_seeded_analytics_maturity_validation.py" not in command
+
+
 def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> None:
     wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(encoding="utf-8")
     profiles_doc = json.loads((ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8"))
