@@ -319,45 +319,6 @@
       "owner_follow_up_rfc": null
     },
     {
-      "panel_id": "advisory.advisory_copilot",
-      "display_name": "Governed Advisory Copilot",
-      "screen_id": "advisory.advisory_copilot",
-      "route": "/recommendations?portfolioId={portfolio_id}&mode=copilot",
-      "panel_kind": "workflow_panel",
-      "panel_level": "panel",
-      "parent_panel_id": null,
-      "owning_service": "lotus-advise",
-      "gateway_endpoint": "/api/v1/advisory-copilot/actions",
-      "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "ready",
-      "allowed_states": ["ready", "loading", "empty", "partial", "unavailable", "error"],
-      "validation_rules": {
-        "ready": [
-          "source-owned evidence packet projection renders through Gateway",
-          "all six governed copilot action families are validated against source evidence",
-          "internal review records through Gateway with idempotency and audit evidence",
-          "client-ready publication, policy approval, client communication delivery, order generation, and OMS execution remain explicitly absent"
-        ],
-        "partial": [
-          "source-owned unsupported evidence is visible without browser-side fallback synthesis"
-        ],
-        "empty": [
-          "absence of proposal-scoped copilot evidence is explicit before Gateway-backed creation"
-        ],
-        "loading": ["advisory copilot route hydration only"],
-        "error": ["Gateway advisory copilot failure is explicit and user-visible"]
-      },
-      "screenshot_policy": {
-        "capture_required": true,
-        "screenshot_name": "advisory-advisory-copilot-live.png"
-      },
-      "evidence_required": true,
-      "methodology_reference": "lotus-advise/docs/rfcs/RFC-0027-governed-advisory-ai-copilot.md",
-      "known_limitations": [],
-      "out_of_scope_reason": null,
-      "owner_follow_up_rfc": null
-    },
-    {
       "panel_id": "advisory.bank_demo_proof",
       "display_name": "Bank Demo Proof",
       "screen_id": "advisory.bank_demo_proof",
