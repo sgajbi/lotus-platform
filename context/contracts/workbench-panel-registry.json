@@ -8,7 +8,8 @@
     "RFC-0079",
     "RFC-0041",
     "RFC-0042",
-    "RFC-0026"
+    "RFC-0026",
+    "RFC-0027"
   ],
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
   "panels": [
@@ -315,6 +316,51 @@
       "evidence_required": true,
       "methodology_reference": "lotus-advise/docs/rfcs/RFC-0026-advisor-cockpit-operating-workflow.md",
       "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "advisory.advisory_copilot",
+      "display_name": "Advisory Copilot",
+      "screen_id": "advisory.advisory_copilot",
+      "route": "/recommendations?portfolioId={portfolio_id}&mode=copilot",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-advise",
+      "gateway_endpoint": "/api/v1/advisory-copilot/actions",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "ready",
+      "allowed_states": ["ready", "loading", "empty", "partial", "unavailable", "error"],
+      "validation_rules": {
+        "ready": [
+          "advisory copilot supportability renders through Gateway",
+          "source-backed evidence packets are created through Gateway",
+          "all canonical copilot action families run with review-required posture",
+          "internal review records through Gateway with idempotency protection",
+          "client-ready publication, policy approval, OMS lifecycle, and client communication remain explicitly blocked"
+        ],
+        "partial": [
+          "source-owned supportability gaps and unsupported capabilities are explicit without local fallback copilot output"
+        ],
+        "empty": [
+          "absence of persisted copilot runs is explicit before Gateway-backed creation"
+        ],
+        "loading": ["advisory copilot route hydration only"],
+        "unavailable": [
+          "Gateway, lotus-advise, or lotus-ai copilot unavailability is explicit and no local copilot output is shown"
+        ],
+        "error": ["Gateway advisory copilot failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "advisory-advisory-copilot-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": "lotus-advise/docs/rfcs/RFC-0027-governed-advisory-ai-copilot.md",
+      "known_limitations": [
+        "Workbench renders source-owned RFC-0027 internal advisor/reviewer copilot posture only; client-ready publication, policy approval or sign-off, OMS order lifecycle, and client communication delivery remain unsupported"
+      ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": null
     },

@@ -123,6 +123,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
         "dpm.copilot_workspace": None,
         "proposal.memo_evidence_pack": "/api/v1/proposals/{proposal_id}/versions/{version_no}/memo",
         "advisory.advisor_cockpit": "/api/v1/advisor-cockpit/actions",
+        "advisory.advisory_copilot": "/api/v1/advisory-copilot/actions",
         "advisory.bank_demo_proof": "/api/v1/advisory/bank-demo-proof/supported-claim-register",
     }
 
@@ -229,7 +230,25 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert "OMS execution" in panel_by_id["advisory.advisor_cockpit"]["validation_rules"][
         "ready"
     ][4]
-    assert "advisory.advisory_copilot" not in panel_by_id
+    assert panel_by_id["advisory.advisory_copilot"]["owning_service"] == "lotus-advise"
+    assert panel_by_id["advisory.advisory_copilot"]["required_support_state"] == "ready"
+    assert panel_by_id["advisory.advisory_copilot"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["advisory.advisory_copilot"]["screenshot_policy"]["screenshot_name"] == (
+        "advisory-advisory-copilot-live.png"
+    )
+    assert "idempotency protection" in panel_by_id["advisory.advisory_copilot"][
+        "validation_rules"
+    ]["ready"][3]
+    assert "client-ready publication" in panel_by_id["advisory.advisory_copilot"][
+        "known_limitations"
+    ][0]
     assert panel_by_id["advisory.bank_demo_proof"]["owning_service"] == "lotus-advise"
     assert panel_by_id["advisory.bank_demo_proof"]["required_support_state"] == "ready"
     assert panel_by_id["advisory.bank_demo_proof"]["allowed_states"] == [

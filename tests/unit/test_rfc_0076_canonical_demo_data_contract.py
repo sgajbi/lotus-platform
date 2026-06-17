@@ -236,9 +236,11 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert "OMS_ORDER_LIFECYCLE" in advisor_cockpit["unsupported_capability_boundaries"]
     advisory_copilot = advisory_scenarios["advisory_copilot"]
     assert advisory_copilot["scenario_id"] == "RFC27_ADVISORY_COPILOT_CANONICAL"
-    assert advisory_copilot["implementation_posture"] == "PLANNED_NOT_CANONICAL_DEMO_READY"
-    assert advisory_copilot["expected_workbench_panel"] is None
-    assert advisory_copilot["expected_support_status"] == "NOT_IN_CURRENT_CANONICAL_DEMO_SCOPE"
+    assert advisory_copilot["implementation_posture"] == "GATEWAY_WORKBENCH_CANONICAL_DEMO_READY"
+    assert advisory_copilot["expected_workbench_panel"] == "advisory.advisory_copilot"
+    assert advisory_copilot["expected_support_status"] == (
+        "ADVISE_COPILOT_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED"
+    )
     assert advisory_copilot["expected_client_ready_publication"] == "BLOCKED"
     assert advisory_copilot["expected_review_posture"] == "REVIEW_REQUIRED"
     assert advisory_copilot["expected_guardrail_reason"] == "CLIENT_READY_PUBLICATION_FORBIDDEN"

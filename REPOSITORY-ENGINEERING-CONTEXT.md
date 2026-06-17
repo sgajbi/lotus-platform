@@ -218,6 +218,11 @@ Boundary rules:
     owning-repository evidence; they must not promote external OMS execution, PM scoring,
     client-communication lineage, autonomous AI decisioning, or other unsupported target-state
     claims.
+38. The canonical front-office contract and Workbench panel registry now include RFC-0027
+    advisory-copilot proof as `advisory.advisory_copilot`, with Gateway-backed route
+    `/api/v1/advisory-copilot/actions`, source-owned `lotus-advise` supportability, and explicit
+    boundaries from client-ready publication, autonomous advice, external client communication,
+    and OMS/order/fill/settlement posture.
 
 ## Repo-Native Commands
 

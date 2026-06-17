@@ -335,9 +335,9 @@
     },
     "advisory_copilot": {
       "scenario_id": "RFC27_ADVISORY_COPILOT_CANONICAL",
-      "implementation_posture": "PLANNED_NOT_CANONICAL_DEMO_READY",
-      "expected_workbench_panel": null,
-      "expected_support_status": "NOT_IN_CURRENT_CANONICAL_DEMO_SCOPE",
+      "implementation_posture": "GATEWAY_WORKBENCH_CANONICAL_DEMO_READY",
+      "expected_workbench_panel": "advisory.advisory_copilot",
+      "expected_support_status": "ADVISE_COPILOT_GATEWAY_WORKBENCH_CANONICAL_PROOF_SUPPORTED",
       "expected_client_ready_publication": "BLOCKED",
       "expected_review_posture": "REVIEW_REQUIRED",
       "expected_reviewed_posture": "APPROVED_FOR_INTERNAL_USE",
