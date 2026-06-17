@@ -46,7 +46,7 @@
     {
       "claim_id": "canonical_bank_demo_journey",
       "title": "Canonical private-banking advisory demo journey",
-      "classification": "BACKEND_BACKED_UI_PENDING",
+      "classification": "IMPLEMENTATION_BACKED",
       "audience": [
         "ENGINEERING",
         "PRE_SALES"
@@ -60,15 +60,15 @@
         "lotus-platform:context/contracts/canonical-front-office-demo-data-contract.json"
       ],
       "wording_rules": [
-        "Say Slice 0 decisions are locked and implementation is in progress.",
-        "Do not call the journey client-demo ready until Workbench proof passes."
+        "Say the canonical advisor journey is implementation-backed for the governed PB_SG_GLOBAL_BAL_001 demo scope.",
+        "Reference BANK_DEMO_PROOF_PACK_CREATED and governed front-office validation evidence when publishing demo truth."
       ],
       "proof_requirements": [
         "Advise proof-pack API evidence",
         "Gateway contract evidence",
         "Workbench browser validation evidence"
       ],
-      "promotion_gate": "Promote only after BANK_DEMO_PROOF_PACK_CREATED and governed front-office validation pass."
+      "promotion_gate": "Promoted after BANK_DEMO_PROOF_PACK_CREATED and governed front-office validation passed for the canonical demo scope."
     },
     {
       "claim_id": "external_client_delivery",
