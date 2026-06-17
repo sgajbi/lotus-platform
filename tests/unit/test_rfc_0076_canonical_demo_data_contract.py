@@ -264,7 +264,11 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     )
     assert (
         bank_demo_proof["expected_claim_postures"]["advisor_journey_backend_evidence_available"]
-        == "BACKEND_BACKED_UI_PENDING"
+        == "IMPLEMENTATION_BACKED"
+    )
+    assert (
+        bank_demo_proof["expected_claim_postures"]["advisor_use_document_proof_available"]
+        == "IMPLEMENTATION_BACKED"
     )
     assert "ORDER_FILL_SETTLEMENT_SYSTEM_OF_RECORD" in bank_demo_proof[
         "unsupported_capability_boundaries"
