@@ -10,6 +10,7 @@ $projectsRoot = Resolve-Path (Join-Path $root "..")
 
 $pythonScript = @'
 import json
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -30,9 +31,16 @@ policy_version = vectors_payload["policy_version"]
 
 results = {}
 for name, (repo, rel_path, module_name) in targets.items():
+    repo_path = projects_root / repo
     module_path = projects_root / repo / rel_path
+    sys.path.insert(0, str(repo_path))
     sys.path.insert(0, str(module_path))
-    mod = __import__(module_name)
+    module_file = module_path / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(f"lotus_rounding_policy_{name}", module_file)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load {name} rounding policy from {module_file}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
     service_results = {}
     for semantic, values in vectors.items():
         quantizer = getattr(mod, f"quantize_{semantic}")
