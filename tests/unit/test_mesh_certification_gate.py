@@ -10,6 +10,30 @@ ROOT = Path(__file__).resolve().parents[2]
 GATE_PATH = ROOT / "automation" / "mesh_certification_gate.py"
 
 
+def _write_gateway_domain_product_publication(gateway_root: Path) -> None:
+    router_root = gateway_root / "src" / "app" / "routers"
+    service_path = (
+        gateway_root / "src" / "app" / "services" / "domain_product_catalog_service.py"
+    )
+    router_root.mkdir(parents=True)
+    service_path.parent.mkdir(parents=True)
+    service_path.write_text("# service exists\n", encoding="utf-8")
+    routes = {
+        "domain_product_catalog.py": '"/catalog"',
+        "domain_product_detail.py": (
+            '"/products/{producer_repository}/{product_name}/{product_version}"'
+        ),
+        "domain_product_graph.py": '"/dependency-graph"',
+        "domain_product_trust.py": '"/trust-certification"',
+    }
+    for module_name, route_fragment in routes.items():
+        (router_root / module_name).write_text(
+            'router = APIRouter(prefix="/api/v1/domain-products")\n'
+            f"@router.get({route_fragment})\n",
+            encoding="utf-8",
+        )
+
+
 def _load_gate_module():
     automation_path = str(ROOT / "automation")
     if automation_path not in sys.path:
@@ -492,6 +516,36 @@ def test_mesh_certification_gate_writes_json_markdown_and_issues(
     assert (output_dir / "enterprise-mesh-operating-report.md").exists()
 
 
+def test_mesh_certification_gate_accepts_split_gateway_publication_modules(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    gateway_root = tmp_path / "lotus-gateway"
+    workbench_root = tmp_path / "lotus-workbench"
+    workbench_page = workbench_root / "src" / "app" / "data-products" / "page.tsx"
+    workbench_api = workbench_root / "src" / "features" / "domain-products" / "api.ts"
+    _write_gateway_domain_product_publication(gateway_root)
+    workbench_page.parent.mkdir(parents=True)
+    workbench_api.parent.mkdir(parents=True)
+    workbench_page.write_text("// page exists\n", encoding="utf-8")
+    workbench_api.write_text(
+        'const BFF_PROXY_BASE = "/api/bff/api/v1";\n',
+        encoding="utf-8",
+    )
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gateway_root=gateway_root,
+        workbench_root=workbench_root,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+    )
+
+    issue_codes = {issue["code"] for issue in status["issues"]}
+    assert "gateway_publication_drift" not in issue_codes
+
+
 def test_mesh_certification_gate_detects_gateway_and_workbench_drift(
     tmp_path: Path,
 ) -> None:
@@ -533,3 +587,34 @@ def test_mesh_certification_gate_detects_gateway_and_workbench_drift(
     assert "gateway_publication_drift" in issue_codes
     assert "workbench_consumption_drift" in issue_codes
     assert status["summary"]["error_count"] >= 2
+
+
+def test_mesh_certification_gate_detects_missing_split_gateway_module(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    gateway_root = tmp_path / "lotus-gateway"
+    workbench_root = tmp_path / "lotus-workbench"
+    workbench_page = workbench_root / "src" / "app" / "data-products" / "page.tsx"
+    workbench_api = workbench_root / "src" / "features" / "domain-products" / "api.ts"
+    _write_gateway_domain_product_publication(gateway_root)
+    (gateway_root / "src" / "app" / "routers" / "domain_product_trust.py").unlink()
+    workbench_page.parent.mkdir(parents=True)
+    workbench_api.parent.mkdir(parents=True)
+    workbench_page.write_text("// page exists\n", encoding="utf-8")
+    workbench_api.write_text(
+        'const BFF_PROXY_BASE = "/api/bff/api/v1";\n',
+        encoding="utf-8",
+    )
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gateway_root=gateway_root,
+        workbench_root=workbench_root,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+    )
+
+    issue_codes = {issue["code"] for issue in status["issues"]}
+    assert "gateway_publication_drift" in issue_codes

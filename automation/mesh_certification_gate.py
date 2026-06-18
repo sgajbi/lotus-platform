@@ -520,7 +520,28 @@ def _check_gateway_publication(
     require_sibling_repos: bool,
     issues: list[MeshCertificationIssue],
 ) -> None:
-    router_path = gateway_root / "src" / "app" / "routers" / "domain_products.py"
+    router_root = gateway_root / "src" / "app" / "routers"
+    router_contracts = [
+        (
+            router_root / "domain_product_catalog.py",
+            ['prefix="/api/v1/domain-products"', '"/catalog"'],
+        ),
+        (
+            router_root / "domain_product_detail.py",
+            [
+                'prefix="/api/v1/domain-products"',
+                '"/products/{producer_repository}/{product_name}/{product_version}"',
+            ],
+        ),
+        (
+            router_root / "domain_product_graph.py",
+            ['prefix="/api/v1/domain-products"', '"/dependency-graph"'],
+        ),
+        (
+            router_root / "domain_product_trust.py",
+            ['prefix="/api/v1/domain-products"', '"/trust-certification"'],
+        ),
+    ]
     service_path = (
         gateway_root / "src" / "app" / "services" / "domain_product_catalog_service.py"
     )
@@ -536,7 +557,8 @@ def _check_gateway_publication(
             source_evidence_path=gateway_root,
         )
         return
-    missing_paths = [path for path in (router_path, service_path) if not path.exists()]
+    required_paths = [path for path, _ in router_contracts] + [service_path]
+    missing_paths = [path for path in required_paths if not path.exists()]
     if missing_paths:
         for path in missing_paths:
             _issue(
@@ -544,29 +566,23 @@ def _check_gateway_publication(
                 code="gateway_publication_drift",
                 severity="error",
                 producer_repository="lotus-gateway",
-                remediation="Restore the gateway domain-product publication module.",
+                remediation="Restore the gateway domain-product publication module set.",
                 source_evidence_path=path,
             )
         return
 
-    router_text = router_path.read_text(encoding="utf-8")
-    required_fragments = [
-        'prefix="/api/v1/domain-products"',
-        '"/catalog"',
-        '"/products/{producer_repository}/{product_name}/{product_version}"',
-        '"/dependency-graph"',
-        '"/trust-certification"',
-    ]
-    for fragment in required_fragments:
-        if fragment not in router_text:
-            _issue(
-                issues,
-                code="gateway_publication_drift",
-                severity="error",
-                producer_repository="lotus-gateway",
-                remediation=f"Restore gateway route contract fragment: {fragment}",
-                source_evidence_path=router_path,
-            )
+    for router_path, required_fragments in router_contracts:
+        router_text = router_path.read_text(encoding="utf-8")
+        for fragment in required_fragments:
+            if fragment not in router_text:
+                _issue(
+                    issues,
+                    code="gateway_publication_drift",
+                    severity="error",
+                    producer_repository="lotus-gateway",
+                    remediation=f"Restore gateway route contract fragment: {fragment}",
+                    source_evidence_path=router_path,
+                )
 
 
 def _check_workbench_consumption(

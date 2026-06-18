@@ -113,8 +113,11 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 24. `../tests/unit/test_mesh_certification_workflow.py`
     Protects RFC-0090 workflow triggers, branch override inputs, checkout layout, artifact upload,
     read-only posture, and no duplicated certification logic in workflow YAML.
-25. `../../lotus-gateway/src/app/routers/domain_products.py`
-    Gateway API face for domain-product catalog, detail, dependency graph, and live trust
+25. `../../lotus-gateway/src/app/routers/domain_product_catalog.py`,
+    `../../lotus-gateway/src/app/routers/domain_product_detail.py`,
+    `../../lotus-gateway/src/app/routers/domain_product_graph.py`, and
+    `../../lotus-gateway/src/app/routers/domain_product_trust.py`
+    Gateway API face modules for domain-product catalog, detail, dependency graph, and live trust
     certification.
 26. `../../lotus-gateway/src/app/services/domain_product_catalog_service.py`
     Gateway service that reads platform-generated discovery and trust artifacts without becoming the
