@@ -636,7 +636,10 @@ Agents working in Lotus are expected to operate like disciplined banking-grade e
 2. use standards, skills, validators, and runbooks before improvising a new local pattern,
 3. prefer async GitHub-backed heavy execution when it is more efficient than repeated heavyweight local reruns,
 4. promote repeatable patterns into durable guidance,
-5. keep repo and platform context current when reality changes.
+5. keep repo and platform context current when reality changes,
+6. reject backend or frontend changes that pass tests but degrade measured quality through
+   copy-paste, architecture-boundary drift, security suppressions, weak tests, unsupported UI,
+   unsupported documentation claims, or missing runtime/browser proof.
 
 ### Skills and working methods
 

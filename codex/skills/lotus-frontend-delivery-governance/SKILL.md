@@ -1,6 +1,6 @@
 ---
 name: lotus-frontend-delivery-governance
-description: "Use when implementing or reviewing frontend work in Lotus product surfaces such as lotus-workbench or other Lotus UIs, including private banking analytics dashboards, Workbench panels, forms, tables, charts, and UI polish. Apply the Lotus platform CI lane model, canonical gateway-first integration rules, browser validation expectations, platform end-to-end evidence requirements, enterprise private-banking UI quality guidance, and truthful PR process defined by RFC-0072."
+description: "Use when implementing or reviewing frontend work in Lotus product surfaces such as lotus-workbench or other Lotus UIs, including private banking analytics dashboards, Workbench panels, forms, tables, charts, and UI polish. Apply the Lotus platform CI lane model, canonical gateway-first integration rules, browser validation expectations, platform end-to-end evidence requirements, enterprise private-banking UI quality guidance, non-degradation guardrails against unsupported or low-quality UI code, and truthful PR process defined by RFC-0072."
 ---
 
 # Lotus Frontend Delivery Governance
@@ -70,6 +70,38 @@ Before changing UI:
    contract and RFC-0077 panel registry rather than page-local assumptions.
 7. Screenshots alone are not proof for governed front-office surfaces.
 
+## Frontend Non-Degradation Bar
+
+Frontend work must leave the product surface at least as truthful, usable, accessible, observable,
+and maintainable as it was before the change.
+
+Before editing, identify the quality signals that can regress in the touched UI:
+
+1. gateway/API contract truth and supported backend capability,
+2. loading, empty, partial, ready, error, and permission states,
+3. layout stability across desktop and mobile viewports,
+4. table, chart, filter, drill-down, and action ergonomics for advisor workflows,
+5. accessibility semantics, keyboard reachability, focus behavior, and color contrast,
+6. duplicate view-model logic, page-local data shaping, and stale mock fixtures,
+7. browser validation, screenshot evidence, and canonical runtime proof when visually important.
+
+During implementation:
+
+1. prefer existing components, design tokens, view-model helpers, route conventions, and gateway
+   clients before adding local one-off code,
+2. keep UI state backed by real contracts or clearly isolated deterministic fixtures for tests,
+3. remove stale mock-only or page-local assumptions when the slice safely reaches them,
+4. preserve user-facing behavior unless the behavior change is intentional, tested, and documented,
+5. use browser or screenshot proof for visual/layout changes, not just unit tests.
+
+Do not claim frontend progress from:
+
+1. decorative polish that hides unsupported backend behavior,
+2. screenshots captured before canonical API and panel validation pass,
+3. copy-pasted panels with duplicated business calculations,
+4. tests that only assert component rendering while ignoring state, data, or interactions,
+5. text that describes missing functionality instead of implementing supported workflow behavior.
+
 ## Workbench Experience Model
 
 For private banking analytics surfaces, organize the screen around advisor workflow value:
@@ -117,6 +149,8 @@ For those canonical runtime tasks, the governed source of truth is:
 7. Panel support posture is truthful and matches the governed registry state.
 8. Private banking analytics panels show as-of date, benchmark or mandate context, currency/unit,
    freshness, supportability, and source/evidence posture where applicable.
+9. The diff preserves or improves contract truth, state handling, accessibility, layout stability,
+   duplicate view-model posture, and browser-validated behavior.
 
 ## Cross-Repo Rule
 

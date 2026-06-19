@@ -169,7 +169,10 @@ Definition of green:
 1. local repository-native gates are green,
 2. required PR checks are green in GitHub,
 3. no known flaky required check is being ignored,
-4. PR evidence matches what actually ran.
+4. PR evidence matches what actually ran,
+5. PR evidence names any measured quality movement or explicitly states why the slice preserves
+   duplicate-code, complexity, architecture-boundary, security, API-contract, accessibility, and
+   supportability posture.
 
 Definition of done:
 
@@ -231,6 +234,9 @@ Target end-state: local = remote = main.
 6. `Tiering:` confirm whether heavy checks are PR-blocking or scheduled/manual for this change
 7. `Stranded truth:` unmerged governance-bearing branches classified, with any restored or
    superseded durable truth named explicitly
+8. `Non-degradation:` measured quality movement, or a precise preservation statement for
+   duplicate-code, complexity, architecture boundaries, security, API contracts, accessibility, and
+   supportability as applicable
 
 ## Additional Lotus Rules
 
