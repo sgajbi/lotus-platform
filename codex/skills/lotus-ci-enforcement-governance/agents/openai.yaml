@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lotus CI Enforcement Governance"
+  short_description: "Promote high-signal Lotus quality checks into governed CI gates"

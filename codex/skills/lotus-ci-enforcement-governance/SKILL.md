@@ -1,0 +1,101 @@
+---
+name: lotus-ci-enforcement-governance
+description: Use when designing, promoting, reviewing, or fixing Lotus CI enforcement, quality gates, repository-native Make/NPM targets, GitHub Actions lanes, regression blockers, quality scorecards, or agent-facing development guardrails. Apply when the user asks to improve CI, prevent future degradation, make agent-driven work higher quality, promote report-only inventories to blocking gates, or update skills/context so enforcement patterns are reusable across Lotus repositories.
+---
+
+# Lotus CI Enforcement Governance
+
+Use this skill to convert proven quality signals into high-signal, low-noise CI enforcement.
+
+## Core Rule
+
+Promote gates that prevent real degradation. Do not add cosmetic, subjective, flaky, or redundant
+checks just because a metric exists.
+
+## Gate Promotion Standard
+
+Before making a quality signal blocking, confirm:
+
+1. the current baseline is measured and reproducible,
+2. the finding class has clear engineering consequence,
+3. the gate has a repo-native local command,
+4. false positives and exceptions are understood,
+5. the gate is fast enough for its intended lane,
+6. focused unit tests cover pass and fail behavior,
+7. quality artifacts and scorecards will reflect the new truth,
+8. the PR evidence will show the command that developers and agents should run.
+
+Prefer promoting clean, deterministic inventories with zero accepted findings first, such as:
+
+1. architecture boundary violations,
+2. router or middleware thinness violations,
+3. first-party security findings,
+4. duplicate first-party implementation hotspots,
+5. API vocabulary or OpenAPI contract drift,
+6. repository-native domain contract validation.
+
+Keep report-only until stable when the signal is noisy or policy is not settled, such as:
+
+1. maintainability index,
+2. broad dead-code scans with framework false positives,
+3. public docstring percentage,
+4. branch coverage before measurement is configured,
+5. dependency hygiene with unresolved runtime-only declarations.
+
+## Implementation Pattern
+
+For a new enforcement gate:
+
+1. add threshold arguments to the existing inventory script instead of duplicating scanners,
+2. add a Make/NPM target with a clear name,
+3. wire the target into the repo's canonical local aggregate command,
+4. add it to the right GitHub Actions lane:
+   - fast static gates for deterministic static analysis,
+   - contract/security gates for security, dependency, API, vocabulary, and migration checks,
+   - PR/main lanes for heavier integration, coverage, Docker, and runtime validation,
+5. add focused tests for passing and failing threshold behavior,
+6. update quality reports, scorecards, review ledgers, and PR evidence,
+7. fix discovered root causes before adding allowlists or suppressions.
+
+When a newly promoted gate finds issues, fix the issue class directly if the code change is narrow.
+Use allowlists only when the allowlist is truthful current-state governance and is documented.
+
+## Agent-Driven Development Guardrails
+
+For repositories where agents do most implementation work, prefer gates that:
+
+1. fail before expensive test matrices,
+2. point to the exact file, rule, and remediation,
+3. are runnable through one repo-native command,
+4. prevent copy-paste drift, boundary erosion, insecure patterns, and API contract drift,
+5. produce artifacts future agents can read before choosing the next slice.
+
+Avoid gates that require agents to infer subjective design preferences from vague failure text.
+
+## Context And Skill Maintenance
+
+If a repeatable enforcement pattern emerges:
+
+1. update the platform-owned skill source under `lotus-platform/codex/skills`,
+2. update `codex/skills/lotus-skill-manifest.json` when adding, removing, or moving skills,
+3. update `context/LOTUS-SKILL-ROUTING-MAP.md` when routing expectations change,
+4. update central context or onboarding docs when agent workflow expectations change,
+5. run platform bootstrap/validation automation to sync local skills and `AGENTS.md`,
+6. preserve unknown local non-Lotus skills.
+
+Do not hand-edit local `C:\Users\<user>\.codex\skills` as the source of truth. Sync it from
+`lotus-platform`.
+
+## PR Evidence
+
+For CI-enforcement PRs, include:
+
+1. the measured baseline before promotion,
+2. the new local command,
+3. focused pass/fail tests for the gate,
+4. aggregate local command output,
+5. GitHub lane placement,
+6. scorecard or ledger movement,
+7. explicit no-wiki-change or wiki-publication decision,
+8. stranded-truth reconciliation for workflow, context, or skill changes.
+

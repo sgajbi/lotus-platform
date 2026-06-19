@@ -141,6 +141,7 @@ Common Lotus skill routes:
 | frontend implementation or review | `lotus-frontend-delivery-governance` |
 | PR merge or pre-merge checks | `lotus-pr-premerge-gate` |
 | GitHub CI failure fix-forward | `gh-fix-ci` or GitHub plugin CI skill |
+| CI quality-gate design or report-only inventory promotion | `lotus-ci-enforcement-governance` |
 | platform validation and QA | `lotus-qa-platform-validator` |
 | RFC quality and review loop | `lotus-rfc-review-loop` |
 | async automation monitoring | `async-task-runner` or `platform-pulse-monitor` |
@@ -236,6 +237,10 @@ Update repository-local context when:
 4. repo-specific constraints or pitfalls change.
 
 Do not update durable context for transient CI state unless it becomes a repeatable pattern.
+
+When CI enforcement is the repeatable pattern, update the platform-owned skill source and central
+skill routing context, then run the developer-environment bootstrap or validation automation so
+local agent skill copies and `AGENTS.md` remain synchronized.
 
 ## Anti-Patterns
 

@@ -9,8 +9,9 @@ The local Codex profile, normally `C:\Users\<user>\.codex\skills`, is a consumer
 This directory contains:
 
 1. Lotus domain and delivery governance skills,
-2. platform automation and pulse-monitoring skills,
-3. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+2. CI-enforcement and quality-gate governance skills,
+3. platform automation and pulse-monitoring skills,
+4. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
 
 It does not own:
 

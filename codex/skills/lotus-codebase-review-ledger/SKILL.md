@@ -51,6 +51,7 @@ Prefer patterns such as:
 - consumer lifecycle and startup/shutdown behavior
 - OpenAPI/example consistency
 - stale code, dead code, or documentation drift
+- clean report-only quality inventories that should become CI regression blockers
 
 Only do file-by-file review when a single file is the real risk unit.
 
@@ -66,6 +67,7 @@ Use concrete classes:
 - observability gap
 - test gap
 - documentation drift
+- CI-enforcement gap
 
 Do not record vague findings like "needs cleanup" without a specific class and consequence.
 
@@ -83,6 +85,7 @@ Prefer pushing invariants downward into:
 - unit tests
 - repository/query-shape tests
 - DB-backed integration tests
+- repo-native quality gates when the invariant is deterministic and broadly protective
 
 Use full E2E and heavy gates as proof, not as the primary debugging loop.
 

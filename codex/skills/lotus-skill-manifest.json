@@ -26,6 +26,13 @@
       "reason": "Pattern-based Lotus codebase review with durable review ledger."
     },
     {
+      "name": "lotus-ci-enforcement-governance",
+      "path": "codex/skills/lotus-ci-enforcement-governance",
+      "category": "ci-enforcement-governance",
+      "directly_lotus_owned": true,
+      "reason": "High-signal CI quality-gate promotion and agent-development enforcement governance."
+    },
+    {
       "name": "lotus-frontend-delivery-governance",
       "path": "codex/skills/lotus-frontend-delivery-governance",
       "category": "frontend-delivery-governance",
