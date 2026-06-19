@@ -647,7 +647,18 @@ Use the right skill or workflow for the task:
 3. frontend delivery governance for UI work,
 4. PR pre-merge governance for merge preparation,
 5. QA or platform validator skills for stack and platform validation,
-6. RFC or documentation skills for governance work.
+6. RFC or documentation skills for governance work,
+7. `lotus-ci-enforcement-governance` for CI gate design, report-only inventory promotion,
+   scorecard-backed regression blockers, and agent-driven development guardrails.
+
+For CI-enforcement work, agents should first prove that the signal is measured, deterministic,
+actionable, and low-noise. Prefer gates that fail early through repo-native commands and block real
+degradation such as architecture-boundary erosion, insecure first-party patterns, duplicate
+implementation hotspots, OpenAPI/vocabulary drift, or contract-validation failures. Keep noisy or
+policy-immature metrics report-only until false positives, exceptions, and lane placement are
+settled. When a repeatable enforcement pattern is learned, update platform-owned skills, routing
+context, and local agent artifacts through the bootstrap/validation automation rather than
+hand-editing local skill copies as the source of truth.
 
 When a repeatable pattern emerges:
 

@@ -21,6 +21,10 @@ Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing a
 Use `lotus-front-office-runtime` as the primary route when the backend change is being validated
 through the governed canonical front-office runtime and populated Workbench product surfaces.
 
+Use `lotus-ci-enforcement-governance` as the primary route when the backend task is mainly about
+designing, promoting, or hardening CI quality gates, repository-native enforcement targets,
+scorecard-backed regression blockers, or agent-development guardrails.
+
 ## Context-First Rule
 
 Before substantive backend work:
@@ -70,6 +74,9 @@ Before changing code:
    stranded on an unmerged side branch.
 7. For RFC-driven backend work, run stranded-truth reconciliation before implementation starts,
    before final closure, and before moving to the next RFC.
+8. When a quality inventory is clean, deterministic, and already measured, consider whether
+   `lotus-ci-enforcement-governance` should promote it to a blocking gate instead of leaving it as
+   report-only evidence.
 
 ## Required Validation Thinking
 

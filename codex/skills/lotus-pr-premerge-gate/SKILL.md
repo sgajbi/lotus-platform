@@ -19,6 +19,9 @@ Apply it in line with:
 
 Use `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` as the operating sequence and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when a required check fails.
 
+Use `lotus-ci-enforcement-governance` before this skill when the work changes CI gate design,
+promotes report-only inventories to blocking checks, or updates agent-facing quality enforcement.
+
 ## Workspace Scope
 
 The governed source for this skill is `lotus-platform/codex/skills/lotus-pr-premerge-gate`.
@@ -154,6 +157,8 @@ Map the repo to one of these profiles before deciding what "required" means:
    - Diagnose from logs.
    - Fix-forward in same branch.
    - Re-run affected local gates before pushing again.
+8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
+   branch into the PR branch and rerun checks instead of bypassing branch protection.
 
 Rule: never enable merge (or auto-merge) while any required check is failing or pending with known
 instability. Pending heavy lanes with a stable history are acceptable for async monitoring once
@@ -235,6 +240,8 @@ Target end-state: local = remote = main.
 4. Keep merge strategy aligned to repo policy; do not squash unless the user or repo policy requires it.
 5. For governed front-office runtime or screenshot-proof changes, require machine-readable evidence
    in addition to screenshots.
+6. For CI-enforcement PRs, verify the PR body names the new repo-native command, lane placement,
+   focused gate tests, scorecard movement, and any skill/context sync evidence.
 
 ## Non-negotiables
 

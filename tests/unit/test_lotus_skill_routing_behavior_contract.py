@@ -37,6 +37,22 @@ def test_async_github_posture_is_reinforced_across_guidance() -> None:
     assert "gh pr checks <pr-number> --watch=false" in ramp_up
 
 
+def test_ci_enforcement_governance_route_is_unambiguous() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+    ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
+    ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
+    backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
+    pr_skill = _read(ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md")
+
+    assert "| Design or promote high-signal CI enforcement" in routing_map
+    assert "`lotus-ci-enforcement-governance`" in ramp_up
+    assert "`lotus-ci-enforcement-governance` for CI gate design" in engineering_context
+    assert "Promote gates that prevent real degradation." in ci_skill
+    assert "Use `lotus-ci-enforcement-governance` as the primary route" in backend_skill
+    assert "Use `lotus-ci-enforcement-governance` before this skill" in pr_skill
+
+
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     skill = _read(ROOT / "codex" / "skills" / "platform-automation-ops" / "SKILL.md")

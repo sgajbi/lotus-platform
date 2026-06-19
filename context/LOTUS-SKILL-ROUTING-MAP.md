@@ -20,9 +20,10 @@ When multiple Lotus skills appear relevant, choose in this order:
 
 1. front-office runtime and populated product-surface proof,
 2. platform or backend validation,
-3. repo-local frontend or backend delivery governance,
-4. PR merge and CI fix-forward workflows,
-5. RFC/governance/documentation-only workflows.
+3. CI-enforcement and quality-gate design,
+4. repo-local frontend or backend delivery governance,
+5. PR merge and CI fix-forward workflows,
+6. RFC/governance/documentation-only workflows.
 
 This prevents broad generic skills from intercepting more specific governed runtime tasks.
 
@@ -35,6 +36,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Run or fix RFC-0089/RFC-0090/RFC-0091/RFC-0092 mesh certification, enterprise maturity, and production operating-report failures across telemetry, SLO, access, lifecycle, evidence, drift trend, escalation ownership, GitHub cross-repo checkout, gateway publication, and Workbench discovery consumption | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate`, `github:gh-fix-ci`, `lotus-rfc-review-loop`, `lotus-qa-platform-validator` | `lotus-platform/automation/mesh_certification_gate.py`, `lotus-platform/automation/mesh_maturity_scope.py`, `lotus-platform/automation/generate_enterprise_mesh_operating_report.py`, `lotus-platform/.github/workflows/mesh-certification-gate.yml`, `lotus-platform/docs/operations/mesh-certification-gate-runbook.md` |
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
+| Design or promote high-signal CI enforcement, convert report-only inventories into blocking gates, prevent agent-driven quality degradation, or update quality scorecards and gate placement | `lotus-ci-enforcement-governance` | repo delivery governance skill, `lotus-pr-premerge-gate`, `lotus-codebase-review-ledger` | repo-native quality inventories, Make/NPM targets, GitHub Actions lanes, quality scorecards, and review ledgers |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Implement or review backend code in Lotus service repositories | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Standardize or refresh repository README and wiki documentation across Lotus repos, including business-application feature material, diagrams, implementation-backed demo readiness, current functional/non-functional posture, or restored durable documentation truth | `lotus-readme-wiki-governance` | repo delivery governance skill, `lotus-rfc-review-loop`, `lotus-pr-premerge-gate` for stranded-truth checks | repo-local engineering context, existing public-doc regression tests when present, `docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md`, `context/TASK-ROUTING-GUIDE.md`, and repo-local `wiki/` as the authored source when publishing |
@@ -88,16 +90,32 @@ Use when the task is about:
 5. GitHub issue review for endpoint-specific defects,
 6. duplicate, stale, or dead endpoint migration decisions.
 
+### `lotus-ci-enforcement-governance`
+
+Use when the task is about:
+
+1. improving CI enforcement or quality gates,
+2. promoting report-only quality inventories to blocking checks,
+3. preventing agent-driven code-quality regression,
+4. adding or changing repo-native quality commands,
+5. updating CI lane placement, scorecards, or enforcement evidence,
+6. syncing skill or agent-context guidance for a repeatable enforcement pattern.
+
 ## Keep, Tighten, Add, Remove Decisions
 
 ### Add
 
 1. `lotus-front-office-runtime`
+2. `lotus-ci-enforcement-governance`
 
 Reason:
 
 The governed front-office runtime path is important enough to need its own routing surface rather
 than being inferred from generic QA or frontend skills.
+
+CI-enforcement design now has enough repeated cross-repository behavior to need a focused routing
+surface. It should prevent broad backend, frontend, or PR workflow skills from adding noisy checks
+without first proving a measured, deterministic, high-signal gate.
 
 ### Tighten
 
