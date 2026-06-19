@@ -54,6 +54,16 @@ Before changing UI:
    - upstream domain app
    - shared capability service
 
+Before editing product UI code, inspect the existing implementation enough to name:
+
+1. the existing component, route, hook, client, view-model, and test patterns in the touched area,
+2. the current source of backend truth and whether it is canonical, fixture-only, or unsupported,
+3. the existing loading, empty, partial, ready, error, and permission states,
+4. the closest meaningful tests and browser/runtime proof commands,
+5. the quality signal the slice will improve or preserve.
+
+If you cannot name those items, keep reading before writing code.
+
 ## Frontend Non-Negotiables
 
 1. UI consumes canonical backend contracts, normally through `lotus-gateway`.
@@ -101,6 +111,18 @@ Do not claim frontend progress from:
 3. copy-pasted panels with duplicated business calculations,
 4. tests that only assert component rendering while ignoring state, data, or interactions,
 5. text that describes missing functionality instead of implementing supported workflow behavior.
+
+Reject agent-produced UI that only looks plausible. A Lotus frontend change is low quality if it:
+
+1. introduces a page-local data contract when a gateway or shared client already exists,
+2. duplicates calculations, status mapping, table shaping, or chart data transformations already
+   owned by a helper or backend contract,
+3. renders business-critical values without units, as-of date, source posture, or supportability
+   context where the surrounding surface expects them,
+4. handles only the happy path while silently weakening existing loading, empty, partial, error, or
+   permission behavior,
+5. ships layout changes without browser validation for the impacted viewport or governed runtime
+   proof when the screen participates in canonical Workbench evidence.
 
 ## Workbench Experience Model
 

@@ -96,3 +96,19 @@ def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> Non
     assert "Do not default to `lotus-platform/platform-stack` as the primary front-office product bring-up path." in ramp_up
     assert "Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack`" in engineering_context
     assert "label it with a `diagnostic-` prefix" in deployed_agents
+
+
+def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
+    frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
+
+    for required_text in (
+        "Before editing product UI code, inspect the existing implementation enough to name:",
+        "the existing component, route, hook, client, view-model, and test patterns",
+        "the current source of backend truth and whether it is canonical, fixture-only, or unsupported",
+        "Reject agent-produced UI that only looks plausible.",
+        "introduces a page-local data contract when a gateway or shared client already exists",
+        "duplicates calculations, status mapping, table shaping, or chart data transformations",
+        "handles only the happy path while silently weakening existing loading, empty, partial, error, or",
+        "ships layout changes without browser validation",
+    ):
+        assert required_text in frontend_skill
