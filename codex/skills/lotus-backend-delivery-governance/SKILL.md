@@ -60,6 +60,19 @@ Before changing code:
    - cross-app contracts
    - canonical front-office runtime behavior
 
+Before editing backend code, produce a short quality intake from the actual repository:
+
+1. name the existing module, service, repository, model, router, and test patterns in the touched
+   area,
+2. identify the canonical source of business truth and whether the code path is API-facing,
+   operator-facing, batch/runtime, or internal-only,
+3. identify the closest meaningful tests and the repo-native command that runs them,
+4. inspect the current duplicate-code, complexity/function-size, architecture-boundary, security,
+   API/OpenAPI, vocabulary, and contract signals that can regress,
+5. state the narrow quality signal the slice will improve or preserve.
+
+If you cannot name those items, keep reading before writing code.
+
 ## Delivery Rules
 
 1. Use repository-native commands as the source of truth.
@@ -110,6 +123,19 @@ Do not claim progress from:
 3. allowlists or suppressions without a documented reason and follow-up,
 4. generated abstractions that hide complexity without reducing duplicated responsibility,
 5. PR summaries that overstate readiness beyond the evidence.
+
+Reject agent-produced backend code that only appears plausible. A Lotus backend change is low
+quality if it:
+
+1. creates a parallel service, mapper, DTO, status enum, or contract vocabulary when a governed
+   helper or schema already exists,
+2. adds local branching, coercion, or fallback behavior that bypasses canonical domain rules,
+3. copies calculations, serialization envelopes, query shaping, or error mapping instead of
+   extracting the shared responsibility,
+4. weakens observability, lineage, runtime-status, or supportability evidence for operator-facing
+   paths,
+5. adds tests that only freeze implementation mechanics while leaving domain output, failure
+   behavior, or contract truth unverified.
 
 ## Required Validation Thinking
 

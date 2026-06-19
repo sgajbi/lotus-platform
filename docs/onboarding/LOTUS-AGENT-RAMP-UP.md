@@ -168,6 +168,11 @@ Prefer targeted local checks and GitHub-backed heavy execution. Do not repeatedl
 
 ## Implementation Non-Degradation Bar
 
+Before implementation, write a short quality intake from the actual codebase. It should name the
+existing owner patterns, source of truth, closest meaningful tests, repo-native validation command,
+and measurable quality signal the slice will improve or preserve. If the agent cannot name those
+items, it should keep reading instead of writing plausible code.
+
 For backend implementation, use `lotus-backend-delivery-governance` as more than a PR checklist.
 Before coding, identify which measured quality signals can regress in the touched area: duplicate
 implementation, architecture boundaries, security scanner posture, API/OpenAPI truth, vocabulary and
@@ -280,6 +285,8 @@ Avoid:
 10. treating `PB_SG_GLOBAL_BAL_001` as a generic smoke fixture rather than a governed contract-backed dataset.
 11. adding copy-pasted backend logic, broad unmeasured rewrites, or mocks-only tests and calling that
     production-grade progress.
+12. starting code changes before naming the existing owner pattern, source of truth, closest tests,
+    validation command, and measurable quality signal for the slice.
 
 ## Current RFC-0074 Boundary
 
