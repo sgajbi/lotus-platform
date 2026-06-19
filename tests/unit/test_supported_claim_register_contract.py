@@ -70,6 +70,7 @@ def test_supported_claim_register_rejects_backend_only_screenshots_and_missing_p
     )
 
     backend_only = deepcopy(_load(EXAMPLE_PATH))
+    backend_only["claims"][0]["classification"] = "BACKEND_BACKED_UI_PENDING"
     backend_only["claims"][0]["allowed_materials"] = ["SCREENSHOT"]
     issues = validate_supported_claim_register(EXAMPLE_PATH, backend_only)
 
