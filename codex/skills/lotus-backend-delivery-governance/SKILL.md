@@ -1,6 +1,6 @@
 ---
 name: lotus-backend-delivery-governance
-description: "Use when implementing or reviewing backend work in Lotus repositories such as lotus-core, lotus-performance, lotus-risk, lotus-advise, lotus-manage, lotus-report, lotus-gateway, or lotus-ai. Apply the Lotus platform CI lane model, enterprise security baseline, contract-governance rules, repository-native command policy, and truthful PR evidence process defined by RFC-0072."
+description: "Use when implementing or reviewing backend work in Lotus repositories such as lotus-core, lotus-performance, lotus-risk, lotus-advise, lotus-manage, lotus-report, lotus-gateway, or lotus-ai. Apply the Lotus platform CI lane model, enterprise security baseline, contract-governance rules, repository-native command policy, truthful PR evidence process defined by RFC-0072, and non-degradation guardrails that prevent low-quality agent-generated backend code."
 ---
 
 # Lotus Backend Delivery Governance
@@ -78,6 +78,39 @@ Before changing code:
    `lotus-ci-enforcement-governance` should promote it to a blocking gate instead of leaving it as
    report-only evidence.
 
+## Non-Degradation Bar
+
+Backend work must leave the application at least as maintainable, observable, secure, and contract
+truthful as it was before the change.
+
+Before editing, identify the quality signals that can regress in the touched area:
+
+1. duplicate implementation hotspots,
+2. architecture-boundary imports and ownership drift,
+3. OpenAPI, vocabulary, no-alias, and domain-contract drift,
+4. security scanner findings, dependency findings, and unsafe production assertions,
+5. complexity, function-size, and low-maintainability hotspots,
+6. test coverage quality for the actual behavior being changed,
+7. observability, runtime-status, lineage, and supportability evidence when runtime behavior changes.
+
+During implementation:
+
+1. prefer a shared helper, typed model, service boundary, or existing local pattern over copy-paste,
+2. avoid broad rewrites unless the user asked for them and the proof plan covers the blast radius,
+3. remove stale special cases when the slice safely reaches them,
+4. keep public behavior unchanged unless the behavior change is intentional, tested, documented, and
+   represented in API or contract truth,
+5. treat report-only inventories as planning evidence and blocking gates as minimum standards, not
+   as permission to add weak code that barely passes.
+
+Do not claim progress from:
+
+1. cosmetic renames, formatting-only churn, or doc-only optimism,
+2. tests that only assert mocks were called while ignoring domain output,
+3. allowlists or suppressions without a documented reason and follow-up,
+4. generated abstractions that hide complexity without reducing duplicated responsibility,
+5. PR summaries that overstate readiness beyond the evidence.
+
 ## Required Validation Thinking
 
 Map validation to the platform lanes:
@@ -110,13 +143,15 @@ If the backend change affects governed front-office proof:
 2. Naming matches Lotus domain vocabulary.
 3. Security and dependency checks are green or explicitly governed.
 4. Tests are meaningful, domain-aware, and high-value.
-5. PR evidence lists the actual commands run.
-6. Cross-app impacts are validated at the right layer.
-7. Front-office truth claims are supported by governed runtime evidence when the slice affects
+5. The diff reduces or preserves measured duplicate-code, complexity, architecture-boundary,
+   security, API-governance, and contract posture.
+6. PR evidence lists the actual commands run and any quality metrics that moved.
+7. Cross-app impacts are validated at the right layer.
+8. Front-office truth claims are supported by governed runtime evidence when the slice affects
    product surfaces.
-8. Unmerged remote branches containing durable governance artifacts have been classified as
+9. Unmerged remote branches containing durable governance artifacts have been classified as
    `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active`.
-9. Any restored durable truth is indexed and pinned by tests or explicit governance evidence where
+10. Any restored durable truth is indexed and pinned by tests or explicit governance evidence where
    the repository has a docs/current-state test pack.
 
 ## Cross-App Rule

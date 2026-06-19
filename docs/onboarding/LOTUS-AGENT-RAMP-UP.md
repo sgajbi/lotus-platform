@@ -166,6 +166,28 @@ Select validation before implementation.
 
 Prefer targeted local checks and GitHub-backed heavy execution. Do not repeatedly run full local CI when GitHub can run the expensive matrix while the agent continues useful work.
 
+## Implementation Non-Degradation Bar
+
+For backend implementation, use `lotus-backend-delivery-governance` as more than a PR checklist.
+Before coding, identify which measured quality signals can regress in the touched area: duplicate
+implementation, architecture boundaries, security scanner posture, API/OpenAPI truth, vocabulary and
+contract validation, complexity/function size, and supportability evidence.
+
+The default acceptable backend slice either improves one of those signals or preserves it while
+delivering tested behavior. Do not treat passing tests alone as enough when the diff adds copy-paste,
+new boundary drift, weak mocks-only tests, stale allowlists, or optimistic documentation that is not
+backed by implementation.
+
+For frontend implementation, use `lotus-frontend-delivery-governance` as more than visual polish.
+Before coding, identify which product-surface signals can regress: backed API truth, state handling,
+accessibility, layout stability, duplicated view-model/business logic, stale fixtures, browser
+validation, and canonical runtime proof for governed Workbench surfaces.
+
+The default acceptable frontend slice either improves one of those signals or preserves it while
+delivering validated behavior. Do not treat render-only tests or screenshots as enough when the diff
+adds unsupported UI behavior, copied calculations, unvalidated layout changes, or text that explains
+missing functionality instead of implementing supported workflow behavior.
+
 ## Front-Office Runtime Routing
 
 When the task is about:
@@ -256,6 +278,8 @@ Avoid:
 8. marking a slice complete without tests or context links.
 9. treating `lotus-platform/platform-stack` as the canonical populated front-office runtime when `lotus-workbench` already owns that governed flow.
 10. treating `PB_SG_GLOBAL_BAL_001` as a generic smoke fixture rather than a governed contract-backed dataset.
+11. adding copy-pasted backend logic, broad unmeasured rewrites, or mocks-only tests and calling that
+    production-grade progress.
 
 ## Current RFC-0074 Boundary
 
