@@ -64,6 +64,18 @@ Before editing product UI code, inspect the existing implementation enough to na
 
 If you cannot name those items, keep reading before writing code.
 
+Before editing frontend code, produce a short quality intake from the actual product surface:
+
+1. name the canonical gateway endpoint, shared client, or deterministic fixture boundary that owns
+   the data,
+2. identify the current loading, empty, partial, ready, error, and permission behavior for the
+   touched screen or panel,
+3. identify the nearest browser/runtime proof command and the viewport or governed panel that must
+   be validated,
+4. inspect duplicate view-model logic, copied calculations, stale mocks, unsupported feature text,
+   and accessibility/layout signals that can regress,
+5. state the narrow quality signal the slice will improve or preserve.
+
 ## Frontend Non-Negotiables
 
 1. UI consumes canonical backend contracts, normally through `lotus-gateway`.

@@ -103,6 +103,9 @@ def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
 
     for required_text in (
         "Before editing product UI code, inspect the existing implementation enough to name:",
+        "Before editing frontend code, produce a short quality intake from the actual product surface:",
+        "name the canonical gateway endpoint, shared client, or deterministic fixture boundary",
+        "nearest browser/runtime proof command and the viewport or governed panel",
         "the existing component, route, hook, client, view-model, and test patterns",
         "the current source of backend truth and whether it is canonical, fixture-only, or unsupported",
         "Reject agent-produced UI that only looks plausible.",
@@ -112,3 +115,51 @@ def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
         "ships layout changes without browser validation",
     ):
         assert required_text in frontend_skill
+
+
+def test_backend_delivery_skill_blocks_agent_quality_regressions() -> None:
+    backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
+
+    for required_text in (
+        "Before editing backend code, produce a short quality intake from the actual repository:",
+        "name the existing module, service, repository, model, router, and test patterns",
+        "identify the canonical source of business truth",
+        "inspect the current duplicate-code, complexity/function-size, architecture-boundary, security",
+        "Reject agent-produced backend code that only appears plausible.",
+        "creates a parallel service, mapper, DTO, status enum, or contract vocabulary",
+        "copies calculations, serialization envelopes, query shaping, or error mapping",
+        "weakens observability, lineage, runtime-status, or supportability evidence",
+        "adds tests that only freeze implementation mechanics",
+    ):
+        assert required_text in backend_skill
+
+
+def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
+    ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
+
+    for required_text in (
+        "Before changing CI enforcement, produce a short enforcement intake:",
+        "name the current measured baseline and the artifact that records it",
+        "identify the exact failure mode the gate prevents",
+        "define the exception or allowlist policy before any exception is added",
+        "Do not promote a gate from intuition alone.",
+        "report-only. Use it for planning",
+        "Prefer enforcement that blocks common agent failure modes:",
+        "copied implementation hotspots that a deterministic duplicate inventory can identify",
+        "architecture-boundary imports or ownership drift",
+        "unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift",
+    ):
+        assert required_text in ci_skill
+
+
+def test_agent_ramp_up_requires_pre_edit_quality_intake() -> None:
+    ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
+
+    for required_text in (
+        "Before implementation, write a short quality intake from the actual codebase.",
+        "existing owner patterns, source of truth, closest meaningful tests",
+        "measurable quality signal the slice will improve or preserve",
+        "it should keep reading instead of writing plausible code",
+        "starting code changes before naming the existing owner pattern",
+    ):
+        assert required_text in ramp_up

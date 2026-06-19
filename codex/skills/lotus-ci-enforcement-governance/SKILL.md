@@ -60,6 +60,20 @@ For a new enforcement gate:
 When a newly promoted gate finds issues, fix the issue class directly if the code change is narrow.
 Use allowlists only when the allowlist is truthful current-state governance and is documented.
 
+Before changing CI enforcement, produce a short enforcement intake:
+
+1. name the current measured baseline and the artifact that records it,
+2. identify the exact failure mode the gate prevents and why it matters for bank-buyable quality,
+3. prove the signal is deterministic by running the repo-native command locally,
+4. identify the intended lane and why it belongs there instead of a lighter or heavier lane,
+5. define the exception or allowlist policy before any exception is added,
+6. list the focused tests that prove both pass and fail behavior for the gate,
+7. state which scorecard, ledger, docs, skill, or context artifact must be updated with code truth.
+
+Do not promote a gate from intuition alone. If the signal cannot meet this intake, keep it
+report-only. Use it for planning until baseline, false-positive, lane-placement, and exception
+policy are settled.
+
 ## Agent-Driven Development Guardrails
 
 For repositories where agents do most implementation work, prefer gates that:
@@ -71,6 +85,14 @@ For repositories where agents do most implementation work, prefer gates that:
 5. produce artifacts future agents can read before choosing the next slice.
 
 Avoid gates that require agents to infer subjective design preferences from vague failure text.
+
+Prefer enforcement that blocks common agent failure modes:
+
+1. copied implementation hotspots that a deterministic duplicate inventory can identify,
+2. architecture-boundary imports or ownership drift that make modules harder to reason about,
+3. unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift,
+4. first-party security scanner findings and unsafe production assertions,
+5. missing contract validation for data migrations, runtime evidence, or cross-service payloads.
 
 ## Context And Skill Maintenance
 
