@@ -667,6 +667,10 @@ Generated: `{baseline["generated_at_utc"]}`
 50. Trust telemetry status validator extraction so freshness vocabulary, freshness age consistency,
     and governed status registry checks are isolated behind focused helpers, lowering the highest
     measured complexity ceiling while preserving RFC-0087 trust telemetry behavior.
+51. Dev ingress status explainer extraction so missing-smoke, healthy, DNS, HTTP, and unknown
+    failure payloads are built by focused helpers with isolated service and ingress classification,
+    removing the operator explainer from the top measured complexity hotspot list while preserving
+    dev ingress automation behavior.
 
 ## Evidence
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302367
+    "total_source_lines": 302492
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 16,
-        "end_line": 247,
-        "line": 94,
-        "lines": 154,
-        "name": "explain_dev_ingress_status",
-        "path": "automation/explain_dev_ingress_status.py"
-      },
       {
         "complexity": 16,
         "end_line": 466,
@@ -192,6 +184,14 @@
         "lines": 37,
         "name": "_matrix_feature_implementation_rule",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 214,
+        "line": 180,
+        "lines": 35,
+        "name": "update_delegated_task_status",
+        "path": "automation/delegation_task_ledger.py"
       }
     ],
     "largest_functions": [
@@ -245,9 +245,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 706,
+        "end_line": 710,
         "line": 489,
-        "lines": 218,
+        "lines": 222,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -324,14 +324,6 @@
         "path": "automation/generate_domain_product_onboarding.py"
       },
       {
-        "complexity": 16,
-        "end_line": 247,
-        "line": 94,
-        "lines": 154,
-        "name": "explain_dev_ingress_status",
-        "path": "automation/explain_dev_ingress_status.py"
-      },
-      {
         "complexity": 5,
         "end_line": 217,
         "line": 68,
@@ -354,13 +346,21 @@
         "lines": 133,
         "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 557,
+        "line": 425,
+        "lines": 133,
+        "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 16,
     "max_function_lines": 393,
-    "python_function_count": 1530
+    "python_function_count": 1543
   },
-  "generated_at_utc": "2026-06-20T06:40:32Z",
+  "generated_at_utc": "2026-06-20T06:44:32Z",
   "largest_files": [
     {
       "lines": 79939,
