@@ -1,6 +1,6 @@
 # Automation Inventory
 
-Generated: `2026-06-20T03:40:39Z`
+Generated: `2026-06-20T03:44:10Z`
 
 This report is a cleanup aid. `review` and `undocumented` entries are candidates for
 documentation, consolidation, tests, or removal after behavior-specific evidence is inspected.

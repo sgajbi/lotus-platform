@@ -509,6 +509,9 @@ Generated: `{baseline["generated_at_utc"]}`
 7. Guidance path synchronization after docs-root organization so platform-owned skills, standards,
    local skill sync, and contract tests point future agents to `docs/standards/` and
    `docs/operations/` instead of stale repo-root Markdown paths.
+8. Engineering context validator modularity improvement by extracting manifest and registry
+   validation out of the monolithic validator, reducing the top measured complexity hotspot while
+   preserving behavior.
 
 ## Evidence
 
@@ -531,6 +534,8 @@ Generated: `{baseline["generated_at_utc"]}`
 17. Rounding governance matrix: `automation/Validate-Rounding-Governance.ps1`
 18. Skill path contract tests: `tests/unit/test_lotus_skill_routing_behavior_contract.py`
 19. Standards path contract tests: `tests/unit/test_ci_governance_documentation_contract.py`
+20. Context validator refactor: `automation/validate_engineering_context_system.py`
+21. Context validator tests: `tests/unit/test_engineering_context_validator.py`
 
 ## Current Gate Posture
 

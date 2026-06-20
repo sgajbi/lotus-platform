@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299686
+    "total_source_lines": 299708
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,10 +34,10 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 83,
-        "end_line": 396,
-        "line": 32,
-        "lines": 365,
+        "complexity": 63,
+        "end_line": 413,
+        "line": 129,
+        "lines": 285,
         "name": "validate_engineering_context_system",
         "path": "automation/validate_engineering_context_system.py"
       },
@@ -204,14 +204,6 @@
         "path": "tests/unit/test_analytics_ui_observability_contract.py"
       },
       {
-        "complexity": 83,
-        "end_line": 396,
-        "line": 32,
-        "lines": 365,
-        "name": "validate_engineering_context_system",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
         "complexity": 8,
         "end_line": 483,
         "line": 124,
@@ -234,6 +226,14 @@
         "lines": 298,
         "name": "_run_validation_once",
         "path": "automation/core_performance_attribution_validation.py"
+      },
+      {
+        "complexity": 63,
+        "end_line": 413,
+        "line": 129,
+        "lines": 285,
+        "name": "validate_engineering_context_system",
+        "path": "automation/validate_engineering_context_system.py"
       },
       {
         "complexity": 1,
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       }
     ],
-    "max_complexity": 83,
+    "max_complexity": 63,
     "max_function_lines": 393,
-    "python_function_count": 1289
+    "python_function_count": 1290
   },
-  "generated_at_utc": "2026-06-20T03:40:40Z",
+  "generated_at_utc": "2026-06-20T03:44:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.69s"
+    "summary": "510 tests collected in 1.03s"
   }
 }
