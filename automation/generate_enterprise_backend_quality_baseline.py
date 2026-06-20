@@ -651,6 +651,10 @@ Generated: `{baseline["generated_at_utc"]}`
     policy sets, lifecycle mapping, and invariant checks are isolated behind focused helpers,
     removing the RFC-0096 delegation-policy validator from the top measured complexity hotspot list
     while preserving agent-engineering contract behavior.
+47. Heartbeat contract validator extraction so RFC-0095 contract identity, governed vocabulary
+    sets, artifact paths, authority policy text, and invariant checks are isolated behind focused
+    helpers, removing the heartbeat contract validator from the top measured complexity hotspot
+    list while preserving heartbeat contract behavior.
 
 ## Evidence
 

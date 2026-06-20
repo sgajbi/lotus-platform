@@ -354,12 +354,9 @@ def _validate_unhealthy_sources_emit_attention(
         errors.append("missing or errored source evidence must produce an attention item")
 
 
-def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        return [f"missing heartbeat contract: {path}"]
-
-    contract = _load_json(path)
+def _validate_heartbeat_contract_identity(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     if contract.get("contract_id") != "lotus-platform:heartbeat-status:v1":
         errors.append("contract_id must be lotus-platform:heartbeat-status:v1")
     if contract.get("source_rfc") != "RFC-0095":
@@ -369,6 +366,10 @@ def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
     if contract.get("status") != "active":
         errors.append("status must be active")
 
+
+def _validate_heartbeat_contract_required_sets(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     required_sets = {
         "run_statuses": {"healthy", "attention_required", "blocked", "degraded"},
         "source_systems": {
@@ -402,43 +403,67 @@ def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
         if missing:
             errors.append(f"{key} missing required values: {', '.join(missing)}")
 
+
+def _validate_heartbeat_contract_artifact_paths(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     artifact_paths = contract.get("artifact_paths")
     if not isinstance(artifact_paths, dict):
         errors.append("artifact_paths must be an object")
-    else:
-        expected_artifacts = {
-            "json": "output/heartbeat/heartbeat-status.json",
-            "markdown": "output/heartbeat/heartbeat-status.md",
-            "issues": "output/heartbeat/heartbeat-issues.json",
-        }
-        for key, expected in expected_artifacts.items():
-            if artifact_paths.get(key) != expected:
-                errors.append(f"artifact_paths.{key} must be {expected}")
+        return
+    expected_artifacts = {
+        "json": "output/heartbeat/heartbeat-status.json",
+        "markdown": "output/heartbeat/heartbeat-status.md",
+        "issues": "output/heartbeat/heartbeat-issues.json",
+    }
+    for key, expected in expected_artifacts.items():
+        if artifact_paths.get(key) != expected:
+            errors.append(f"artifact_paths.{key} must be {expected}")
 
+
+def _validate_heartbeat_contract_authority(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     authority = contract.get("authority")
     if not isinstance(authority, dict):
         errors.append("authority must be an object")
-    else:
-        authority_text = " ".join(str(value).lower() for value in authority.values())
-        for expected in ("source truth", "read-only", "missing"):
-            if expected not in authority_text:
-                errors.append(f"authority must preserve `{expected}` policy")
+        return
+    authority_text = " ".join(str(value).lower() for value in authority.values())
+    for expected in ("source truth", "read-only", "missing"):
+        if expected not in authority_text:
+            errors.append(f"authority must preserve `{expected}` policy")
 
+
+def _validate_heartbeat_contract_invariants(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     invariants = contract.get("required_invariants")
     if not isinstance(invariants, list):
         errors.append("required_invariants must be a list")
-    else:
-        invariant_text = " ".join(item.lower() for item in invariants if isinstance(item, str))
-        for expected in (
-            "stable",
-            "blocking",
-            "missing evidence is not healthy",
-            "source_truth remains external",
-            "derived evidence",
-        ):
-            if expected not in invariant_text:
-                errors.append(f"required_invariants missing `{expected}`")
+        return
+    invariant_text = " ".join(item.lower() for item in invariants if isinstance(item, str))
+    for expected in (
+        "stable",
+        "blocking",
+        "missing evidence is not healthy",
+        "source_truth remains external",
+        "derived evidence",
+    ):
+        if expected not in invariant_text:
+            errors.append(f"required_invariants missing `{expected}`")
 
+
+def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        return [f"missing heartbeat contract: {path}"]
+
+    contract = _load_json(path)
+    _validate_heartbeat_contract_identity(contract, errors)
+    _validate_heartbeat_contract_required_sets(contract, errors)
+    _validate_heartbeat_contract_artifact_paths(contract, errors)
+    _validate_heartbeat_contract_authority(contract, errors)
+    _validate_heartbeat_contract_invariants(contract, errors)
     return errors
 
 

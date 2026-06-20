@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:23:12Z`
+Generated: `2026-06-20T06:26:56Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302166`
+- Total source lines: `302195`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1509`
+- Python functions: `1514`
 - Highest measured cyclomatic complexity: `17`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_heartbeat_contracts.py | validate_heartbeat_contract | 357 | 17 | 86 |
 | automation/validate_analytics_ui_ecosystem_final_closure.py | _validate_downstream_boundary_hardening | 288 | 17 | 82 |
 | automation/heartbeat_sources.py | _background_run_ledger_adapter | 469 | 17 | 70 |
 | automation/validate_trust_telemetry.py | _validate_statuses | 160 | 17 | 66 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_semantics_registry | 120 | 16 | 61 |
 | automation/validate_workflow_security.py | validate_workflow | 68 | 16 | 46 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 216 | 15 | 192 |
+| automation/validate_engineering_context_system.py | _validate_onboarding_guidance | 233 | 15 | 57 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.60s`
+- Collection summary: `510 tests collected in 0.64s`
 
 ## Security Baseline
 

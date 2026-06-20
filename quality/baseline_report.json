@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302166
+    "total_source_lines": 302195
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 17,
-        "end_line": 442,
-        "line": 357,
-        "lines": 86,
-        "name": "validate_heartbeat_contract",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
       {
         "complexity": 17,
         "end_line": 369,
@@ -192,6 +184,14 @@
         "lines": 71,
         "name": "_delegated_task_ledger_adapter",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 503,
+        "line": 439,
+        "lines": 65,
+        "name": "_validate_product_registry_references",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       }
     ],
     "largest_functions": [
@@ -252,20 +252,20 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
+        "complexity": 1,
+        "end_line": 694,
+        "line": 489,
+        "lines": 206,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 2,
         "end_line": 272,
         "line": 67,
         "lines": 206,
         "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 690,
-        "line": 489,
-        "lines": 202,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 15,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 17,
     "max_function_lines": 393,
-    "python_function_count": 1509
+    "python_function_count": 1514
   },
-  "generated_at_utc": "2026-06-20T06:23:12Z",
+  "generated_at_utc": "2026-06-20T06:26:56Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.60s"
+    "summary": "510 tests collected in 0.64s"
   }
 }
