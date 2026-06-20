@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T10:20:41Z`
+Generated: `2026-06-20T10:26:36Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `305918`
+- Total source lines: `305964`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,14 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1781`
+- Python functions: `1786`
 - Highest measured cyclomatic complexity: `11`
-- Largest Python function length: `393`
+- Largest Python function length: `394`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/domain_product_discovery.py | find_products | 64 | 11 | 45 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_migration_posture | 982 | 11 | 44 |
 | automation/sync_dev_ingress_hosts.py | sync_dev_ingress_hosts | 53 | 11 | 39 |
 | automation/validate_analytics_ui_rollout_readiness.py | _validate_certified_route_groups | 61 | 11 | 33 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
 | automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 304 | 10 | 39 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `536`
+- Unit tests collected: `538`
 - Collection command return code: `0`
-- Collection summary: `536 tests collected in 0.65s`
+- Collection summary: `538 tests collected in 0.60s`
 
 ## Security Baseline
 

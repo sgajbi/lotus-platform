@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T10:20:41Z`
+Generated: `2026-06-20T10:26:36Z`
 
 ## Completed Slices
 
@@ -351,6 +351,9 @@ Generated: `2026-06-20T10:20:41Z`
     checks are isolated behind focused helpers, removing gap-matrix validation from the top
     measured complexity hotspot list while adding direct invalid-posture and missing-field
     regression coverage.
+94. Domain-product discovery query extraction so product filters, search matching, and result
+    sorting are isolated behind focused helpers, removing the query helper from the top measured
+    complexity hotspot list while adding lifecycle-filter and search-miss regression coverage.
 
 ## Evidence
 
