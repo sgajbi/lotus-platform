@@ -161,6 +161,17 @@ def test_analytics_ui_rollout_readiness_requires_known_panel_ids() -> None:
     assert any("unknown panel_id unknown.panel" in error for error in errors)
 
 
+def test_analytics_ui_rollout_readiness_rejects_malformed_route_group() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    rollout = copy.deepcopy(_load_json(ROLLOUT_CONTRACT_PATH))
+    malformed_index = len(rollout["certified_route_groups"])
+    rollout["certified_route_groups"].append("not-a-route-group")
+
+    errors = _validate(observability, rollout)
+
+    assert f"certified_route_groups[{malformed_index}] must be an object" in errors
+
+
 def test_analytics_ui_rollout_readiness_requires_validator_proof_cases() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     rollout = copy.deepcopy(_load_json(ROLLOUT_CONTRACT_PATH))

@@ -851,6 +851,10 @@ Generated: `{baseline["generated_at_utc"]}`
     result rendering are isolated behind focused helpers, removing the Windows hosts sync
     coordinator from the top measured complexity hotspot list while adding first-time-create
     regression coverage.
+97. Analytics UI rollout route-group extraction so malformed group detection, status checks,
+    evidence checks, and registry route matching are isolated behind focused helpers, removing
+    certified route-group validation from the top measured complexity hotspot list while adding
+    malformed-entry regression coverage.
 
 ## Evidence
 

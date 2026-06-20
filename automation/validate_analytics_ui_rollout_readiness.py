@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,7 @@ DEFAULT_ROLLOUT_CONTRACT_PATH = (
     / "analytics-ui-observability-rollout-readiness.json"
 )
 DEFAULT_PANEL_REGISTRY_PATH = ROOT / "context" / "contracts" / "workbench-panel-registry.json"
+SUPPORTED_CERTIFICATION_STATUSES = {"certified", "certified_partial"}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -58,6 +60,63 @@ def _registry_panels(panel_registry: dict[str, Any]) -> dict[str, dict[str, Any]
     }
 
 
+def _route_group_mapping(
+    *, errors: list[str], group: Any, index: int
+) -> Mapping[str, Any] | None:
+    if isinstance(group, Mapping):
+        return group
+    errors.append(f"certified_route_groups[{index}] must be an object")
+    return None
+
+
+def _route_group_panel_ids(group: Mapping[str, Any]) -> list[str]:
+    panel_ids = group.get("panel_ids", [])
+    if not isinstance(panel_ids, list):
+        return []
+    return [str(panel_id) for panel_id in panel_ids]
+
+
+def _validate_route_group_status(
+    *, errors: list[str], route: str, group: Mapping[str, Any]
+) -> None:
+    status = group.get("certification_status")
+    if status not in SUPPORTED_CERTIFICATION_STATUSES:
+        errors.append(f"{route}: certification_status is not supported")
+    if status == "certified_partial" and not group.get("residual_scope"):
+        errors.append(f"{route}: certified_partial groups require residual_scope")
+
+
+def _validate_route_group_evidence(
+    *, errors: list[str], route: str, group: Mapping[str, Any], panel_ids: list[str]
+) -> None:
+    if not panel_ids:
+        errors.append(f"{route}: panel_ids must be non-empty")
+    if not group.get("evidence_basis"):
+        errors.append(f"{route}: evidence_basis is required")
+
+
+def _validate_route_group_panel_routes(
+    *,
+    errors: list[str],
+    route: str,
+    panel_ids: list[str],
+    registry_panels: dict[str, dict[str, Any]],
+) -> set[str]:
+    certified_panel_ids: set[str] = set()
+    for panel_id in panel_ids:
+        certified_panel_ids.add(panel_id)
+        if panel_id not in registry_panels:
+            errors.append(f"{route}: unknown panel_id {panel_id}")
+            continue
+        registry_route = str(registry_panels[panel_id].get("route", ""))
+        if registry_route != route:
+            errors.append(
+                f"{panel_id}: rollout route {route} does not match registry route "
+                f"{registry_route}"
+            )
+    return certified_panel_ids
+
+
 def _validate_certified_route_groups(
     *,
     errors: list[str],
@@ -67,29 +126,27 @@ def _validate_certified_route_groups(
     if not certified_route_groups:
         errors.append("certified_route_groups must be non-empty")
     certified_panel_ids: set[str] = set()
-    for group in certified_route_groups:
-        route = str(group.get("route", ""))
-        status = group.get("certification_status")
-        panel_ids = [str(panel_id) for panel_id in group.get("panel_ids", [])]
-        if status not in {"certified", "certified_partial"}:
-            errors.append(f"{route}: certification_status is not supported")
-        if status == "certified_partial" and not group.get("residual_scope"):
-            errors.append(f"{route}: certified_partial groups require residual_scope")
-        if not panel_ids:
-            errors.append(f"{route}: panel_ids must be non-empty")
-        if not group.get("evidence_basis"):
-            errors.append(f"{route}: evidence_basis is required")
-        for panel_id in panel_ids:
-            certified_panel_ids.add(panel_id)
-            if panel_id not in registry_panels:
-                errors.append(f"{route}: unknown panel_id {panel_id}")
-                continue
-            registry_route = str(registry_panels[panel_id].get("route", ""))
-            if registry_route != route:
-                errors.append(
-                    f"{panel_id}: rollout route {route} does not match registry route "
-                    f"{registry_route}"
-                )
+    for index, group in enumerate(certified_route_groups):
+        route_group = _route_group_mapping(errors=errors, group=group, index=index)
+        if route_group is None:
+            continue
+        route = str(route_group.get("route", ""))
+        panel_ids = _route_group_panel_ids(route_group)
+        _validate_route_group_status(errors=errors, route=route, group=route_group)
+        _validate_route_group_evidence(
+            errors=errors,
+            route=route,
+            group=route_group,
+            panel_ids=panel_ids,
+        )
+        certified_panel_ids.update(
+            _validate_route_group_panel_routes(
+                errors=errors,
+                route=route,
+                panel_ids=panel_ids,
+                registry_panels=registry_panels,
+            )
+        )
     return certified_panel_ids
 
 
