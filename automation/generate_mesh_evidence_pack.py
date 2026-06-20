@@ -33,6 +33,12 @@ ACCESS_LEVELS_BY_AUDIENCE: dict[Audience, set[str]] = {
     "customer-authorized": {"public_customer", "restricted_customer"},
     "operator": {"public_customer", "restricted_customer", "operator_only"},
 }
+VALID_FIELD_ACCESS_CLASSES = {
+    "public_customer",
+    "restricted_customer",
+    "operator_only",
+    "internal_only",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -62,16 +68,126 @@ def load_mesh_evidence_policies(
     return policies
 
 
+def _catalog_products_by_id(catalog_path: Path) -> dict[str, dict[str, Any]]:
+    catalog = load_catalog(catalog_path)
+    return {product["product_id"]: product for product in catalog.get("products", [])}
+
+
+def _load_evidence_policy(path: Path, issues: list[str]) -> dict[str, Any] | None:
+    try:
+        return _load_json(path)
+    except json.JSONDecodeError as exc:
+        issues.append(f"{path}: invalid JSON: {exc}")
+        return None
+
+
+def _validate_policy_product_identity(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    products_by_id: dict[str, dict[str, Any]],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> dict[str, Any] | None:
+    product_id = payload.get("product_id")
+    if not isinstance(product_id, str) or not product_id:
+        issues.append(f"{path}: product_id must be a non-empty string")
+        return None
+    if product_id in seen_product_ids:
+        issues.append(f"{path}: duplicate evidence policy for {product_id}")
+    seen_product_ids.add(product_id)
+
+    product = products_by_id.get(product_id)
+    if product is None:
+        issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
+        return None
+    return product
+
+
+def _validate_policy_contract_metadata(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    product: dict[str, Any],
+    issues: list[str],
+) -> None:
+    if payload.get("contract_id") != "lotus-mesh-evidence-pack-policy":
+        issues.append(f"{path}: contract_id must be lotus-mesh-evidence-pack-policy")
+    if "RFC-0091" not in payload.get("governed_by_rfcs", []):
+        issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
+    if payload.get("producer_repository") != product["producer_repository"]:
+        issues.append(
+            f"{path}: producer_repository must match catalog identity {product['producer_repository']}"
+        )
+
+
+def _validate_policy_field_access_classes(
+    *, path: Path, payload: dict[str, Any], issues: list[str]
+) -> dict[str, Any] | None:
+    field_access_classes = payload.get("field_access_classes")
+    if not isinstance(field_access_classes, dict) or not field_access_classes:
+        issues.append(f"{path}: field_access_classes must be a non-empty object")
+        return None
+
+    invalid_classes = sorted(
+        {
+            value
+            for value in field_access_classes.values()
+            if value not in VALID_FIELD_ACCESS_CLASSES
+        }
+    )
+    if invalid_classes:
+        issues.append(
+            f"{path}: field_access_classes contains invalid classes: {', '.join(invalid_classes)}"
+        )
+    return field_access_classes
+
+
+def _validate_policy_required_sections(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    field_access_classes: dict[str, Any] | None,
+    issues: list[str],
+) -> None:
+    required_sections = payload.get("required_manifest_sections")
+    if not isinstance(required_sections, list) or not required_sections:
+        issues.append(f"{path}: required_manifest_sections must be non-empty")
+        return
+    if field_access_classes is None:
+        return
+
+    missing_classification = sorted(
+        section for section in required_sections if section not in field_access_classes
+    )
+    if missing_classification:
+        issues.append(
+            f"{path}: required_manifest_sections missing field access classes: "
+            + ", ".join(missing_classification)
+        )
+
+
+def _validate_required_evidence_policies(
+    *,
+    policy_path: Path,
+    required_products: dict[str, str],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> None:
+    for product_id, repository in required_products.items():
+        if product_id not in seen_product_ids:
+            issues.append(
+                f"{policy_path}: missing required mesh evidence policy for {repository} product {product_id}"
+            )
+
+
 def validate_mesh_evidence_policies(
     policy_path: Path = DEFAULT_EVIDENCE_POLICY_DIRECTORY,
     *,
     catalog_path: Path = DEFAULT_CATALOG_PATH,
     required_products: dict[str, str] = REQUIRED_PRODUCTS,
 ) -> list[str]:
-    catalog = load_catalog(catalog_path)
-    products_by_id = {
-        product["product_id"]: product for product in catalog.get("products", [])
-    }
+    products_by_id = _catalog_products_by_id(catalog_path)
     paths = _iter_policy_paths(policy_path)
     if not paths:
         return [f"{policy_path}: no mesh evidence policy files found"]
@@ -79,76 +195,39 @@ def validate_mesh_evidence_policies(
     issues: list[str] = []
     seen_product_ids: set[str] = set()
     for path in paths:
-        try:
-            payload = _load_json(path)
-        except json.JSONDecodeError as exc:
-            issues.append(f"{path}: invalid JSON: {exc}")
+        payload = _load_evidence_policy(path, issues)
+        if payload is None:
             continue
-        product_id = payload.get("product_id")
-        if not isinstance(product_id, str) or not product_id:
-            issues.append(f"{path}: product_id must be a non-empty string")
-            continue
-        if product_id in seen_product_ids:
-            issues.append(f"{path}: duplicate evidence policy for {product_id}")
-        seen_product_ids.add(product_id)
 
-        product = products_by_id.get(product_id)
+        product = _validate_policy_product_identity(
+            path=path,
+            payload=payload,
+            products_by_id=products_by_id,
+            seen_product_ids=seen_product_ids,
+            issues=issues,
+        )
         if product is None:
-            issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
             continue
-        if payload.get("contract_id") != "lotus-mesh-evidence-pack-policy":
-            issues.append(
-                f"{path}: contract_id must be lotus-mesh-evidence-pack-policy"
-            )
-        if "RFC-0091" not in payload.get("governed_by_rfcs", []):
-            issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
-        if payload.get("producer_repository") != product["producer_repository"]:
-            issues.append(
-                f"{path}: producer_repository must match catalog identity {product['producer_repository']}"
-            )
 
-        field_access_classes = payload.get("field_access_classes")
-        if not isinstance(field_access_classes, dict) or not field_access_classes:
-            issues.append(f"{path}: field_access_classes must be a non-empty object")
-        else:
-            invalid_classes = sorted(
-                {
-                    value
-                    for value in field_access_classes.values()
-                    if value
-                    not in {
-                        "public_customer",
-                        "restricted_customer",
-                        "operator_only",
-                        "internal_only",
-                    }
-                }
-            )
-            if invalid_classes:
-                issues.append(
-                    f"{path}: field_access_classes contains invalid classes: {', '.join(invalid_classes)}"
-                )
+        _validate_policy_contract_metadata(
+            path=path, payload=payload, product=product, issues=issues
+        )
+        field_access_classes = _validate_policy_field_access_classes(
+            path=path, payload=payload, issues=issues
+        )
+        _validate_policy_required_sections(
+            path=path,
+            payload=payload,
+            field_access_classes=field_access_classes,
+            issues=issues,
+        )
 
-        required_sections = payload.get("required_manifest_sections")
-        if not isinstance(required_sections, list) or not required_sections:
-            issues.append(f"{path}: required_manifest_sections must be non-empty")
-        elif isinstance(field_access_classes, dict):
-            missing_classification = sorted(
-                section
-                for section in required_sections
-                if section not in field_access_classes
-            )
-            if missing_classification:
-                issues.append(
-                    f"{path}: required_manifest_sections missing field access classes: "
-                    + ", ".join(missing_classification)
-                )
-
-    for product_id, repository in required_products.items():
-        if product_id not in seen_product_ids:
-            issues.append(
-                f"{policy_path}: missing required mesh evidence policy for {repository} product {product_id}"
-            )
+    _validate_required_evidence_policies(
+        policy_path=policy_path,
+        required_products=required_products,
+        seen_product_ids=seen_product_ids,
+        issues=issues,
+    )
     return issues
 
 
