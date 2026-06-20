@@ -236,7 +236,7 @@ def _write_outputs(summary: dict[str, object], *, output_json: Path, output_mark
     output_markdown.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def main() -> int:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-seed", action="store_true", help="Reuse existing seeded scenarios instead of ingesting fresh data.")
     parser.add_argument("--shared-scenario-suffix", help="Suffix for shared scenario validators (TWR, returns-series, contribution, attribution).")
@@ -246,7 +246,134 @@ def main() -> int:
     parser.add_argument("--performance-base-url", default="http://performance.dev.lotus")
     parser.add_argument("--output-json", default="output/cross-app/core-performance-baseline-validation.json")
     parser.add_argument("--output-markdown", default="output/cross-app/core-performance-baseline-validation.md")
-    args = parser.parse_args()
+    return parser
+
+
+def _missing_reused_scenario_suffixes(
+    *, shared_suffix: str | None, mwr_suffix: str | None
+) -> list[str]:
+    missing = []
+    if shared_suffix is None:
+        missing.append("shared_scenario_suffix")
+    if mwr_suffix is None:
+        missing.append("mwr_scenario_suffix")
+    return missing
+
+
+def _require_reused_scenario_suffixes(
+    *, skip_seed: bool, shared_suffix: str | None, mwr_suffix: str | None
+) -> None:
+    if not skip_seed:
+        return
+    missing = _missing_reused_scenario_suffixes(
+        shared_suffix=shared_suffix, mwr_suffix=mwr_suffix
+    )
+    if missing:
+        raise SystemExit(
+            f"Stable baseline mode needs existing scenario suffixes or prior artifacts to infer them. Missing: {', '.join(missing)}"
+        )
+
+
+def _scenario_suffix_for_validator(
+    spec: ValidatorSpec, *, shared_suffix: str | None, mwr_suffix: str | None
+) -> str | None:
+    return shared_suffix if spec.scenario_mode == "shared" else mwr_suffix
+
+
+def _collect_result_defects(
+    *, validator_key: str, result_payload: dict[str, object]
+) -> list[dict[str, object]]:
+    defects: list[dict[str, object]] = []
+    performance = result_payload.get("performance")
+    if isinstance(performance, dict):
+        performance_defects = performance.get("defects")
+        if isinstance(performance_defects, list):
+            for defect in performance_defects:
+                if isinstance(defect, dict):
+                    defects.append({"validator": validator_key, **defect})
+
+    core_defects = result_payload.get("core_defects")
+    if isinstance(core_defects, list):
+        for defect in core_defects:
+            if isinstance(defect, dict):
+                defects.append({"validator": validator_key, **defect})
+    return defects
+
+
+def _run_baseline_validators(
+    *,
+    repo_root: Path,
+    output_dir: Path,
+    skip_seed: bool,
+    shared_suffix: str | None,
+    mwr_suffix: str | None,
+    core_ingestion_base_url: str,
+    core_query_base_url: str,
+    performance_base_url: str,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    validator_runs: list[dict[str, object]] = []
+    defects: list[dict[str, object]] = []
+
+    for spec in _VALIDATORS:
+        scenario_suffix = _scenario_suffix_for_validator(
+            spec, shared_suffix=shared_suffix, mwr_suffix=mwr_suffix
+        )
+        run = _run_validator(
+            repo_root=repo_root,
+            output_dir=output_dir,
+            spec=spec,
+            skip_seed=skip_seed,
+            scenario_suffix=scenario_suffix,
+            core_ingestion_base_url=core_ingestion_base_url,
+            core_query_base_url=core_query_base_url,
+            performance_base_url=performance_base_url,
+        )
+        validator_runs.append(run)
+        result_payload = run["result"]
+        if isinstance(result_payload, dict):
+            defects.extend(
+                _collect_result_defects(
+                    validator_key=spec.key, result_payload=result_payload
+                )
+            )
+
+    return validator_runs, defects
+
+
+def _summarize_validator_runs(
+    validator_runs: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    return [
+        {
+            key: value
+            for key, value in run.items()
+            if key not in {"stdout", "stderr", "result"}
+        }
+        for run in validator_runs
+    ]
+
+
+def _build_summary(
+    *,
+    skip_seed: bool,
+    shared_suffix: str | None,
+    mwr_suffix: str | None,
+    validator_runs: list[dict[str, object]],
+    defects: list[dict[str, object]],
+) -> dict[str, object]:
+    return {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "status": "failed" if defects else "passed",
+        "mode": "reused_existing" if skip_seed else "fresh_seeded",
+        "shared_scenario_suffix": shared_suffix,
+        "mwr_scenario_suffix": mwr_suffix,
+        "validators": _summarize_validator_runs(validator_runs),
+        "defects": defects,
+    }
+
+
+def main() -> int:
+    args = _build_parser().parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
     output_dir = repo_root / "output" / "cross-app"
@@ -257,62 +384,26 @@ def main() -> int:
         skip_seed=args.skip_seed,
     )
 
-    if args.skip_seed and (shared_suffix is None or mwr_suffix is None):
-        missing = []
-        if shared_suffix is None:
-            missing.append("shared_scenario_suffix")
-        if mwr_suffix is None:
-            missing.append("mwr_scenario_suffix")
-        raise SystemExit(
-            f"Stable baseline mode needs existing scenario suffixes or prior artifacts to infer them. Missing: {', '.join(missing)}"
-        )
-
-    validator_runs: list[dict[str, object]] = []
-    defects: list[dict[str, object]] = []
-    for spec in _VALIDATORS:
-        scenario_suffix = shared_suffix if spec.scenario_mode == "shared" else mwr_suffix
-        run = _run_validator(
-            repo_root=repo_root,
-            output_dir=output_dir,
-            spec=spec,
-            skip_seed=args.skip_seed,
-            scenario_suffix=scenario_suffix,
-            core_ingestion_base_url=args.core_ingestion_base_url,
-            core_query_base_url=args.core_query_base_url,
-            performance_base_url=args.performance_base_url,
-        )
-        validator_runs.append(run)
-        result_payload = run["result"]
-        if isinstance(result_payload, dict):
-            performance = result_payload.get("performance")
-            if isinstance(performance, dict):
-                performance_defects = performance.get("defects")
-                if isinstance(performance_defects, list):
-                    for defect in performance_defects:
-                        if isinstance(defect, dict):
-                            defects.append({"validator": spec.key, **defect})
-            core_defects = result_payload.get("core_defects")
-            if isinstance(core_defects, list):
-                for defect in core_defects:
-                    if isinstance(defect, dict):
-                        defects.append({"validator": spec.key, **defect})
-
-    summary = {
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "status": "failed" if defects else "passed",
-        "mode": "reused_existing" if args.skip_seed else "fresh_seeded",
-        "shared_scenario_suffix": shared_suffix,
-        "mwr_scenario_suffix": mwr_suffix,
-        "validators": [
-            {
-                key: value
-                for key, value in run.items()
-                if key not in {"stdout", "stderr", "result"}
-            }
-            for run in validator_runs
-        ],
-        "defects": defects,
-    }
+    _require_reused_scenario_suffixes(
+        skip_seed=args.skip_seed, shared_suffix=shared_suffix, mwr_suffix=mwr_suffix
+    )
+    validator_runs, defects = _run_baseline_validators(
+        repo_root=repo_root,
+        output_dir=output_dir,
+        skip_seed=args.skip_seed,
+        shared_suffix=shared_suffix,
+        mwr_suffix=mwr_suffix,
+        core_ingestion_base_url=args.core_ingestion_base_url,
+        core_query_base_url=args.core_query_base_url,
+        performance_base_url=args.performance_base_url,
+    )
+    summary = _build_summary(
+        skip_seed=args.skip_seed,
+        shared_suffix=shared_suffix,
+        mwr_suffix=mwr_suffix,
+        validator_runs=validator_runs,
+        defects=defects,
+    )
 
     _write_outputs(
         summary,

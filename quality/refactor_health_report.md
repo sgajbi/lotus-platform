@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T06:03:37Z`
+Generated: `2026-06-20T06:07:33Z`
 
 ## Completed Slices
 
@@ -142,6 +142,10 @@ Generated: `2026-06-20T06:03:37Z`
     selection, dependency product lookup, consumer approval, trust metadata matching, and migration
     posture checks are isolated behind focused helpers, removing the RFC-0084 cross-reference
     validator from the top measured complexity hotspot list while preserving contract issue text.
+42. Core-performance baseline validator extraction so CLI parsing, reused-scenario suffix
+    enforcement, per-validator scenario routing, defect collection, validator-run summarization, and
+    output-summary construction are isolated behind focused helpers, removing the baseline
+    orchestrator from the top measured complexity hotspot list while preserving CLI behavior.
 
 ## Evidence
 

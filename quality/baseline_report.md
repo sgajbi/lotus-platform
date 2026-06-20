@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:03:37Z`
+Generated: `2026-06-20T06:07:33Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `301844`
+- Total source lines: `301939`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1478`
+- Python functions: `1486`
 - Highest measured cyclomatic complexity: `19`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/core_performance_baseline_validation.py | main | 239 | 19 | 85 |
 | automation/review_analytics_ui_canonical_proof.py | _validate_live_summary | 163 | 19 | 68 |
 | automation/validate_heartbeat_contracts.py | _validate_status_attention_items | 95 | 18 | 55 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_runner_config | 427 | 18 | 55 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/heartbeat_sources.py | _background_run_ledger_adapter | 469 | 17 | 70 |
 | automation/validate_trust_telemetry.py | _validate_statuses | 160 | 17 | 66 |
 | automation/explain_dev_ingress_status.py | explain_dev_ingress_status | 94 | 16 | 154 |
+| automation/heartbeat_sources.py | _github_adapter | 364 | 16 | 103 |
 
 ## Tooling Baseline
 

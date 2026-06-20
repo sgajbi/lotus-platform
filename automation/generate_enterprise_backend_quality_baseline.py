@@ -631,6 +631,10 @@ Generated: `{baseline["generated_at_utc"]}`
     selection, dependency product lookup, consumer approval, trust metadata matching, and migration
     posture checks are isolated behind focused helpers, removing the RFC-0084 cross-reference
     validator from the top measured complexity hotspot list while preserving contract issue text.
+42. Core-performance baseline validator extraction so CLI parsing, reused-scenario suffix
+    enforcement, per-validator scenario routing, defect collection, validator-run summarization, and
+    output-summary construction are isolated behind focused helpers, removing the baseline
+    orchestrator from the top measured complexity hotspot list while preserving CLI behavior.
 
 ## Evidence
 

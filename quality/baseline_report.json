@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301844
+    "total_source_lines": 301939
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 19,
-        "end_line": 323,
-        "line": 239,
-        "lines": 85,
-        "name": "main",
-        "path": "automation/core_performance_baseline_validation.py"
-      },
       {
         "complexity": 19,
         "end_line": 230,
@@ -192,6 +184,14 @@
         "lines": 90,
         "name": "_validate_telemetry_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 14,
+        "end_line": 128,
+        "line": 73,
+        "lines": 56,
+        "name": "validate_cross_app",
+        "path": "platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py"
       }
     ],
     "largest_functions": [
@@ -269,9 +269,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 670,
+        "end_line": 674,
         "line": 489,
-        "lines": 182,
+        "lines": 186,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 19,
     "max_function_lines": 393,
-    "python_function_count": 1478
+    "python_function_count": 1486
   },
-  "generated_at_utc": "2026-06-20T06:03:37Z",
+  "generated_at_utc": "2026-06-20T06:07:33Z",
   "largest_files": [
     {
       "lines": 79939,
