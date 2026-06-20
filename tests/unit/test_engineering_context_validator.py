@@ -33,3 +33,35 @@ def test_engineering_context_validator_builds_success_markdown() -> None:
     assert "Engineering Context System Validation" in markdown
     assert "Status: `ok`" in markdown
     assert "synchronized and valid" in markdown
+
+
+def test_agents_operating_contract_validator_reports_missing_required_guidance() -> None:
+    validator = _load_validator_module()
+    errors: list[str] = []
+
+    validator._validate_agents_operating_contract(
+        errors=errors,
+        agents_contract="Mandatory Reading Order\nMandatory Operating Rules",
+    )
+
+    assert "AGENTS-OPERATING-CONTRACT.md: missing section `Context Maintenance Rule`" in errors
+    assert (
+        "AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link"
+        in errors
+    )
+    assert (
+        "AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link"
+        in errors
+    )
+    assert (
+        "AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance"
+        in errors
+    )
+    assert (
+        "AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance"
+        in errors
+    )
+    assert (
+        "AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `PB_SG_GLOBAL_BAL_001`"
+        in errors
+    )

@@ -799,6 +799,10 @@ Generated: `{baseline["generated_at_utc"]}`
     missing screenshot path detection, and SHOT-INDEX evidence validation are isolated behind
     focused helpers, removing ecosystem screenshot validation from the top measured complexity
     hotspot list while preserving RFC-0108 proof review behavior.
+84. Engineering context AGENTS contract validator extraction so required section checks and
+    required guidance cross-link checks are data-driven through focused helpers, removing the
+    AGENTS operating contract validator from the top measured complexity hotspot list while
+    preserving exact context validation failure messages.
 
 ## Evidence
 
