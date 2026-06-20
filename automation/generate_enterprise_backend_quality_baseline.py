@@ -604,6 +604,10 @@ Generated: `{baseline["generated_at_utc"]}`
     label policy, metric families, dashboard and alert references, state vocabulary, evidence, and
     scaffold requirements are isolated behind focused helpers, lowering the highest measured
     complexity hotspot while preserving RFC-0108 observability contract behavior.
+35. Heartbeat status validator extraction so top-level identity, contract-derived sets, summary
+    counts, source-read errors, suppression decisions, and missing-source attention invariants are
+    isolated behind focused helpers, removing the status validator from the top measured complexity
+    hotspot list while preserving RFC-0095 heartbeat behavior.
 
 ## Evidence
 

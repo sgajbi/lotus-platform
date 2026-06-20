@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T05:30:35Z`
+Generated: `2026-06-20T05:34:44Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `301248`
+- Total source lines: `301324`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1424`
+- Python functions: `1430`
 - Highest measured cyclomatic complexity: `22`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_heartbeat_contracts.py | validate_heartbeat_status | 240 | 22 | 95 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_matrix_feature_statuses | 418 | 22 | 65 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 23 | 21 | 298 |
 | automation/validate_engineering_context_system.py | _validate_manifest_contract | 32 | 21 | 95 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/core_performance_baseline_validation.py | main | 239 | 19 | 85 |
 | automation/review_analytics_ui_canonical_proof.py | _validate_live_summary | 163 | 19 | 68 |
 | automation/validate_heartbeat_contracts.py | _validate_status_attention_items | 95 | 18 | 55 |
+| automation/validate_heartbeat_contracts.py | validate_heartbeat_runner_config | 427 | 18 | 55 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.63s`
+- Collection summary: `510 tests collected in 0.55s`
 
 ## Security Baseline
 

@@ -149,6 +149,120 @@ def _validate_status_attention_items(
     return attention_items, severity_counts
 
 
+def _heartbeat_status_contract_sets(contract: dict[str, Any]) -> dict[str, set[str]]:
+    return {
+        "source_systems": _as_set(contract.get("source_systems")),
+        "read_statuses": _as_set(contract.get("read_statuses")),
+        "severities": _as_set(contract.get("severities")),
+        "evidence_ref_types": _as_set(contract.get("evidence_ref_types")),
+        "required_source_fields": _as_set(contract.get("required_source_fields")),
+        "required_attention_fields": _as_set(
+            contract.get("required_attention_item_fields")
+        ),
+        "required_suppression_fields": _as_set(
+            contract.get("required_suppression_fields")
+        ),
+    }
+
+
+def _validate_status_identity(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    contract: dict[str, Any],
+) -> None:
+    if status.get("contract_id") != contract.get("contract_id"):
+        errors.append("contract_id must match heartbeat contract")
+    if status.get("run_status") not in _as_set(contract.get("run_statuses")):
+        errors.append("run_status must be a governed heartbeat run status")
+    if not str(status.get("heartbeat_run_id", "")).strip():
+        errors.append("heartbeat_run_id must be non-empty")
+    if not _is_rfc3339_utc(status.get("generated_at_utc")):
+        errors.append("generated_at_utc must be an RFC-3339 UTC string ending with Z")
+
+
+def _validate_status_summary_counts(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    severities: set[str],
+    severity_counts: dict[str, int],
+) -> None:
+    summary_counts = status.get("summary_counts")
+    if not isinstance(summary_counts, dict):
+        errors.append("summary_counts must be an object")
+        return
+
+    for severity in severities:
+        if summary_counts.get(severity) != severity_counts[severity]:
+            errors.append(
+                f"summary_counts.{severity} must equal attention item count {severity_counts[severity]}"
+            )
+
+
+def _validate_source_read_errors(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    source_systems: set[str],
+    evidence_ref_types: set[str],
+) -> None:
+    source_read_errors = status.get("source_read_errors")
+    if not isinstance(source_read_errors, list):
+        errors.append("source_read_errors must be a list")
+        return
+
+    for index, source_error in enumerate(source_read_errors):
+        label = f"source_read_errors[{index}]"
+        _require_keys(
+            errors,
+            label,
+            source_error,
+            {"source_system", "source_ref", "error_summary", "evidence_refs"},
+        )
+        if not isinstance(source_error, dict):
+            continue
+        if source_error.get("source_system") not in source_systems:
+            errors.append(f"{label}.source_system must be governed")
+        _validate_evidence_refs(
+            errors, label, source_error.get("evidence_refs"), evidence_ref_types
+        )
+
+
+def _validate_status_suppression_decisions(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    required_suppression_fields: set[str],
+) -> None:
+    suppression_decisions = status.get("suppression_decisions")
+    if not isinstance(suppression_decisions, list):
+        errors.append("suppression_decisions must be a list")
+        return
+
+    for index, decision in enumerate(suppression_decisions):
+        label = f"suppression_decisions[{index}]"
+        _require_keys(errors, label, decision, required_suppression_fields)
+        if isinstance(decision, dict) and not _is_rfc3339_utc(decision.get("expires_at_utc")):
+            errors.append(
+                f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+            )
+
+
+def _validate_unhealthy_sources_emit_attention(
+    *,
+    errors: list[str],
+    inventory: list[Any],
+    attention_items: list[Any],
+) -> None:
+    unhealthy_source = any(
+        isinstance(source, dict) and source.get("read_status") in {"missing", "error"}
+        for source in inventory
+    )
+    if unhealthy_source and not attention_items:
+        errors.append("missing or errored source evidence must produce an attention item")
+
+
 def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
     errors: list[str] = []
     if not path.exists():
@@ -247,90 +361,48 @@ def validate_heartbeat_status(
     if errors:
         return errors
 
-    if status.get("contract_id") != contract.get("contract_id"):
-        errors.append("contract_id must match heartbeat contract")
-    if status.get("run_status") not in _as_set(contract.get("run_statuses")):
-        errors.append("run_status must be a governed heartbeat run status")
-    if not str(status.get("heartbeat_run_id", "")).strip():
-        errors.append("heartbeat_run_id must be non-empty")
-    if not _is_rfc3339_utc(status.get("generated_at_utc")):
-        errors.append("generated_at_utc must be an RFC-3339 UTC string ending with Z")
-
-    source_systems = _as_set(contract.get("source_systems"))
-    read_statuses = _as_set(contract.get("read_statuses"))
-    severities = _as_set(contract.get("severities"))
-    evidence_ref_types = _as_set(contract.get("evidence_ref_types"))
-    required_source_fields = _as_set(contract.get("required_source_fields"))
-    required_attention_fields = _as_set(contract.get("required_attention_item_fields"))
-    required_suppression_fields = _as_set(contract.get("required_suppression_fields"))
+    _validate_status_identity(errors=errors, status=status, contract=contract)
+    contract_sets = _heartbeat_status_contract_sets(contract)
 
     inventory = _validate_status_source_inventory(
         errors=errors,
         status=status,
-        source_systems=source_systems,
-        read_statuses=read_statuses,
-        evidence_ref_types=evidence_ref_types,
-        required_source_fields=required_source_fields,
+        source_systems=contract_sets["source_systems"],
+        read_statuses=contract_sets["read_statuses"],
+        evidence_ref_types=contract_sets["evidence_ref_types"],
+        required_source_fields=contract_sets["required_source_fields"],
     )
     attention_items, severity_counts = _validate_status_attention_items(
         errors=errors,
         status=status,
-        source_systems=source_systems,
-        severities=severities,
-        evidence_ref_types=evidence_ref_types,
-        required_attention_fields=required_attention_fields,
-        required_suppression_fields=required_suppression_fields,
+        source_systems=contract_sets["source_systems"],
+        severities=contract_sets["severities"],
+        evidence_ref_types=contract_sets["evidence_ref_types"],
+        required_attention_fields=contract_sets["required_attention_fields"],
+        required_suppression_fields=contract_sets["required_suppression_fields"],
     )
-
-    summary_counts = status.get("summary_counts")
-    if not isinstance(summary_counts, dict):
-        errors.append("summary_counts must be an object")
-    else:
-        for severity in severities:
-            if summary_counts.get(severity) != severity_counts[severity]:
-                errors.append(
-                    f"summary_counts.{severity} must equal attention item count {severity_counts[severity]}"
-                )
-
-    source_read_errors = status.get("source_read_errors")
-    if not isinstance(source_read_errors, list):
-        errors.append("source_read_errors must be a list")
-    else:
-        for index, source_error in enumerate(source_read_errors):
-            label = f"source_read_errors[{index}]"
-            _require_keys(
-                errors,
-                label,
-                source_error,
-                {"source_system", "source_ref", "error_summary", "evidence_refs"},
-            )
-            if not isinstance(source_error, dict):
-                continue
-            if source_error.get("source_system") not in source_systems:
-                errors.append(f"{label}.source_system must be governed")
-            _validate_evidence_refs(
-                errors, label, source_error.get("evidence_refs"), evidence_ref_types
-            )
-
-    suppression_decisions = status.get("suppression_decisions")
-    if not isinstance(suppression_decisions, list):
-        errors.append("suppression_decisions must be a list")
-    else:
-        for index, decision in enumerate(suppression_decisions):
-            label = f"suppression_decisions[{index}]"
-            _require_keys(errors, label, decision, required_suppression_fields)
-            if isinstance(decision, dict) and not _is_rfc3339_utc(decision.get("expires_at_utc")):
-                errors.append(
-                    f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z"
-                )
-
-    unhealthy_source = any(
-        isinstance(source, dict) and source.get("read_status") in {"missing", "error"}
-        for source in inventory or []
+    _validate_status_summary_counts(
+        errors=errors,
+        status=status,
+        severities=contract_sets["severities"],
+        severity_counts=severity_counts,
     )
-    if unhealthy_source and not attention_items:
-        errors.append("missing or errored source evidence must produce an attention item")
-
+    _validate_source_read_errors(
+        errors=errors,
+        status=status,
+        source_systems=contract_sets["source_systems"],
+        evidence_ref_types=contract_sets["evidence_ref_types"],
+    )
+    _validate_status_suppression_decisions(
+        errors=errors,
+        status=status,
+        required_suppression_fields=contract_sets["required_suppression_fields"],
+    )
+    _validate_unhealthy_sources_emit_attention(
+        errors=errors,
+        inventory=inventory,
+        attention_items=attention_items,
+    )
     return errors
 
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301248
+    "total_source_lines": 301324
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 22,
-        "end_line": 334,
-        "line": 240,
-        "lines": 95,
-        "name": "validate_heartbeat_status",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
       {
         "complexity": 22,
         "end_line": 482,
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 409,
-        "line": 355,
+        "end_line": 481,
+        "line": 427,
         "lines": 55,
         "name": "validate_heartbeat_runner_config",
         "path": "automation/validate_heartbeat_contracts.py"
@@ -131,8 +123,8 @@
       },
       {
         "complexity": 17,
-        "end_line": 237,
-        "line": 152,
+        "end_line": 351,
+        "line": 266,
         "lines": 86,
         "name": "validate_heartbeat_contract",
         "path": "automation/validate_heartbeat_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 61,
         "name": "validate_semantics_registry",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 113,
+        "line": 68,
+        "lines": 46,
+        "name": "validate_workflow",
+        "path": "automation/validate_workflow_security.py"
       }
     ],
     "largest_functions": [
@@ -308,6 +308,14 @@
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       },
       {
+        "complexity": 1,
+        "end_line": 647,
+        "line": 489,
+        "lines": 159,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 5,
         "end_line": 479,
         "line": 323,
@@ -322,14 +330,6 @@
         "lines": 156,
         "name": "scaffold_domain_product_onboarding",
         "path": "automation/generate_domain_product_onboarding.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 643,
-        "line": 489,
-        "lines": 155,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 16,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 22,
     "max_function_lines": 393,
-    "python_function_count": 1424
+    "python_function_count": 1430
   },
-  "generated_at_utc": "2026-06-20T05:30:35Z",
+  "generated_at_utc": "2026-06-20T05:34:44Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.63s"
+    "summary": "510 tests collected in 0.55s"
   }
 }
