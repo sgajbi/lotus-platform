@@ -287,6 +287,222 @@ def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
     return issues
 
 
+def _validate_product_identity(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    producer_repository: str,
+    seen_products: set[tuple[str, str]],
+) -> None:
+    product_name = product["product_name"]
+    product_version = product["product_version"]
+    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
+        _append_issue(issues, path, f"products[{index}].product_name must use stable product naming")
+    if not isinstance(product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
+        product_version
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].product_version must use vN or semantic versioning",
+        )
+
+    key = (str(product_name), str(product_version))
+    if key in seen_products:
+        _append_issue(
+            issues,
+            path,
+            f"duplicate product declaration for {product_name} {product_version}",
+        )
+    else:
+        seen_products.add(key)
+
+    if product["owner_repository"] != producer_repository:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].owner_repository must match producer_repository",
+        )
+
+
+def _validate_product_approved_consumers(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+) -> None:
+    approved_consumers = product["approved_consumers"]
+    if not _is_non_empty_list(approved_consumers):
+        _append_issue(issues, path, f"products[{index}].approved_consumers must be non-empty")
+        return
+
+    invalid_consumers = [
+        consumer
+        for consumer in approved_consumers
+        if not isinstance(consumer, str) or not REPOSITORY_PATTERN.fullmatch(consumer)
+    ]
+    if invalid_consumers:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].approved_consumers contains invalid repo names",
+        )
+    if len(set(approved_consumers)) != len(approved_consumers):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].approved_consumers must not contain duplicates",
+        )
+
+
+def _validate_product_registry_references(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    identifier_keys: set[str] | None,
+    temporal_keys: set[str] | None,
+    freshness_classes: set[str] | None,
+    completeness_statuses: set[str] | None,
+    trust_metadata_keys: set[str] | None,
+) -> None:
+    if not _is_non_empty_list(product["required_trust_metadata"]):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].required_trust_metadata must be non-empty",
+        )
+    elif trust_metadata_keys is not None:
+        unknown_trust_metadata = [
+            trust_metadata_field
+            for trust_metadata_field in product["required_trust_metadata"]
+            if trust_metadata_field not in trust_metadata_keys
+        ]
+        if unknown_trust_metadata:
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
+            )
+    if identifier_keys is not None:
+        identifier_refs = product["identifier_refs"]
+        if not _is_non_empty_list(identifier_refs):
+            _append_issue(issues, path, f"products[{index}].identifier_refs must be non-empty")
+        else:
+            unknown_identifier_refs = [
+                identifier_ref for identifier_ref in identifier_refs if identifier_ref not in identifier_keys
+            ]
+            if unknown_identifier_refs:
+                _append_issue(
+                    issues,
+                    path,
+                    f"products[{index}].identifier_refs contains unknown identifiers: {', '.join(unknown_identifier_refs)}",
+                )
+    if temporal_keys is not None and product["temporal_semantics_ref"] not in temporal_keys:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].temporal_semantics_ref must reference a registered temporal semantic",
+        )
+    if freshness_classes is not None and product["freshness_policy"]["freshness_class"] not in freshness_classes:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].freshness_policy.freshness_class must reference the trust vocabulary registry",
+        )
+    if (
+        completeness_statuses is not None
+        and product["completeness_policy"]["default_status"] not in completeness_statuses
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].completeness_policy.default_status must reference the trust vocabulary registry",
+        )
+
+
+def _validate_product_lineage_policy(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    evidence_access_classes: set[str] | None,
+    lineage_bundle_class_keys: set[str] | None,
+) -> None:
+    if (
+        evidence_access_classes is not None
+        and product["lineage_policy"]["evidence_access_class_ref"] not in evidence_access_classes
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].lineage_policy.evidence_access_class_ref must reference the trust metadata registry",
+        )
+    lineage_bundle_class_ref = product["lineage_policy"].get("lineage_bundle_class_ref")
+    if product["lineage_policy"]["evidence_bundle_required"]:
+        if not isinstance(lineage_bundle_class_ref, str):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].lineage_policy.lineage_bundle_class_ref is required when evidence_bundle_required is true",
+            )
+        elif lineage_bundle_class_keys is not None and lineage_bundle_class_ref not in lineage_bundle_class_keys:
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
+            )
+    elif (
+        lineage_bundle_class_ref is not None
+        and lineage_bundle_class_keys is not None
+        and lineage_bundle_class_ref not in lineage_bundle_class_keys
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
+        )
+    for optional_list_field in ("current_routes",):
+        if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].{optional_list_field} must be non-empty when present",
+            )
+
+
+def _validate_product_deprecation_policy(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+) -> None:
+    deprecation_policy = product["deprecation_policy"]
+    if not isinstance(deprecation_policy, dict):
+        return
+
+    state = deprecation_policy.get("state")
+    successor = deprecation_policy.get("successor_product")
+    if product["lifecycle_status"] == "deprecated" and state == "not_deprecated":
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}] deprecated products must not use deprecation state not_deprecated",
+        )
+    if state in {"announced", "migration_required", "retired"} and successor is None:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}] deprecated states require successor_product or explicit retirement target",
+        )
+
+
 def validate_producer_contract(
     path: Path,
     payload: dict,
@@ -336,168 +552,35 @@ def validate_producer_contract(
             )
             continue
 
-        product_name = product["product_name"]
-        product_version = product["product_version"]
-        if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
-            _append_issue(issues, path, f"products[{index}].product_name must use stable product naming")
-        if not isinstance(product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
-            product_version
-        ):
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].product_version must use vN or semantic versioning",
-            )
-
-        key = (str(product_name), str(product_version))
-        if key in seen_products:
-            _append_issue(
-                issues,
-                path,
-                f"duplicate product declaration for {product_name} {product_version}",
-            )
-        else:
-            seen_products.add(key)
-
-        if product["owner_repository"] != producer_repository:
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].owner_repository must match producer_repository",
-            )
-
-        approved_consumers = product["approved_consumers"]
-        if not _is_non_empty_list(approved_consumers):
-            _append_issue(issues, path, f"products[{index}].approved_consumers must be non-empty")
-        else:
-            invalid_consumers = [
-                consumer
-                for consumer in approved_consumers
-                if not isinstance(consumer, str) or not REPOSITORY_PATTERN.fullmatch(consumer)
-            ]
-            if invalid_consumers:
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].approved_consumers contains invalid repo names",
-                )
-            if len(set(approved_consumers)) != len(approved_consumers):
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].approved_consumers must not contain duplicates",
-                )
-
-        if not _is_non_empty_list(product["required_trust_metadata"]):
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].required_trust_metadata must be non-empty",
-            )
-        elif trust_metadata_keys is not None:
-            unknown_trust_metadata = [
-                trust_metadata_field
-                for trust_metadata_field in product["required_trust_metadata"]
-                if trust_metadata_field not in trust_metadata_keys
-            ]
-            if unknown_trust_metadata:
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
-                )
-        if identifier_keys is not None:
-            identifier_refs = product["identifier_refs"]
-            if not _is_non_empty_list(identifier_refs):
-                _append_issue(issues, path, f"products[{index}].identifier_refs must be non-empty")
-            else:
-                unknown_identifier_refs = [
-                    identifier_ref for identifier_ref in identifier_refs if identifier_ref not in identifier_keys
-                ]
-                if unknown_identifier_refs:
-                    _append_issue(
-                        issues,
-                        path,
-                        f"products[{index}].identifier_refs contains unknown identifiers: {', '.join(unknown_identifier_refs)}",
-                    )
-        if temporal_keys is not None and product["temporal_semantics_ref"] not in temporal_keys:
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].temporal_semantics_ref must reference a registered temporal semantic",
-            )
-        if freshness_classes is not None and product["freshness_policy"]["freshness_class"] not in freshness_classes:
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].freshness_policy.freshness_class must reference the trust vocabulary registry",
-            )
-        if (
-            completeness_statuses is not None
-            and product["completeness_policy"]["default_status"] not in completeness_statuses
-        ):
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].completeness_policy.default_status must reference the trust vocabulary registry",
-            )
-        if (
-            evidence_access_classes is not None
-            and product["lineage_policy"]["evidence_access_class_ref"] not in evidence_access_classes
-        ):
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].lineage_policy.evidence_access_class_ref must reference the trust metadata registry",
-            )
-        lineage_bundle_class_ref = product["lineage_policy"].get("lineage_bundle_class_ref")
-        if product["lineage_policy"]["evidence_bundle_required"]:
-            if not isinstance(lineage_bundle_class_ref, str):
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].lineage_policy.lineage_bundle_class_ref is required when evidence_bundle_required is true",
-                )
-            elif lineage_bundle_class_keys is not None and lineage_bundle_class_ref not in lineage_bundle_class_keys:
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
-                )
-        elif (
-            lineage_bundle_class_ref is not None
-            and lineage_bundle_class_keys is not None
-            and lineage_bundle_class_ref not in lineage_bundle_class_keys
-        ):
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
-            )
-        for optional_list_field in ("current_routes",):
-            if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}].{optional_list_field} must be non-empty when present",
-                )
-
-        deprecation_policy = product["deprecation_policy"]
-        if isinstance(deprecation_policy, dict):
-            state = deprecation_policy.get("state")
-            successor = deprecation_policy.get("successor_product")
-            if product["lifecycle_status"] == "deprecated" and state == "not_deprecated":
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}] deprecated products must not use deprecation state not_deprecated",
-                )
-            if state in {"announced", "migration_required", "retired"} and successor is None:
-                _append_issue(
-                    issues,
-                    path,
-                    f"products[{index}] deprecated states require successor_product or explicit retirement target",
-                )
+        _validate_product_identity(
+            issues,
+            path,
+            index=index,
+            product=product,
+            producer_repository=producer_repository,
+            seen_products=seen_products,
+        )
+        _validate_product_approved_consumers(issues, path, index=index, product=product)
+        _validate_product_registry_references(
+            issues,
+            path,
+            index=index,
+            product=product,
+            identifier_keys=identifier_keys,
+            temporal_keys=temporal_keys,
+            freshness_classes=freshness_classes,
+            completeness_statuses=completeness_statuses,
+            trust_metadata_keys=trust_metadata_keys,
+        )
+        _validate_product_lineage_policy(
+            issues,
+            path,
+            index=index,
+            product=product,
+            evidence_access_classes=evidence_access_classes,
+            lineage_bundle_class_keys=lineage_bundle_class_keys,
+        )
+        _validate_product_deprecation_policy(issues, path, index=index, product=product)
 
     return issues
 

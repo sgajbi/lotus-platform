@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299745
+    "total_source_lines": 299831
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 50,
-        "end_line": 502,
-        "line": 290,
-        "lines": 213,
-        "name": "validate_producer_contract",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
       {
         "complexity": 46,
         "end_line": 290,
@@ -107,8 +99,8 @@
       },
       {
         "complexity": 31,
-        "end_line": 636,
-        "line": 509,
+        "end_line": 719,
+        "line": 592,
         "lines": 128,
         "name": "validate_consumer_contract_with_context",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 70,
         "name": "validate_platform_validation_coverage",
         "path": "automation/validate_platform_validation_coverage.py"
+      },
+      {
+        "complexity": 23,
+        "end_line": 524,
+        "line": 457,
+        "lines": 68,
+        "name": "validate_delegation_record",
+        "path": "automation/validate_agent_engineering_contracts.py"
       }
     ],
     "largest_functions": [
@@ -276,14 +276,6 @@
         "path": "automation/core_performance_contribution_validation.py"
       },
       {
-        "complexity": 50,
-        "end_line": 502,
-        "line": 290,
-        "lines": 213,
-        "name": "validate_producer_contract",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
-      {
         "complexity": 5,
         "end_line": 389,
         "line": 180,
@@ -354,13 +346,21 @@
         "lines": 162,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
+      },
+      {
+        "complexity": 5,
+        "end_line": 479,
+        "line": 323,
+        "lines": 157,
+        "name": "test_rfc_0104_preserves_batch_reporting_gold_standard_contract",
+        "path": "tests/unit/test_rfc_closure_governance.py"
       }
     ],
-    "max_complexity": 50,
+    "max_complexity": 46,
     "max_function_lines": 393,
-    "python_function_count": 1293
+    "python_function_count": 1298
   },
-  "generated_at_utc": "2026-06-20T03:56:32Z",
+  "generated_at_utc": "2026-06-20T04:01:31Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.81s"
+    "summary": "510 tests collected in 0.67s"
   }
 }
