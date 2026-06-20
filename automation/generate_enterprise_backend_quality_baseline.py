@@ -675,6 +675,10 @@ Generated: `{baseline["generated_at_utc"]}`
     failing-check detection, and stale PR attention are isolated behind focused helpers, removing
     the GitHub adapter from the top measured complexity hotspot list while preserving RFC-0095
     heartbeat behavior.
+53. Analytics UI ecosystem hardening supported-features extraction so lifecycle status checks,
+    reviewed-feature audits, missing-review detection, and residual-scope reconciliation are
+    isolated behind focused helpers, removing the hardening supported-features validator from the
+    top measured complexity hotspot list while preserving RFC-0108 hardening behavior.
 
 ## Evidence
 

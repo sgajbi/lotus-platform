@@ -181,29 +181,47 @@ def _validate_api_and_proof(
             errors.append(f"{surface}: evidence is required")
 
 
-def _validate_supported_features(
-    errors: list[str],
+def _final_closure_is_implemented(
+    statuses: dict[str, str],
     observability_contract: dict[str, Any],
-    ecosystem_proof: dict[str, Any],
-    hardening: dict[str, Any],
-) -> None:
-    statuses = _feature_status(observability_contract)
-    if statuses.get(HARDENING_FEATURE_KEY) != "implemented":
-        errors.append(f"{HARDENING_FEATURE_KEY} must be implemented for Slice 17")
-    final_closure_is_implemented = (
+) -> bool:
+    return (
         statuses.get(FINAL_CLOSURE_FEATURE_KEY) == "implemented"
         and observability_contract.get("lifecycle_status") == POST_HARDENING_LIFECYCLE_STATUS
     )
+
+
+def _validate_feature_lifecycle_statuses(
+    errors: list[str],
+    *,
+    statuses: dict[str, str],
+    final_closure_is_implemented: bool,
+) -> None:
+    if statuses.get(HARDENING_FEATURE_KEY) != "implemented":
+        errors.append(f"{HARDENING_FEATURE_KEY} must be implemented for Slice 17")
     if statuses.get(FINAL_CLOSURE_FEATURE_KEY) != "planned" and not final_closure_is_implemented:
         errors.append(f"{FINAL_CLOSURE_FEATURE_KEY} must remain planned before Slice 18")
 
+
+def _audit_reviewed_feature_sets(hardening: dict[str, Any]) -> tuple[set[Any], set[Any]]:
     audit = hardening.get("supported_features_audit", {})
     implemented_reviewed = set(audit.get("implemented_feature_keys_reviewed", []))
     planned_reviewed = set(audit.get("planned_feature_keys_reviewed", []))
+    return implemented_reviewed, planned_reviewed
+
+
+def _missing_reviewed_features(
+    *,
+    statuses: dict[str, str],
+    implemented_reviewed: set[Any],
+    planned_reviewed: set[Any],
+    final_closure_is_implemented: bool,
+) -> tuple[list[str], list[str]]:
     implemented_missing = sorted(
         feature_key
         for feature_key, status in statuses.items()
-        if status == "implemented" and feature_key not in implemented_reviewed
+        if status == "implemented"
+        and feature_key not in implemented_reviewed
         and not (
             feature_key == FINAL_CLOSURE_FEATURE_KEY and final_closure_is_implemented
         )
@@ -212,6 +230,23 @@ def _validate_supported_features(
         feature_key
         for feature_key, status in statuses.items()
         if status == "planned" and feature_key not in planned_reviewed
+    )
+    return implemented_missing, planned_missing
+
+
+def _validate_supported_feature_audit(
+    errors: list[str],
+    *,
+    statuses: dict[str, str],
+    implemented_reviewed: set[Any],
+    planned_reviewed: set[Any],
+    final_closure_is_implemented: bool,
+) -> None:
+    implemented_missing, planned_missing = _missing_reviewed_features(
+        statuses=statuses,
+        implemented_reviewed=implemented_reviewed,
+        planned_reviewed=planned_reviewed,
+        final_closure_is_implemented=final_closure_is_implemented,
     )
     if HARDENING_FEATURE_KEY not in implemented_reviewed:
         errors.append(f"supported_features_audit must review {HARDENING_FEATURE_KEY}")
@@ -228,16 +263,24 @@ def _validate_supported_features(
             f"{planned_missing}"
         )
 
-    proof_residual = {
+
+def _residual_feature_keys(payload: dict[str, Any]) -> set[str]:
+    return {
         str(item.get("feature_key"))
-        for item in ecosystem_proof.get("residual_scope", [])
+        for item in payload.get("residual_scope", [])
         if isinstance(item, dict)
     }
-    hardening_residual = {
-        str(item.get("feature_key"))
-        for item in hardening.get("residual_scope", [])
-        if isinstance(item, dict)
-    }
+
+
+def _validate_residual_scope(
+    errors: list[str],
+    *,
+    statuses: dict[str, str],
+    ecosystem_proof: dict[str, Any],
+    hardening: dict[str, Any],
+) -> None:
+    proof_residual = _residual_feature_keys(ecosystem_proof)
+    hardening_residual = _residual_feature_keys(hardening)
     if hardening_residual != proof_residual:
         errors.append(
             "residual_scope must match ecosystem proof residual scope: "
@@ -246,6 +289,37 @@ def _validate_supported_features(
     for feature_key in hardening_residual:
         if statuses.get(feature_key) != "planned":
             errors.append(f"{feature_key}: residual feature must remain planned")
+
+
+def _validate_supported_features(
+    errors: list[str],
+    observability_contract: dict[str, Any],
+    ecosystem_proof: dict[str, Any],
+    hardening: dict[str, Any],
+) -> None:
+    statuses = _feature_status(observability_contract)
+    final_closure_is_implemented = _final_closure_is_implemented(
+        statuses, observability_contract
+    )
+    _validate_feature_lifecycle_statuses(
+        errors,
+        statuses=statuses,
+        final_closure_is_implemented=final_closure_is_implemented,
+    )
+    implemented_reviewed, planned_reviewed = _audit_reviewed_feature_sets(hardening)
+    _validate_supported_feature_audit(
+        errors,
+        statuses=statuses,
+        implemented_reviewed=implemented_reviewed,
+        planned_reviewed=planned_reviewed,
+        final_closure_is_implemented=final_closure_is_implemented,
+    )
+    _validate_residual_scope(
+        errors,
+        statuses=statuses,
+        ecosystem_proof=ecosystem_proof,
+        hardening=hardening,
+    )
 
 
 def _validate_findings(errors: list[str], hardening: dict[str, Any]) -> None:
