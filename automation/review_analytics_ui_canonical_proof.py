@@ -160,14 +160,9 @@ def _screenshot_path(path_value: object, qa_summary_path: Path) -> Path | None:
     return _resolve_optional_path(path_value, qa_summary_path.parent)
 
 
-def _validate_live_summary(
-    *,
-    errors: list[str],
-    live_summary: dict[str, Any],
-    live_summary_path: Path | None,
-    qa_summary_path: Path,
-) -> dict[str, Any]:
-    evidence: dict[str, Any] = {}
+def _validate_live_summary_identity(
+    *, errors: list[str], live_summary: dict[str, Any]
+) -> None:
     if live_summary.get("portfolioId") != CANONICAL_PORTFOLIO_ID:
         errors.append(
             f"live summary portfolioId must be {CANONICAL_PORTFOLIO_ID}"
@@ -177,55 +172,130 @@ def _validate_live_summary(
             f"live summary benchmarkCode must be {CANONICAL_BENCHMARK_CODE}"
         )
 
+
+def _missing_screenshot_entries(
+    screenshots: list[Any], *, qa_summary_path: Path
+) -> list[str]:
+    missing_screenshots = []
+    for item in screenshots:
+        if not isinstance(item, dict):
+            missing_screenshots.append("<non-object screenshot entry>")
+            continue
+        resolved = _screenshot_path(item.get("path"), qa_summary_path)
+        if resolved is None or not resolved.exists():
+            missing_screenshots.append(str(item.get("path")))
+    return missing_screenshots
+
+
+def _validate_live_summary_screenshots(
+    *, errors: list[str], live_summary: dict[str, Any], qa_summary_path: Path
+) -> dict[str, Any]:
+    evidence: dict[str, Any] = {}
     screenshots = live_summary.get("screenshots", [])
     if not isinstance(screenshots, list) or len(screenshots) < EXPECTED_SCREENSHOT_COUNT:
         errors.append(
             f"live summary must include at least {EXPECTED_SCREENSHOT_COUNT} screenshots"
         )
-    else:
-        missing_screenshots = []
-        for item in screenshots:
-            if not isinstance(item, dict):
-                missing_screenshots.append("<non-object screenshot entry>")
-                continue
-            resolved = _screenshot_path(item.get("path"), qa_summary_path)
-            if resolved is None or not resolved.exists():
-                missing_screenshots.append(str(item.get("path")))
-        if missing_screenshots:
-            errors.append(f"screenshot files missing: {missing_screenshots}")
-        evidence["screenshot_count"] = len(screenshots)
+        return evidence
 
+    missing_screenshots = _missing_screenshot_entries(
+        screenshots, qa_summary_path=qa_summary_path
+    )
+    if missing_screenshots:
+        errors.append(f"screenshot files missing: {missing_screenshots}")
+    evidence["screenshot_count"] = len(screenshots)
+    return evidence
+
+
+def _validate_live_summary_check_sections(
+    *, errors: list[str], live_summary: dict[str, Any]
+) -> dict[str, Any]:
+    evidence: dict[str, Any] = {}
     for section_name in ("apiChecks", "uiChecks", "calculationChecks"):
         section = live_summary.get(section_name, [])
         if not isinstance(section, list) or not section:
             errors.append(f"live summary {section_name} must be non-empty")
         else:
             evidence[f"{section_name}_count"] = len(section)
+    return evidence
 
+
+def _unsupported_panel_states(panel_classifications: list[Any]) -> list[str]:
+    return [
+        f"{panel.get('panel')}={panel.get('state')}"
+        for panel in panel_classifications
+        if isinstance(panel, dict)
+        and str(panel.get("state")) in {"supported_blank", "blank", "error"}
+    ]
+
+
+def _validate_live_summary_panel_classifications(
+    *, errors: list[str], live_summary: dict[str, Any]
+) -> dict[str, Any]:
+    evidence: dict[str, Any] = {}
     panel_classifications = live_summary.get("panelClassifications", [])
     if not isinstance(panel_classifications, list) or not panel_classifications:
         errors.append("live summary panelClassifications must be non-empty")
-    else:
-        unsupported_states = [
-            f"{panel.get('panel')}={panel.get('state')}"
-            for panel in panel_classifications
-            if isinstance(panel, dict)
-            and str(panel.get("state")) in {"supported_blank", "blank", "error"}
-        ]
-        if unsupported_states:
-            errors.append(
-                "live summary contains unsupported panel states: "
-                f"{unsupported_states}"
-            )
-        evidence["panel_classification_count"] = len(panel_classifications)
+        return evidence
 
+    unsupported_states = _unsupported_panel_states(panel_classifications)
+    if unsupported_states:
+        errors.append(
+            "live summary contains unsupported panel states: "
+            f"{unsupported_states}"
+        )
+    evidence["panel_classification_count"] = len(panel_classifications)
+    return evidence
+
+
+def _validate_live_summary_shot_index(
+    *,
+    errors: list[str],
+    live_summary: dict[str, Any],
+    live_summary_path: Path | None,
+    qa_summary_path: Path,
+) -> dict[str, Any]:
     shot_index_path = _screenshot_index_path(
         live_summary, live_summary_path, qa_summary_path
     )
     if shot_index_path is None or not shot_index_path.exists():
         errors.append("SHOT-INDEX.md is missing for canonical screenshot evidence")
-    else:
-        evidence["shot_index_path"] = str(shot_index_path)
+        return {}
+    return {"shot_index_path": str(shot_index_path)}
+
+
+def _validate_live_summary(
+    *,
+    errors: list[str],
+    live_summary: dict[str, Any],
+    live_summary_path: Path | None,
+    qa_summary_path: Path,
+) -> dict[str, Any]:
+    evidence: dict[str, Any] = {}
+    _validate_live_summary_identity(errors=errors, live_summary=live_summary)
+    evidence.update(
+        _validate_live_summary_screenshots(
+            errors=errors, live_summary=live_summary, qa_summary_path=qa_summary_path
+        )
+    )
+    evidence.update(
+        _validate_live_summary_check_sections(
+            errors=errors, live_summary=live_summary
+        )
+    )
+    evidence.update(
+        _validate_live_summary_panel_classifications(
+            errors=errors, live_summary=live_summary
+        )
+    )
+    evidence.update(
+        _validate_live_summary_shot_index(
+            errors=errors,
+            live_summary=live_summary,
+            live_summary_path=live_summary_path,
+            qa_summary_path=qa_summary_path,
+        )
+    )
 
     return evidence
 

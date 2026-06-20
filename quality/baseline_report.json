@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301939
+    "total_source_lines": 302013
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 19,
-        "end_line": 230,
-        "line": 163,
-        "lines": 68,
-        "name": "_validate_live_summary",
-        "path": "automation/review_analytics_ui_canonical_proof.py"
-      },
       {
         "complexity": 18,
         "end_line": 149,
@@ -192,6 +184,14 @@
         "lines": 56,
         "name": "validate_cross_app",
         "path": "platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py"
+      },
+      {
+        "complexity": 14,
+        "end_line": 120,
+        "line": 69,
+        "lines": 52,
+        "name": "validate_repository_hygiene",
+        "path": "automation/validate_repository_hygiene.py"
       }
     ],
     "largest_functions": [
@@ -269,9 +269,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 674,
+        "end_line": 678,
         "line": 489,
-        "lines": 186,
+        "lines": 190,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "automation/validate_agent_engineering_contracts.py"
       }
     ],
-    "max_complexity": 19,
+    "max_complexity": 18,
     "max_function_lines": 393,
-    "python_function_count": 1486
+    "python_function_count": 1493
   },
-  "generated_at_utc": "2026-06-20T06:07:33Z",
+  "generated_at_utc": "2026-06-20T06:12:32Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.57s"
+    "summary": "510 tests collected in 0.58s"
   }
 }

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:07:33Z`
+Generated: `2026-06-20T06:12:32Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `301939`
+- Total source lines: `302013`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1486`
-- Highest measured cyclomatic complexity: `19`
+- Python functions: `1493`
+- Highest measured cyclomatic complexity: `18`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/review_analytics_ui_canonical_proof.py | _validate_live_summary | 163 | 19 | 68 |
 | automation/validate_heartbeat_contracts.py | _validate_status_attention_items | 95 | 18 | 55 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_runner_config | 427 | 18 | 55 |
 | automation/validate_agent_engineering_contracts.py | validate_delegation_policy_contract | 368 | 17 | 135 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_trust_telemetry.py | _validate_statuses | 160 | 17 | 66 |
 | automation/explain_dev_ingress_status.py | explain_dev_ingress_status | 94 | 16 | 154 |
 | automation/heartbeat_sources.py | _github_adapter | 364 | 16 | 103 |
+| automation/validate_analytics_ui_ecosystem_hardening.py | _validate_supported_features | 184 | 16 | 65 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.57s`
+- Collection summary: `510 tests collected in 0.58s`
 
 ## Security Baseline
 
