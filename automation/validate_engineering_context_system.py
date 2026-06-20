@@ -221,74 +221,7 @@ def _validate_onboarding_guidance(
             errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
 
 
-def validate_engineering_context_system() -> list[str]:
-    errors: list[str] = []
-    required_files = {
-        "context index": CONTEXT_DIR / "README.md",
-        "quickstart": CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md",
-        "engineering context": CONTEXT_DIR / "LOTUS-ENGINEERING-CONTEXT.md",
-        "reference map": CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md",
-        "task routing guide": CONTEXT_DIR / "TASK-ROUTING-GUIDE.md",
-        "ecosystem registries": CONTEXT_DIR / "ECOSYSTEM-REGISTRIES.md",
-        "procedural memory index": CONTEXT_DIR / "PROCEDURAL-MEMORY-INDEX.md",
-        "change playbooks": CONTEXT_DIR / "playbooks" / "CHANGE-PLAYBOOKS.md",
-        "pr loop playbook": CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md",
-        "validation playbook": CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md",
-        "fix-forward patterns": CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md",
-        "agent context and task ledger playbook": CONTEXT_DIR
-        / "playbooks"
-        / "AGENT-CONTEXT-AND-TASK-LEDGER.md",
-        "manifest": CONTEXT_DIR / "lotus-context-manifest.json",
-        "repository registry": ROOT / "automation" / "repos.json",
-        "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
-        "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
-        "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
-        "platform repo context": ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
-        "platform repo agents": ROOT / "AGENTS.md",
-        "developer onboarding": ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md",
-        "agent ramp up": ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md",
-        "developer environment bootstrap": ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1",
-        "developer environment validation": ROOT / "automation" / "Validate-LotusDeveloperEnvironment.ps1",
-        "ledger": CONTEXT_DIR / "platform-engineering-ledger.md",
-        "decisions digest": CONTEXT_DIR / "recent-architectural-decisions-digest.md",
-        "rfc checklist": ROOT / "rfcs" / "RFC-0073-implementation-checklist.md",
-    }
-
-    for label, path in required_files.items():
-        if not path.exists():
-            errors.append(f"missing required context artifact: {label} -> {path.relative_to(ROOT)}")
-
-    if errors:
-        return errors
-
-    context_index = _read_text(required_files["context index"])
-    quickstart = _read_text(required_files["quickstart"])
-    engineering = _read_text(required_files["engineering context"])
-    reference_map = _read_text(required_files["reference map"])
-    task_routing_guide = _read_text(required_files["task routing guide"])
-    ecosystem_registries = _read_text(required_files["ecosystem registries"])
-    procedural_memory_index = _read_text(required_files["procedural memory index"])
-    change_playbooks = _read_text(required_files["change playbooks"])
-    pr_loop_playbook = _read_text(required_files["pr loop playbook"])
-    validation_playbook = _read_text(required_files["validation playbook"])
-    fix_forward_patterns = _read_text(required_files["fix-forward patterns"])
-    agent_context_task_ledger = _read_text(
-        required_files["agent context and task ledger playbook"]
-    )
-    agents_contract = _read_text(required_files["agents contract"])
-    repo_context_contract = _read_text(required_files["repository context contract"])
-    repo_context_template = _read_text(required_files["repository context template"])
-    platform_repo_context = _read_text(required_files["platform repo context"])
-    developer_onboarding = _read_text(required_files["developer onboarding"])
-    agent_ramp_up = _read_text(required_files["agent ramp up"])
-    developer_environment_bootstrap = _read_text(required_files["developer environment bootstrap"])
-    developer_environment_validation = _read_text(required_files["developer environment validation"])
-    rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
-    checklist = _read_text(required_files["rfc checklist"])
-    manifest = json.loads(_read_text(required_files["manifest"]))
-    repository_registry = json.loads(_read_text(required_files["repository registry"]))
-    normalized_agents_contract = _normalize_text(agents_contract)
-
+def _validate_rfc_completion(*, errors: list[str], rfc: str, checklist: str) -> None:
     if "- Status: Implemented" not in rfc:
         errors.append("RFC-0073 must be marked Implemented once all slices are complete")
     if "Slice 5 | Drift control and validation foundation | Complete" not in checklist:
@@ -300,6 +233,17 @@ def validate_engineering_context_system() -> list[str]:
     if "Slice 2A | Repo-root AGENTS deployment and drift control | Complete" not in checklist:
         errors.append("RFC-0073 checklist: Slice 2A must be marked complete")
 
+
+def _validate_context_entrypoints(
+    *,
+    errors: list[str],
+    context_index: str,
+    quickstart: str,
+    engineering: str,
+    reference_map: str,
+    task_routing_guide: str,
+    procedural_memory_index: str,
+) -> None:
     for link_target in (
         "./LOTUS-QUICKSTART-CONTEXT.md",
         "./LOTUS-ENGINEERING-CONTEXT.md",
@@ -368,6 +312,16 @@ def validate_engineering_context_system() -> list[str]:
     if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
 
+
+def _validate_playbook_content(
+    *,
+    errors: list[str],
+    change_playbooks: str,
+    pr_loop_playbook: str,
+    validation_playbook: str,
+    fix_forward_patterns: str,
+    agent_context_task_ledger: str,
+) -> None:
     for text, label in (
         ("Backend API And Domain-Service Change Playbook", "CHANGE-PLAYBOOKS.md"),
         ("Frontend And Product-Surface Change Playbook", "CHANGE-PLAYBOOKS.md"),
@@ -394,14 +348,13 @@ def validate_engineering_context_system() -> list[str]:
         if text not in target_doc:
             errors.append(f"{label}: missing required content `{text}`")
 
-    _validate_agents_operating_contract(errors=errors, agents_contract=agents_contract)
 
-    _validate_onboarding_guidance(
-        errors=errors,
-        developer_onboarding=developer_onboarding,
-        agent_ramp_up=agent_ramp_up,
-    )
-
+def _validate_developer_environment_automation(
+    *,
+    errors: list[str],
+    developer_environment_validation: str,
+    developer_environment_bootstrap: str,
+) -> None:
     for text, label, content in (
         ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
         ('[ValidateSet("fast", "extended", "platform")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
@@ -415,12 +368,131 @@ def validate_engineering_context_system() -> list[str]:
         if text not in content:
             errors.append(f"{label}: missing required bootstrap behavior `{text}`")
 
+
+def _validate_repository_context_contracts(
+    *,
+    errors: list[str],
+    repo_context_contract: str,
+    repo_context_template: str,
+    platform_repo_context: str,
+) -> None:
     if "Context Maintenance Rule" not in repo_context_contract:
         errors.append("Repository-Engineering-Context-Contract.md: missing Context Maintenance Rule")
     if "## Context Maintenance Rule" not in repo_context_template:
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.template.md: missing Context Maintenance Rule heading")
     if "## Context Maintenance Rule" not in platform_repo_context:
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
+
+
+def validate_engineering_context_system() -> list[str]:
+    errors: list[str] = []
+    required_files = {
+        "context index": CONTEXT_DIR / "README.md",
+        "quickstart": CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md",
+        "engineering context": CONTEXT_DIR / "LOTUS-ENGINEERING-CONTEXT.md",
+        "reference map": CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md",
+        "task routing guide": CONTEXT_DIR / "TASK-ROUTING-GUIDE.md",
+        "ecosystem registries": CONTEXT_DIR / "ECOSYSTEM-REGISTRIES.md",
+        "procedural memory index": CONTEXT_DIR / "PROCEDURAL-MEMORY-INDEX.md",
+        "change playbooks": CONTEXT_DIR / "playbooks" / "CHANGE-PLAYBOOKS.md",
+        "pr loop playbook": CONTEXT_DIR / "playbooks" / "PR-LOOP-PLAYBOOK.md",
+        "validation playbook": CONTEXT_DIR / "playbooks" / "VALIDATION-PLAYBOOK.md",
+        "fix-forward patterns": CONTEXT_DIR / "playbooks" / "FIX-FORWARD-PATTERNS.md",
+        "agent context and task ledger playbook": CONTEXT_DIR
+        / "playbooks"
+        / "AGENT-CONTEXT-AND-TASK-LEDGER.md",
+        "manifest": CONTEXT_DIR / "lotus-context-manifest.json",
+        "repository registry": ROOT / "automation" / "repos.json",
+        "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
+        "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
+        "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
+        "platform repo context": ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
+        "platform repo agents": ROOT / "AGENTS.md",
+        "developer onboarding": ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md",
+        "agent ramp up": ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md",
+        "developer environment bootstrap": ROOT / "automation" / "Bootstrap-LotusDeveloperEnvironment.ps1",
+        "developer environment validation": ROOT / "automation" / "Validate-LotusDeveloperEnvironment.ps1",
+        "ledger": CONTEXT_DIR / "platform-engineering-ledger.md",
+        "decisions digest": CONTEXT_DIR / "recent-architectural-decisions-digest.md",
+        "rfc checklist": ROOT / "rfcs" / "RFC-0073-implementation-checklist.md",
+    }
+
+    for label, path in required_files.items():
+        if not path.exists():
+            errors.append(f"missing required context artifact: {label} -> {path.relative_to(ROOT)}")
+
+    if errors:
+        return errors
+
+    context_index = _read_text(required_files["context index"])
+    quickstart = _read_text(required_files["quickstart"])
+    engineering = _read_text(required_files["engineering context"])
+    reference_map = _read_text(required_files["reference map"])
+    task_routing_guide = _read_text(required_files["task routing guide"])
+    ecosystem_registries = _read_text(required_files["ecosystem registries"])
+    procedural_memory_index = _read_text(required_files["procedural memory index"])
+    change_playbooks = _read_text(required_files["change playbooks"])
+    pr_loop_playbook = _read_text(required_files["pr loop playbook"])
+    validation_playbook = _read_text(required_files["validation playbook"])
+    fix_forward_patterns = _read_text(required_files["fix-forward patterns"])
+    agent_context_task_ledger = _read_text(
+        required_files["agent context and task ledger playbook"]
+    )
+    agents_contract = _read_text(required_files["agents contract"])
+    repo_context_contract = _read_text(required_files["repository context contract"])
+    repo_context_template = _read_text(required_files["repository context template"])
+    platform_repo_context = _read_text(required_files["platform repo context"])
+    developer_onboarding = _read_text(required_files["developer onboarding"])
+    agent_ramp_up = _read_text(required_files["agent ramp up"])
+    developer_environment_bootstrap = _read_text(required_files["developer environment bootstrap"])
+    developer_environment_validation = _read_text(required_files["developer environment validation"])
+    rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
+    checklist = _read_text(required_files["rfc checklist"])
+    manifest = json.loads(_read_text(required_files["manifest"]))
+    repository_registry = json.loads(_read_text(required_files["repository registry"]))
+    normalized_agents_contract = _normalize_text(agents_contract)
+
+    _validate_rfc_completion(errors=errors, rfc=rfc, checklist=checklist)
+
+    _validate_context_entrypoints(
+        errors=errors,
+        context_index=context_index,
+        quickstart=quickstart,
+        engineering=engineering,
+        reference_map=reference_map,
+        task_routing_guide=task_routing_guide,
+        procedural_memory_index=procedural_memory_index,
+    )
+
+    _validate_playbook_content(
+        errors=errors,
+        change_playbooks=change_playbooks,
+        pr_loop_playbook=pr_loop_playbook,
+        validation_playbook=validation_playbook,
+        fix_forward_patterns=fix_forward_patterns,
+        agent_context_task_ledger=agent_context_task_ledger,
+    )
+
+    _validate_agents_operating_contract(errors=errors, agents_contract=agents_contract)
+
+    _validate_onboarding_guidance(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+        agent_ramp_up=agent_ramp_up,
+    )
+
+    _validate_developer_environment_automation(
+        errors=errors,
+        developer_environment_validation=developer_environment_validation,
+        developer_environment_bootstrap=developer_environment_bootstrap,
+    )
+
+    _validate_repository_context_contracts(
+        errors=errors,
+        repo_context_contract=repo_context_contract,
+        repo_context_template=repo_context_template,
+        platform_repo_context=platform_repo_context,
+    )
 
     _validate_manifest_contract(
         errors=errors,

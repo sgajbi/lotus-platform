@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300011
+    "total_source_lines": 300087
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 38,
-        "end_line": 433,
-        "line": 224,
-        "lines": 210,
-        "name": "validate_engineering_context_system",
-        "path": "automation/validate_engineering_context_system.py"
-      },
       {
         "complexity": 35,
         "end_line": 696,
@@ -144,6 +136,14 @@
         "lines": 183,
         "name": "validate_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 23,
+        "end_line": 313,
+        "line": 237,
+        "lines": 77,
+        "name": "_validate_context_entrypoints",
+        "path": "automation/validate_engineering_context_system.py"
       },
       {
         "complexity": 23,
@@ -276,14 +276,6 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
-        "complexity": 38,
-        "end_line": 433,
-        "line": 224,
-        "lines": 210,
-        "name": "validate_engineering_context_system",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
         "complexity": 2,
         "end_line": 272,
         "line": 67,
@@ -354,13 +346,21 @@
         "lines": 154,
         "name": "explain_dev_ingress_status",
         "path": "automation/explain_dev_ingress_status.py"
+      },
+      {
+        "complexity": 5,
+        "end_line": 217,
+        "line": 68,
+        "lines": 150,
+        "name": "_seed_core_data",
+        "path": "automation/core_performance_mwr_validation.py"
       }
     ],
-    "max_complexity": 38,
+    "max_complexity": 35,
     "max_function_lines": 393,
-    "python_function_count": 1313
+    "python_function_count": 1318
   },
-  "generated_at_utc": "2026-06-20T04:18:13Z",
+  "generated_at_utc": "2026-06-20T04:24:35Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.64s"
+    "summary": "510 tests collected in 0.52s"
   }
 }

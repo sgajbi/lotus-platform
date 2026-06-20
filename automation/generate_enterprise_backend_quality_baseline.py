@@ -536,6 +536,10 @@ Generated: `{baseline["generated_at_utc"]}`
 16. Lotus AI heartbeat adapter extraction so run-summary, queue backlog, and per-run attention
     handling are isolated behind focused helpers, removing the adapter from the top measured
     complexity hotspot list while preserving RFC-0095 heartbeat behavior.
+17. Engineering context validator entrypoint extraction so RFC completion, context entrypoint,
+    playbook-content, developer-environment automation, and repository-context contract checks are
+    isolated behind focused helpers, reducing the highest measured complexity hotspot while
+    preserving RFC-0073 context-system behavior.
 
 ## Evidence
 
