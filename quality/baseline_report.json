@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299897
+    "total_source_lines": 299944
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 39,
-        "end_line": 175,
-        "line": 47,
-        "lines": 129,
-        "name": "validate_supported_claim_register",
-        "path": "automation/validate_supported_claim_register.py"
-      },
       {
         "complexity": 38,
         "end_line": 1110,
@@ -192,6 +184,14 @@
         "lines": 65,
         "name": "_validate_matrix_feature_statuses",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 21,
+        "end_line": 320,
+        "line": 23,
+        "lines": 298,
+        "name": "_run_validation_once",
+        "path": "automation/core_performance_attribution_validation.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "automation/generate_domain_product_onboarding.py"
       }
     ],
-    "max_complexity": 39,
+    "max_complexity": 38,
     "max_function_lines": 393,
-    "python_function_count": 1304
+    "python_function_count": 1309
   },
-  "generated_at_utc": "2026-06-20T04:09:46Z",
+  "generated_at_utc": "2026-06-20T04:13:19Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -697,7 +697,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 110,
+        "line": 124,
         "path": "automation/validate_supported_claim_register.py",
         "signal": "sensitive-keyword-review"
       },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.60s"
+    "summary": "510 tests collected in 0.61s"
   }
 }
