@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:20:50Z`
+Generated: `2026-06-20T07:24:39Z`
 
 ## Completed Slices
 
@@ -216,6 +216,10 @@ Generated: `2026-06-20T07:20:50Z`
     implementation-backed proof, client-facing material, backend-only screenshot, and promotion-gate
     checks are isolated behind focused helpers, removing the supported-claim validator from the top
     measured complexity hotspot list while preserving claim-governance validation behavior.
+60. Trust telemetry identity validator extraction so snapshot contract header checks, required
+    identity fields, catalog lookup, catalog identity matching, and product identity shape checks are
+    isolated behind focused helpers, reducing the measured repository complexity ceiling from 15 to
+    14 while preserving RFC-0087 trust telemetry validation behavior.
 
 ## Evidence
 

@@ -104,12 +104,11 @@ def _load_validation_context(
     }
 
 
-def _validate_identity(
+def _validate_snapshot_contract_header(
     issues: list[str],
     path: Path,
     payload: dict[str, Any],
-    context: dict[str, Any],
-) -> dict[str, Any] | None:
+) -> None:
     if payload.get("contract_id") != "lotus-domain-product-trust-telemetry-snapshot":
         _append_issue(
             issues,
@@ -122,6 +121,13 @@ def _validate_identity(
         _append_issue(issues, path, "contract_version must be semantic versioning")
     if "RFC-0087" not in payload.get("governed_by_rfcs", []):
         _append_issue(issues, path, "governed_by_rfcs must include RFC-0087")
+
+
+def _validate_snapshot_required_identity_fields(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
     for field_name in ("emitted_at_utc", "product_id", "source_repository"):
         if not _is_non_empty_string(payload.get(field_name)):
             _append_issue(issues, path, f"{field_name} must be a non-empty string")
@@ -130,6 +136,13 @@ def _validate_identity(
     ) or not REPOSITORY_PATTERN.fullmatch(payload.get("source_repository", "")):
         _append_issue(issues, path, "source_repository must match Lotus repo naming")
 
+
+def _find_catalog_product(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
     product_id = payload.get("product_id")
     product = context["products_by_id"].get(product_id)
     if product is None:
@@ -137,7 +150,15 @@ def _validate_identity(
             issues, path, f"product_id does not exist in catalog: {product_id}"
         )
         return None
+    return product
 
+
+def _validate_catalog_identity_match(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    product: dict[str, Any],
+) -> None:
     expected_identity = {
         "producer_repository": product["producer_repository"],
         "product_name": product["product_name"],
@@ -151,6 +172,13 @@ def _validate_identity(
                 path,
                 f"{field_name} must match catalog product identity {expected_value}",
             )
+
+
+def _validate_product_identity_shape(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
     if not REPOSITORY_PATTERN.fullmatch(str(payload.get("producer_repository", ""))):
         _append_issue(issues, path, "producer_repository must match Lotus repo naming")
     if not PRODUCT_NAME_PATTERN.fullmatch(str(payload.get("product_name", ""))):
@@ -159,6 +187,23 @@ def _validate_identity(
         _append_issue(
             issues, path, "product_version must use vN or semantic versioning"
         )
+
+
+def _validate_identity(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
+    _validate_snapshot_contract_header(issues, path, payload)
+    _validate_snapshot_required_identity_fields(issues, path, payload)
+
+    product = _find_catalog_product(issues, path, payload, context)
+    if product is None:
+        return None
+
+    _validate_catalog_identity_match(issues, path, payload, product)
+    _validate_product_identity_shape(issues, path, payload)
     return product
 
 

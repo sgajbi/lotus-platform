@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303103
+    "total_source_lines": 303152
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 15,
-        "end_line": 162,
-        "line": 107,
-        "lines": 56,
-        "name": "_validate_identity",
-        "path": "automation/validate_trust_telemetry.py"
-      },
       {
         "complexity": 14,
         "end_line": 718,
@@ -192,6 +184,14 @@
         "lines": 42,
         "name": "_validate_implementation_evidence",
         "path": "automation/validate_analytics_ui_entitlement_certification.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 181,
+        "line": 143,
+        "lines": 39,
+        "name": "_validate_api_and_proof",
+        "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
       }
     ],
     "largest_functions": [
@@ -228,20 +228,20 @@
         "path": "automation/core_performance_twr_benchmark_validation.py"
       },
       {
+        "complexity": 1,
+        "end_line": 748,
+        "line": 489,
+        "lines": 260,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 2,
         "end_line": 1954,
         "line": 1695,
         "lines": 260,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 744,
-        "line": 489,
-        "lines": 256,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 12,
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 15,
+    "max_complexity": 14,
     "max_function_lines": 393,
-    "python_function_count": 1593
+    "python_function_count": 1598
   },
-  "generated_at_utc": "2026-06-20T07:20:50Z",
+  "generated_at_utc": "2026-06-20T07:24:39Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.61s"
+    "summary": "510 tests collected in 0.52s"
   }
 }
