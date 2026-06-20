@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T05:15:10Z`
+Generated: `2026-06-20T05:18:12Z`
 
 ## Completed Slices
 
@@ -99,6 +99,10 @@ Generated: `2026-06-20T05:15:10Z`
     required sets, conditional fields, delegation requirements, context preservation, and invariants
     are isolated behind focused helpers, lowering the highest measured complexity hotspot while
     preserving RFC-0093/RFC-0094 contract governance behavior.
+31. Platform validation coverage validator extraction so profile target checks, manifest references,
+    and manifest-driven entrypoint checks are isolated behind focused helpers, removing the coverage
+    validator from the top measured complexity hotspot list while preserving CI validation-lane
+    governance behavior.
 
 ## Evidence
 

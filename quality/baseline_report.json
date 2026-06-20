@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300978
+    "total_source_lines": 301032
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -48,14 +48,6 @@
         "lines": 77,
         "name": "_validate_context_entrypoints",
         "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 23,
-        "end_line": 89,
-        "line": 20,
-        "lines": 70,
-        "name": "validate_platform_validation_coverage",
-        "path": "automation/validate_platform_validation_coverage.py"
       },
       {
         "complexity": 23,
@@ -192,6 +184,14 @@
         "lines": 66,
         "name": "_validate_statuses",
         "path": "automation/validate_trust_telemetry.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 247,
+        "line": 94,
+        "lines": 154,
+        "name": "explain_dev_ingress_status",
+        "path": "automation/explain_dev_ingress_status.py"
       }
     ],
     "largest_functions": [
@@ -348,19 +348,19 @@
         "path": "automation/core_performance_mwr_validation.py"
       },
       {
-        "complexity": 3,
-        "end_line": 1591,
-        "line": 1450,
-        "lines": 142,
-        "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+        "complexity": 1,
+        "end_line": 631,
+        "line": 489,
+        "lines": 143,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       }
     ],
     "max_complexity": 23,
     "max_function_lines": 393,
-    "python_function_count": 1397
+    "python_function_count": 1401
   },
-  "generated_at_utc": "2026-06-20T05:15:10Z",
+  "generated_at_utc": "2026-06-20T05:18:12Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.55s"
+    "summary": "510 tests collected in 0.69s"
   }
 }

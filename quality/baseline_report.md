@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T05:15:10Z`
+Generated: `2026-06-20T05:18:12Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `300978`
+- Total source lines: `301032`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1397`
+- Python functions: `1401`
 - Highest measured cyclomatic complexity: `23`
 - Largest Python function length: `393`
 
@@ -47,7 +47,6 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_analytics_ui_observability_contract.py | validate_contract | 276 | 23 | 183 |
 | automation/validate_engineering_context_system.py | _validate_context_entrypoints | 237 | 23 | 77 |
-| automation/validate_platform_validation_coverage.py | validate_platform_validation_coverage | 20 | 23 | 70 |
 | automation/validate_agent_engineering_contracts.py | validate_delegation_record | 505 | 23 | 68 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_status | 240 | 22 | 95 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_matrix_feature_statuses | 418 | 22 | 65 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_engineering_context_system.py | _validate_manifest_contract | 32 | 21 | 95 |
 | automation/generate_mesh_evidence_pack.py | validate_mesh_evidence_policies | 65 | 20 | 88 |
 | automation/core_performance_contribution_validation.py | _run_validation | 23 | 19 | 221 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_cross_references | 885 | 19 | 101 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.55s`
+- Collection summary: `510 tests collected in 0.69s`
 
 ## Security Baseline
 

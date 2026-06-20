@@ -17,6 +17,100 @@ def _load_profiles() -> dict[str, object]:
     return json.loads((AUTOMATION_ROOT / "platform-validation-profiles.json").read_text(encoding="utf-8"))
 
 
+def _validate_profile_targets(
+    *,
+    errors: list[str],
+    name: str,
+    targets: object,
+) -> None:
+    if not isinstance(targets, list) or not targets:
+        errors.append(f"platform-validation-profiles.json: profile `{name}` missing non-empty `targets`")
+        return
+
+    for target in targets:
+        if not isinstance(target, dict):
+            errors.append(f"platform-validation-profiles.json: profile `{name}` has a non-object target")
+            continue
+        for field in ("name", "uses_shared_suffix", "uses_mwr_suffix"):
+            if field not in target:
+                errors.append(
+                    f"platform-validation-profiles.json: profile `{name}` target missing `{field}`"
+                )
+
+
+def _validate_profile_references(
+    *,
+    errors: list[str],
+    name: str,
+    workflow: str,
+    entrypoint: str,
+    standard: str,
+) -> None:
+    if name not in workflow:
+        errors.append(
+            f"platform-end-to-end-validation.yml: profile option `{name}` missing from workflow dispatch"
+        )
+    if name not in entrypoint:
+        errors.append(
+            f"Invoke-PlatformValidationLane.ps1: profile `{name}` missing from validation entrypoint"
+        )
+    if name not in standard:
+        errors.append(
+            f"Platform-End-to-End-Validation-Coverage-Standard.md: profile `{name}` missing from standard"
+        )
+
+
+def _validate_profile(
+    *,
+    errors: list[str],
+    profile: object,
+    workflow: str,
+    entrypoint: str,
+    standard: str,
+) -> None:
+    if not isinstance(profile, dict):
+        errors.append("platform-validation-profiles.json: each profile must be an object")
+        return
+
+    name = profile.get("name")
+    description = profile.get("description")
+    required_artifacts = profile.get("required_artifacts")
+
+    if not isinstance(name, str) or not name:
+        errors.append("platform-validation-profiles.json: each profile requires a non-empty `name`")
+        return
+
+    if not isinstance(description, str) or not description:
+        errors.append(f"platform-validation-profiles.json: profile `{name}` missing `description`")
+
+    _validate_profile_targets(errors=errors, name=name, targets=profile.get("targets"))
+
+    if not isinstance(required_artifacts, list) or not required_artifacts:
+        errors.append(
+            f"platform-validation-profiles.json: profile `{name}` missing non-empty `required_artifacts`"
+        )
+
+    _validate_profile_references(
+        errors=errors,
+        name=name,
+        workflow=workflow,
+        entrypoint=entrypoint,
+        standard=standard,
+    )
+
+
+def _validate_manifest_driven_entrypoint(
+    entrypoint: str,
+    errors: list[str],
+) -> None:
+    if "platform-validation-profiles.json" not in entrypoint:
+        errors.append("Invoke-PlatformValidationLane.ps1: must resolve profiles from platform-validation-profiles.json")
+    if "$validationRuns = @($selectedProfile.targets)" not in entrypoint:
+        errors.append("Invoke-PlatformValidationLane.ps1: must execute targets from the manifest-driven profile")
+    if "$target = $validationRun.name" not in entrypoint:
+        errors.append("Invoke-PlatformValidationLane.ps1: must read target names from the manifest-driven profile")
+
+
 def validate_platform_validation_coverage() -> list[str]:
     errors: list[str] = []
     manifest = _load_profiles()
@@ -32,59 +126,15 @@ def validate_platform_validation_coverage() -> list[str]:
         return errors
 
     for profile in profiles:
-        if not isinstance(profile, dict):
-            errors.append("platform-validation-profiles.json: each profile must be an object")
-            continue
+        _validate_profile(
+            errors=errors,
+            profile=profile,
+            workflow=workflow,
+            entrypoint=entrypoint,
+            standard=standard,
+        )
 
-        name = profile.get("name")
-        description = profile.get("description")
-        targets = profile.get("targets")
-        required_artifacts = profile.get("required_artifacts")
-
-        if not isinstance(name, str) or not name:
-            errors.append("platform-validation-profiles.json: each profile requires a non-empty `name`")
-            continue
-
-        if not isinstance(description, str) or not description:
-            errors.append(f"platform-validation-profiles.json: profile `{name}` missing `description`")
-
-        if not isinstance(targets, list) or not targets:
-            errors.append(f"platform-validation-profiles.json: profile `{name}` missing non-empty `targets`")
-        else:
-            for target in targets:
-                if not isinstance(target, dict):
-                    errors.append(f"platform-validation-profiles.json: profile `{name}` has a non-object target")
-                    continue
-                for field in ("name", "uses_shared_suffix", "uses_mwr_suffix"):
-                    if field not in target:
-                        errors.append(
-                            f"platform-validation-profiles.json: profile `{name}` target missing `{field}`"
-                        )
-
-        if not isinstance(required_artifacts, list) or not required_artifacts:
-            errors.append(
-                f"platform-validation-profiles.json: profile `{name}` missing non-empty `required_artifacts`"
-            )
-
-        if name not in workflow:
-            errors.append(
-                f"platform-end-to-end-validation.yml: profile option `{name}` missing from workflow dispatch"
-            )
-        if name not in entrypoint:
-            errors.append(
-                f"Invoke-PlatformValidationLane.ps1: profile `{name}` missing from validation entrypoint"
-            )
-        if name not in standard:
-            errors.append(
-                f"Platform-End-to-End-Validation-Coverage-Standard.md: profile `{name}` missing from standard"
-            )
-
-    if "platform-validation-profiles.json" not in entrypoint:
-        errors.append("Invoke-PlatformValidationLane.ps1: must resolve profiles from platform-validation-profiles.json")
-    if "$validationRuns = @($selectedProfile.targets)" not in entrypoint:
-        errors.append("Invoke-PlatformValidationLane.ps1: must execute targets from the manifest-driven profile")
-    if "$target = $validationRun.name" not in entrypoint:
-        errors.append("Invoke-PlatformValidationLane.ps1: must read target names from the manifest-driven profile")
+    _validate_manifest_driven_entrypoint(entrypoint, errors)
 
     return errors
 
