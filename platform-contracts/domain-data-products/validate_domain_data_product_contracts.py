@@ -117,9 +117,11 @@ def _validate_registry_entry_list(
     return keys
 
 
-def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
-    issues: list[str] = []
-
+def _validate_semantics_registry_identity(
+    issues: list[str],
+    path: Path,
+    payload: dict,
+) -> None:
     if payload.get("contract_id") != "domain-data-product-semantics":
         _append_issue(issues, path, "contract_id must be 'domain-data-product-semantics'")
     if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
@@ -133,14 +135,20 @@ def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
     if not isinstance(payload.get("description"), str) or not payload["description"].strip():
         _append_issue(issues, path, "description must be a non-empty string")
 
-    identifier_keys = _validate_registry_entry_list(
+
+def _validate_semantics_registry_lists(
+    issues: list[str],
+    path: Path,
+    payload: dict,
+) -> None:
+    _validate_registry_entry_list(
         issues,
         path,
         field_name="identifiers",
         entries=payload.get("identifiers"),
         required_string_fields=("semantic_id", "stability", "lifecycle", "description"),
     )
-    temporal_keys = _validate_registry_entry_list(
+    _validate_registry_entry_list(
         issues,
         path,
         field_name="temporal_semantics",
@@ -148,34 +156,69 @@ def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
         required_string_fields=("semantic_id", "category", "description"),
     )
 
-    for field_name, keys in (("identifiers", identifier_keys), ("temporal_semantics", temporal_keys)):
-        entries = payload.get(field_name, [])
-        if not isinstance(entries, list):
-            continue
-        for index, entry in enumerate(entries):
-            if not isinstance(entry, dict):
-                continue
-            semantic_id = entry.get("semantic_id")
-            if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
-                _append_issue(issues, path, f"{field_name}[{index}].semantic_id must start with lotus.")
 
+def _validate_semantic_ids(
+    issues: list[str],
+    path: Path,
+    *,
+    field_name: str,
+    entries: object,
+) -> None:
+    if not isinstance(entries, list):
+        return
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            continue
+        semantic_id = entry.get("semantic_id")
+        if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
+            _append_issue(issues, path, f"{field_name}[{index}].semantic_id must start with lotus.")
+
+
+def _validate_semantics_registry_semantic_ids(
+    issues: list[str],
+    path: Path,
+    payload: dict,
+) -> None:
+    for field_name in ("identifiers", "temporal_semantics"):
+        _validate_semantic_ids(
+            issues,
+            path,
+            field_name=field_name,
+            entries=payload.get(field_name, []),
+        )
+
+
+def _validate_trust_vocabularies(
+    issues: list[str],
+    path: Path,
+    payload: dict,
+) -> None:
     trust_vocabularies = payload.get("trust_vocabularies")
     if not isinstance(trust_vocabularies, dict):
         _append_issue(issues, path, "trust_vocabularies must be an object")
-    else:
-        for field_name in (
-            "freshness_classes",
-            "completeness_statuses",
-            "reconciliation_statuses",
-            "data_quality_statuses",
-        ):
-            _validate_registry_entry_list(
-                issues,
-                path,
-                field_name=f"trust_vocabularies.{field_name}",
-                entries=trust_vocabularies.get(field_name),
-                required_string_fields=("meaning",),
-            )
+        return
+    for field_name in (
+        "freshness_classes",
+        "completeness_statuses",
+        "reconciliation_statuses",
+        "data_quality_statuses",
+    ):
+        _validate_registry_entry_list(
+            issues,
+            path,
+            field_name=f"trust_vocabularies.{field_name}",
+            entries=trust_vocabularies.get(field_name),
+            required_string_fields=("meaning",),
+        )
+
+
+def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
+    issues: list[str] = []
+
+    _validate_semantics_registry_identity(issues, path, payload)
+    _validate_semantics_registry_lists(issues, path, payload)
+    _validate_semantics_registry_semantic_ids(issues, path, payload)
+    _validate_trust_vocabularies(issues, path, payload)
 
     return issues
 

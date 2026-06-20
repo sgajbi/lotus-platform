@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302668
+    "total_source_lines": 302715
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 16,
-        "end_line": 180,
-        "line": 120,
-        "lines": 61,
-        "name": "validate_semantics_registry",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
       {
         "complexity": 16,
         "end_line": 113,
@@ -139,16 +131,16 @@
       },
       {
         "complexity": 13,
-        "end_line": 503,
-        "line": 439,
+        "end_line": 546,
+        "line": 482,
         "lines": 65,
         "name": "_validate_product_registry_references",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       },
       {
         "complexity": 13,
-        "end_line": 554,
-        "line": 506,
+        "end_line": 597,
+        "line": 549,
         "lines": 49,
         "name": "_validate_product_lineage_policy",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 108,
         "name": "_build_consumer_certification",
         "path": "automation/domain_product_certification.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 336,
+        "line": 235,
+        "lines": 102,
+        "name": "evaluate_mesh_slo_violations",
+        "path": "automation/validate_mesh_slo_policies.py"
       }
     ],
     "largest_functions": [
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 718,
+        "end_line": 722,
         "line": 489,
-        "lines": 230,
+        "lines": 234,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 16,
     "max_function_lines": 393,
-    "python_function_count": 1556
+    "python_function_count": 1561
   },
-  "generated_at_utc": "2026-06-20T06:52:38Z",
+  "generated_at_utc": "2026-06-20T06:56:47Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -428,7 +428,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1261,
+      "lines": 1304,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.61s"
+    "summary": "510 tests collected in 0.69s"
   }
 }

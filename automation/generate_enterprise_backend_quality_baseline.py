@@ -679,6 +679,10 @@ Generated: `{baseline["generated_at_utc"]}`
     reviewed-feature audits, missing-review detection, and residual-scope reconciliation are
     isolated behind focused helpers, removing the hardening supported-features validator from the
     top measured complexity hotspot list while preserving RFC-0108 hardening behavior.
+54. Domain data-product semantics registry extraction so registry identity, identifier and temporal
+    list validation, semantic-id checks, and trust-vocabulary validation are isolated behind focused
+    helpers, removing the semantics registry validator from the top measured complexity hotspot list
+    while preserving RFC-0084 contract behavior.
 
 ## Evidence
 
