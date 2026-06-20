@@ -271,6 +271,78 @@ def _validate_evidence(errors: list[str], certification: dict[str, Any]) -> None
             errors.append(f"{item.get('evidence_type')}: status must be implemented")
 
 
+def _certified_read_path_ids(certification: dict[str, Any]) -> set[str]:
+    return {
+        str(path.get("path_id"))
+        for path in certification.get("certified_read_paths", [])
+        if isinstance(path, dict)
+    }
+
+
+def _validate_implementation_evidence_entry_shape(
+    *,
+    errors: list[str],
+    item: dict[str, Any],
+    path_ids: set[str],
+) -> tuple[str, str, str]:
+    evidence_id = str(item.get("evidence_id", "<missing>"))
+    path_id = str(item.get("path_id", ""))
+    owner_repo = str(item.get("owner_repo", ""))
+
+    if path_id not in path_ids:
+        errors.append(f"{evidence_id}: path_id must reference a certified_read_paths entry")
+    if item.get("status") != "implemented":
+        errors.append(f"{evidence_id}: status must be implemented for recorded PR evidence")
+    if owner_repo not in {"lotus-gateway", "lotus-workbench"}:
+        errors.append(
+            f"{evidence_id}: owner_repo must be lotus-gateway or lotus-workbench"
+        )
+    return evidence_id, path_id, owner_repo
+
+
+def _validate_implementation_pull_request(
+    *,
+    errors: list[str],
+    evidence_id: str,
+    owner_repo: str,
+    pull_request: str,
+    merge_commit: str,
+) -> None:
+    if not pull_request.startswith(f"sgajbi/{owner_repo}#"):
+        errors.append(f"{evidence_id}: pull_request must reference sgajbi/{owner_repo}")
+    if len(merge_commit) != 40:
+        errors.append(f"{evidence_id}: merge_commit must be a 40-character SHA")
+
+
+def _observed_implementation_evidence_references(
+    errors: list[str],
+    certification: dict[str, Any],
+) -> set[tuple[str, str, str]]:
+    observed: set[tuple[str, str, str]] = set()
+    path_ids = _certified_read_path_ids(certification)
+    for item in certification.get("implementation_evidence", []):
+        if not isinstance(item, dict):
+            errors.append("implementation_evidence entries must be objects")
+            continue
+
+        evidence_id, path_id, owner_repo = _validate_implementation_evidence_entry_shape(
+            errors=errors,
+            item=item,
+            path_ids=path_ids,
+        )
+        pull_request = str(item.get("pull_request", ""))
+        _validate_implementation_pull_request(
+            errors=errors,
+            evidence_id=evidence_id,
+            owner_repo=owner_repo,
+            pull_request=pull_request,
+            merge_commit=str(item.get("merge_commit", "")),
+        )
+        for evidence_type in item.get("evidence_types", []):
+            observed.add((path_id, str(evidence_type), pull_request))
+    return observed
+
+
 def _validate_implementation_evidence(
     errors: list[str],
     certification: dict[str, Any],
@@ -280,36 +352,7 @@ def _validate_implementation_evidence(
         errors.append("implementation_evidence must record implementation-backed proof references")
         return
 
-    path_ids = {
-        str(path.get("path_id"))
-        for path in certification.get("certified_read_paths", [])
-        if isinstance(path, dict)
-    }
-    observed: set[tuple[str, str, str]] = set()
-    for item in evidence:
-        if not isinstance(item, dict):
-            errors.append("implementation_evidence entries must be objects")
-            continue
-        evidence_id = str(item.get("evidence_id", "<missing>"))
-        path_id = str(item.get("path_id", ""))
-        if path_id not in path_ids:
-            errors.append(f"{evidence_id}: path_id must reference a certified_read_paths entry")
-        if item.get("status") != "implemented":
-            errors.append(f"{evidence_id}: status must be implemented for recorded PR evidence")
-        owner_repo = str(item.get("owner_repo", ""))
-        if owner_repo not in {"lotus-gateway", "lotus-workbench"}:
-            errors.append(
-                f"{evidence_id}: owner_repo must be lotus-gateway or lotus-workbench"
-            )
-        pull_request = str(item.get("pull_request", ""))
-        merge_commit = str(item.get("merge_commit", ""))
-        if not pull_request.startswith(f"sgajbi/{owner_repo}#"):
-            errors.append(f"{evidence_id}: pull_request must reference sgajbi/{owner_repo}")
-        if len(merge_commit) != 40:
-            errors.append(f"{evidence_id}: merge_commit must be a 40-character SHA")
-        for evidence_type in item.get("evidence_types", []):
-            observed.add((path_id, str(evidence_type), pull_request))
-
+    observed = _observed_implementation_evidence_references(errors, certification)
     missing = sorted(REQUIRED_IMPLEMENTATION_EVIDENCE - observed)
     if missing:
         errors.append(f"implementation_evidence missing required proof references: {missing}")

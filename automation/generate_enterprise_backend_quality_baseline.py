@@ -783,6 +783,10 @@ Generated: `{baseline["generated_at_utc"]}`
     detection, panel-state policy, and per-journey evidence assembly are isolated behind focused
     helpers, removing the ecosystem proof journey validator from the top measured complexity
     hotspot list while preserving RFC-0108 ecosystem proof review behavior.
+80. Analytics UI entitlement implementation-evidence validator extraction so certified path
+    identity, owner repository, PR/SHA evidence, and observed proof-reference assembly are isolated
+    behind focused helpers, removing entitlement implementation evidence validation from the top
+    measured complexity hotspot list while preserving RFC-0108 certification behavior.
 
 ## Evidence
 
