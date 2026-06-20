@@ -243,24 +243,35 @@ def _validate_allowed_consumer(
     consumer_repository = consumer.get("consumer_repository")
     if not isinstance(consumer_repository, str) or not consumer_repository:
         issues.append(f"{path}: {prefix}.consumer_repository must be a non-empty string")
-    elif (
-        consumer_repository != "lotus-gateway"
-        and (
-            not isinstance(approved_consumers, list)
-            or consumer_repository not in approved_consumers
-        )
+    elif not _is_allowed_consumer_repository(
+        consumer_repository=consumer_repository,
+        approved_consumers=approved_consumers,
     ):
         issues.append(
             f"{path}: {prefix}.consumer_repository must be lotus-gateway or approved by the product catalog"
         )
     for field_name in ("tenant_scope", "roles", "use_cases"):
-        value = consumer.get(field_name)
-        if (
-            not isinstance(value, list)
-            or not value
-            or not all(isinstance(item, str) and item for item in value)
-        ):
+        if not _is_non_empty_string_list(consumer.get(field_name)):
             issues.append(f"{path}: {prefix}.{field_name} must be non-empty strings")
+
+
+def _is_allowed_consumer_repository(
+    *, consumer_repository: str, approved_consumers: object
+) -> bool:
+    if consumer_repository == "lotus-gateway":
+        return True
+    return (
+        isinstance(approved_consumers, list)
+        and consumer_repository in approved_consumers
+    )
+
+
+def _is_non_empty_string_list(value: object) -> bool:
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(isinstance(item, str) and item for item in value)
+    )
 
 
 def access_posture_for_context(

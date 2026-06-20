@@ -803,6 +803,10 @@ Generated: `{baseline["generated_at_utc"]}`
     required guidance cross-link checks are data-driven through focused helpers, removing the
     AGENTS operating contract validator from the top measured complexity hotspot list while
     preserving exact context validation failure messages.
+85. Mesh access allowed-consumer validator extraction so product-catalog consumer approval and
+    tenant/role/use-case string-list validation are isolated behind focused predicates, removing
+    the mesh access allowed-consumer validator from the top measured complexity hotspot list while
+    preserving RFC-0091 access-policy validation behavior.
 
 ## Evidence
 

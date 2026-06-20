@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305272
+    "total_source_lines": 305314
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 263,
-        "line": 231,
-        "lines": 33,
-        "name": "_validate_allowed_consumer",
-        "path": "automation/validate_mesh_access_policies.py"
-      },
       {
         "complexity": 12,
         "end_line": 77,
@@ -192,6 +184,14 @@
         "lines": 37,
         "name": "_validate_registry_entry_list",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 897,
+        "line": 864,
+        "lines": 34,
+        "name": "validate_quality_surface",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 842,
+        "end_line": 846,
         "line": 489,
-        "lines": 354,
+        "lines": 358,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1735
+    "python_function_count": 1738
   },
-  "generated_at_utc": "2026-06-20T09:19:47Z",
+  "generated_at_utc": "2026-06-20T09:23:06Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 524,
+    "collected_tests": 525,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "524 tests collected in 0.64s"
+    "summary": "525 tests collected in 0.53s"
   }
 }
