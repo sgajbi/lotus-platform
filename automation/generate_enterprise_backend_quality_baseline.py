@@ -566,6 +566,9 @@ Generated: `{baseline["generated_at_utc"]}`
 24. Mesh SLO policy validator extraction so product identity, contract identity, freshness, status
     sections, lineage, and escalation checks are isolated behind focused helpers, reducing the
     highest measured complexity hotspot while preserving RFC-0091 mesh SLO policy behavior.
+25. Analytics UI observability supported-feature extraction so lifecycle milestone sets and
+    per-feature status policy are isolated behind named helpers, reducing the highest measured
+    complexity hotspot while preserving RFC-0108 supported-feature promotion behavior.
 
 ## Evidence
 

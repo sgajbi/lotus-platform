@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300690
+    "total_source_lines": 300723
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,14 +34,6 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 28,
-        "end_line": 164,
-        "line": 18,
-        "lines": 147,
-        "name": "_validate_supported_feature_keys",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
-      {
         "complexity": 26,
         "end_line": 351,
         "line": 241,
@@ -56,6 +48,14 @@
         "lines": 96,
         "name": "validate_mesh_access_policies",
         "path": "automation/validate_mesh_access_policies.py"
+      },
+      {
+        "complexity": 25,
+        "end_line": 172,
+        "line": 101,
+        "lines": 72,
+        "name": "_validate_supported_feature_status",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
       },
       {
         "complexity": 24,
@@ -75,8 +75,8 @@
       },
       {
         "complexity": 23,
-        "end_line": 349,
-        "line": 167,
+        "end_line": 379,
+        "line": 197,
         "lines": 183,
         "name": "validate_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
@@ -277,8 +277,8 @@
       },
       {
         "complexity": 23,
-        "end_line": 349,
-        "line": 167,
+        "end_line": 379,
+        "line": 197,
         "lines": 183,
         "name": "validate_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
@@ -348,19 +348,19 @@
         "path": "automation/core_performance_mwr_validation.py"
       },
       {
-        "complexity": 28,
-        "end_line": 164,
-        "line": 18,
-        "lines": 147,
-        "name": "_validate_supported_feature_keys",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
+        "complexity": 3,
+        "end_line": 1591,
+        "line": 1450,
+        "lines": 142,
+        "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 28,
+    "max_complexity": 26,
     "max_function_lines": 393,
-    "python_function_count": 1363
+    "python_function_count": 1364
   },
-  "generated_at_utc": "2026-06-20T04:51:55Z",
+  "generated_at_utc": "2026-06-20T04:56:17Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.56s"
+    "summary": "510 tests collected in 0.53s"
   }
 }
