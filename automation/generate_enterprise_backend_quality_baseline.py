@@ -660,6 +660,10 @@ Generated: `{baseline["generated_at_utc"]}`
     local proof, and GitHub check validation are isolated behind focused helpers, removing the
     downstream boundary validator from the top measured complexity hotspot list while preserving
     RFC-0108 final-closure behavior.
+49. Heartbeat background-run ledger adapter extraction so run-record projection, run identity,
+    failed/lost attention, and stale active-run attention are isolated behind focused helpers,
+    removing the background-run ledger adapter from the top measured complexity hotspot list while
+    preserving RFC-0095/RFC-0094 heartbeat behavior.
 
 ## Evidence
 

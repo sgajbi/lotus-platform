@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302236
+    "total_source_lines": 302333
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 17,
-        "end_line": 538,
-        "line": 469,
-        "lines": 70,
-        "name": "_background_run_ledger_adapter",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 17,
         "end_line": 225,
@@ -171,8 +163,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 775,
-        "line": 705,
+        "end_line": 868,
+        "line": 798,
         "lines": 71,
         "name": "_delegated_task_ledger_adapter",
         "path": "automation/heartbeat_sources.py"
@@ -192,6 +184,14 @@
         "lines": 49,
         "name": "_validate_product_lineage_policy",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 117,
+        "line": 70,
+        "lines": 48,
+        "name": "_render_single",
+        "path": "automation/render_cross_app_workflow_summary.py"
       }
     ],
     "largest_functions": [
@@ -245,9 +245,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 699,
+        "end_line": 703,
         "line": 489,
-        "lines": 211,
+        "lines": 215,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 17,
     "max_function_lines": 393,
-    "python_function_count": 1521
+    "python_function_count": 1526
   },
-  "generated_at_utc": "2026-06-20T06:31:25Z",
+  "generated_at_utc": "2026-06-20T06:36:59Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,14 +418,14 @@
       "suffix": ".md"
     },
     {
+      "lines": 1387,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1314,
       "path": "automation/README.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1294,
-      "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
     },
     {
       "lines": 1261,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.53s"
+    "summary": "510 tests collected in 0.55s"
   }
 }

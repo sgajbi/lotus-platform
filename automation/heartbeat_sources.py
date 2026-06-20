@@ -466,6 +466,124 @@ def _github_adapter(
     )
 
 
+def _background_run_records(payload: dict[str, Any] | list[Any] | None) -> list[Any]:
+    return payload if isinstance(payload, list) else []
+
+
+def _background_run_identity(
+    *,
+    run: dict[str, Any],
+    repository: str,
+    path: Path,
+) -> tuple[str, str, str, str]:
+    task_id = str(run.get("engineering_task_id") or run.get("runId") or "unknown")
+    source_ref = f"{_display_path(path)}#{task_id}"
+    run_repository = str(run.get("repository") or repository)
+    owner = str(run.get("owner") or repository)
+    return task_id, source_ref, run_repository, owner
+
+
+def _append_failed_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    status: str,
+    task_id: str,
+    source_ref: str,
+    run_repository: str,
+    owner: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    if status not in {"FAILED", "TIMED_OUT", "LOST"}:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="background_run_ledger",
+            source_ref=source_ref,
+            repository=run_repository,
+            condition="background_run_failed",
+            severity="blocking" if status == "LOST" else "action_required",
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Inspect background run `{task_id}` with status `{status}`.",
+        )
+    )
+
+
+def _append_stale_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    run: dict[str, Any],
+    status: str,
+    task_id: str,
+    source_ref: str,
+    run_repository: str,
+    owner: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: int,
+) -> None:
+    if status not in {"RUNNING", "QUEUED"}:
+        return
+    age = _age_hours(generated_at_utc, run.get("started_at") or run.get("startedAt"))
+    if age is None or age <= stale_hours:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="background_run_ledger",
+            source_ref=source_ref,
+            repository=run_repository,
+            condition="background_run_stale",
+            severity="warning",
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Refresh or cancel stale background run `{task_id}`.",
+        )
+    )
+
+
+def _collect_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    run: dict[str, Any],
+    repository: str,
+    path: Path,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: int,
+) -> None:
+    status = str(run.get("status", "")).upper()
+    task_id, source_ref, run_repository, owner = _background_run_identity(
+        run=run,
+        repository=repository,
+        path=path,
+    )
+    _append_failed_background_run_attention(
+        attention_items=attention_items,
+        status=status,
+        task_id=task_id,
+        source_ref=source_ref,
+        run_repository=run_repository,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
+    _append_stale_background_run_attention(
+        attention_items=attention_items,
+        run=run,
+        status=status,
+        task_id=task_id,
+        source_ref=source_ref,
+        run_repository=run_repository,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        stale_hours=stale_hours,
+    )
+
+
 def _background_run_ledger_adapter(
     *,
     config: dict[str, Any],
@@ -487,43 +605,18 @@ def _background_run_ledger_adapter(
     evidence_refs = [_evidence_ref("LOCAL_JSON_ARTIFACT", _display_path(path))]
     attention_items: list[dict[str, Any]] = []
     stale_hours = _threshold(config, "stale_background_run_hours", 6)
-    runs = payload if isinstance(payload, list) else []
-    for run in runs:
+    for run in _background_run_records(payload):
         if not isinstance(run, dict):
             continue
-        status = str(run.get("status", "")).upper()
-        task_id = str(run.get("engineering_task_id") or run.get("runId") or "unknown")
-        source_ref = f"{_display_path(path)}#{task_id}"
-        if status in {"FAILED", "TIMED_OUT", "LOST"}:
-            attention_items.append(
-                _attention_item(
-                    source_system="background_run_ledger",
-                    source_ref=source_ref,
-                    repository=str(run.get("repository") or repository),
-                    condition="background_run_failed",
-                    severity="blocking" if status == "LOST" else "action_required",
-                    owner=str(run.get("owner") or repository),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=f"Inspect background run `{task_id}` with status `{status}`.",
-                )
-            )
-        if status in {"RUNNING", "QUEUED"}:
-            age = _age_hours(generated_at_utc, run.get("started_at") or run.get("startedAt"))
-            if age is not None and age > stale_hours:
-                attention_items.append(
-                    _attention_item(
-                        source_system="background_run_ledger",
-                        source_ref=source_ref,
-                        repository=str(run.get("repository") or repository),
-                        condition="background_run_stale",
-                        severity="warning",
-                        owner=str(run.get("owner") or repository),
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Refresh or cancel stale background run `{task_id}`.",
-                    )
-                )
+        _collect_background_run_attention(
+            attention_items=attention_items,
+            run=run,
+            repository=repository,
+            path=path,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            stale_hours=stale_hours,
+        )
 
     return (
         _source_inventory(
