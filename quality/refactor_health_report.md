@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T05:11:50Z`
+Generated: `2026-06-20T05:15:10Z`
 
 ## Completed Slices
 
@@ -95,6 +95,10 @@ Generated: `2026-06-20T05:11:50Z`
     evidence references, and follow-up checks are isolated behind focused helpers, removing the
     output validator from the top measured complexity hotspot list while preserving RFC-0094/RFC-0096
     delegation return-envelope behavior.
+30. Agent engineering task-ledger contract validator extraction so contract identity, authority,
+    required sets, conditional fields, delegation requirements, context preservation, and invariants
+    are isolated behind focused helpers, lowering the highest measured complexity hotspot while
+    preserving RFC-0093/RFC-0094 contract governance behavior.
 
 ## Evidence
 

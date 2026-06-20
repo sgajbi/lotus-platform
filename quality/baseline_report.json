@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300926
+    "total_source_lines": 300978
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 24,
-        "end_line": 309,
-        "line": 178,
-        "lines": 132,
-        "name": "validate_agent_engineering_contracts",
-        "path": "automation/validate_agent_engineering_contracts.py"
-      },
       {
         "complexity": 23,
         "end_line": 458,
@@ -67,8 +59,8 @@
       },
       {
         "complexity": 23,
-        "end_line": 524,
-        "line": 457,
+        "end_line": 572,
+        "line": 505,
         "lines": 68,
         "name": "validate_delegation_record",
         "path": "automation/validate_agent_engineering_contracts.py"
@@ -163,8 +155,8 @@
       },
       {
         "complexity": 17,
-        "end_line": 454,
-        "line": 320,
+        "end_line": 502,
+        "line": 368,
         "lines": 135,
         "name": "validate_delegation_policy_contract",
         "path": "automation/validate_agent_engineering_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 70,
         "name": "_background_run_ledger_adapter",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 225,
+        "line": 160,
+        "lines": 66,
+        "name": "_validate_statuses",
+        "path": "automation/validate_trust_telemetry.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 24,
+    "max_complexity": 23,
     "max_function_lines": 393,
-    "python_function_count": 1390
+    "python_function_count": 1397
   },
-  "generated_at_utc": "2026-06-20T05:11:50Z",
+  "generated_at_utc": "2026-06-20T05:15:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.58s"
+    "summary": "510 tests collected in 0.55s"
   }
 }

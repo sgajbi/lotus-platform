@@ -175,17 +175,10 @@ def _require_set(
         errors.append(f"{label} missing required values: {', '.join(missing)}")
 
 
-def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        display_path = path
-        try:
-            display_path = path.relative_to(ROOT)
-        except ValueError:
-            pass
-        return [f"missing agent engineering contract: {display_path}"]
-
-    contract = _load_contract(path)
+def _validate_task_ledger_contract_identity(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     if contract.get("contract_id") != "lotus-platform:engineering-task-ledger-contract:v1":
         errors.append("contract_id must be lotus-platform:engineering-task-ledger-contract:v1")
     if contract.get("source_rfc") != "RFC-0094":
@@ -197,19 +190,30 @@ def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str
     if contract.get("status") != "active":
         errors.append("status must be active")
 
+
+def _validate_task_ledger_authority(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     authority = contract.get("authority")
     if not isinstance(authority, dict):
         errors.append("authority must be an object")
-    else:
-        for key in ("github_actions", "local_automation", "task_ledger", "session_summary"):
-            value = authority.get(key)
-            if not isinstance(value, str) or not value.strip():
-                errors.append(f"authority.{key} must be non-empty")
-        if "source of truth" not in str(authority.get("github_actions", "")).lower():
-            errors.append("authority.github_actions must preserve GitHub as source of truth")
-        if "working context" not in str(authority.get("session_summary", "")).lower():
-            errors.append("authority.session_summary must keep compaction as working context")
+        return
 
+    for key in ("github_actions", "local_automation", "task_ledger", "session_summary"):
+        value = authority.get(key)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"authority.{key} must be non-empty")
+    if "source of truth" not in str(authority.get("github_actions", "")).lower():
+        errors.append("authority.github_actions must preserve GitHub as source of truth")
+    if "working context" not in str(authority.get("session_summary", "")).lower():
+        errors.append("authority.session_summary must keep compaction as working context")
+
+
+def _validate_task_ledger_required_sets(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     _require_set(errors, "task_kinds", contract.get("task_kinds"), REQUIRED_TASK_KINDS)
     _require_set(
         errors, "lifecycle_states", contract.get("lifecycle_states"), REQUIRED_TASK_STATES
@@ -236,75 +240,119 @@ def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str
         REQUIRED_TASK_STATES - {"QUEUED", "RUNNING"},
     )
 
+
+def _validate_task_ledger_conditional_fields(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     conditional_fields = contract.get("conditional_fields")
     if not isinstance(conditional_fields, dict):
         errors.append("conditional_fields must be an object")
-    else:
-        for key in ("pr_number", "write_scope", "started_at", "ended_at", "error_summary"):
-            if key not in conditional_fields:
-                errors.append(f"conditional_fields missing {key}")
+        return
 
+    for key in ("pr_number", "write_scope", "started_at", "ended_at", "error_summary"):
+        if key not in conditional_fields:
+            errors.append(f"conditional_fields missing {key}")
+
+
+def _validate_task_ledger_delegation_contract(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     delegation_contract = contract.get("delegation_contract")
     if not isinstance(delegation_contract, dict):
         errors.append("delegation_contract must be an object")
-    else:
-        _require_set(
-            errors,
-            "delegation_contract.required_fields",
-            delegation_contract.get("required_fields"),
-            {"problem_statement", "expected_output", "read_scope", "task_mode"},
-        )
-        _require_set(
-            errors,
-            "delegation_contract.code_change_requirements",
-            delegation_contract.get("code_change_requirements"),
-            {
-                "explicit_write_scope",
-                "do_not_revert_unrelated_work",
-                "changed_files_returned",
-                "outcome_summary_returned",
-            },
-        )
+        return
 
+    _require_set(
+        errors,
+        "delegation_contract.required_fields",
+        delegation_contract.get("required_fields"),
+        {"problem_statement", "expected_output", "read_scope", "task_mode"},
+    )
+    _require_set(
+        errors,
+        "delegation_contract.code_change_requirements",
+        delegation_contract.get("code_change_requirements"),
+        {
+            "explicit_write_scope",
+            "do_not_revert_unrelated_work",
+            "changed_files_returned",
+            "outcome_summary_returned",
+        },
+    )
+
+
+def _validate_task_ledger_context_contract(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     context_contract = contract.get("context_preservation_contract")
     if not isinstance(context_contract, dict):
         errors.append("context_preservation_contract must be an object")
-    else:
-        if context_contract.get("source_rfc") != "RFC-0093":
-            errors.append("context_preservation_contract.source_rfc must be RFC-0093")
-        _require_set(
-            errors,
-            "context_preservation_contract.required_identifiers",
-            context_contract.get("required_identifiers"),
-            REQUIRED_IDENTIFIER_PRESERVATION,
-        )
-        _require_set(
-            errors,
-            "context_preservation_contract.decision_states",
-            context_contract.get("decision_states"),
-            {"ACCEPTED", "REJECTED", "DEFERRED", "OPEN"},
-        )
-        _require_set(
-            errors,
-            "context_preservation_contract.promotion_targets",
-            context_contract.get("promotion_targets"),
-            REQUIRED_PROMOTION_TARGETS,
-        )
+        return
 
+    if context_contract.get("source_rfc") != "RFC-0093":
+        errors.append("context_preservation_contract.source_rfc must be RFC-0093")
+    _require_set(
+        errors,
+        "context_preservation_contract.required_identifiers",
+        context_contract.get("required_identifiers"),
+        REQUIRED_IDENTIFIER_PRESERVATION,
+    )
+    _require_set(
+        errors,
+        "context_preservation_contract.decision_states",
+        context_contract.get("decision_states"),
+        {"ACCEPTED", "REJECTED", "DEFERRED", "OPEN"},
+    )
+    _require_set(
+        errors,
+        "context_preservation_contract.promotion_targets",
+        context_contract.get("promotion_targets"),
+        REQUIRED_PROMOTION_TARGETS,
+    )
+
+
+def _validate_task_ledger_invariants(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     invariants = contract.get("invariants")
     if not isinstance(invariants, list) or not invariants:
         errors.append("invariants must be a non-empty list")
-    else:
-        invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
-        for expected in (
-            "one durable owner",
-            "terminal tasks carry evidence",
-            "github status is referenced",
-            "explicit write scope",
-            "preserve operationally relevant identifiers exactly",
-        ):
-            if expected not in invariant_text:
-                errors.append(f"invariants missing `{expected}`")
+        return
+
+    invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
+    for expected in (
+        "one durable owner",
+        "terminal tasks carry evidence",
+        "github status is referenced",
+        "explicit write scope",
+        "preserve operationally relevant identifiers exactly",
+    ):
+        if expected not in invariant_text:
+            errors.append(f"invariants missing `{expected}`")
+
+
+def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        display_path = path
+        try:
+            display_path = path.relative_to(ROOT)
+        except ValueError:
+            pass
+        return [f"missing agent engineering contract: {display_path}"]
+
+    contract = _load_contract(path)
+    _validate_task_ledger_contract_identity(contract, errors)
+    _validate_task_ledger_authority(contract, errors)
+    _validate_task_ledger_required_sets(contract, errors)
+    _validate_task_ledger_conditional_fields(contract, errors)
+    _validate_task_ledger_delegation_contract(contract, errors)
+    _validate_task_ledger_context_contract(contract, errors)
+    _validate_task_ledger_invariants(contract, errors)
 
     return errors
 

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T05:11:50Z`
+Generated: `2026-06-20T05:15:10Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `300926`
+- Total source lines: `300978`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,22 +39,22 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1390`
-- Highest measured cyclomatic complexity: `24`
+- Python functions: `1397`
+- Highest measured cyclomatic complexity: `23`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_agent_engineering_contracts.py | validate_agent_engineering_contracts | 178 | 24 | 132 |
 | automation/validate_analytics_ui_observability_contract.py | validate_contract | 276 | 23 | 183 |
 | automation/validate_engineering_context_system.py | _validate_context_entrypoints | 237 | 23 | 77 |
 | automation/validate_platform_validation_coverage.py | validate_platform_validation_coverage | 20 | 23 | 70 |
-| automation/validate_agent_engineering_contracts.py | validate_delegation_record | 457 | 23 | 68 |
+| automation/validate_agent_engineering_contracts.py | validate_delegation_record | 505 | 23 | 68 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_status | 240 | 22 | 95 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_matrix_feature_statuses | 418 | 22 | 65 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 23 | 21 | 298 |
 | automation/validate_engineering_context_system.py | _validate_manifest_contract | 32 | 21 | 95 |
 | automation/generate_mesh_evidence_pack.py | validate_mesh_evidence_policies | 65 | 20 | 88 |
+| automation/core_performance_contribution_validation.py | _run_validation | 23 | 19 | 221 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.58s`
+- Collection summary: `510 tests collected in 0.55s`
 
 ## Security Baseline
 
