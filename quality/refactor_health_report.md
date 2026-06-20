@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:52:33Z`
+Generated: `2026-06-20T03:56:32Z`
 
 ## Completed Slices
 
@@ -29,6 +29,9 @@ Generated: `2026-06-20T03:52:33Z`
 10. Engineering context validator onboarding-guidance extraction so developer bootstrap and agent
     ramp-up assertions are isolated behind a named helper, moving the validator out of the top
     complexity hotspot position while preserving context-currentness checks.
+11. Analytics UI observability validator supported-feature extraction so lifecycle promotion rules
+    are isolated behind a named helper, removing that validator from the top measured complexity
+    hotspot list while preserving RFC-0108 contract behavior.
 
 ## Evidence
 

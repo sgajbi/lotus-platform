@@ -518,6 +518,9 @@ Generated: `{baseline["generated_at_utc"]}`
 10. Engineering context validator onboarding-guidance extraction so developer bootstrap and agent
     ramp-up assertions are isolated behind a named helper, moving the validator out of the top
     complexity hotspot position while preserving context-currentness checks.
+11. Analytics UI observability validator supported-feature extraction so lifecycle promotion rules
+    are isolated behind a named helper, removing that validator from the top measured complexity
+    hotspot list while preserving RFC-0108 contract behavior.
 
 ## Evidence
 

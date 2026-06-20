@@ -15,6 +15,155 @@ def _load_contract(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _validate_supported_feature_keys(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+) -> None:
+    feature_keys = contract.get("supported_feature_keys", [])
+    if not feature_keys:
+        errors.append("supported_feature_keys must list planned governance keys")
+    for feature in feature_keys:
+        key = feature.get("feature_key", "<missing>")
+        status = feature.get("status")
+        implemented_slice_12_partial_keys = {
+            "analytics.backend.observability.freshness_supportability",
+            "advise.observability.advisory_supportability",
+            "archive.observability.archive_supportability",
+            "ai.observability.ai_surface_supportability",
+            "core.observability.portfolio_supportability",
+            "manage.observability.action_register_supportability",
+            "performance.observability.calculation_supportability",
+            "render.observability.render_supportability",
+            "report.observability.evidence_surface_supportability",
+            "risk.observability.calculation_supportability",
+        }
+        implemented_slice_13_partial_keys = {
+            "gateway.analytics.observability.fanout_metrics",
+            "gateway.analytics.observability.protected_diagnostics",
+        }
+        implemented_slice_13_keys = {
+            *implemented_slice_13_partial_keys,
+            "gateway.analytics.observability.all_ui_fanout_paths",
+        }
+        implemented_foundation_keys = {
+            "platform.scaffolding.analytics_ui_observability_baseline",
+            "platform.analytics.observability.telemetry_contract",
+            "platform.analytics.observability.rollout_readiness",
+            "platform.analytics.observability.hardening_certification",
+            "platform.analytics.observability.final_closure",
+            "platform.analytics.observability.ecosystem_completion_contract",
+            "platform.analytics.observability.scaffold_ci_enforcement",
+            "workbench.analytics.observability.correlation_trace",
+            "workbench.analytics.observability.contract_vocabulary",
+            "workbench.analytics.observability.panel_state_metrics",
+            "workbench.analytics.observability.advisor_brief_review_action_metrics",
+            "workbench.analytics.observability.mutation_hydration_boundary",
+            "workbench.analytics.observability.safe_dashboard",
+            "workbench.analytics.observability.attention_events",
+            "workbench.analytics.observability.entitlement_audit_events",
+            "workbench.analytics.observability.canonical_proof",
+            "gateway.analytics.observability.correlation_trace",
+            "gateway.analytics.observability.structured_fanout_logs",
+            "gateway.analytics.observability.contract_vocabulary",
+        }
+        if key in implemented_foundation_keys:
+            if status not in {"planned", "implemented"}:
+                errors.append(f"{key}: status must be planned or implemented")
+        elif (
+            contract.get("lifecycle_status")
+            in {
+                "slice-12-backend-supportability-partial-implemented",
+                "slice-13-gateway-fanout-metrics-partial-implemented",
+                "slice-13-gateway-fanout-metrics-implemented",
+                "slice-14-workbench-supported-client-reads-partial-implemented",
+                "slice-15-ecosystem-dashboards-alerts-implemented",
+                "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
+                "slice-18-ecosystem-final-closure-implemented",
+            }
+            and key in implemented_slice_12_partial_keys
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 12 proof")
+        elif (
+            contract.get("lifecycle_status")
+            in {
+                "slice-13-gateway-fanout-metrics-partial-implemented",
+                "slice-13-gateway-fanout-metrics-implemented",
+                "slice-14-workbench-supported-client-reads-partial-implemented",
+                "slice-15-ecosystem-dashboards-alerts-implemented",
+                "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
+                "slice-18-ecosystem-final-closure-implemented",
+            }
+            and key in (
+                implemented_slice_13_keys
+                if contract.get("lifecycle_status")
+                in {
+                    "slice-13-gateway-fanout-metrics-implemented",
+                    "slice-14-workbench-supported-client-reads-partial-implemented",
+                    "slice-15-ecosystem-dashboards-alerts-implemented",
+                    "slice-16-ecosystem-implementation-proof-implemented",
+                    "slice-17-ecosystem-hardening-certified",
+                    "slice-18-ecosystem-final-closure-implemented",
+                }
+                else implemented_slice_13_partial_keys
+            )
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 13 proof")
+        elif (
+            contract.get("lifecycle_status")
+            in {
+                "slice-15-ecosystem-dashboards-alerts-implemented",
+                "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
+                "slice-18-ecosystem-final-closure-implemented",
+            }
+            and key == "platform.analytics.observability.ecosystem_dashboards_alerts"
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 15 proof")
+        elif (
+            contract.get("lifecycle_status")
+            in {
+                "slice-16-ecosystem-implementation-proof-implemented",
+                "slice-17-ecosystem-hardening-certified",
+                "slice-18-ecosystem-final-closure-implemented",
+            }
+            and key == "platform.analytics.observability.ecosystem_implementation_proof"
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 16 proof")
+        elif (
+            contract.get("lifecycle_status")
+            in {
+                "slice-17-ecosystem-hardening-certified",
+                "slice-18-ecosystem-final-closure-implemented",
+            }
+            and key == "platform.analytics.observability.ecosystem_hardening_certification"
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 17 proof")
+        elif (
+            contract.get("lifecycle_status")
+            == "slice-18-ecosystem-final-closure-implemented"
+            and key == "platform.analytics.observability.ecosystem_final_closure"
+        ):
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 18 proof")
+        elif key == "workbench.analytics.observability.caller_context_entitlement_certification":
+            if status != "implemented":
+                errors.append(f"{key}: status must be implemented after Slice 19 proof")
+        elif status != "planned":
+            errors.append(
+                f"{key}: status must remain planned until implementation proof exists"
+            )
+        if not feature.get("promotion_evidence"):
+            errors.append(f"{key}: promotion_evidence is required")
+
+
 def validate_contract(contract: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     if contract.get("contract_id") != "analytics-ui-observability-contract":
@@ -168,148 +317,7 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             f"state_vocabulary missing required states: {sorted(missing_states)}"
         )
 
-    feature_keys = contract.get("supported_feature_keys", [])
-    if not feature_keys:
-        errors.append("supported_feature_keys must list planned governance keys")
-    for feature in feature_keys:
-        key = feature.get("feature_key", "<missing>")
-        status = feature.get("status")
-        implemented_slice_12_partial_keys = {
-            "analytics.backend.observability.freshness_supportability",
-            "advise.observability.advisory_supportability",
-            "archive.observability.archive_supportability",
-            "ai.observability.ai_surface_supportability",
-            "core.observability.portfolio_supportability",
-            "manage.observability.action_register_supportability",
-            "performance.observability.calculation_supportability",
-            "render.observability.render_supportability",
-            "report.observability.evidence_surface_supportability",
-            "risk.observability.calculation_supportability",
-        }
-        implemented_slice_13_partial_keys = {
-            "gateway.analytics.observability.fanout_metrics",
-            "gateway.analytics.observability.protected_diagnostics",
-        }
-        implemented_slice_13_keys = {
-            *implemented_slice_13_partial_keys,
-            "gateway.analytics.observability.all_ui_fanout_paths",
-        }
-        implemented_foundation_keys = {
-            "platform.scaffolding.analytics_ui_observability_baseline",
-            "platform.analytics.observability.telemetry_contract",
-            "platform.analytics.observability.rollout_readiness",
-            "platform.analytics.observability.hardening_certification",
-            "platform.analytics.observability.final_closure",
-            "platform.analytics.observability.ecosystem_completion_contract",
-            "platform.analytics.observability.scaffold_ci_enforcement",
-            "workbench.analytics.observability.correlation_trace",
-            "workbench.analytics.observability.contract_vocabulary",
-            "workbench.analytics.observability.panel_state_metrics",
-            "workbench.analytics.observability.advisor_brief_review_action_metrics",
-            "workbench.analytics.observability.mutation_hydration_boundary",
-            "workbench.analytics.observability.safe_dashboard",
-            "workbench.analytics.observability.attention_events",
-            "workbench.analytics.observability.entitlement_audit_events",
-            "workbench.analytics.observability.canonical_proof",
-            "gateway.analytics.observability.correlation_trace",
-            "gateway.analytics.observability.structured_fanout_logs",
-            "gateway.analytics.observability.contract_vocabulary",
-        }
-        if key in implemented_foundation_keys:
-            if status not in {"planned", "implemented"}:
-                errors.append(f"{key}: status must be planned or implemented")
-        elif (
-            contract.get("lifecycle_status")
-            in {
-                "slice-12-backend-supportability-partial-implemented",
-                "slice-13-gateway-fanout-metrics-partial-implemented",
-                "slice-13-gateway-fanout-metrics-implemented",
-                "slice-14-workbench-supported-client-reads-partial-implemented",
-                "slice-15-ecosystem-dashboards-alerts-implemented",
-                "slice-16-ecosystem-implementation-proof-implemented",
-                "slice-17-ecosystem-hardening-certified",
-                "slice-18-ecosystem-final-closure-implemented",
-            }
-            and key in implemented_slice_12_partial_keys
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 12 proof")
-        elif (
-            contract.get("lifecycle_status")
-            in {
-                "slice-13-gateway-fanout-metrics-partial-implemented",
-                "slice-13-gateway-fanout-metrics-implemented",
-                "slice-14-workbench-supported-client-reads-partial-implemented",
-                "slice-15-ecosystem-dashboards-alerts-implemented",
-                "slice-16-ecosystem-implementation-proof-implemented",
-                "slice-17-ecosystem-hardening-certified",
-                "slice-18-ecosystem-final-closure-implemented",
-            }
-            and key in (
-                implemented_slice_13_keys
-                if contract.get("lifecycle_status")
-                in {
-                    "slice-13-gateway-fanout-metrics-implemented",
-                    "slice-14-workbench-supported-client-reads-partial-implemented",
-                    "slice-15-ecosystem-dashboards-alerts-implemented",
-                    "slice-16-ecosystem-implementation-proof-implemented",
-                    "slice-17-ecosystem-hardening-certified",
-                    "slice-18-ecosystem-final-closure-implemented",
-                }
-                else implemented_slice_13_partial_keys
-            )
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 13 proof")
-        elif (
-            contract.get("lifecycle_status")
-            in {
-                "slice-15-ecosystem-dashboards-alerts-implemented",
-                "slice-16-ecosystem-implementation-proof-implemented",
-                "slice-17-ecosystem-hardening-certified",
-                "slice-18-ecosystem-final-closure-implemented",
-            }
-            and key == "platform.analytics.observability.ecosystem_dashboards_alerts"
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 15 proof")
-        elif (
-            contract.get("lifecycle_status")
-            in {
-                "slice-16-ecosystem-implementation-proof-implemented",
-                "slice-17-ecosystem-hardening-certified",
-                "slice-18-ecosystem-final-closure-implemented",
-            }
-            and key == "platform.analytics.observability.ecosystem_implementation_proof"
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 16 proof")
-        elif (
-            contract.get("lifecycle_status")
-            in {
-                "slice-17-ecosystem-hardening-certified",
-                "slice-18-ecosystem-final-closure-implemented",
-            }
-            and key == "platform.analytics.observability.ecosystem_hardening_certification"
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 17 proof")
-        elif (
-            contract.get("lifecycle_status")
-            == "slice-18-ecosystem-final-closure-implemented"
-            and key == "platform.analytics.observability.ecosystem_final_closure"
-        ):
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 18 proof")
-        elif key == "workbench.analytics.observability.caller_context_entitlement_certification":
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 19 proof")
-        elif status != "planned":
-            errors.append(
-                f"{key}: status must remain planned until implementation proof exists"
-            )
-        if not feature.get("promotion_evidence"):
-            errors.append(f"{key}: promotion_evidence is required")
+    _validate_supported_feature_keys(errors=errors, contract=contract)
 
     evidence_requirements = contract.get("evidence_requirements", {})
     required_artifact_types = {
