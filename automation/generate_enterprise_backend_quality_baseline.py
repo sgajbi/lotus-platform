@@ -596,6 +596,10 @@ Generated: `{baseline["generated_at_utc"]}`
     strings, read/write scope policy, forbidden actions, evidence requirements, and return-envelope
     checks are isolated behind focused helpers, removing the delegation-record validator from the
     top measured complexity hotspot list while preserving RFC-0096 delegation guardrail behavior.
+33. Engineering context entrypoint validator extraction so context index, quickstart, engineering
+    context, reference-map, task-routing, and procedural-memory checks are isolated behind focused
+    helpers, removing the context-entrypoint validator from the top measured complexity hotspot
+    list while preserving RFC-0073 context-system behavior.
 
 ## Evidence
 

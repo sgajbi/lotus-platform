@@ -234,15 +234,9 @@ def _validate_rfc_completion(*, errors: list[str], rfc: str, checklist: str) -> 
         errors.append("RFC-0073 checklist: Slice 2A must be marked complete")
 
 
-def _validate_context_entrypoints(
-    *,
+def _validate_context_index_entrypoints(
     errors: list[str],
     context_index: str,
-    quickstart: str,
-    engineering: str,
-    reference_map: str,
-    task_routing_guide: str,
-    procedural_memory_index: str,
 ) -> None:
     for link_target in (
         "./LOTUS-QUICKSTART-CONTEXT.md",
@@ -255,10 +249,21 @@ def _validate_context_entrypoints(
         if link_target not in context_index:
             errors.append(f"context/README.md: missing link to `{link_target}`")
 
+
+def _validate_quickstart_entrypoints(
+    errors: list[str],
+    quickstart: str,
+) -> None:
     if "./TASK-ROUTING-GUIDE.md" not in quickstart:
         errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing task routing guide cross-link")
     if "./ECOSYSTEM-REGISTRIES.md" not in quickstart:
         errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing ecosystem registries cross-link")
+
+
+def _validate_engineering_context_entrypoints(
+    errors: list[str],
+    engineering: str,
+) -> None:
     if "## Task Routing Guidance" not in engineering:
         errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guidance section")
     if "./TASK-ROUTING-GUIDE.md" not in engineering:
@@ -286,11 +291,21 @@ def _validate_context_entrypoints(
         if text not in engineering:
             errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing agent engineering guidance `{text}`")
 
+
+def _validate_reference_map_entrypoints(
+    errors: list[str],
+    reference_map: str,
+) -> None:
     if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
         errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
     if "once it exists" in reference_map or "will become the implementation truth" in reference_map:
         errors.append("CONTEXT-REFERENCE-MAP.md: stale rollout language must not remain")
 
+
+def _validate_task_routing_entrypoints(
+    errors: list[str],
+    task_routing_guide: str,
+) -> None:
     for heading in (
         "## Frontend And Product-Surface Work",
         "## Backend API And Domain-Service Work",
@@ -301,6 +316,11 @@ def _validate_context_entrypoints(
         if heading not in task_routing_guide:
             errors.append(f"TASK-ROUTING-GUIDE.md: missing heading `{heading}`")
 
+
+def _validate_procedural_memory_entrypoints(
+    errors: list[str],
+    procedural_memory_index: str,
+) -> None:
     if "Change Playbooks" not in procedural_memory_index:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Change Playbooks reference")
     if "PR Loop Playbook" not in procedural_memory_index:
@@ -311,6 +331,24 @@ def _validate_context_entrypoints(
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
     if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
+
+
+def _validate_context_entrypoints(
+    *,
+    errors: list[str],
+    context_index: str,
+    quickstart: str,
+    engineering: str,
+    reference_map: str,
+    task_routing_guide: str,
+    procedural_memory_index: str,
+) -> None:
+    _validate_context_index_entrypoints(errors, context_index)
+    _validate_quickstart_entrypoints(errors, quickstart)
+    _validate_engineering_context_entrypoints(errors, engineering)
+    _validate_reference_map_entrypoints(errors, reference_map)
+    _validate_task_routing_entrypoints(errors, task_routing_guide)
+    _validate_procedural_memory_entrypoints(errors, procedural_memory_index)
 
 
 def _validate_playbook_content(
