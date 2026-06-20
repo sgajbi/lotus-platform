@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305458
+    "total_source_lines": 305639
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,22 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 651,
-        "line": 624,
-        "lines": 28,
-        "name": "validate_heartbeat_suppressions",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 630,
-        "line": 531,
-        "lines": 100,
-        "name": "review_ecosystem_proof",
-        "path": "automation/review_analytics_ui_ecosystem_proof.py"
-      },
       {
         "complexity": 11,
         "end_line": 832,
@@ -171,8 +155,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 905,
-        "line": 872,
+        "end_line": 914,
+        "line": 881,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,6 +176,22 @@
         "lines": 29,
         "name": "_validate_supported_feature_milestones",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 306,
+        "line": 287,
+        "lines": 20,
+        "name": "_validate_output_evidence_refs",
+        "path": "automation/delegation_task_ledger.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 1393,
+        "line": 1292,
+        "lines": 102,
+        "name": "validate_contract_directory",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       }
     ],
     "largest_functions": [
@@ -205,9 +205,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 854,
+        "end_line": 863,
         "line": 489,
-        "lines": 366,
+        "lines": 375,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 12,
+    "max_complexity": 11,
     "max_function_lines": 393,
-    "python_function_count": 1750
+    "python_function_count": 1763
   },
-  "generated_at_utc": "2026-06-20T09:33:22Z",
+  "generated_at_utc": "2026-06-20T09:50:46Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 529,
+    "collected_tests": 531,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "529 tests collected in 0.69s"
+    "summary": "531 tests collected in 0.61s"
   }
 }

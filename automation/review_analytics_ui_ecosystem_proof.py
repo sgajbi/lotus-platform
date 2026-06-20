@@ -62,6 +62,18 @@ class EcosystemReviewInputs:
     output_path: Path | None = DEFAULT_REVIEW_OUTPUT
 
 
+@dataclass(frozen=True)
+class EcosystemReviewArtifacts:
+    qa_summary: dict[str, Any]
+    proof_contract: dict[str, Any]
+    observability_contract: dict[str, Any]
+    ecosystem_contract: dict[str, Any]
+    dashboard: dict[str, Any]
+    alert_rules: dict[str, Any]
+    diagnostics_response: dict[str, Any] | None
+    openapi: dict[str, Any] | None
+
+
 def _fetch_json(url: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
     request = urllib.request.Request(url, headers=headers or {})
     with urllib.request.urlopen(request, timeout=10) as response:
@@ -528,31 +540,44 @@ def _validate_residual_scope(
     return {"residual_feature_keys": sorted(residual_keys)}
 
 
-def review_ecosystem_proof(inputs: EcosystemReviewInputs) -> dict[str, Any]:
-    errors: list[str] = []
-    qa_summary = _load_json(inputs.qa_summary_path)
-    proof_contract = _load_json(inputs.proof_contract_path)
-    observability_contract = _load_json(inputs.observability_contract_path)
-    ecosystem_contract = _load_json(inputs.ecosystem_completion_contract_path)
-    dashboard = _load_json(inputs.dashboard_path)
-    alert_rules = yaml.safe_load(inputs.alert_rules_path.read_text(encoding="utf-8"))
-    diagnostics_response = _load_optional_json(
-        inputs.protected_diagnostics_response_path, inputs.protected_diagnostics_url
+def _load_review_artifacts(inputs: EcosystemReviewInputs) -> EcosystemReviewArtifacts:
+    return EcosystemReviewArtifacts(
+        qa_summary=_load_json(inputs.qa_summary_path),
+        proof_contract=_load_json(inputs.proof_contract_path),
+        observability_contract=_load_json(inputs.observability_contract_path),
+        ecosystem_contract=_load_json(inputs.ecosystem_completion_contract_path),
+        dashboard=_load_json(inputs.dashboard_path),
+        alert_rules=yaml.safe_load(inputs.alert_rules_path.read_text(encoding="utf-8")),
+        diagnostics_response=_load_optional_json(
+            inputs.protected_diagnostics_response_path,
+            inputs.protected_diagnostics_url,
+        ),
+        openapi=_load_optional_json(inputs.gateway_openapi_path, inputs.gateway_openapi_url),
     )
-    openapi = _load_optional_json(inputs.gateway_openapi_path, inputs.gateway_openapi_url)
 
+
+def _validate_qa_summary_status(
+    *, errors: list[str], qa_summary: dict[str, Any]
+) -> None:
     status = str(qa_summary.get("status") or qa_summary.get("result") or "").lower()
     if status not in ACCEPTED_QA_STATUSES:
         errors.append(f"ecosystem QA summary status is not ok: {status}")
 
-    live_summary, live_summary_path = _resolve_live_summary(
-        qa_summary, inputs.qa_summary_path
-    )
+
+def _validate_live_summary_evidence(
+    *,
+    errors: list[str],
+    qa_summary: dict[str, Any],
+    qa_summary_path: Path,
+    proof_contract: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any] | None, Path | None]:
+    live_summary, live_summary_path = _resolve_live_summary(qa_summary, qa_summary_path)
     if live_summary is None:
         errors.append("ecosystem QA summary does not reference a live validation summary")
-        live_evidence: dict[str, Any] = {}
-    else:
-        live_evidence = {
+        return {}, None, live_summary_path
+
+    return (
+        {
             **_validate_runtime_identity(
                 errors=errors,
                 live_summary=live_summary,
@@ -568,20 +593,93 @@ def review_ecosystem_proof(inputs: EcosystemReviewInputs) -> dict[str, Any]:
                 errors=errors,
                 live_summary=live_summary,
                 live_summary_path=live_summary_path,
-                qa_summary_path=inputs.qa_summary_path,
+                qa_summary_path=qa_summary_path,
                 proof_contract=proof_contract,
             ),
-        }
+        },
+        live_summary,
+        live_summary_path,
+    )
 
-    sensitive_paths = [inputs.qa_summary_path]
+
+def _sensitive_review_paths(
+    *,
+    qa_summary_path: Path,
+    live_summary: dict[str, Any] | None,
+    live_summary_path: Path | None,
+) -> list[Path]:
+    sensitive_paths = [qa_summary_path]
     if live_summary_path is not None:
         sensitive_paths.append(live_summary_path)
-    if live_summary is not None:
-        shot_index = _screenshot_index_path(
-            live_summary, live_summary_path, inputs.qa_summary_path
-        )
-        if shot_index is not None:
-            sensitive_paths.append(shot_index)
+    if live_summary is None:
+        return sensitive_paths
+
+    shot_index = _screenshot_index_path(live_summary, live_summary_path, qa_summary_path)
+    if shot_index is not None:
+        sensitive_paths.append(shot_index)
+    return sensitive_paths
+
+
+def _validate_static_ecosystem_evidence(
+    *,
+    errors: list[str],
+    artifacts: EcosystemReviewArtifacts,
+    sensitive_paths: list[Path],
+) -> dict[str, Any]:
+    return {
+        **_validate_protected_diagnostics(
+            errors=errors,
+            proof_contract=artifacts.proof_contract,
+            response=artifacts.diagnostics_response,
+        ),
+        **_validate_openapi(
+            errors=errors,
+            proof_contract=artifacts.proof_contract,
+            openapi=artifacts.openapi,
+        ),
+        **_validate_dashboard_alert_inventory(
+            errors=errors,
+            proof_contract=artifacts.proof_contract,
+            observability_contract=artifacts.observability_contract,
+            dashboard=artifacts.dashboard,
+            alert_rules=artifacts.alert_rules,
+        ),
+        **_validate_residual_scope(
+            errors=errors,
+            proof_contract=artifacts.proof_contract,
+            observability_contract=artifacts.observability_contract,
+            ecosystem_contract=artifacts.ecosystem_contract,
+        ),
+        **_validate_sensitive_content(
+            errors=errors,
+            contract=artifacts.observability_contract,
+            paths=sensitive_paths,
+        ),
+    }
+
+
+def _write_review_output(review: dict[str, Any], output_path: Path | None) -> None:
+    if output_path is None:
+        return
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(f"{json.dumps(review, indent=2)}\n", encoding="utf-8")
+
+
+def review_ecosystem_proof(inputs: EcosystemReviewInputs) -> dict[str, Any]:
+    errors: list[str] = []
+    artifacts = _load_review_artifacts(inputs)
+    _validate_qa_summary_status(errors=errors, qa_summary=artifacts.qa_summary)
+    live_evidence, live_summary, live_summary_path = _validate_live_summary_evidence(
+        errors=errors,
+        qa_summary=artifacts.qa_summary,
+        qa_summary_path=inputs.qa_summary_path,
+        proof_contract=artifacts.proof_contract,
+    )
+    sensitive_paths = _sensitive_review_paths(
+        qa_summary_path=inputs.qa_summary_path,
+        live_summary=live_summary,
+        live_summary_path=live_summary_path,
+    )
 
     review = {
         "status": "failed",
@@ -591,42 +689,16 @@ def review_ecosystem_proof(inputs: EcosystemReviewInputs) -> dict[str, Any]:
         "live_summary_path": str(live_summary_path) if live_summary_path else None,
         "evidence": {
             **live_evidence,
-            **_validate_protected_diagnostics(
+            **_validate_static_ecosystem_evidence(
                 errors=errors,
-                proof_contract=proof_contract,
-                response=diagnostics_response,
-            ),
-            **_validate_openapi(
-                errors=errors,
-                proof_contract=proof_contract,
-                openapi=openapi,
-            ),
-            **_validate_dashboard_alert_inventory(
-                errors=errors,
-                proof_contract=proof_contract,
-                observability_contract=observability_contract,
-                dashboard=dashboard,
-                alert_rules=alert_rules,
-            ),
-            **_validate_residual_scope(
-                errors=errors,
-                proof_contract=proof_contract,
-                observability_contract=observability_contract,
-                ecosystem_contract=ecosystem_contract,
-            ),
-            **_validate_sensitive_content(
-                errors=errors,
-                contract=observability_contract,
-                paths=sensitive_paths,
+                artifacts=artifacts,
+                sensitive_paths=sensitive_paths,
             ),
         },
         "errors": errors,
     }
     review["status"] = "passed" if not errors else "failed"
-
-    if inputs.output_path is not None:
-        inputs.output_path.parent.mkdir(parents=True, exist_ok=True)
-        inputs.output_path.write_text(f"{json.dumps(review, indent=2)}\n", encoding="utf-8")
+    _write_review_output(review, inputs.output_path)
     return review
 
 

@@ -190,6 +190,35 @@ def test_heartbeat_suppressions_reject_invalid_expiry(tmp_path: Path) -> None:
     )
 
 
+def test_heartbeat_suppressions_reject_missing_and_blank_entry_fields(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator()
+    path = tmp_path / "heartbeat-suppressions.json"
+    path.write_text(
+        json.dumps(
+            {
+                "contract_id": "lotus-platform:heartbeat-suppressions:v1",
+                "source_rfc": "RFC-0095",
+                "suppressions": [
+                    {
+                        "deduplication_key": " ",
+                        "owner": "lotus-platform",
+                        "expires_at_utc": "2026-04-22T00:00:00Z",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    errors = validator.validate_heartbeat_suppressions(path)
+
+    assert "heartbeat suppressions[0] missing required fields: reason" in errors
+    assert "heartbeat suppressions[0].deduplication_key must be a non-empty string" in errors
+    assert "heartbeat suppressions[0].reason must be a non-empty string" in errors
+
+
 def test_heartbeat_suppressions_reject_malformed_utc_expiry(tmp_path: Path) -> None:
     validator = _load_validator()
     path = tmp_path / "heartbeat-suppressions.json"
