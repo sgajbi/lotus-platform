@@ -75,6 +75,28 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def _consumer_contract_with_migration_posture(migration_posture: dict) -> dict:
+    return {
+        "contract_id": "domain-data-product-consumers",
+        "contract_version": "1.0.0",
+        "governed_by_rfc": "RFC-0084",
+        "consumer_repository": "lotus-risk",
+        "dependencies": [
+            {
+                "product_name": "ReturnsSeriesBundle",
+                "producer_repository": "lotus-performance",
+                "required_product_version": "v1",
+                "required_trust_metadata": ["generated_at"],
+                "migration_posture": migration_posture,
+                "consumption_mode": "api_read",
+                "business_purpose": "Use upstream return series in risk analytics.",
+                "validation_lanes": ["feature"],
+                "failure_posture": "fail_closed",
+            }
+        ],
+    }
+
+
 def _load_repo_text(repository: str, relative_path: str) -> str:
     return (ROOT.parent / repository / relative_path).read_text(encoding="utf-8")
 
@@ -808,6 +830,52 @@ def test_rfc_0084_validator_rejects_version_drift_without_approved_transition(
     assert any(
         "version drift requires approved_transition" in issue for issue in issues
     )
+
+
+def test_rfc_0084_validator_rejects_current_dependency_with_target_version() -> None:
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+
+    issues = validator.validate_consumer_contract(
+        path,
+        _consumer_contract_with_migration_posture(
+            {"status": "current", "target_product_version": "v2"}
+        ),
+    )
+
+    assert (
+        f"{path}: dependencies[0].migration_posture.target_product_version "
+        "must be null or omitted when status is current"
+    ) in issues
+
+
+def test_rfc_0084_validator_rejects_incomplete_approved_transition() -> None:
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+
+    issues = validator.validate_consumer_contract(
+        path,
+        _consumer_contract_with_migration_posture(
+            {
+                "status": "approved_transition",
+                "target_product_version": "latest",
+                "justification": "",
+            }
+        ),
+    )
+
+    assert (
+        f"{path}: dependencies[0].migration_posture.target_product_version "
+        "must use vN or semantic versioning when status is approved_transition"
+    ) in issues
+    assert (
+        f"{path}: dependencies[0].migration_posture.justification must be a non-empty "
+        "string when status is approved_transition"
+    ) in issues
+    assert (
+        f"{path}: dependencies[0].migration_posture.sunset_condition must be a non-empty "
+        "string when status is approved_transition"
+    ) in issues
 
 
 def test_rfc_0084_validator_allows_approved_transition_for_version_drift(

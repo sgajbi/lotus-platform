@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305964
+    "total_source_lines": 306075
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 1025,
-        "line": 982,
-        "lines": 44,
-        "name": "_validate_dependency_migration_posture",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       },
       {
         "complexity": 11,
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 933,
-        "line": 900,
+        "end_line": 937,
+        "line": 904,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -147,8 +139,8 @@
       },
       {
         "complexity": 9,
-        "end_line": 1443,
-        "line": 1342,
+        "end_line": 1482,
+        "line": 1381,
         "lines": 102,
         "name": "validate_contract_directory",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -192,14 +184,22 @@
         "lines": 52,
         "name": "classify_branch",
         "path": "automation/prune_merged_remote_branches.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 626,
+        "line": 582,
+        "lines": 45,
+        "name": "_validate_telemetry_events",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 882,
+        "end_line": 886,
         "line": 489,
-        "lines": 394,
+        "lines": 398,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -237,8 +237,8 @@
       },
       {
         "complexity": 2,
-        "end_line": 1976,
-        "line": 1717,
+        "end_line": 2044,
+        "line": 1785,
         "lines": 260,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -317,8 +317,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 1613,
-        "line": 1472,
+        "end_line": 1681,
+        "line": 1540,
         "lines": 142,
         "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -333,34 +333,34 @@
       },
       {
         "complexity": 1,
-        "end_line": 945,
-        "line": 813,
+        "end_line": 1013,
+        "line": 881,
         "lines": 133,
         "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
         "complexity": 1,
-        "end_line": 579,
-        "line": 447,
+        "end_line": 601,
+        "line": 469,
         "lines": 133,
         "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
         "complexity": 1,
-        "end_line": 810,
-        "line": 679,
+        "end_line": 832,
+        "line": 701,
         "lines": 132,
         "name": "test_rfc_0084_validator_rejects_version_drift_without_approved_transition",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 394,
-    "python_function_count": 1786
+    "max_function_lines": 398,
+    "python_function_count": 1791
   },
-  "generated_at_utc": "2026-06-20T10:26:36Z",
+  "generated_at_utc": "2026-06-20T10:33:21Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -393,7 +393,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2080,
+      "lines": 2148,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -423,7 +423,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1480,
+      "lines": 1519,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 538,
+    "collected_tests": 540,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "538 tests collected in 0.60s"
+    "summary": "540 tests collected in 0.58s"
   }
 }

@@ -1000,29 +1000,68 @@ def _validate_dependency_migration_posture(
         )
         return
 
+    _validate_current_dependency_migration_posture(
+        issues,
+        path,
+        index=index,
+        status=status,
+        migration_posture=migration_posture,
+    )
+    _validate_approved_transition_dependency_migration_posture(
+        issues,
+        path,
+        index=index,
+        status=status,
+        migration_posture=migration_posture,
+    )
+
+
+def _validate_current_dependency_migration_posture(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    status: object,
+    migration_posture: dict,
+) -> None:
+    if status != "current":
+        return
     target_product_version = migration_posture.get("target_product_version")
-    if status == "current":
-        if target_product_version is not None:
+    if target_product_version is not None:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].migration_posture.target_product_version must be null or omitted when status is current",
+        )
+
+
+def _validate_approved_transition_dependency_migration_posture(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    status: object,
+    migration_posture: dict,
+) -> None:
+    if status != "approved_transition":
+        return
+    target_product_version = migration_posture.get("target_product_version")
+    if not isinstance(
+        target_product_version, str
+    ) or not PRODUCT_VERSION_PATTERN.fullmatch(target_product_version):
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].migration_posture.target_product_version must use vN or semantic versioning when status is approved_transition",
+        )
+    for required_field in ("justification", "sunset_condition"):
+        value = migration_posture.get(required_field)
+        if not isinstance(value, str) or not value.strip():
             _append_issue(
                 issues,
                 path,
-                f"dependencies[{index}].migration_posture.target_product_version must be null or omitted when status is current",
+                f"dependencies[{index}].migration_posture.{required_field} must be a non-empty string when status is approved_transition",
             )
-    if status == "approved_transition":
-        if not isinstance(target_product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(target_product_version):
-            _append_issue(
-                issues,
-                path,
-                f"dependencies[{index}].migration_posture.target_product_version must use vN or semantic versioning when status is approved_transition",
-            )
-        for required_field in ("justification", "sunset_condition"):
-            value = migration_posture.get(required_field)
-            if not isinstance(value, str) or not value.strip():
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}].migration_posture.{required_field} must be a non-empty string when status is approved_transition",
-                )
 
 
 def _validate_consumer_dependency(
