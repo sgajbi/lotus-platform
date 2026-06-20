@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T09:07:53Z`
+Generated: `2026-06-20T09:12:41Z`
 
 ## Completed Slices
 
@@ -306,6 +306,10 @@ Generated: `2026-06-20T09:07:53Z`
     overlap attention-item construction are isolated behind focused helpers, removing delegated
     task overlap attention generation from the top measured complexity hotspot list while
     preserving RFC-0095/RFC-0096 heartbeat attention behavior.
+83. Analytics UI ecosystem proof screenshot validator extraction so screenshot-count validation,
+    missing screenshot path detection, and SHOT-INDEX evidence validation are isolated behind
+    focused helpers, removing ecosystem screenshot validation from the top measured complexity
+    hotspot list while preserving RFC-0108 proof review behavior.
 
 ## Evidence
 

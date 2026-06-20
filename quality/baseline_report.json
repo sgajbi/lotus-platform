@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305132
+    "total_source_lines": 305183
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 313,
-        "line": 277,
-        "lines": 37,
-        "name": "_validate_screenshots",
-        "path": "automation/review_analytics_ui_ecosystem_proof.py"
-      },
       {
         "complexity": 12,
         "end_line": 230,
@@ -83,8 +75,8 @@
       },
       {
         "complexity": 11,
-        "end_line": 583,
-        "line": 484,
+        "end_line": 630,
+        "line": 531,
         "lines": 100,
         "name": "review_ecosystem_proof",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
@@ -192,6 +184,14 @@
         "lines": 51,
         "name": "_validate_dashboard_review",
         "path": "automation/validate_analytics_ui_hardening_review.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 342,
+        "line": 304,
+        "lines": 39,
+        "name": "_validate_lineage_and_blocking",
+        "path": "automation/validate_trust_telemetry.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 834,
+        "end_line": 838,
         "line": 489,
-        "lines": 346,
+        "lines": 350,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1728
+    "python_function_count": 1732
   },
-  "generated_at_utc": "2026-06-20T09:07:53Z",
+  "generated_at_utc": "2026-06-20T09:12:41Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "523 tests collected in 0.54s"
+    "summary": "523 tests collected in 0.55s"
   }
 }
