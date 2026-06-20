@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300606
+    "total_source_lines": 300690
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 29,
-        "end_line": 151,
-        "line": 55,
-        "lines": 97,
-        "name": "validate_mesh_slo_policies",
-        "path": "automation/validate_mesh_slo_policies.py"
-      },
       {
         "complexity": 28,
         "end_line": 164,
@@ -191,6 +183,14 @@
         "line": 95,
         "lines": 55,
         "name": "_validate_status_attention_items",
+        "path": "automation/validate_heartbeat_contracts.py"
+      },
+      {
+        "complexity": 18,
+        "end_line": 409,
+        "line": 355,
+        "lines": 55,
+        "name": "validate_heartbeat_runner_config",
         "path": "automation/validate_heartbeat_contracts.py"
       }
     ],
@@ -356,11 +356,11 @@
         "path": "automation/validate_analytics_ui_observability_contract.py"
       }
     ],
-    "max_complexity": 29,
+    "max_complexity": 28,
     "max_function_lines": 393,
-    "python_function_count": 1356
+    "python_function_count": 1363
   },
-  "generated_at_utc": "2026-06-20T04:48:23Z",
+  "generated_at_utc": "2026-06-20T04:51:55Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.67s"
+    "summary": "510 tests collected in 0.56s"
   }
 }

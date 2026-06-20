@@ -563,6 +563,9 @@ Generated: `{baseline["generated_at_utc"]}`
     governed posture, repo-native directory, and platform declaration path checks are isolated
     behind focused helpers, removing the source-manifest validator from the top measured complexity
     hotspot list while preserving generated catalog freshness behavior.
+24. Mesh SLO policy validator extraction so product identity, contract identity, freshness, status
+    sections, lineage, and escalation checks are isolated behind focused helpers, reducing the
+    highest measured complexity hotspot while preserving RFC-0091 mesh SLO policy behavior.
 
 ## Evidence
 
