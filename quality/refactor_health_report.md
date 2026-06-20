@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:27:29Z`
+Generated: `2026-06-20T08:32:06Z`
 
 ## Completed Slices
 
@@ -271,6 +271,10 @@ Generated: `2026-06-20T08:27:29Z`
     benchmark-context checking, active-return arithmetic checks, and evidence summary assembly are
     isolated behind focused helpers, removing the 225-line live validator from the top measured
     complexity hotspot list and adding unit coverage for the extracted arithmetic checks.
+74. Domain product certification dependency-check extraction so consumer dependency existence,
+    reciprocal approval, trust metadata, graph-edge, validation-lane, and failure-posture checks
+    are isolated behind focused helpers, removing consumer certification from the top measured
+    complexity hotspot list and adding unit coverage for dependency-level issue classification.
 
 ## Evidence
 

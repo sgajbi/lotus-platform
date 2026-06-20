@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T08:27:29Z`
+Generated: `2026-06-20T08:32:06Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `304558`
+- Total source lines: `304666`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1690`
+- Python functions: `1696`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/domain_product_certification.py | _build_consumer_certification | 105 | 12 | 108 |
 | automation/validate_mesh_slo_policies.py | evaluate_mesh_slo_violations | 235 | 12 | 102 |
 | automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
 | automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_ecosystem_hardening.py | _validate_api_and_proof | 143 | 12 | 39 |
 | automation/heartbeat_sources.py | _append_delegated_task_overlap_attention | 853 | 12 | 37 |
 | automation/review_analytics_ui_ecosystem_proof.py | _validate_screenshots | 216 | 12 | 37 |
+| automation/validate_engineering_context_system.py | _validate_agents_operating_contract | 197 | 12 | 34 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `521`
+- Unit tests collected: `522`
 - Collection command return code: `0`
-- Collection summary: `521 tests collected in 0.54s`
+- Collection summary: `522 tests collected in 0.63s`
 
 ## Security Baseline
 

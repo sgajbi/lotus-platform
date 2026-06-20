@@ -124,6 +124,50 @@ def test_domain_product_certification_report_flags_broken_dependency() -> None:
     )
 
 
+def test_domain_product_dependency_certification_reports_dependency_contract_gaps() -> (
+    None
+):
+    certification = _load_certification_module()
+    dependency = {
+        "dependency_id": "lotus-performance:ReturnsSeriesBundle:v1",
+        "producer_repository": "lotus-performance",
+        "product_name": "ReturnsSeriesBundle",
+        "required_product_version": "v1",
+        "required_trust_metadata": ["freshness", "lineage", "unsupported"],
+        "validation_lanes": [],
+        "failure_posture": "",
+    }
+    product = {
+        "product_id": "lotus-performance:ReturnsSeriesBundle:v1",
+        "approved_consumers": ["lotus-risk"],
+        "required_trust_metadata": ["freshness", "lineage"],
+    }
+
+    dependency_certification, issues = certification._build_dependency_certification(
+        consumer_repository="lotus-report",
+        dependency=dependency,
+        product=product,
+        graph_consume_edges=set(),
+    )
+
+    assert dependency_certification["certification_state"] == "attention_required"
+    assert dependency_certification["checks"] == {
+        "product_exists": True,
+        "approved_by_producer": False,
+        "required_metadata_subset_of_product": False,
+        "graph_consume_edge_present": False,
+        "validation_lanes_declared": False,
+        "failure_posture_declared": False,
+    }
+    assert {issue["code"] for issue in issues} == {
+        "consumer_not_approved",
+        "consumer_requires_unpublished_trust_metadata",
+        "missing_graph_consume_edge",
+        "missing_dependency_validation_lanes",
+        "missing_dependency_failure_posture",
+    }
+
+
 def test_domain_product_certification_report_markdown_is_customer_readable() -> None:
     discovery = _load_discovery_module()
     certification = _load_certification_module()

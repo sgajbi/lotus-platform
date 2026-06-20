@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304558
+    "total_source_lines": 304666
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 212,
-        "line": 105,
-        "lines": 108,
-        "name": "_build_consumer_certification",
-        "path": "automation/domain_product_certification.py"
-      },
       {
         "complexity": 12,
         "end_line": 336,
@@ -192,6 +184,14 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 649,
+        "line": 603,
+        "lines": 47,
+        "name": "_validate_gap_matrix",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 799,
+        "end_line": 803,
         "line": 489,
-        "lines": 311,
+        "lines": 315,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1690
+    "python_function_count": 1696
   },
-  "generated_at_utc": "2026-06-20T08:27:29Z",
+  "generated_at_utc": "2026-06-20T08:32:06Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 521,
+    "collected_tests": 522,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "521 tests collected in 0.54s"
+    "summary": "522 tests collected in 0.63s"
   }
 }

@@ -102,6 +102,142 @@ def _build_product_certification(
     )
 
 
+def _dependency_subject(consumer_repository: str, dependency_id: str) -> str:
+    return f"{consumer_repository}:{dependency_id}"
+
+
+def _dependency_graph_edge_present(
+    *,
+    consumer_repository: str,
+    dependency_id: str,
+    graph_consume_edges: set[tuple[str, str]],
+) -> bool:
+    return (
+        f"repo:{consumer_repository}",
+        f"product:{dependency_id}",
+    ) in graph_consume_edges
+
+
+def _dependency_checks(
+    *,
+    consumer_repository: str,
+    dependency: dict[str, Any],
+    product: dict[str, Any] | None,
+    graph_consume_edges: set[tuple[str, str]],
+) -> dict[str, bool]:
+    return {
+        "product_exists": product is not None,
+        "approved_by_producer": bool(
+            product and consumer_repository in product.get("approved_consumers", [])
+        ),
+        "required_metadata_subset_of_product": bool(
+            product
+            and set(dependency["required_trust_metadata"])
+            <= set(product.get("required_trust_metadata", []))
+        ),
+        "graph_consume_edge_present": _dependency_graph_edge_present(
+            consumer_repository=consumer_repository,
+            dependency_id=dependency["dependency_id"],
+            graph_consume_edges=graph_consume_edges,
+        ),
+        "validation_lanes_declared": bool(dependency.get("validation_lanes")),
+        "failure_posture_declared": bool(dependency.get("failure_posture")),
+    }
+
+
+def _append_dependency_issues(
+    issues: list[dict[str, Any]],
+    *,
+    consumer_repository: str,
+    dependency: dict[str, Any],
+    product: dict[str, Any] | None,
+    checks: dict[str, bool],
+) -> None:
+    subject = _dependency_subject(consumer_repository, dependency["dependency_id"])
+    if not checks["product_exists"]:
+        _add_certification_issue(
+            issues,
+            code="missing_dependency_product",
+            severity="error",
+            subject=subject,
+            detail="Consumer dependency points to a product missing from the catalog.",
+        )
+    if product is not None and not checks["approved_by_producer"]:
+        _add_certification_issue(
+            issues,
+            code="consumer_not_approved",
+            severity="error",
+            subject=subject,
+            detail="Consumer dependency is not reciprocally approved by the producer.",
+        )
+    if product is not None and not checks["required_metadata_subset_of_product"]:
+        _add_certification_issue(
+            issues,
+            code="consumer_requires_unpublished_trust_metadata",
+            severity="error",
+            subject=subject,
+            detail="Consumer requires trust metadata not declared by the producer product.",
+        )
+    if not checks["graph_consume_edge_present"]:
+        _add_certification_issue(
+            issues,
+            code="missing_graph_consume_edge",
+            severity="error",
+            subject=subject,
+            detail="Consumer dependency is missing from the generated dependency graph.",
+        )
+    if not checks["validation_lanes_declared"]:
+        _add_certification_issue(
+            issues,
+            code="missing_dependency_validation_lanes",
+            severity="error",
+            subject=subject,
+            detail="Consumer dependency does not declare validation lanes.",
+        )
+    if not checks["failure_posture_declared"]:
+        _add_certification_issue(
+            issues,
+            code="missing_dependency_failure_posture",
+            severity="error",
+            subject=subject,
+            detail="Consumer dependency does not declare failure posture.",
+        )
+
+
+def _build_dependency_certification(
+    *,
+    consumer_repository: str,
+    dependency: dict[str, Any],
+    product: dict[str, Any] | None,
+    graph_consume_edges: set[tuple[str, str]],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    issues: list[dict[str, Any]] = []
+    checks = _dependency_checks(
+        consumer_repository=consumer_repository,
+        dependency=dependency,
+        product=product,
+        graph_consume_edges=graph_consume_edges,
+    )
+    _append_dependency_issues(
+        issues,
+        consumer_repository=consumer_repository,
+        dependency=dependency,
+        product=product,
+        checks=checks,
+    )
+    return (
+        {
+            "dependency_id": dependency["dependency_id"],
+            "producer_repository": dependency["producer_repository"],
+            "product_name": dependency["product_name"],
+            "required_product_version": dependency["required_product_version"],
+            "certification_state": _certification_state(len(issues)),
+            "checks": checks,
+        },
+        issues,
+    )
+
+
 def _build_consumer_certification(
     consumer: dict[str, Any],
     *,
@@ -115,90 +251,14 @@ def _build_consumer_certification(
     for dependency in consumer["dependencies"]:
         dependency_id = dependency["dependency_id"]
         product = products_by_id.get(dependency_id)
-        dependency_issues_before = len(issues)
-        approved_by_producer = bool(
-            product and consumer_repository in product.get("approved_consumers", [])
+        certification, dependency_issues = _build_dependency_certification(
+            consumer_repository=consumer_repository,
+            dependency=dependency,
+            product=product,
+            graph_consume_edges=graph_consume_edges,
         )
-        required_metadata_subset = bool(
-            product
-            and set(dependency["required_trust_metadata"])
-            <= set(product.get("required_trust_metadata", []))
-        )
-        graph_edge_present = (
-            f"repo:{consumer_repository}",
-            f"product:{dependency_id}",
-        ) in graph_consume_edges
-
-        if product is None:
-            _add_certification_issue(
-                issues,
-                code="missing_dependency_product",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer dependency points to a product missing from the catalog.",
-            )
-        if product is not None and not approved_by_producer:
-            _add_certification_issue(
-                issues,
-                code="consumer_not_approved",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer dependency is not reciprocally approved by the producer.",
-            )
-        if product is not None and not required_metadata_subset:
-            _add_certification_issue(
-                issues,
-                code="consumer_requires_unpublished_trust_metadata",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer requires trust metadata not declared by the producer product.",
-            )
-        if not graph_edge_present:
-            _add_certification_issue(
-                issues,
-                code="missing_graph_consume_edge",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer dependency is missing from the generated dependency graph.",
-            )
-        if not dependency.get("validation_lanes"):
-            _add_certification_issue(
-                issues,
-                code="missing_dependency_validation_lanes",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer dependency does not declare validation lanes.",
-            )
-        if not dependency.get("failure_posture"):
-            _add_certification_issue(
-                issues,
-                code="missing_dependency_failure_posture",
-                severity="error",
-                subject=f"{consumer_repository}:{dependency_id}",
-                detail="Consumer dependency does not declare failure posture.",
-            )
-
-        dependency_certifications.append(
-            {
-                "dependency_id": dependency_id,
-                "producer_repository": dependency["producer_repository"],
-                "product_name": dependency["product_name"],
-                "required_product_version": dependency["required_product_version"],
-                "certification_state": _certification_state(
-                    len(issues) - dependency_issues_before
-                ),
-                "checks": {
-                    "product_exists": product is not None,
-                    "approved_by_producer": approved_by_producer,
-                    "required_metadata_subset_of_product": required_metadata_subset,
-                    "graph_consume_edge_present": graph_edge_present,
-                    "validation_lanes_declared": bool(
-                        dependency.get("validation_lanes")
-                    ),
-                    "failure_posture_declared": bool(dependency.get("failure_posture")),
-                },
-            }
-        )
+        dependency_certifications.append(certification)
+        issues.extend(dependency_issues)
 
     return (
         {
