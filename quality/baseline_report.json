@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303312
+    "total_source_lines": 303374
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,14 +34,6 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 14,
-        "end_line": 718,
-        "line": 629,
-        "lines": 90,
-        "name": "_validate_telemetry_contract",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
-      {
         "complexity": 13,
         "end_line": 170,
         "line": 67,
@@ -51,8 +43,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 800,
-        "line": 721,
+        "end_line": 858,
+        "line": 779,
         "lines": 80,
         "name": "_validate_observation_boundaries",
         "path": "automation/validate_analytics_ui_observability_contract.py"
@@ -192,6 +184,14 @@
         "lines": 37,
         "name": "_validate_screenshots",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 230,
+        "line": 197,
+        "lines": 34,
+        "name": "_validate_agents_operating_contract",
+        "path": "automation/validate_engineering_context_system.py"
       }
     ],
     "largest_functions": [
@@ -221,9 +221,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 756,
+        "end_line": 760,
         "line": 489,
-        "lines": 268,
+        "lines": 272,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 14,
+    "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1612
+    "python_function_count": 1619
   },
-  "generated_at_utc": "2026-06-20T07:34:32Z",
+  "generated_at_utc": "2026-06-20T07:38:50Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.72s"
+    "summary": "513 tests collected in 0.60s"
   }
 }

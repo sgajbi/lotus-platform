@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:34:32Z`
+Generated: `2026-06-20T07:38:50Z`
 
 ## Completed Slices
 
@@ -228,6 +228,10 @@ Generated: `2026-06-20T07:34:32Z`
     indexing, semantic-id drift checks, canonical-term drift checks, and legacy/canonical conflict
     checks are isolated behind focused helpers, removing API vocabulary cross-app validation from
     the top measured complexity hotspot list and adding direct tests for vocabulary drift behavior.
+63. Analytics UI telemetry contract validator extraction so severity-level checks, event-type list
+    checks, telemetry event section checks, attribute-group checks, dashboard/alert reference
+    policies, and protected diagnostics policy checks are isolated behind focused helpers, reducing
+    the measured repository complexity ceiling from 14 to 13 while preserving RFC-0108 validation.
 
 ## Evidence
 

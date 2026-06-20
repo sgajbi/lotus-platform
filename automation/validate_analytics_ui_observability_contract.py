@@ -626,18 +626,9 @@ def _validate_telemetry_events(
         )
 
 
-def _validate_telemetry_contract(
-    *,
-    errors: list[str],
-    contract: dict[str, Any],
-    allowed_labels: set[str],
-    forbidden_fields: set[str],
+def _validate_telemetry_severity_levels(
+    errors: list[str], telemetry_contract: dict[str, Any]
 ) -> None:
-    telemetry_contract = contract.get("telemetry_contract")
-    if not isinstance(telemetry_contract, dict):
-        errors.append("telemetry_contract is required")
-        return
-
     required_severity_levels = {"info", "warning", "action_required", "critical"}
     severity_levels = set(telemetry_contract.get("severity_levels", []))
     if severity_levels != required_severity_levels:
@@ -646,11 +637,23 @@ def _validate_telemetry_contract(
             f"{sorted(required_severity_levels)}"
         )
 
+
+def _validate_telemetry_event_type_lists(
+    errors: list[str], telemetry_contract: dict[str, Any]
+) -> None:
     for section_name in ("attention_event_types", "audit_event_types"):
         values = telemetry_contract.get(section_name, [])
         if not isinstance(values, list) or not values:
             errors.append(f"telemetry_contract.{section_name} must be a non-empty list")
 
+
+def _validate_telemetry_event_sections(
+    *,
+    errors: list[str],
+    telemetry_contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
     _validate_telemetry_events(
         errors=errors,
         section_name="browser_events",
@@ -666,6 +669,14 @@ def _validate_telemetry_contract(
         forbidden_fields=forbidden_fields,
     )
 
+
+def _validate_telemetry_attribute_groups(
+    *,
+    errors: list[str],
+    telemetry_contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
     for section_name in (
         "trace_attributes",
         "attention_event_attributes",
@@ -679,6 +690,12 @@ def _validate_telemetry_contract(
             forbidden_fields=forbidden_fields,
         )
 
+
+def _validate_dashboard_reference_policy(
+    errors: list[str],
+    telemetry_contract: dict[str, Any],
+    forbidden_fields: set[str],
+) -> None:
     dashboard_policy = telemetry_contract.get("dashboard_reference_policy", {})
     if dashboard_policy.get("implemented_metrics_only") is not True:
         errors.append(
@@ -692,6 +709,12 @@ def _validate_telemetry_contract(
             f"{sorted(missing_dashboard_forbidden)}"
         )
 
+
+def _validate_alert_reference_policy(
+    errors: list[str],
+    telemetry_contract: dict[str, Any],
+    forbidden_fields: set[str],
+) -> None:
     alert_policy = telemetry_contract.get("alert_reference_policy", {})
     if alert_policy.get("implemented_metrics_only") is not True:
         errors.append("alert_reference_policy.implemented_metrics_only must be true")
@@ -703,6 +726,10 @@ def _validate_telemetry_contract(
             f"{sorted(missing_alert_forbidden)}"
         )
 
+
+def _validate_protected_diagnostics_policy(
+    errors: list[str], telemetry_contract: dict[str, Any]
+) -> None:
     diagnostics_policy = telemetry_contract.get("protected_diagnostics_policy", {})
     if diagnostics_policy.get("metrics_must_not_carry_lookup_identifiers") is not True:
         errors.append(
@@ -716,6 +743,37 @@ def _validate_telemetry_contract(
         errors.append(
             "protected diagnostics must not allow raw request/response capture"
         )
+
+
+def _validate_telemetry_contract(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
+    telemetry_contract = contract.get("telemetry_contract")
+    if not isinstance(telemetry_contract, dict):
+        errors.append("telemetry_contract is required")
+        return
+
+    _validate_telemetry_severity_levels(errors, telemetry_contract)
+    _validate_telemetry_event_type_lists(errors, telemetry_contract)
+    _validate_telemetry_event_sections(
+        errors=errors,
+        telemetry_contract=telemetry_contract,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
+    _validate_telemetry_attribute_groups(
+        errors=errors,
+        telemetry_contract=telemetry_contract,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
+    _validate_dashboard_reference_policy(errors, telemetry_contract, forbidden_fields)
+    _validate_alert_reference_policy(errors, telemetry_contract, forbidden_fields)
+    _validate_protected_diagnostics_policy(errors, telemetry_contract)
 
 
 def _validate_observation_boundaries(

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T07:34:32Z`
+Generated: `2026-06-20T07:38:50Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `712`
-- Total source lines: `303312`
+- Total source lines: `303374`
 - Python files: `154`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,15 +39,14 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1612`
-- Highest measured cyclomatic complexity: `14`
+- Python functions: `1619`
+- Highest measured cyclomatic complexity: `13`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_analytics_ui_observability_contract.py | _validate_telemetry_contract | 629 | 14 | 90 |
 | automation/generate_live_trust_certification.py | _evaluate_snapshot | 67 | 13 | 104 |
-| automation/validate_analytics_ui_observability_contract.py | _validate_observation_boundaries | 721 | 13 | 80 |
+| automation/validate_analytics_ui_observability_contract.py | _validate_observation_boundaries | 779 | 13 | 80 |
 | automation/heartbeat_sources.py | _delegated_task_ledger_adapter | 892 | 13 | 71 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_registry_references | 482 | 13 | 65 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_lineage_policy | 549 | 13 | 49 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_ecosystem_completion.py | _matrix_feature_implementation_rule | 418 | 13 | 37 |
 | automation/delegation_task_ledger.py | update_delegated_task_status | 180 | 13 | 35 |
 | automation/core_performance_returns_series_validation.py | _run_validation | 22 | 12 | 225 |
+| automation/domain_product_certification.py | _build_consumer_certification | 105 | 12 | 108 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `513`
 - Collection command return code: `0`
-- Collection summary: `513 tests collected in 0.72s`
+- Collection summary: `513 tests collected in 0.60s`
 
 ## Security Baseline
 
