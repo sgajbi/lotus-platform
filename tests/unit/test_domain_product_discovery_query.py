@@ -41,6 +41,25 @@ def test_domain_product_query_filters_by_producer_and_approved_consumer() -> Non
     assert all("lotus-risk" in product["approved_consumers"] for product in products)
 
 
+def test_domain_product_query_filters_by_lifecycle_status() -> None:
+    discovery = _load_module(DISCOVERY_PATH, "domain_product_discovery_lifecycle_test")
+    catalog = discovery.load_catalog(CATALOG_PATH)
+
+    products = discovery.find_products(catalog, lifecycle_status="active")
+
+    assert products
+    assert all(product["lifecycle_status"] == "active" for product in products)
+
+
+def test_domain_product_query_returns_empty_list_for_search_miss() -> None:
+    discovery = _load_module(DISCOVERY_PATH, "domain_product_discovery_search_test")
+    catalog = discovery.load_catalog(CATALOG_PATH)
+
+    products = discovery.find_products(catalog, search="does-not-exist-in-catalog")
+
+    assert products == []
+
+
 def test_domain_product_query_requires_full_identity_or_product_id() -> None:
     discovery = _load_module(DISCOVERY_PATH, "domain_product_discovery_product_test")
     catalog = discovery.load_catalog(CATALOG_PATH)

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305918
+    "total_source_lines": 305964
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 108,
-        "line": 64,
-        "lines": 45,
-        "name": "find_products",
-        "path": "automation/domain_product_discovery.py"
       },
       {
         "complexity": 11,
@@ -123,8 +115,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 930,
-        "line": 897,
+        "end_line": 933,
+        "line": 900,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,9 +184,25 @@
         "lines": 56,
         "name": "_wiki_publication_adapter",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 109,
+        "line": 58,
+        "lines": 52,
+        "name": "classify_branch",
+        "path": "automation/prune_merged_remote_branches.py"
       }
     ],
     "largest_functions": [
+      {
+        "complexity": 1,
+        "end_line": 882,
+        "line": 489,
+        "lines": 394,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
       {
         "complexity": 1,
         "end_line": 466,
@@ -202,14 +210,6 @@
         "lines": 393,
         "name": "test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations",
         "path": "tests/unit/test_analytics_ui_observability_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 879,
-        "line": 489,
-        "lines": 391,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 8,
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 393,
-    "python_function_count": 1781
+    "max_function_lines": 394,
+    "python_function_count": 1786
   },
-  "generated_at_utc": "2026-06-20T10:20:41Z",
+  "generated_at_utc": "2026-06-20T10:26:36Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 536,
+    "collected_tests": 538,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "536 tests collected in 0.65s"
+    "summary": "538 tests collected in 0.60s"
   }
 }

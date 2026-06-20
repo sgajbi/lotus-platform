@@ -72,39 +72,63 @@ def find_products(
     normalized_search = search.casefold() if search else None
     products: list[dict[str, Any]] = []
     for product in catalog.get("products", []):
-        if (
-            producer_repository
-            and product.get("producer_repository") != producer_repository
+        if not _product_matches_filters(
+            product,
+            producer_repository=producer_repository,
+            approved_consumer=approved_consumer,
+            lifecycle_status=lifecycle_status,
         ):
             continue
-        if approved_consumer and approved_consumer not in product.get(
-            "approved_consumers", []
+        if normalized_search and not _product_matches_search(
+            product, normalized_search=normalized_search
         ):
             continue
-        if lifecycle_status and product.get("lifecycle_status") != lifecycle_status:
-            continue
-        if normalized_search:
-            searchable = " ".join(
-                str(product.get(field, ""))
-                for field in (
-                    "product_id",
-                    "product_name",
-                    "producer_repository",
-                    "authoritative_domain",
-                    "product_family",
-                )
-            ).casefold()
-            if normalized_search not in searchable:
-                continue
         products.append(product)
 
-    return sorted(
-        products,
-        key=lambda product: (
-            product["producer_repository"],
-            product["product_name"],
-            product["product_version"],
-        ),
+    return sorted(products, key=_product_sort_key)
+
+
+def _product_matches_filters(
+    product: dict[str, Any],
+    *,
+    producer_repository: str | None,
+    approved_consumer: str | None,
+    lifecycle_status: str | None,
+) -> bool:
+    if producer_repository and product.get("producer_repository") != producer_repository:
+        return False
+    if approved_consumer and approved_consumer not in product.get(
+        "approved_consumers", []
+    ):
+        return False
+    return not (
+        lifecycle_status and product.get("lifecycle_status") != lifecycle_status
+    )
+
+
+def _product_matches_search(
+    product: dict[str, Any],
+    *,
+    normalized_search: str,
+) -> bool:
+    searchable = " ".join(
+        str(product.get(field, ""))
+        for field in (
+            "product_id",
+            "product_name",
+            "producer_repository",
+            "authoritative_domain",
+            "product_family",
+        )
+    ).casefold()
+    return normalized_search in searchable
+
+
+def _product_sort_key(product: dict[str, Any]) -> tuple[str, str, str]:
+    return (
+        product["producer_repository"],
+        product["product_name"],
+        product["product_version"],
     )
 
 

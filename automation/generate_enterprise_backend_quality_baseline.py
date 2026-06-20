@@ -840,6 +840,9 @@ Generated: `{baseline["generated_at_utc"]}`
     checks are isolated behind focused helpers, removing gap-matrix validation from the top
     measured complexity hotspot list while adding direct invalid-posture and missing-field
     regression coverage.
+94. Domain-product discovery query extraction so product filters, search matching, and result
+    sorting are isolated behind focused helpers, removing the query helper from the top measured
+    complexity hotspot list while adding lifecycle-filter and search-miss regression coverage.
 
 ## Evidence
 
