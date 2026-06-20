@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302108
+    "total_source_lines": 302136
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 18,
-        "end_line": 572,
-        "line": 518,
-        "lines": 55,
-        "name": "validate_heartbeat_runner_config",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
       {
         "complexity": 17,
         "end_line": 502,
@@ -192,6 +184,14 @@
         "lines": 104,
         "name": "_evaluate_snapshot",
         "path": "automation/generate_live_trust_certification.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 800,
+        "line": 721,
+        "lines": 80,
+        "name": "_validate_observation_boundaries",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
       }
     ],
     "largest_functions": [
@@ -261,9 +261,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 682,
+        "end_line": 686,
         "line": 489,
-        "lines": 194,
+        "lines": 198,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "automation/validate_agent_engineering_contracts.py"
       }
     ],
-    "max_complexity": 18,
+    "max_complexity": 17,
     "max_function_lines": 393,
-    "python_function_count": 1499
+    "python_function_count": 1504
   },
-  "generated_at_utc": "2026-06-20T06:15:53Z",
+  "generated_at_utc": "2026-06-20T06:18:57Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.54s"
+    "summary": "510 tests collected in 0.71s"
   }
 }

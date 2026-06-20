@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:15:53Z`
+Generated: `2026-06-20T06:18:57Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302108`
+- Total source lines: `302136`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1499`
-- Highest measured cyclomatic complexity: `18`
+- Python functions: `1504`
+- Highest measured cyclomatic complexity: `17`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_heartbeat_contracts.py | validate_heartbeat_runner_config | 518 | 18 | 55 |
 | automation/validate_agent_engineering_contracts.py | validate_delegation_policy_contract | 368 | 17 | 135 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_contract | 357 | 17 | 86 |
 | automation/validate_analytics_ui_ecosystem_final_closure.py | _validate_downstream_boundary_hardening | 288 | 17 | 82 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/heartbeat_sources.py | _github_adapter | 364 | 16 | 103 |
 | automation/validate_analytics_ui_ecosystem_hardening.py | _validate_supported_features | 184 | 16 | 65 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_semantics_registry | 120 | 16 | 61 |
+| automation/validate_workflow_security.py | validate_workflow | 68 | 16 | 46 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.54s`
+- Collection summary: `510 tests collected in 0.71s`
 
 ## Security Baseline
 

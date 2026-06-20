@@ -643,6 +643,10 @@ Generated: `{baseline["generated_at_utc"]}`
     governance, suppression limits, deduplication keys, timestamps, and evidence references are
     isolated behind focused helpers, removing the attention-item validator from the top measured
     complexity hotspot list while preserving RFC-0095 heartbeat contract behavior.
+45. Heartbeat runner-config validator extraction so contract identity, path fields, enabled-source
+    governance, source-config governance, and threshold validation are isolated behind focused
+    helpers, lowering the highest measured complexity ceiling while preserving RFC-0095 runner
+    config behavior.
 
 ## Evidence
 

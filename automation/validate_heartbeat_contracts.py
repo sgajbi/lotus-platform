@@ -515,15 +515,7 @@ def validate_heartbeat_examples(examples_dir: Path = EXAMPLES_DIR) -> list[str]:
     return errors
 
 
-def validate_heartbeat_runner_config(path: Path = CONFIG_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        return [f"missing heartbeat runner config: {path}"]
-    try:
-        config = _load_json(path)
-    except json.JSONDecodeError as exc:
-        return [f"{path}: invalid JSON: {exc}"]
-
+def _validate_runner_config_identity(errors: list[str], config: dict[str, Any]) -> None:
     if config.get("contract_id") != "lotus-platform:heartbeat-runner-config:v1":
         errors.append("heartbeat config contract_id must be lotus-platform:heartbeat-runner-config:v1")
     if config.get("source_rfc") != "RFC-0095":
@@ -533,41 +525,73 @@ def validate_heartbeat_runner_config(path: Path = CONFIG_PATH) -> list[str]:
     if config.get("mutation_policy") != "read_only":
         errors.append("heartbeat config mutation_policy must be read_only")
 
+
+def _validate_runner_config_paths(errors: list[str], config: dict[str, Any]) -> None:
     for key in ("output_directory", "state_path", "suppression_file_path"):
         if not isinstance(config.get(key), str) or not config[key].strip():
             errors.append(f"heartbeat config {key} must be a non-empty string")
 
-    contract = _load_json(CONTRACT_PATH)
-    source_systems = _as_set(contract.get("source_systems"))
+
+def _validate_runner_config_enabled_sources(
+    errors: list[str], config: dict[str, Any], *, source_systems: set[str]
+) -> None:
     enabled_sources = config.get("enabled_sources")
     if not isinstance(enabled_sources, list):
         errors.append("heartbeat config enabled_sources must be a list")
-    else:
-        unknown_sources = sorted(set(enabled_sources) - source_systems)
-        if unknown_sources:
-            errors.append(
-                "heartbeat config enabled_sources contains unknown source systems: "
-                + ", ".join(unknown_sources)
-            )
+        return
+    unknown_sources = sorted(set(enabled_sources) - source_systems)
+    if unknown_sources:
+        errors.append(
+            "heartbeat config enabled_sources contains unknown source systems: "
+            + ", ".join(unknown_sources)
+        )
 
+
+def _validate_runner_config_source_config(
+    errors: list[str], config: dict[str, Any], *, source_systems: set[str]
+) -> None:
     source_config = config.get("source_config")
     if not isinstance(source_config, dict):
         errors.append("heartbeat config source_config must be an object")
-    else:
-        unknown_config_sources = sorted(set(source_config) - source_systems)
-        if unknown_config_sources:
-            errors.append(
-                "heartbeat config source_config contains unknown source systems: "
-                + ", ".join(unknown_config_sources)
-            )
+        return
+    unknown_config_sources = sorted(set(source_config) - source_systems)
+    if unknown_config_sources:
+        errors.append(
+            "heartbeat config source_config contains unknown source systems: "
+            + ", ".join(unknown_config_sources)
+        )
 
+
+def _validate_runner_config_thresholds(errors: list[str], config: dict[str, Any]) -> None:
     thresholds = config.get("thresholds")
     if not isinstance(thresholds, dict):
         errors.append("heartbeat config thresholds must be an object")
-    else:
-        for key, value in thresholds.items():
-            if not isinstance(value, int | float) or value <= 0:
-                errors.append(f"heartbeat config thresholds.{key} must be a positive number")
+        return
+    for key, value in thresholds.items():
+        if not isinstance(value, int | float) or value <= 0:
+            errors.append(f"heartbeat config thresholds.{key} must be a positive number")
+
+
+def validate_heartbeat_runner_config(path: Path = CONFIG_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        return [f"missing heartbeat runner config: {path}"]
+    try:
+        config = _load_json(path)
+    except json.JSONDecodeError as exc:
+        return [f"{path}: invalid JSON: {exc}"]
+
+    _validate_runner_config_identity(errors, config)
+    _validate_runner_config_paths(errors, config)
+    contract = _load_json(CONTRACT_PATH)
+    source_systems = _as_set(contract.get("source_systems"))
+    _validate_runner_config_enabled_sources(
+        errors, config, source_systems=source_systems
+    )
+    _validate_runner_config_source_config(
+        errors, config, source_systems=source_systems
+    )
+    _validate_runner_config_thresholds(errors, config)
 
     return errors
 
