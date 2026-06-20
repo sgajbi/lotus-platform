@@ -289,6 +289,34 @@ def test_ecosystem_proof_review_rejects_missing_required_journey_api(
     assert any("risk-analytics: missing API checks" in error for error in review["errors"])
 
 
+def test_ecosystem_proof_review_rejects_missing_live_summary_reference(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    _write_json(evidence["qa"], {"status": "ok"})
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert review["live_summary_path"] is None
+    assert (
+        "ecosystem QA summary does not reference a live validation summary"
+        in review["errors"]
+    )
+
+
 def test_ecosystem_proof_review_rejects_diagnostics_sensitive_leak(
     tmp_path: Path,
 ) -> None:

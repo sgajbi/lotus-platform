@@ -819,6 +819,11 @@ Generated: `{baseline["generated_at_utc"]}`
     required string fields, and expiry checks are isolated behind focused helpers, removing the
     suppressions validator from the top measured complexity hotspot list while preserving RFC-0095
     suppression policy behavior.
+89. Analytics UI ecosystem proof reviewer extraction so artifact loading, QA status validation,
+    live-summary evidence assembly, sensitive-content path selection, static evidence validation,
+    and output writing are isolated behind focused helpers, removing the proof reviewer
+    coordinator from the top measured complexity hotspot list while preserving RFC-0108 proof
+    review behavior.
 
 ## Evidence
 
