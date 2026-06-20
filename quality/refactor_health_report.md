@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T09:50:46Z`
+Generated: `2026-06-20T09:59:56Z`
 
 ## Completed Slices
 
@@ -335,6 +335,10 @@ Generated: `2026-06-20T09:50:46Z`
     and output writing are isolated behind focused helpers, removing the proof reviewer
     coordinator from the top measured complexity hotspot list while preserving RFC-0108 proof
     review behavior.
+90. Domain data-product producer validator extraction so producer contract identity, product-list
+    shape, and per-product validation orchestration are isolated behind focused helpers, removing
+    the producer contract validator from the top measured complexity hotspot list while preserving
+    RFC-0084 issue behavior.
 
 ## Evidence
 

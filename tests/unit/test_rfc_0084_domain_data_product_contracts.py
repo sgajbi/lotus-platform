@@ -79,6 +79,28 @@ def _load_repo_text(repository: str, relative_path: str) -> str:
     return (ROOT.parent / repository / relative_path).read_text(encoding="utf-8")
 
 
+def test_rfc_0084_producer_contract_rejects_malformed_identity_and_products(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    path = tmp_path / "invalid-products.json"
+    payload = {
+        "contract_id": "wrong",
+        "governed_by_rfc": "RFC-0000",
+        "producer_repository": "core",
+        "contract_version": "latest",
+        "products": [],
+    }
+
+    issues = validator.validate_producer_contract(path, payload)
+
+    assert f"{path}: contract_id must be 'domain-data-products'" in issues
+    assert f"{path}: governed_by_rfc must be 'RFC-0084'" in issues
+    assert f"{path}: producer_repository must match lotus repo naming" in issues
+    assert f"{path}: contract_version must be semantic versioning" in issues
+    assert f"{path}: products must be a non-empty array" in issues
+
+
 def _write_semantics_registry(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     _write_json(

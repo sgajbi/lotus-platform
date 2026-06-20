@@ -824,6 +824,10 @@ Generated: `{baseline["generated_at_utc"]}`
     and output writing are isolated behind focused helpers, removing the proof reviewer
     coordinator from the top measured complexity hotspot list while preserving RFC-0108 proof
     review behavior.
+90. Domain data-product producer validator extraction so producer contract identity, product-list
+    shape, and per-product validation orchestration are isolated behind focused helpers, removing
+    the producer contract validator from the top measured complexity hotspot list while preserving
+    RFC-0084 issue behavior.
 
 ## Evidence
 
