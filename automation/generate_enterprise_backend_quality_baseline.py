@@ -647,6 +647,10 @@ Generated: `{baseline["generated_at_utc"]}`
     governance, source-config governance, and threshold validation are isolated behind focused
     helpers, lowering the highest measured complexity ceiling while preserving RFC-0095 runner
     config behavior.
+46. Agent delegation-policy validator extraction so contract identity, authority text, required
+    policy sets, lifecycle mapping, and invariant checks are isolated behind focused helpers,
+    removing the RFC-0096 delegation-policy validator from the top measured complexity hotspot list
+    while preserving agent-engineering contract behavior.
 
 ## Evidence
 

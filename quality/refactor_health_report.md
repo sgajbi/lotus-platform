@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T06:18:57Z`
+Generated: `2026-06-20T06:23:12Z`
 
 ## Completed Slices
 
@@ -158,6 +158,10 @@ Generated: `2026-06-20T06:18:57Z`
     governance, source-config governance, and threshold validation are isolated behind focused
     helpers, lowering the highest measured complexity ceiling while preserving RFC-0095 runner
     config behavior.
+46. Agent delegation-policy validator extraction so contract identity, authority text, required
+    policy sets, lifecycle mapping, and invariant checks are isolated behind focused helpers,
+    removing the RFC-0096 delegation-policy validator from the top measured complexity hotspot list
+    while preserving agent-engineering contract behavior.
 
 ## Evidence
 

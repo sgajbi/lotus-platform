@@ -365,17 +365,9 @@ def _non_empty_string(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        display_path = path
-        try:
-            display_path = path.relative_to(ROOT)
-        except ValueError:
-            pass
-        return [f"missing delegation policy contract: {display_path}"]
-
-    contract = _load_contract(path)
+def _validate_delegation_policy_identity(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     if contract.get("contract_id") != "lotus-platform:delegation-policy-contract:v1":
         errors.append("delegation policy contract_id must be lotus-platform:delegation-policy-contract:v1")
     if contract.get("source_rfc") != "RFC-0096":
@@ -387,15 +379,23 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
     if contract.get("status") != "active":
         errors.append("delegation policy status must be active")
 
+
+def _validate_delegation_policy_authority(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     authority = contract.get("authority")
     if not isinstance(authority, dict):
         errors.append("delegation policy authority must be an object")
-    else:
-        authority_text = " ".join(str(value).lower() for value in authority.values())
-        for expected in ("main agent", "source truth", "evidence, not review", "write_scope"):
-            if expected not in authority_text:
-                errors.append(f"delegation policy authority missing `{expected}`")
+        return
+    authority_text = " ".join(str(value).lower() for value in authority.values())
+    for expected in ("main agent", "source truth", "evidence, not review", "write_scope"):
+        if expected not in authority_text:
+            errors.append(f"delegation policy authority missing `{expected}`")
 
+
+def _validate_delegation_policy_required_sets(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     _require_set(
         errors,
         "delegation_profiles",
@@ -471,34 +471,60 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
         },
     )
 
+
+def _validate_delegation_policy_lifecycle_mapping(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     lifecycle_mapping = contract.get("lifecycle_mapping")
     if not isinstance(lifecycle_mapping, dict):
         errors.append("delegation policy lifecycle_mapping must be an object")
-    else:
-        missing_statuses = sorted(REQUIRED_TASK_STATES - set(lifecycle_mapping.values()))
-        if missing_statuses:
-            errors.append(
-                "delegation policy lifecycle_mapping missing task states: "
-                + ", ".join(missing_statuses)
-            )
+        return
+    missing_statuses = sorted(REQUIRED_TASK_STATES - set(lifecycle_mapping.values()))
+    if missing_statuses:
+        errors.append(
+            "delegation policy lifecycle_mapping missing task states: "
+            + ", ".join(missing_statuses)
+        )
 
+
+def _validate_delegation_policy_invariants(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     invariants = contract.get("invariants")
     if not isinstance(invariants, list) or not invariants:
         errors.append("delegation policy invariants must be a non-empty list")
-    else:
-        invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
-        for expected in (
-            "one accountable main agent",
-            "evidence and not review",
-            "explicit bounded write_scope",
-            "write_scope as none",
-            "not revert unrelated work",
-            "not merge prs or publish wiki",
-            "lost delegated work",
-            "must not inspect hidden model state",
-        ):
-            if expected not in invariant_text:
-                errors.append(f"delegation policy invariants missing `{expected}`")
+        return
+    invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
+    for expected in (
+        "one accountable main agent",
+        "evidence and not review",
+        "explicit bounded write_scope",
+        "write_scope as none",
+        "not revert unrelated work",
+        "not merge prs or publish wiki",
+        "lost delegated work",
+        "must not inspect hidden model state",
+    ):
+        if expected not in invariant_text:
+            errors.append(f"delegation policy invariants missing `{expected}`")
+
+
+def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        display_path = path
+        try:
+            display_path = path.relative_to(ROOT)
+        except ValueError:
+            pass
+        return [f"missing delegation policy contract: {display_path}"]
+
+    contract = _load_contract(path)
+    _validate_delegation_policy_identity(contract, errors)
+    _validate_delegation_policy_authority(contract, errors)
+    _validate_delegation_policy_required_sets(contract, errors)
+    _validate_delegation_policy_lifecycle_mapping(contract, errors)
+    _validate_delegation_policy_invariants(contract, errors)
     return errors
 
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302136
+    "total_source_lines": 302166
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 17,
-        "end_line": 502,
-        "line": 368,
-        "lines": 135,
-        "name": "validate_delegation_policy_contract",
-        "path": "automation/validate_agent_engineering_contracts.py"
-      },
       {
         "complexity": 17,
         "end_line": 442,
@@ -192,6 +184,14 @@
         "lines": 80,
         "name": "_validate_observation_boundaries",
         "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 775,
+        "line": 705,
+        "lines": 71,
+        "name": "_delegated_task_ledger_adapter",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -261,9 +261,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 686,
+        "end_line": 690,
         "line": 489,
-        "lines": 198,
+        "lines": 202,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -348,19 +348,19 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
-        "complexity": 17,
-        "end_line": 502,
-        "line": 368,
-        "lines": 135,
-        "name": "validate_delegation_policy_contract",
-        "path": "automation/validate_agent_engineering_contracts.py"
+        "complexity": 1,
+        "end_line": 923,
+        "line": 791,
+        "lines": 133,
+        "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 17,
     "max_function_lines": 393,
-    "python_function_count": 1504
+    "python_function_count": 1509
   },
-  "generated_at_utc": "2026-06-20T06:18:57Z",
+  "generated_at_utc": "2026-06-20T06:23:12Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.71s"
+    "summary": "510 tests collected in 0.60s"
   }
 }
