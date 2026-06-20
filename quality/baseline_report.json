@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300808
+    "total_source_lines": 300891
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 25,
-        "end_line": 172,
-        "line": 101,
-        "lines": 72,
-        "name": "_validate_supported_feature_status",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
       {
         "complexity": 24,
         "end_line": 309,
@@ -59,8 +51,8 @@
       },
       {
         "complexity": 23,
-        "end_line": 379,
-        "line": 197,
+        "end_line": 458,
+        "line": 276,
         "lines": 183,
         "name": "validate_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
@@ -192,6 +184,14 @@
         "lines": 86,
         "name": "validate_heartbeat_contract",
         "path": "automation/validate_heartbeat_contracts.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 369,
+        "line": 288,
+        "lines": 82,
+        "name": "_validate_downstream_boundary_hardening",
+        "path": "automation/validate_analytics_ui_ecosystem_final_closure.py"
       }
     ],
     "largest_functions": [
@@ -277,8 +277,8 @@
       },
       {
         "complexity": 23,
-        "end_line": 379,
-        "line": 197,
+        "end_line": 458,
+        "line": 276,
         "lines": 183,
         "name": "validate_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 25,
+    "max_complexity": 24,
     "max_function_lines": 393,
-    "python_function_count": 1382
+    "python_function_count": 1386
   },
-  "generated_at_utc": "2026-06-20T05:03:50Z",
+  "generated_at_utc": "2026-06-20T05:08:09Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.50s"
+    "summary": "510 tests collected in 0.60s"
   }
 }

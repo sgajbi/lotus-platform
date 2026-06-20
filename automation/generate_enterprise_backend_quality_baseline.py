@@ -576,6 +576,10 @@ Generated: `{baseline["generated_at_utc"]}`
     consumer, denial-posture, and audit checks are isolated behind focused helpers, removing the
     access validator from the top measured complexity hotspot list while preserving RFC-0091 mesh
     access behavior.
+28. Analytics UI observability milestone-status extraction so Slice 12, Slice 13, and single-feature
+    milestone status checks are isolated behind focused helpers, removing the supported-feature
+    status helper from the top measured complexity hotspot list while preserving RFC-0108
+    supported-feature promotion behavior.
 
 ## Evidence
 

@@ -92,10 +92,121 @@ SLICE_17_OR_LATER_LIFECYCLES = {
     "slice-17-ecosystem-hardening-certified",
     "slice-18-ecosystem-final-closure-implemented",
 }
+SINGLE_FEATURE_MILESTONE_STATUS_RULES = (
+    (
+        SLICE_15_OR_LATER_LIFECYCLES,
+        "platform.analytics.observability.ecosystem_dashboards_alerts",
+        "Slice 15",
+    ),
+    (
+        SLICE_16_OR_LATER_LIFECYCLES,
+        "platform.analytics.observability.ecosystem_implementation_proof",
+        "Slice 16",
+    ),
+    (
+        SLICE_17_OR_LATER_LIFECYCLES,
+        "platform.analytics.observability.ecosystem_hardening_certification",
+        "Slice 17",
+    ),
+    (
+        {"slice-18-ecosystem-final-closure-implemented"},
+        "platform.analytics.observability.ecosystem_final_closure",
+        "Slice 18",
+    ),
+    (
+        None,
+        "workbench.analytics.observability.caller_context_entitlement_certification",
+        "Slice 19",
+    ),
+)
 
 
 def _load_contract(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _require_implemented_status(
+    *,
+    errors: list[str],
+    key: str,
+    status: object,
+    slice_label: str,
+) -> None:
+    if status != "implemented":
+        errors.append(f"{key}: status must be implemented after {slice_label} proof")
+
+
+def _validate_slice_12_supported_feature_status(
+    *,
+    errors: list[str],
+    key: str,
+    status: object,
+    lifecycle_status: object,
+) -> bool:
+    if (
+        lifecycle_status not in SLICE_12_OR_LATER_LIFECYCLES
+        or key not in IMPLEMENTED_SLICE_12_PARTIAL_KEYS
+    ):
+        return False
+
+    _require_implemented_status(
+        errors=errors,
+        key=key,
+        status=status,
+        slice_label="Slice 12",
+    )
+    return True
+
+
+def _validate_slice_13_supported_feature_status(
+    *,
+    errors: list[str],
+    key: str,
+    status: object,
+    lifecycle_status: object,
+) -> bool:
+    if lifecycle_status not in SLICE_13_OR_LATER_LIFECYCLES:
+        return False
+
+    implemented_slice_13_keys = (
+        IMPLEMENTED_SLICE_13_KEYS
+        if lifecycle_status in FULL_SLICE_13_OR_LATER_LIFECYCLES
+        else IMPLEMENTED_SLICE_13_PARTIAL_KEYS
+    )
+    if key not in implemented_slice_13_keys:
+        return False
+
+    _require_implemented_status(
+        errors=errors,
+        key=key,
+        status=status,
+        slice_label="Slice 13",
+    )
+    return True
+
+
+def _validate_single_feature_milestone_status(
+    *,
+    errors: list[str],
+    key: str,
+    status: object,
+    lifecycle_status: object,
+) -> bool:
+    for allowed_lifecycles, feature_key, slice_label in SINGLE_FEATURE_MILESTONE_STATUS_RULES:
+        if key != feature_key:
+            continue
+        if allowed_lifecycles is not None and lifecycle_status not in allowed_lifecycles:
+            continue
+
+        _require_implemented_status(
+            errors=errors,
+            key=key,
+            status=status,
+            slice_label=slice_label,
+        )
+        return True
+
+    return False
 
 
 def _validate_supported_feature_status(
@@ -110,60 +221,28 @@ def _validate_supported_feature_status(
             errors.append(f"{key}: status must be planned or implemented")
         return
 
-    if (
-        lifecycle_status in SLICE_12_OR_LATER_LIFECYCLES
-        and key in IMPLEMENTED_SLICE_12_PARTIAL_KEYS
+    if _validate_slice_12_supported_feature_status(
+        errors=errors,
+        key=key,
+        status=status,
+        lifecycle_status=lifecycle_status,
     ):
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 12 proof")
         return
 
-    if lifecycle_status in SLICE_13_OR_LATER_LIFECYCLES:
-        implemented_slice_13_keys = (
-            IMPLEMENTED_SLICE_13_KEYS
-            if lifecycle_status in FULL_SLICE_13_OR_LATER_LIFECYCLES
-            else IMPLEMENTED_SLICE_13_PARTIAL_KEYS
-        )
-        if key in implemented_slice_13_keys:
-            if status != "implemented":
-                errors.append(f"{key}: status must be implemented after Slice 13 proof")
-            return
-
-    if (
-        lifecycle_status in SLICE_15_OR_LATER_LIFECYCLES
-        and key == "platform.analytics.observability.ecosystem_dashboards_alerts"
+    if _validate_slice_13_supported_feature_status(
+        errors=errors,
+        key=key,
+        status=status,
+        lifecycle_status=lifecycle_status,
     ):
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 15 proof")
         return
 
-    if (
-        lifecycle_status in SLICE_16_OR_LATER_LIFECYCLES
-        and key == "platform.analytics.observability.ecosystem_implementation_proof"
+    if _validate_single_feature_milestone_status(
+        errors=errors,
+        key=key,
+        status=status,
+        lifecycle_status=lifecycle_status,
     ):
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 16 proof")
-        return
-
-    if (
-        lifecycle_status in SLICE_17_OR_LATER_LIFECYCLES
-        and key == "platform.analytics.observability.ecosystem_hardening_certification"
-    ):
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 17 proof")
-        return
-
-    if (
-        lifecycle_status == "slice-18-ecosystem-final-closure-implemented"
-        and key == "platform.analytics.observability.ecosystem_final_closure"
-    ):
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 18 proof")
-        return
-
-    if key == "workbench.analytics.observability.caller_context_entitlement_certification":
-        if status != "implemented":
-            errors.append(f"{key}: status must be implemented after Slice 19 proof")
         return
 
     if status != "planned":
