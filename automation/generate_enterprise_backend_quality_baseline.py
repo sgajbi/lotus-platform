@@ -527,6 +527,9 @@ Generated: `{baseline["generated_at_utc"]}`
 13. Heartbeat status validator extraction so source-inventory and attention-item validation are
     isolated behind focused helpers, reducing the highest measured complexity hotspot while
     preserving RFC-0095 heartbeat contract behavior.
+14. Analytics UI ecosystem completion supported-feature extraction so lifecycle milestone,
+    protected-feature, and matrix-feature checks are isolated behind focused helpers, reducing the
+    highest measured complexity hotspot while preserving RFC-0108 ecosystem completion behavior.
 
 ## Evidence
 

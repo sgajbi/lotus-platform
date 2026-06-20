@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299878
+    "total_source_lines": 299897
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 44,
-        "end_line": 510,
-        "line": 309,
-        "lines": 202,
-        "name": "_validate_supported_features",
-        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
       {
         "complexity": 39,
         "end_line": 175,
@@ -131,8 +123,8 @@
       },
       {
         "complexity": 26,
-        "end_line": 298,
-        "line": 188,
+        "end_line": 351,
+        "line": 241,
         "lines": 111,
         "name": "_validate_slices",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
@@ -192,6 +184,14 @@
         "lines": 95,
         "name": "validate_heartbeat_status",
         "path": "automation/validate_heartbeat_contracts.py"
+      },
+      {
+        "complexity": 22,
+        "end_line": 484,
+        "line": 420,
+        "lines": 65,
+        "name": "_validate_matrix_feature_statuses",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
       }
     ],
     "largest_functions": [
@@ -300,14 +300,6 @@
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
-        "complexity": 44,
-        "end_line": 510,
-        "line": 309,
-        "lines": 202,
-        "name": "_validate_supported_features",
-        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
-      {
         "complexity": 23,
         "end_line": 349,
         "line": 167,
@@ -354,13 +346,21 @@
         "lines": 157,
         "name": "test_rfc_0104_preserves_batch_reporting_gold_standard_contract",
         "path": "tests/unit/test_rfc_closure_governance.py"
+      },
+      {
+        "complexity": 2,
+        "end_line": 777,
+        "line": 622,
+        "lines": 156,
+        "name": "scaffold_domain_product_onboarding",
+        "path": "automation/generate_domain_product_onboarding.py"
       }
     ],
-    "max_complexity": 44,
+    "max_complexity": 39,
     "max_function_lines": 393,
-    "python_function_count": 1300
+    "python_function_count": 1304
   },
-  "generated_at_utc": "2026-06-20T04:05:08Z",
+  "generated_at_utc": "2026-06-20T04:09:46Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.55s"
+    "summary": "510 tests collected in 0.60s"
   }
 }
