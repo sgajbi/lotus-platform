@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299944
+    "total_source_lines": 300011
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 38,
-        "end_line": 1110,
-        "line": 885,
-        "lines": 226,
-        "name": "_lotus_ai_adapter",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 38,
         "end_line": 433,
@@ -192,6 +184,14 @@
         "lines": 298,
         "name": "_run_validation_once",
         "path": "automation/core_performance_attribution_validation.py"
+      },
+      {
+        "complexity": 21,
+        "end_line": 126,
+        "line": 32,
+        "lines": 95,
+        "name": "_validate_manifest_contract",
+        "path": "automation/validate_engineering_context_system.py"
       }
     ],
     "largest_functions": [
@@ -250,14 +250,6 @@
         "lines": 258,
         "name": "validate_domain_product_onboarding_bundle",
         "path": "automation/generate_domain_product_onboarding.py"
-      },
-      {
-        "complexity": 38,
-        "end_line": 1110,
-        "line": 885,
-        "lines": 226,
-        "name": "_lotus_ai_adapter",
-        "path": "automation/heartbeat_sources.py"
       },
       {
         "complexity": 12,
@@ -354,13 +346,21 @@
         "lines": 156,
         "name": "scaffold_domain_product_onboarding",
         "path": "automation/generate_domain_product_onboarding.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 247,
+        "line": 94,
+        "lines": 154,
+        "name": "explain_dev_ingress_status",
+        "path": "automation/explain_dev_ingress_status.py"
       }
     ],
     "max_complexity": 38,
     "max_function_lines": 393,
-    "python_function_count": 1309
+    "python_function_count": 1313
   },
-  "generated_at_utc": "2026-06-20T04:13:19Z",
+  "generated_at_utc": "2026-06-20T04:18:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -423,7 +423,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1151,
+      "lines": 1215,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.61s"
+    "summary": "510 tests collected in 0.64s"
   }
 }

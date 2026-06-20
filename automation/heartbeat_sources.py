@@ -882,6 +882,209 @@ def _mesh_certification_adapter(
     )
 
 
+def _lotus_ai_run_summary_attention(
+    *,
+    run_summary: dict[str, Any],
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    attention_items: list[dict[str, Any]] = []
+    for count_field, condition in (
+        ("failed_count", "workflow_pack_failed_runs"),
+        ("expired_count", "workflow_pack_expired_runs"),
+        ("action_required_count", "workflow_pack_action_required_runs"),
+    ):
+        count = run_summary.get(count_field, 0)
+        if isinstance(count, int) and count > 0:
+            attention_items.append(
+                _attention_item(
+                    source_system="lotus_ai",
+                    source_ref=f"run_summary:{count_field}",
+                    repository="lotus-ai",
+                    condition=condition,
+                    severity="action_required",
+                    owner="lotus-ai",
+                    generated_at_utc=generated_at_utc,
+                    evidence_refs=evidence_refs,
+                    recommended_next_action=(
+                        "Inspect lotus-ai workflow-pack run catalog and operator profiles."
+                    ),
+                )
+            )
+    status_summary = " ".join(
+        str(line).lower() for line in run_summary.get("status_summary", [])
+    )
+    if "unavailable" in status_summary or "not ready" in status_summary:
+        attention_items.append(
+            _attention_item(
+                source_system="lotus_ai",
+                source_ref="run_summary:readiness",
+                repository="lotus-ai",
+                condition="workflow_pack_runtime_degraded",
+                severity="action_required",
+                owner="lotus-ai",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    "Confirm lotus-ai workflow-pack registry and run ledger readiness."
+                ),
+            )
+        )
+    return attention_items
+
+
+def _lotus_ai_run_attention_item(
+    *,
+    item: dict[str, Any],
+    source_ref: str,
+    condition: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    recommended_next_action: str,
+    owner: str | None = None,
+) -> dict[str, Any]:
+    run_id = str(item.get("run_id") or "unknown-run")
+    pack_id = str(item.get("pack_id") or item.get("registration_ref") or "")
+    attention = _attention_item(
+        source_system="lotus_ai",
+        source_ref=source_ref,
+        repository="lotus-ai",
+        condition=condition,
+        severity="action_required",
+        owner=owner or str(item.get("workflow_authority_owner") or "lotus-ai"),
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        recommended_next_action=recommended_next_action,
+    )
+    attention["run_id"] = run_id
+    if pack_id:
+        attention["workflow_pack_id"] = pack_id
+    return attention
+
+
+def _lotus_ai_attention_queue_items(
+    *,
+    attention_queue: object,
+    config: dict[str, Any],
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    attention_items: list[dict[str, Any]] = []
+    queue_depth = (
+        attention_queue.get("queue_depth", 0) if isinstance(attention_queue, dict) else 0
+    )
+    if isinstance(queue_depth, int) and queue_depth > 0:
+        attention_items.append(
+            _attention_item(
+                source_system="lotus_ai",
+                source_ref="attention_queue:queue_depth",
+                repository="lotus-ai",
+                condition="workflow_pack_attention_queue_backlog",
+                severity="action_required",
+                owner="lotus-ai",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    "Use lotus-ai workflow-pack run catalog when queue_depth exceeds zero."
+                ),
+            )
+        )
+
+    queue_items = attention_queue.get("items", []) if isinstance(attention_queue, dict) else []
+    stale_hours = _threshold(config, "stale_workflow_pack_review_hours", 24)
+    for item in queue_items if isinstance(queue_items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        attention_items.extend(
+            _lotus_ai_queue_item_attention(
+                item=item,
+                stale_hours=stale_hours,
+                evidence_refs=evidence_refs,
+                generated_at_utc=generated_at_utc,
+            )
+        )
+    return attention_items
+
+
+def _lotus_ai_queue_item_attention(
+    *,
+    item: dict[str, Any],
+    stale_hours: float,
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    run_id = str(item.get("run_id") or "unknown-run")
+    item_evidence_refs = [
+        *evidence_refs,
+        _evidence_ref("WORKFLOW_PACK_RUN", run_id),
+    ]
+    source_ref = f"workflow_pack_run:{run_id}"
+    review_state = str(item.get("review_state") or "")
+    runtime_state = str(item.get("runtime_state") or "")
+    supportability_status = str(item.get("supportability_status") or "")
+    attention_items = [
+        _lotus_ai_run_attention_item(
+            item=item,
+            source_ref=source_ref,
+            condition="workflow_pack_run_action_required",
+            generated_at_utc=generated_at_utc,
+            evidence_refs=item_evidence_refs,
+            recommended_next_action=(
+                f"Inspect lotus-ai workflow-pack run `{run_id}` operator profile."
+            ),
+        )
+    ]
+
+    if review_state == "AWAITING_REVIEW":
+        age = _age_hours(generated_at_utc, item.get("created_at"))
+        if age is not None and age > stale_hours:
+            attention_items.append(
+                _lotus_ai_run_attention_item(
+                    item=item,
+                    source_ref=source_ref,
+                    condition="workflow_pack_review_stale",
+                    generated_at_utc=generated_at_utc,
+                    evidence_refs=item_evidence_refs,
+                    recommended_next_action=(
+                        f"Review stale workflow-pack run `{run_id}` before downstream use."
+                    ),
+                )
+            )
+
+    if runtime_state in {"FAILED", "EXPIRED"}:
+        attention_items.append(
+            _lotus_ai_run_attention_item(
+                item=item,
+                source_ref=source_ref,
+                condition="workflow_pack_run_terminal_failure",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=item_evidence_refs,
+                recommended_next_action=(
+                    f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
+                ),
+            )
+        )
+
+    lineage_states = {"REVISED", "SUPERSEDED"}
+    if (
+        review_state in lineage_states or runtime_state == "SUPERSEDED"
+    ) and supportability_status != "HISTORICAL":
+        attention_items.append(
+            _lotus_ai_run_attention_item(
+                item=item,
+                source_ref=source_ref,
+                condition="workflow_pack_lineage_conflict",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=item_evidence_refs,
+                recommended_next_action=(
+                    f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
+                ),
+                owner="lotus-ai",
+            )
+        )
+    return attention_items
+
+
 def _lotus_ai_adapter(
     *,
     config: dict[str, Any],
@@ -935,167 +1138,28 @@ def _lotus_ai_adapter(
                     evidence_refs=evidence_refs,
                 )
             ],
-        )
+    )
 
     attention_items: list[dict[str, Any]] = []
     run_summary = runtime.get("run_summary", {})
     if isinstance(run_summary, dict):
-        for count_field, condition in (
-            ("failed_count", "workflow_pack_failed_runs"),
-            ("expired_count", "workflow_pack_expired_runs"),
-            ("action_required_count", "workflow_pack_action_required_runs"),
-        ):
-            count = run_summary.get(count_field, 0)
-            if isinstance(count, int) and count > 0:
-                attention_items.append(
-                    _attention_item(
-                        source_system="lotus_ai",
-                        source_ref=f"run_summary:{count_field}",
-                        repository="lotus-ai",
-                        condition=condition,
-                        severity="action_required",
-                        owner="lotus-ai",
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=(
-                            "Inspect lotus-ai workflow-pack run catalog and operator profiles."
-                        ),
-                    )
-                )
-        status_summary = " ".join(
-            str(line).lower() for line in run_summary.get("status_summary", [])
-        )
-        if "unavailable" in status_summary or "not ready" in status_summary:
-            attention_items.append(
-                _attention_item(
-                    source_system="lotus_ai",
-                    source_ref="run_summary:readiness",
-                    repository="lotus-ai",
-                    condition="workflow_pack_runtime_degraded",
-                    severity="action_required",
-                    owner="lotus-ai",
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=(
-                        "Confirm lotus-ai workflow-pack registry and run ledger readiness."
-                    ),
-                )
+        attention_items.extend(
+            _lotus_ai_run_summary_attention(
+                run_summary=run_summary,
+                evidence_refs=evidence_refs,
+                generated_at_utc=generated_at_utc,
             )
+        )
 
     attention_queue = runtime.get("attention_queue", {})
-    queue_depth = (
-        attention_queue.get("queue_depth", 0) if isinstance(attention_queue, dict) else 0
-    )
-    if isinstance(queue_depth, int) and queue_depth > 0:
-        attention_items.append(
-            _attention_item(
-                source_system="lotus_ai",
-                source_ref="attention_queue:queue_depth",
-                repository="lotus-ai",
-                condition="workflow_pack_attention_queue_backlog",
-                severity="action_required",
-                owner="lotus-ai",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=evidence_refs,
-                recommended_next_action=(
-                    "Use lotus-ai workflow-pack run catalog when queue_depth exceeds zero."
-                ),
-            )
-        )
-    queue_items = attention_queue.get("items", []) if isinstance(attention_queue, dict) else []
-    stale_hours = _threshold(config, "stale_workflow_pack_review_hours", 24)
-    for item in queue_items if isinstance(queue_items, list) else []:
-        if not isinstance(item, dict):
-            continue
-        run_id = str(item.get("run_id") or "unknown-run")
-        item_evidence_refs = [
-            *evidence_refs,
-            _evidence_ref("WORKFLOW_PACK_RUN", run_id),
-        ]
-        source_ref = f"workflow_pack_run:{run_id}"
-        review_state = str(item.get("review_state") or "")
-        runtime_state = str(item.get("runtime_state") or "")
-        supportability_status = str(item.get("supportability_status") or "")
-        pack_id = str(item.get("pack_id") or item.get("registration_ref") or "")
-        attention = _attention_item(
-            source_system="lotus_ai",
-            source_ref=source_ref,
-            repository="lotus-ai",
-            condition="workflow_pack_run_action_required",
-            severity="action_required",
-            owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
+    attention_items.extend(
+        _lotus_ai_attention_queue_items(
+            attention_queue=attention_queue,
+            config=config,
+            evidence_refs=evidence_refs,
             generated_at_utc=generated_at_utc,
-            evidence_refs=item_evidence_refs,
-            recommended_next_action=(
-                f"Inspect lotus-ai workflow-pack run `{run_id}` operator profile."
-            ),
         )
-        attention["run_id"] = run_id
-        if pack_id:
-            attention["workflow_pack_id"] = pack_id
-        attention_items.append(attention)
-
-        if review_state == "AWAITING_REVIEW":
-            age = _age_hours(generated_at_utc, item.get("created_at"))
-            if age is not None and age > stale_hours:
-                stale_item = _attention_item(
-                    source_system="lotus_ai",
-                    source_ref=source_ref,
-                    repository="lotus-ai",
-                    condition="workflow_pack_review_stale",
-                    severity="action_required",
-                    owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=item_evidence_refs,
-                    recommended_next_action=(
-                        f"Review stale workflow-pack run `{run_id}` before downstream use."
-                    ),
-                )
-                stale_item["run_id"] = run_id
-                if pack_id:
-                    stale_item["workflow_pack_id"] = pack_id
-                attention_items.append(stale_item)
-
-        if runtime_state in {"FAILED", "EXPIRED"}:
-            runtime_item = _attention_item(
-                source_system="lotus_ai",
-                source_ref=source_ref,
-                repository="lotus-ai",
-                condition="workflow_pack_run_terminal_failure",
-                severity="action_required",
-                owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
-                ),
-            )
-            runtime_item["run_id"] = run_id
-            if pack_id:
-                runtime_item["workflow_pack_id"] = pack_id
-            attention_items.append(runtime_item)
-
-        lineage_states = {"REVISED", "SUPERSEDED"}
-        if (
-            review_state in lineage_states or runtime_state == "SUPERSEDED"
-        ) and supportability_status != "HISTORICAL":
-            lineage_item = _attention_item(
-                source_system="lotus_ai",
-                source_ref=source_ref,
-                repository="lotus-ai",
-                condition="workflow_pack_lineage_conflict",
-                severity="action_required",
-                owner="lotus-ai",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
-                ),
-            )
-            lineage_item["run_id"] = run_id
-            if pack_id:
-                lineage_item["workflow_pack_id"] = pack_id
-            attention_items.append(lineage_item)
+    )
 
     return (
         _source_inventory(

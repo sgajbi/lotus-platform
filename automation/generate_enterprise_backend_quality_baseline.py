@@ -533,6 +533,9 @@ Generated: `{baseline["generated_at_utc"]}`
 15. Supported-claim register validator extraction so header, front-office, artifact, and per-claim
     checks are isolated behind focused helpers, reducing the highest measured complexity hotspot
     while preserving supported-claim governance behavior.
+16. Lotus AI heartbeat adapter extraction so run-summary, queue backlog, and per-run attention
+    handling are isolated behind focused helpers, removing the adapter from the top measured
+    complexity hotspot list while preserving RFC-0095 heartbeat behavior.
 
 ## Evidence
 
