@@ -737,6 +737,10 @@ Generated: `{baseline["generated_at_utc"]}`
     temporal semantic, freshness, and completeness registry checks are isolated behind focused
     helpers, removing registry-reference validation from the top measured complexity hotspot list
     while preserving RFC-0084 declaration drift detection behavior.
+68. Domain data product lineage-policy validator extraction so evidence access-class validation,
+    lineage bundle-class validation, and optional route-list validation are isolated behind focused
+    helpers, removing lineage-policy validation from the top measured complexity hotspot list while
+    preserving RFC-0084 declaration drift detection behavior.
 
 ## Evidence
 

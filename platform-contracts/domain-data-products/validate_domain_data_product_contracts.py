@@ -636,17 +636,53 @@ def _validate_product_lineage_policy(
     evidence_access_classes: set[str] | None,
     lineage_bundle_class_keys: set[str] | None,
 ) -> None:
+    lineage_policy = product["lineage_policy"]
+    _validate_lineage_evidence_access_class(
+        issues,
+        path,
+        index=index,
+        lineage_policy=lineage_policy,
+        evidence_access_classes=evidence_access_classes,
+    )
+    _validate_product_lineage_bundle_class(
+        issues,
+        path,
+        index=index,
+        lineage_policy=lineage_policy,
+        lineage_bundle_class_keys=lineage_bundle_class_keys,
+    )
+    _validate_product_optional_route_lists(issues, path, index=index, product=product)
+
+
+def _validate_lineage_evidence_access_class(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    lineage_policy: dict,
+    evidence_access_classes: set[str] | None,
+) -> None:
     if (
         evidence_access_classes is not None
-        and product["lineage_policy"]["evidence_access_class_ref"] not in evidence_access_classes
+        and lineage_policy["evidence_access_class_ref"] not in evidence_access_classes
     ):
         _append_issue(
             issues,
             path,
             f"products[{index}].lineage_policy.evidence_access_class_ref must reference the trust metadata registry",
         )
-    lineage_bundle_class_ref = product["lineage_policy"].get("lineage_bundle_class_ref")
-    if product["lineage_policy"]["evidence_bundle_required"]:
+
+
+def _validate_product_lineage_bundle_class(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    lineage_policy: dict,
+    lineage_bundle_class_keys: set[str] | None,
+) -> None:
+    lineage_bundle_class_ref = lineage_policy.get("lineage_bundle_class_ref")
+    if lineage_policy["evidence_bundle_required"]:
         if not isinstance(lineage_bundle_class_ref, str):
             _append_issue(
                 issues,
@@ -669,6 +705,15 @@ def _validate_product_lineage_policy(
             path,
             f"products[{index}].lineage_policy.lineage_bundle_class_ref must reference the trust metadata registry",
         )
+
+
+def _validate_product_optional_route_lists(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+) -> None:
     for optional_list_field in ("current_routes",):
         if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
             _append_issue(
