@@ -177,6 +177,57 @@ def upsert_delegated_task(
     return entry
 
 
+def _find_delegated_task_entry(
+    ledger: list[dict[str, Any]],
+    engineering_task_id: str,
+) -> dict[str, Any]:
+    for entry in ledger:
+        if entry.get("engineering_task_id") == engineering_task_id:
+            return entry
+    raise ValueError(f"delegated task not found: {engineering_task_id}")
+
+
+def _apply_running_status(entry: dict[str, Any], status: str) -> None:
+    if status == "RUNNING" and not entry.get("started_at"):
+        entry["started_at"] = _utc_now()
+
+
+def _apply_terminal_status(
+    entry: dict[str, Any],
+    status: str,
+    ended_at: str | None,
+) -> None:
+    if status in TERMINAL_STATES:
+        entry["ended_at"] = ended_at or _utc_now()
+
+
+def _apply_failure_status(
+    entry: dict[str, Any],
+    status: str,
+    error_summary: str | None,
+) -> None:
+    if status not in {"FAILED", "TIMED_OUT", "CANCELLED", "LOST"}:
+        return
+    if not error_summary:
+        raise ValueError(f"error_summary is required for {status}")
+    entry["error_summary"] = error_summary
+
+
+def _apply_superseded_status(
+    entry: dict[str, Any],
+    status: str,
+    superseded_by_task_id: str | None,
+    error_summary: str | None,
+) -> None:
+    if status != "SUPERSEDED":
+        return
+    if not superseded_by_task_id:
+        raise ValueError("superseded_by_task_id is required for SUPERSEDED")
+    entry["superseded_by_task_id"] = superseded_by_task_id
+    entry["cleanup_state"] = "SUPERSEDED"
+    entry["error_summary"] = error_summary
+
+
 def update_delegated_task_status(
     *,
     ledger_path: Path,
@@ -191,27 +242,14 @@ def update_delegated_task_status(
     if ended_at is not None:
         _validate_utc_timestamp(ended_at, "ended_at")
     ledger = _load_ledger(ledger_path)
-    for entry in ledger:
-        if entry.get("engineering_task_id") != engineering_task_id:
-            continue
-        entry["status"] = status
-        if status == "RUNNING" and not entry.get("started_at"):
-            entry["started_at"] = _utc_now()
-        if status in TERMINAL_STATES:
-            entry["ended_at"] = ended_at or _utc_now()
-        if status in {"FAILED", "TIMED_OUT", "CANCELLED", "LOST"}:
-            if not error_summary:
-                raise ValueError(f"error_summary is required for {status}")
-            entry["error_summary"] = error_summary
-        if status == "SUPERSEDED":
-            if not superseded_by_task_id:
-                raise ValueError("superseded_by_task_id is required for SUPERSEDED")
-            entry["superseded_by_task_id"] = superseded_by_task_id
-            entry["cleanup_state"] = "SUPERSEDED"
-            entry["error_summary"] = error_summary
-        _write_json(ledger_path, ledger)
-        return entry
-    raise ValueError(f"delegated task not found: {engineering_task_id}")
+    entry = _find_delegated_task_entry(ledger, engineering_task_id)
+    entry["status"] = status
+    _apply_running_status(entry, status)
+    _apply_terminal_status(entry, status, ended_at)
+    _apply_failure_status(entry, status, error_summary)
+    _apply_superseded_status(entry, status, superseded_by_task_id, error_summary)
+    _write_json(ledger_path, ledger)
+    return entry
 
 
 def _validate_required_output_fields(

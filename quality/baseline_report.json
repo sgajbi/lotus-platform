@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304326
+    "total_source_lines": 304367
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 214,
-        "line": 180,
-        "lines": 35,
-        "name": "update_delegated_task_status",
-        "path": "automation/delegation_task_ledger.py"
-      },
       {
         "complexity": 12,
         "end_line": 246,
@@ -192,6 +184,14 @@
         "lines": 73,
         "name": "_collect_delegated_task_attention",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 138,
+        "line": 82,
+        "lines": 57,
+        "name": "_validate_telemetry_field_review",
+        "path": "automation/validate_analytics_ui_hardening_review.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 792,
+        "end_line": 795,
         "line": 489,
-        "lines": 304,
+        "lines": 307,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 13,
+    "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1671
+    "python_function_count": 1676
   },
-  "generated_at_utc": "2026-06-20T08:18:06Z",
+  "generated_at_utc": "2026-06-20T08:22:33Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "518 tests collected in 0.52s"
+    "summary": "518 tests collected in 0.61s"
   }
 }

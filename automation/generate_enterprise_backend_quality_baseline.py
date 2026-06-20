@@ -753,6 +753,9 @@ Generated: `{baseline["generated_at_utc"]}`
     seed deterministic scenarios, call real cross-app APIs and calculations, assert expected
     domain figures, write machine-readable demo-readiness evidence, and run in CI as report-only
     evidence until CI governance promotes the signal.
+72. Delegated task ledger status-update extraction so RFC-0096 running, terminal, failure, and
+    superseded transitions are isolated behind focused helpers, reducing the measured repository
+    complexity ceiling from 13 to 12 while preserving delegated-task ledger behavior.
 
 ## Evidence
 
