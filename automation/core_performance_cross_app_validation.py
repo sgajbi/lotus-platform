@@ -414,6 +414,38 @@ def _build_expected_posture(
     }
 
 
+def _expected_pass_posture(
+    failed_core_check_names: list[str],
+    actual_failed_performance_checks: list[str],
+) -> tuple[bool, str]:
+    expectation_met = (
+        not failed_core_check_names and not actual_failed_performance_checks
+    )
+    posture = "pass" if expectation_met else "unexpected_failure"
+    return expectation_met, posture
+
+
+def _known_core_issue_posture(
+    *,
+    expected_failed_core_checks: list[str],
+    actual_failed_core_checks: list[str],
+    expected_failed_performance_checks: list[str],
+    actual_failed_performance_checks: list[str],
+) -> tuple[bool, str]:
+    core_matches = actual_failed_core_checks == expected_failed_core_checks
+    performance_matches = (
+        actual_failed_performance_checks == expected_failed_performance_checks
+    )
+
+    if core_matches and performance_matches:
+        return True, "known_issue_observed"
+    if not actual_failed_core_checks and not actual_failed_performance_checks:
+        return False, "known_issue_resolved"
+    if not core_matches:
+        return False, "unexpected_failure"
+    return False, "unexpected_variation"
+
+
 def _evaluate_expected_posture(
     scenario: dict[str, Any],
     failed_core_checks: list[dict[str, Any]],
@@ -434,13 +466,14 @@ def _evaluate_expected_posture(
     issue_reference = expected_validation.get("issue_reference")
 
     if expected_status == "pass":
-        expectation_met = (
-            not failed_core_checks and not actual_failed_performance_checks
+        expectation_met, posture = _expected_pass_posture(
+            failed_core_check_names,
+            actual_failed_performance_checks,
         )
         return _build_expected_posture(
             expected_status=expected_status,
             expectation_met=expectation_met,
-            posture="pass" if expectation_met else "unexpected_failure",
+            posture=posture,
             issue_reference=issue_reference,
             expected_failed_core_checks=expected_failed_core_checks,
             actual_failed_core_checks=failed_core_check_names,
@@ -449,27 +482,12 @@ def _evaluate_expected_posture(
         )
 
     if expected_status == "known_core_issue":
-        if (
-            failed_core_check_names == expected_failed_core_checks
-            and actual_failed_performance_checks == expected_failed_performance_checks
-        ):
-            posture = "known_issue_observed"
-            expectation_met = True
-        elif not failed_core_check_names and not actual_failed_performance_checks:
-            posture = "known_issue_resolved"
-            expectation_met = False
-        elif (
-            failed_core_check_names == expected_failed_core_checks
-            and actual_failed_performance_checks != expected_failed_performance_checks
-        ):
-            posture = "unexpected_variation"
-            expectation_met = False
-        elif failed_core_check_names != expected_failed_core_checks:
-            posture = "unexpected_failure"
-            expectation_met = False
-        else:
-            posture = "unexpected_variation"
-            expectation_met = False
+        expectation_met, posture = _known_core_issue_posture(
+            expected_failed_core_checks=expected_failed_core_checks,
+            actual_failed_core_checks=failed_core_check_names,
+            expected_failed_performance_checks=expected_failed_performance_checks,
+            actual_failed_performance_checks=actual_failed_performance_checks,
+        )
         return _build_expected_posture(
             expected_status=expected_status,
             expectation_met=expectation_met,

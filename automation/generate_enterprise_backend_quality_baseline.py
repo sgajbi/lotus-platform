@@ -771,6 +771,10 @@ Generated: `{baseline["generated_at_utc"]}`
     terminal-runtime, and lineage-conflict workflow-pack attention rules are isolated behind
     focused helpers, removing queue-item attention generation from the top measured complexity
     hotspot list while preserving RFC-0095 heartbeat behavior.
+77. Core/performance expected-posture extraction so pass-scenario and known-core-issue posture
+    classification is isolated behind focused helpers, removing the cross-app validation posture
+    evaluator from the top measured complexity hotspot list while preserving known-issue review
+    behavior.
 
 ## Evidence
 

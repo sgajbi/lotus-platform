@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:46:48Z`
+Generated: `2026-06-20T08:51:10Z`
 
 ## Completed Slices
 
@@ -282,6 +282,10 @@ Generated: `2026-06-20T08:46:48Z`
     terminal-runtime, and lineage-conflict workflow-pack attention rules are isolated behind
     focused helpers, removing queue-item attention generation from the top measured complexity
     hotspot list while preserving RFC-0095 heartbeat behavior.
+77. Core/performance expected-posture extraction so pass-scenario and known-core-issue posture
+    classification is isolated behind focused helpers, removing the cross-app validation posture
+    evaluator from the top measured complexity hotspot list while preserving known-issue review
+    behavior.
 
 ## Evidence
 

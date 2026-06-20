@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T08:46:48Z`
+Generated: `2026-06-20T08:51:10Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `304843`
+- Total source lines: `304865`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1704`
+- Python functions: `1706`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
 | automation/review_analytics_ui_canonical_proof.py | review_canonical_proof | 393 | 12 | 67 |
 | automation/review_analytics_ui_ecosystem_proof.py | _validate_journeys | 140 | 12 | 54 |
 | automation/validate_analytics_ui_entitlement_certification.py | _validate_implementation_evidence | 274 | 12 | 42 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_engineering_context_system.py | _validate_agents_operating_contract | 197 | 12 | 34 |
 | automation/validate_mesh_access_policies.py | _validate_allowed_consumer | 231 | 12 | 33 |
 | automation/validate_supported_claim_register.py | _validate_register_header | 47 | 12 | 31 |
+| automation/review_analytics_ui_canonical_proof.py | _resolve_live_summary | 95 | 12 | 28 |
 
 ## Tooling Baseline
 
