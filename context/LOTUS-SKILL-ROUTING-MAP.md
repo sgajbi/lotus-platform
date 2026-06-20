@@ -19,11 +19,12 @@ RFC governance:
 When multiple Lotus skills appear relevant, choose in this order:
 
 1. front-office runtime and populated product-surface proof,
-2. platform or backend validation,
-3. CI-enforcement and quality-gate design,
-4. repo-local frontend or backend delivery governance,
-5. PR merge and CI fix-forward workflows,
-6. RFC/governance/documentation-only workflows.
+2. app-wide demo readiness certification,
+3. platform or backend validation,
+4. CI-enforcement and quality-gate design,
+5. repo-local frontend or backend delivery governance,
+6. PR merge and CI fix-forward workflows,
+7. RFC/governance/documentation-only workflows.
 
 This prevents broad generic skills from intercepting more specific governed runtime tasks.
 
@@ -32,6 +33,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Task Intent | Primary Skill | Secondary Skills | Governed Source of Truth |
 | --- | --- | --- | --- |
 | Bring up canonical Workbench runtime, validate populated panels, generate governed demo screenshots | `lotus-front-office-runtime` | `lotus-frontend-delivery-governance`, `lotus-pr-premerge-gate` | `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`, `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1` |
+| Certify an app is demo-ready across all supported APIs, calculations, product features, seeded data, capability publication, observability/supportability, and reviewed evidence | `lotus-demo-readiness-certification` | app delivery governance skill, `lotus-front-office-runtime` for canonical Workbench proof, `lotus-qa-platform-validator`, `lotus-ci-enforcement-governance` when promoting gates, `lotus-pr-premerge-gate` | app repo-native demo/API certification command, supported-feature or capability registry, seed automation, generated evidence under app-local `output/`, and repo docs/scorecards/ledgers |
 | Validate service runtime, API, observability, and platform QA posture | `lotus-qa-platform-validator` | `lotus-validation-resolution-lifecycle` | `lotus-platform/automation/Invoke-Platform-QA.ps1` |
 | Run or fix RFC-0089/RFC-0090/RFC-0091/RFC-0092 mesh certification, enterprise maturity, and production operating-report failures across telemetry, SLO, access, lifecycle, evidence, drift trend, escalation ownership, GitHub cross-repo checkout, gateway publication, and Workbench discovery consumption | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate`, `github:gh-fix-ci`, `lotus-rfc-review-loop`, `lotus-qa-platform-validator` | `lotus-platform/automation/mesh_certification_gate.py`, `lotus-platform/automation/mesh_maturity_scope.py`, `lotus-platform/automation/generate_enterprise_mesh_operating_report.py`, `lotus-platform/.github/workflows/mesh-certification-gate.yml`, `lotus-platform/docs/operations/mesh-certification-gate-runbook.md` |
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
@@ -70,6 +72,16 @@ Use when the task is about:
 2. service health, logs, metrics, or observability checks,
 3. standards conformance and issue filing,
 4. platform QA that does not require populated canonical front-office screenshots.
+
+### `lotus-demo-readiness-certification`
+
+Use when the task is about:
+
+1. validating every supported demo API, feature, workflow, or calculation for an app,
+2. creating or running one repeatable demo-readiness command,
+3. seeding deterministic demo data for repeatable validation,
+4. reviewing generated evidence and fixing failed or weak proof before a demo,
+5. keeping capability or supported-feature publication aligned with implemented surfaces.
 
 ### `lotus-validation-resolution-lifecycle`
 

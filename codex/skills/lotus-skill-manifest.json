@@ -33,6 +33,13 @@
       "reason": "High-signal CI quality-gate promotion and agent-development enforcement governance."
     },
     {
+      "name": "lotus-demo-readiness-certification",
+      "path": "codex/skills/lotus-demo-readiness-certification",
+      "category": "demo-readiness-certification",
+      "directly_lotus_owned": true,
+      "reason": "App-wide demo readiness certification workflow for real APIs, features, seed data, calculations, evidence review, and fix-forward validation."
+    },
+    {
       "name": "lotus-frontend-delivery-governance",
       "path": "codex/skills/lotus-frontend-delivery-governance",
       "category": "frontend-delivery-governance",

@@ -10,8 +10,9 @@ This directory contains:
 
 1. Lotus domain and delivery governance skills,
 2. CI-enforcement and quality-gate governance skills,
-3. platform automation and pulse-monitoring skills,
-4. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+3. app-wide demo-readiness and validation certification skills,
+4. platform automation and pulse-monitoring skills,
+5. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
 
 It does not own:
 
