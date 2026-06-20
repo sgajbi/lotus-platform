@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:47:22Z`
+Generated: `2026-06-20T07:50:16Z`
 
 ## Completed Slices
 
@@ -236,6 +236,10 @@ Generated: `2026-06-20T07:47:22Z`
     freshness checks, status attention checks, lineage/blocking checks, and certification assembly
     are isolated behind focused helpers, removing live trust certification evaluation from the top
     measured complexity hotspot list while preserving RFC-0087 certification behavior.
+65. Analytics UI observation-boundary validator extraction so mutation hydration boundary lookup,
+    identity checks, mutation-surface checks, metric-family checks, and evidence-fragment checks are
+    isolated behind focused helpers, removing the RFC-0108 observation-boundary validator from the
+    top measured complexity hotspot list while preserving contract drift detection behavior.
 
 ## Evidence
 

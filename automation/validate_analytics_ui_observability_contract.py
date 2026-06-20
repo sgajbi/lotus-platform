@@ -787,6 +787,21 @@ def _validate_observation_boundaries(
         errors.append("observation_boundaries must define implemented UI observation boundaries")
         return
 
+    mutation_boundary = _mutation_hydration_boundary(errors, boundaries)
+    if mutation_boundary is None:
+        return
+
+    _validate_mutation_boundary_identity(errors, mutation_boundary)
+    _validate_mutation_boundary_surfaces(errors, mutation_boundary)
+    _validate_mutation_boundary_metrics(
+        errors, mutation_boundary, implemented_metric_names
+    )
+    _validate_mutation_boundary_evidence(errors, mutation_boundary)
+
+
+def _mutation_hydration_boundary(
+    errors: list[str], boundaries: list[Any]
+) -> dict[str, Any] | None:
     boundary_by_id = {
         str(boundary.get("boundary_id")): boundary
         for boundary in boundaries
@@ -799,19 +814,34 @@ def _validate_observation_boundaries(
         errors.append(
             "observation_boundaries missing workbench-mutation-actions-exclude-panel-hydration"
         )
-        return
+        return None
+    return mutation_boundary
 
+
+def _validate_mutation_boundary_identity(
+    errors: list[str], mutation_boundary: dict[str, Any]
+) -> None:
     if mutation_boundary.get("owner_repo") != "lotus-workbench":
         errors.append("mutation hydration boundary must be owned by lotus-workbench")
     if mutation_boundary.get("implemented") is not True:
         errors.append("mutation hydration boundary must be implemented")
 
+
+def _validate_mutation_boundary_surfaces(
+    errors: list[str], mutation_boundary: dict[str, Any]
+) -> None:
     surfaces = set(mutation_boundary.get("mutation_surfaces", []))
     if "performance-advisor-brief-review-action" not in surfaces:
         errors.append(
             "mutation hydration boundary must include performance-advisor-brief-review-action"
         )
 
+
+def _validate_mutation_boundary_metrics(
+    errors: list[str],
+    mutation_boundary: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
     included_metrics = set(mutation_boundary.get("included_metric_families", []))
     excluded_metrics = set(mutation_boundary.get("excluded_metric_families", []))
     required_included = {
@@ -841,6 +871,10 @@ def _validate_observation_boundaries(
             f"{unknown_metrics}"
         )
 
+
+def _validate_mutation_boundary_evidence(
+    errors: list[str], mutation_boundary: dict[str, Any]
+) -> None:
     evidence = str(mutation_boundary.get("evidence", ""))
     for required_fragment in (
         "Workbench PR #136",

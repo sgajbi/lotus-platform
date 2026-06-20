@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303450
+    "total_source_lines": 303488
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 858,
-        "line": 779,
-        "lines": 80,
-        "name": "_validate_observation_boundaries",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
       {
         "complexity": 13,
         "end_line": 962,
@@ -192,6 +184,14 @@
         "lines": 33,
         "name": "_validate_allowed_consumer",
         "path": "automation/validate_mesh_access_policies.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 77,
+        "line": 47,
+        "lines": 31,
+        "name": "_validate_register_header",
+        "path": "automation/validate_supported_claim_register.py"
       }
     ],
     "largest_functions": [
@@ -213,19 +213,19 @@
       },
       {
         "complexity": 1,
+        "end_line": 768,
+        "line": 489,
+        "lines": 280,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
+        "complexity": 1,
         "end_line": 429,
         "line": 151,
         "lines": 279,
         "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 764,
-        "line": 489,
-        "lines": 276,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 7,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1626
+    "python_function_count": 1631
   },
-  "generated_at_utc": "2026-06-20T07:47:22Z",
+  "generated_at_utc": "2026-06-20T07:50:16Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.54s"
+    "summary": "513 tests collected in 0.56s"
   }
 }
