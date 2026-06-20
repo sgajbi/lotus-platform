@@ -42,8 +42,8 @@ Reference baseline:
 
 ## Central Standards
 
-- `Domain Vocabulary Glossary.md`
-- `Migration Engineering Quality Standard.md`
+- `docs/standards/Domain Vocabulary Glossary.md`
+- `docs/standards/Migration Engineering Quality Standard.md`
 
 ## Execution RFC Set (Implementation Start)
 

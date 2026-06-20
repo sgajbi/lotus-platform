@@ -46,7 +46,7 @@ Automation command guide: `automation/docs/Automation-Guide.md`.
 
 Authoritative cross-repository CI governance:
 
-1. `../Continuous Integration, Validation, and Release Governance Standard.md`
+1. `../docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 2. `../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 
 Cross-application bank-buyable engineering posture:

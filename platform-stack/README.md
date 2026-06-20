@@ -35,7 +35,7 @@ Prometheus scrape boundary:
 3. app-local Prometheus configs may still exist in application repositories for isolated development, but they are not the shared platform baseline
 
 Cross-cutting governance for this stack is defined in:
-- `Platform Observability Standards.md`
+- `docs/standards/Platform Observability Standards.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`
 
 ## 1) Setup

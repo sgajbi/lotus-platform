@@ -46,7 +46,7 @@ Completion criteria for this standard:
 - Cross-repo consistency is validated through PPD automation.
 
 Evidence artifacts:
-- `Enterprise Readiness Standard.md`
+- `docs/standards/Enterprise Readiness Standard.md`
 - `output/enterprise-readiness-compliance.json`
 - `output/enterprise-readiness-compliance.md`
 - per-repo `docs/standards/enterprise-readiness.md`

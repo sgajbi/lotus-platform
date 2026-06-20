@@ -12,7 +12,7 @@ Numeric handling differs across services (mix of `Decimal`, `float`, and ad hoc 
 
 Adopt a mandatory cross-platform precision standard defined in:
 
-- `Financial Rounding and Precision Standard.md`
+- `docs/standards/Financial Rounding and Precision Standard.md`
 
 Key decisions:
 

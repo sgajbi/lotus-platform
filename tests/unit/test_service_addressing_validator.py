@@ -22,7 +22,7 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
     report = tmp_path / "lotus-report"
 
     _write_text(
-        platform / "Local Development Runbook.md",
+        platform / "docs" / "operations" / "Local Development Runbook.md",
         "gateway.dev.lotus\nworkbench.dev.lotus\nmanage.dev.lotus\nperformance.dev.lotus\ncore-query.dev.lotus\ncore-control.dev.lotus\ncore-ingestion.dev.lotus\n",
     )
     _write_text(
@@ -191,7 +191,7 @@ def test_validate_service_addressing_flags_port_based_drift(tmp_path: Path) -> N
     report = tmp_path / "lotus-report"
 
     _write_text(
-        platform / "Local Development Runbook.md",
+        platform / "docs" / "operations" / "Local Development Runbook.md",
         "http://localhost:3000\nhttp://host.docker.internal:8100\n",
     )
     _write_text(platform / "platform-stack" / "README.md", "http://localhost:8100\n")

@@ -137,7 +137,7 @@ Operating states:
 
 - [automation/README.md](../automation/README.md)
 - [platform-stack/README.md](../platform-stack/README.md)
-- [Local Development Runbook](../Local%20Development%20Runbook.md)
+- [Local Development Runbook](../docs/operations/Local%20Development%20Runbook.md)
 - [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 - [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - [Troubleshooting](Troubleshooting)

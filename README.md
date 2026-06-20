@@ -11,6 +11,9 @@ Central context system:
 Developer onboarding:
 [docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 
+Documentation index:
+[docs/README.md](docs/README.md)
+
 ## Purpose And Scope
 
 `lotus-platform` is the platform-governance repository for Lotus.
@@ -74,8 +77,10 @@ Primary platform surfaces:
   platform-owned Lotus skill source
 - `rfcs/`
   ecosystem and platform governance RFCs
-- `docs/onboarding/`
-  governed onboarding and ramp-up guides
+- `docs/`
+  durable standards, architecture notes, operations runbooks, reports, onboarding, and archived
+  legacy mirrors; repo-root Markdown is intentionally limited to `README.md`, `AGENTS.md`, and
+  `REPOSITORY-ENGINEERING-CONTEXT.md`
 
 ## Repository Layout
 

@@ -38,15 +38,15 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 
 | Standard | Scope | Source Path |
 | --- | --- | --- |
-| Continuous Integration, Validation, and Release Governance Standard | `platform-wide` | `Continuous Integration, Validation, and Release Governance Standard.md` |
-| Testing Pyramid and Coverage Standard | `platform-wide` | `Testing Pyramid and Coverage Standard.md` |
-| Dependency Hygiene and Security Standard | `platform-wide` | `Dependency Hygiene and Security Standard.md` |
-| Platform Observability Standards | `platform-wide` | `Platform Observability Standards.md` |
-| Enterprise Readiness Standard | `platform-wide` | `Enterprise Readiness Standard.md` |
+| Continuous Integration, Validation, and Release Governance Standard | `platform-wide` | `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md` |
+| Testing Pyramid and Coverage Standard | `platform-wide` | `docs/standards/Testing Pyramid and Coverage Standard.md` |
+| Dependency Hygiene and Security Standard | `platform-wide` | `docs/standards/Dependency Hygiene and Security Standard.md` |
+| Platform Observability Standards | `platform-wide` | `docs/standards/Platform Observability Standards.md` |
+| Enterprise Readiness Standard | `platform-wide` | `docs/standards/Enterprise Readiness Standard.md` |
 | Lotus Bank-Buyable Engineering Contract | `platform-wide` | `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` |
-| Scalability and Availability Standard | `platform-wide` | `Scalability and Availability Standard.md` |
-| Domain Vocabulary Glossary | `platform-wide` | `Domain Vocabulary Glossary.md` |
-| Platform Integration Architecture Bible | `platform-wide` | `Platform Integration Architecture Bible.md` |
+| Scalability and Availability Standard | `platform-wide` | `docs/standards/Scalability and Availability Standard.md` |
+| Domain Vocabulary Glossary | `platform-wide` | `docs/standards/Domain Vocabulary Glossary.md` |
+| Platform Integration Architecture Bible | `platform-wide` | `docs/architecture/Platform Integration Architecture Bible.md` |
 
 ## Active RFC Registry
 

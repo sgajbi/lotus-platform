@@ -16,7 +16,7 @@ Turn RFC-0068 into an explicit ownership migration with concrete file-level move
    - `platform-stack/docker-compose.yml`
    - `platform-stack/README.md`
 3. Keep platform observability standards as the cross-app source:
-   - `Platform Observability Standards.md`
+   - `docs/standards/Platform Observability Standards.md`
 
 ### lotus-core
 
@@ -121,7 +121,7 @@ Current app-owned file that should remain app-owned:
 
 1. Tighten RFC-0068 wording
 2. Update `platform-stack/README.md`
-3. Update `Platform Observability Standards.md`
+3. Update `docs/standards/Platform Observability Standards.md`
 4. Update `lotus-core/README.md`
 5. Update `lotus-core` Grafana/ops docs so they refer to platform-stack as canonical
 

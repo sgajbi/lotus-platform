@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-The platform has a canonical shared vocabulary in `Domain Vocabulary Glossary.md`, but there is no automated enforcement. Drift in naming (for example `portfolio_number` and `pas-snapshot`) increases ambiguity and weakens cross-service contract consistency.
+The platform has a canonical shared vocabulary in `docs/standards/Domain Vocabulary Glossary.md`, but there is no automated enforcement. Drift in naming (for example `portfolio_number` and `pas-snapshot`) increases ambiguity and weakens cross-service contract consistency.
 
 ## Decision
 

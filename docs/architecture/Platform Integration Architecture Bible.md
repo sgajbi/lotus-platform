@@ -134,8 +134,8 @@ Documentation must be kept aligned with implementation continuously:
 Platform-level local orchestration must be maintained centrally in:
 
 - `platform-stack/docker-compose.yml`
-- `Local Development Runbook.md`
-- `Platform Observability Standards.md`
+- `docs/operations/Local Development Runbook.md`
+- `docs/standards/Platform Observability Standards.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`
 - `automation/Validate-Platform-Contract.ps1`
 

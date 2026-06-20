@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 334,
+    "markdown_file_count": 356,
     "powershell_file_count": 62,
-    "python_file_count": 152,
-    "source_file_count": 687,
+    "python_file_count": 153,
+    "source_file_count": 711,
     "suffix_counts": {
       ".json": 108,
-      ".md": 334,
+      ".md": 356,
       ".ps1": 62,
-      ".py": 152,
-      ".txt": 4,
+      ".py": 153,
+      ".txt": 5,
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 296391
+    "total_source_lines": 299658
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -213,8 +213,8 @@
       },
       {
         "complexity": 8,
-        "end_line": 476,
-        "line": 117,
+        "end_line": 483,
+        "line": 124,
         "lines": 360,
         "name": "validate_service_addressing",
         "path": "automation/validate_service_addressing.py"
@@ -349,18 +349,18 @@
       },
       {
         "complexity": 2,
-        "end_line": 167,
+        "end_line": 170,
         "line": 9,
-        "lines": 159,
+        "lines": 162,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       }
     ],
     "max_complexity": 83,
     "max_function_lines": 393,
-    "python_function_count": 1286
+    "python_function_count": 1289
   },
-  "generated_at_utc": "2026-06-20T03:24:02Z",
+  "generated_at_utc": "2026-06-20T03:34:38Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 508,
+    "collected_tests": 510,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "508 tests collected in 0.51s"
+    "summary": "510 tests collected in 0.56s"
   }
 }

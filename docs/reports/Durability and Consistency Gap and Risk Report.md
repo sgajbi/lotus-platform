@@ -46,7 +46,7 @@ Done criteria:
 - Validation script is repeatable and committed in PPD automation.
 
 Required artifacts:
-- `Durability and Consistency Standard.md`
+- `docs/standards/Durability and Consistency Standard.md`
 - `output/durability-consistency-compliance.json`
 - `output/durability-consistency-compliance.md`
 - per-repo `docs/standards/durability-consistency.md`

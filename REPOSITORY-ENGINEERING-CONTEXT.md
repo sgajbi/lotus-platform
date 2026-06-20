@@ -55,6 +55,9 @@ Current repository posture:
    resolved from `automation/repos.json`; use `-Repositories` only for bounded rollout slices.
 10. `automation/generate_automation_inventory.py` writes `quality/automation_inventory.*` so cleanup
     work can separate genuinely dead automation from under-documented but maintained scripts.
+11. Durable standards, runbooks, architecture notes, reports, onboarding, and archived legacy mirrors
+    live under `docs/` with [docs/README.md](./docs/README.md) as the index. Repo-root Markdown is
+    intentionally limited to `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
 ## Architecture And Module Map
 
@@ -79,18 +82,21 @@ Primary areas:
    Platform and ecosystem RFCs.
 7. `context/`
    The central context system introduced by RFC-0073.
-8. `tests/unit/`
+8. `docs/`
+   Durable standards, architecture notes, operations runbooks, onboarding, reports, documentation
+   governance, and archived legacy mirrors.
+9. `tests/unit/`
    Contract tests for platform validators, automation, standards, and documentation governance.
-9. `wiki/`
+10. `wiki/`
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
-10. `docs/documentation/`
+11. `docs/documentation/`
    deep documentation governance and layering guidance for Lotus documentation surfaces.
-11. `thought-leadership/`
+12. `thought-leadership/`
    non-product personal-brand content workflows, including LinkedIn thought-leadership drafts,
    ledgers, themes, and voice guidance. This area preserves drafting memory for authentic,
    non-confidential, Lotus-adjacent professional content and must not be treated as product truth,
    customer evidence, or platform marketing material.
-12. `quality/`
+13. `quality/`
    enterprise backend refactor baseline, scorecard, quality gate rules, security findings tracker,
    and refactor decision log. This is measured refactor evidence and planning truth, not generated
    product output.
@@ -341,8 +347,8 @@ Most relevant current governance:
 1. [RFC-0071](./rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
 2. [RFC-0072](./rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
 3. [RFC-0073](./rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
-4. [Continuous Integration, Validation, and Release Governance Standard](./Continuous%20Integration%2C%20Validation%20and%20Release%20Governance%20Standard.md)
-5. [Platform Integration Architecture Bible](./Platform%20Integration%20Architecture%20Bible.md)
+4. [Continuous Integration, Validation, and Release Governance Standard](./docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
+5. [Platform Integration Architecture Bible](./docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
 
 ## Known Constraints And Implementation Notes
 

@@ -19,6 +19,14 @@ http://performance.dev.lotus {
   reverse_proxy lotus-performance:8000
 }
 
+http://risk.dev.lotus {
+  reverse_proxy host.docker.internal:8130
+}
+
+http://advise.dev.lotus {
+  reverse_proxy host.docker.internal:8000
+}
+
 http://report.dev.lotus {
   reverse_proxy lotus-report:8300
 }

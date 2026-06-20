@@ -362,7 +362,7 @@ Existing files to link or update during implementation:
 6. `context/playbooks/PR-LOOP-PLAYBOOK.md`
 7. `context/playbooks/VALIDATION-PLAYBOOK.md`
 8. `automation/README.md`
-9. `Local Development Runbook.md`
+9. `docs/operations/Local Development Runbook.md`
 
 Repository-local documents should only link to the onboarding guide where repo-specific setup depends on platform bootstrap. They must not duplicate the full onboarding procedure.
 

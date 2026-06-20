@@ -372,27 +372,27 @@
     "standards_registry":  [
                                {
                                    "name":  "Continuous Integration, Validation, and Release Governance Standard",
-                                   "path":  "Continuous Integration, Validation, and Release Governance Standard.md",
+                                   "path":  "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Testing Pyramid and Coverage Standard",
-                                   "path":  "Testing Pyramid and Coverage Standard.md",
+                                   "path":  "docs/standards/Testing Pyramid and Coverage Standard.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Dependency Hygiene and Security Standard",
-                                   "path":  "Dependency Hygiene and Security Standard.md",
+                                   "path":  "docs/standards/Dependency Hygiene and Security Standard.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Platform Observability Standards",
-                                   "path":  "Platform Observability Standards.md",
+                                   "path":  "docs/standards/Platform Observability Standards.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Enterprise Readiness Standard",
-                                   "path":  "Enterprise Readiness Standard.md",
+                                   "path":  "docs/standards/Enterprise Readiness Standard.md",
                                    "scope":  "platform-wide"
                                },
                                {
@@ -402,17 +402,17 @@
                                },
                                {
                                    "name":  "Scalability and Availability Standard",
-                                   "path":  "Scalability and Availability Standard.md",
+                                   "path":  "docs/standards/Scalability and Availability Standard.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Domain Vocabulary Glossary",
-                                   "path":  "Domain Vocabulary Glossary.md",
+                                   "path":  "docs/standards/Domain Vocabulary Glossary.md",
                                    "scope":  "platform-wide"
                                },
                                {
                                    "name":  "Platform Integration Architecture Bible",
-                                   "path":  "Platform Integration Architecture Bible.md",
+                                   "path":  "docs/architecture/Platform Integration Architecture Bible.md",
                                    "scope":  "platform-wide"
                                }
                            ],

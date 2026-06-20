@@ -1,7 +1,7 @@
 {
   "classification_counts": {
-    "covered": 82,
-    "undocumented": 39
+    "covered": 95,
+    "undocumented": 26
   },
   "entries": [
     {
@@ -30,9 +30,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 4,
       "path": "automation/Check-Background-Runs.ps1",
-      "reference_count": 9,
+      "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -45,10 +45,10 @@
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Close-PR-Loop.ps1",
-      "reference_count": 4,
+      "reference_count": 5,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -174,17 +174,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 1,
       "path": "automation/Enforce-Repository-Governance.ps1",
-      "reference_count": 4,
+      "reference_count": 5,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/Explain-Dev-Ingress-Status.ps1",
-      "reference_count": 8,
+      "reference_count": 9,
       "suffix": ".ps1",
       "test_reference_count": 2
     },
@@ -197,18 +197,18 @@
       "test_reference_count": 4
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 3,
       "path": "automation/Generate-Dependency-Vulnerability-Rollup.ps1",
-      "reference_count": 4,
+      "reference_count": 7,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Generate-Local-CI-Parity-Evidence.ps1",
-      "reference_count": 2,
+      "reference_count": 3,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -389,10 +389,10 @@
       "test_reference_count": 3
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Measure-Test-Pyramid.ps1",
-      "reference_count": 4,
+      "reference_count": 6,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -422,9 +422,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 3,
       "path": "automation/Platform-Pulse.ps1",
-      "reference_count": 8,
+      "reference_count": 9,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -510,9 +510,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 1,
+      "operator_doc_reference_count": 2,
       "path": "automation/Run-Agent.ps1",
-      "reference_count": 7,
+      "reference_count": 8,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -526,9 +526,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 3,
       "path": "automation/Run-Parallel-Tasks.ps1",
-      "reference_count": 5,
+      "reference_count": 8,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -541,26 +541,26 @@
       "test_reference_count": 1
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Service-Refresh.ps1",
-      "reference_count": 2,
+      "reference_count": 3,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 4,
       "path": "automation/Start-Background-Run.ps1",
-      "reference_count": 8,
+      "reference_count": 10,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Summarize-Task-Failures.ps1",
-      "reference_count": 4,
+      "reference_count": 6,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -574,9 +574,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 4,
+      "operator_doc_reference_count": 5,
       "path": "automation/Sync-Dev-Ingress-Hosts.ps1",
-      "reference_count": 9,
+      "reference_count": 10,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -622,9 +622,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 3,
       "path": "automation/Validate-Backend-Standards.ps1",
-      "reference_count": 9,
+      "reference_count": 12,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -638,25 +638,25 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/Validate-Dev-Ingress-Smoke.ps1",
-      "reference_count": 13,
+      "reference_count": 14,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Validate-Domain-Vocabulary.ps1",
-      "reference_count": 6,
+      "reference_count": 8,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Validate-Durability-Consistency.ps1",
-      "reference_count": 4,
+      "reference_count": 5,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -701,26 +701,26 @@
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Validate-OpenAPI-Conformance.ps1",
-      "reference_count": 7,
+      "reference_count": 9,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Validate-Platform-Contract.ps1",
-      "reference_count": 4,
+      "reference_count": 6,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/Validate-Rounding-Consistency.ps1",
-      "reference_count": 5,
+      "reference_count": 7,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -728,15 +728,15 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/Validate-Rounding-Governance.ps1",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Validate-Scalability-Availability.ps1",
-      "reference_count": 2,
+      "reference_count": 3,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -936,7 +936,7 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_supported_claim_register.py",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -965,14 +965,14 @@
       "test_reference_count": 2
     },
     {
-      "classification": "undocumented",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Verify-Repo-Metadata.ps1",
-      "reference_count": 6,
+      "reference_count": 7,
       "suffix": ".ps1",
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-06-20T03:23:36Z",
+  "generated_at_utc": "2026-06-20T03:34:37Z",
   "script_count": 121
 }

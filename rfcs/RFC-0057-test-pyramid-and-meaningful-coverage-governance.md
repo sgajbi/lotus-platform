@@ -30,7 +30,7 @@ Adopt a cross-platform standard that enforces:
 
 The standard is codified in:
 
-- `Testing Pyramid and Coverage Standard.md`
+- `docs/standards/Testing Pyramid and Coverage Standard.md`
 - `platform-contracts/cross-cutting-platform-contract.yaml`
 - `automation/test-coverage-policy.json`
 - `automation/Measure-Test-Pyramid.ps1`

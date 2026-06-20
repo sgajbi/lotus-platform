@@ -47,8 +47,8 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 ### Governing documents
 
 1. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-2. `Continuous Integration, Validation, and Release Governance Standard.md`
-3. `Local Development Runbook.md`
+2. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
+3. `docs/operations/Local Development Runbook.md`
 4. `platform-standards/Development-Workflow-and-CI-Strategy-Standard.md`
 5. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 
@@ -61,7 +61,7 @@ Turn RFC-0072 into one explicit, platform-owned CI and validation operating mode
 Evidence:
 
 1. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-2. `Continuous Integration, Validation, and Release Governance Standard.md`
+2. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 
 #### 2. Repositories can map their current workflows to the lane model
 
@@ -82,7 +82,7 @@ Note:
 Evidence:
 
 1. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-2. `Continuous Integration, Validation, and Release Governance Standard.md`
+2. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 3. `platform-standards/Development-Workflow-and-CI-Strategy-Standard.md`
 
 ## Current Scaffold Source of Truth
@@ -484,7 +484,7 @@ Evidence:
 
 1. `automation/Enforce-Repository-Governance.ps1`
 2. `automation/validate_repository_governance.py`
-3. `Continuous Integration, Validation, and Release Governance Standard.md`
+3. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 4. `platform-standards/Development-Workflow-and-CI-Strategy-Standard.md`
 5. `context/playbooks/PR-LOOP-PLAYBOOK.md`
 6. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
