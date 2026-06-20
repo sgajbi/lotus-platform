@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300724
+    "total_source_lines": 300808
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 25,
-        "end_line": 148,
-        "line": 53,
-        "lines": 96,
-        "name": "validate_mesh_access_policies",
-        "path": "automation/validate_mesh_access_policies.py"
-      },
       {
         "complexity": 25,
         "end_line": 172,
@@ -192,6 +184,14 @@
         "lines": 135,
         "name": "validate_delegation_policy_contract",
         "path": "automation/validate_agent_engineering_contracts.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 237,
+        "line": 152,
+        "lines": 86,
+        "name": "validate_heartbeat_contract",
+        "path": "automation/validate_heartbeat_contracts.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 25,
     "max_function_lines": 393,
-    "python_function_count": 1376
+    "python_function_count": 1382
   },
-  "generated_at_utc": "2026-06-20T04:59:47Z",
+  "generated_at_utc": "2026-06-20T05:03:50Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.53s"
+    "summary": "510 tests collected in 0.50s"
   }
 }
