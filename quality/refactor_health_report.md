@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:54:10Z`
+Generated: `2026-06-20T08:58:00Z`
 
 ## Completed Slices
 
@@ -290,6 +290,10 @@ Generated: `2026-06-20T08:54:10Z`
     live-summary evidence validation, sensitive scan path assembly, and result writing are isolated
     behind focused helpers, removing the canonical proof reviewer from the top measured complexity
     hotspot list while preserving RFC-0108 proof review output.
+79. Analytics UI ecosystem proof journey validator extraction so API check lookup, failed API
+    detection, panel-state policy, and per-journey evidence assembly are isolated behind focused
+    helpers, removing the ecosystem proof journey validator from the top measured complexity
+    hotspot list while preserving RFC-0108 ecosystem proof review behavior.
 
 ## Evidence
 

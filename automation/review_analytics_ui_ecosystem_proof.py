@@ -137,17 +137,93 @@ def _validate_runtime_identity(
     return evidence
 
 
+def _journey_source_checks(live_summary: dict[str, Any]) -> tuple[
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+]:
+    return (
+        {
+            **_description_index(live_summary.get("apiChecks")),
+            **_description_index(live_summary.get("uiChecks")),
+        },
+        _panel_index(live_summary.get("panelClassifications")),
+    )
+
+
+def _missing_or_failed_journey_apis(
+    *,
+    errors: list[str],
+    journey_id: str,
+    journey: dict[str, Any],
+    api_checks: dict[str, dict[str, Any]],
+) -> list[str]:
+    missing_apis = []
+    for expected_description in journey.get("required_api_descriptions", []):
+        if expected_description not in api_checks:
+            missing_apis.append(expected_description)
+            continue
+        status = str(api_checks[expected_description].get("status", "")).lower()
+        if status in FAILED_API_STATES:
+            errors.append(f"{journey_id}: API check failed: {expected_description}")
+    return missing_apis
+
+
+def _panel_state_is_allowed(
+    *, panel_id: str, state: str, allowed_partial_panels: set[str]
+) -> bool:
+    if panel_id in allowed_partial_panels:
+        return state in READY_PANEL_STATES | {"partial"}
+    return state in READY_PANEL_STATES
+
+
+def _missing_or_invalid_journey_panels(
+    *,
+    errors: list[str],
+    journey_id: str,
+    journey: dict[str, Any],
+    panel_checks: dict[str, dict[str, Any]],
+    allowed_partial_panels: set[str],
+) -> list[str]:
+    missing_panels = []
+    for expected_panel in journey.get("required_panel_ids", []):
+        panel = panel_checks.get(expected_panel)
+        if panel is None:
+            missing_panels.append(expected_panel)
+            continue
+
+        state = str(panel.get("state", ""))
+        if _panel_state_is_allowed(
+            panel_id=expected_panel,
+            state=state,
+            allowed_partial_panels=allowed_partial_panels,
+        ):
+            continue
+
+        if expected_panel in allowed_partial_panels:
+            errors.append(
+                f"{journey_id}: panel {expected_panel} has unexpected state {state}"
+            )
+        else:
+            errors.append(
+                f"{journey_id}: panel {expected_panel} must be ready, got {state}"
+            )
+    return missing_panels
+
+
+def _journey_evidence(journey: dict[str, Any]) -> dict[str, int]:
+    return {
+        "api_checks": len(journey.get("required_api_descriptions", [])),
+        "panel_checks": len(journey.get("required_panel_ids", [])),
+    }
+
+
 def _validate_journeys(
     *,
     errors: list[str],
     live_summary: dict[str, Any],
     proof_contract: dict[str, Any],
 ) -> dict[str, Any]:
-    api_checks = {
-        **_description_index(live_summary.get("apiChecks")),
-        **_description_index(live_summary.get("uiChecks")),
-    }
-    panel_checks = _panel_index(live_summary.get("panelClassifications"))
+    api_checks, panel_checks = _journey_source_checks(live_summary)
     allowed_partial_panels = set(
         proof_contract.get("canonical_runtime", {}).get("allowed_partial_panels", [])
     )
@@ -155,40 +231,25 @@ def _validate_journeys(
 
     for journey in proof_contract.get("required_journeys", []):
         journey_id = str(journey.get("journey_id", "<missing>"))
-        missing_apis = []
-        for expected_description in journey.get("required_api_descriptions", []):
-            if expected_description not in api_checks:
-                missing_apis.append(expected_description)
-                continue
-            status = str(api_checks[expected_description].get("status", "")).lower()
-            if status in FAILED_API_STATES:
-                errors.append(f"{journey_id}: API check failed: {expected_description}")
-
-        missing_panels = []
-        for expected_panel in journey.get("required_panel_ids", []):
-            panel = panel_checks.get(expected_panel)
-            if panel is None:
-                missing_panels.append(expected_panel)
-                continue
-            state = str(panel.get("state", ""))
-            if expected_panel in allowed_partial_panels:
-                if state not in READY_PANEL_STATES | {"partial"}:
-                    errors.append(
-                        f"{journey_id}: panel {expected_panel} has unexpected state {state}"
-                    )
-            elif state not in READY_PANEL_STATES:
-                errors.append(
-                    f"{journey_id}: panel {expected_panel} must be ready, got {state}"
-                )
+        missing_apis = _missing_or_failed_journey_apis(
+            errors=errors,
+            journey_id=journey_id,
+            journey=journey,
+            api_checks=api_checks,
+        )
+        missing_panels = _missing_or_invalid_journey_panels(
+            errors=errors,
+            journey_id=journey_id,
+            journey=journey,
+            panel_checks=panel_checks,
+            allowed_partial_panels=allowed_partial_panels,
+        )
 
         if missing_apis:
             errors.append(f"{journey_id}: missing API checks {missing_apis}")
         if missing_panels:
             errors.append(f"{journey_id}: missing panel classifications {missing_panels}")
-        journey_evidence[journey_id] = {
-            "api_checks": len(journey.get("required_api_descriptions", [])),
-            "panel_checks": len(journey.get("required_panel_ids", [])),
-        }
+        journey_evidence[journey_id] = _journey_evidence(journey)
 
     return {"journeys": journey_evidence}
 

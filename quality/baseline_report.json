@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304934
+    "total_source_lines": 304999
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 193,
-        "line": 140,
-        "lines": 54,
-        "name": "_validate_journeys",
-        "path": "automation/review_analytics_ui_ecosystem_proof.py"
-      },
       {
         "complexity": 12,
         "end_line": 315,
@@ -67,8 +59,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 252,
-        "line": 216,
+        "end_line": 313,
+        "line": 277,
         "lines": 37,
         "name": "_validate_screenshots",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 11,
-        "end_line": 522,
-        "line": 423,
+        "end_line": 583,
+        "line": 484,
         "lines": 100,
         "name": "review_ecosystem_proof",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
@@ -192,6 +184,14 @@
         "lines": 33,
         "name": "_validate_certified_route_groups",
         "path": "automation/validate_analytics_ui_rollout_readiness.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 262,
+        "line": 236,
+        "lines": 27,
+        "name": "_validate_freshness_age",
+        "path": "automation/validate_trust_telemetry.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 818,
+        "end_line": 822,
         "line": 489,
-        "lines": 330,
+        "lines": 334,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1712
+    "python_function_count": 1717
   },
-  "generated_at_utc": "2026-06-20T08:54:10Z",
+  "generated_at_utc": "2026-06-20T08:58:00Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "523 tests collected in 0.57s"
+    "summary": "523 tests collected in 0.61s"
   }
 }
