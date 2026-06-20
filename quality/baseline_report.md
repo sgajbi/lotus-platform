@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T09:00:46Z`
+Generated: `2026-06-20T09:04:22Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `305046`
+- Total source lines: `305090`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1721`
+- Python functions: `1725`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_analytics_ui_ecosystem_hardening.py | _validate_api_and_proof | 143 | 12 | 39 |
 | automation/heartbeat_sources.py | _append_delegated_task_overlap_attention | 853 | 12 | 37 |
 | automation/review_analytics_ui_ecosystem_proof.py | _validate_screenshots | 277 | 12 | 37 |
 | automation/validate_engineering_context_system.py | _validate_agents_operating_contract | 197 | 12 | 34 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_suppressions | 624 | 12 | 28 |
 | automation/review_analytics_ui_ecosystem_proof.py | review_ecosystem_proof | 484 | 11 | 100 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_producer_contract | 753 | 11 | 80 |
+| automation/heartbeat_sources.py | _collect_delegated_task_attention | 778 | 11 | 73 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `523`
 - Collection command return code: `0`
-- Collection summary: `523 tests collected in 0.53s`
+- Collection summary: `523 tests collected in 0.57s`
 
 ## Security Baseline
 
