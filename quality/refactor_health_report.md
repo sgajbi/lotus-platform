@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:00:38Z`
+Generated: `2026-06-20T07:05:35Z`
 
 ## Completed Slices
 
@@ -198,6 +198,11 @@ Generated: `2026-06-20T07:00:38Z`
     exception checks, write-permission drift checks, note construction, and final pass/fail
     evaluation are isolated behind focused helpers, lowering the highest measured complexity ceiling
     while preserving workflow security gate behavior.
+56. Core-performance attribution validator extraction so stateful TWR request/following, TWR
+    relative-return extraction, attribution input-mode checks, benchmark-context validation,
+    supported-window attribution summarization, reconciliation defect checks, and result assembly are
+    isolated behind focused helpers, removing the live attribution validator from the top measured
+    complexity hotspot list while preserving cross-app attribution validation behavior.
 
 ## Evidence
 

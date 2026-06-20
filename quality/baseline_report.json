@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302792
+    "total_source_lines": 302921
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 15,
-        "end_line": 407,
-        "line": 216,
-        "lines": 192,
-        "name": "_run_validation_once",
-        "path": "automation/core_performance_attribution_validation.py"
-      },
       {
         "complexity": 15,
         "end_line": 289,
@@ -192,6 +184,14 @@
         "lines": 77,
         "name": "_lotus_ai_queue_item_attention",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 484,
+        "line": 417,
+        "lines": 68,
+        "name": "_evaluate_expected_posture",
+        "path": "automation/core_performance_cross_app_validation.py"
       }
     ],
     "largest_functions": [
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 726,
+        "end_line": 731,
         "line": 489,
-        "lines": 238,
+        "lines": 243,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -266,14 +266,6 @@
         "lines": 206,
         "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 407,
-        "line": 216,
-        "lines": 192,
-        "name": "_run_validation_once",
-        "path": "automation/core_performance_attribution_validation.py"
       },
       {
         "complexity": 1,
@@ -354,13 +346,21 @@
         "lines": 133,
         "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 788,
+        "line": 657,
+        "lines": 132,
+        "name": "test_rfc_0084_validator_rejects_version_drift_without_approved_transition",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 15,
     "max_function_lines": 393,
-    "python_function_count": 1568
+    "python_function_count": 1578
   },
-  "generated_at_utc": "2026-06-20T07:00:38Z",
+  "generated_at_utc": "2026-06-20T07:05:35Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.54s"
+    "summary": "510 tests collected in 0.59s"
   }
 }

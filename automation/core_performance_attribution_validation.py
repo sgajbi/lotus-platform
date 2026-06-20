@@ -213,6 +213,221 @@ def _resolve_supported_window_attribution(
     return _empty_stateful_attribution()
 
 
+def _post_stateful_twr(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> requests.Response:
+    return _post_json(
+        session,
+        f"{performance_base_url}/performance/twr",
+        {
+            "portfolio_id": scenario_ids.portfolio_id,
+            "report_end_date": "2026-03-20",
+            "performance_start_date": "2026-03-17",
+            "metric_basis": "NET",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "input_mode": "stateful",
+            "stateful_input": {},
+            "include_benchmark": True,
+        },
+    )
+
+
+def _follow_twr_response(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+) -> dict[str, object]:
+    return _follow_async_result(
+        session,
+        response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/twr/results",
+    )
+
+
+def _twr_relative_return(twr: dict[str, object]) -> Decimal:
+    return Decimal(
+        str(twr["results_by_period"]["ITD"]["relative_performance"]["summary"]["period_return"]["base"])
+    )
+
+
+def _record_attribution_input_mode_defect(
+    *,
+    defects: list[dict[str, str]],
+    attribution: dict[str, object],
+) -> None:
+    if attribution.get("input_mode") == "stateful":
+        return
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_INPUT_MODE_MISMATCH",
+            "message": "Attribution response did not preserve stateful input mode.",
+            "evidence": json.dumps({"input_mode": attribution.get("input_mode")}),
+        }
+    )
+
+
+def _benchmark_context_or_none(
+    supported_attribution: dict[str, object],
+) -> dict[str, object] | None:
+    benchmark_context = supported_attribution.get("benchmark_context")
+    return benchmark_context if isinstance(benchmark_context, dict) else None
+
+
+def _record_benchmark_context_defect(
+    *,
+    defects: list[dict[str, str]],
+    benchmark_context: dict[str, object] | None,
+    scenario_ids: ScenarioIds,
+) -> None:
+    if (benchmark_context or {}).get("benchmark_id") in {None, scenario_ids.benchmark_id}:
+        return
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_BENCHMARK_CONTEXT_MISMATCH",
+            "message": "Attribution benchmark context did not resolve the seeded benchmark assignment.",
+            "evidence": json.dumps(benchmark_context or {}),
+        }
+    )
+
+
+def _summarize_supported_attribution(
+    supported_attribution: dict[str, object],
+) -> tuple[Decimal | None, Decimal | None, Decimal | None, list[dict[str, object]], list[str]]:
+    if "ITD" not in supported_attribution.get("results_by_period", {}):
+        return None, None, None, [], []
+
+    attribution_itd = supported_attribution["results_by_period"]["ITD"]
+    reconciliation = attribution_itd["reconciliation"]
+    first_level = attribution_itd["levels"][0]
+    level_totals = first_level["totals"]
+    total_active = Decimal(str(reconciliation["total_active_return"]))
+    summed_effects = Decimal(str(reconciliation["sum_of_effects"]))
+    level_total_effect = Decimal(str(level_totals["total_effect"]))
+    supported_groups_summary = [
+        {
+            "key": group["key"],
+            "allocation": str(group["allocation"]),
+            "selection": str(group["selection"]),
+            "interaction": str(group["interaction"]),
+            "total_effect": str(group["total_effect"]),
+        }
+        for group in first_level["groups"]
+    ]
+    duplicate_normalized_group_keys = _find_duplicate_normalized_group_keys(first_level["groups"])
+    return (
+        total_active,
+        summed_effects,
+        level_total_effect,
+        supported_groups_summary,
+        duplicate_normalized_group_keys,
+    )
+
+
+def _record_attribution_reconciliation_defects(
+    *,
+    defects: list[dict[str, str]],
+    tolerance: Decimal,
+    twr_relative: Decimal,
+    total_active: Decimal | None,
+    summed_effects: Decimal | None,
+    level_total_effect: Decimal | None,
+    supported_groups_summary: list[dict[str, object]],
+    duplicate_normalized_group_keys: list[str],
+) -> None:
+    if level_total_effect is not None and summed_effects is not None:
+        if abs(level_total_effect - summed_effects) > tolerance:
+            defects.append(
+                {
+                    "app": "lotus-performance",
+                    "code": "ATTRIBUTION_LEVEL_TOTAL_MISMATCH",
+                    "message": "Attribution top-level totals do not reconcile to the reported sum_of_effects.",
+                    "evidence": json.dumps(
+                        {
+                            "level_total_effect": str(level_total_effect),
+                            "sum_of_effects": str(summed_effects),
+                        }
+                    ),
+                }
+            )
+
+    if duplicate_normalized_group_keys:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_GROUP_KEY_CANONICALIZATION_GAP",
+                "message": "Attribution produced duplicate first-level benchmark groups that only differ by key casing or label normalization.",
+                "evidence": json.dumps(
+                    {
+                        "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
+                        "groups": supported_groups_summary,
+                    }
+                ),
+            }
+        )
+
+    if total_active is not None and abs(total_active - twr_relative) > tolerance:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_TWR_ACTIVE_MISMATCH",
+                "message": "Attribution total active return does not align with benchmark-inclusive TWR for the same portfolio and window.",
+                "evidence": json.dumps(
+                    {
+                        "attribution_total_active_return": str(total_active),
+                        "twr_relative_return": str(twr_relative),
+                    }
+                ),
+            }
+        )
+
+
+def _supported_group_count(supported_attribution: dict[str, object]) -> int:
+    if "ITD" not in supported_attribution.get("results_by_period", {}):
+        return 0
+    return len(supported_attribution["results_by_period"]["ITD"]["levels"][0]["groups"])
+
+
+def _build_validation_result(
+    *,
+    defects: list[dict[str, str]],
+    scenario_ids: ScenarioIds,
+    supported_attribution: dict[str, object],
+    benchmark_context: dict[str, object] | None,
+    acquisition_day_guarded: bool,
+    acquisition_day_contract_consistent: bool,
+    supported_groups_summary: list[dict[str, object]],
+    duplicate_normalized_group_keys: list[str],
+    total_active: Decimal | None,
+    summed_effects: Decimal | None,
+    twr_relative: Decimal,
+) -> dict[str, object]:
+    return {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "status": "passed" if not defects else "failed",
+        "scenario": asdict(scenario_ids),
+        "performance": {
+            "input_mode": supported_attribution.get("input_mode"),
+            "benchmark_context": benchmark_context,
+            "acquisition_day_guarded": acquisition_day_guarded,
+            "acquisition_day_contract_consistent": acquisition_day_contract_consistent,
+            "group_count": _supported_group_count(supported_attribution),
+            "supported_window_groups": supported_groups_summary,
+            "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
+            "attribution_total_active_return": str(total_active) if total_active is not None else None,
+            "attribution_sum_of_effects": str(summed_effects) if summed_effects is not None else None,
+            "twr_relative_return": str(twr_relative),
+            "defects": defects,
+        },
+    }
+
+
 def _run_validation_once(
     *,
     scenario_ids: ScenarioIds,
@@ -263,148 +478,57 @@ def _run_validation_once(
             defects=defects,
         )
 
-        twr_response = _post_json(
-            session,
-            f"{performance_base_url}/performance/twr",
-            {
-                "portfolio_id": scenario_ids.portfolio_id,
-                "report_end_date": "2026-03-20",
-                "performance_start_date": "2026-03-17",
-                "metric_basis": "NET",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "input_mode": "stateful",
-                "stateful_input": {},
-                "include_benchmark": True,
-            },
-        )
-        twr = _follow_async_result(
-            session,
-            twr_response,
+        twr_response = _post_stateful_twr(
+            session=session,
             performance_base_url=performance_base_url,
-            fallback_result_prefix="/performance/twr/results",
+            scenario_ids=scenario_ids,
+        )
+        twr = _follow_twr_response(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=twr_response,
         )
 
-        twr_relative = Decimal(
-            str(twr["results_by_period"]["ITD"]["relative_performance"]["summary"]["period_return"]["base"])
-        )
+        twr_relative = _twr_relative_return(twr)
         tolerance = Decimal("0.0001")
-        total_active: Decimal | None = None
-        summed_effects: Decimal | None = None
-        level_total_effect: Decimal | None = None
-        supported_groups_summary: list[dict[str, object]] = []
-        duplicate_normalized_group_keys: list[str] = []
+        _record_attribution_input_mode_defect(defects=defects, attribution=attribution)
+        benchmark_context = _benchmark_context_or_none(supported_attribution)
+        _record_benchmark_context_defect(
+            defects=defects,
+            benchmark_context=benchmark_context,
+            scenario_ids=scenario_ids,
+        )
+        (
+            total_active,
+            summed_effects,
+            level_total_effect,
+            supported_groups_summary,
+            duplicate_normalized_group_keys,
+        ) = _summarize_supported_attribution(supported_attribution)
+        _record_attribution_reconciliation_defects(
+            defects=defects,
+            tolerance=tolerance,
+            twr_relative=twr_relative,
+            total_active=total_active,
+            summed_effects=summed_effects,
+            level_total_effect=level_total_effect,
+            supported_groups_summary=supported_groups_summary,
+            duplicate_normalized_group_keys=duplicate_normalized_group_keys,
+        )
 
-        if attribution.get("input_mode") != "stateful":
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "ATTRIBUTION_INPUT_MODE_MISMATCH",
-                    "message": "Attribution response did not preserve stateful input mode.",
-                    "evidence": json.dumps({"input_mode": attribution.get("input_mode")}),
-                }
-            )
-
-        benchmark_context = supported_attribution.get("benchmark_context")
-        if not isinstance(benchmark_context, dict):
-            benchmark_context = None
-
-        if (benchmark_context or {}).get("benchmark_id") not in {None, scenario_ids.benchmark_id}:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "ATTRIBUTION_BENCHMARK_CONTEXT_MISMATCH",
-                    "message": "Attribution benchmark context did not resolve the seeded benchmark assignment.",
-                    "evidence": json.dumps(benchmark_context or {}),
-                }
-            )
-
-        if "ITD" in supported_attribution.get("results_by_period", {}):
-            attribution_itd = supported_attribution["results_by_period"]["ITD"]
-            reconciliation = attribution_itd["reconciliation"]
-            first_level = attribution_itd["levels"][0]
-            level_totals = first_level["totals"]
-            total_active = Decimal(str(reconciliation["total_active_return"]))
-            summed_effects = Decimal(str(reconciliation["sum_of_effects"]))
-            level_total_effect = Decimal(str(level_totals["total_effect"]))
-            supported_groups_summary = [
-                {
-                    "key": group["key"],
-                    "allocation": str(group["allocation"]),
-                    "selection": str(group["selection"]),
-                    "interaction": str(group["interaction"]),
-                    "total_effect": str(group["total_effect"]),
-                }
-                for group in first_level["groups"]
-            ]
-            duplicate_normalized_group_keys = _find_duplicate_normalized_group_keys(first_level["groups"])
-
-            if abs(level_total_effect - summed_effects) > tolerance:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_LEVEL_TOTAL_MISMATCH",
-                        "message": "Attribution top-level totals do not reconcile to the reported sum_of_effects.",
-                        "evidence": json.dumps(
-                            {
-                                "level_total_effect": str(level_total_effect),
-                                "sum_of_effects": str(summed_effects),
-                            }
-                        ),
-                    }
-                )
-
-            if duplicate_normalized_group_keys:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_GROUP_KEY_CANONICALIZATION_GAP",
-                        "message": "Attribution produced duplicate first-level benchmark groups that only differ by key casing or label normalization.",
-                        "evidence": json.dumps(
-                            {
-                                "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
-                                "groups": supported_groups_summary,
-                            }
-                        ),
-                    }
-                )
-
-            if abs(total_active - twr_relative) > tolerance:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_TWR_ACTIVE_MISMATCH",
-                        "message": "Attribution total active return does not align with benchmark-inclusive TWR for the same portfolio and window.",
-                        "evidence": json.dumps(
-                            {
-                                "attribution_total_active_return": str(total_active),
-                                "twr_relative_return": str(twr_relative),
-                            }
-                        ),
-                    }
-                )
-
-    return {
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "status": "passed" if not defects else "failed",
-        "scenario": asdict(scenario_ids),
-        "performance": {
-            "input_mode": supported_attribution.get("input_mode"),
-            "benchmark_context": benchmark_context,
-            "acquisition_day_guarded": acquisition_day_guarded,
-            "acquisition_day_contract_consistent": acquisition_day_contract_consistent,
-            "group_count": (
-                len(supported_attribution["results_by_period"]["ITD"]["levels"][0]["groups"])
-                if "ITD" in supported_attribution.get("results_by_period", {})
-                else 0
-            ),
-            "supported_window_groups": supported_groups_summary,
-            "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
-            "attribution_total_active_return": str(total_active) if total_active is not None else None,
-            "attribution_sum_of_effects": str(summed_effects) if summed_effects is not None else None,
-            "twr_relative_return": str(twr_relative),
-            "defects": defects,
-        },
-    }
+    return _build_validation_result(
+        defects=defects,
+        scenario_ids=scenario_ids,
+        supported_attribution=supported_attribution,
+        benchmark_context=benchmark_context,
+        acquisition_day_guarded=acquisition_day_guarded,
+        acquisition_day_contract_consistent=acquisition_day_contract_consistent,
+        supported_groups_summary=supported_groups_summary,
+        duplicate_normalized_group_keys=duplicate_normalized_group_keys,
+        total_active=total_active,
+        summed_effects=summed_effects,
+        twr_relative=twr_relative,
+    )
 
 
 def _find_duplicate_normalized_group_keys(groups: list[dict[str, object]]) -> list[str]:
