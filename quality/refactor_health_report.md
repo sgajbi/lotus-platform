@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T05:38:36Z`
+Generated: `2026-06-20T05:45:14Z`
 
 ## Completed Slices
 
@@ -122,6 +122,10 @@ Generated: `2026-06-20T05:38:36Z`
 36. Analytics ecosystem matrix feature-status extraction so lifecycle-to-feature implementation
     rules and per-feature status checks are isolated behind focused helpers, lowering the highest
     measured complexity hotspot while preserving RFC-0108 ecosystem completion behavior.
+37. Core-performance attribution validator extraction so source polling, stateful attribution
+    request construction, async attribution result following, and acquisition/supported-window
+    failure handling are isolated behind focused helpers, removing the live attribution validator
+    from the top measured complexity hotspot list while preserving cross-app validation behavior.
 
 ## Evidence
 

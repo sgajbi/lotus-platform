@@ -20,6 +20,199 @@ from core_performance_twr_benchmark_validation import (
 )
 
 
+def _empty_stateful_attribution() -> dict[str, object]:
+    return {
+        "input_mode": "stateful",
+        "benchmark_context": None,
+        "results_by_period": {},
+    }
+
+
+def _poll_core_attribution_sources(
+    *,
+    session: requests.Session,
+    core_query_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> None:
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+        },
+        predicate=lambda payload: len(payload.get("observations", [])) == 5,
+    )
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/position-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+            "dimensions": ["asset_class", "sector"],
+        },
+        predicate=lambda payload: len(payload.get("rows", [])) >= 10,
+    )
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-17", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+        },
+        predicate=lambda payload: len(payload.get("observations", [])) == 4,
+    )
+
+
+def _post_stateful_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+    report_start_date: str,
+) -> requests.Response:
+    return session.post(
+        f"{performance_base_url}/performance/attribution",
+        json={
+            "portfolio_id": scenario_ids.portfolio_id,
+            "mode": "by_instrument",
+            "group_by": ["asset_class"],
+            "linking": "carino",
+            "frequency": "daily",
+            "report_start_date": report_start_date,
+            "report_end_date": "2026-03-20",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "input_mode": "stateful",
+            "stateful_input": {},
+        },
+        timeout=30,
+    )
+
+
+def _follow_attribution_response(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+) -> dict[str, object]:
+    return _follow_async_result(
+        session,
+        response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/attribution/results",
+    )
+
+
+def _record_acquisition_day_attribution_failure(
+    *,
+    defects: list[dict[str, str]],
+    response: requests.Response,
+) -> None:
+    detail = response.text
+    if "portfolio timeseries does not align with summed position timeseries" in detail:
+        defects.append(
+            {
+                "app": "lotus-core",
+                "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
+                "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the acquisition-day attribution window.",
+                "evidence": detail,
+            }
+        )
+    elif response.status_code != 422:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
+                "message": "Acquisition-day attribution returned an unexpected non-success response.",
+                "evidence": detail,
+            }
+        )
+
+
+def _record_supported_window_attribution_failure(
+    *,
+    defects: list[dict[str, str]],
+    response: requests.Response,
+) -> None:
+    detail = response.text
+    if "portfolio timeseries does not align with summed position timeseries" in detail:
+        defects.append(
+            {
+                "app": "lotus-core",
+                "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
+                "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the same seeded attribution window.",
+                "evidence": detail,
+            }
+        )
+        return
+
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
+            "message": "Supported-window stateful attribution failed unexpectedly.",
+            "evidence": detail,
+        }
+    )
+
+
+def _resolve_acquisition_day_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+    defects: list[dict[str, str]],
+) -> tuple[dict[str, object], bool, bool]:
+    acquisition_day_guarded = response.status_code == 422 and (
+        "cannot safely compute acquisition-day position returns" in response.text
+    )
+    acquisition_day_contract_consistent = response.status_code in (200, 202)
+    if response.status_code in (200, 202):
+        return (
+            _follow_attribution_response(
+                session=session,
+                performance_base_url=performance_base_url,
+                response=response,
+            ),
+            acquisition_day_guarded,
+            acquisition_day_contract_consistent,
+        )
+
+    _record_acquisition_day_attribution_failure(defects=defects, response=response)
+    return (
+        _empty_stateful_attribution(),
+        acquisition_day_guarded,
+        acquisition_day_contract_consistent,
+    )
+
+
+def _resolve_supported_window_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+    defects: list[dict[str, str]],
+) -> dict[str, object]:
+    if response.status_code in (200, 202):
+        return _follow_attribution_response(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=response,
+        )
+
+    _record_supported_window_attribution_failure(defects=defects, response=response)
+    return _empty_stateful_attribution()
+
+
 def _run_validation_once(
     *,
     scenario_ids: ScenarioIds,
@@ -34,147 +227,41 @@ def _run_validation_once(
         if not skip_seed:
             _seed_core_data(session, ingestion_base_url=core_ingestion_base_url, ids=scenario_ids)
 
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-            },
-            predicate=lambda payload: len(payload.get("observations", [])) == 5,
-        )
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/position-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-                "dimensions": ["asset_class", "sector"],
-            },
-            predicate=lambda payload: len(payload.get("rows", [])) >= 10,
-        )
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-17", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-            },
-            predicate=lambda payload: len(payload.get("observations", [])) == 4,
+        _poll_core_attribution_sources(
+            session=session,
+            core_query_base_url=core_query_base_url,
+            scenario_ids=scenario_ids,
         )
 
-        attribution_request = {
-            "portfolio_id": scenario_ids.portfolio_id,
-            "mode": "by_instrument",
-            "group_by": ["asset_class"],
-            "linking": "carino",
-            "frequency": "daily",
-            "report_start_date": "2026-03-16",
-            "report_end_date": "2026-03-20",
-            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-            "input_mode": "stateful",
-            "stateful_input": {},
-        }
-        attribution_raw = session.post(
-            f"{performance_base_url}/performance/attribution",
-            json=attribution_request,
-            timeout=30,
+        attribution_raw = _post_stateful_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            scenario_ids=scenario_ids,
+            report_start_date="2026-03-16",
         )
-        acquisition_day_guarded = attribution_raw.status_code == 422 and (
-            "cannot safely compute acquisition-day position returns" in attribution_raw.text
+        (
+            attribution,
+            acquisition_day_guarded,
+            acquisition_day_contract_consistent,
+        ) = _resolve_acquisition_day_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=attribution_raw,
+            defects=defects,
         )
-        acquisition_day_contract_consistent = attribution_raw.status_code in (200, 202)
 
-        if attribution_raw.status_code in (200, 202):
-            attribution = _follow_async_result(
-                session,
-                attribution_raw,
-                performance_base_url=performance_base_url,
-                fallback_result_prefix="/performance/attribution/results",
-            )
-        else:
-            attribution = {
-                "input_mode": "stateful",
-                "benchmark_context": None,
-                "results_by_period": {},
-            }
-            detail = attribution_raw.text
-            if "portfolio timeseries does not align with summed position timeseries" in detail:
-                defects.append(
-                    {
-                        "app": "lotus-core",
-                        "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
-                        "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the acquisition-day attribution window.",
-                        "evidence": detail,
-                    }
-                )
-            elif attribution_raw.status_code != 422:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
-                        "message": "Acquisition-day attribution returned an unexpected non-success response.",
-                        "evidence": detail,
-                    }
-                )
-
-        supported_attribution_raw = session.post(
-            f"{performance_base_url}/performance/attribution",
-            json={
-                "portfolio_id": scenario_ids.portfolio_id,
-                "mode": "by_instrument",
-                "group_by": ["asset_class"],
-                "linking": "carino",
-                "frequency": "daily",
-                "report_start_date": "2026-03-17",
-                "report_end_date": "2026-03-20",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "input_mode": "stateful",
-                "stateful_input": {},
-            },
-            timeout=30,
+        supported_attribution_raw = _post_stateful_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            scenario_ids=scenario_ids,
+            report_start_date="2026-03-17",
         )
-        if supported_attribution_raw.status_code in (200, 202):
-            supported_attribution = _follow_async_result(
-                session,
-                supported_attribution_raw,
-                performance_base_url=performance_base_url,
-                fallback_result_prefix="/performance/attribution/results",
-            )
-        else:
-            supported_attribution = {
-                "input_mode": "stateful",
-                "benchmark_context": None,
-                "results_by_period": {},
-            }
-            detail = supported_attribution_raw.text
-            if "portfolio timeseries does not align with summed position timeseries" in detail:
-                defects.append(
-                    {
-                        "app": "lotus-core",
-                        "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
-                        "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the same seeded attribution window.",
-                        "evidence": detail,
-                    }
-                )
-            else:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
-                        "message": "Supported-window stateful attribution failed unexpectedly.",
-                        "evidence": detail,
-                    }
-                )
+        supported_attribution = _resolve_supported_window_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=supported_attribution_raw,
+            defects=defects,
+        )
 
         twr_response = _post_json(
             session,
