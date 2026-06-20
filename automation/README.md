@@ -1047,6 +1047,12 @@ Validate container build and image baseline posture across backend scaffold temp
 python automation/validate_container_build_baseline.py
 ```
 
+Validate a supported-claim register before promoting demo, RFP, security-pack, or screenshot claims:
+
+```powershell
+python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json
+```
+
 Validate platform end-to-end coverage profiles against the workflow and entrypoint contract:
 
 ```powershell
@@ -1062,6 +1068,16 @@ python automation/generate_automation_inventory.py --write --check
 Artifacts:
 - `quality/automation_inventory.json`
 - `quality/automation_inventory.md`
+
+Generate the cross-repository rounding governance compliance matrix:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1
+```
+
+Artifacts:
+- `output/rounding-governance-compliance.json`
+- `output/rounding-governance-compliance.md`
 
 Bootstrap the isolated platform automation Python runtime:
 

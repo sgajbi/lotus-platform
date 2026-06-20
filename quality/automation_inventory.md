@@ -1,6 +1,6 @@
 # Automation Inventory
 
-Generated: `2026-06-20T03:22:15Z`
+Generated: `2026-06-20T03:23:36Z`
 
 This report is a cleanup aid. `review` and `undocumented` entries are candidates for
 documentation, consolidation, tests, or removal after behavior-specific evidence is inspected.
@@ -8,16 +8,14 @@ documentation, consolidation, tests, or removal after behavior-specific evidence
 ## Summary
 
 - Scripts inventoried: `121`
-- Covered: `80`
+- Covered: `82`
 - Undocumented: `39`
-- Review candidates: `2`
+- Review candidates: `0`
 
 ## Lowest-Discoverability Scripts
 
 | Script | References | Tests | Operator docs | Classification |
 | --- | ---: | ---: | ---: | --- |
-| automation/Validate-Rounding-Governance.ps1 | 1 | 0 | 0 | review |
-| automation/validate_supported_claim_register.py | 1 | 1 | 0 | review |
 | automation/Bootstrap-Repo-Env.ps1 | 2 | 0 | 0 | undocumented |
 | automation/Cleanup-Legacy-Workspace.ps1 | 2 | 0 | 0 | undocumented |
 | automation/Generate-Local-CI-Parity-Evidence.ps1 | 2 | 0 | 0 | undocumented |
@@ -46,3 +44,5 @@ documentation, consolidation, tests, or removal after behavior-specific evidence
 | automation/core_performance_attribution_validation.py | 4 | 0 | 0 | undocumented |
 | automation/core_performance_contribution_validation.py | 4 | 0 | 0 | undocumented |
 | automation/core_performance_mwr_validation.py | 4 | 0 | 0 | undocumented |
+| automation/core_performance_returns_series_validation.py | 4 | 0 | 0 | undocumented |
+| automation/Detect-Stalled-PR-Checks.ps1 | 5 | 0 | 0 | undocumented |

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 296371
+    "total_source_lines": 296391
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -360,7 +360,7 @@
     "max_function_lines": 393,
     "python_function_count": 1286
   },
-  "generated_at_utc": "2026-06-20T03:22:16Z",
+  "generated_at_utc": "2026-06-20T03:24:02Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1298,
+      "lines": 1314,
       "path": "automation/README.md",
       "suffix": ".md"
     },

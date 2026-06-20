@@ -504,6 +504,8 @@ Generated: `{baseline["generated_at_utc"]}`
    default scope rather than a single app-specific source.
 5. Automation discoverability inventory so cleanup work can distinguish dead automation from
    under-documented maintained scripts before removal.
+6. Automation cleanup pass documented maintained supported-claim and rounding-governance commands,
+   reducing the inventory `review` bucket to zero without deleting live automation.
 
 ## Evidence
 
@@ -522,6 +524,8 @@ Generated: `{baseline["generated_at_utc"]}`
 13. Refactor instruction sync tests: `tests/unit/test_enterprise_backend_refactor_instruction_sync.py`
 14. Automation inventory: `automation/generate_automation_inventory.py`
 15. Automation inventory report: `quality/automation_inventory.md`
+16. Supported-claim validator: `automation/validate_supported_claim_register.py`
+17. Rounding governance matrix: `automation/Validate-Rounding-Governance.ps1`
 
 ## Current Gate Posture
 

@@ -306,6 +306,10 @@ Use these commands as the primary local contract:
    `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
 28. automation discoverability inventory generation and surface validation
    `python automation/generate_automation_inventory.py --write --check`
+29. supported-claim register validation
+   `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
+30. rounding governance compliance matrix generation
+   `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
 
 ## Validation And CI Expectations
 

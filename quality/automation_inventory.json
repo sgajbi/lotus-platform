@@ -1,7 +1,6 @@
 {
   "classification_counts": {
-    "covered": 80,
-    "review": 2,
+    "covered": 82,
     "undocumented": 39
   },
   "entries": [
@@ -726,10 +725,10 @@
       "test_reference_count": 0
     },
     {
-      "classification": "review",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Validate-Rounding-Governance.ps1",
-      "reference_count": 1,
+      "reference_count": 3,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
@@ -934,10 +933,10 @@
       "test_reference_count": 1
     },
     {
-      "classification": "review",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/validate_supported_claim_register.py",
-      "reference_count": 1,
+      "reference_count": 3,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -974,6 +973,6 @@
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-06-20T03:22:15Z",
+  "generated_at_utc": "2026-06-20T03:23:36Z",
   "script_count": 121
 }
