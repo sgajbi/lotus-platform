@@ -882,105 +882,240 @@ def validate_consumer_contract_with_context(
     return issues
 
 
+ProductKey = tuple[str, str, str]
+LatestProductKey = tuple[str, str]
+ProductIndex = dict[ProductKey, dict]
+LatestProductVersionIndex = dict[LatestProductKey, tuple[str, dict]]
+
+
+def _product_key(product: dict) -> ProductKey:
+    return (
+        product.get("product_name", ""),
+        product.get("owner_repository", ""),
+        product.get("product_version", ""),
+    )
+
+
+def _latest_product_key(product: dict) -> LatestProductKey:
+    return (
+        product.get("product_name", ""),
+        product.get("owner_repository", ""),
+    )
+
+
+def _dependency_product_key(dependency: dict) -> ProductKey:
+    return (
+        dependency.get("product_name", ""),
+        dependency.get("producer_repository", ""),
+        dependency.get("required_product_version", ""),
+    )
+
+
+def _dependency_latest_product_key(dependency: dict) -> LatestProductKey:
+    return (
+        dependency.get("product_name", ""),
+        dependency.get("producer_repository", ""),
+    )
+
+
+def _maybe_update_latest_product_version(
+    latest_product_version_index: LatestProductVersionIndex,
+    *,
+    product: dict,
+) -> None:
+    if product.get("lifecycle_status") == "retired":
+        return
+
+    version = product.get("product_version", "")
+    parsed_version = _parse_product_version(version) if isinstance(version, str) else None
+    if parsed_version is None:
+        return
+
+    latest_key = _latest_product_key(product)
+    current_latest = latest_product_version_index.get(latest_key)
+    if current_latest is None:
+        latest_product_version_index[latest_key] = (version, product)
+        return
+
+    current_latest_version = current_latest[0]
+    parsed_current_latest = _parse_product_version(current_latest_version)
+    if parsed_current_latest is None or parsed_version > parsed_current_latest:
+        latest_product_version_index[latest_key] = (version, product)
+
+
+def _index_producer_products(
+    producer_payloads: list[tuple[Path, dict]],
+) -> tuple[ProductIndex, LatestProductVersionIndex]:
+    product_index: ProductIndex = {}
+    latest_product_version_index: LatestProductVersionIndex = {}
+
+    for _, payload in producer_payloads:
+        for product in payload.get("products", []):
+            product_index[_product_key(product)] = product
+            _maybe_update_latest_product_version(
+                latest_product_version_index, product=product
+            )
+
+    return product_index, latest_product_version_index
+
+
+def _validate_dependency_product_reference(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    product_index: ProductIndex,
+) -> dict | None:
+    key = _dependency_product_key(dependency)
+    upstream = product_index.get(key)
+    if upstream is None:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] references unknown product declaration {key[0]} from {key[1]} {key[2]}",
+        )
+        return None
+    return upstream
+
+
+def _validate_dependency_consumer_approval(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    consumer_repository: str | None,
+    upstream: dict,
+) -> None:
+    if consumer_repository not in upstream.get("approved_consumers", []):
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] consumer is not approved by upstream product declaration",
+        )
+
+
+def _validate_dependency_trust_metadata_cross_reference(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    upstream: dict,
+) -> None:
+    missing_trust_metadata = [
+        field
+        for field in dependency.get("required_trust_metadata", [])
+        if field not in upstream.get("required_trust_metadata", [])
+    ]
+    if missing_trust_metadata:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] upstream product declaration is missing required trust metadata: {', '.join(missing_trust_metadata)}",
+        )
+
+
+def _validate_dependency_latest_version_posture(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    latest_product_version_index: LatestProductVersionIndex,
+) -> None:
+    latest_product = latest_product_version_index.get(
+        _dependency_latest_product_key(dependency)
+    )
+    if latest_product is None:
+        return
+
+    latest_version = latest_product[0]
+    required_version = dependency.get("required_product_version", "")
+    migration_posture = dependency.get("migration_posture", {})
+    migration_status = migration_posture.get("status")
+    target_product_version = migration_posture.get("target_product_version")
+
+    if required_version == latest_version:
+        if migration_status == "approved_transition":
+            _append_issue(
+                issues,
+                path,
+                f"dependencies[{index}] migration_posture approved_transition is unnecessary because required_product_version already matches the latest declared version",
+            )
+        return
+
+    if migration_status != "approved_transition" or target_product_version != latest_version:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] version drift requires approved_transition migration posture to latest version {latest_version}",
+        )
+
+
+def _validate_dependency_cross_reference(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    consumer_repository: str | None,
+    product_index: ProductIndex,
+    latest_product_version_index: LatestProductVersionIndex,
+) -> None:
+    upstream = _validate_dependency_product_reference(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+        product_index=product_index,
+    )
+    if upstream is None:
+        return
+
+    _validate_dependency_consumer_approval(
+        issues,
+        path,
+        index=index,
+        consumer_repository=consumer_repository,
+        upstream=upstream,
+    )
+    _validate_dependency_trust_metadata_cross_reference(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+        upstream=upstream,
+    )
+    _validate_dependency_latest_version_posture(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+        latest_product_version_index=latest_product_version_index,
+    )
+
+
 def validate_cross_references(
     producer_payloads: list[tuple[Path, dict]],
     consumer_payloads: list[tuple[Path, dict]],
 ) -> list[str]:
     issues: list[str] = []
-    product_index: dict[tuple[str, str, str], dict] = {}
-    latest_product_version_index: dict[tuple[str, str], tuple[str, dict]] = {}
-
-    for _, payload in producer_payloads:
-        for product in payload.get("products", []):
-            key = (
-                product.get("product_name", ""),
-                product.get("owner_repository", ""),
-                product.get("product_version", ""),
-            )
-            product_index[key] = product
-            if product.get("lifecycle_status") == "retired":
-                continue
-            latest_key = (
-                product.get("product_name", ""),
-                product.get("owner_repository", ""),
-            )
-            version = product.get("product_version", "")
-            parsed_version = _parse_product_version(version) if isinstance(version, str) else None
-            if parsed_version is None:
-                continue
-            current_latest = latest_product_version_index.get(latest_key)
-            if current_latest is None:
-                latest_product_version_index[latest_key] = (version, product)
-                continue
-            current_latest_version = current_latest[0]
-            parsed_current_latest = _parse_product_version(current_latest_version)
-            if parsed_current_latest is None or parsed_version > parsed_current_latest:
-                latest_product_version_index[latest_key] = (version, product)
+    product_index, latest_product_version_index = _index_producer_products(
+        producer_payloads
+    )
 
     for path, payload in consumer_payloads:
         for index, dependency in enumerate(payload.get("dependencies", [])):
-            key = (
-                dependency.get("product_name", ""),
-                dependency.get("producer_repository", ""),
-                dependency.get("required_product_version", ""),
+            _validate_dependency_cross_reference(
+                issues,
+                path,
+                index=index,
+                dependency=dependency,
+                consumer_repository=payload.get("consumer_repository"),
+                product_index=product_index,
+                latest_product_version_index=latest_product_version_index,
             )
-            upstream = product_index.get(key)
-            if upstream is None:
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}] references unknown product declaration {key[0]} from {key[1]} {key[2]}",
-                )
-                continue
-
-            if payload.get("consumer_repository") not in upstream.get("approved_consumers", []):
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}] consumer is not approved by upstream product declaration",
-                )
-
-            missing_trust_metadata = [
-                field
-                for field in dependency.get("required_trust_metadata", [])
-                if field not in upstream.get("required_trust_metadata", [])
-            ]
-            if missing_trust_metadata:
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}] upstream product declaration is missing required trust metadata: {', '.join(missing_trust_metadata)}",
-                )
-
-            latest_key = (
-                dependency.get("product_name", ""),
-                dependency.get("producer_repository", ""),
-            )
-            latest_product = latest_product_version_index.get(latest_key)
-            migration_posture = dependency.get("migration_posture", {})
-            if latest_product is None:
-                continue
-
-            latest_version = latest_product[0]
-            required_version = dependency.get("required_product_version", "")
-            migration_status = migration_posture.get("status")
-            target_product_version = migration_posture.get("target_product_version")
-
-            if required_version == latest_version:
-                if migration_status == "approved_transition":
-                    _append_issue(
-                        issues,
-                        path,
-                        f"dependencies[{index}] migration_posture approved_transition is unnecessary because required_product_version already matches the latest declared version",
-                    )
-                continue
-
-            if migration_status != "approved_transition" or target_product_version != latest_version:
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}] version drift requires approved_transition migration posture to latest version {latest_version}",
-                )
 
     return issues
 

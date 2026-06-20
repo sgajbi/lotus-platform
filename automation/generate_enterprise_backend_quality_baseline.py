@@ -627,6 +627,10 @@ Generated: `{baseline["generated_at_utc"]}`
     TWR submission, defect recording, return reconciliation, position coverage, and by-position
     timeseries checks are isolated behind focused helpers, removing the live contribution validator
     from the top measured complexity hotspot list while preserving cross-app validation behavior.
+41. Domain data product cross-reference validator extraction so producer indexing, latest-version
+    selection, dependency product lookup, consumer approval, trust metadata matching, and migration
+    posture checks are isolated behind focused helpers, removing the RFC-0084 cross-reference
+    validator from the top measured complexity hotspot list while preserving contract issue text.
 
 ## Evidence
 
