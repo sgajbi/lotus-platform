@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T06:56:47Z`
+Generated: `2026-06-20T07:00:38Z`
 
 ## Completed Slices
 
@@ -194,6 +194,10 @@ Generated: `2026-06-20T06:56:47Z`
     list validation, semantic-id checks, and trust-vocabulary validation are isolated behind focused
     helpers, removing the semantics registry validator from the top measured complexity hotspot list
     while preserving RFC-0084 contract behavior.
+55. Workflow security validator extraction so workflow payload parsing, pull-request-target
+    exception checks, write-permission drift checks, note construction, and final pass/fail
+    evaluation are isolated behind focused helpers, lowering the highest measured complexity ceiling
+    while preserving workflow security gate behavior.
 
 ## Evidence
 

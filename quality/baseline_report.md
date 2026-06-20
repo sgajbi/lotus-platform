@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:56:47Z`
+Generated: `2026-06-20T07:00:38Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302715`
+- Total source lines: `302792`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1561`
-- Highest measured cyclomatic complexity: `16`
+- Python functions: `1568`
+- Highest measured cyclomatic complexity: `15`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_workflow_security.py | validate_workflow | 68 | 16 | 46 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 216 | 15 | 192 |
 | automation/validate_engineering_context_system.py | _validate_onboarding_guidance | 233 | 15 | 57 |
 | automation/validate_trust_telemetry.py | _validate_identity | 107 | 15 | 56 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py | validate_cross_app | 73 | 14 | 56 |
 | automation/validate_repository_hygiene.py | validate_repository_hygiene | 69 | 14 | 52 |
 | automation/generate_live_trust_certification.py | _evaluate_snapshot | 67 | 13 | 104 |
+| automation/validate_analytics_ui_observability_contract.py | _validate_observation_boundaries | 721 | 13 | 80 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.69s`
+- Collection summary: `510 tests collected in 0.54s`
 
 ## Security Baseline
 

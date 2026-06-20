@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302715
+    "total_source_lines": 302792
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 16,
-        "end_line": 113,
-        "line": 68,
-        "lines": 46,
-        "name": "validate_workflow",
-        "path": "automation/validate_workflow_security.py"
-      },
       {
         "complexity": 15,
         "end_line": 407,
@@ -192,6 +184,14 @@
         "lines": 102,
         "name": "evaluate_mesh_slo_violations",
         "path": "automation/validate_mesh_slo_policies.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 1351,
+        "line": 1275,
+        "lines": 77,
+        "name": "_lotus_ai_queue_item_attention",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 722,
+        "end_line": 726,
         "line": 489,
-        "lines": 234,
+        "lines": 238,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 16,
+    "max_complexity": 15,
     "max_function_lines": 393,
-    "python_function_count": 1561
+    "python_function_count": 1568
   },
-  "generated_at_utc": "2026-06-20T06:56:47Z",
+  "generated_at_utc": "2026-06-20T07:00:38Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.69s"
+    "summary": "510 tests collected in 0.54s"
   }
 }
