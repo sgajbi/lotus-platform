@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301587
+    "total_source_lines": 301705
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 19,
-        "end_line": 243,
-        "line": 23,
-        "lines": 221,
-        "name": "_run_validation",
-        "path": "automation/core_performance_contribution_validation.py"
-      },
       {
         "complexity": 19,
         "end_line": 985,
@@ -192,6 +184,14 @@
         "lines": 53,
         "name": "_validate_claim",
         "path": "automation/validate_supported_claim_register.py"
+      },
+      {
+        "complexity": 15,
+        "end_line": 156,
+        "line": 123,
+        "lines": 34,
+        "name": "_validate_feature_promotion",
+        "path": "automation/validate_analytics_ui_scaffold_ci_enforcement.py"
       }
     ],
     "largest_functions": [
@@ -244,14 +244,6 @@
         "path": "automation/core_performance_returns_series_validation.py"
       },
       {
-        "complexity": 19,
-        "end_line": 243,
-        "line": 23,
-        "lines": 221,
-        "name": "_run_validation",
-        "path": "automation/core_performance_contribution_validation.py"
-      },
-      {
         "complexity": 5,
         "end_line": 389,
         "line": 180,
@@ -277,19 +269,19 @@
       },
       {
         "complexity": 1,
+        "end_line": 666,
+        "line": 489,
+        "lines": 178,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
+        "complexity": 1,
         "end_line": 304,
         "line": 129,
         "lines": 176,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 662,
-        "line": 489,
-        "lines": 174,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 1,
@@ -354,13 +346,21 @@
         "lines": 142,
         "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 502,
+        "line": 368,
+        "lines": 135,
+        "name": "validate_delegation_policy_contract",
+        "path": "automation/validate_agent_engineering_contracts.py"
       }
     ],
     "max_complexity": 19,
     "max_function_lines": 393,
-    "python_function_count": 1453
+    "python_function_count": 1467
   },
-  "generated_at_utc": "2026-06-20T05:54:41Z",
+  "generated_at_utc": "2026-06-20T05:59:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.63s"
+    "summary": "510 tests collected in 0.53s"
   }
 }

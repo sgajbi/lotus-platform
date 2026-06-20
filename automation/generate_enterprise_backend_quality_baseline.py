@@ -623,6 +623,10 @@ Generated: `{baseline["generated_at_utc"]}`
     field-access classification, required manifest sections, and required policy coverage are
     isolated behind focused helpers, lowering the highest measured complexity ceiling while
     preserving RFC-0091 mesh evidence-pack policy behavior.
+40. Core-performance contribution validator extraction so stateful Core polling, contribution and
+    TWR submission, defect recording, return reconciliation, position coverage, and by-position
+    timeseries checks are isolated behind focused helpers, removing the live contribution validator
+    from the top measured complexity hotspot list while preserving cross-app validation behavior.
 
 ## Evidence
 
