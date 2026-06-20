@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:18:19Z`
+Generated: `2026-06-20T03:22:16Z`
 
 ## Completed Slices
 
@@ -13,6 +13,8 @@ Generated: `2026-06-20T03:18:19Z`
 4. Enterprise refactoring instruction sync repair so deployed app-local copies come from the
    platform canonical playbook, support `-CheckOnly` drift checks, and use registry/discovery
    default scope rather than a single app-specific source.
+5. Automation discoverability inventory so cleanup work can distinguish dead automation from
+   under-documented maintained scripts before removal.
 
 ## Evidence
 
@@ -29,6 +31,8 @@ Generated: `2026-06-20T03:18:19Z`
 11. Scaffold contract tests: `tests/unit/test_repository_hygiene_scaffold_contract.py`
 12. Refactor instruction sync: `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1`
 13. Refactor instruction sync tests: `tests/unit/test_enterprise_backend_refactor_instruction_sync.py`
+14. Automation inventory: `automation/generate_automation_inventory.py`
+15. Automation inventory report: `quality/automation_inventory.md`
 
 ## Current Gate Posture
 

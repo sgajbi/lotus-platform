@@ -26,6 +26,7 @@ try {
     & $toolingPython automation/validate_container_build_baseline.py
     & $toolingPython automation/validate_platform_validation_coverage.py
     & $toolingPython automation/generate_enterprise_backend_quality_baseline.py --check
+    & $toolingPython automation/generate_automation_inventory.py --check
     & $toolingPython automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
     & (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -CheckOnly
     & (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges

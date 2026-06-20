@@ -1053,6 +1053,16 @@ Validate platform end-to-end coverage profiles against the workflow and entrypoi
 python automation/validate_platform_validation_coverage.py
 ```
 
+Generate and validate the automation discoverability inventory used for cleanup reviews:
+
+```powershell
+python automation/generate_automation_inventory.py --write --check
+```
+
+Artifacts:
+- `quality/automation_inventory.json`
+- `quality/automation_inventory.md`
+
 Bootstrap the isolated platform automation Python runtime:
 
 ```powershell

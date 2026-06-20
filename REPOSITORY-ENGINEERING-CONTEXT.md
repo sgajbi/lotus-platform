@@ -53,6 +53,8 @@ Current repository posture:
    supports `-CheckOnly` drift detection for app-local deployed copies under
    `docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md`. Its default backend scope is
    resolved from `automation/repos.json`; use `-Repositories` only for bounded rollout slices.
+10. `automation/generate_automation_inventory.py` writes `quality/automation_inventory.*` so cleanup
+    work can separate genuinely dead automation from under-documented but maintained scripts.
 
 ## Architecture And Module Map
 
@@ -302,6 +304,8 @@ Use these commands as the primary local contract:
    `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
 27. enterprise backend refactoring instruction copy drift check
    `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
+28. automation discoverability inventory generation and surface validation
+   `python automation/generate_automation_inventory.py --write --check`
 
 ## Validation And CI Expectations
 
