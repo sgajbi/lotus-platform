@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T04:41:10Z`
+Generated: `2026-06-20T04:44:37Z`
 
 ## Completed Slices
 
@@ -66,6 +66,10 @@ Generated: `2026-06-20T04:41:10Z`
     identity, required trust metadata, and migration-posture checks are isolated behind focused
     helpers, removing the consumer validator from the top measured complexity hotspot list while
     preserving RFC-0084 consumer-declaration behavior.
+22. Domain data product trust-metadata registry extraction so registry identity, trust metadata
+    field checks, lineage bundle class checks, and required lineage-field checks are isolated
+    behind focused helpers, removing the registry validator from the top measured complexity
+    hotspot list while preserving RFC-0084 trust registry behavior.
 
 ## Evidence
 

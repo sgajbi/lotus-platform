@@ -180,9 +180,11 @@ def validate_semantics_registry(path: Path, payload: dict) -> list[str]:
     return issues
 
 
-def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
-    issues: list[str] = []
-
+def _validate_trust_metadata_registry_identity(
+    issues: list[str],
+    path: Path,
+    payload: dict,
+) -> None:
     if payload.get("contract_id") != "domain-data-product-trust-metadata":
         _append_issue(issues, path, "contract_id must be 'domain-data-product-trust-metadata'")
     if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
@@ -196,15 +198,14 @@ def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
     if not isinstance(payload.get("description"), str) or not payload["description"].strip():
         _append_issue(issues, path, "description must be a non-empty string")
 
-    evidence_access_classes = _validate_registry_entry_list(
-        issues,
-        path,
-        field_name="evidence_access_classes",
-        entries=payload.get("evidence_access_classes"),
-        required_string_fields=("description",),
-    )
 
-    trust_metadata_fields = payload.get("trust_metadata_fields")
+def _validate_trust_metadata_fields(
+    issues: list[str],
+    path: Path,
+    *,
+    trust_metadata_fields: object,
+    evidence_access_classes: set[str],
+) -> set[str]:
     trust_metadata_keys = _validate_registry_entry_list(
         issues,
         path,
@@ -227,62 +228,139 @@ def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
                     f"trust_metadata_fields[{index}].evidence_access_class must reference a registered evidence access class",
                 )
 
-    lineage_bundle_classes = payload.get("lineage_bundle_classes")
+    return trust_metadata_keys
+
+
+def _validate_lineage_required_fields(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    required_fields: object,
+    trust_metadata_keys: set[str],
+) -> None:
+    if not _is_non_empty_list(required_fields):
+        _append_issue(issues, path, f"lineage_bundle_classes[{index}].required_fields must be a non-empty array")
+        return
+
+    seen_required_fields: set[str] = set()
+    for required_index, required_field in enumerate(required_fields):
+        if not isinstance(required_field, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", required_field):
+            _append_issue(
+                issues,
+                path,
+                f"lineage_bundle_classes[{index}].required_fields[{required_index}] must be snake_case",
+            )
+            continue
+        if required_field in seen_required_fields:
+            _append_issue(
+                issues,
+                path,
+                f"lineage_bundle_classes[{index}].required_fields contains duplicate field {required_field}",
+            )
+        if required_field not in trust_metadata_keys:
+            _append_issue(
+                issues,
+                path,
+                f"lineage_bundle_classes[{index}].required_fields contains unknown trust metadata field {required_field}",
+            )
+        seen_required_fields.add(required_field)
+
+
+def _validate_lineage_bundle_class(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    entry: object,
+    evidence_access_classes: set[str],
+    trust_metadata_keys: set[str],
+    seen_bundle_keys: set[str],
+) -> None:
+    if not isinstance(entry, dict):
+        _append_issue(issues, path, f"lineage_bundle_classes[{index}] must be an object")
+        return
+
+    key = entry.get("key")
+    if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
+        _append_issue(issues, path, f"lineage_bundle_classes[{index}].key must be snake_case")
+    elif key in seen_bundle_keys:
+        _append_issue(issues, path, f"lineage_bundle_classes contains duplicate key {key}")
+    else:
+        seen_bundle_keys.add(key)
+
+    description = entry.get("description")
+    if not isinstance(description, str) or not description.strip():
+        _append_issue(issues, path, f"lineage_bundle_classes[{index}].description must be a non-empty string")
+
+    evidence_access_class = entry.get("evidence_access_class")
+    if evidence_access_class not in evidence_access_classes:
+        _append_issue(
+            issues,
+            path,
+            f"lineage_bundle_classes[{index}].evidence_access_class must reference a registered evidence access class",
+        )
+
+    _validate_lineage_required_fields(
+        issues,
+        path,
+        index=index,
+        required_fields=entry.get("required_fields"),
+        trust_metadata_keys=trust_metadata_keys,
+    )
+
+
+def _validate_lineage_bundle_classes(
+    issues: list[str],
+    path: Path,
+    *,
+    lineage_bundle_classes: object,
+    evidence_access_classes: set[str],
+    trust_metadata_keys: set[str],
+) -> None:
     if not _is_non_empty_list(lineage_bundle_classes):
         _append_issue(issues, path, "lineage_bundle_classes must be a non-empty array")
-    else:
-        seen_bundle_keys: set[str] = set()
-        for index, entry in enumerate(lineage_bundle_classes):
-            if not isinstance(entry, dict):
-                _append_issue(issues, path, f"lineage_bundle_classes[{index}] must be an object")
-                continue
+        return
 
-            key = entry.get("key")
-            if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
-                _append_issue(issues, path, f"lineage_bundle_classes[{index}].key must be snake_case")
-            elif key in seen_bundle_keys:
-                _append_issue(issues, path, f"lineage_bundle_classes contains duplicate key {key}")
-            else:
-                seen_bundle_keys.add(key)
+    seen_bundle_keys: set[str] = set()
+    for index, entry in enumerate(lineage_bundle_classes):
+        _validate_lineage_bundle_class(
+            issues,
+            path,
+            index=index,
+            entry=entry,
+            evidence_access_classes=evidence_access_classes,
+            trust_metadata_keys=trust_metadata_keys,
+            seen_bundle_keys=seen_bundle_keys,
+        )
 
-            description = entry.get("description")
-            if not isinstance(description, str) or not description.strip():
-                _append_issue(issues, path, f"lineage_bundle_classes[{index}].description must be a non-empty string")
 
-            evidence_access_class = entry.get("evidence_access_class")
-            if evidence_access_class not in evidence_access_classes:
-                _append_issue(
-                    issues,
-                    path,
-                    f"lineage_bundle_classes[{index}].evidence_access_class must reference a registered evidence access class",
-                )
+def validate_trust_metadata_registry(path: Path, payload: dict) -> list[str]:
+    issues: list[str] = []
 
-            required_fields = entry.get("required_fields")
-            if not _is_non_empty_list(required_fields):
-                _append_issue(issues, path, f"lineage_bundle_classes[{index}].required_fields must be a non-empty array")
-            else:
-                seen_required_fields: set[str] = set()
-                for required_index, required_field in enumerate(required_fields):
-                    if not isinstance(required_field, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", required_field):
-                        _append_issue(
-                            issues,
-                            path,
-                            f"lineage_bundle_classes[{index}].required_fields[{required_index}] must be snake_case",
-                        )
-                        continue
-                    if required_field in seen_required_fields:
-                        _append_issue(
-                            issues,
-                            path,
-                            f"lineage_bundle_classes[{index}].required_fields contains duplicate field {required_field}",
-                        )
-                    if required_field not in trust_metadata_keys:
-                        _append_issue(
-                            issues,
-                            path,
-                            f"lineage_bundle_classes[{index}].required_fields contains unknown trust metadata field {required_field}",
-                        )
-                    seen_required_fields.add(required_field)
+    _validate_trust_metadata_registry_identity(issues, path, payload)
+
+    evidence_access_classes = _validate_registry_entry_list(
+        issues,
+        path,
+        field_name="evidence_access_classes",
+        entries=payload.get("evidence_access_classes"),
+        required_string_fields=("description",),
+    )
+
+    trust_metadata_keys = _validate_trust_metadata_fields(
+        issues,
+        path,
+        trust_metadata_fields=payload.get("trust_metadata_fields"),
+        evidence_access_classes=evidence_access_classes,
+    )
+    _validate_lineage_bundle_classes(
+        issues,
+        path,
+        lineage_bundle_classes=payload.get("lineage_bundle_classes"),
+        evidence_access_classes=evidence_access_classes,
+        trust_metadata_keys=trust_metadata_keys,
+    )
 
     return issues
 
