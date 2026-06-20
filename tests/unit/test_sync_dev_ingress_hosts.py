@@ -72,6 +72,20 @@ def test_sync_dev_ingress_hosts_preview_does_not_modify_output_file(tmp_path: Pa
     assert hosts.read_text(encoding="utf-8") == "127.0.0.1 localhost\n"
 
 
+def test_sync_dev_ingress_hosts_creates_missing_output_without_backup(tmp_path: Path) -> None:
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    backups = tmp_path / "backups"
+    entries.write_text("127.0.0.1 gateway.dev.lotus\n", encoding="utf-8")
+
+    result = sync_dev_ingress_hosts(entries, hosts, write=True, backup_dir=backups)
+
+    assert result["changed"] is True
+    assert result["backup_path"] is None
+    assert not backups.exists()
+    assert "127.0.0.1 gateway.dev.lotus" in hosts.read_text(encoding="utf-8")
+
+
 def test_sync_dev_ingress_hosts_skips_backup_when_content_is_already_current(tmp_path: Path) -> None:
     entries = tmp_path / "hosts.example"
     hosts = tmp_path / "hosts"

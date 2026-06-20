@@ -847,6 +847,10 @@ Generated: `{baseline["generated_at_utc"]}`
     approved-transition validation are isolated behind focused helpers, removing migration-posture
     validation from the top measured complexity hotspot list while adding direct regression
     coverage for invalid current targets and incomplete approved transitions.
+96. Dev ingress hosts sync extraction so hosts-file reading, backup writing, staged fallback, and
+    result rendering are isolated behind focused helpers, removing the Windows hosts sync
+    coordinator from the top measured complexity hotspot list while adding first-time-create
+    regression coverage.
 
 ## Evidence
 

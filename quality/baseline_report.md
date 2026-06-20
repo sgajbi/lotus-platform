@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T10:33:21Z`
+Generated: `2026-06-20T10:39:02Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `306075`
+- Total source lines: `306142`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,14 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1791`
+- Python functions: `1796`
 - Highest measured cyclomatic complexity: `11`
-- Largest Python function length: `398`
+- Largest Python function length: `402`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/sync_dev_ingress_hosts.py | sync_dev_ingress_hosts | 53 | 11 | 39 |
 | automation/validate_analytics_ui_rollout_readiness.py | _validate_certified_route_groups | 61 | 11 | 33 |
 | automation/validate_trust_telemetry.py | _validate_freshness_age | 236 | 11 | 27 |
 | automation/validate_shared_infra_ownership.py | _validate_lotus_core | 127 | 10 | 98 |
@@ -54,7 +53,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
 | automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 304 | 10 | 39 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
-| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 904 | 10 | 34 |
+| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 908 | 10 | 34 |
+| automation/validate_repository_governance.py | normalize_actual_governance | 51 | 10 | 34 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `540`
+- Unit tests collected: `541`
 - Collection command return code: `0`
-- Collection summary: `540 tests collected in 0.58s`
+- Collection summary: `541 tests collected in 0.63s`
 
 ## Security Baseline
 
