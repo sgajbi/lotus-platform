@@ -70,11 +70,7 @@ def validate_inventory_file(path: Path, payload: dict[str, Any]) -> list[str]:
     return errors
 
 
-def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
-    errors: list[str] = []
-    semantic_to_terms: dict[str, set[str]] = defaultdict(set)
-    term_to_semantics: dict[str, set[str]] = defaultdict(set)
-    term_to_apps: dict[str, set[str]] = defaultdict(set)
+def _iter_attr_refs(payloads: list[dict[str, Any]]) -> list[AttrRef]:
     refs: list[AttrRef] = []
 
     for payload in payloads:
@@ -98,10 +94,25 @@ def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
                     preferred_name=preferred_name,
                 )
             )
-            semantic_to_terms[semantic_id].add(canonical_term)
-            term_to_semantics[canonical_term].add(semantic_id)
-            term_to_apps[canonical_term].add(app)
+    return refs
 
+
+def _index_attr_refs(
+    refs: list[AttrRef],
+) -> tuple[dict[str, set[str]], dict[str, set[str]], dict[str, set[str]]]:
+    semantic_to_terms: dict[str, set[str]] = defaultdict(set)
+    term_to_semantics: dict[str, set[str]] = defaultdict(set)
+    term_to_apps: dict[str, set[str]] = defaultdict(set)
+    for ref in refs:
+        semantic_to_terms[ref.semantic_id].add(ref.canonical_term)
+        term_to_semantics[ref.canonical_term].add(ref.semantic_id)
+        term_to_apps[ref.canonical_term].add(ref.application)
+    return semantic_to_terms, term_to_semantics, term_to_apps
+
+
+def _validate_semantic_term_drift(
+    errors: list[str], semantic_to_terms: dict[str, set[str]]
+) -> None:
     for semantic_id, terms in semantic_to_terms.items():
         if len(terms) > 1:
             errors.append(
@@ -109,6 +120,10 @@ def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
                 f"{semantic_id} -> {sorted(terms)}"
             )
 
+
+def _validate_canonical_term_drift(
+    errors: list[str], term_to_semantics: dict[str, set[str]]
+) -> None:
     for canonical_term, semantic_ids in term_to_semantics.items():
         if len(semantic_ids) > 1:
             errors.append(
@@ -116,6 +131,12 @@ def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
                 f"{canonical_term} -> {sorted(semantic_ids)}"
             )
 
+
+def _validate_legacy_term_conflicts(
+    errors: list[str],
+    term_to_semantics: dict[str, set[str]],
+    term_to_apps: dict[str, set[str]],
+) -> None:
     for legacy_term, canonical_term in LEGACY_TERM_MAP.items():
         if legacy_term in term_to_semantics and canonical_term in term_to_semantics:
             legacy_apps = ",".join(sorted(term_to_apps.get(legacy_term, set())))
@@ -125,6 +146,15 @@ def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
                 f"{legacy_term} (apps={legacy_apps}) vs {canonical_term} (apps={canonical_apps})"
             )
 
+
+def validate_cross_app(payloads: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    refs = _iter_attr_refs(payloads)
+    semantic_to_terms, term_to_semantics, term_to_apps = _index_attr_refs(refs)
+
+    _validate_semantic_term_drift(errors, semantic_to_terms)
+    _validate_canonical_term_drift(errors, term_to_semantics)
+    _validate_legacy_term_conflicts(errors, term_to_semantics, term_to_apps)
     return errors
 
 

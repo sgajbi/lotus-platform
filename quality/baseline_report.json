@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 356,
     "powershell_file_count": 62,
-    "python_file_count": 153,
-    "source_file_count": 711,
+    "python_file_count": 154,
+    "source_file_count": 712,
     "suffix_counts": {
       ".json": 108,
       ".md": 356,
       ".ps1": 62,
-      ".py": 153,
+      ".py": 154,
       ".txt": 5,
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303190
+    "total_source_lines": 303312
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 90,
         "name": "_validate_telemetry_contract",
         "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 128,
-        "line": 73,
-        "lines": 56,
-        "name": "validate_cross_app",
-        "path": "platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py"
       },
       {
         "complexity": 13,
@@ -192,6 +184,14 @@
         "lines": 37,
         "name": "_append_delegated_task_overlap_attention",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 252,
+        "line": 216,
+        "lines": 37,
+        "name": "_validate_screenshots",
+        "path": "automation/review_analytics_ui_ecosystem_proof.py"
       }
     ],
     "largest_functions": [
@@ -221,9 +221,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 752,
+        "end_line": 756,
         "line": 489,
-        "lines": 264,
+        "lines": 268,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 14,
     "max_function_lines": 393,
-    "python_function_count": 1601
+    "python_function_count": 1612
   },
-  "generated_at_utc": "2026-06-20T07:30:22Z",
+  "generated_at_utc": "2026-06-20T07:34:32Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 510,
+    "collected_tests": 513,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.59s"
+    "summary": "513 tests collected in 0.72s"
   }
 }

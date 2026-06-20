@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:30:22Z`
+Generated: `2026-06-20T07:34:32Z`
 
 ## Completed Slices
 
@@ -224,6 +224,10 @@ Generated: `2026-06-20T07:30:22Z`
     existence, required pattern coverage, and README command checks are isolated behind focused
     helpers, removing repository hygiene validation from the top measured complexity hotspot list
     while preserving scaffolded-service hygiene validation behavior.
+62. API vocabulary cross-app validator extraction so attribute reference collection, cross-app
+    indexing, semantic-id drift checks, canonical-term drift checks, and legacy/canonical conflict
+    checks are isolated behind focused helpers, removing API vocabulary cross-app validation from
+    the top measured complexity hotspot list and adding direct tests for vocabulary drift behavior.
 
 ## Evidence
 
