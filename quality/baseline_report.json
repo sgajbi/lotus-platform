@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305183
+    "total_source_lines": 305458
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,38 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 230,
-        "line": 197,
-        "lines": 34,
-        "name": "_validate_agents_operating_contract",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 263,
-        "line": 231,
-        "lines": 33,
-        "name": "_validate_allowed_consumer",
-        "path": "automation/validate_mesh_access_policies.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 77,
-        "line": 47,
-        "lines": 31,
-        "name": "_validate_register_header",
-        "path": "automation/validate_supported_claim_register.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 122,
-        "line": 95,
-        "lines": 28,
-        "name": "_resolve_live_summary",
-        "path": "automation/review_analytics_ui_canonical_proof.py"
-      },
       {
         "complexity": 12,
         "end_line": 651,
@@ -192,6 +160,38 @@
         "lines": 39,
         "name": "_validate_lineage_and_blocking",
         "path": "automation/validate_trust_telemetry.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 117,
+        "line": 81,
+        "lines": 37,
+        "name": "_validate_registry_entry_list",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 905,
+        "line": 872,
+        "lines": 34,
+        "name": "validate_quality_surface",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 84,
+        "line": 51,
+        "lines": 34,
+        "name": "normalize_actual_governance",
+        "path": "automation/validate_repository_governance.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 396,
+        "line": 368,
+        "lines": 29,
+        "name": "_validate_supported_feature_milestones",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
       }
     ],
     "largest_functions": [
@@ -204,20 +204,20 @@
         "path": "tests/unit/test_analytics_ui_observability_contract.py"
       },
       {
+        "complexity": 1,
+        "end_line": 854,
+        "line": 489,
+        "lines": 366,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 8,
         "end_line": 483,
         "line": 124,
         "lines": 360,
         "name": "validate_service_addressing",
         "path": "automation/validate_service_addressing.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 838,
-        "line": 489,
-        "lines": 350,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 1,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1732
+    "python_function_count": 1750
   },
-  "generated_at_utc": "2026-06-20T09:12:41Z",
+  "generated_at_utc": "2026-06-20T09:33:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -697,7 +697,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 124,
+        "line": 165,
         "path": "automation/validate_supported_claim_register.py",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 523,
+    "collected_tests": 529,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "523 tests collected in 0.55s"
+    "summary": "529 tests collected in 0.69s"
   }
 }

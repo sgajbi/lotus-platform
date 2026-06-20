@@ -799,6 +799,22 @@ Generated: `{baseline["generated_at_utc"]}`
     missing screenshot path detection, and SHOT-INDEX evidence validation are isolated behind
     focused helpers, removing ecosystem screenshot validation from the top measured complexity
     hotspot list while preserving RFC-0108 proof review behavior.
+84. Engineering context AGENTS contract validator extraction so required section checks and
+    required guidance cross-link checks are data-driven through focused helpers, removing the
+    AGENTS operating contract validator from the top measured complexity hotspot list while
+    preserving exact context validation failure messages.
+85. Mesh access allowed-consumer validator extraction so product-catalog consumer approval and
+    tenant/role/use-case string-list validation are isolated behind focused predicates, removing
+    the mesh access allowed-consumer validator from the top measured complexity hotspot list while
+    preserving RFC-0091 access-policy validation behavior.
+86. Supported-claim register header validator extraction so contract identity, required string,
+    header pattern, and claim-taxonomy checks are isolated behind focused helpers, removing the
+    supported-claim register header validator from the top measured complexity hotspot list while
+    preserving supported-claim validation error behavior.
+87. Analytics UI canonical proof live-summary resolver extraction so embedded summary selection,
+    embedded path lookup, fallback path lookup, and file loading are isolated behind focused
+    helpers, removing the canonical proof live-summary resolver from the top measured complexity
+    hotspot list while preserving RFC-0108 canonical proof review behavior.
 
 ## Evidence
 

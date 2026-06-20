@@ -79,6 +79,33 @@ def test_supported_claim_register_rejects_backend_only_screenshots_and_missing_p
     )
 
 
+def test_supported_claim_register_rejects_invalid_header_fields() -> None:
+    payload = _load(EXAMPLE_PATH)
+    payload["contract_id"] = "claim-register"
+    payload["contract_version"] = "v1"
+    payload["governed_by_rfc"] = "RFC-28"
+    payload["owner_repository"] = "platform"
+    payload["scenario_id"] = " "
+    payload["primary_portfolio_id"] = ""
+    payload["proof_marker"] = None
+    payload["claim_taxonomy"] = ["IMPLEMENTATION_BACKED"]
+
+    issues = validate_supported_claim_register(EXAMPLE_PATH, payload)
+
+    expected_fragments = (
+        "contract_id must be 'supported-claim-register'",
+        "contract_version must be semver",
+        "governed_by_rfc must use RFC-0000 format",
+        "owner_repository must be a lotus repository name",
+        "scenario_id must be a non-empty string",
+        "primary_portfolio_id must be a non-empty string",
+        "proof_marker must be a non-empty string",
+        "claim_taxonomy must include every supported classification exactly once",
+    )
+    for fragment in expected_fragments:
+        assert any(fragment in issue for issue in issues)
+
+
 def test_supported_claim_register_contract_is_documented() -> None:
     readme = README_PATH.read_text(encoding="utf-8")
     schema = _load(SCHEMA_PATH)

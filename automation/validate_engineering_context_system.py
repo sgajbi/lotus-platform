@@ -195,30 +195,57 @@ def _validate_manifest_contract(
 
 
 def _validate_agents_operating_contract(*, errors: list[str], agents_contract: str) -> None:
-    for heading in (
+    required_sections = (
         "Mandatory Reading Order",
         "Mandatory Operating Rules",
         "Context Maintenance Rule",
         "Wiki Publication Rule",
         "Skills, Automation, And Async Execution",
         "Front-Office Runtime Routing Rule",
-    ):
-        if heading not in agents_contract:
-            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
-    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
-    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
-    if "engineering_task_id" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
-    if "output/background-runs.json" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
-    if "Sync-RepoWikis.ps1" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
-    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
-    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
+    )
+    for heading in required_sections:
+        _require_agents_contract_text(
+            errors=errors,
+            agents_contract=agents_contract,
+            text=heading,
+            error=f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`",
+        )
+
+    _require_agents_contract_texts(
+        errors=errors,
+        agents_contract=agents_contract,
+        requirements=(
+            (
+                "PROCEDURAL-MEMORY-INDEX.md",
+                "AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link",
+            ),
+            (
+                "AGENT-CONTEXT-AND-TASK-LEDGER.md",
+                "AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link",
+            ),
+            (
+                "engineering_task_id",
+                "AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance",
+            ),
+            (
+                "output/background-runs.json",
+                "AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance",
+            ),
+            (
+                "Sync-RepoWikis.ps1",
+                "AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance",
+            ),
+            (
+                "Repo-local `wiki/` is the authored source of truth",
+                "AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance",
+            ),
+            (
+                "Repo-root `AGENTS.md` files across Lotus repositories",
+                "AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance",
+            ),
+        ),
+    )
+
     for text in (
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "npm run live:stack:up",
@@ -228,6 +255,32 @@ def _validate_agents_operating_contract(*, errors: list[str], agents_contract: s
     ):
         if text not in agents_contract:
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
+
+
+def _require_agents_contract_texts(
+    *,
+    errors: list[str],
+    agents_contract: str,
+    requirements: tuple[tuple[str, str], ...],
+) -> None:
+    for text, error in requirements:
+        _require_agents_contract_text(
+            errors=errors,
+            agents_contract=agents_contract,
+            text=text,
+            error=error,
+        )
+
+
+def _require_agents_contract_text(
+    *,
+    errors: list[str],
+    agents_contract: str,
+    text: str,
+    error: str,
+) -> None:
+    if text not in agents_contract:
+        errors.append(error)
 
 
 def _validate_required_developer_onboarding_text(

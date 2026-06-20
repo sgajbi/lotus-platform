@@ -73,6 +73,33 @@ def test_mesh_access_policy_validation_requires_catalog_approved_consumer(
     ]
 
 
+def test_mesh_access_policy_validation_requires_consumer_scope_lists(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    policy_path = tmp_path / "bad-scope.access.v1.json"
+    policy = json.loads(
+        (
+            POLICY_DIRECTORY / "lotus-risk-risk-metrics-report.access.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    policy["allowed_consumers"][0]["tenant_scope"] = []
+    policy["allowed_consumers"][0]["roles"] = ["advisor", ""]
+    policy["allowed_consumers"][0]["use_cases"] = "analytics_review"
+    policy_path.write_text(json.dumps(policy), encoding="utf-8")
+
+    issues = validator.validate_mesh_access_policies(
+        policy_path,
+        required_products={},
+    )
+
+    assert issues == [
+        f"{policy_path}: allowed_consumers[0].tenant_scope must be non-empty strings",
+        f"{policy_path}: allowed_consumers[0].roles must be non-empty strings",
+        f"{policy_path}: allowed_consumers[0].use_cases must be non-empty strings",
+    ]
+
+
 def test_access_posture_for_context_returns_usable_or_restricted() -> None:
     validator = _load_validator_module()
     policy = json.loads(
