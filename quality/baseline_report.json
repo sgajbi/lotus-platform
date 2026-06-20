@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306075
+    "total_source_lines": 306142
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 91,
-        "line": 53,
-        "lines": 39,
-        "name": "sync_dev_ingress_hosts",
-        "path": "automation/sync_dev_ingress_hosts.py"
       },
       {
         "complexity": 11,
@@ -107,8 +99,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 937,
-        "line": 904,
+        "end_line": 941,
+        "line": 908,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 45,
         "name": "_validate_telemetry_events",
         "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 299,
+        "line": 258,
+        "lines": 42,
+        "name": "_validate_required_product_lifecycle",
+        "path": "automation/mesh_certification_gate.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 886,
+        "end_line": 890,
         "line": 489,
-        "lines": 398,
+        "lines": 402,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 398,
-    "python_function_count": 1791
+    "max_function_lines": 402,
+    "python_function_count": 1796
   },
-  "generated_at_utc": "2026-06-20T10:33:21Z",
+  "generated_at_utc": "2026-06-20T10:39:02Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 540,
+    "collected_tests": 541,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "540 tests collected in 0.58s"
+    "summary": "541 tests collected in 0.63s"
   }
 }

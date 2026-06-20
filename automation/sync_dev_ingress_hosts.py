@@ -50,6 +50,57 @@ def build_backup_path(output_path: Path, backup_dir: Path) -> Path:
     return backup_dir / f"{output_path.name}.{timestamp}.bak"
 
 
+def _read_existing_hosts(output_path: Path) -> str:
+    if not output_path.exists():
+        return ""
+    return output_path.read_text(encoding="utf-8").replace("\ufeff", "")
+
+
+def _write_updated_hosts(
+    *,
+    output_path: Path,
+    updated_text: str,
+    existing_text: str,
+    backup_dir: Path | None,
+) -> Path | None:
+    backup_path: Path | None = None
+    if output_path.exists() and backup_dir is not None:
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = build_backup_path(output_path, backup_dir)
+        backup_path.write_text(existing_text, encoding="utf-8")
+    output_path.write_text(updated_text, encoding="utf-8")
+    return backup_path
+
+
+def _stage_updated_hosts(
+    *, staged_output_path: Path | None, updated_text: str
+) -> Path | None:
+    if staged_output_path is None:
+        return None
+    staged_output_path.parent.mkdir(parents=True, exist_ok=True)
+    staged_output_path.write_text(updated_text, encoding="utf-8")
+    return staged_output_path
+
+
+def _sync_result(
+    *,
+    updated_text: str,
+    changed: bool,
+    backup_path: Path | None,
+    staged_output_path: Path | None,
+    permission_denied: bool,
+) -> dict[str, str | bool | None]:
+    return {
+        "updated_text": updated_text,
+        "changed": changed,
+        "backup_path": None if backup_path is None else str(backup_path),
+        "staged_output_path": None
+        if staged_output_path is None
+        else str(staged_output_path),
+        "permission_denied": permission_denied,
+    }
+
+
 def sync_dev_ingress_hosts(
     entries_path: Path,
     output_path: Path,
@@ -58,37 +109,35 @@ def sync_dev_ingress_hosts(
     staged_output_path: Path | None = None,
 ) -> dict[str, str | bool | None]:
     entries = _normalize_entries(entries_path.read_text(encoding="utf-8"))
-    existing_text = output_path.read_text(encoding="utf-8").replace("\ufeff", "") if output_path.exists() else ""
+    existing_text = _read_existing_hosts(output_path)
     updated_text = upsert_managed_block(existing_text, entries)
     changed = updated_text != existing_text
     backup_path: Path | None = None
+    staged_path: Path | None = None
+    permission_denied = False
 
     if write and changed:
         try:
-            if output_path.exists() and backup_dir is not None:
-                backup_dir.mkdir(parents=True, exist_ok=True)
-                backup_path = build_backup_path(output_path, backup_dir)
-                backup_path.write_text(existing_text, encoding="utf-8")
-            output_path.write_text(updated_text, encoding="utf-8")
+            backup_path = _write_updated_hosts(
+                output_path=output_path,
+                updated_text=updated_text,
+                existing_text=existing_text,
+                backup_dir=backup_dir,
+            )
         except PermissionError:
-            if staged_output_path is not None:
-                staged_output_path.parent.mkdir(parents=True, exist_ok=True)
-                staged_output_path.write_text(updated_text, encoding="utf-8")
-            return {
-                "updated_text": updated_text,
-                "changed": changed,
-                "backup_path": None if backup_path is None else str(backup_path),
-                "staged_output_path": None if staged_output_path is None else str(staged_output_path),
-                "permission_denied": True,
-            }
+            staged_path = _stage_updated_hosts(
+                staged_output_path=staged_output_path,
+                updated_text=updated_text,
+            )
+            permission_denied = True
 
-    return {
-        "updated_text": updated_text,
-        "changed": changed,
-        "backup_path": None if backup_path is None else str(backup_path),
-        "staged_output_path": None,
-        "permission_denied": False,
-    }
+    return _sync_result(
+        updated_text=updated_text,
+        changed=changed,
+        backup_path=backup_path,
+        staged_output_path=staged_path,
+        permission_denied=permission_denied,
+    )
 
 
 def main() -> int:
