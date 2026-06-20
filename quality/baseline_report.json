@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300169
+    "total_source_lines": 300249
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 34,
-        "end_line": 158,
-        "line": 25,
-        "lines": 134,
-        "name": "validate_rollout_readiness",
-        "path": "automation/validate_analytics_ui_rollout_readiness.py"
-      },
       {
         "complexity": 32,
         "end_line": 1059,
@@ -192,6 +184,14 @@
         "lines": 88,
         "name": "validate_mesh_evidence_policies",
         "path": "automation/generate_mesh_evidence_pack.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 243,
+        "line": 23,
+        "lines": 221,
+        "name": "_run_validation",
+        "path": "automation/core_performance_contribution_validation.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "automation/core_performance_mwr_validation.py"
       }
     ],
-    "max_complexity": 34,
+    "max_complexity": 32,
     "max_function_lines": 393,
-    "python_function_count": 1321
+    "python_function_count": 1331
   },
-  "generated_at_utc": "2026-06-20T04:28:21Z",
+  "generated_at_utc": "2026-06-20T04:32:05Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.65s"
+    "summary": "510 tests collected in 0.56s"
   }
 }

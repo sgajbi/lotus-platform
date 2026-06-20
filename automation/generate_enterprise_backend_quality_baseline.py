@@ -543,6 +543,10 @@ Generated: `{baseline["generated_at_utc"]}`
 18. Delegated task ledger heartbeat extraction so task attention generation and active write-scope
     overlap detection are isolated behind focused helpers, removing the adapter from the top
     measured complexity hotspot list while preserving RFC-0095 heartbeat behavior.
+19. Analytics UI rollout readiness validator extraction so contract identity, source proof,
+    certified route groups, evidence-required panels, rollout checklist, validator proof cases, and
+    residual feature checks are isolated behind focused helpers, reducing the highest measured
+    complexity hotspot while preserving RFC-0108 rollout-readiness behavior.
 
 ## Evidence
 
