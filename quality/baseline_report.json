@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300891
+    "total_source_lines": 300926
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 132,
         "name": "validate_agent_engineering_contracts",
         "path": "automation/validate_agent_engineering_contracts.py"
-      },
-      {
-        "complexity": 24,
-        "end_line": 277,
-        "line": 217,
-        "lines": 61,
-        "name": "validate_delegation_output",
-        "path": "automation/delegation_task_ledger.py"
       },
       {
         "complexity": 23,
@@ -192,6 +184,14 @@
         "lines": 82,
         "name": "_validate_downstream_boundary_hardening",
         "path": "automation/validate_analytics_ui_ecosystem_final_closure.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 538,
+        "line": 469,
+        "lines": 70,
+        "name": "_background_run_ledger_adapter",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 393,
-    "python_function_count": 1386
+    "python_function_count": 1390
   },
-  "generated_at_utc": "2026-06-20T05:08:09Z",
+  "generated_at_utc": "2026-06-20T05:11:50Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.60s"
+    "summary": "510 tests collected in 0.58s"
   }
 }

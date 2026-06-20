@@ -580,6 +580,10 @@ Generated: `{baseline["generated_at_utc"]}`
     milestone status checks are isolated behind focused helpers, removing the supported-feature
     status helper from the top measured complexity hotspot list while preserving RFC-0108
     supported-feature promotion behavior.
+29. Delegation task output validator extraction so required output fields, write-scope enforcement,
+    evidence references, and follow-up checks are isolated behind focused helpers, removing the
+    output validator from the top measured complexity hotspot list while preserving RFC-0094/RFC-0096
+    delegation return-envelope behavior.
 
 ## Evidence
 
