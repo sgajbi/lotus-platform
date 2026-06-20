@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:44:40Z`
+Generated: `2026-06-20T03:49:18Z`
 
 ## Completed Slices
 
@@ -23,6 +23,9 @@ Generated: `2026-06-20T03:44:40Z`
 8. Engineering context validator modularity improvement by extracting manifest and registry
    validation out of the monolithic validator, reducing the top measured complexity hotspot while
    preserving behavior.
+9. Engineering context validator agent-contract extraction so repo-wide AGENTS guidance checks are
+   isolated behind a named helper, reducing the top measured complexity hotspot while preserving
+   synchronization and front-office runtime routing assertions.
 
 ## Evidence
 

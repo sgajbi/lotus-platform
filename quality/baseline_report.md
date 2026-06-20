@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T03:44:40Z`
+Generated: `2026-06-20T03:49:18Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `299708`
+- Total source lines: `299715`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1290`
-- Highest measured cyclomatic complexity: `63`
+- Python functions: `1291`
+- Highest measured cyclomatic complexity: `52`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_engineering_context_system.py | validate_engineering_context_system | 129 | 63 | 285 |
+| automation/validate_engineering_context_system.py | validate_engineering_context_system | 165 | 52 | 253 |
 | automation/validate_analytics_ui_observability_contract.py | validate_contract | 18 | 50 | 324 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_producer_contract | 290 | 50 | 213 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_status | 153 | 46 | 138 |
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 1.03s`
+- Collection summary: `510 tests collected in 0.54s`
 
 ## Security Baseline
 

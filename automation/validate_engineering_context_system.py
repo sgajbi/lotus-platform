@@ -126,6 +126,42 @@ def _validate_manifest_contract(
         errors.append("ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json")
 
 
+def _validate_agents_operating_contract(*, errors: list[str], agents_contract: str) -> None:
+    for heading in (
+        "Mandatory Reading Order",
+        "Mandatory Operating Rules",
+        "Context Maintenance Rule",
+        "Wiki Publication Rule",
+        "Skills, Automation, And Async Execution",
+        "Front-Office Runtime Routing Rule",
+    ):
+        if heading not in agents_contract:
+            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
+    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
+    if "engineering_task_id" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
+    if "output/background-runs.json" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
+    if "Sync-RepoWikis.ps1" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
+    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
+    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
+    for text in (
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "npm run live:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agents_contract:
+            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
+
+
 def validate_engineering_context_system() -> list[str]:
     errors: list[str] = []
     required_files = {
@@ -299,39 +335,7 @@ def validate_engineering_context_system() -> list[str]:
         if text not in target_doc:
             errors.append(f"{label}: missing required content `{text}`")
 
-    for heading in (
-        "Mandatory Reading Order",
-        "Mandatory Operating Rules",
-        "Context Maintenance Rule",
-        "Wiki Publication Rule",
-        "Skills, Automation, And Async Execution",
-        "Front-Office Runtime Routing Rule",
-    ):
-        if heading not in agents_contract:
-            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
-    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
-    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
-    if "engineering_task_id" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
-    if "output/background-runs.json" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
-    if "Sync-RepoWikis.ps1" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
-    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
-    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
-    for text in (
-        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "npm run live:validate",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-    ):
-        if text not in agents_contract:
-            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
+    _validate_agents_operating_contract(errors=errors, agents_contract=agents_contract)
 
     for text in (
         "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
