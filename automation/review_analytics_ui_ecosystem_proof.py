@@ -137,17 +137,93 @@ def _validate_runtime_identity(
     return evidence
 
 
+def _journey_source_checks(live_summary: dict[str, Any]) -> tuple[
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+]:
+    return (
+        {
+            **_description_index(live_summary.get("apiChecks")),
+            **_description_index(live_summary.get("uiChecks")),
+        },
+        _panel_index(live_summary.get("panelClassifications")),
+    )
+
+
+def _missing_or_failed_journey_apis(
+    *,
+    errors: list[str],
+    journey_id: str,
+    journey: dict[str, Any],
+    api_checks: dict[str, dict[str, Any]],
+) -> list[str]:
+    missing_apis = []
+    for expected_description in journey.get("required_api_descriptions", []):
+        if expected_description not in api_checks:
+            missing_apis.append(expected_description)
+            continue
+        status = str(api_checks[expected_description].get("status", "")).lower()
+        if status in FAILED_API_STATES:
+            errors.append(f"{journey_id}: API check failed: {expected_description}")
+    return missing_apis
+
+
+def _panel_state_is_allowed(
+    *, panel_id: str, state: str, allowed_partial_panels: set[str]
+) -> bool:
+    if panel_id in allowed_partial_panels:
+        return state in READY_PANEL_STATES | {"partial"}
+    return state in READY_PANEL_STATES
+
+
+def _missing_or_invalid_journey_panels(
+    *,
+    errors: list[str],
+    journey_id: str,
+    journey: dict[str, Any],
+    panel_checks: dict[str, dict[str, Any]],
+    allowed_partial_panels: set[str],
+) -> list[str]:
+    missing_panels = []
+    for expected_panel in journey.get("required_panel_ids", []):
+        panel = panel_checks.get(expected_panel)
+        if panel is None:
+            missing_panels.append(expected_panel)
+            continue
+
+        state = str(panel.get("state", ""))
+        if _panel_state_is_allowed(
+            panel_id=expected_panel,
+            state=state,
+            allowed_partial_panels=allowed_partial_panels,
+        ):
+            continue
+
+        if expected_panel in allowed_partial_panels:
+            errors.append(
+                f"{journey_id}: panel {expected_panel} has unexpected state {state}"
+            )
+        else:
+            errors.append(
+                f"{journey_id}: panel {expected_panel} must be ready, got {state}"
+            )
+    return missing_panels
+
+
+def _journey_evidence(journey: dict[str, Any]) -> dict[str, int]:
+    return {
+        "api_checks": len(journey.get("required_api_descriptions", [])),
+        "panel_checks": len(journey.get("required_panel_ids", [])),
+    }
+
+
 def _validate_journeys(
     *,
     errors: list[str],
     live_summary: dict[str, Any],
     proof_contract: dict[str, Any],
 ) -> dict[str, Any]:
-    api_checks = {
-        **_description_index(live_summary.get("apiChecks")),
-        **_description_index(live_summary.get("uiChecks")),
-    }
-    panel_checks = _panel_index(live_summary.get("panelClassifications"))
+    api_checks, panel_checks = _journey_source_checks(live_summary)
     allowed_partial_panels = set(
         proof_contract.get("canonical_runtime", {}).get("allowed_partial_panels", [])
     )
@@ -155,40 +231,25 @@ def _validate_journeys(
 
     for journey in proof_contract.get("required_journeys", []):
         journey_id = str(journey.get("journey_id", "<missing>"))
-        missing_apis = []
-        for expected_description in journey.get("required_api_descriptions", []):
-            if expected_description not in api_checks:
-                missing_apis.append(expected_description)
-                continue
-            status = str(api_checks[expected_description].get("status", "")).lower()
-            if status in FAILED_API_STATES:
-                errors.append(f"{journey_id}: API check failed: {expected_description}")
-
-        missing_panels = []
-        for expected_panel in journey.get("required_panel_ids", []):
-            panel = panel_checks.get(expected_panel)
-            if panel is None:
-                missing_panels.append(expected_panel)
-                continue
-            state = str(panel.get("state", ""))
-            if expected_panel in allowed_partial_panels:
-                if state not in READY_PANEL_STATES | {"partial"}:
-                    errors.append(
-                        f"{journey_id}: panel {expected_panel} has unexpected state {state}"
-                    )
-            elif state not in READY_PANEL_STATES:
-                errors.append(
-                    f"{journey_id}: panel {expected_panel} must be ready, got {state}"
-                )
+        missing_apis = _missing_or_failed_journey_apis(
+            errors=errors,
+            journey_id=journey_id,
+            journey=journey,
+            api_checks=api_checks,
+        )
+        missing_panels = _missing_or_invalid_journey_panels(
+            errors=errors,
+            journey_id=journey_id,
+            journey=journey,
+            panel_checks=panel_checks,
+            allowed_partial_panels=allowed_partial_panels,
+        )
 
         if missing_apis:
             errors.append(f"{journey_id}: missing API checks {missing_apis}")
         if missing_panels:
             errors.append(f"{journey_id}: missing panel classifications {missing_panels}")
-        journey_evidence[journey_id] = {
-            "api_checks": len(journey.get("required_api_descriptions", [])),
-            "panel_checks": len(journey.get("required_panel_ids", [])),
-        }
+        journey_evidence[journey_id] = _journey_evidence(journey)
 
     return {"journeys": journey_evidence}
 
@@ -221,35 +282,82 @@ def _validate_screenshots(
     qa_summary_path: Path,
     proof_contract: dict[str, Any],
 ) -> dict[str, Any]:
-    minimum = int(
-        proof_contract.get("canonical_runtime", {}).get("minimum_screenshot_count", 0)
-    )
     screenshots = live_summary.get("screenshots", [])
-    if not isinstance(screenshots, list) or len(screenshots) < minimum:
-        errors.append(f"live summary must include at least {minimum} screenshots")
-        screenshot_count = len(screenshots) if isinstance(screenshots, list) else 0
-    else:
-        missing = []
-        for screenshot in screenshots:
-            if not isinstance(screenshot, dict):
-                missing.append("<non-object screenshot>")
-                continue
-            path = _resolve_optional_path(screenshot.get("path"), qa_summary_path.parent)
-            if path is None or not path.exists():
-                missing.append(str(screenshot.get("path")))
+    screenshot_count = _validate_screenshot_count(
+        errors=errors,
+        screenshots=screenshots,
+        proof_contract=proof_contract,
+    )
+    if isinstance(screenshots, list) and screenshot_count >= _minimum_screenshot_count(
+        proof_contract
+    ):
+        missing = _missing_screenshot_paths(
+            screenshots=screenshots,
+            qa_summary_path=qa_summary_path,
+        )
         if missing:
             errors.append(f"screenshot files missing: {missing}")
-        screenshot_count = len(screenshots)
 
+    shot_index_path = _validate_screenshot_index(
+        errors=errors,
+        live_summary=live_summary,
+        live_summary_path=live_summary_path,
+        qa_summary_path=qa_summary_path,
+    )
+    return {
+        "screenshot_count": screenshot_count,
+        "shot_index_path": str(shot_index_path) if shot_index_path else None,
+    }
+
+
+def _minimum_screenshot_count(proof_contract: dict[str, Any]) -> int:
+    return int(
+        proof_contract.get("canonical_runtime", {}).get("minimum_screenshot_count", 0)
+    )
+
+
+def _validate_screenshot_count(
+    *,
+    errors: list[str],
+    screenshots: object,
+    proof_contract: dict[str, Any],
+) -> int:
+    minimum = _minimum_screenshot_count(proof_contract)
+    if not isinstance(screenshots, list):
+        errors.append(f"live summary must include at least {minimum} screenshots")
+        return 0
+    if len(screenshots) < minimum:
+        errors.append(f"live summary must include at least {minimum} screenshots")
+    return len(screenshots)
+
+
+def _missing_screenshot_paths(
+    *, screenshots: list[Any], qa_summary_path: Path
+) -> list[str]:
+    missing = []
+    for screenshot in screenshots:
+        if not isinstance(screenshot, dict):
+            missing.append("<non-object screenshot>")
+            continue
+        path = _resolve_optional_path(screenshot.get("path"), qa_summary_path.parent)
+        if path is None or not path.exists():
+            missing.append(str(screenshot.get("path")))
+    return missing
+
+
+def _validate_screenshot_index(
+    *,
+    errors: list[str],
+    live_summary: dict[str, Any],
+    live_summary_path: Path | None,
+    qa_summary_path: Path,
+) -> Path | None:
     shot_index_path = _screenshot_index_path(
         live_summary, live_summary_path, qa_summary_path
     )
     if shot_index_path is None or not shot_index_path.exists():
         errors.append("SHOT-INDEX.md is missing for ecosystem screenshot evidence")
-    return {
-        "screenshot_count": screenshot_count,
-        "shot_index_path": str(shot_index_path) if shot_index_path else None,
-    }
+    return shot_index_path
 
 
 def _validate_protected_diagnostics(

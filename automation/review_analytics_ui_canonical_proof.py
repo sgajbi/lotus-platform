@@ -390,55 +390,80 @@ def _validate_sensitive_content(
     return {"sensitive_content_scanned_files": scanned_paths}
 
 
-def review_canonical_proof(inputs: ReviewInputs) -> dict[str, Any]:
-    errors: list[str] = []
-    qa_summary = _load_json(inputs.qa_summary_path)
-    contract = _load_json(inputs.contract_path)
-    dashboard = _load_json(inputs.dashboard_path)
-    alert_rules = yaml.safe_load(inputs.alert_rules_path.read_text(encoding="utf-8"))
+def _load_review_sources(inputs: ReviewInputs) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    return (
+        _load_json(inputs.qa_summary_path),
+        _load_json(inputs.contract_path),
+        _load_json(inputs.dashboard_path),
+        yaml.safe_load(inputs.alert_rules_path.read_text(encoding="utf-8")),
+    )
 
+
+def _validate_qa_summary_status(
+    *, errors: list[str], qa_summary: dict[str, Any]
+) -> None:
     status = str(qa_summary.get("status") or qa_summary.get("result") or "").lower()
     if status and status not in {"ok", "passed", "success"}:
         errors.append(f"canonical QA summary status is not ok: {status}")
 
+
+def _validate_referenced_live_summary(
+    *,
+    errors: list[str],
+    qa_summary: dict[str, Any],
+    qa_summary_path: Path,
+) -> tuple[dict[str, Any], dict[str, Any] | None, Path | None]:
     live_summary, live_summary_path = _resolve_live_summary(
-        qa_summary, inputs.qa_summary_path
+        qa_summary, qa_summary_path
     )
     if live_summary is None:
         errors.append("canonical QA summary does not reference a live validation summary")
-        live_evidence: dict[str, Any] = {}
-    else:
-        live_evidence = _validate_live_summary(
-            errors=errors,
-            live_summary=live_summary,
-            live_summary_path=live_summary_path,
-            qa_summary_path=inputs.qa_summary_path,
-        )
+        return {}, live_summary, live_summary_path
 
-    metric_evidence = _validate_metric_artifacts(
+    live_evidence = _validate_live_summary(
         errors=errors,
-        contract=contract,
-        dashboard=dashboard,
-        alert_rules=alert_rules,
+        live_summary=live_summary,
+        live_summary_path=live_summary_path,
+        qa_summary_path=qa_summary_path,
     )
+    return live_evidence, live_summary, live_summary_path
 
-    sensitive_scan_paths = [inputs.qa_summary_path]
+
+def _sensitive_scan_paths(
+    *,
+    qa_summary_path: Path,
+    live_summary: dict[str, Any] | None,
+    live_summary_path: Path | None,
+) -> list[Path]:
+    paths = [qa_summary_path]
     if live_summary_path is not None:
-        sensitive_scan_paths.append(live_summary_path)
-    shot_index = (
-        _screenshot_index_path(live_summary, live_summary_path, inputs.qa_summary_path)
-        if live_summary is not None
-        else None
+        paths.append(live_summary_path)
+    if live_summary is None:
+        return paths
+
+    shot_index = _screenshot_index_path(
+        live_summary, live_summary_path, qa_summary_path
     )
     if shot_index is not None:
-        sensitive_scan_paths.append(shot_index)
-    sensitive_evidence = _validate_sensitive_content(
-        errors=errors,
-        contract=contract,
-        paths=sensitive_scan_paths,
-    )
+        paths.append(shot_index)
+    return paths
 
-    review = {
+
+def _build_review_payload(
+    *,
+    inputs: ReviewInputs,
+    errors: list[str],
+    live_summary_path: Path | None,
+    live_evidence: dict[str, Any],
+    metric_evidence: dict[str, Any],
+    sensitive_evidence: dict[str, Any],
+) -> dict[str, Any]:
+    return {
         "status": "passed" if not errors else "failed",
         "rfc": "RFC-0108",
         "slice": "Slice 8 canonical Workbench implementation proof",
@@ -452,10 +477,50 @@ def review_canonical_proof(inputs: ReviewInputs) -> dict[str, Any]:
         "errors": errors,
     }
 
-    if inputs.output_path is not None:
-        inputs.output_path.parent.mkdir(parents=True, exist_ok=True)
-        inputs.output_path.write_text(f"{json.dumps(review, indent=2)}\n", encoding="utf-8")
 
+def _write_review_payload(review: dict[str, Any], output_path: Path | None) -> None:
+    if output_path is None:
+        return
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(f"{json.dumps(review, indent=2)}\n", encoding="utf-8")
+
+
+def review_canonical_proof(inputs: ReviewInputs) -> dict[str, Any]:
+    errors: list[str] = []
+    qa_summary, contract, dashboard, alert_rules = _load_review_sources(inputs)
+    _validate_qa_summary_status(errors=errors, qa_summary=qa_summary)
+    live_evidence, live_summary, live_summary_path = _validate_referenced_live_summary(
+        errors=errors,
+        qa_summary=qa_summary,
+        qa_summary_path=inputs.qa_summary_path,
+    )
+
+    metric_evidence = _validate_metric_artifacts(
+        errors=errors,
+        contract=contract,
+        dashboard=dashboard,
+        alert_rules=alert_rules,
+    )
+
+    sensitive_evidence = _validate_sensitive_content(
+        errors=errors,
+        contract=contract,
+        paths=_sensitive_scan_paths(
+            qa_summary_path=inputs.qa_summary_path,
+            live_summary=live_summary,
+            live_summary_path=live_summary_path,
+        ),
+    )
+
+    review = _build_review_payload(
+        inputs=inputs,
+        errors=errors,
+        live_summary_path=live_summary_path,
+        live_evidence=live_evidence,
+        metric_evidence=metric_evidence,
+        sensitive_evidence=sensitive_evidence,
+    )
+    _write_review_payload(review, inputs.output_path)
     return review
 
 

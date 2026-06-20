@@ -858,35 +858,73 @@ def _append_delegated_task_overlap_attention(
     generated_at_utc: str,
     evidence_refs: list[dict[str, Any]],
 ) -> None:
+    for left, right, left_scope, left_write_scope in _delegated_task_overlap_pairs(
+        active_tasks
+    ):
+        item = _delegated_task_overlap_attention_item(
+            left=left,
+            right=right,
+            left_scope=left_scope,
+            left_write_scope=left_write_scope,
+            repository=repository,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+        )
+        attention_items.append(item)
+
+
+def _delegated_task_overlap_pairs(
+    active_tasks: list[dict[str, Any]],
+) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any], object]]:
+    pairs = []
     for index, left in enumerate(active_tasks):
-        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
+        left_scope = _delegated_task_scope(left)
         left_write_scope = left_scope.get("write_scope")
         if left_write_scope == "none":
             continue
         for right in active_tasks[index + 1 :]:
-            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
+            right_scope = _delegated_task_scope(right)
             if not _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
                 continue
-            left_id = str(left.get("engineering_task_id") or "unknown-task")
-            right_id = str(right.get("engineering_task_id") or "unknown-task")
-            item = _attention_item(
-                source_system="delegated_task_ledger",
-                source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
-                repository=str(left.get("repository") or repository),
-                condition="delegated_task_write_scope_overlap",
-                severity="action_required",
-                owner=str(left.get("owner") or repository),
-                generated_at_utc=generated_at_utc,
-                evidence_refs=evidence_refs,
-                recommended_next_action=(
-                    f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
-                ),
-            )
-            item["engineering_task_id"] = left_id
-            item["related_engineering_task_id"] = right_id
-            item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
-            item["write_scope"] = left_write_scope
-            attention_items.append(item)
+            pairs.append((left, right, left_scope, left_write_scope))
+    return pairs
+
+
+def _delegated_task_scope(task: dict[str, Any]) -> dict[str, Any]:
+    scope = task.get("scope")
+    return scope if isinstance(scope, dict) else {}
+
+
+def _delegated_task_overlap_attention_item(
+    *,
+    left: dict[str, Any],
+    right: dict[str, Any],
+    left_scope: dict[str, Any],
+    left_write_scope: object,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    left_id = str(left.get("engineering_task_id") or "unknown-task")
+    right_id = str(right.get("engineering_task_id") or "unknown-task")
+    item = _attention_item(
+        source_system="delegated_task_ledger",
+        source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
+        repository=str(left.get("repository") or repository),
+        condition="delegated_task_write_scope_overlap",
+        severity="action_required",
+        owner=str(left.get("owner") or repository),
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        recommended_next_action=(
+            f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
+        ),
+    )
+    item["engineering_task_id"] = left_id
+    item["related_engineering_task_id"] = right_id
+    item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
+    item["write_scope"] = left_write_scope
+    return item
 
 
 def _collect_delegated_task_ledger_item(
@@ -1325,55 +1363,126 @@ def _lotus_ai_queue_item_attention(
             ),
         )
     ]
-
-    if review_state == "AWAITING_REVIEW":
-        age = _age_hours(generated_at_utc, item.get("created_at"))
-        if age is not None and age > stale_hours:
-            attention_items.append(
-                _lotus_ai_run_attention_item(
-                    item=item,
-                    source_ref=source_ref,
-                    condition="workflow_pack_review_stale",
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=item_evidence_refs,
-                    recommended_next_action=(
-                        f"Review stale workflow-pack run `{run_id}` before downstream use."
-                    ),
-                )
-            )
-
-    if runtime_state in {"FAILED", "EXPIRED"}:
-        attention_items.append(
-            _lotus_ai_run_attention_item(
-                item=item,
-                source_ref=source_ref,
-                condition="workflow_pack_run_terminal_failure",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
-                ),
-            )
+    attention_items.extend(
+        _lotus_ai_stale_review_attention(
+            item=item,
+            run_id=run_id,
+            source_ref=source_ref,
+            review_state=review_state,
+            stale_hours=stale_hours,
+            evidence_refs=item_evidence_refs,
+            generated_at_utc=generated_at_utc,
         )
+    )
+    attention_items.extend(
+        _lotus_ai_terminal_runtime_attention(
+            item=item,
+            run_id=run_id,
+            source_ref=source_ref,
+            runtime_state=runtime_state,
+            evidence_refs=item_evidence_refs,
+            generated_at_utc=generated_at_utc,
+        )
+    )
+    attention_items.extend(
+        _lotus_ai_lineage_conflict_attention(
+            item=item,
+            run_id=run_id,
+            source_ref=source_ref,
+            review_state=review_state,
+            runtime_state=runtime_state,
+            supportability_status=supportability_status,
+            evidence_refs=item_evidence_refs,
+            generated_at_utc=generated_at_utc,
+        )
+    )
+    return attention_items
 
+
+def _lotus_ai_stale_review_attention(
+    *,
+    item: dict[str, Any],
+    run_id: str,
+    source_ref: str,
+    review_state: str,
+    stale_hours: float,
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    if review_state != "AWAITING_REVIEW":
+        return []
+    age = _age_hours(generated_at_utc, item.get("created_at"))
+    if age is None or age <= stale_hours:
+        return []
+    return [
+        _lotus_ai_run_attention_item(
+            item=item,
+            source_ref=source_ref,
+            condition="workflow_pack_review_stale",
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=(
+                f"Review stale workflow-pack run `{run_id}` before downstream use."
+            ),
+        )
+    ]
+
+
+def _lotus_ai_terminal_runtime_attention(
+    *,
+    item: dict[str, Any],
+    run_id: str,
+    source_ref: str,
+    runtime_state: str,
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    if runtime_state not in {"FAILED", "EXPIRED"}:
+        return []
+    return [
+        _lotus_ai_run_attention_item(
+            item=item,
+            source_ref=source_ref,
+            condition="workflow_pack_run_terminal_failure",
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=(
+                f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
+            ),
+        )
+    ]
+
+
+def _lotus_ai_lineage_conflict_attention(
+    *,
+    item: dict[str, Any],
+    run_id: str,
+    source_ref: str,
+    review_state: str,
+    runtime_state: str,
+    supportability_status: str,
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
     lineage_states = {"REVISED", "SUPERSEDED"}
     if (
-        review_state in lineage_states or runtime_state == "SUPERSEDED"
-    ) and supportability_status != "HISTORICAL":
-        attention_items.append(
-            _lotus_ai_run_attention_item(
-                item=item,
-                source_ref=source_ref,
-                condition="workflow_pack_lineage_conflict",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
-                ),
-                owner="lotus-ai",
-            )
+        review_state not in lineage_states
+        and runtime_state != "SUPERSEDED"
+    ) or supportability_status == "HISTORICAL":
+        return []
+    return [
+        _lotus_ai_run_attention_item(
+            item=item,
+            source_ref=source_ref,
+            condition="workflow_pack_lineage_conflict",
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=(
+                f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
+            ),
+            owner="lotus-ai",
         )
-    return attention_items
+    ]
 
 
 def _lotus_ai_adapter(

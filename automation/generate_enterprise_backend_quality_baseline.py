@@ -767,6 +767,38 @@ Generated: `{baseline["generated_at_utc"]}`
 75. Mesh SLO violation evaluator extraction so policy context, freshness, status, and lineage
     violation checks are isolated behind focused helpers, removing the RFC-0091 SLO evaluator from
     the top measured complexity hotspot list and adding focused freshness violation coverage.
+76. Lotus AI heartbeat queue-item attention extraction so action-required, stale-review,
+    terminal-runtime, and lineage-conflict workflow-pack attention rules are isolated behind
+    focused helpers, removing queue-item attention generation from the top measured complexity
+    hotspot list while preserving RFC-0095 heartbeat behavior.
+77. Core/performance expected-posture extraction so pass-scenario and known-core-issue posture
+    classification is isolated behind focused helpers, removing the cross-app validation posture
+    evaluator from the top measured complexity hotspot list while preserving known-issue review
+    behavior.
+78. Analytics UI canonical proof reviewer extraction so source loading, QA status validation,
+    live-summary evidence validation, sensitive scan path assembly, and result writing are isolated
+    behind focused helpers, removing the canonical proof reviewer from the top measured complexity
+    hotspot list while preserving RFC-0108 proof review output.
+79. Analytics UI ecosystem proof journey validator extraction so API check lookup, failed API
+    detection, panel-state policy, and per-journey evidence assembly are isolated behind focused
+    helpers, removing the ecosystem proof journey validator from the top measured complexity
+    hotspot list while preserving RFC-0108 ecosystem proof review behavior.
+80. Analytics UI entitlement implementation-evidence validator extraction so certified path
+    identity, owner repository, PR/SHA evidence, and observed proof-reference assembly are isolated
+    behind focused helpers, removing entitlement implementation evidence validation from the top
+    measured complexity hotspot list while preserving RFC-0108 certification behavior.
+81. Analytics UI ecosystem hardening API/proof validator extraction so proof reconciliation flags,
+    OpenAPI path review, API certification status, and evidence checks are isolated behind focused
+    helpers, removing hardening API/proof validation from the top measured complexity hotspot list
+    while preserving RFC-0108 hardening certification behavior.
+82. Delegated task overlap heartbeat extraction so active write-scope overlap pair discovery and
+    overlap attention-item construction are isolated behind focused helpers, removing delegated
+    task overlap attention generation from the top measured complexity hotspot list while
+    preserving RFC-0095/RFC-0096 heartbeat attention behavior.
+83. Analytics UI ecosystem proof screenshot validator extraction so screenshot-count validation,
+    missing screenshot path detection, and SHOT-INDEX evidence validation are isolated behind
+    focused helpers, removing ecosystem screenshot validation from the top measured complexity
+    hotspot list while preserving RFC-0108 proof review behavior.
 
 ## Evidence
 

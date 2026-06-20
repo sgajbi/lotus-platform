@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304768
+    "total_source_lines": 305183
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,70 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 1376,
-        "line": 1300,
-        "lines": 77,
-        "name": "_lotus_ai_queue_item_attention",
-        "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 484,
-        "line": 417,
-        "lines": 68,
-        "name": "_evaluate_expected_posture",
-        "path": "automation/core_performance_cross_app_validation.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 459,
-        "line": 393,
-        "lines": 67,
-        "name": "review_canonical_proof",
-        "path": "automation/review_analytics_ui_canonical_proof.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 193,
-        "line": 140,
-        "lines": 54,
-        "name": "_validate_journeys",
-        "path": "automation/review_analytics_ui_ecosystem_proof.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 315,
-        "line": 274,
-        "lines": 42,
-        "name": "_validate_implementation_evidence",
-        "path": "automation/validate_analytics_ui_entitlement_certification.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 181,
-        "line": 143,
-        "lines": 39,
-        "name": "_validate_api_and_proof",
-        "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 889,
-        "line": 853,
-        "lines": 37,
-        "name": "_append_delegated_task_overlap_attention",
-        "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 252,
-        "line": 216,
-        "lines": 37,
-        "name": "_validate_screenshots",
-        "path": "automation/review_analytics_ui_ecosystem_proof.py"
-      },
       {
         "complexity": 12,
         "end_line": 230,
@@ -139,8 +75,8 @@
       },
       {
         "complexity": 11,
-        "end_line": 522,
-        "line": 423,
+        "end_line": 630,
+        "line": 531,
         "lines": 100,
         "name": "review_ecosystem_proof",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
@@ -192,6 +128,70 @@
         "lines": 45,
         "name": "find_products",
         "path": "automation/domain_product_discovery.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 975,
+        "line": 932,
+        "lines": 44,
+        "name": "_validate_dependency_migration_posture",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 91,
+        "line": 53,
+        "lines": 39,
+        "name": "sync_dev_ingress_hosts",
+        "path": "automation/sync_dev_ingress_hosts.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 93,
+        "line": 61,
+        "lines": 33,
+        "name": "_validate_certified_route_groups",
+        "path": "automation/validate_analytics_ui_rollout_readiness.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 262,
+        "line": 236,
+        "lines": 27,
+        "name": "_validate_freshness_age",
+        "path": "automation/validate_trust_telemetry.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 224,
+        "line": 127,
+        "lines": 98,
+        "name": "_validate_lotus_core",
+        "path": "automation/validate_shared_infra_ownership.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 1211,
+        "line": 1137,
+        "lines": 75,
+        "name": "_mesh_certification_adapter",
+        "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 247,
+        "line": 197,
+        "lines": 51,
+        "name": "_validate_dashboard_review",
+        "path": "automation/validate_analytics_ui_hardening_review.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 342,
+        "line": 304,
+        "lines": 39,
+        "name": "_validate_lineage_and_blocking",
+        "path": "automation/validate_trust_telemetry.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 806,
+        "end_line": 838,
         "line": 489,
-        "lines": 318,
+        "lines": 350,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1701
+    "python_function_count": 1732
   },
-  "generated_at_utc": "2026-06-20T08:36:42Z",
+  "generated_at_utc": "2026-06-20T09:12:41Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,14 +413,14 @@
       "suffix": ".md"
     },
     {
+      "lines": 1615,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1614,
       "path": "rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1506,
-      "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
     },
     {
       "lines": 1430,
@@ -567,12 +567,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 499,
+        "line": 517,
         "path": "automation/core_performance_cross_app_validation.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 500,
+        "line": 518,
         "path": "automation/core_performance_cross_app_validation.py",
         "signal": "sensitive-keyword-review"
       },

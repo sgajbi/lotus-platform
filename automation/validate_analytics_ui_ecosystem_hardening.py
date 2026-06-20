@@ -140,12 +140,12 @@ def _validate_repository_reviews(
             errors.append("lotus-platform: review_status must certify current scope")
 
 
-def _validate_api_and_proof(
+def _validate_proof_reconciliation_flags(
+    *,
     errors: list[str],
     ecosystem_proof: dict[str, Any],
-    hardening: dict[str, Any],
+    reconciliation: dict[str, Any],
 ) -> None:
-    reconciliation = hardening.get("proof_reconciliation", {})
     if (
         reconciliation.get("ecosystem_proof_contract")
         != ecosystem_proof.get("contract_id")
@@ -158,27 +158,67 @@ def _validate_api_and_proof(
     if reconciliation.get("no_sensitive_content_reviewed") is not True:
         errors.append("no-sensitive-content proof must be reviewed")
 
+
+def _validate_openapi_path_reconciliation(
+    *,
+    errors: list[str],
+    ecosystem_proof: dict[str, Any],
+    reconciliation: dict[str, Any],
+) -> None:
     required_paths = set(ecosystem_proof.get("openapi_proof", {}).get("required_paths", []))
     reviewed_paths = set(reconciliation.get("openapi_paths_reviewed", []))
     missing_paths = sorted(required_paths - reviewed_paths)
     if missing_paths:
         errors.append(f"proof_reconciliation.openapi_paths_reviewed missing {missing_paths}")
 
-    if not any(
-        item.get("openapi_required") is True
+
+def _validate_api_certification_item(
+    *, errors: list[str], item: dict[str, Any]
+) -> None:
+    surface = str(item.get("surface", "<missing>"))
+    if item.get("openapi_required") is True and item.get("certification_status") not in {
+        "certified",
+        "planned_residual",
+    }:
+        errors.append(f"{surface}: OpenAPI-required surface must be certified or planned")
+    if not item.get("evidence"):
+        errors.append(f"{surface}: evidence is required")
+
+
+def _api_certification_has_certified_openapi_surface(
+    review: list[Any],
+) -> bool:
+    return any(
+        isinstance(item, dict)
+        and item.get("openapi_required") is True
         and item.get("certification_status") == "certified"
-        for item in hardening.get("api_certification_review", [])
-    ):
+        for item in review
+    )
+
+
+def _validate_api_and_proof(
+    errors: list[str],
+    ecosystem_proof: dict[str, Any],
+    hardening: dict[str, Any],
+) -> None:
+    reconciliation = hardening.get("proof_reconciliation", {})
+    _validate_proof_reconciliation_flags(
+        errors=errors,
+        ecosystem_proof=ecosystem_proof,
+        reconciliation=reconciliation,
+    )
+    _validate_openapi_path_reconciliation(
+        errors=errors,
+        ecosystem_proof=ecosystem_proof,
+        reconciliation=reconciliation,
+    )
+
+    api_certification_review = hardening.get("api_certification_review", [])
+    if not _api_certification_has_certified_openapi_surface(api_certification_review):
         errors.append("api_certification_review must certify at least one OpenAPI surface")
-    for item in hardening.get("api_certification_review", []):
-        surface = str(item.get("surface", "<missing>"))
-        if item.get("openapi_required") is True and item.get("certification_status") not in {
-            "certified",
-            "planned_residual",
-        }:
-            errors.append(f"{surface}: OpenAPI-required surface must be certified or planned")
-        if not item.get("evidence"):
-            errors.append(f"{surface}: evidence is required")
+    for item in api_certification_review:
+        if isinstance(item, dict):
+            _validate_api_certification_item(errors=errors, item=item)
 
 
 def _final_closure_is_implemented(

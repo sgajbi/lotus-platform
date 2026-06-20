@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T08:36:42Z`
+Generated: `2026-06-20T09:12:41Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `304768`
+- Total source lines: `305183`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,22 +39,22 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1701`
+- Python functions: `1732`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
-| automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
-| automation/review_analytics_ui_canonical_proof.py | review_canonical_proof | 393 | 12 | 67 |
-| automation/review_analytics_ui_ecosystem_proof.py | _validate_journeys | 140 | 12 | 54 |
-| automation/validate_analytics_ui_entitlement_certification.py | _validate_implementation_evidence | 274 | 12 | 42 |
-| automation/validate_analytics_ui_ecosystem_hardening.py | _validate_api_and_proof | 143 | 12 | 39 |
-| automation/heartbeat_sources.py | _append_delegated_task_overlap_attention | 853 | 12 | 37 |
-| automation/review_analytics_ui_ecosystem_proof.py | _validate_screenshots | 216 | 12 | 37 |
 | automation/validate_engineering_context_system.py | _validate_agents_operating_contract | 197 | 12 | 34 |
 | automation/validate_mesh_access_policies.py | _validate_allowed_consumer | 231 | 12 | 33 |
+| automation/validate_supported_claim_register.py | _validate_register_header | 47 | 12 | 31 |
+| automation/review_analytics_ui_canonical_proof.py | _resolve_live_summary | 95 | 12 | 28 |
+| automation/validate_heartbeat_contracts.py | validate_heartbeat_suppressions | 624 | 12 | 28 |
+| automation/review_analytics_ui_ecosystem_proof.py | review_ecosystem_proof | 531 | 11 | 100 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_producer_contract | 753 | 11 | 80 |
+| automation/heartbeat_sources.py | _collect_delegated_task_attention | 778 | 11 | 73 |
+| automation/validate_analytics_ui_hardening_review.py | _validate_telemetry_field_review | 82 | 11 | 57 |
+| tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
 
 ## Tooling Baseline
 
