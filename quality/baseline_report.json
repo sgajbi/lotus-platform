@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300320
+    "total_source_lines": 300409
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 31,
-        "end_line": 719,
-        "line": 592,
-        "lines": 128,
-        "name": "validate_consumer_contract_with_context",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
       {
         "complexity": 29,
         "end_line": 287,
@@ -187,11 +179,19 @@
       },
       {
         "complexity": 19,
-        "end_line": 822,
-        "line": 722,
+        "end_line": 907,
+        "line": 807,
         "lines": 101,
         "name": "validate_cross_references",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 323,
+        "line": 239,
+        "lines": 85,
+        "name": "main",
+        "path": "automation/core_performance_baseline_validation.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "automation/validate_analytics_ui_observability_contract.py"
       }
     ],
-    "max_complexity": 31,
+    "max_complexity": 29,
     "max_function_lines": 393,
-    "python_function_count": 1339
+    "python_function_count": 1344
   },
-  "generated_at_utc": "2026-06-20T04:36:54Z",
+  "generated_at_utc": "2026-06-20T04:41:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -453,14 +453,14 @@
       "suffix": ".md"
     },
     {
-      "lines": 1041,
-      "path": "tests/unit/test_rfc_closure_governance.py",
+      "lines": 1048,
+      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
     {
-      "lines": 1029,
-      "path": "rfcs/RFC-0084-mesh-governance.md",
-      "suffix": ".md"
+      "lines": 1041,
+      "path": "tests/unit/test_rfc_closure_governance.py",
+      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.58s"
+    "summary": "510 tests collected in 0.54s"
   }
 }

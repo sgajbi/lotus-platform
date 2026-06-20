@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T04:36:54Z`
+Generated: `2026-06-20T04:41:10Z`
 
 ## Completed Slices
 
@@ -62,6 +62,10 @@ Generated: `2026-06-20T04:36:54Z`
     loading, product declaration checks, policy identity checks, source API profile checks,
     analytics profile checks, and markdown checklist checks are isolated behind focused helpers,
     reducing the highest measured complexity hotspot while preserving generated bundle behavior.
+21. Domain data product consumer-contract validator extraction so contract identity, dependency
+    identity, required trust metadata, and migration-posture checks are isolated behind focused
+    helpers, removing the consumer validator from the top measured complexity hotspot list while
+    preserving RFC-0084 consumer-declaration behavior.
 
 ## Evidence
 

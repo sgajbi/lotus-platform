@@ -589,14 +589,11 @@ def validate_consumer_contract(path: Path, payload: dict) -> list[str]:
     return validate_consumer_contract_with_context(path, payload)
 
 
-def validate_consumer_contract_with_context(
+def _validate_consumer_contract_identity(
+    issues: list[str],
     path: Path,
     payload: dict,
-    *,
-    trust_metadata_keys: set[str] | None = None,
-) -> list[str]:
-    issues: list[str] = []
-
+) -> str | None:
     if payload.get("contract_id") != "domain-data-product-consumers":
         _append_issue(issues, path, "contract_id must be 'domain-data-product-consumers'")
     if payload.get("governed_by_rfc") != "RFC-0084":
@@ -607,10 +604,185 @@ def validate_consumer_contract_with_context(
         consumer_repository
     ):
         _append_issue(issues, path, "consumer_repository must match lotus repo naming")
+        consumer_repository = None
 
     contract_version = payload.get("contract_version")
     if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(contract_version):
         _append_issue(issues, path, "contract_version must be semantic versioning")
+
+    return consumer_repository
+
+
+def _validate_dependency_identity(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    consumer_repository: str | None,
+    seen_dependencies: set[tuple[str, str, str]],
+) -> None:
+    product_name = dependency["product_name"]
+    producer_repository = dependency["producer_repository"]
+    required_version = dependency["required_product_version"]
+    key = (str(product_name), str(producer_repository), str(required_version))
+    if key in seen_dependencies:
+        _append_issue(
+            issues,
+            path,
+            f"duplicate dependency declaration for {product_name} from {producer_repository} {required_version}",
+        )
+    else:
+        seen_dependencies.add(key)
+
+    if producer_repository == consumer_repository:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] should not point a consumer to itself as upstream producer",
+        )
+    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
+        _append_issue(issues, path, f"dependencies[{index}].product_name must use stable product naming")
+    if not isinstance(required_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
+        required_version
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].required_product_version must use vN or semantic versioning",
+        )
+    if not _is_non_empty_list(dependency["validation_lanes"]):
+        _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
+
+
+def _validate_dependency_trust_metadata(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+    trust_metadata_keys: set[str] | None,
+) -> None:
+    if not _is_non_empty_list(dependency["required_trust_metadata"]):
+        _append_issue(issues, path, f"dependencies[{index}].required_trust_metadata must be non-empty")
+        return
+    if trust_metadata_keys is None:
+        return
+
+    unknown_trust_metadata = [
+        trust_metadata_field
+        for trust_metadata_field in dependency["required_trust_metadata"]
+        if trust_metadata_field not in trust_metadata_keys
+    ]
+    if unknown_trust_metadata:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
+        )
+
+
+def _validate_dependency_migration_posture(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+) -> None:
+    migration_posture = dependency["migration_posture"]
+    if not isinstance(migration_posture, dict):
+        _append_issue(issues, path, f"dependencies[{index}].migration_posture must be an object")
+        return
+
+    status = migration_posture.get("status")
+    if status not in {"current", "approved_transition"}:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].migration_posture.status must be current or approved_transition",
+        )
+        return
+
+    target_product_version = migration_posture.get("target_product_version")
+    if status == "current":
+        if target_product_version is not None:
+            _append_issue(
+                issues,
+                path,
+                f"dependencies[{index}].migration_posture.target_product_version must be null or omitted when status is current",
+            )
+    if status == "approved_transition":
+        if not isinstance(target_product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(target_product_version):
+            _append_issue(
+                issues,
+                path,
+                f"dependencies[{index}].migration_posture.target_product_version must use vN or semantic versioning when status is approved_transition",
+            )
+        for required_field in ("justification", "sunset_condition"):
+            value = migration_posture.get(required_field)
+            if not isinstance(value, str) or not value.strip():
+                _append_issue(
+                    issues,
+                    path,
+                    f"dependencies[{index}].migration_posture.{required_field} must be a non-empty string when status is approved_transition",
+                )
+
+
+def _validate_consumer_dependency(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: object,
+    consumer_repository: str | None,
+    seen_dependencies: set[tuple[str, str, str]],
+    trust_metadata_keys: set[str] | None,
+) -> None:
+    if not isinstance(dependency, dict):
+        _append_issue(issues, path, f"dependencies[{index}] must be an object")
+        return
+
+    missing = sorted(REQUIRED_DEPENDENCY_FIELDS - set(dependency))
+    if missing:
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}] missing required fields: {', '.join(missing)}",
+        )
+        return
+
+    _validate_dependency_identity(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+        consumer_repository=consumer_repository,
+        seen_dependencies=seen_dependencies,
+    )
+    _validate_dependency_trust_metadata(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+        trust_metadata_keys=trust_metadata_keys,
+    )
+    _validate_dependency_migration_posture(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+    )
+
+
+def validate_consumer_contract_with_context(
+    path: Path,
+    payload: dict,
+    *,
+    trust_metadata_keys: set[str] | None = None,
+) -> list[str]:
+    issues: list[str] = []
+
+    consumer_repository = _validate_consumer_contract_identity(issues, path, payload)
 
     dependencies = payload.get("dependencies")
     if not _is_non_empty_list(dependencies):
@@ -619,102 +791,15 @@ def validate_consumer_contract_with_context(
 
     seen_dependencies: set[tuple[str, str, str]] = set()
     for index, dependency in enumerate(dependencies):
-        if not isinstance(dependency, dict):
-            _append_issue(issues, path, f"dependencies[{index}] must be an object")
-            continue
-
-        missing = sorted(REQUIRED_DEPENDENCY_FIELDS - set(dependency))
-        if missing:
-            _append_issue(
-                issues,
-                path,
-                f"dependencies[{index}] missing required fields: {', '.join(missing)}",
-            )
-            continue
-
-        product_name = dependency["product_name"]
-        producer_repository = dependency["producer_repository"]
-        required_version = dependency["required_product_version"]
-        key = (str(product_name), str(producer_repository), str(required_version))
-        if key in seen_dependencies:
-            _append_issue(
-                issues,
-                path,
-                f"duplicate dependency declaration for {product_name} from {producer_repository} {required_version}",
-            )
-        else:
-            seen_dependencies.add(key)
-
-        if producer_repository == consumer_repository:
-            _append_issue(
-                issues,
-                path,
-                f"dependencies[{index}] should not point a consumer to itself as upstream producer",
-            )
-        if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
-            _append_issue(issues, path, f"dependencies[{index}].product_name must use stable product naming")
-        if not isinstance(required_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
-            required_version
-        ):
-            _append_issue(
-                issues,
-                path,
-                f"dependencies[{index}].required_product_version must use vN or semantic versioning",
-            )
-        if not _is_non_empty_list(dependency["validation_lanes"]):
-            _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
-        if not _is_non_empty_list(dependency["required_trust_metadata"]):
-            _append_issue(issues, path, f"dependencies[{index}].required_trust_metadata must be non-empty")
-        elif trust_metadata_keys is not None:
-            unknown_trust_metadata = [
-                trust_metadata_field
-                for trust_metadata_field in dependency["required_trust_metadata"]
-                if trust_metadata_field not in trust_metadata_keys
-            ]
-            if unknown_trust_metadata:
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
-                )
-
-        migration_posture = dependency["migration_posture"]
-        if not isinstance(migration_posture, dict):
-            _append_issue(issues, path, f"dependencies[{index}].migration_posture must be an object")
-            continue
-
-        status = migration_posture.get("status")
-        if status not in {"current", "approved_transition"}:
-            _append_issue(
-                issues,
-                path,
-                f"dependencies[{index}].migration_posture.status must be current or approved_transition",
-            )
-            continue
-
-        target_product_version = migration_posture.get("target_product_version")
-        if status == "current":
-            if target_product_version is not None:
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}].migration_posture.target_product_version must be null or omitted when status is current",
-                )
-        if status == "approved_transition":
-            if not isinstance(target_product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(target_product_version):
-                _append_issue(
-                    issues,
-                    path,
-                    f"dependencies[{index}].migration_posture.target_product_version must use vN or semantic versioning when status is approved_transition",
-                )
-            for required_field in ("justification", "sunset_condition"):
-                value = migration_posture.get(required_field)
-                if not isinstance(value, str) or not value.strip():
-                    _append_issue(
-                        issues,
-                        path,
-                        f"dependencies[{index}].migration_posture.{required_field} must be a non-empty string when status is approved_transition",
-                    )
+        _validate_consumer_dependency(
+            issues,
+            path,
+            index=index,
+            dependency=dependency,
+            consumer_repository=consumer_repository,
+            seen_dependencies=seen_dependencies,
+            trust_metadata_keys=trust_metadata_keys,
+        )
 
     return issues
 
