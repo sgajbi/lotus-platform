@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305776
+    "total_source_lines": 305847
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 11,
-        "end_line": 138,
-        "line": 82,
-        "lines": 57,
-        "name": "_validate_telemetry_field_review",
-        "path": "automation/validate_analytics_ui_hardening_review.py"
-      },
       {
         "complexity": 11,
         "end_line": 111,
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 247,
-        "line": 197,
+        "end_line": 281,
+        "line": 231,
         "lines": 51,
         "name": "_validate_dashboard_review",
         "path": "automation/validate_analytics_ui_hardening_review.py"
@@ -139,8 +131,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 922,
-        "line": 889,
+        "end_line": 926,
+        "line": 893,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,6 +184,14 @@
         "lines": 64,
         "name": "validate_dev_ingress_smoke",
         "path": "automation/validate_dev_ingress_smoke.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 204,
+        "line": 148,
+        "lines": 57,
+        "name": "_append_dependency_issues",
+        "path": "automation/domain_product_certification.py"
       }
     ],
     "largest_functions": [
@@ -205,9 +205,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 871,
+        "end_line": 875,
         "line": 489,
-        "lines": 383,
+        "lines": 387,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 11,
     "max_function_lines": 393,
-    "python_function_count": 1771
+    "python_function_count": 1776
   },
-  "generated_at_utc": "2026-06-20T10:05:15Z",
+  "generated_at_utc": "2026-06-20T10:12:27Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 532,
+    "collected_tests": 534,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "532 tests collected in 0.58s"
+    "summary": "534 tests collected in 0.52s"
   }
 }

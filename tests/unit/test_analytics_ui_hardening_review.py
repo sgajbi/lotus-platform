@@ -105,6 +105,48 @@ def test_analytics_ui_hardening_review_rejects_unreviewed_event() -> None:
     assert any("missing implemented events" in error for error in errors)
 
 
+def test_analytics_ui_hardening_review_rejects_sensitive_metric_labels() -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    rollout = _load_json(ROLLOUT_CONTRACT_PATH)
+    review = _load_json(HARDENING_REVIEW_PATH)
+    observability["metric_families"].append(
+        {
+            "metric_name": "lotus_test_sensitive_metric_total",
+            "owner_repo": "lotus-platform",
+            "implemented": True,
+            "metric_type": "counter",
+            "labels": ["route", "portfolio_id", "unregistered_label"],
+            "purpose": "test-only metric",
+        }
+    )
+
+    errors = _validate(observability, rollout, review)
+
+    assert any("forbidden labels ['portfolio_id']" in error for error in errors)
+    assert any(
+        "unsupported labels ['portfolio_id', 'unregistered_label']" in error
+        for error in errors
+    )
+
+
+def test_analytics_ui_hardening_review_rejects_sensitive_trace_attributes() -> None:
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    rollout = _load_json(ROLLOUT_CONTRACT_PATH)
+    review = _load_json(HARDENING_REVIEW_PATH)
+    observability["telemetry_contract"]["trace_attributes"].append("trace_id")
+
+    errors = _validate(observability, rollout, review)
+
+    assert any(
+        "trace_attributes: forbidden attributes ['trace_id']" in error
+        for error in errors
+    )
+    assert any(
+        "trace_attributes: unsupported attributes ['trace_id']" in error
+        for error in errors
+    )
+
+
 def test_analytics_ui_hardening_review_rejects_unreviewed_panel_state() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     rollout = _load_json(ROLLOUT_CONTRACT_PATH)
