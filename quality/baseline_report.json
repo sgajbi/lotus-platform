@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305090
+    "total_source_lines": 305132
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 889,
-        "line": 853,
-        "lines": 37,
-        "name": "_append_delegated_task_overlap_attention",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 12,
         "end_line": 313,
@@ -187,11 +179,19 @@
       },
       {
         "complexity": 10,
-        "end_line": 1173,
-        "line": 1099,
+        "end_line": 1211,
+        "line": 1137,
         "lines": 75,
         "name": "_mesh_certification_adapter",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 247,
+        "line": 197,
+        "lines": 51,
+        "name": "_validate_dashboard_review",
+        "path": "automation/validate_analytics_ui_hardening_review.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 830,
+        "end_line": 834,
         "line": 489,
-        "lines": 342,
+        "lines": 346,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1725
+    "python_function_count": 1728
   },
-  "generated_at_utc": "2026-06-20T09:04:22Z",
+  "generated_at_utc": "2026-06-20T09:07:53Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,14 +413,14 @@
       "suffix": ".md"
     },
     {
+      "lines": 1615,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1614,
       "path": "rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1577,
-      "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
     },
     {
       "lines": 1430,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "523 tests collected in 0.57s"
+    "summary": "523 tests collected in 0.54s"
   }
 }

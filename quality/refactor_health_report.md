@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T09:04:22Z`
+Generated: `2026-06-20T09:07:53Z`
 
 ## Completed Slices
 
@@ -302,6 +302,10 @@ Generated: `2026-06-20T09:04:22Z`
     OpenAPI path review, API certification status, and evidence checks are isolated behind focused
     helpers, removing hardening API/proof validation from the top measured complexity hotspot list
     while preserving RFC-0108 hardening certification behavior.
+82. Delegated task overlap heartbeat extraction so active write-scope overlap pair discovery and
+    overlap attention-item construction are isolated behind focused helpers, removing delegated
+    task overlap attention generation from the top measured complexity hotspot list while
+    preserving RFC-0095/RFC-0096 heartbeat attention behavior.
 
 ## Evidence
 
