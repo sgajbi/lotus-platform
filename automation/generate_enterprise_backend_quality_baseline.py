@@ -592,6 +592,10 @@ Generated: `{baseline["generated_at_utc"]}`
     and manifest-driven entrypoint checks are isolated behind focused helpers, removing the coverage
     validator from the top measured complexity hotspot list while preserving CI validation-lane
     governance behavior.
+32. Agent delegation-record validator extraction so required input fields, profile policy, identity
+    strings, read/write scope policy, forbidden actions, evidence requirements, and return-envelope
+    checks are isolated behind focused helpers, removing the delegation-record validator from the
+    top measured complexity hotspot list while preserving RFC-0096 delegation guardrail behavior.
 
 ## Evidence
 

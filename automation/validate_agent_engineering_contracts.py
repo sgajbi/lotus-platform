@@ -502,22 +502,33 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
     return errors
 
 
-def validate_delegation_record(
+def _validate_delegation_required_input_fields(
+    *,
+    errors: list[str],
     record: dict[str, Any],
-    policy: dict[str, Any] | None = None,
-) -> list[str]:
-    policy = policy or _load_contract(DELEGATION_POLICY_PATH)
-    errors: list[str] = []
+    policy: dict[str, Any],
+) -> None:
     for field in policy["required_input_fields"]:
         if field not in record:
             errors.append(f"delegation record missing {field}")
 
-    profile = record.get("profile")
+
+def _validate_delegation_profile(
+    *,
+    errors: list[str],
+    profile: object,
+    policy: dict[str, Any],
+) -> None:
     if profile in set(policy["disallowed_profiles"]):
         errors.append(f"profile {profile} is disallowed")
     if profile not in set(policy["delegation_profiles"]):
         errors.append("profile must be a governed delegation profile")
 
+
+def _validate_delegation_identity_fields(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     for field in (
         "delegation_task_id",
         "parent_task_id",
@@ -529,12 +540,25 @@ def validate_delegation_record(
         if not _non_empty_string(record.get(field)):
             errors.append(f"{field} must be a non-empty string")
 
+
+def _validate_delegation_read_scope(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     read_scope = record.get("read_scope")
     if not isinstance(read_scope, list) or not read_scope:
         errors.append("read_scope must be a non-empty list")
     elif "." in read_scope:
         errors.append("read_scope must not be broad repo root")
 
+
+def _validate_delegation_write_scope(
+    *,
+    errors: list[str],
+    profile: object,
+    record: dict[str, Any],
+    policy: dict[str, Any],
+) -> None:
     write_scope = record.get("write_scope")
     no_write_profiles = set(policy["no_write_profiles"])
     write_required_profiles = set(policy["write_scope_required_profiles"])
@@ -548,6 +572,11 @@ def validate_delegation_record(
     elif isinstance(write_scope, list) and "." in write_scope:
         errors.append("write_scope must not be broad repo root")
 
+
+def _validate_delegation_forbidden_actions(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     forbidden_actions = set(
         item for item in _as_list(record.get("forbidden_actions")) if isinstance(item, str)
     )
@@ -557,10 +586,20 @@ def validate_delegation_record(
             "forbidden_actions missing required values: " + ", ".join(missing_actions)
         )
 
+
+def _validate_delegation_evidence_requirements(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     evidence_requirements = record.get("evidence_requirements")
     if not isinstance(evidence_requirements, list) or not evidence_requirements:
         errors.append("evidence_requirements must be a non-empty list")
 
+
+def _validate_delegation_return_envelope(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     return_envelope = set(
         item for item in _as_list(record.get("return_envelope")) if isinstance(item, str)
     )
@@ -569,6 +608,33 @@ def validate_delegation_record(
         errors.append(
             "return_envelope missing required values: " + ", ".join(missing_return_fields)
         )
+
+
+def validate_delegation_record(
+    record: dict[str, Any],
+    policy: dict[str, Any] | None = None,
+) -> list[str]:
+    policy = policy or _load_contract(DELEGATION_POLICY_PATH)
+    errors: list[str] = []
+    _validate_delegation_required_input_fields(
+        errors=errors,
+        record=record,
+        policy=policy,
+    )
+
+    profile = record.get("profile")
+    _validate_delegation_profile(errors=errors, profile=profile, policy=policy)
+    _validate_delegation_identity_fields(record, errors)
+    _validate_delegation_read_scope(record, errors)
+    _validate_delegation_write_scope(
+        errors=errors,
+        profile=profile,
+        record=record,
+        policy=policy,
+    )
+    _validate_delegation_forbidden_actions(record, errors)
+    _validate_delegation_evidence_requirements(record, errors)
+    _validate_delegation_return_envelope(record, errors)
     return errors
 
 

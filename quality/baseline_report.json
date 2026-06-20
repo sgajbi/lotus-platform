@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301032
+    "total_source_lines": 301102
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -48,14 +48,6 @@
         "lines": 77,
         "name": "_validate_context_entrypoints",
         "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 23,
-        "end_line": 572,
-        "line": 505,
-        "lines": 68,
-        "name": "validate_delegation_record",
-        "path": "automation/validate_agent_engineering_contracts.py"
       },
       {
         "complexity": 22,
@@ -192,6 +184,14 @@
         "lines": 154,
         "name": "explain_dev_ingress_status",
         "path": "automation/explain_dev_ingress_status.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 466,
+        "line": 364,
+        "lines": 103,
+        "name": "_github_adapter",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -349,18 +349,18 @@
       },
       {
         "complexity": 1,
-        "end_line": 631,
+        "end_line": 635,
         "line": 489,
-        "lines": 143,
+        "lines": 147,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       }
     ],
     "max_complexity": 23,
     "max_function_lines": 393,
-    "python_function_count": 1401
+    "python_function_count": 1409
   },
-  "generated_at_utc": "2026-06-20T05:18:12Z",
+  "generated_at_utc": "2026-06-20T05:22:55Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.69s"
+    "summary": "510 tests collected in 0.54s"
   }
 }
