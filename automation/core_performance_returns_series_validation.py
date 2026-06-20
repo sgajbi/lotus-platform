@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -17,6 +18,201 @@ from core_performance_twr_benchmark_validation import (
     _post_json,
     _seed_core_data,
 )
+
+
+TOLERANCE = Decimal("0.0001")
+ACTIVE_RETURN_TOLERANCE = Decimal("0.0000000001")
+
+
+def _defect(*, code: str, message: str, evidence: dict[str, object] | object) -> dict[str, str]:
+    return {
+        "app": "lotus-performance",
+        "code": code,
+        "message": message,
+        "evidence": json.dumps(evidence),
+    }
+
+
+def _returns_series_cumulative_values(series: dict[str, object]) -> tuple[Decimal, Decimal, Decimal]:
+    return (
+        Decimal(series["cumulative_portfolio_returns"][-1]["return_value"]) * Decimal("100"),
+        Decimal(series["cumulative_benchmark_returns"][-1]["return_value"]) * Decimal("100"),
+        Decimal(series["cumulative_active_returns"][-1]["return_value"]) * Decimal("100"),
+    )
+
+
+def _twr_cumulative_values(twr: dict[str, object]) -> tuple[Decimal, Decimal, Decimal]:
+    twr_itd = twr["results_by_period"]["ITD"]
+    return (
+        Decimal(str(twr_itd["portfolio"]["summary"]["cumulative_return"]["base"])),
+        Decimal(str(twr_itd["benchmark"]["summary"]["cumulative_return"]["base"])),
+        Decimal(str(twr_itd["relative_performance"]["summary"]["cumulative_return"]["base"])),
+    )
+
+
+def _benchmark_cumulative_value(benchmark: dict[str, object]) -> Decimal:
+    return Decimal(
+        str(benchmark["results_by_period"]["ITD"]["benchmark"]["summary"]["cumulative_return"]["base"])
+    )
+
+
+def _append_benchmark_context_defect(
+    defects: list[dict[str, str]],
+    *,
+    returns_series: dict[str, object],
+    expected_benchmark_id: str,
+) -> None:
+    benchmark_context = returns_series.get("benchmark_context", {})
+    if not isinstance(benchmark_context, dict) or benchmark_context.get("benchmark_id") != expected_benchmark_id:
+        defects.append(
+            _defect(
+                code="RETURNS_SERIES_BENCHMARK_CONTEXT_MISMATCH",
+                message="Returns-series benchmark context did not resolve the expected benchmark assignment.",
+                evidence=benchmark_context,
+            )
+        )
+
+
+def _append_cumulative_mismatch(
+    defects: list[dict[str, str]],
+    *,
+    actual: Decimal,
+    expected: Decimal,
+    code: str,
+    message: str,
+    actual_name: str,
+    expected_name: str,
+) -> None:
+    if abs(actual - expected) <= TOLERANCE:
+        return
+    defects.append(
+        _defect(
+            code=code,
+            message=message,
+            evidence={
+                actual_name: str(actual),
+                expected_name: str(expected),
+            },
+        )
+    )
+
+
+def _append_active_arithmetic_defect(
+    defects: list[dict[str, str]],
+    *,
+    series: dict[str, object],
+) -> None:
+    for portfolio_point, benchmark_point, active_point in zip(
+        series["portfolio_returns"],
+        series["benchmark_returns"],
+        series["active_returns"],
+        strict=True,
+    ):
+        portfolio_return = Decimal(portfolio_point["return_value"])
+        benchmark_return = Decimal(benchmark_point["return_value"])
+        active_return = Decimal(active_point["return_value"])
+        if abs((portfolio_return - benchmark_return) - active_return) <= ACTIVE_RETURN_TOLERANCE:
+            continue
+        defects.append(
+            _defect(
+                code="RETURNS_SERIES_ACTIVE_ARITHMETIC_MISMATCH",
+                message="Returns-series active return is not the arithmetic difference between portfolio and benchmark on every date.",
+                evidence={
+                    "date": portfolio_point["date"],
+                    "portfolio_return": str(portfolio_return),
+                    "benchmark_return": str(benchmark_return),
+                    "active_return": str(active_return),
+                },
+            )
+        )
+        return
+
+
+def _append_returns_series_defects(
+    defects: list[dict[str, str]],
+    *,
+    returns_series: dict[str, object],
+    series: dict[str, object],
+    scenario_ids: ScenarioIds,
+    cumulative_portfolio: Decimal,
+    cumulative_benchmark: Decimal,
+    cumulative_active: Decimal,
+    twr_portfolio_cumulative: Decimal,
+    twr_benchmark_cumulative: Decimal,
+    twr_relative_cumulative: Decimal,
+    benchmark_cumulative: Decimal,
+) -> None:
+    _append_benchmark_context_defect(
+        defects,
+        returns_series=returns_series,
+        expected_benchmark_id=scenario_ids.benchmark_id,
+    )
+    _append_cumulative_mismatch(
+        defects,
+        actual=cumulative_portfolio,
+        expected=twr_portfolio_cumulative,
+        code="RETURNS_SERIES_PORTFOLIO_CUMULATIVE_MISMATCH",
+        message="Returns-series cumulative portfolio return does not align with benchmark-inclusive TWR.",
+        actual_name="returns_series_cumulative_portfolio_pct",
+        expected_name="twr_cumulative_portfolio_pct",
+    )
+    _append_cumulative_mismatch(
+        defects,
+        actual=cumulative_benchmark,
+        expected=twr_benchmark_cumulative,
+        code="RETURNS_SERIES_BENCHMARK_CUMULATIVE_MISMATCH",
+        message="Returns-series cumulative benchmark return does not align with TWR benchmark output.",
+        actual_name="returns_series_cumulative_benchmark_pct",
+        expected_name="twr_cumulative_benchmark_pct",
+    )
+    _append_cumulative_mismatch(
+        defects,
+        actual=cumulative_benchmark,
+        expected=benchmark_cumulative,
+        code="RETURNS_SERIES_BENCHMARK_ENDPOINT_MISMATCH",
+        message="Returns-series cumulative benchmark return does not align with the dedicated benchmark endpoint.",
+        actual_name="returns_series_cumulative_benchmark_pct",
+        expected_name="benchmark_endpoint_cumulative_pct",
+    )
+    _append_cumulative_mismatch(
+        defects,
+        actual=cumulative_active,
+        expected=twr_relative_cumulative,
+        code="RETURNS_SERIES_ACTIVE_CUMULATIVE_MISMATCH",
+        message="Returns-series cumulative active return does not align with TWR relative performance.",
+        actual_name="returns_series_cumulative_active_pct",
+        expected_name="twr_cumulative_relative_pct",
+    )
+    _append_active_arithmetic_defect(defects, series=series)
+
+
+def _performance_summary(
+    *,
+    returns_series: dict[str, object],
+    series: dict[str, object],
+    cumulative_portfolio: Decimal,
+    cumulative_benchmark: Decimal,
+    cumulative_active: Decimal,
+    twr_portfolio_cumulative: Decimal,
+    twr_benchmark_cumulative: Decimal,
+    twr_relative_cumulative: Decimal,
+    benchmark_cumulative: Decimal,
+    defects: list[dict[str, str]],
+) -> dict[str, object]:
+    return {
+        "benchmark_context": returns_series.get("benchmark_context"),
+        "portfolio_daily_points": len(series["portfolio_returns"]),
+        "benchmark_daily_points": len(series["benchmark_returns"]),
+        "active_daily_points": len(series["active_returns"]),
+        "returns_series_cumulative_portfolio_pct": str(cumulative_portfolio),
+        "returns_series_cumulative_benchmark_pct": str(cumulative_benchmark),
+        "returns_series_cumulative_active_pct": str(cumulative_active),
+        "twr_cumulative_portfolio_pct": str(twr_portfolio_cumulative),
+        "twr_cumulative_benchmark_pct": str(twr_benchmark_cumulative),
+        "twr_cumulative_relative_pct": str(twr_relative_cumulative),
+        "benchmark_endpoint_cumulative_pct": str(benchmark_cumulative),
+        "defects": defects,
+    }
 
 
 def _run_validation(
@@ -113,136 +309,45 @@ def _run_validation(
         )
 
         series = returns_series["series"]
-        cumulative_portfolio = Decimal(series["cumulative_portfolio_returns"][-1]["return_value"]) * Decimal("100")
-        cumulative_benchmark = Decimal(series["cumulative_benchmark_returns"][-1]["return_value"]) * Decimal("100")
-        cumulative_active = Decimal(series["cumulative_active_returns"][-1]["return_value"]) * Decimal("100")
+        cumulative_portfolio, cumulative_benchmark, cumulative_active = _returns_series_cumulative_values(series)
+        (
+            twr_portfolio_cumulative,
+            twr_benchmark_cumulative,
+            twr_relative_cumulative,
+        ) = _twr_cumulative_values(twr)
+        benchmark_cumulative = _benchmark_cumulative_value(benchmark)
 
-        twr_itd = twr["results_by_period"]["ITD"]
-        twr_portfolio_cumulative = Decimal(str(twr_itd["portfolio"]["summary"]["cumulative_return"]["base"]))
-        twr_benchmark_cumulative = Decimal(str(twr_itd["benchmark"]["summary"]["cumulative_return"]["base"]))
-        twr_relative_cumulative = Decimal(str(twr_itd["relative_performance"]["summary"]["cumulative_return"]["base"]))
-        benchmark_cumulative = Decimal(
-            str(benchmark["results_by_period"]["ITD"]["benchmark"]["summary"]["cumulative_return"]["base"])
+        _append_returns_series_defects(
+            defects,
+            returns_series=returns_series,
+            series=series,
+            scenario_ids=scenario_ids,
+            cumulative_portfolio=cumulative_portfolio,
+            cumulative_benchmark=cumulative_benchmark,
+            cumulative_active=cumulative_active,
+            twr_portfolio_cumulative=twr_portfolio_cumulative,
+            twr_benchmark_cumulative=twr_benchmark_cumulative,
+            twr_relative_cumulative=twr_relative_cumulative,
+            benchmark_cumulative=benchmark_cumulative,
         )
 
-        tolerance = Decimal("0.0001")
-
-        if returns_series.get("benchmark_context", {}).get("benchmark_id") != scenario_ids.benchmark_id:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "RETURNS_SERIES_BENCHMARK_CONTEXT_MISMATCH",
-                    "message": "Returns-series benchmark context did not resolve the expected benchmark assignment.",
-                    "evidence": json.dumps(returns_series.get("benchmark_context", {})),
-                }
-            )
-
-        if abs(cumulative_portfolio - twr_portfolio_cumulative) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "RETURNS_SERIES_PORTFOLIO_CUMULATIVE_MISMATCH",
-                    "message": "Returns-series cumulative portfolio return does not align with benchmark-inclusive TWR.",
-                    "evidence": json.dumps(
-                        {
-                            "returns_series_cumulative_portfolio_pct": str(cumulative_portfolio),
-                            "twr_cumulative_portfolio_pct": str(twr_portfolio_cumulative),
-                        }
-                    ),
-                }
-            )
-
-        if abs(cumulative_benchmark - twr_benchmark_cumulative) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "RETURNS_SERIES_BENCHMARK_CUMULATIVE_MISMATCH",
-                    "message": "Returns-series cumulative benchmark return does not align with TWR benchmark output.",
-                    "evidence": json.dumps(
-                        {
-                            "returns_series_cumulative_benchmark_pct": str(cumulative_benchmark),
-                            "twr_cumulative_benchmark_pct": str(twr_benchmark_cumulative),
-                        }
-                    ),
-                }
-            )
-
-        if abs(cumulative_benchmark - benchmark_cumulative) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "RETURNS_SERIES_BENCHMARK_ENDPOINT_MISMATCH",
-                    "message": "Returns-series cumulative benchmark return does not align with the dedicated benchmark endpoint.",
-                    "evidence": json.dumps(
-                        {
-                            "returns_series_cumulative_benchmark_pct": str(cumulative_benchmark),
-                            "benchmark_endpoint_cumulative_pct": str(benchmark_cumulative),
-                        }
-                    ),
-                }
-            )
-
-        if abs(cumulative_active - twr_relative_cumulative) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "RETURNS_SERIES_ACTIVE_CUMULATIVE_MISMATCH",
-                    "message": "Returns-series cumulative active return does not align with TWR relative performance.",
-                    "evidence": json.dumps(
-                        {
-                            "returns_series_cumulative_active_pct": str(cumulative_active),
-                            "twr_cumulative_relative_pct": str(twr_relative_cumulative),
-                        }
-                    ),
-                }
-            )
-
-        for portfolio_point, benchmark_point, active_point in zip(
-            series["portfolio_returns"],
-            series["benchmark_returns"],
-            series["active_returns"],
-            strict=True,
-        ):
-            portfolio_return = Decimal(portfolio_point["return_value"])
-            benchmark_return = Decimal(benchmark_point["return_value"])
-            active_return = Decimal(active_point["return_value"])
-            if abs((portfolio_return - benchmark_return) - active_return) > Decimal("0.0000000001"):
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "RETURNS_SERIES_ACTIVE_ARITHMETIC_MISMATCH",
-                        "message": "Returns-series active return is not the arithmetic difference between portfolio and benchmark on every date.",
-                        "evidence": json.dumps(
-                            {
-                                "date": portfolio_point["date"],
-                                "portfolio_return": str(portfolio_return),
-                                "benchmark_return": str(benchmark_return),
-                                "active_return": str(active_return),
-                            }
-                        ),
-                    }
-                )
-                break
-
     return {
-        "generated_at_utc": json.loads(json.dumps(__import__("datetime").datetime.now(__import__("datetime").UTC).isoformat())),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "status": "passed" if not defects else "failed",
         "scenario_seed_mode": "reused_existing" if skip_seed else "fresh_seeded",
         "scenario": asdict(scenario_ids),
-        "performance": {
-            "benchmark_context": returns_series.get("benchmark_context"),
-            "portfolio_daily_points": len(series["portfolio_returns"]),
-            "benchmark_daily_points": len(series["benchmark_returns"]),
-            "active_daily_points": len(series["active_returns"]),
-            "returns_series_cumulative_portfolio_pct": str(cumulative_portfolio),
-            "returns_series_cumulative_benchmark_pct": str(cumulative_benchmark),
-            "returns_series_cumulative_active_pct": str(cumulative_active),
-            "twr_cumulative_portfolio_pct": str(twr_portfolio_cumulative),
-            "twr_cumulative_benchmark_pct": str(twr_benchmark_cumulative),
-            "twr_cumulative_relative_pct": str(twr_relative_cumulative),
-            "benchmark_endpoint_cumulative_pct": str(benchmark_cumulative),
-            "defects": defects,
-        },
+        "performance": _performance_summary(
+            returns_series=returns_series,
+            series=series,
+            cumulative_portfolio=cumulative_portfolio,
+            cumulative_benchmark=cumulative_benchmark,
+            cumulative_active=cumulative_active,
+            twr_portfolio_cumulative=twr_portfolio_cumulative,
+            twr_benchmark_cumulative=twr_benchmark_cumulative,
+            twr_relative_cumulative=twr_relative_cumulative,
+            benchmark_cumulative=benchmark_cumulative,
+            defects=defects,
+        ),
     }
 
 

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T08:22:33Z`
+Generated: `2026-06-20T08:27:29Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `716`
-- Total source lines: `304367`
-- Python files: `157`
+- Source files: `717`
+- Total source lines: `304558`
+- Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
 
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1676`
+- Python functions: `1690`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/core_performance_returns_series_validation.py | _run_validation | 22 | 12 | 225 |
 | automation/domain_product_certification.py | _build_consumer_certification | 105 | 12 | 108 |
 | automation/validate_mesh_slo_policies.py | evaluate_mesh_slo_violations | 235 | 12 | 102 |
 | automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_entitlement_certification.py | _validate_implementation_evidence | 274 | 12 | 42 |
 | automation/validate_analytics_ui_ecosystem_hardening.py | _validate_api_and_proof | 143 | 12 | 39 |
 | automation/heartbeat_sources.py | _append_delegated_task_overlap_attention | 853 | 12 | 37 |
+| automation/review_analytics_ui_ecosystem_proof.py | _validate_screenshots | 216 | 12 | 37 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `518`
+- Unit tests collected: `521`
 - Collection command return code: `0`
-- Collection summary: `518 tests collected in 0.61s`
+- Collection summary: `521 tests collected in 0.54s`
 
 ## Security Baseline
 

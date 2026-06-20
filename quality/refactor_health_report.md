@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:22:33Z`
+Generated: `2026-06-20T08:27:29Z`
 
 ## Completed Slices
 
@@ -267,6 +267,10 @@ Generated: `2026-06-20T08:22:33Z`
 72. Delegated task ledger status-update extraction so RFC-0096 running, terminal, failure, and
     superseded transitions are isolated behind focused helpers, reducing the measured repository
     complexity ceiling from 13 to 12 while preserving delegated-task ledger behavior.
+73. Core/performance returns-series validation extraction so cumulative return comparison,
+    benchmark-context checking, active-return arithmetic checks, and evidence summary assembly are
+    isolated behind focused helpers, removing the 225-line live validator from the top measured
+    complexity hotspot list and adding unit coverage for the extracted arithmetic checks.
 
 ## Evidence
 
