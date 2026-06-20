@@ -490,6 +490,13 @@ Lotus engineering is expected to be:
 7. observable,
 8. production-ready.
 
+The standing enterprise quality bar is
+`platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`. Agents should use it as the
+default non-degradation standard for Lotus app work, not only when a user explicitly says
+"refactor" or "enterprise-grade". The enterprise backend refactoring instructions provide the
+measurement-heavy execution path for large refactors; the bank-buyable contract provides the
+always-on control taxonomy for everyday slices.
+
 ### Required delivery posture
 
 Always:

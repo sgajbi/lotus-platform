@@ -177,21 +177,23 @@ Important current platform truths:
 1. the central context system under `context/` is a governed delivery artifact, not auxiliary prose
 2. platform-owned skills under `codex/skills/` are the durable Lotus source of truth for skill
    distribution
-3. `platform-stack` is the shared ingress and infrastructure baseline, not the canonical populated
+3. the Lotus Bank-Buyable Engineering Contract is the standing quality bar that delivery skills use
+   to prevent low-quality generated code and app degradation
+4. `platform-stack` is the shared ingress and infrastructure baseline, not the canonical populated
    front-office product proof flow
-4. repo-local truth should live in repository-local engineering context docs rather than being
+5. repo-local truth should live in repository-local engineering context docs rather than being
    duplicated here
-5. documentation changes in this repo are partially governed by unit-level documentation contract
+6. documentation changes in this repo are partially governed by unit-level documentation contract
    tests and should be treated as contract work, not just prose edits
-6. enterprise backend refactor work starts from the report-only quality baseline under
+7. enterprise backend refactor work starts from the report-only quality baseline under
    `quality/`, and future gate promotion must update the scorecard, repo context, wiki, and
    relevant skill guidance in the same slice
-7. RFC-0084 domain-data-product producer and consumer schemas live under
+8. RFC-0084 domain-data-product producer and consumer schemas live under
    `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
    `lotus-core`, `lotus-performance`, and `lotus-risk`
-8. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
+9. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
    `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
-9. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
+10. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
    `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
 
 ## Documentation Map

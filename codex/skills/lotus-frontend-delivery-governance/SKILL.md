@@ -14,7 +14,8 @@ Apply it in line with:
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
-6. Lotus UI and gateway ownership rules already established in platform RFCs
+6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+7. Lotus UI and gateway ownership rules already established in platform RFCs
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing, `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` for proof selection, and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when GitHub or runtime evidence surfaces a real defect.
 
@@ -91,6 +92,25 @@ Before editing frontend code, produce a short quality intake from the actual pro
 6. For governed Workbench panel or screenshot-proof surfaces, follow the RFC-0076 canonical
    contract and RFC-0077 panel registry rather than page-local assumptions.
 7. Screenshots alone are not proof for governed front-office surfaces.
+
+## Bank-Buyable Default Bar
+
+Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for frontend work,
+even when the user asks for a narrow UI change.
+
+Every meaningful product-surface slice should improve or preserve at least one bank-buyable control:
+
+1. gateway-backed implementation truth,
+2. complete state handling for loading, empty, partial, ready, error, stale, degraded, and
+   permission-blocked states,
+3. accessibility, layout stability, and browser-validated user workflow,
+4. safe observability with bounded labels and no sensitive client or portfolio data,
+5. meaningful tests and canonical runtime evidence where applicable,
+6. implementation-backed README, wiki, route, and panel documentation.
+
+If a UI change reveals unsupported feature text, decorative trust state, stale mocks, duplicated
+calculations, or weak browser proof in the touched surface, fix it in the same slice when safe or
+record a concrete follow-up in the scorecard, review ledger, or PR evidence.
 
 ## Frontend Non-Degradation Bar
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 295785
+    "total_source_lines": 295893
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 83,
     "max_function_lines": 393,
-    "python_function_count": 1271
+    "python_function_count": 1272
   },
-  "generated_at_utc": "2026-06-20T03:02:58Z",
+  "generated_at_utc": "2026-06-20T03:07:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -727,7 +727,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 112,
+        "line": 132,
         "path": "codex/skills/lotus-frontend-delivery-governance/SKILL.md",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 502,
+    "collected_tests": 503,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "502 tests collected in 1.19s"
+    "summary": "503 tests collected in 0.60s"
   }
 }

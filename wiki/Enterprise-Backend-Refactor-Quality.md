@@ -2,6 +2,10 @@
 
 `lotus-platform` uses a measured quality baseline for enterprise backend refactor work.
 
+This baseline complements the Lotus Bank-Buyable Engineering Contract. The refactor instructions
+define the measurement-heavy execution path; the bank-buyable contract defines the standing
+non-degradation bar that Lotus skills apply to everyday app work.
+
 ## Source Artifacts
 
 - `quality/baseline_report.md`

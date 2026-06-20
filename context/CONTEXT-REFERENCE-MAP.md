@@ -232,6 +232,9 @@ Key standards to use frequently:
 9. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
 10. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 
+Use the bank-buyable contract as a standing non-degradation standard for Lotus app work. Use the
+enterprise backend refactoring instructions when the task is a larger measurement-backed refactor.
+
 ## Active Governance RFCs
 
 The most operationally important current RFCs are:

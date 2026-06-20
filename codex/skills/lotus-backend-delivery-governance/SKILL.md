@@ -14,7 +14,8 @@ Apply it in line with:
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
-6. repository-local RFCs and standards already in force
+6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+7. repository-local RFCs and standards already in force
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
@@ -90,6 +91,27 @@ If you cannot name those items, keep reading before writing code.
 8. When a quality inventory is clean, deterministic, and already measured, consider whether
    `lotus-ci-enforcement-governance` should promote it to a blocking gate instead of leaving it as
    report-only evidence.
+
+## Bank-Buyable Default Bar
+
+Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
+even when the user does not explicitly ask for a refactor.
+
+Every meaningful backend slice should improve or preserve at least one bank-buyable control:
+
+1. architecture and module boundaries,
+2. API and contract quality,
+3. data, methodology, lineage, and supportability truth,
+4. security and privacy,
+5. observability and operator diagnostics,
+6. resilience, performance, and scalability,
+7. meaningful tests and CI/release evidence,
+8. documentation, README, wiki, and repo-context truth.
+
+Do not leave low-quality generated code in place just because the requested feature works. If the
+slice exposes duplicate logic, unsupported contract claims, unsafe error/logging behavior, weak
+tests, or stale docs in the touched area, either fix it in the same slice or record a concrete
+follow-up in the repo's scorecard, review ledger, or PR evidence.
 
 ## Non-Degradation Bar
 

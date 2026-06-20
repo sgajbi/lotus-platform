@@ -7,6 +7,11 @@ description: Use when designing, promoting, reviewing, or fixing Lotus CI enforc
 
 Use this skill to convert proven quality signals into high-signal, low-noise CI enforcement.
 
+Read `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` when choosing
+which signals deserve promotion. CI should reinforce the bank-buyable controls that prevent
+architecture drift, unsupported contracts, weak tests, security regressions, observability
+regressions, and documentation truth drift across Lotus apps.
+
 ## Core Rule
 
 Promote gates that prevent real degradation. Do not add cosmetic, subjective, flaky, or redundant
@@ -99,6 +104,11 @@ Prefer enforcement that blocks common agent failure modes:
 3. unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift,
 4. first-party security scanner findings and unsafe production assertions,
 5. missing contract validation for data migrations, runtime evidence, or cross-service payloads.
+
+For agent-generated code, prefer gates that enforce "improve or preserve" rather than "barely pass":
+quality scorecards, duplicate-code inventories, architecture boundary checks, OpenAPI/vocabulary
+checks, no-sensitive-observability checks, and documentation-current-state tests should make it hard
+for agents to ship code that degrades a Lotus app while satisfying the immediate prompt.
 
 ## Context And Skill Maintenance
 
