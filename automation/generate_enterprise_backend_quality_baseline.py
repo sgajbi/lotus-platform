@@ -767,6 +767,10 @@ Generated: `{baseline["generated_at_utc"]}`
 75. Mesh SLO violation evaluator extraction so policy context, freshness, status, and lineage
     violation checks are isolated behind focused helpers, removing the RFC-0091 SLO evaluator from
     the top measured complexity hotspot list and adding focused freshness violation coverage.
+76. Lotus AI heartbeat queue-item attention extraction so action-required, stale-review,
+    terminal-runtime, and lineage-conflict workflow-pack attention rules are isolated behind
+    focused helpers, removing queue-item attention generation from the top measured complexity
+    hotspot list while preserving RFC-0095 heartbeat behavior.
 
 ## Evidence
 
