@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299715
+    "total_source_lines": 299734
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 52,
-        "end_line": 417,
-        "line": 165,
-        "lines": 253,
-        "name": "validate_engineering_context_system",
-        "path": "automation/validate_engineering_context_system.py"
-      },
       {
         "complexity": 50,
         "end_line": 341,
@@ -88,6 +80,14 @@
         "lines": 226,
         "name": "_lotus_ai_adapter",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 38,
+        "end_line": 433,
+        "line": 224,
+        "lines": 210,
+        "name": "validate_engineering_context_system",
+        "path": "automation/validate_engineering_context_system.py"
       },
       {
         "complexity": 35,
@@ -260,14 +260,6 @@
         "path": "automation/generate_domain_product_onboarding.py"
       },
       {
-        "complexity": 52,
-        "end_line": 417,
-        "line": 165,
-        "lines": 253,
-        "name": "validate_engineering_context_system",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
         "complexity": 38,
         "end_line": 1110,
         "line": 885,
@@ -306,6 +298,14 @@
         "lines": 210,
         "name": "run_validation",
         "path": "automation/core_seeded_analytics_maturity_validation.py"
+      },
+      {
+        "complexity": 38,
+        "end_line": 433,
+        "line": 224,
+        "lines": 210,
+        "name": "validate_engineering_context_system",
+        "path": "automation/validate_engineering_context_system.py"
       },
       {
         "complexity": 2,
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       }
     ],
-    "max_complexity": 52,
+    "max_complexity": 50,
     "max_function_lines": 393,
-    "python_function_count": 1291
+    "python_function_count": 1292
   },
-  "generated_at_utc": "2026-06-20T03:49:18Z",
+  "generated_at_utc": "2026-06-20T03:52:33Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.54s"
+    "summary": "510 tests collected in 0.60s"
   }
 }

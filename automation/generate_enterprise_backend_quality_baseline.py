@@ -515,6 +515,9 @@ Generated: `{baseline["generated_at_utc"]}`
 9. Engineering context validator agent-contract extraction so repo-wide AGENTS guidance checks are
    isolated behind a named helper, reducing the top measured complexity hotspot while preserving
    synchronization and front-office runtime routing assertions.
+10. Engineering context validator onboarding-guidance extraction so developer bootstrap and agent
+    ramp-up assertions are isolated behind a named helper, moving the validator out of the top
+    complexity hotspot position while preserving context-currentness checks.
 
 ## Evidence
 

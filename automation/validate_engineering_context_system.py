@@ -162,6 +162,65 @@ def _validate_agents_operating_contract(*, errors: list[str], agents_contract: s
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
 
 
+def _validate_onboarding_guidance(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+    agent_ramp_up: str,
+) -> None:
+    for text in (
+        "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
+        "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
+        "unknown local Codex skills are preserved",
+        "output/developer-environment-readiness.json",
+        "output/developer-environment-readiness.md",
+        "Canonical Front-Office Local Runtime",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+        "RFC-0074 is implemented and governed.",
+    ):
+        if text not in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
+    if "primary front-office demo bring-up path" not in developer_onboarding:
+        errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
+    for stale_text in (
+        "At Slice 5, this guide is the onboarding entrypoint",
+        "Later RFC-0074 slices will add",
+    ):
+        if stale_text in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
+
+    if "Do not start with Tier 3 by default." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
+    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
+    for stale_text in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        if stale_text in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
+    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
+    if (
+        "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up
+        and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up
+    ):
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
+    for text in (
+        "## Front-Office Runtime Routing",
+        "canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
+
+
 def validate_engineering_context_system() -> list[str]:
     errors: list[str] = []
     required_files = {
@@ -337,54 +396,11 @@ def validate_engineering_context_system() -> list[str]:
 
     _validate_agents_operating_contract(errors=errors, agents_contract=agents_contract)
 
-    for text in (
-        "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
-        "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
-        "unknown local Codex skills are preserved",
-        "output/developer-environment-readiness.json",
-        "output/developer-environment-readiness.md",
-        "Canonical Front-Office Local Runtime",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1",
-        "ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-        "RFC-0074 is implemented and governed.",
-    ):
-        if text not in developer_onboarding:
-            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
-    if "primary front-office demo bring-up path" not in developer_onboarding:
-        errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
-    for stale_text in (
-        "At Slice 5, this guide is the onboarding entrypoint",
-        "Later RFC-0074 slices will add",
-    ):
-        if stale_text in developer_onboarding:
-            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
-
-    if "Do not start with Tier 3 by default." not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
-    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
-    for stale_text in (
-        "automated skill sync and bootstrap readiness scripts are not implemented yet",
-        "Later RFC-0074 slices will add",
-        "At Slice 3, this guide defines agent ramp-up",
-    ):
-        if stale_text in agent_ramp_up:
-            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
-    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
-    if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
-    for text in (
-        "## Front-Office Runtime Routing",
-        "canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-    ):
-        if text not in agent_ramp_up:
-            errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
+    _validate_onboarding_guidance(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+        agent_ramp_up=agent_ramp_up,
+    )
 
     for text, label, content in (
         ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
