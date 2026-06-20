@@ -828,6 +828,10 @@ Generated: `{baseline["generated_at_utc"]}`
     shape, and per-product validation orchestration are isolated behind focused helpers, removing
     the producer contract validator from the top measured complexity hotspot list while preserving
     RFC-0084 issue behavior.
+91. Heartbeat delegated-task attention extraction so terminal status, stale active task,
+    missing return-envelope, and review-blocker attention rules are isolated behind focused
+    helpers, removing delegated-task attention collection from the top measured complexity hotspot
+    list while preserving RFC-0095/RFC-0096 heartbeat behavior.
 
 ## Evidence
 

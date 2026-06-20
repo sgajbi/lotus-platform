@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T09:59:56Z`
+Generated: `2026-06-20T10:05:15Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `305715`
+- Total source lines: `305776`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -35,17 +35,16 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2080 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 | automation/New-Lotus-Service.ps1 | 1801 | .ps1 |
-| rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md | 1655 | .md |
+| automation/heartbeat_sources.py | 1672 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1767`
+- Python functions: `1771`
 - Highest measured cyclomatic complexity: `11`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/heartbeat_sources.py | _collect_delegated_task_attention | 778 | 11 | 73 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_telemetry_field_review | 82 | 11 | 57 |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_gap_matrix | 603 | 11 | 47 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_rollout_readiness.py | _validate_certified_route_groups | 61 | 11 | 33 |
 | automation/validate_trust_telemetry.py | _validate_freshness_age | 236 | 11 | 27 |
 | automation/validate_shared_infra_ownership.py | _validate_lotus_core | 127 | 10 | 98 |
+| automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `532`
 - Collection command return code: `0`
-- Collection summary: `532 tests collected in 0.53s`
+- Collection summary: `532 tests collected in 0.58s`
 
 ## Security Baseline
 

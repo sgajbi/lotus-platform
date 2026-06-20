@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305715
+    "total_source_lines": 305776
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 11,
-        "end_line": 850,
-        "line": 778,
-        "lines": 73,
-        "name": "_collect_delegated_task_attention",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 11,
         "end_line": 138,
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 1211,
-        "line": 1137,
+        "end_line": 1268,
+        "line": 1194,
         "lines": 75,
         "name": "_mesh_certification_adapter",
         "path": "automation/heartbeat_sources.py"
@@ -147,8 +139,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 918,
-        "line": 885,
+        "end_line": 922,
+        "line": 889,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,6 +184,14 @@
         "lines": 75,
         "name": "_evaluate_performance_requests",
         "path": "automation/core_performance_cross_app_validation.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 156,
+        "line": 93,
+        "lines": 64,
+        "name": "validate_dev_ingress_smoke",
+        "path": "automation/validate_dev_ingress_smoke.py"
       }
     ],
     "largest_functions": [
@@ -205,9 +205,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 867,
+        "end_line": 871,
         "line": 489,
-        "lines": 379,
+        "lines": 383,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 11,
     "max_function_lines": 393,
-    "python_function_count": 1767
+    "python_function_count": 1771
   },
-  "generated_at_utc": "2026-06-20T09:59:56Z",
+  "generated_at_utc": "2026-06-20T10:05:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -408,14 +408,14 @@
       "suffix": ".ps1"
     },
     {
+      "lines": 1672,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1655,
       "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1615,
-      "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
     },
     {
       "lines": 1614,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "532 tests collected in 0.53s"
+    "summary": "532 tests collected in 0.58s"
   }
 }
