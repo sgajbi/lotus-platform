@@ -843,6 +843,10 @@ Generated: `{baseline["generated_at_utc"]}`
 94. Domain-product discovery query extraction so product filters, search matching, and result
     sorting are isolated behind focused helpers, removing the query helper from the top measured
     complexity hotspot list while adding lifecycle-filter and search-miss regression coverage.
+95. Domain-data-product dependency migration-posture extraction so current-dependency and
+    approved-transition validation are isolated behind focused helpers, removing migration-posture
+    validation from the top measured complexity hotspot list while adding direct regression
+    coverage for invalid current targets and incomplete approved transitions.
 
 ## Evidence
 
