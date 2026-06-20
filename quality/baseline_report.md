@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T07:50:16Z`
+Generated: `2026-06-20T07:53:13Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `712`
-- Total source lines: `303488`
+- Total source lines: `303517`
 - Python files: `154`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1631`
+- Python functions: `1632`
 - Highest measured cyclomatic complexity: `13`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/heartbeat_sources.py | _delegated_task_ledger_adapter | 892 | 13 | 71 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_registry_references | 482 | 13 | 65 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_lineage_policy | 549 | 13 | 49 |
 | automation/render_cross_app_workflow_summary.py | _render_single | 70 | 13 | 48 |
@@ -54,7 +53,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/core_performance_returns_series_validation.py | _run_validation | 22 | 12 | 225 |
 | automation/domain_product_certification.py | _build_consumer_certification | 105 | 12 | 108 |
 | automation/validate_mesh_slo_policies.py | evaluate_mesh_slo_violations | 235 | 12 | 102 |
-| automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1275 | 12 | 77 |
+| automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
+| automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `513`
 - Collection command return code: `0`
-- Collection summary: `513 tests collected in 0.56s`
+- Collection summary: `513 tests collected in 0.62s`
 
 ## Security Baseline
 

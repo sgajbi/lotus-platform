@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303488
+    "total_source_lines": 303517
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 962,
-        "line": 892,
-        "lines": 71,
-        "name": "_delegated_task_ledger_adapter",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 13,
         "end_line": 546,
@@ -107,8 +99,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 1351,
-        "line": 1275,
+        "end_line": 1376,
+        "line": 1300,
         "lines": 77,
         "name": "_lotus_ai_queue_item_attention",
         "path": "automation/heartbeat_sources.py"
@@ -192,6 +184,14 @@
         "lines": 31,
         "name": "_validate_register_header",
         "path": "automation/validate_supported_claim_register.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 122,
+        "line": 95,
+        "lines": 28,
+        "name": "_resolve_live_summary",
+        "path": "automation/review_analytics_ui_canonical_proof.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 768,
+        "end_line": 772,
         "line": 489,
-        "lines": 280,
+        "lines": 284,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1631
+    "python_function_count": 1632
   },
-  "generated_at_utc": "2026-06-20T07:50:16Z",
+  "generated_at_utc": "2026-06-20T07:53:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1481,
+      "lines": 1506,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.56s"
+    "summary": "513 tests collected in 0.62s"
   }
 }

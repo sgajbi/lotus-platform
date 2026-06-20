@@ -729,6 +729,10 @@ Generated: `{baseline["generated_at_utc"]}`
     identity checks, mutation-surface checks, metric-family checks, and evidence-fragment checks are
     isolated behind focused helpers, removing the RFC-0108 observation-boundary validator from the
     top measured complexity hotspot list while preserving contract drift detection behavior.
+66. Heartbeat delegated-task ledger adapter extraction so per-task ledger parsing, evidence
+    reference assembly, and delegated-task attention collection are isolated behind a focused
+    helper, removing the RFC-0096 delegated-task heartbeat adapter from the top measured complexity
+    hotspot list while preserving stale/lost/missing-evidence/review-blocker/overlap behavior.
 
 ## Evidence
 

@@ -889,6 +889,46 @@ def _append_delegated_task_overlap_attention(
             attention_items.append(item)
 
 
+def _collect_delegated_task_ledger_item(
+    *,
+    attention_items: list[dict[str, Any]],
+    task: Any,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, Any]],
+    ledger_path: Path,
+    stale_hours: int,
+) -> dict[str, Any] | None:
+    if not isinstance(task, dict):
+        return None
+
+    task_id = str(task.get("engineering_task_id") or "unknown-task")
+    source_ref = f"delegated_task:{task_id}"
+    task_repository = str(task.get("repository") or repository)
+    scope = task.get("scope") if isinstance(task.get("scope"), dict) else {}
+    profile = str(scope.get("delegation_profile") or task.get("task_kind") or "")
+    owner = str(task.get("owner") or task_repository)
+    task_evidence = [
+        *evidence_refs,
+        _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(ledger_path)}#{task_id}"),
+    ]
+    if _collect_delegated_task_attention(
+        attention_items=attention_items,
+        task=task,
+        task_id=task_id,
+        task_repository=task_repository,
+        source_ref=source_ref,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        task_evidence=task_evidence,
+        scope=scope,
+        profile=profile,
+        stale_hours=stale_hours,
+    ):
+        return task
+    return None
+
+
 def _delegated_task_ledger_adapter(
     *,
     config: dict[str, Any],
@@ -914,32 +954,17 @@ def _delegated_task_ledger_adapter(
     active_tasks: list[dict[str, Any]] = []
 
     for task in tasks:
-        if not isinstance(task, dict):
-            continue
-        task_id = str(task.get("engineering_task_id") or "unknown-task")
-        source_ref = f"delegated_task:{task_id}"
-        task_repository = str(task.get("repository") or repository)
-        scope = task.get("scope") if isinstance(task.get("scope"), dict) else {}
-        profile = str(scope.get("delegation_profile") or task.get("task_kind") or "")
-        owner = str(task.get("owner") or task_repository)
-        task_evidence = [
-            *evidence_refs,
-            _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(path)}#{task_id}"),
-        ]
-        if _collect_delegated_task_attention(
+        active_task = _collect_delegated_task_ledger_item(
             attention_items=attention_items,
             task=task,
-            task_id=task_id,
-            task_repository=task_repository,
-            source_ref=source_ref,
-            owner=owner,
+            repository=repository,
             generated_at_utc=generated_at_utc,
-            task_evidence=task_evidence,
-            scope=scope,
-            profile=profile,
+            evidence_refs=evidence_refs,
+            ledger_path=path,
             stale_hours=stale_hours,
-        ):
-            active_tasks.append(task)
+        )
+        if active_task is not None:
+            active_tasks.append(active_task)
 
     _append_delegated_task_overlap_attention(
         attention_items=attention_items,
