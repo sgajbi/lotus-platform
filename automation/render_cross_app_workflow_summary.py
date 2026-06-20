@@ -71,50 +71,88 @@ def _render_single(target: str, payload: dict[str, Any]) -> str:
     performance = payload.get("performance", {})
     core = payload.get("core", {})
     scenario = payload.get("scenario", {})
-    performance_defects = performance.get("defects", []) if isinstance(performance, dict) else []
-    core_defects = payload.get("core_defects", [])
 
     lines = [
         f"## Cross-App Validation Summary: `{target}`",
         "",
         _bullet("Status", payload.get("status", "unknown")),
         _bullet("Scenario seed mode", payload.get("scenario_seed_mode", "unknown")),
-        _bullet("Portfolio", scenario.get("portfolio_id", "n/a") if isinstance(scenario, dict) else "n/a"),
-        _bullet("Benchmark", scenario.get("benchmark_id", "n/a") if isinstance(scenario, dict) else "n/a"),
+        *_scenario_bullets(scenario),
     ]
 
-    if isinstance(core, dict):
-        if "portfolio_timeseries_observations" in core:
-            lines.append(_bullet("Portfolio timeseries observations", core["portfolio_timeseries_observations"]))
-        if "position_timeseries_rows" in core:
-            lines.append(_bullet("Position timeseries rows", core["position_timeseries_rows"]))
-
-    if isinstance(performance, dict):
-        benchmark_context = performance.get("benchmark_context")
-        if isinstance(benchmark_context, dict):
-            lines.append(_bullet("Resolved benchmark", benchmark_context.get("benchmark_id", "n/a")))
-            lines.append(_bullet("Benchmark return source", benchmark_context.get("return_source", "n/a")))
-        for metric_key in (
-            "twr_itd_portfolio_base_return",
-            "twr_itd_benchmark_base_return",
-            "twr_itd_relative_base_return",
-            "benchmark_endpoint_itd_base_return",
-            "mwr_percent_return",
-            "contribution_total_portfolio_return",
-            "contribution_total_contribution",
-            "attribution_total_active_return",
-        ):
-            if metric_key in performance:
-                lines.append(_bullet(metric_key, performance[metric_key]))
+    lines.extend(_core_bullets(core))
+    lines.extend(_performance_bullets(performance))
 
     lines.extend(["", "### Defects", ""])
+    lines.extend(_format_defects(_merged_single_defects(payload, performance)))
+    return "\n".join(lines) + "\n"
+
+
+def _scenario_bullets(scenario: object) -> list[str]:
+    if not isinstance(scenario, dict):
+        return [_bullet("Portfolio", "n/a"), _bullet("Benchmark", "n/a")]
+    return [
+        _bullet("Portfolio", scenario.get("portfolio_id", "n/a")),
+        _bullet("Benchmark", scenario.get("benchmark_id", "n/a")),
+    ]
+
+
+def _core_bullets(core: object) -> list[str]:
+    if not isinstance(core, dict):
+        return []
+
+    lines: list[str] = []
+    if "portfolio_timeseries_observations" in core:
+        lines.append(
+            _bullet(
+                "Portfolio timeseries observations",
+                core["portfolio_timeseries_observations"],
+            )
+        )
+    if "position_timeseries_rows" in core:
+        lines.append(_bullet("Position timeseries rows", core["position_timeseries_rows"]))
+    return lines
+
+
+def _performance_bullets(performance: object) -> list[str]:
+    if not isinstance(performance, dict):
+        return []
+
+    lines: list[str] = []
+    benchmark_context = performance.get("benchmark_context")
+    if isinstance(benchmark_context, dict):
+        lines.append(_bullet("Resolved benchmark", benchmark_context.get("benchmark_id", "n/a")))
+        lines.append(
+            _bullet("Benchmark return source", benchmark_context.get("return_source", "n/a"))
+        )
+    for metric_key in (
+        "twr_itd_portfolio_base_return",
+        "twr_itd_benchmark_base_return",
+        "twr_itd_relative_base_return",
+        "benchmark_endpoint_itd_base_return",
+        "mwr_percent_return",
+        "contribution_total_portfolio_return",
+        "contribution_total_contribution",
+        "attribution_total_active_return",
+    ):
+        if metric_key in performance:
+            lines.append(_bullet(metric_key, performance[metric_key]))
+    return lines
+
+
+def _merged_single_defects(
+    payload: dict[str, Any], performance: object
+) -> list[dict[str, Any]]:
     merged_defects: list[dict[str, Any]] = []
+    performance_defects = (
+        performance.get("defects", []) if isinstance(performance, dict) else []
+    )
+    core_defects = payload.get("core_defects", [])
     if isinstance(performance_defects, list):
         merged_defects.extend(item for item in performance_defects if isinstance(item, dict))
     if isinstance(core_defects, list):
         merged_defects.extend(item for item in core_defects if isinstance(item, dict))
-    lines.extend(_format_defects(merged_defects))
-    return "\n".join(lines) + "\n"
+    return merged_defects
 
 
 def main() -> int:

@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:59:59Z`
+Generated: `2026-06-20T08:04:01Z`
 
 ## Completed Slices
 
@@ -252,6 +252,10 @@ Generated: `2026-06-20T07:59:59Z`
     lineage bundle-class validation, and optional route-list validation are isolated behind focused
     helpers, removing lineage-policy validation from the top measured complexity hotspot list while
     preserving RFC-0084 declaration drift detection behavior.
+69. Cross-app workflow summary renderer extraction so scenario, core, performance, and defect
+    rendering are isolated behind focused helpers, removing single-target markdown rendering from
+    the top measured complexity hotspot list and adding unit coverage for baseline and single-target
+    summary output.
 
 ## Evidence
 

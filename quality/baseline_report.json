@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 356,
     "powershell_file_count": 62,
-    "python_file_count": 154,
-    "source_file_count": 712,
+    "python_file_count": 155,
+    "source_file_count": 713,
     "suffix_counts": {
       ".json": 108,
       ".md": 356,
       ".ps1": 62,
-      ".py": 154,
+      ".py": 155,
       ".txt": 5,
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303651
+    "total_source_lines": 303787
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 117,
-        "line": 70,
-        "lines": 48,
-        "name": "_render_single",
-        "path": "automation/render_cross_app_workflow_summary.py"
-      },
       {
         "complexity": 13,
         "end_line": 454,
@@ -192,6 +184,14 @@
         "lines": 100,
         "name": "review_ecosystem_proof",
         "path": "automation/review_analytics_ui_ecosystem_proof.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 832,
+        "line": 753,
+        "lines": 80,
+        "name": "validate_producer_contract",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 780,
+        "end_line": 784,
         "line": 489,
-        "lines": 292,
+        "lines": 296,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1640
+    "python_function_count": 1646
   },
-  "generated_at_utc": "2026-06-20T07:59:59Z",
+  "generated_at_utc": "2026-06-20T08:04:01Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 513,
+    "collected_tests": 515,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.61s"
+    "summary": "515 tests collected in 0.58s"
   }
 }

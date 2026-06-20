@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T07:59:59Z`
+Generated: `2026-06-20T08:04:01Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `712`
-- Total source lines: `303651`
-- Python files: `154`
+- Source files: `713`
+- Total source lines: `303787`
+- Python files: `155`
 - PowerShell files: `62`
 - Markdown files: `356`
 
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1640`
+- Python functions: `1646`
 - Highest measured cyclomatic complexity: `13`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/render_cross_app_workflow_summary.py | _render_single | 70 | 13 | 48 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _matrix_feature_implementation_rule | 418 | 13 | 37 |
 | automation/delegation_task_ledger.py | update_delegated_task_status | 180 | 13 | 35 |
 | automation/core_performance_returns_series_validation.py | _run_validation | 22 | 12 | 225 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
 | automation/review_analytics_ui_canonical_proof.py | review_canonical_proof | 393 | 12 | 67 |
 | automation/review_analytics_ui_ecosystem_proof.py | _validate_journeys | 140 | 12 | 54 |
+| automation/validate_analytics_ui_entitlement_certification.py | _validate_implementation_evidence | 274 | 12 | 42 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `513`
+- Unit tests collected: `515`
 - Collection command return code: `0`
-- Collection summary: `513 tests collected in 0.61s`
+- Collection summary: `515 tests collected in 0.58s`
 
 ## Security Baseline
 
