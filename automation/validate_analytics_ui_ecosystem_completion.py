@@ -609,44 +609,82 @@ def _validate_gap_matrix(
     for row in ecosystem_contract.get("app_gap_matrix", []):
         repo = str(row.get("repository", "<missing>"))
         posture = row.get("posture")
-        if posture not in {
-            "implemented",
-            "partially_implemented",
-            "planned",
-            "not_applicable_with_rationale",
-            "blocked_with_owner",
-        }:
-            errors.append(f"{repo}: invalid posture {posture}")
-        for required_field in (
-            "role",
-            "feature_keys",
-            "gap_classification",
-            "blockers",
-            "required_proof",
-            "wiki_source_decision",
-            "runbook_requirements",
-        ):
-            value = row.get(required_field)
-            if not value:
-                errors.append(f"{repo}: {required_field} is required")
-        for feature_key in row.get("feature_keys", []):
-            if feature_key not in statuses:
-                errors.append(f"{repo}: unknown feature key {feature_key}")
-        if posture == "implemented":
-            not_implemented = [
-                feature_key
-                for feature_key in row.get("feature_keys", [])
-                if statuses.get(feature_key) != "implemented"
-            ]
-            if not_implemented:
-                errors.append(
-                    f"{repo}: implemented posture has planned features "
-                    f"{sorted(not_implemented)}"
-                )
-        if repo != "lotus-platform" and posture == "implemented":
-            errors.append(
-                f"{repo}: non-platform rows must not be fully implemented before Slice 12"
-            )
+        _validate_gap_matrix_row_shape(errors, repo=repo, row=row, posture=posture)
+        _validate_gap_matrix_feature_keys(errors, repo=repo, row=row, statuses=statuses)
+        _validate_gap_matrix_implemented_posture(
+            errors,
+            repo=repo,
+            row=row,
+            posture=posture,
+            statuses=statuses,
+        )
+
+
+def _validate_gap_matrix_row_shape(
+    errors: list[str],
+    *,
+    repo: str,
+    row: dict[str, Any],
+    posture: Any,
+) -> None:
+    if posture not in {
+        "implemented",
+        "partially_implemented",
+        "planned",
+        "not_applicable_with_rationale",
+        "blocked_with_owner",
+    }:
+        errors.append(f"{repo}: invalid posture {posture}")
+    for required_field in (
+        "role",
+        "feature_keys",
+        "gap_classification",
+        "blockers",
+        "required_proof",
+        "wiki_source_decision",
+        "runbook_requirements",
+    ):
+        value = row.get(required_field)
+        if not value:
+            errors.append(f"{repo}: {required_field} is required")
+
+
+def _validate_gap_matrix_feature_keys(
+    errors: list[str],
+    *,
+    repo: str,
+    row: dict[str, Any],
+    statuses: dict[str, str],
+) -> None:
+    for feature_key in row.get("feature_keys", []):
+        if feature_key not in statuses:
+            errors.append(f"{repo}: unknown feature key {feature_key}")
+
+
+def _validate_gap_matrix_implemented_posture(
+    errors: list[str],
+    *,
+    repo: str,
+    row: dict[str, Any],
+    posture: Any,
+    statuses: dict[str, str],
+) -> None:
+    if posture != "implemented":
+        return
+    not_implemented = [
+        feature_key
+        for feature_key in row.get("feature_keys", [])
+        if statuses.get(feature_key) != "implemented"
+    ]
+    if not_implemented:
+        errors.append(
+            f"{repo}: implemented posture has planned features "
+            f"{sorted(not_implemented)}"
+        )
+    if repo != "lotus-platform":
+        errors.append(
+            f"{repo}: non-platform rows must not be fully implemented before Slice 12"
+        )
 
 
 def _validate_required_checks_and_branch_policy(

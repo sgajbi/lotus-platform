@@ -836,6 +836,10 @@ Generated: `{baseline["generated_at_utc"]}`
     review coverage, and telemetry attribute checks are isolated behind focused helpers, removing
     telemetry-field hardening review from the top measured complexity hotspot list while adding
     direct sensitive-label and sensitive-attribute regression coverage.
+93. Analytics UI ecosystem gap-matrix extraction so row shape, feature-key, and implemented-posture
+    checks are isolated behind focused helpers, removing gap-matrix validation from the top
+    measured complexity hotspot list while adding direct invalid-posture and missing-field
+    regression coverage.
 
 ## Evidence
 
