@@ -15,7 +15,7 @@ Apply it in line with:
 2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
+5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 
 Use `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` as the operating sequence and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when a required check fails.
 

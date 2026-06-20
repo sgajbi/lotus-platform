@@ -199,6 +199,9 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in standards_readme
 
     assert "Do not fake compliance" in bank_buyable_contract
+    assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in bank_buyable_contract
+    assert "docs/standards/Platform Observability Standards.md" in bank_buyable_contract
+    assert "`Continuous Integration, Validation, and Release Governance Standard.md`" not in bank_buyable_contract
     assert "Remote Feature Lane" in bank_buyable_contract
     assert "Pull Request Merge Gate" in bank_buyable_contract
     assert "Main Releasability Gate" in bank_buyable_contract
@@ -207,6 +210,8 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "merged-to-main and validated as the definition of done" in bank_buyable_contract
 
     assert "Authoritative CI governance now lives in" in workflow_standard
+    assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in workflow_standard
+    assert "`Continuous Integration, Validation, and Release Governance Standard.md`" not in workflow_standard
     assert "Remote Feature Lane" in workflow_standard
     assert "Platform End-to-End Validation Lane" in workflow_standard
 

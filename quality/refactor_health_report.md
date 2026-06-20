@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:34:38Z`
+Generated: `2026-06-20T03:40:40Z`
 
 ## Completed Slices
 
@@ -17,6 +17,9 @@ Generated: `2026-06-20T03:34:38Z`
    under-documented maintained scripts before removal.
 6. Automation cleanup pass documented maintained supported-claim and rounding-governance commands,
    reducing the inventory `review` bucket to zero without deleting live automation.
+7. Guidance path synchronization after docs-root organization so platform-owned skills, standards,
+   local skill sync, and contract tests point future agents to `docs/standards/` and
+   `docs/operations/` instead of stale repo-root Markdown paths.
 
 ## Evidence
 
@@ -37,6 +40,8 @@ Generated: `2026-06-20T03:34:38Z`
 15. Automation inventory report: `quality/automation_inventory.md`
 16. Supported-claim validator: `automation/validate_supported_claim_register.py`
 17. Rounding governance matrix: `automation/Validate-Rounding-Governance.ps1`
+18. Skill path contract tests: `tests/unit/test_lotus_skill_routing_behavior_contract.py`
+19. Standards path contract tests: `tests/unit/test_ci_governance_documentation_contract.py`
 
 ## Current Gate Posture
 

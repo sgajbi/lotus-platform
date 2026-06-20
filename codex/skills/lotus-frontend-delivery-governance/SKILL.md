@@ -13,7 +13,7 @@ Apply it in line with:
 2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
 4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-5. `lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md`
+5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
 7. Lotus UI and gateway ownership rules already established in platform RFCs
 

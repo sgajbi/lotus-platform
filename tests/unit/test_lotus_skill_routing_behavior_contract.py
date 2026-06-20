@@ -51,6 +51,16 @@ def test_ci_enforcement_governance_route_is_unambiguous() -> None:
     assert "Promote gates that prevent real degradation." in ci_skill
     assert "Use `lotus-ci-enforcement-governance` as the primary route" in backend_skill
     assert "Use `lotus-ci-enforcement-governance` before this skill" in pr_skill
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in backend_skill
+    )
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in pr_skill
+    )
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in backend_skill
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in pr_skill
 
 
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:
@@ -70,6 +80,8 @@ def test_platform_automation_ops_uses_task_ledger_contract() -> None:
     assert "engineering_task_id" in skill
     assert "no PR merge" in skill
     assert "no wiki" in skill
+    assert "docs/operations/Local Development Runbook.md" in skill
+    assert "`Local Development Runbook.md`" not in skill
     assert "Do not summarize detached work from chat memory alone" in skill
     assert "cleanup_state" in profile_guide
     assert "Do not translate `LOST` into success" in profile_guide.replace("\n", " ")
@@ -100,6 +112,12 @@ def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> Non
 
 def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
+
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in frontend_skill
+    )
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in frontend_skill
 
     for required_text in (
         "Before editing product UI code, inspect the existing implementation enough to name:",
