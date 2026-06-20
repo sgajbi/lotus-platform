@@ -10,9 +10,12 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     rfc = (ROOT / "rfcs" / "RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md").read_text(
         encoding="utf-8"
     )
-    standard = (ROOT / "Continuous Integration, Validation, and Release Governance Standard.md").read_text(
-        encoding="utf-8"
-    )
+    standard = (
+        ROOT
+        / "docs"
+        / "standards"
+        / "Continuous Integration, Validation, and Release Governance Standard.md"
+    ).read_text(encoding="utf-8")
     checklist = (ROOT / "rfcs" / "RFC-0072-implementation-checklist.md").read_text(encoding="utf-8")
     mapping = (ROOT / "platform-standards" / "Repository-CI-Lane-Mapping-Baseline.md").read_text(
         encoding="utf-8"
@@ -175,9 +178,11 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     workflow_standard = (ROOT / "platform-standards" / "Development-Workflow-and-CI-Strategy-Standard.md").read_text(
         encoding="utf-8"
     )
-    local_runbook = (ROOT / "Local Development Runbook.md").read_text(encoding="utf-8")
+    local_runbook = (
+        ROOT / "docs" / "operations" / "Local Development Runbook.md"
+    ).read_text(encoding="utf-8")
 
-    assert "Continuous Integration, Validation, and Release Governance Standard.md" in standards_readme
+    assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in standards_readme
     assert "RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md" in standards_readme
     assert "Backend-CI-Lane-Template-Contract.md" in standards_readme
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
@@ -194,6 +199,9 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in standards_readme
 
     assert "Do not fake compliance" in bank_buyable_contract
+    assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in bank_buyable_contract
+    assert "docs/standards/Platform Observability Standards.md" in bank_buyable_contract
+    assert "`Continuous Integration, Validation, and Release Governance Standard.md`" not in bank_buyable_contract
     assert "Remote Feature Lane" in bank_buyable_contract
     assert "Pull Request Merge Gate" in bank_buyable_contract
     assert "Main Releasability Gate" in bank_buyable_contract
@@ -202,6 +210,8 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "merged-to-main and validated as the definition of done" in bank_buyable_contract
 
     assert "Authoritative CI governance now lives in" in workflow_standard
+    assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in workflow_standard
+    assert "`Continuous Integration, Validation, and Release Governance Standard.md`" not in workflow_standard
     assert "Remote Feature Lane" in workflow_standard
     assert "Platform End-to-End Validation Lane" in workflow_standard
 

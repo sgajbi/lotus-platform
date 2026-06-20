@@ -29,6 +29,512 @@ def _normalize_text(value: str) -> str:
     return value.replace("\r\n", "\n").rstrip("\n\r")
 
 
+def _validate_application_registry_matches_repos(
+    *,
+    errors: list[str],
+    applications: list[dict],
+    repository_registry: list[dict],
+) -> None:
+    registered_repositories = {
+        entry.get("name") for entry in repository_registry if entry.get("name")
+    }
+    application_repositories = {
+        entry.get("repository") for entry in applications if entry.get("repository")
+    }
+    if application_repositories != registered_repositories:
+        missing_from_manifest = sorted(registered_repositories - application_repositories)
+        missing_from_registry = sorted(application_repositories - registered_repositories)
+        errors.append(
+            "lotus-context-manifest.json: applications registry must match automation/repos.json"
+            f" (missing_from_manifest={missing_from_manifest}, missing_from_registry={missing_from_registry})"
+        )
+    if any(entry.get("status") != "implemented" for entry in applications):
+        errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
+
+
+def _validate_application_agent_contract_sync(
+    *,
+    errors: list[str],
+    applications: list[dict],
+    normalized_agents_contract: str,
+) -> None:
+    for application in applications:
+        repository_name = application.get("repository")
+        if not repository_name:
+            errors.append("lotus-context-manifest.json: application entry missing repository name")
+            continue
+        repo_root = ROOT if repository_name == "lotus-platform" else WORKSPACE_ROOT / repository_name
+        if not repo_root.exists():
+            continue
+        repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
+        if not repo_context_path.exists():
+            continue
+        repo_agents_path = repo_root / "AGENTS.md"
+        if not repo_agents_path.exists():
+            errors.append(f"{repository_name}: missing repo-root AGENTS.md")
+            continue
+        repo_agents_text = _normalize_text(_read_text(repo_agents_path))
+        if repo_agents_text != normalized_agents_contract:
+            errors.append(f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md")
+
+
+def _validate_manifest_path_map(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
+    context_documents = manifest.get("context_documents", {})
+    for key, expected_path in {
+        "index": "context/README.md",
+        "quickstart": "context/LOTUS-QUICKSTART-CONTEXT.md",
+        "engineering_context": "context/LOTUS-ENGINEERING-CONTEXT.md",
+        "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
+        "task_routing_guide": "context/TASK-ROUTING-GUIDE.md",
+        "ecosystem_registries": "context/ECOSYSTEM-REGISTRIES.md",
+        "procedural_memory_index": "context/PROCEDURAL-MEMORY-INDEX.md",
+        "agents_operating_contract_source": "context/AGENTS-OPERATING-CONTRACT.md",
+    }.items():
+        if context_documents.get(key) != expected_path:
+            errors.append(f"lotus-context-manifest.json: context_documents.{key} must equal `{expected_path}`")
+
+    procedural_memory = manifest.get("procedural_memory", {})
+    for key, expected_path in {
+        "change_playbooks": "context/playbooks/CHANGE-PLAYBOOKS.md",
+        "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
+        "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
+        "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
+        "agent_context_and_task_ledger": "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md",
+    }.items():
+        if procedural_memory.get(key) != expected_path:
+            errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
+
+
+def _validate_manifest_standards_registry(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
+    standards_registry = manifest.get("standards_registry", [])
+    standard_names = {
+        entry.get("name") for entry in standards_registry if isinstance(entry, dict)
+    }
+    for standard_name in (
+        "Continuous Integration, Validation, and Release Governance Standard",
+        "Testing Pyramid and Coverage Standard",
+        "Dependency Hygiene and Security Standard",
+        "Platform Observability Standards",
+        "Enterprise Readiness Standard",
+        "Scalability and Availability Standard",
+        "Domain Vocabulary Glossary",
+        "Platform Integration Architecture Bible",
+    ):
+        if standard_name not in standard_names:
+            errors.append(f"lotus-context-manifest.json: standards registry missing `{standard_name}`")
+
+
+def _validate_manifest_rfc_postures(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
+    active_rfcs = manifest.get("active_rfc_registry", [])
+    rfc_postures = {
+        entry.get("id"): entry.get("implementation_posture")
+        for entry in active_rfcs
+        if isinstance(entry, dict)
+    }
+    if rfc_postures.get("RFC-0071") != "implemented and governed":
+        errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
+    if "partially implemented" not in str(rfc_postures.get("RFC-0072", "")):
+        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture drifted")
+    if rfc_postures.get("RFC-0073") != "implemented and governed":
+        errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
+    if rfc_postures.get("RFC-0074") != "implemented and governed":
+        errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
+
+
+def _validate_rendered_ecosystem_registries(
+    *,
+    errors: list[str],
+    manifest: dict,
+    ecosystem_registries: str,
+) -> None:
+    registry_renderer = _load_registry_renderer()
+    rendered_registries = registry_renderer.render_registry_document(manifest)
+    if ecosystem_registries != rendered_registries:
+        errors.append("ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json")
+
+
+def _validate_manifest_contract(
+    *,
+    errors: list[str],
+    manifest: dict,
+    repository_registry: list[dict],
+    normalized_agents_contract: str,
+    ecosystem_registries: str,
+) -> None:
+    applications = manifest.get("applications", [])
+    _validate_application_registry_matches_repos(
+        errors=errors,
+        applications=applications,
+        repository_registry=repository_registry,
+    )
+    _validate_application_agent_contract_sync(
+        errors=errors,
+        applications=applications,
+        normalized_agents_contract=normalized_agents_contract,
+    )
+    _validate_manifest_path_map(errors=errors, manifest=manifest)
+    _validate_manifest_standards_registry(errors=errors, manifest=manifest)
+    _validate_manifest_rfc_postures(errors=errors, manifest=manifest)
+    _validate_rendered_ecosystem_registries(
+        errors=errors,
+        manifest=manifest,
+        ecosystem_registries=ecosystem_registries,
+    )
+
+
+def _validate_agents_operating_contract(*, errors: list[str], agents_contract: str) -> None:
+    for heading in (
+        "Mandatory Reading Order",
+        "Mandatory Operating Rules",
+        "Context Maintenance Rule",
+        "Wiki Publication Rule",
+        "Skills, Automation, And Async Execution",
+        "Front-Office Runtime Routing Rule",
+    ):
+        if heading not in agents_contract:
+            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
+    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
+    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
+    if "engineering_task_id" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
+    if "output/background-runs.json" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
+    if "Sync-RepoWikis.ps1" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
+    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
+    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
+        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
+    for text in (
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "npm run live:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agents_contract:
+            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
+
+
+def _validate_required_developer_onboarding_text(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+) -> None:
+    for text in (
+        "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
+        "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
+        "unknown local Codex skills are preserved",
+        "output/developer-environment-readiness.json",
+        "output/developer-environment-readiness.md",
+        "Canonical Front-Office Local Runtime",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1",
+        "ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+        "RFC-0074 is implemented and governed.",
+    ):
+        if text not in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
+
+
+def _validate_stale_developer_onboarding_text(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+) -> None:
+    if "primary front-office demo bring-up path" not in developer_onboarding:
+        errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
+    for stale_text in (
+        "At Slice 5, this guide is the onboarding entrypoint",
+        "Later RFC-0074 slices will add",
+    ):
+        if stale_text in developer_onboarding:
+            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
+
+
+def _validate_required_agent_ramp_up_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
+    if "Do not start with Tier 3 by default." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
+    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
+    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
+    if (
+        "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up
+        and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up
+    ):
+        errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
+
+
+def _validate_stale_agent_ramp_up_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
+    for stale_text in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        if stale_text in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
+
+
+def _validate_agent_front_office_routing_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
+    for text in (
+        "## Front-Office Runtime Routing",
+        "canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
+
+
+def _validate_onboarding_guidance(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+    agent_ramp_up: str,
+) -> None:
+    _validate_required_developer_onboarding_text(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+    )
+    _validate_stale_developer_onboarding_text(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+    )
+    _validate_required_agent_ramp_up_text(errors=errors, agent_ramp_up=agent_ramp_up)
+    _validate_stale_agent_ramp_up_text(errors=errors, agent_ramp_up=agent_ramp_up)
+    _validate_agent_front_office_routing_text(errors=errors, agent_ramp_up=agent_ramp_up)
+
+
+def _validate_rfc_completion(*, errors: list[str], rfc: str, checklist: str) -> None:
+    if "- Status: Implemented" not in rfc:
+        errors.append("RFC-0073 must be marked Implemented once all slices are complete")
+    if "Slice 5 | Drift control and validation foundation | Complete" not in checklist:
+        errors.append("RFC-0073 checklist: Slice 5 must be marked complete")
+    if "Slice 6 | Skills, automation, and procedural memory alignment | Complete" not in checklist:
+        errors.append("RFC-0073 checklist: Slice 6 must be marked complete")
+    if "Implementation posture: `Complete`" not in checklist:
+        errors.append("RFC-0073 checklist must record complete implementation posture")
+    if "Slice 2A | Repo-root AGENTS deployment and drift control | Complete" not in checklist:
+        errors.append("RFC-0073 checklist: Slice 2A must be marked complete")
+
+
+def _validate_context_index_entrypoints(
+    errors: list[str],
+    context_index: str,
+) -> None:
+    for link_target in (
+        "./LOTUS-QUICKSTART-CONTEXT.md",
+        "./LOTUS-ENGINEERING-CONTEXT.md",
+        "./CONTEXT-REFERENCE-MAP.md",
+        "./TASK-ROUTING-GUIDE.md",
+        "./ECOSYSTEM-REGISTRIES.md",
+        "./PROCEDURAL-MEMORY-INDEX.md",
+    ):
+        if link_target not in context_index:
+            errors.append(f"context/README.md: missing link to `{link_target}`")
+
+
+def _validate_quickstart_entrypoints(
+    errors: list[str],
+    quickstart: str,
+) -> None:
+    if "./TASK-ROUTING-GUIDE.md" not in quickstart:
+        errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing task routing guide cross-link")
+    if "./ECOSYSTEM-REGISTRIES.md" not in quickstart:
+        errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing ecosystem registries cross-link")
+
+
+def _validate_engineering_context_entrypoints(
+    errors: list[str],
+    engineering: str,
+) -> None:
+    if "## Task Routing Guidance" not in engineering:
+        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guidance section")
+    if "./TASK-ROUTING-GUIDE.md" not in engineering:
+        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guide cross-link")
+    if "./ECOSYSTEM-REGISTRIES.md" not in engineering:
+        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing ecosystem registries cross-link")
+    if "./PROCEDURAL-MEMORY-INDEX.md" not in engineering:
+        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing procedural memory index cross-link")
+    for text in (
+        "## Front-Office Runtime Governance",
+        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "npm run live:stack:up",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "PB_SG_GLOBAL_BAL_001",
+    ):
+        if text not in engineering:
+            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing front-office runtime guidance `{text}`")
+    for text in (
+        "For RFC-0093/RFC-0094 agent engineering governance:",
+        "AGENT-CONTEXT-AND-TASK-LEDGER.md",
+        "platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json",
+        "output/background-runs.json",
+        "repository, branch, PR",
+    ):
+        if text not in engineering:
+            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing agent engineering guidance `{text}`")
+
+
+def _validate_reference_map_entrypoints(
+    errors: list[str],
+    reference_map: str,
+) -> None:
+    if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
+        errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
+    if "once it exists" in reference_map or "will become the implementation truth" in reference_map:
+        errors.append("CONTEXT-REFERENCE-MAP.md: stale rollout language must not remain")
+
+
+def _validate_task_routing_entrypoints(
+    errors: list[str],
+    task_routing_guide: str,
+) -> None:
+    for heading in (
+        "## Frontend And Product-Surface Work",
+        "## Backend API And Domain-Service Work",
+        "## Cross-App Integration And Platform Validation Work",
+        "## Standards, RFC, And Governance Work",
+        "## Async Execution And Heavy Validation Routing",
+    ):
+        if heading not in task_routing_guide:
+            errors.append(f"TASK-ROUTING-GUIDE.md: missing heading `{heading}`")
+
+
+def _validate_procedural_memory_entrypoints(
+    errors: list[str],
+    procedural_memory_index: str,
+) -> None:
+    if "Change Playbooks" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Change Playbooks reference")
+    if "PR Loop Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing PR Loop Playbook reference")
+    if "Validation Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Validation Playbook reference")
+    if "Fix-Forward Patterns" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
+    if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
+
+
+def _validate_context_entrypoints(
+    *,
+    errors: list[str],
+    context_index: str,
+    quickstart: str,
+    engineering: str,
+    reference_map: str,
+    task_routing_guide: str,
+    procedural_memory_index: str,
+) -> None:
+    _validate_context_index_entrypoints(errors, context_index)
+    _validate_quickstart_entrypoints(errors, quickstart)
+    _validate_engineering_context_entrypoints(errors, engineering)
+    _validate_reference_map_entrypoints(errors, reference_map)
+    _validate_task_routing_entrypoints(errors, task_routing_guide)
+    _validate_procedural_memory_entrypoints(errors, procedural_memory_index)
+
+
+def _validate_playbook_content(
+    *,
+    errors: list[str],
+    change_playbooks: str,
+    pr_loop_playbook: str,
+    validation_playbook: str,
+    fix_forward_patterns: str,
+    agent_context_task_ledger: str,
+) -> None:
+    for text, label in (
+        ("Backend API And Domain-Service Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Frontend And Product-Surface Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Cross-Repository Integration Change Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("RFC-Driven Slice Playbook", "CHANGE-PLAYBOOKS.md"),
+        ("Working Sequence", "PR-LOOP-PLAYBOOK.md"),
+        ("GitHub-Backed Heavy Execution Rule", "PR-LOOP-PLAYBOOK.md"),
+        ("Validation Layers", "VALIDATION-PLAYBOOK.md"),
+        ("Platform End-To-End Proof", "VALIDATION-PLAYBOOK.md"),
+        ("Stale Expectation Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Validator Overreach Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Local-Only Assumption Pattern", "FIX-FORWARD-PATTERNS.md"),
+        ("Identifier Preservation", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
+        ("Detached Task Ledger", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
+        ("Promotion Decisions", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
+    ):
+        target_doc = {
+            "CHANGE-PLAYBOOKS.md": change_playbooks,
+            "PR-LOOP-PLAYBOOK.md": pr_loop_playbook,
+            "VALIDATION-PLAYBOOK.md": validation_playbook,
+            "FIX-FORWARD-PATTERNS.md": fix_forward_patterns,
+            "AGENT-CONTEXT-AND-TASK-LEDGER.md": agent_context_task_ledger,
+        }[label]
+        if text not in target_doc:
+            errors.append(f"{label}: missing required content `{text}`")
+
+
+def _validate_developer_environment_automation(
+    *,
+    errors: list[str],
+    developer_environment_validation: str,
+    developer_environment_bootstrap: str,
+) -> None:
+    for text, label, content in (
+        ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ('[ValidateSet("fast", "extended", "platform")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Redact-Value", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Test-SkillSync", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("developer-environment-readiness.json", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Refusing to synchronize skill outside the requested Codex skills target root.", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
+        ("Resolve-PowerShellExecutable", "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
+        ('"-Mode", "Sync"', "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
+    ):
+        if text not in content:
+            errors.append(f"{label}: missing required bootstrap behavior `{text}`")
+
+
+def _validate_repository_context_contracts(
+    *,
+    errors: list[str],
+    repo_context_contract: str,
+    repo_context_template: str,
+    platform_repo_context: str,
+) -> None:
+    if "Context Maintenance Rule" not in repo_context_contract:
+        errors.append("Repository-Engineering-Context-Contract.md: missing Context Maintenance Rule")
+    if "## Context Maintenance Rule" not in repo_context_template:
+        errors.append("REPOSITORY-ENGINEERING-CONTEXT.template.md: missing Context Maintenance Rule heading")
+    if "## Context Maintenance Rule" not in platform_repo_context:
+        errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
+
+
 def validate_engineering_context_system() -> list[str]:
     errors: list[str] = []
     required_files = {
@@ -97,301 +603,55 @@ def validate_engineering_context_system() -> list[str]:
     repository_registry = json.loads(_read_text(required_files["repository registry"]))
     normalized_agents_contract = _normalize_text(agents_contract)
 
-    if "- Status: Implemented" not in rfc:
-        errors.append("RFC-0073 must be marked Implemented once all slices are complete")
-    if "Slice 5 | Drift control and validation foundation | Complete" not in checklist:
-        errors.append("RFC-0073 checklist: Slice 5 must be marked complete")
-    if "Slice 6 | Skills, automation, and procedural memory alignment | Complete" not in checklist:
-        errors.append("RFC-0073 checklist: Slice 6 must be marked complete")
-    if "Implementation posture: `Complete`" not in checklist:
-        errors.append("RFC-0073 checklist must record complete implementation posture")
-    if "Slice 2A | Repo-root AGENTS deployment and drift control | Complete" not in checklist:
-        errors.append("RFC-0073 checklist: Slice 2A must be marked complete")
+    _validate_rfc_completion(errors=errors, rfc=rfc, checklist=checklist)
 
-    for link_target in (
-        "./LOTUS-QUICKSTART-CONTEXT.md",
-        "./LOTUS-ENGINEERING-CONTEXT.md",
-        "./CONTEXT-REFERENCE-MAP.md",
-        "./TASK-ROUTING-GUIDE.md",
-        "./ECOSYSTEM-REGISTRIES.md",
-        "./PROCEDURAL-MEMORY-INDEX.md",
-    ):
-        if link_target not in context_index:
-            errors.append(f"context/README.md: missing link to `{link_target}`")
+    _validate_context_entrypoints(
+        errors=errors,
+        context_index=context_index,
+        quickstart=quickstart,
+        engineering=engineering,
+        reference_map=reference_map,
+        task_routing_guide=task_routing_guide,
+        procedural_memory_index=procedural_memory_index,
+    )
 
-    if "./TASK-ROUTING-GUIDE.md" not in quickstart:
-        errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing task routing guide cross-link")
-    if "./ECOSYSTEM-REGISTRIES.md" not in quickstart:
-        errors.append("LOTUS-QUICKSTART-CONTEXT.md: missing ecosystem registries cross-link")
-    if "## Task Routing Guidance" not in engineering:
-        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guidance section")
-    if "./TASK-ROUTING-GUIDE.md" not in engineering:
-        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing task routing guide cross-link")
-    if "./ECOSYSTEM-REGISTRIES.md" not in engineering:
-        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing ecosystem registries cross-link")
-    if "./PROCEDURAL-MEMORY-INDEX.md" not in engineering:
-        errors.append("LOTUS-ENGINEERING-CONTEXT.md: missing procedural memory index cross-link")
-    for text in (
-        "## Front-Office Runtime Governance",
-        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-    ):
-        if text not in engineering:
-            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing front-office runtime guidance `{text}`")
-    for text in (
-        "For RFC-0093/RFC-0094 agent engineering governance:",
-        "AGENT-CONTEXT-AND-TASK-LEDGER.md",
-        "platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json",
-        "output/background-runs.json",
-        "repository, branch, PR",
-    ):
-        if text not in engineering:
-            errors.append(f"LOTUS-ENGINEERING-CONTEXT.md: missing agent engineering guidance `{text}`")
+    _validate_playbook_content(
+        errors=errors,
+        change_playbooks=change_playbooks,
+        pr_loop_playbook=pr_loop_playbook,
+        validation_playbook=validation_playbook,
+        fix_forward_patterns=fix_forward_patterns,
+        agent_context_task_ledger=agent_context_task_ledger,
+    )
 
-    if "These are now the implementation-truth entrypoints for each repo:" not in reference_map:
-        errors.append("CONTEXT-REFERENCE-MAP.md: repo-local context section is stale or missing")
-    if "once it exists" in reference_map or "will become the implementation truth" in reference_map:
-        errors.append("CONTEXT-REFERENCE-MAP.md: stale rollout language must not remain")
+    _validate_agents_operating_contract(errors=errors, agents_contract=agents_contract)
 
-    for heading in (
-        "## Frontend And Product-Surface Work",
-        "## Backend API And Domain-Service Work",
-        "## Cross-App Integration And Platform Validation Work",
-        "## Standards, RFC, And Governance Work",
-        "## Async Execution And Heavy Validation Routing",
-    ):
-        if heading not in task_routing_guide:
-            errors.append(f"TASK-ROUTING-GUIDE.md: missing heading `{heading}`")
+    _validate_onboarding_guidance(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+        agent_ramp_up=agent_ramp_up,
+    )
 
-    if "Change Playbooks" not in procedural_memory_index:
-        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Change Playbooks reference")
-    if "PR Loop Playbook" not in procedural_memory_index:
-        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing PR Loop Playbook reference")
-    if "Validation Playbook" not in procedural_memory_index:
-        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Validation Playbook reference")
-    if "Fix-Forward Patterns" not in procedural_memory_index:
-        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
-    if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
-        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
+    _validate_developer_environment_automation(
+        errors=errors,
+        developer_environment_validation=developer_environment_validation,
+        developer_environment_bootstrap=developer_environment_bootstrap,
+    )
 
-    for text, label in (
-        ("Backend API And Domain-Service Change Playbook", "CHANGE-PLAYBOOKS.md"),
-        ("Frontend And Product-Surface Change Playbook", "CHANGE-PLAYBOOKS.md"),
-        ("Cross-Repository Integration Change Playbook", "CHANGE-PLAYBOOKS.md"),
-        ("RFC-Driven Slice Playbook", "CHANGE-PLAYBOOKS.md"),
-        ("Working Sequence", "PR-LOOP-PLAYBOOK.md"),
-        ("GitHub-Backed Heavy Execution Rule", "PR-LOOP-PLAYBOOK.md"),
-        ("Validation Layers", "VALIDATION-PLAYBOOK.md"),
-        ("Platform End-To-End Proof", "VALIDATION-PLAYBOOK.md"),
-        ("Stale Expectation Pattern", "FIX-FORWARD-PATTERNS.md"),
-        ("Validator Overreach Pattern", "FIX-FORWARD-PATTERNS.md"),
-        ("Local-Only Assumption Pattern", "FIX-FORWARD-PATTERNS.md"),
-        ("Identifier Preservation", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
-        ("Detached Task Ledger", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
-        ("Promotion Decisions", "AGENT-CONTEXT-AND-TASK-LEDGER.md"),
-    ):
-        target_doc = {
-            "CHANGE-PLAYBOOKS.md": change_playbooks,
-            "PR-LOOP-PLAYBOOK.md": pr_loop_playbook,
-            "VALIDATION-PLAYBOOK.md": validation_playbook,
-            "FIX-FORWARD-PATTERNS.md": fix_forward_patterns,
-            "AGENT-CONTEXT-AND-TASK-LEDGER.md": agent_context_task_ledger,
-        }[label]
-        if text not in target_doc:
-            errors.append(f"{label}: missing required content `{text}`")
+    _validate_repository_context_contracts(
+        errors=errors,
+        repo_context_contract=repo_context_contract,
+        repo_context_template=repo_context_template,
+        platform_repo_context=platform_repo_context,
+    )
 
-    for heading in (
-        "Mandatory Reading Order",
-        "Mandatory Operating Rules",
-        "Context Maintenance Rule",
-        "Wiki Publication Rule",
-        "Skills, Automation, And Async Execution",
-        "Front-Office Runtime Routing Rule",
-    ):
-        if heading not in agents_contract:
-            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing section `{heading}`")
-    if "PROCEDURAL-MEMORY-INDEX.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing procedural memory index cross-link")
-    if "AGENT-CONTEXT-AND-TASK-LEDGER.md" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing agent context and task ledger playbook cross-link")
-    if "engineering_task_id" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing engineering_task_id preservation guidance")
-    if "output/background-runs.json" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing background-run evidence guidance")
-    if "Sync-RepoWikis.ps1" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing wiki publication check guidance")
-    if "Repo-local `wiki/` is the authored source of truth" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-local wiki source-of-truth guidance")
-    if "Repo-root `AGENTS.md` files across Lotus repositories" not in agents_contract:
-        errors.append("AGENTS-OPERATING-CONTRACT.md: missing repo-root synchronization guidance")
-    for text in (
-        "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "npm run live:validate",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-    ):
-        if text not in agents_contract:
-            errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
-
-    for text in (
-        "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
-        "Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast",
-        "unknown local Codex skills are preserved",
-        "output/developer-environment-readiness.json",
-        "output/developer-environment-readiness.md",
-        "Canonical Front-Office Local Runtime",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1",
-        "ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-        "RFC-0074 is implemented and governed.",
-    ):
-        if text not in developer_onboarding:
-            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
-    if "primary front-office demo bring-up path" not in developer_onboarding:
-        errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
-    for stale_text in (
-        "At Slice 5, this guide is the onboarding entrypoint",
-        "Later RFC-0074 slices will add",
-    ):
-        if stale_text in developer_onboarding:
-            errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
-
-    if "Do not start with Tier 3 by default." not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
-    if "RFC-0074 is implemented and governed." not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
-    for stale_text in (
-        "automated skill sync and bootstrap readiness scripts are not implemented yet",
-        "Later RFC-0074 slices will add",
-        "At Slice 3, this guide defines agent ramp-up",
-    ):
-        if stale_text in agent_ramp_up:
-            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
-    if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
-    if "Platform-owned skill artifacts now exist under `lotus-platform/codex/skills`" not in agent_ramp_up and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up:
-        errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
-    for text in (
-        "## Front-Office Runtime Routing",
-        "canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
-        "PB_SG_GLOBAL_BAL_001",
-    ):
-        if text not in agent_ramp_up:
-            errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
-
-    for text, label, content in (
-        ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ('[ValidateSet("fast", "extended", "platform")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Redact-Value", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Test-SkillSync", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("developer-environment-readiness.json", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Refusing to synchronize skill outside the requested Codex skills target root.", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Resolve-PowerShellExecutable", "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
-        ('"-Mode", "Sync"', "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
-    ):
-        if text not in content:
-            errors.append(f"{label}: missing required bootstrap behavior `{text}`")
-
-    if "Context Maintenance Rule" not in repo_context_contract:
-        errors.append("Repository-Engineering-Context-Contract.md: missing Context Maintenance Rule")
-    if "## Context Maintenance Rule" not in repo_context_template:
-        errors.append("REPOSITORY-ENGINEERING-CONTEXT.template.md: missing Context Maintenance Rule heading")
-    if "## Context Maintenance Rule" not in platform_repo_context:
-        errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
-
-    applications = manifest.get("applications", [])
-    registered_repositories = {entry.get("name") for entry in repository_registry if entry.get("name")}
-    application_repositories = {entry.get("repository") for entry in applications if entry.get("repository")}
-    if application_repositories != registered_repositories:
-        missing_from_manifest = sorted(registered_repositories - application_repositories)
-        missing_from_registry = sorted(application_repositories - registered_repositories)
-        errors.append(
-            "lotus-context-manifest.json: applications registry must match automation/repos.json"
-            f" (missing_from_manifest={missing_from_manifest}, missing_from_registry={missing_from_registry})"
-        )
-    if any(entry.get("status") != "implemented" for entry in applications):
-        errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
-
-    for application in applications:
-        repository_name = application.get("repository")
-        if not repository_name:
-            errors.append("lotus-context-manifest.json: application entry missing repository name")
-            continue
-        repo_root = ROOT if repository_name == "lotus-platform" else WORKSPACE_ROOT / repository_name
-        if not repo_root.exists():
-            continue
-        repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
-        if not repo_context_path.exists():
-            continue
-        repo_agents_path = repo_root / "AGENTS.md"
-        if not repo_agents_path.exists():
-            errors.append(f"{repository_name}: missing repo-root AGENTS.md")
-            continue
-        repo_agents_text = _normalize_text(_read_text(repo_agents_path))
-        if repo_agents_text != normalized_agents_contract:
-            errors.append(f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md")
-
-    context_documents = manifest.get("context_documents", {})
-    for key, expected_path in {
-        "index": "context/README.md",
-        "quickstart": "context/LOTUS-QUICKSTART-CONTEXT.md",
-        "engineering_context": "context/LOTUS-ENGINEERING-CONTEXT.md",
-        "reference_map": "context/CONTEXT-REFERENCE-MAP.md",
-        "task_routing_guide": "context/TASK-ROUTING-GUIDE.md",
-        "ecosystem_registries": "context/ECOSYSTEM-REGISTRIES.md",
-        "procedural_memory_index": "context/PROCEDURAL-MEMORY-INDEX.md",
-        "agents_operating_contract_source": "context/AGENTS-OPERATING-CONTRACT.md",
-    }.items():
-        if context_documents.get(key) != expected_path:
-            errors.append(f"lotus-context-manifest.json: context_documents.{key} must equal `{expected_path}`")
-
-    procedural_memory = manifest.get("procedural_memory", {})
-    for key, expected_path in {
-        "change_playbooks": "context/playbooks/CHANGE-PLAYBOOKS.md",
-        "pr_loop_playbook": "context/playbooks/PR-LOOP-PLAYBOOK.md",
-        "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
-        "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
-        "agent_context_and_task_ledger": "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md",
-    }.items():
-        if procedural_memory.get(key) != expected_path:
-            errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
-
-    standards_registry = manifest.get("standards_registry", [])
-    standard_names = {entry.get("name") for entry in standards_registry if isinstance(entry, dict)}
-    for standard_name in (
-        "Continuous Integration, Validation, and Release Governance Standard",
-        "Testing Pyramid and Coverage Standard",
-        "Dependency Hygiene and Security Standard",
-        "Platform Observability Standards",
-        "Enterprise Readiness Standard",
-        "Scalability and Availability Standard",
-        "Domain Vocabulary Glossary",
-        "Platform Integration Architecture Bible",
-    ):
-        if standard_name not in standard_names:
-            errors.append(f"lotus-context-manifest.json: standards registry missing `{standard_name}`")
-
-    active_rfcs = manifest.get("active_rfc_registry", [])
-    rfc_postures = {entry.get("id"): entry.get("implementation_posture") for entry in active_rfcs if isinstance(entry, dict)}
-    if rfc_postures.get("RFC-0071") != "implemented and governed":
-        errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
-    if "partially implemented" not in str(rfc_postures.get("RFC-0072", "")):
-        errors.append("lotus-context-manifest.json: RFC-0072 implementation posture drifted")
-    if rfc_postures.get("RFC-0073") != "implemented and governed":
-        errors.append("lotus-context-manifest.json: RFC-0073 implementation posture drifted")
-    if rfc_postures.get("RFC-0074") != "implemented and governed":
-        errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
-
-    registry_renderer = _load_registry_renderer()
-    rendered_registries = registry_renderer.render_registry_document(manifest)
-    if ecosystem_registries != rendered_registries:
-        errors.append("ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json")
+    _validate_manifest_contract(
+        errors=errors,
+        manifest=manifest,
+        repository_registry=repository_registry,
+        normalized_agents_contract=normalized_agents_contract,
+        ecosystem_registries=ecosystem_registries,
+    )
 
     return errors
 

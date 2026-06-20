@@ -1,4 +1,4 @@
-﻿# RFC-0012: Refined Long-Term Platform Vision
+# RFC-0012: Refined Long-Term Platform Vision
 
 - Status: Proposed
 - Date: 2026-02-22
@@ -24,5 +24,5 @@ Build a configurable Private Banking Wealth Platform that:
 
 ## Acceptance Criteria
 
-- Vision reflected in `Private Banking Wealth Management UI Platform.md`.
+- Vision reflected in `docs/architecture/Private Banking Wealth Management UI Platform.md`.
 - All downstream RFCs align to this tenet set.

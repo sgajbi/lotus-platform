@@ -7,7 +7,7 @@
 Related platform standards:
 - `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
 - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-- `Continuous Integration, Validation, and Release Governance Standard.md`
+- `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 
 ## 1. Prerequisites
 

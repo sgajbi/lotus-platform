@@ -486,7 +486,7 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "../../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md",
         "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
         "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
-        "../../Local%20Development%20Runbook.md",
+        "../operations/Local%20Development%20Runbook.md",
         "../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
         "../../context/LOTUS-QUICKSTART-CONTEXT.md",
         "../../context/CONTEXT-REFERENCE-MAP.md",

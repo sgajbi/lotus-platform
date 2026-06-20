@@ -823,6 +823,19 @@ Run the same cross-app validators from GitHub Actions on a self-hosted runner:
 - Recommended deeper manual mode while attribution alignment is still under investigation: `validation_profile=core-performance-baseline` with `scenario_mode=skip_seed`
 - The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
 
+Run the platform demo-readiness certification wrapper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
+```
+
+The command invokes `Invoke-PlatformValidationLane.ps1` for `core-performance-green-lanes`, which
+seeds deterministic synthetic scenarios in `fresh_seed` mode, calls the real `lotus-core` and
+`lotus-performance` APIs, asserts cross-app domain figures, then writes
+`output/demo-readiness/platform/platform-demo-readiness-certification.json`. The feature lane uploads
+this evidence as report-only with `continue-on-error`; promote it to a blocking gate only after the
+CI governance intake proves the signal is deterministic, low-noise, and policy-backed.
+
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
 
 ```powershell
@@ -1047,11 +1060,37 @@ Validate container build and image baseline posture across backend scaffold temp
 python automation/validate_container_build_baseline.py
 ```
 
+Validate a supported-claim register before promoting demo, RFP, security-pack, or screenshot claims:
+
+```powershell
+python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json
+```
+
 Validate platform end-to-end coverage profiles against the workflow and entrypoint contract:
 
 ```powershell
 python automation/validate_platform_validation_coverage.py
 ```
+
+Generate and validate the automation discoverability inventory used for cleanup reviews:
+
+```powershell
+python automation/generate_automation_inventory.py --write --check
+```
+
+Artifacts:
+- `quality/automation_inventory.json`
+- `quality/automation_inventory.md`
+
+Generate the cross-repository rounding governance compliance matrix:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1
+```
+
+Artifacts:
+- `output/rounding-governance-compliance.json`
+- `output/rounding-governance-compliance.md`
 
 Bootstrap the isolated platform automation Python runtime:
 
@@ -1070,6 +1109,26 @@ Scaffold a new standards-compliant Lotus backend and auto-register it in automat
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service"
 ```
+
+Check whether app-local enterprise backend refactoring instruction copies match the canonical
+platform playbook:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly
+```
+
+Synchronize those app-local copies from the platform source when a coordinated rollout needs local
+copies:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1
+```
+
+The canonical source is
+`context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`; app-local
+`docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md` files are deployed copies. By
+default the sync scope is resolved from `automation/repos.json` so newly registered backend apps are
+covered without editing this script; pass `-Repositories` only for a deliberate bounded rollout.
 
 For a fuller governed bootstrap that also initializes git, creates the GitHub repository, makes it
 public, and applies baseline main-branch protection:

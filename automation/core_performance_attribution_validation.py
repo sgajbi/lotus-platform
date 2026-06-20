@@ -20,6 +20,414 @@ from core_performance_twr_benchmark_validation import (
 )
 
 
+def _empty_stateful_attribution() -> dict[str, object]:
+    return {
+        "input_mode": "stateful",
+        "benchmark_context": None,
+        "results_by_period": {},
+    }
+
+
+def _poll_core_attribution_sources(
+    *,
+    session: requests.Session,
+    core_query_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> None:
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+        },
+        predicate=lambda payload: len(payload.get("observations", [])) == 5,
+    )
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/position-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+            "dimensions": ["asset_class", "sector"],
+        },
+        predicate=lambda payload: len(payload.get("rows", [])) >= 10,
+    )
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-17", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+        },
+        predicate=lambda payload: len(payload.get("observations", [])) == 4,
+    )
+
+
+def _post_stateful_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+    report_start_date: str,
+) -> requests.Response:
+    return session.post(
+        f"{performance_base_url}/performance/attribution",
+        json={
+            "portfolio_id": scenario_ids.portfolio_id,
+            "mode": "by_instrument",
+            "group_by": ["asset_class"],
+            "linking": "carino",
+            "frequency": "daily",
+            "report_start_date": report_start_date,
+            "report_end_date": "2026-03-20",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "input_mode": "stateful",
+            "stateful_input": {},
+        },
+        timeout=30,
+    )
+
+
+def _follow_attribution_response(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+) -> dict[str, object]:
+    return _follow_async_result(
+        session,
+        response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/attribution/results",
+    )
+
+
+def _record_acquisition_day_attribution_failure(
+    *,
+    defects: list[dict[str, str]],
+    response: requests.Response,
+) -> None:
+    detail = response.text
+    if "portfolio timeseries does not align with summed position timeseries" in detail:
+        defects.append(
+            {
+                "app": "lotus-core",
+                "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
+                "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the acquisition-day attribution window.",
+                "evidence": detail,
+            }
+        )
+    elif response.status_code != 422:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
+                "message": "Acquisition-day attribution returned an unexpected non-success response.",
+                "evidence": detail,
+            }
+        )
+
+
+def _record_supported_window_attribution_failure(
+    *,
+    defects: list[dict[str, str]],
+    response: requests.Response,
+) -> None:
+    detail = response.text
+    if "portfolio timeseries does not align with summed position timeseries" in detail:
+        defects.append(
+            {
+                "app": "lotus-core",
+                "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
+                "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the same seeded attribution window.",
+                "evidence": detail,
+            }
+        )
+        return
+
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
+            "message": "Supported-window stateful attribution failed unexpectedly.",
+            "evidence": detail,
+        }
+    )
+
+
+def _resolve_acquisition_day_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+    defects: list[dict[str, str]],
+) -> tuple[dict[str, object], bool, bool]:
+    acquisition_day_guarded = response.status_code == 422 and (
+        "cannot safely compute acquisition-day position returns" in response.text
+    )
+    acquisition_day_contract_consistent = response.status_code in (200, 202)
+    if response.status_code in (200, 202):
+        return (
+            _follow_attribution_response(
+                session=session,
+                performance_base_url=performance_base_url,
+                response=response,
+            ),
+            acquisition_day_guarded,
+            acquisition_day_contract_consistent,
+        )
+
+    _record_acquisition_day_attribution_failure(defects=defects, response=response)
+    return (
+        _empty_stateful_attribution(),
+        acquisition_day_guarded,
+        acquisition_day_contract_consistent,
+    )
+
+
+def _resolve_supported_window_attribution(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+    defects: list[dict[str, str]],
+) -> dict[str, object]:
+    if response.status_code in (200, 202):
+        return _follow_attribution_response(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=response,
+        )
+
+    _record_supported_window_attribution_failure(defects=defects, response=response)
+    return _empty_stateful_attribution()
+
+
+def _post_stateful_twr(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> requests.Response:
+    return _post_json(
+        session,
+        f"{performance_base_url}/performance/twr",
+        {
+            "portfolio_id": scenario_ids.portfolio_id,
+            "report_end_date": "2026-03-20",
+            "performance_start_date": "2026-03-17",
+            "metric_basis": "NET",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "input_mode": "stateful",
+            "stateful_input": {},
+            "include_benchmark": True,
+        },
+    )
+
+
+def _follow_twr_response(
+    *,
+    session: requests.Session,
+    performance_base_url: str,
+    response: requests.Response,
+) -> dict[str, object]:
+    return _follow_async_result(
+        session,
+        response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/twr/results",
+    )
+
+
+def _twr_relative_return(twr: dict[str, object]) -> Decimal:
+    return Decimal(
+        str(twr["results_by_period"]["ITD"]["relative_performance"]["summary"]["period_return"]["base"])
+    )
+
+
+def _record_attribution_input_mode_defect(
+    *,
+    defects: list[dict[str, str]],
+    attribution: dict[str, object],
+) -> None:
+    if attribution.get("input_mode") == "stateful":
+        return
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_INPUT_MODE_MISMATCH",
+            "message": "Attribution response did not preserve stateful input mode.",
+            "evidence": json.dumps({"input_mode": attribution.get("input_mode")}),
+        }
+    )
+
+
+def _benchmark_context_or_none(
+    supported_attribution: dict[str, object],
+) -> dict[str, object] | None:
+    benchmark_context = supported_attribution.get("benchmark_context")
+    return benchmark_context if isinstance(benchmark_context, dict) else None
+
+
+def _record_benchmark_context_defect(
+    *,
+    defects: list[dict[str, str]],
+    benchmark_context: dict[str, object] | None,
+    scenario_ids: ScenarioIds,
+) -> None:
+    if (benchmark_context or {}).get("benchmark_id") in {None, scenario_ids.benchmark_id}:
+        return
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": "ATTRIBUTION_BENCHMARK_CONTEXT_MISMATCH",
+            "message": "Attribution benchmark context did not resolve the seeded benchmark assignment.",
+            "evidence": json.dumps(benchmark_context or {}),
+        }
+    )
+
+
+def _summarize_supported_attribution(
+    supported_attribution: dict[str, object],
+) -> tuple[Decimal | None, Decimal | None, Decimal | None, list[dict[str, object]], list[str]]:
+    if "ITD" not in supported_attribution.get("results_by_period", {}):
+        return None, None, None, [], []
+
+    attribution_itd = supported_attribution["results_by_period"]["ITD"]
+    reconciliation = attribution_itd["reconciliation"]
+    first_level = attribution_itd["levels"][0]
+    level_totals = first_level["totals"]
+    total_active = Decimal(str(reconciliation["total_active_return"]))
+    summed_effects = Decimal(str(reconciliation["sum_of_effects"]))
+    level_total_effect = Decimal(str(level_totals["total_effect"]))
+    supported_groups_summary = [
+        {
+            "key": group["key"],
+            "allocation": str(group["allocation"]),
+            "selection": str(group["selection"]),
+            "interaction": str(group["interaction"]),
+            "total_effect": str(group["total_effect"]),
+        }
+        for group in first_level["groups"]
+    ]
+    duplicate_normalized_group_keys = _find_duplicate_normalized_group_keys(first_level["groups"])
+    return (
+        total_active,
+        summed_effects,
+        level_total_effect,
+        supported_groups_summary,
+        duplicate_normalized_group_keys,
+    )
+
+
+def _record_attribution_reconciliation_defects(
+    *,
+    defects: list[dict[str, str]],
+    tolerance: Decimal,
+    twr_relative: Decimal,
+    total_active: Decimal | None,
+    summed_effects: Decimal | None,
+    level_total_effect: Decimal | None,
+    supported_groups_summary: list[dict[str, object]],
+    duplicate_normalized_group_keys: list[str],
+) -> None:
+    if level_total_effect is not None and summed_effects is not None:
+        if abs(level_total_effect - summed_effects) > tolerance:
+            defects.append(
+                {
+                    "app": "lotus-performance",
+                    "code": "ATTRIBUTION_LEVEL_TOTAL_MISMATCH",
+                    "message": "Attribution top-level totals do not reconcile to the reported sum_of_effects.",
+                    "evidence": json.dumps(
+                        {
+                            "level_total_effect": str(level_total_effect),
+                            "sum_of_effects": str(summed_effects),
+                        }
+                    ),
+                }
+            )
+
+    if duplicate_normalized_group_keys:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_GROUP_KEY_CANONICALIZATION_GAP",
+                "message": "Attribution produced duplicate first-level benchmark groups that only differ by key casing or label normalization.",
+                "evidence": json.dumps(
+                    {
+                        "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
+                        "groups": supported_groups_summary,
+                    }
+                ),
+            }
+        )
+
+    if total_active is not None and abs(total_active - twr_relative) > tolerance:
+        defects.append(
+            {
+                "app": "lotus-performance",
+                "code": "ATTRIBUTION_TWR_ACTIVE_MISMATCH",
+                "message": "Attribution total active return does not align with benchmark-inclusive TWR for the same portfolio and window.",
+                "evidence": json.dumps(
+                    {
+                        "attribution_total_active_return": str(total_active),
+                        "twr_relative_return": str(twr_relative),
+                    }
+                ),
+            }
+        )
+
+
+def _supported_group_count(supported_attribution: dict[str, object]) -> int:
+    if "ITD" not in supported_attribution.get("results_by_period", {}):
+        return 0
+    return len(supported_attribution["results_by_period"]["ITD"]["levels"][0]["groups"])
+
+
+def _build_validation_result(
+    *,
+    defects: list[dict[str, str]],
+    scenario_ids: ScenarioIds,
+    supported_attribution: dict[str, object],
+    benchmark_context: dict[str, object] | None,
+    acquisition_day_guarded: bool,
+    acquisition_day_contract_consistent: bool,
+    supported_groups_summary: list[dict[str, object]],
+    duplicate_normalized_group_keys: list[str],
+    total_active: Decimal | None,
+    summed_effects: Decimal | None,
+    twr_relative: Decimal,
+) -> dict[str, object]:
+    return {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "status": "passed" if not defects else "failed",
+        "scenario": asdict(scenario_ids),
+        "performance": {
+            "input_mode": supported_attribution.get("input_mode"),
+            "benchmark_context": benchmark_context,
+            "acquisition_day_guarded": acquisition_day_guarded,
+            "acquisition_day_contract_consistent": acquisition_day_contract_consistent,
+            "group_count": _supported_group_count(supported_attribution),
+            "supported_window_groups": supported_groups_summary,
+            "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
+            "attribution_total_active_return": str(total_active) if total_active is not None else None,
+            "attribution_sum_of_effects": str(summed_effects) if summed_effects is not None else None,
+            "twr_relative_return": str(twr_relative),
+            "defects": defects,
+        },
+    }
+
+
 def _run_validation_once(
     *,
     scenario_ids: ScenarioIds,
@@ -34,290 +442,93 @@ def _run_validation_once(
         if not skip_seed:
             _seed_core_data(session, ingestion_base_url=core_ingestion_base_url, ids=scenario_ids)
 
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-            },
-            predicate=lambda payload: len(payload.get("observations", [])) == 5,
-        )
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/position-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-                "dimensions": ["asset_class", "sector"],
-            },
-            predicate=lambda payload: len(payload.get("rows", [])) >= 10,
-        )
-        _poll_post_json(
-            session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-17", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-            },
-            predicate=lambda payload: len(payload.get("observations", [])) == 4,
+        _poll_core_attribution_sources(
+            session=session,
+            core_query_base_url=core_query_base_url,
+            scenario_ids=scenario_ids,
         )
 
-        attribution_request = {
-            "portfolio_id": scenario_ids.portfolio_id,
-            "mode": "by_instrument",
-            "group_by": ["asset_class"],
-            "linking": "carino",
-            "frequency": "daily",
-            "report_start_date": "2026-03-16",
-            "report_end_date": "2026-03-20",
-            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-            "input_mode": "stateful",
-            "stateful_input": {},
-        }
-        attribution_raw = session.post(
-            f"{performance_base_url}/performance/attribution",
-            json=attribution_request,
-            timeout=30,
-        )
-        acquisition_day_guarded = attribution_raw.status_code == 422 and (
-            "cannot safely compute acquisition-day position returns" in attribution_raw.text
-        )
-        acquisition_day_contract_consistent = attribution_raw.status_code in (200, 202)
-
-        if attribution_raw.status_code in (200, 202):
-            attribution = _follow_async_result(
-                session,
-                attribution_raw,
-                performance_base_url=performance_base_url,
-                fallback_result_prefix="/performance/attribution/results",
-            )
-        else:
-            attribution = {
-                "input_mode": "stateful",
-                "benchmark_context": None,
-                "results_by_period": {},
-            }
-            detail = attribution_raw.text
-            if "portfolio timeseries does not align with summed position timeseries" in detail:
-                defects.append(
-                    {
-                        "app": "lotus-core",
-                        "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
-                        "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the acquisition-day attribution window.",
-                        "evidence": detail,
-                    }
-                )
-            elif attribution_raw.status_code != 422:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
-                        "message": "Acquisition-day attribution returned an unexpected non-success response.",
-                        "evidence": detail,
-                    }
-                )
-
-        supported_attribution_raw = session.post(
-            f"{performance_base_url}/performance/attribution",
-            json={
-                "portfolio_id": scenario_ids.portfolio_id,
-                "mode": "by_instrument",
-                "group_by": ["asset_class"],
-                "linking": "carino",
-                "frequency": "daily",
-                "report_start_date": "2026-03-17",
-                "report_end_date": "2026-03-20",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "input_mode": "stateful",
-                "stateful_input": {},
-            },
-            timeout=30,
-        )
-        if supported_attribution_raw.status_code in (200, 202):
-            supported_attribution = _follow_async_result(
-                session,
-                supported_attribution_raw,
-                performance_base_url=performance_base_url,
-                fallback_result_prefix="/performance/attribution/results",
-            )
-        else:
-            supported_attribution = {
-                "input_mode": "stateful",
-                "benchmark_context": None,
-                "results_by_period": {},
-            }
-            detail = supported_attribution_raw.text
-            if "portfolio timeseries does not align with summed position timeseries" in detail:
-                defects.append(
-                    {
-                        "app": "lotus-core",
-                        "code": "ATTRIBUTION_SOURCE_ALIGNMENT_GAP",
-                        "message": "lotus-core portfolio-timeseries and position-timeseries do not align for the same seeded attribution window.",
-                        "evidence": detail,
-                    }
-                )
-            else:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_STATEFUL_UNEXPECTED_ERROR",
-                        "message": "Supported-window stateful attribution failed unexpectedly.",
-                        "evidence": detail,
-                    }
-                )
-
-        twr_response = _post_json(
-            session,
-            f"{performance_base_url}/performance/twr",
-            {
-                "portfolio_id": scenario_ids.portfolio_id,
-                "report_end_date": "2026-03-20",
-                "performance_start_date": "2026-03-17",
-                "metric_basis": "NET",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "input_mode": "stateful",
-                "stateful_input": {},
-                "include_benchmark": True,
-            },
-        )
-        twr = _follow_async_result(
-            session,
-            twr_response,
+        attribution_raw = _post_stateful_attribution(
+            session=session,
             performance_base_url=performance_base_url,
-            fallback_result_prefix="/performance/twr/results",
+            scenario_ids=scenario_ids,
+            report_start_date="2026-03-16",
+        )
+        (
+            attribution,
+            acquisition_day_guarded,
+            acquisition_day_contract_consistent,
+        ) = _resolve_acquisition_day_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=attribution_raw,
+            defects=defects,
         )
 
-        twr_relative = Decimal(
-            str(twr["results_by_period"]["ITD"]["relative_performance"]["summary"]["period_return"]["base"])
+        supported_attribution_raw = _post_stateful_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            scenario_ids=scenario_ids,
+            report_start_date="2026-03-17",
         )
+        supported_attribution = _resolve_supported_window_attribution(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=supported_attribution_raw,
+            defects=defects,
+        )
+
+        twr_response = _post_stateful_twr(
+            session=session,
+            performance_base_url=performance_base_url,
+            scenario_ids=scenario_ids,
+        )
+        twr = _follow_twr_response(
+            session=session,
+            performance_base_url=performance_base_url,
+            response=twr_response,
+        )
+
+        twr_relative = _twr_relative_return(twr)
         tolerance = Decimal("0.0001")
-        total_active: Decimal | None = None
-        summed_effects: Decimal | None = None
-        level_total_effect: Decimal | None = None
-        supported_groups_summary: list[dict[str, object]] = []
-        duplicate_normalized_group_keys: list[str] = []
+        _record_attribution_input_mode_defect(defects=defects, attribution=attribution)
+        benchmark_context = _benchmark_context_or_none(supported_attribution)
+        _record_benchmark_context_defect(
+            defects=defects,
+            benchmark_context=benchmark_context,
+            scenario_ids=scenario_ids,
+        )
+        (
+            total_active,
+            summed_effects,
+            level_total_effect,
+            supported_groups_summary,
+            duplicate_normalized_group_keys,
+        ) = _summarize_supported_attribution(supported_attribution)
+        _record_attribution_reconciliation_defects(
+            defects=defects,
+            tolerance=tolerance,
+            twr_relative=twr_relative,
+            total_active=total_active,
+            summed_effects=summed_effects,
+            level_total_effect=level_total_effect,
+            supported_groups_summary=supported_groups_summary,
+            duplicate_normalized_group_keys=duplicate_normalized_group_keys,
+        )
 
-        if attribution.get("input_mode") != "stateful":
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "ATTRIBUTION_INPUT_MODE_MISMATCH",
-                    "message": "Attribution response did not preserve stateful input mode.",
-                    "evidence": json.dumps({"input_mode": attribution.get("input_mode")}),
-                }
-            )
-
-        benchmark_context = supported_attribution.get("benchmark_context")
-        if not isinstance(benchmark_context, dict):
-            benchmark_context = None
-
-        if (benchmark_context or {}).get("benchmark_id") not in {None, scenario_ids.benchmark_id}:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "ATTRIBUTION_BENCHMARK_CONTEXT_MISMATCH",
-                    "message": "Attribution benchmark context did not resolve the seeded benchmark assignment.",
-                    "evidence": json.dumps(benchmark_context or {}),
-                }
-            )
-
-        if "ITD" in supported_attribution.get("results_by_period", {}):
-            attribution_itd = supported_attribution["results_by_period"]["ITD"]
-            reconciliation = attribution_itd["reconciliation"]
-            first_level = attribution_itd["levels"][0]
-            level_totals = first_level["totals"]
-            total_active = Decimal(str(reconciliation["total_active_return"]))
-            summed_effects = Decimal(str(reconciliation["sum_of_effects"]))
-            level_total_effect = Decimal(str(level_totals["total_effect"]))
-            supported_groups_summary = [
-                {
-                    "key": group["key"],
-                    "allocation": str(group["allocation"]),
-                    "selection": str(group["selection"]),
-                    "interaction": str(group["interaction"]),
-                    "total_effect": str(group["total_effect"]),
-                }
-                for group in first_level["groups"]
-            ]
-            duplicate_normalized_group_keys = _find_duplicate_normalized_group_keys(first_level["groups"])
-
-            if abs(level_total_effect - summed_effects) > tolerance:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_LEVEL_TOTAL_MISMATCH",
-                        "message": "Attribution top-level totals do not reconcile to the reported sum_of_effects.",
-                        "evidence": json.dumps(
-                            {
-                                "level_total_effect": str(level_total_effect),
-                                "sum_of_effects": str(summed_effects),
-                            }
-                        ),
-                    }
-                )
-
-            if duplicate_normalized_group_keys:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_GROUP_KEY_CANONICALIZATION_GAP",
-                        "message": "Attribution produced duplicate first-level benchmark groups that only differ by key casing or label normalization.",
-                        "evidence": json.dumps(
-                            {
-                                "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
-                                "groups": supported_groups_summary,
-                            }
-                        ),
-                    }
-                )
-
-            if abs(total_active - twr_relative) > tolerance:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "ATTRIBUTION_TWR_ACTIVE_MISMATCH",
-                        "message": "Attribution total active return does not align with benchmark-inclusive TWR for the same portfolio and window.",
-                        "evidence": json.dumps(
-                            {
-                                "attribution_total_active_return": str(total_active),
-                                "twr_relative_return": str(twr_relative),
-                            }
-                        ),
-                    }
-                )
-
-    return {
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "status": "passed" if not defects else "failed",
-        "scenario": asdict(scenario_ids),
-        "performance": {
-            "input_mode": supported_attribution.get("input_mode"),
-            "benchmark_context": benchmark_context,
-            "acquisition_day_guarded": acquisition_day_guarded,
-            "acquisition_day_contract_consistent": acquisition_day_contract_consistent,
-            "group_count": (
-                len(supported_attribution["results_by_period"]["ITD"]["levels"][0]["groups"])
-                if "ITD" in supported_attribution.get("results_by_period", {})
-                else 0
-            ),
-            "supported_window_groups": supported_groups_summary,
-            "duplicate_normalized_group_keys": duplicate_normalized_group_keys,
-            "attribution_total_active_return": str(total_active) if total_active is not None else None,
-            "attribution_sum_of_effects": str(summed_effects) if summed_effects is not None else None,
-            "twr_relative_return": str(twr_relative),
-            "defects": defects,
-        },
-    }
+    return _build_validation_result(
+        defects=defects,
+        scenario_ids=scenario_ids,
+        supported_attribution=supported_attribution,
+        benchmark_context=benchmark_context,
+        acquisition_day_guarded=acquisition_day_guarded,
+        acquisition_day_contract_consistent=acquisition_day_contract_consistent,
+        supported_groups_summary=supported_groups_summary,
+        duplicate_normalized_group_keys=duplicate_normalized_group_keys,
+        total_active=total_active,
+        summed_effects=summed_effects,
+        twr_relative=twr_relative,
+    )
 
 
 def _find_duplicate_normalized_group_keys(groups: list[dict[str, object]]) -> list[str]:

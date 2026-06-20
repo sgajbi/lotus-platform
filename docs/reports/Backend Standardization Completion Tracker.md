@@ -29,9 +29,9 @@ Scope:
 | 6. Test pyramid + 99% meaningful coverage | complete | `output/test-coverage-summary.md` |
 | 7. Centralized reusable standards/config | complete | `platform-standards/`, `output/backend-standards-conformance.md` |
 | 8. Swagger/OpenAPI excellence | complete | `output/openapi-conformance-summary.md` |
-| 9. Central domain vocabulary | complete | `Domain Vocabulary Glossary.md`, `output/domain-vocabulary-conformance.md` |
-| 10. Database and data model standards | complete | `Data Model and Migration Contract Standard.md`, per-repo `docs/standards/data-model-ownership.md` |
-| 11. Standardized migration framework contract | complete | `Data Model and Migration Contract Standard.md`, `output/backend-standards-conformance.md` |
+| 9. Central domain vocabulary | complete | `docs/standards/Domain Vocabulary Glossary.md`, `output/domain-vocabulary-conformance.md` |
+| 10. Database and data model standards | complete | `docs/standards/Data Model and Migration Contract Standard.md`, per-repo `docs/standards/data-model-ownership.md` |
+| 11. Standardized migration framework contract | complete | `docs/standards/Data Model and Migration Contract Standard.md`, `output/backend-standards-conformance.md` |
 | 12. Automation-first, agent-friendly platform | complete | `automation/*`, `output/task-runs/*`, `output/background-runs.json` |
 
 ## Regeneration Commands
@@ -74,8 +74,8 @@ Checklist:
 
 Artifacts:
 
-- `Scalability and Availability Standard.md`
-- `Scalability and Availability Gap and Risk Report.md`
+- `docs/standards/Scalability and Availability Standard.md`
+- `docs/reports/Scalability and Availability Gap and Risk Report.md`
 - `output/scalability-availability-compliance.json`
 - `output/scalability-availability-compliance.md`
 
@@ -89,8 +89,8 @@ powershell -ExecutionPolicy Bypass -File automation/Validate-Scalability-Availab
 
 Artifacts:
 
-- `Durability and Consistency Standard.md`
-- `Durability and Consistency Gap and Risk Report.md`
+- `docs/standards/Durability and Consistency Standard.md`
+- `docs/reports/Durability and Consistency Gap and Risk Report.md`
 - `output/durability-consistency-compliance.json`
 - `output/durability-consistency-compliance.md`
 

@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers |
 | Depends On | RFC-0072; RFC-0084; RFC-0085; RFC-0086; RFC-0087; RFC-0088 |
-| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0084-mesh-governance.md`; `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`; `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`; `RFC-0087-live-trust-telemetry-and-certification-plane.md`; `RFC-0088-self-serve-discovery-and-dependency-catalog.md`; `Continuous Integration, Validation, and Release Governance Standard.md` |
+| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0084-mesh-governance.md`; `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`; `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`; `RFC-0087-live-trust-telemetry-and-certification-plane.md`; `RFC-0088-self-serve-discovery-and-dependency-catalog.md`; `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md` |
 | Scope | Cross-repo implementation |
 
 ## Executive Summary

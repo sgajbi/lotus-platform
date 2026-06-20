@@ -59,3 +59,14 @@ jobs:
         shell: pwsh
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
+      - name: Run platform demo-readiness certification (report-only)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          & .\automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
+      - name: Upload platform demo-readiness certification evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: platform-demo-readiness-certification
+          path: output/demo-readiness/platform/

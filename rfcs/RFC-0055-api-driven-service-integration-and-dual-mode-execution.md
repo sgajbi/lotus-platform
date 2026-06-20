@@ -54,7 +54,7 @@ Adopt a strict platform-wide integration and execution model.
 1. All cross-service interactions are API-driven.
 2. No shared databases between services.
 3. Each service owns its domain and publishes well-defined, documented contracts.
-4. Shared vocabulary must align with `Domain Vocabulary Glossary.md`.
+4. Shared vocabulary must align with `docs/standards/Domain Vocabulary Glossary.md`.
 
 ## Execution Model Rules
 1. `stateful mode`:

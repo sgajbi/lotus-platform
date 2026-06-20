@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository owners; platform operations |
 | Depends On | RFC-0084; RFC-0085; RFC-0086; RFC-0087; RFC-0088; RFC-0089; RFC-0090; RFC-0091 |
-| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `Continuous Integration, Validation, and Release Governance Standard.md`; `Enterprise Readiness Standard.md`; `Platform Observability Standards.md` |
+| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`; `docs/standards/Enterprise Readiness Standard.md`; `docs/standards/Platform Observability Standards.md` |
 | Scope | Production mesh operations, certification trend posture, drift escalation, operator readiness evidence |
 
 ## Executive Summary

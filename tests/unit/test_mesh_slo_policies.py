@@ -88,3 +88,31 @@ def test_mesh_slo_evaluator_reports_status_and_lineage_violations(
         "mesh_slo_lineage_violation",
     }
     assert all(violation["severity"] == "blocking" for violation in violations)
+
+
+def test_mesh_slo_evaluator_reports_freshness_violation(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    policy_path = POLICY_DIRECTORY / "lotus-risk-risk-metrics-report.slo.v1.json"
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    telemetry_path = tmp_path / "risk-telemetry.json"
+    telemetry = {
+        "product_id": "lotus-risk:RiskMetricsReport:v1",
+        "freshness": {"age_seconds": 999999},
+        "completeness_status": policy["completeness"]["required_status"],
+        "reconciliation_status": policy["reconciliation"]["required_status"],
+        "data_quality_status": policy["data_quality"]["required_status"],
+        "lineage": {"lineage_materialized": True},
+    }
+
+    violations = validator.evaluate_mesh_slo_violations(
+        telemetry_payloads={
+            "lotus-risk:RiskMetricsReport:v1": (telemetry_path, telemetry)
+        },
+        policies={"lotus-risk:RiskMetricsReport:v1": (policy_path, policy)},
+    )
+
+    assert [violation["code"] for violation in violations] == [
+        "mesh_slo_freshness_violation"
+    ]
+    assert violations[0]["product_id"] == "lotus-risk:RiskMetricsReport:v1"
+    assert "Telemetry age 999999s exceeds SLO" in violations[0]["detail"]

@@ -1,7 +1,7 @@
 # Platform-Wide Rounding and Precision Standardization Summary
 
 Generated: 2026-02-25
-Standard: `Financial Rounding and Precision Standard.md` (`v1.0.0`)
+Standard: `docs/standards/Financial Rounding and Precision Standard.md` (`v1.0.0`)
 RFC: `RFC-0063-platform-wide-rounding-and-precision-standard.md`
 
 ## Compliance Matrix

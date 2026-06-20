@@ -19,6 +19,7 @@ Use it for:
 - [Getting Started](Getting-Started)
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
+- [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality)
 - [Operations Runbook](Operations-Runbook)
 - [Analytics UI Observability](Analytics-UI-Observability)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
@@ -33,6 +34,7 @@ Use it for:
 powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
 python automation/validate_engineering_context_system.py
+python automation/generate_enterprise_backend_quality_baseline.py --write --check
 ```
 
 ## Platform boundary
@@ -48,6 +50,8 @@ python automation/validate_engineering_context_system.py
 - you need standards, templates, or validator truth
 - you need onboarding, agent-guidance, or central context updates
 - you need a cross-cutting ecosystem document that does not belong to one application repo
+- you need the enterprise backend refactor baseline, before/after scorecard, or quality gate
+  promotion trail
 
 ## Key references
 

@@ -221,16 +221,19 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 
 Key standards to use frequently:
 
-1. [Continuous Integration, Validation, and Release Governance Standard](../Continuous%20Integration%2C%20Validation%20and%20Release%20Governance%20Standard.md)
-2. [Testing Pyramid and Coverage Standard](../Testing%20Pyramid%20and%20Coverage%20Standard.md)
-3. [Dependency Hygiene and Security Standard](../Dependency%20Hygiene%20and%20Security%20Standard.md)
-4. [Enterprise Readiness Standard](../Enterprise%20Readiness%20Standard.md)
-5. [Scalability and Availability Standard](../Scalability%20and%20Availability%20Standard.md)
-6. [Platform Observability Standards](../Platform%20Observability%20Standards.md)
-7. [Domain Vocabulary Glossary](../Domain%20Vocabulary%20Glossary.md)
-8. [Platform Integration Architecture Bible](../Platform%20Integration%20Architecture%20Bible.md)
+1. [Continuous Integration, Validation, and Release Governance Standard](../docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
+2. [Testing Pyramid and Coverage Standard](../docs/standards/Testing%20Pyramid%20and%20Coverage%20Standard.md)
+3. [Dependency Hygiene and Security Standard](../docs/standards/Dependency%20Hygiene%20and%20Security%20Standard.md)
+4. [Enterprise Readiness Standard](../docs/standards/Enterprise%20Readiness%20Standard.md)
+5. [Scalability and Availability Standard](../docs/standards/Scalability%20and%20Availability%20Standard.md)
+6. [Platform Observability Standards](../docs/standards/Platform%20Observability%20Standards.md)
+7. [Domain Vocabulary Glossary](../docs/standards/Domain%20Vocabulary%20Glossary.md)
+8. [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
 9. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
 10. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+
+Use the bank-buyable contract as a standing non-degradation standard for Lotus app work. Use the
+enterprise backend refactoring instructions when the task is a larger measurement-backed refactor.
 
 ## Active Governance RFCs
 
@@ -406,9 +409,25 @@ Read:
 
 1. [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 2. [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
-3. [Local Development Runbook](../Local%20Development%20Runbook.md)
+3. [Local Development Runbook](../docs/operations/Local%20Development%20Runbook.md)
 4. `docs/` and `automation/README.md` in `lotus-platform`
 5. platform validation and ingress automation under `automation/`
+
+## Enterprise Backend Refactor Quality
+
+For `lotus-platform` enterprise backend refactor work, use:
+
+1. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
+2. `../automation/generate_enterprise_backend_quality_baseline.py`
+3. `../quality/baseline_report.md`
+4. `../quality/quality_scorecard.md`
+5. `../quality/refactor_health_report.md`
+6. `../quality/architecture_rules.md`
+7. `../quality/ci_quality_gates.md`
+
+The quality baseline is initially report-only. Promote individual signals only after they are
+measured, deterministic, low-noise, locally runnable, and represented in repo checks, scorecards,
+docs, wiki source, repo context, central context, and relevant skill guidance.
 
 ## Repository-Local Context Documents
 

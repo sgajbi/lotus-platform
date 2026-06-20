@@ -38,12 +38,12 @@ Canonical copy:
 
 Related Lotus standards:
 
-1. `Enterprise Readiness Standard.md`
-2. `Testing Pyramid and Coverage Standard.md`
-3. `Dependency Hygiene and Security Standard.md`
-4. `Scalability and Availability Standard.md`
-5. `Platform Observability Standards.md`
-6. `Continuous Integration, Validation, and Release Governance Standard.md`
+1. `docs/standards/Enterprise Readiness Standard.md`
+2. `docs/standards/Testing Pyramid and Coverage Standard.md`
+3. `docs/standards/Dependency Hygiene and Security Standard.md`
+4. `docs/standards/Scalability and Availability Standard.md`
+5. `docs/standards/Platform Observability Standards.md`
+6. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 7. `platform-standards/Development-Workflow-and-CI-Strategy-Standard.md`
 8. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 9. `platform-standards/Workflow-Security-and-Permissions-Standard.md`

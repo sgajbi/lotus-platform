@@ -67,5 +67,5 @@ Interpretation note:
 - Any gate change requires RFC in owning repo or PPD if cross-cutting.
 - Architecture-impacting test strategy changes must update:
   - this standard
-  - `Platform Integration Architecture Bible.md`
+  - `docs/architecture/Platform Integration Architecture Bible.md`
   - `platform-contracts/cross-cutting-platform-contract.yaml`

@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers |
 | Depends On | RFC-0071; RFC-0072; RFC-0079; RFC-0084; RFC-0085; RFC-0086 |
-| Related Standards | `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0079-gateway-evidence-and-lineage-contract.md`; `RFC-0084-mesh-governance.md`; `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`; `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`; `Platform Observability Standards.md` |
+| Related Standards | `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0079-gateway-evidence-and-lineage-contract.md`; `RFC-0084-mesh-governance.md`; `RFC-0085-gateway-governed-domain-product-publication-and-trust-contracts.md`; `RFC-0086-repo-native-domain-product-onboarding-and-federated-rollout.md`; `docs/standards/Platform Observability Standards.md` |
 | Scope | Cross-repo |
 
 ## Executive Summary
@@ -84,7 +84,7 @@ than backed by a shared live trust telemetry plane.
 
 Evidence:
 
-1. `Platform Observability Standards.md`
+1. `docs/standards/Platform Observability Standards.md`
 2. `rfcs/RFC-0079-gateway-evidence-and-lineage-contract.md`
 3. `rfcs/RFC-0081-slice-11-performance-accessibility-and-operability-hardening-evidence.md`
 
@@ -331,7 +331,7 @@ Reviewed evidence includes:
 11. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
 12. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
 13. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
-14. `Platform Observability Standards.md`
+14. `docs/standards/Platform Observability Standards.md`
 15. `rfcs/RFC-0079-gateway-evidence-and-lineage-contract.md`
 
 Current cross-repo proof:

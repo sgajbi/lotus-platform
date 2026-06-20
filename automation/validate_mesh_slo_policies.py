@@ -52,6 +52,150 @@ def load_mesh_slo_policies(
     return policies
 
 
+def _validate_mesh_slo_product_id(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    products_by_id: dict[str, dict[str, Any]],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> tuple[str | None, dict[str, Any] | None]:
+    product_id = payload.get("product_id")
+    if not isinstance(product_id, str) or not product_id:
+        issues.append(f"{path}: product_id must be a non-empty string")
+        return None, None
+    if product_id in seen_product_ids:
+        issues.append(f"{path}: duplicate SLO policy for {product_id}")
+    seen_product_ids.add(product_id)
+
+    product = products_by_id.get(product_id)
+    if product is None:
+        issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
+        return product_id, None
+    return product_id, product
+
+
+def _validate_mesh_slo_contract_identity(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    expected_repository: str,
+    issues: list[str],
+) -> None:
+    if payload.get("contract_id") != "lotus-mesh-slo-policy":
+        issues.append(f"{path}: contract_id must be lotus-mesh-slo-policy")
+    if "RFC-0091" not in payload.get("governed_by_rfcs", []):
+        issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
+    if payload.get("producer_repository") != expected_repository:
+        issues.append(
+            f"{path}: producer_repository must match catalog identity {expected_repository}"
+        )
+
+
+def _validate_mesh_slo_freshness(
+    *, path: Path, payload: dict[str, Any], issues: list[str]
+) -> None:
+    freshness = payload.get("freshness", {})
+    if (
+        not isinstance(freshness, dict)
+        or not isinstance(freshness.get("max_allowed_age_seconds"), int)
+        or freshness.get("max_allowed_age_seconds") < 1
+    ):
+        issues.append(f"{path}: freshness.max_allowed_age_seconds must be >= 1")
+
+
+def _validate_mesh_slo_status_sections(
+    *, path: Path, payload: dict[str, Any], issues: list[str]
+) -> None:
+    for section_name, field_name in (
+        ("completeness", "required_status"),
+        ("reconciliation", "required_status"),
+        ("data_quality", "required_status"),
+    ):
+        section = payload.get(section_name, {})
+        if not isinstance(section, dict) or not isinstance(
+            section.get(field_name), str
+        ):
+            issues.append(f"{path}: {section_name}.{field_name} must be a string")
+        if section.get("violation_severity") not in {"blocking", "advisory"}:
+            issues.append(
+                f"{path}: {section_name}.violation_severity must be blocking or advisory"
+            )
+
+
+def _validate_mesh_slo_lineage(
+    *, path: Path, payload: dict[str, Any], issues: list[str]
+) -> None:
+    lineage = payload.get("lineage", {})
+    if not isinstance(lineage, dict) or not isinstance(
+        lineage.get("lineage_materialized_required"), bool
+    ):
+        issues.append(
+            f"{path}: lineage.lineage_materialized_required must be boolean"
+        )
+    if lineage.get("violation_severity") not in {"blocking", "advisory"}:
+        issues.append(
+            f"{path}: lineage.violation_severity must be blocking or advisory"
+        )
+
+
+def _validate_mesh_slo_escalation(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    expected_repository: str,
+    issues: list[str],
+) -> None:
+    escalation = payload.get("escalation", {})
+    if not isinstance(escalation, dict) or not escalation.get("owner_repository"):
+        issues.append(f"{path}: escalation.owner_repository is required")
+    if (
+        isinstance(escalation, dict)
+        and escalation.get("owner_repository") != expected_repository
+    ):
+        issues.append(
+            f"{path}: escalation.owner_repository must match {expected_repository}"
+        )
+    if not isinstance(escalation, dict) or not escalation.get("remediation"):
+        issues.append(f"{path}: escalation.remediation is required")
+
+
+def _validate_mesh_slo_policy_payload(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    products_by_id: dict[str, dict[str, Any]],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> None:
+    _, product = _validate_mesh_slo_product_id(
+        path=path,
+        payload=payload,
+        products_by_id=products_by_id,
+        seen_product_ids=seen_product_ids,
+        issues=issues,
+    )
+    if product is None:
+        return
+
+    expected_repository = product["producer_repository"]
+    _validate_mesh_slo_contract_identity(
+        path=path,
+        payload=payload,
+        expected_repository=expected_repository,
+        issues=issues,
+    )
+    _validate_mesh_slo_freshness(path=path, payload=payload, issues=issues)
+    _validate_mesh_slo_status_sections(path=path, payload=payload, issues=issues)
+    _validate_mesh_slo_lineage(path=path, payload=payload, issues=issues)
+    _validate_mesh_slo_escalation(
+        path=path,
+        payload=payload,
+        expected_repository=expected_repository,
+        issues=issues,
+    )
+
+
 def validate_mesh_slo_policies(
     policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
     *,
@@ -72,76 +216,13 @@ def validate_mesh_slo_policies(
             issues.append(f"{path}: invalid JSON: {exc}")
             continue
 
-        product_id = payload.get("product_id")
-        if not isinstance(product_id, str) or not product_id:
-            issues.append(f"{path}: product_id must be a non-empty string")
-            continue
-        if product_id in seen_product_ids:
-            issues.append(f"{path}: duplicate SLO policy for {product_id}")
-        seen_product_ids.add(product_id)
-
-        product = products_by_id.get(product_id)
-        if product is None:
-            issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
-            continue
-
-        expected_repository = product["producer_repository"]
-        if payload.get("contract_id") != "lotus-mesh-slo-policy":
-            issues.append(f"{path}: contract_id must be lotus-mesh-slo-policy")
-        if "RFC-0091" not in payload.get("governed_by_rfcs", []):
-            issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
-        if payload.get("producer_repository") != expected_repository:
-            issues.append(
-                f"{path}: producer_repository must match catalog identity {expected_repository}"
-            )
-
-        freshness = payload.get("freshness", {})
-        if (
-            not isinstance(freshness, dict)
-            or not isinstance(freshness.get("max_allowed_age_seconds"), int)
-            or freshness.get("max_allowed_age_seconds") < 1
-        ):
-            issues.append(f"{path}: freshness.max_allowed_age_seconds must be >= 1")
-
-        for section_name, field_name in (
-            ("completeness", "required_status"),
-            ("reconciliation", "required_status"),
-            ("data_quality", "required_status"),
-        ):
-            section = payload.get(section_name, {})
-            if not isinstance(section, dict) or not isinstance(
-                section.get(field_name), str
-            ):
-                issues.append(f"{path}: {section_name}.{field_name} must be a string")
-            if section.get("violation_severity") not in {"blocking", "advisory"}:
-                issues.append(
-                    f"{path}: {section_name}.violation_severity must be blocking or advisory"
-                )
-
-        lineage = payload.get("lineage", {})
-        if not isinstance(lineage, dict) or not isinstance(
-            lineage.get("lineage_materialized_required"), bool
-        ):
-            issues.append(
-                f"{path}: lineage.lineage_materialized_required must be boolean"
-            )
-        if lineage.get("violation_severity") not in {"blocking", "advisory"}:
-            issues.append(
-                f"{path}: lineage.violation_severity must be blocking or advisory"
-            )
-
-        escalation = payload.get("escalation", {})
-        if not isinstance(escalation, dict) or not escalation.get("owner_repository"):
-            issues.append(f"{path}: escalation.owner_repository is required")
-        if (
-            isinstance(escalation, dict)
-            and escalation.get("owner_repository") != expected_repository
-        ):
-            issues.append(
-                f"{path}: escalation.owner_repository must match {expected_repository}"
-            )
-        if not isinstance(escalation, dict) or not escalation.get("remediation"):
-            issues.append(f"{path}: escalation.remediation is required")
+        _validate_mesh_slo_policy_payload(
+            path=path,
+            payload=payload,
+            products_by_id=products_by_id,
+            seen_product_ids=seen_product_ids,
+            issues=issues,
+        )
 
     for product_id, repository in required_products.items():
         if product_id not in seen_product_ids:
@@ -149,6 +230,128 @@ def validate_mesh_slo_policies(
                 f"{policy_path}: missing required mesh SLO policy for {repository} product {product_id}"
             )
     return issues
+
+
+def _mesh_slo_policy_context(
+    policy_entry: tuple[Path, dict[str, Any]],
+) -> tuple[Path, dict[str, Any], str, dict[str, Any]]:
+    policy_path_for_product, policy = policy_entry
+    return (
+        policy_path_for_product,
+        policy,
+        str(policy.get("producer_repository")),
+        policy.get("escalation", {}),
+    )
+
+
+def _append_freshness_violation(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    freshness = telemetry.get("freshness", {})
+    freshness_policy = policy.get("freshness", {})
+    age_seconds = (
+        freshness.get("age_seconds") if isinstance(freshness, dict) else None
+    )
+    max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
+    if not isinstance(age_seconds, int) or not isinstance(max_allowed_age_seconds, int):
+        return
+    if age_seconds <= max_allowed_age_seconds:
+        return
+    violations.append(
+        _violation(
+            code="mesh_slo_freshness_violation",
+            product_id=product_id,
+            producer_repository=producer_repository,
+            severity=_severity(freshness_policy),
+            detail=(
+                f"Telemetry age {age_seconds}s exceeds SLO "
+                f"{max_allowed_age_seconds}s."
+            ),
+            telemetry_path=telemetry_path,
+            policy_path=policy_path,
+            escalation=escalation,
+        )
+    )
+
+
+def _append_status_violations(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    for section_name, telemetry_field, code in (
+        (
+            "completeness",
+            "completeness_status",
+            "mesh_slo_completeness_violation",
+        ),
+        (
+            "reconciliation",
+            "reconciliation_status",
+            "mesh_slo_reconciliation_violation",
+        ),
+        ("data_quality", "data_quality_status", "mesh_slo_data_quality_violation"),
+    ):
+        _append_status_violation(
+            violations,
+            telemetry=telemetry,
+            telemetry_path=telemetry_path,
+            policy=policy,
+            policy_path=policy_path,
+            product_id=product_id,
+            producer_repository=producer_repository,
+            section_name=section_name,
+            telemetry_field=telemetry_field,
+            code=code,
+            escalation=escalation,
+        )
+
+
+def _append_lineage_violation(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    lineage_policy = policy.get("lineage", {})
+    lineage = telemetry.get("lineage", {})
+    if (
+        isinstance(lineage_policy, dict)
+        and lineage_policy.get("lineage_materialized_required") is True
+        and isinstance(lineage, dict)
+        and lineage.get("lineage_materialized") is not True
+    ):
+        violations.append(
+            _violation(
+                code="mesh_slo_lineage_violation",
+                product_id=product_id,
+                producer_repository=producer_repository,
+                severity=_severity(lineage_policy),
+                detail="Lineage is not materialized but the SLO requires it.",
+                telemetry_path=telemetry_path,
+                policy_path=policy_path,
+                escalation=escalation,
+            )
+        )
 
 
 def evaluate_mesh_slo_violations(
@@ -164,35 +367,14 @@ def evaluate_mesh_slo_violations(
         policy_entry = policies.get(product_id)
         if policy_entry is None:
             continue
-        policy_path_for_product, policy = policy_entry
-        producer_repository = str(policy.get("producer_repository"))
-        escalation = policy.get("escalation", {})
+        (
+            policy_path_for_product,
+            policy,
+            producer_repository,
+            escalation,
+        ) = _mesh_slo_policy_context(policy_entry)
 
-        freshness = telemetry.get("freshness", {})
-        freshness_policy = policy.get("freshness", {})
-        age_seconds = (
-            freshness.get("age_seconds") if isinstance(freshness, dict) else None
-        )
-        max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
-        if isinstance(age_seconds, int) and isinstance(max_allowed_age_seconds, int):
-            if age_seconds > max_allowed_age_seconds:
-                violations.append(
-                    _violation(
-                        code="mesh_slo_freshness_violation",
-                        product_id=product_id,
-                        producer_repository=producer_repository,
-                        severity=_severity(freshness_policy),
-                        detail=(
-                            f"Telemetry age {age_seconds}s exceeds SLO "
-                            f"{max_allowed_age_seconds}s."
-                        ),
-                        telemetry_path=telemetry_path,
-                        policy_path=policy_path_for_product,
-                        escalation=escalation,
-                    )
-                )
-
-        _append_status_violation(
+        _append_freshness_violation(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -200,12 +382,9 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="completeness",
-            telemetry_field="completeness_status",
-            code="mesh_slo_completeness_violation",
             escalation=escalation,
         )
-        _append_status_violation(
+        _append_status_violations(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -213,12 +392,9 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="reconciliation",
-            telemetry_field="reconciliation_status",
-            code="mesh_slo_reconciliation_violation",
             escalation=escalation,
         )
-        _append_status_violation(
+        _append_lineage_violation(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -226,32 +402,8 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="data_quality",
-            telemetry_field="data_quality_status",
-            code="mesh_slo_data_quality_violation",
             escalation=escalation,
         )
-
-        lineage_policy = policy.get("lineage", {})
-        lineage = telemetry.get("lineage", {})
-        if (
-            isinstance(lineage_policy, dict)
-            and lineage_policy.get("lineage_materialized_required") is True
-            and isinstance(lineage, dict)
-            and lineage.get("lineage_materialized") is not True
-        ):
-            violations.append(
-                _violation(
-                    code="mesh_slo_lineage_violation",
-                    product_id=product_id,
-                    producer_repository=producer_repository,
-                    severity=_severity(lineage_policy),
-                    detail="Lineage is not materialized but the SLO requires it.",
-                    telemetry_path=telemetry_path,
-                    policy_path=policy_path_for_product,
-                    escalation=escalation,
-                )
-            )
     return violations
 
 

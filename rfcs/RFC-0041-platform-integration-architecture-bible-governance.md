@@ -15,7 +15,7 @@
 
 ## 1. Summary
 
-Adopt `Platform Integration Architecture Bible.md` as the central guiding principle for platform-wide architecture and integration decisions.
+Adopt `docs/architecture/Platform Integration Architecture Bible.md` as the central guiding principle for platform-wide architecture and integration decisions.
 
 ## 2. Decision
 

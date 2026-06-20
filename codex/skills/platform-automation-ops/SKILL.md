@@ -144,7 +144,7 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
 - Keep documentation updates in `lotus-platform` synchronized with script behavior.
 - When automation script behavior changes, update:
   - `automation/README.md`
-  - `Local Development Runbook.md`
+  - `docs/operations/Local Development Runbook.md`
   - this skill reference file if command flow changed
   - heartbeat context/wiki guidance when RFC-0095 operator behavior changes
   - delegation context/wiki guidance when RFC-0096 operating behavior changes

@@ -12,7 +12,7 @@ This standard covers item 10 (data model standards) and item 11 (migration frame
    - lotus-report owns reporting and aggregation contract model.
    - lotus-gateway/lotus-gateway owns response-shaping contracts only (no core business persistence).
 3. No shared database across services.
-4. Canonical terminology must match `Domain Vocabulary Glossary.md`.
+4. Canonical terminology must match `docs/standards/Domain Vocabulary Glossary.md`.
 
 ## Migration Contract Standard
 

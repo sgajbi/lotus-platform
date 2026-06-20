@@ -490,6 +490,13 @@ Lotus engineering is expected to be:
 7. observable,
 8. production-ready.
 
+The standing enterprise quality bar is
+`platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`. Agents should use it as the
+default non-degradation standard for Lotus app work, not only when a user explicitly says
+"refactor" or "enterprise-grade". The enterprise backend refactoring instructions provide the
+measurement-heavy execution path for large refactors; the bank-buyable contract provides the
+always-on control taxonomy for everyday slices.
+
 ### Required delivery posture
 
 Always:
@@ -662,6 +669,14 @@ policy-immature metrics report-only until false positives, exceptions, and lane 
 settled. When a repeatable enforcement pattern is learned, update platform-owned skills, routing
 context, and local agent artifacts through the bootstrap/validation automation rather than
 hand-editing local skill copies as the source of truth.
+
+For enterprise backend refactors in `lotus-platform`, start from
+`automation/generate_enterprise_backend_quality_baseline.py --write --check` and the measured
+artifacts under `quality/`. Treat `quality/baseline_report.md`,
+`quality/quality_scorecard.md`, and `quality/refactor_health_report.md` as the durable before/after
+evidence trail. When a slice changes repo organization, gate posture, commands, documentation truth,
+or agent workflow, update README, wiki source, `REPOSITORY-ENGINEERING-CONTEXT.md`, central context,
+and the relevant platform-owned skill source in the same slice.
 
 When a repeatable pattern emerges:
 

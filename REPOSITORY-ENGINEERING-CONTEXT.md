@@ -37,6 +37,27 @@ Current repository posture:
 6. `platform-stack` includes production-like local persistence dependencies for orchestrated
    services where readiness requires them, including `lotus-report-postgres` for `lotus-report`
    report-job and batch ledger readiness.
+7. The enterprise backend refactor baseline foundation is active. The report-only generator
+   `automation/generate_enterprise_backend_quality_baseline.py` writes measured quality artifacts
+   under `quality/`, including `baseline_report.md`, `baseline_report.json`,
+   `quality_scorecard.md`, `refactor_health_report.md`, architecture/API/CI/security rule pages,
+   and a refactor decision log. `automation/Invoke-PlatformRepoChecks.ps1` validates the quality
+   reporting surface through `--check`.
+8. New FastAPI service scaffolds created by `automation/New-Lotus-Service.ps1` now include
+   bank-buyable quality defaults: `quality/quality_scorecard.md`, architecture rules,
+   CI-quality-gate notes, refactor decisions, README/repo-context/wiki references, and the
+   existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
+   observability, health/readiness, and workflow baseline gates.
+9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
+   `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
+   supports `-CheckOnly` drift detection for app-local deployed copies under
+   `docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md`. Its default backend scope is
+   resolved from `automation/repos.json`; use `-Repositories` only for bounded rollout slices.
+10. `automation/generate_automation_inventory.py` writes `quality/automation_inventory.*` so cleanup
+    work can separate genuinely dead automation from under-documented but maintained scripts.
+11. Durable standards, runbooks, architecture notes, reports, onboarding, and archived legacy mirrors
+    live under `docs/` with [docs/README.md](./docs/README.md) as the index. Repo-root Markdown is
+    intentionally limited to `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
 ## Architecture And Module Map
 
@@ -61,17 +82,24 @@ Primary areas:
    Platform and ecosystem RFCs.
 7. `context/`
    The central context system introduced by RFC-0073.
-8. `tests/unit/`
+8. `docs/`
+   Durable standards, architecture notes, operations runbooks, onboarding, reports, documentation
+   governance, and archived legacy mirrors.
+9. `tests/unit/`
    Contract tests for platform validators, automation, standards, and documentation governance.
-9. `wiki/`
+10. `wiki/`
    canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
-10. `docs/documentation/`
+11. `docs/documentation/`
    deep documentation governance and layering guidance for Lotus documentation surfaces.
-11. `thought-leadership/`
+12. `thought-leadership/`
    non-product personal-brand content workflows, including LinkedIn thought-leadership drafts,
    ledgers, themes, and voice guidance. This area preserves drafting memory for authentic,
    non-confidential, Lotus-adjacent professional content and must not be treated as product truth,
    customer evidence, or platform marketing material.
+13. `quality/`
+   enterprise backend refactor baseline, scorecard, quality gate rules, security findings tracker,
+   and refactor decision log. This is measured refactor evidence and planning truth, not generated
+   product output.
 
 ## Runtime And Integration Boundaries
 
@@ -236,48 +264,60 @@ Use these commands as the primary local contract:
    `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
 4. platform validation lane
    `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
-5. targeted unit contract tests
+5. platform demo-readiness certification, report-only in CI until governance promotion
+   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
+6. targeted unit contract tests
    `python -m pytest tests/unit -q`
-6. domain-product discovery artifact generation
+7. domain-product discovery artifact generation
    `python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z`
-7. domain-product discovery self-serve query
+8. domain-product discovery self-serve query
    `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
-8. domain-product trust certification artifact generation
+9. domain-product trust certification artifact generation
    `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
-9. trust telemetry snapshot validation
+10. trust telemetry snapshot validation
    `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
-10. live trust certification generation
+11. live trust certification generation
    `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
-11. mesh certification gate, platform-only advisory smoke
+12. mesh certification gate, platform-only advisory smoke
    `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
-12. mesh certification gate, local blocking proof with sibling repos
+13. mesh certification gate, local blocking proof with sibling repos
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
-13. GitHub cross-repo mesh certification gate
+14. GitHub cross-repo mesh certification gate
    `.github/workflows/mesh-certification-gate.yml`
-14. enterprise mesh maturity matrix generation
+15. enterprise mesh maturity matrix generation
    `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
-15. enterprise mesh maturity matrix freshness check
+16. enterprise mesh maturity matrix freshness check
    `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
-16. domain-product onboarding bundle scaffold
+17. domain-product onboarding bundle scaffold
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
-17. domain-product onboarding bundle check
+18. domain-product onboarding bundle check
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
-18. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
+19. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
    `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
-19. mesh SLO policy validation
+20. mesh SLO policy validation
    `python automation/validate_mesh_slo_policies.py`
-20. mesh access policy validation
+21. mesh access policy validation
    `python automation/validate_mesh_access_policies.py`
-21. mesh evidence pack generation
+22. mesh evidence pack generation
    `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
-22. enterprise mesh operating report generation
+23. enterprise mesh operating report generation
    `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
-23. agent engineering contract validation
+24. agent engineering contract validation
    `python automation/validate_agent_engineering_contracts.py`
-24. delegated task ledger create/update/review helper
+25. delegated task ledger create/update/review helper
    `python automation/delegation_task_ledger.py --help`
-25. heartbeat contract validation
+26. heartbeat contract validation
    `python automation/validate_heartbeat_contracts.py`
+27. enterprise backend quality baseline generation and surface validation
+   `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
+28. enterprise backend refactoring instruction copy drift check
+   `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
+29. automation discoverability inventory generation and surface validation
+   `python automation/generate_automation_inventory.py --write --check`
+30. supported-claim register validation
+   `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
+31. rounding governance compliance matrix generation
+   `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
 
 ## Validation And CI Expectations
 
@@ -309,8 +349,8 @@ Most relevant current governance:
 1. [RFC-0071](./rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
 2. [RFC-0072](./rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
 3. [RFC-0073](./rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
-4. [Continuous Integration, Validation, and Release Governance Standard](./Continuous%20Integration%2C%20Validation%20and%20Release%20Governance%20Standard.md)
-5. [Platform Integration Architecture Bible](./Platform%20Integration%20Architecture%20Bible.md)
+4. [Continuous Integration, Validation, and Release Governance Standard](./docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
+5. [Platform Integration Architecture Bible](./docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
 
 ## Known Constraints And Implementation Notes
 
@@ -323,6 +363,11 @@ Most relevant current governance:
    repo docs must speak in current Lotus vocabulary and current architecture.
 6. New-service scaffold changes should be centralized in `automation/New-Lotus-Service.ps1` and
    protected by scaffold contract tests rather than copied into individual service repositories.
+7. Enterprise refactor quality artifacts under `quality/` must remain synchronized with README,
+   wiki, repo context, central context, and skill guidance whenever a quality signal moves from
+   report-only to a blocking gate or the baseline measurement scope changes.
+8. New-service scaffold changes should keep the bank-buyable defaults current so new Lotus apps do
+   not start below the enterprise quality bar.
 
 ## Context Maintenance Rule
 

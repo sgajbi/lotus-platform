@@ -11,7 +11,9 @@ def test_ingress_status_explainer_is_documented_in_operator_guides() -> None:
 
     automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
     automation_guide = (ROOT / "automation" / "docs" / "Automation-Guide.md").read_text(encoding="utf-8")
-    local_runbook = (ROOT / "Local Development Runbook.md").read_text(encoding="utf-8")
+    local_runbook = (
+        ROOT / "docs" / "operations" / "Local Development Runbook.md"
+    ).read_text(encoding="utf-8")
     platform_stack_readme = (ROOT / "platform-stack" / "README.md").read_text(encoding="utf-8")
 
     assert expected_snippet in automation_readme

@@ -177,6 +177,57 @@ def upsert_delegated_task(
     return entry
 
 
+def _find_delegated_task_entry(
+    ledger: list[dict[str, Any]],
+    engineering_task_id: str,
+) -> dict[str, Any]:
+    for entry in ledger:
+        if entry.get("engineering_task_id") == engineering_task_id:
+            return entry
+    raise ValueError(f"delegated task not found: {engineering_task_id}")
+
+
+def _apply_running_status(entry: dict[str, Any], status: str) -> None:
+    if status == "RUNNING" and not entry.get("started_at"):
+        entry["started_at"] = _utc_now()
+
+
+def _apply_terminal_status(
+    entry: dict[str, Any],
+    status: str,
+    ended_at: str | None,
+) -> None:
+    if status in TERMINAL_STATES:
+        entry["ended_at"] = ended_at or _utc_now()
+
+
+def _apply_failure_status(
+    entry: dict[str, Any],
+    status: str,
+    error_summary: str | None,
+) -> None:
+    if status not in {"FAILED", "TIMED_OUT", "CANCELLED", "LOST"}:
+        return
+    if not error_summary:
+        raise ValueError(f"error_summary is required for {status}")
+    entry["error_summary"] = error_summary
+
+
+def _apply_superseded_status(
+    entry: dict[str, Any],
+    status: str,
+    superseded_by_task_id: str | None,
+    error_summary: str | None,
+) -> None:
+    if status != "SUPERSEDED":
+        return
+    if not superseded_by_task_id:
+        raise ValueError("superseded_by_task_id is required for SUPERSEDED")
+    entry["superseded_by_task_id"] = superseded_by_task_id
+    entry["cleanup_state"] = "SUPERSEDED"
+    entry["error_summary"] = error_summary
+
+
 def update_delegated_task_status(
     *,
     ledger_path: Path,
@@ -191,27 +242,77 @@ def update_delegated_task_status(
     if ended_at is not None:
         _validate_utc_timestamp(ended_at, "ended_at")
     ledger = _load_ledger(ledger_path)
-    for entry in ledger:
-        if entry.get("engineering_task_id") != engineering_task_id:
+    entry = _find_delegated_task_entry(ledger, engineering_task_id)
+    entry["status"] = status
+    _apply_running_status(entry, status)
+    _apply_terminal_status(entry, status, ended_at)
+    _apply_failure_status(entry, status, error_summary)
+    _apply_superseded_status(entry, status, superseded_by_task_id, error_summary)
+    _write_json(ledger_path, ledger)
+    return entry
+
+
+def _validate_required_output_fields(
+    output: dict[str, Any],
+    errors: list[str],
+) -> None:
+    for field in REQUIRED_DELEGATION_OUTPUT_FIELDS:
+        if field not in output:
+            errors.append(f"delegation output missing {field}")
+
+
+def _validate_output_write_scope(
+    *,
+    errors: list[str],
+    files_changed: list[object],
+    write_scope: object,
+) -> None:
+    if write_scope == "none" and files_changed:
+        errors.append("no-write delegated work must not return changed files")
+        return
+
+    if not isinstance(write_scope, list):
+        return
+
+    allowed_prefixes = _as_string_list(write_scope)
+    for changed_file in _as_string_list(files_changed):
+        if changed_file in allowed_prefixes or any(
+            changed_file.startswith(f"{prefix.rstrip('/')}/")
+            for prefix in allowed_prefixes
+        ):
             continue
-        entry["status"] = status
-        if status == "RUNNING" and not entry.get("started_at"):
-            entry["started_at"] = _utc_now()
-        if status in TERMINAL_STATES:
-            entry["ended_at"] = ended_at or _utc_now()
-        if status in {"FAILED", "TIMED_OUT", "CANCELLED", "LOST"}:
-            if not error_summary:
-                raise ValueError(f"error_summary is required for {status}")
-            entry["error_summary"] = error_summary
-        if status == "SUPERSEDED":
-            if not superseded_by_task_id:
-                raise ValueError("superseded_by_task_id is required for SUPERSEDED")
-            entry["superseded_by_task_id"] = superseded_by_task_id
-            entry["cleanup_state"] = "SUPERSEDED"
-            entry["error_summary"] = error_summary
-        _write_json(ledger_path, ledger)
-        return entry
-    raise ValueError(f"delegated task not found: {engineering_task_id}")
+        errors.append(f"changed file outside delegated write_scope: {changed_file}")
+
+
+def _validate_output_evidence_refs(
+    output: dict[str, Any],
+    errors: list[str],
+) -> None:
+    evidence_refs = output.get("evidence_refs")
+    if not isinstance(evidence_refs, list) or not evidence_refs:
+        errors.append("delegation output evidence_refs must be a non-empty list")
+        return
+
+    for index, evidence_ref in enumerate(evidence_refs):
+        if not isinstance(evidence_ref, dict):
+            errors.append(f"delegation output evidence_refs[{index}] must be an object")
+            continue
+        ref_type = evidence_ref.get("type")
+        if ref_type not in REQUIRED_EVIDENCE_REF_TYPES:
+            errors.append(f"delegation output evidence_refs[{index}].type must be governed")
+        has_ref = isinstance(evidence_ref.get("ref"), str) and evidence_ref["ref"].strip()
+        has_path = isinstance(evidence_ref.get("path"), str) and evidence_ref["path"].strip()
+        if not has_ref and not has_path:
+            errors.append(f"delegation output evidence_refs[{index}] must include ref or path")
+
+
+def _validate_output_follow_up(
+    output: dict[str, Any],
+    errors: list[str],
+) -> None:
+    follow_up = output.get("follow_up_required")
+    if not isinstance(follow_up, str) or not follow_up.strip():
+        errors.append("delegation output follow_up_required must be a non-empty string")
 
 
 def validate_delegation_output(
@@ -220,9 +321,7 @@ def validate_delegation_output(
     write_scope: object,
 ) -> list[str]:
     errors: list[str] = []
-    for field in REQUIRED_DELEGATION_OUTPUT_FIELDS:
-        if field not in output:
-            errors.append(f"delegation output missing {field}")
+    _validate_required_output_fields(output, errors)
 
     if output.get("unrelated_work_preserved") is not True:
         errors.append("delegation output must confirm unrelated_work_preserved=true")
@@ -232,48 +331,18 @@ def validate_delegation_output(
         errors.append("delegation output files_changed must be a list")
         files_changed = []
 
-    if write_scope == "none" and files_changed:
-        errors.append("no-write delegated work must not return changed files")
-    elif isinstance(write_scope, list):
-        allowed_prefixes = _as_string_list(write_scope)
-        for changed_file in _as_string_list(files_changed):
-            if changed_file not in allowed_prefixes and not any(
-                changed_file.startswith(f"{prefix.rstrip('/')}/")
-                for prefix in allowed_prefixes
-            ):
-                errors.append(f"changed file outside delegated write_scope: {changed_file}")
+    _validate_output_write_scope(
+        errors=errors,
+        files_changed=files_changed,
+        write_scope=write_scope,
+    )
 
     checks_run = output.get("checks_run")
     if not isinstance(checks_run, list) or not checks_run:
         errors.append("delegation output checks_run must be a non-empty list")
 
-    evidence_refs = output.get("evidence_refs")
-    if not isinstance(evidence_refs, list) or not evidence_refs:
-        errors.append("delegation output evidence_refs must be a non-empty list")
-    else:
-        for index, evidence_ref in enumerate(evidence_refs):
-            if not isinstance(evidence_ref, dict):
-                errors.append(f"delegation output evidence_refs[{index}] must be an object")
-                continue
-            ref_type = evidence_ref.get("type")
-            if ref_type not in REQUIRED_EVIDENCE_REF_TYPES:
-                errors.append(
-                    f"delegation output evidence_refs[{index}].type must be governed"
-                )
-            if not (
-                isinstance(evidence_ref.get("ref"), str)
-                and evidence_ref["ref"].strip()
-            ) and not (
-                isinstance(evidence_ref.get("path"), str)
-                and evidence_ref["path"].strip()
-            ):
-                errors.append(
-                    f"delegation output evidence_refs[{index}] must include ref or path"
-                )
-
-    follow_up = output.get("follow_up_required")
-    if not isinstance(follow_up, str) or not follow_up.strip():
-        errors.append("delegation output follow_up_required must be a non-empty string")
+    _validate_output_evidence_refs(output, errors)
+    _validate_output_follow_up(output, errors)
     return errors
 
 

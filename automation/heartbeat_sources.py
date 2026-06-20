@@ -361,6 +361,146 @@ def _normalize_pulls(value: Any) -> list[dict[str, Any]]:
     return []
 
 
+def _github_entries(payload: dict[str, Any] | list[Any] | None) -> list[Any]:
+    return payload if isinstance(payload, list) else []
+
+
+def _append_github_query_error_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    source_errors: list[dict[str, Any]],
+    repo: str,
+    query_error: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    repo_name = repo.split("/")[-1]
+    source_errors.append(
+        _source_read_error(
+            source_system="github",
+            source_ref=repo,
+            error_summary=str(query_error),
+            evidence_refs=evidence_refs,
+        )
+    )
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=repo,
+            repository=repo_name,
+            condition="github_pr_query_error",
+            severity="action_required",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Regenerate PR monitor evidence for {repo}.",
+        )
+    )
+
+
+def _github_failing_checks(pr: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        check
+        for check in _normalize_pulls(pr.get("checks"))
+        if str(check.get("state", "")).upper() in {"FAILURE", "ERROR"}
+    ]
+
+
+def _append_github_failing_check_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    repo_name: str,
+    pr_ref: str,
+    pr_number: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    if not pr.get("hasFailingChecks") and not _github_failing_checks(pr):
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=pr_ref,
+            repository=repo_name,
+            condition="github_pr_check_failed",
+            severity="action_required",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Inspect failing GitHub checks for {repo} PR #{pr_number}.",
+            pr_number=pr_number if isinstance(pr_number, int) else None,
+        )
+    )
+
+
+def _append_github_stale_pr_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    repo_name: str,
+    pr_ref: str,
+    pr_number: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: float,
+) -> None:
+    age = _age_hours(generated_at_utc, pr.get("updatedAt"))
+    if age is None or age <= stale_hours:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=pr_ref,
+            repository=repo_name,
+            condition="github_pr_stale",
+            severity="warning",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Review stale PR #{pr_number} in {repo}.",
+            pr_number=pr_number if isinstance(pr_number, int) else None,
+        )
+    )
+
+
+def _collect_github_pr_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: float,
+) -> None:
+    pr_number = pr.get("number")
+    pr_ref = str(pr.get("url") or f"{repo}#{pr_number}")
+    repo_name = repo.split("/")[-1]
+    _append_github_failing_check_attention(
+        attention_items=attention_items,
+        pr=pr,
+        repo=repo,
+        repo_name=repo_name,
+        pr_ref=pr_ref,
+        pr_number=pr_number,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
+    _append_github_stale_pr_attention(
+        attention_items=attention_items,
+        pr=pr,
+        repo=repo,
+        repo_name=repo_name,
+        pr_ref=pr_ref,
+        pr_number=pr_number,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        stale_hours=stale_hours,
+    )
+
+
 def _github_adapter(
     *,
     config: dict[str, Any],
@@ -381,76 +521,30 @@ def _github_adapter(
     attention_items: list[dict[str, Any]] = []
     source_errors: list[dict[str, Any]] = []
     stale_hours = _threshold(config, "stale_pr_review_hours", 48)
-    entries = payload if isinstance(payload, list) else []
-    for entry in entries:
+    for entry in _github_entries(payload):
         if not isinstance(entry, dict):
             continue
         repo = str(entry.get("repo") or repository)
         query_error = entry.get("query_error")
         if query_error:
-            source_errors.append(
-                _source_read_error(
-                    source_system="github",
-                    source_ref=repo,
-                    error_summary=str(query_error),
-                    evidence_refs=evidence_refs,
-                )
-            )
-            attention_items.append(
-                _attention_item(
-                    source_system="github",
-                    source_ref=repo,
-                    repository=repo.split("/")[-1],
-                    condition="github_pr_query_error",
-                    severity="action_required",
-                    owner=repo.split("/")[-1],
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=f"Regenerate PR monitor evidence for {repo}.",
-                )
+            _append_github_query_error_attention(
+                attention_items=attention_items,
+                source_errors=source_errors,
+                repo=repo,
+                query_error=query_error,
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
             )
             continue
         for pr in _normalize_pulls(entry.get("pulls")):
-            pr_number = pr.get("number")
-            pr_ref = str(pr.get("url") or f"{repo}#{pr_number}")
-            repo_name = repo.split("/")[-1]
-            checks = _normalize_pulls(pr.get("checks"))
-            failing_checks = [
-                check
-                for check in checks
-                if str(check.get("state", "")).upper() in {"FAILURE", "ERROR"}
-            ]
-            if pr.get("hasFailingChecks") or failing_checks:
-                attention_items.append(
-                    _attention_item(
-                        source_system="github",
-                        source_ref=pr_ref,
-                        repository=repo_name,
-                        condition="github_pr_check_failed",
-                        severity="action_required",
-                        owner=repo_name,
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Inspect failing GitHub checks for {repo} PR #{pr_number}.",
-                        pr_number=pr_number if isinstance(pr_number, int) else None,
-                    )
-                )
-            age = _age_hours(generated_at_utc, pr.get("updatedAt"))
-            if age is not None and age > stale_hours:
-                attention_items.append(
-                    _attention_item(
-                        source_system="github",
-                        source_ref=pr_ref,
-                        repository=repo_name,
-                        condition="github_pr_stale",
-                        severity="warning",
-                        owner=repo_name,
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Review stale PR #{pr_number} in {repo}.",
-                        pr_number=pr_number if isinstance(pr_number, int) else None,
-                    )
-                )
+            _collect_github_pr_attention(
+                attention_items=attention_items,
+                pr=pr,
+                repo=repo,
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                stale_hours=stale_hours,
+            )
 
     read_status = "error" if source_errors else "healthy"
     return (
@@ -463,6 +557,124 @@ def _github_adapter(
         ),
         attention_items,
         source_errors,
+    )
+
+
+def _background_run_records(payload: dict[str, Any] | list[Any] | None) -> list[Any]:
+    return payload if isinstance(payload, list) else []
+
+
+def _background_run_identity(
+    *,
+    run: dict[str, Any],
+    repository: str,
+    path: Path,
+) -> tuple[str, str, str, str]:
+    task_id = str(run.get("engineering_task_id") or run.get("runId") or "unknown")
+    source_ref = f"{_display_path(path)}#{task_id}"
+    run_repository = str(run.get("repository") or repository)
+    owner = str(run.get("owner") or repository)
+    return task_id, source_ref, run_repository, owner
+
+
+def _append_failed_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    status: str,
+    task_id: str,
+    source_ref: str,
+    run_repository: str,
+    owner: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    if status not in {"FAILED", "TIMED_OUT", "LOST"}:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="background_run_ledger",
+            source_ref=source_ref,
+            repository=run_repository,
+            condition="background_run_failed",
+            severity="blocking" if status == "LOST" else "action_required",
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Inspect background run `{task_id}` with status `{status}`.",
+        )
+    )
+
+
+def _append_stale_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    run: dict[str, Any],
+    status: str,
+    task_id: str,
+    source_ref: str,
+    run_repository: str,
+    owner: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: int,
+) -> None:
+    if status not in {"RUNNING", "QUEUED"}:
+        return
+    age = _age_hours(generated_at_utc, run.get("started_at") or run.get("startedAt"))
+    if age is None or age <= stale_hours:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="background_run_ledger",
+            source_ref=source_ref,
+            repository=run_repository,
+            condition="background_run_stale",
+            severity="warning",
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Refresh or cancel stale background run `{task_id}`.",
+        )
+    )
+
+
+def _collect_background_run_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    run: dict[str, Any],
+    repository: str,
+    path: Path,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: int,
+) -> None:
+    status = str(run.get("status", "")).upper()
+    task_id, source_ref, run_repository, owner = _background_run_identity(
+        run=run,
+        repository=repository,
+        path=path,
+    )
+    _append_failed_background_run_attention(
+        attention_items=attention_items,
+        status=status,
+        task_id=task_id,
+        source_ref=source_ref,
+        run_repository=run_repository,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
+    _append_stale_background_run_attention(
+        attention_items=attention_items,
+        run=run,
+        status=status,
+        task_id=task_id,
+        source_ref=source_ref,
+        run_repository=run_repository,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        stale_hours=stale_hours,
     )
 
 
@@ -487,43 +699,18 @@ def _background_run_ledger_adapter(
     evidence_refs = [_evidence_ref("LOCAL_JSON_ARTIFACT", _display_path(path))]
     attention_items: list[dict[str, Any]] = []
     stale_hours = _threshold(config, "stale_background_run_hours", 6)
-    runs = payload if isinstance(payload, list) else []
-    for run in runs:
+    for run in _background_run_records(payload):
         if not isinstance(run, dict):
             continue
-        status = str(run.get("status", "")).upper()
-        task_id = str(run.get("engineering_task_id") or run.get("runId") or "unknown")
-        source_ref = f"{_display_path(path)}#{task_id}"
-        if status in {"FAILED", "TIMED_OUT", "LOST"}:
-            attention_items.append(
-                _attention_item(
-                    source_system="background_run_ledger",
-                    source_ref=source_ref,
-                    repository=str(run.get("repository") or repository),
-                    condition="background_run_failed",
-                    severity="blocking" if status == "LOST" else "action_required",
-                    owner=str(run.get("owner") or repository),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=f"Inspect background run `{task_id}` with status `{status}`.",
-                )
-            )
-        if status in {"RUNNING", "QUEUED"}:
-            age = _age_hours(generated_at_utc, run.get("started_at") or run.get("startedAt"))
-            if age is not None and age > stale_hours:
-                attention_items.append(
-                    _attention_item(
-                        source_system="background_run_ledger",
-                        source_ref=source_ref,
-                        repository=str(run.get("repository") or repository),
-                        condition="background_run_stale",
-                        severity="warning",
-                        owner=str(run.get("owner") or repository),
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Refresh or cancel stale background run `{task_id}`.",
-                    )
-                )
+        _collect_background_run_attention(
+            attention_items=attention_items,
+            run=run,
+            repository=repository,
+            path=path,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            stale_hours=stale_hours,
+        )
 
     return (
         _source_inventory(
@@ -554,6 +741,194 @@ def _write_scopes_overlap(left: object, right: object) -> bool:
     return False
 
 
+def _append_delegated_task_attention(
+    attention_items: list[dict[str, Any]],
+    *,
+    source_ref: str,
+    task_repository: str,
+    condition: str,
+    severity: str,
+    owner: str,
+    generated_at_utc: str,
+    task_evidence: list[dict[str, Any]],
+    action: str,
+    task_id: str,
+    scope: dict[str, Any],
+    profile: str,
+) -> None:
+    item = _attention_item(
+        source_system="delegated_task_ledger",
+        source_ref=source_ref,
+        repository=task_repository,
+        condition=condition,
+        severity=severity,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=task_evidence,
+        recommended_next_action=action,
+    )
+    item["engineering_task_id"] = task_id
+    item["parent_engineering_task_id"] = str(scope.get("parent_engineering_task_id") or "")
+    item["delegation_profile"] = profile
+    if "write_scope" in scope:
+        item["write_scope"] = scope["write_scope"]
+    attention_items.append(item)
+
+
+def _collect_delegated_task_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    task: dict[str, Any],
+    task_id: str,
+    task_repository: str,
+    source_ref: str,
+    owner: str,
+    generated_at_utc: str,
+    task_evidence: list[dict[str, Any]],
+    scope: dict[str, Any],
+    profile: str,
+    stale_hours: int,
+) -> bool:
+    status = str(task.get("status") or "").upper()
+    is_active = status in {"QUEUED", "RUNNING"}
+
+    def add_attention(condition: str, severity: str, action: str) -> None:
+        _append_delegated_task_attention(
+            attention_items,
+            source_ref=source_ref,
+            task_repository=task_repository,
+            condition=condition,
+            severity=severity,
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            task_evidence=task_evidence,
+            action=action,
+            task_id=task_id,
+            scope=scope,
+            profile=profile,
+        )
+
+    if status in {"FAILED", "TIMED_OUT"}:
+        add_attention(
+            "delegated_task_failed",
+            "action_required",
+            f"Review delegated task `{task_id}` failure before using its output.",
+        )
+    elif status == "LOST":
+        add_attention(
+            "delegated_task_lost",
+            "blocking",
+            f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
+        )
+
+    if is_active:
+        age = _age_hours(
+            generated_at_utc,
+            task.get("started_at") or task.get("requested_at"),
+        )
+        if age is not None and age > stale_hours:
+            add_attention(
+                "delegated_task_stale",
+                "warning",
+                f"Refresh or cancel stale delegated task `{task_id}`.",
+            )
+
+    if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
+        add_attention(
+            "delegated_task_missing_evidence",
+            "action_required",
+            f"Record return-envelope evidence for delegated task `{task_id}`.",
+        )
+
+    if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
+        add_attention(
+            "delegated_task_unresolved_blocker",
+            "action_required",
+            f"Resolve main-agent review blocker for delegated task `{task_id}`.",
+        )
+
+    return is_active
+
+
+def _append_delegated_task_overlap_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    active_tasks: list[dict[str, Any]],
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, Any]],
+) -> None:
+    for index, left in enumerate(active_tasks):
+        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
+        left_write_scope = left_scope.get("write_scope")
+        if left_write_scope == "none":
+            continue
+        for right in active_tasks[index + 1 :]:
+            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
+            if not _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
+                continue
+            left_id = str(left.get("engineering_task_id") or "unknown-task")
+            right_id = str(right.get("engineering_task_id") or "unknown-task")
+            item = _attention_item(
+                source_system="delegated_task_ledger",
+                source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
+                repository=str(left.get("repository") or repository),
+                condition="delegated_task_write_scope_overlap",
+                severity="action_required",
+                owner=str(left.get("owner") or repository),
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
+                ),
+            )
+            item["engineering_task_id"] = left_id
+            item["related_engineering_task_id"] = right_id
+            item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
+            item["write_scope"] = left_write_scope
+            attention_items.append(item)
+
+
+def _collect_delegated_task_ledger_item(
+    *,
+    attention_items: list[dict[str, Any]],
+    task: Any,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, Any]],
+    ledger_path: Path,
+    stale_hours: int,
+) -> dict[str, Any] | None:
+    if not isinstance(task, dict):
+        return None
+
+    task_id = str(task.get("engineering_task_id") or "unknown-task")
+    source_ref = f"delegated_task:{task_id}"
+    task_repository = str(task.get("repository") or repository)
+    scope = task.get("scope") if isinstance(task.get("scope"), dict) else {}
+    profile = str(scope.get("delegation_profile") or task.get("task_kind") or "")
+    owner = str(task.get("owner") or task_repository)
+    task_evidence = [
+        *evidence_refs,
+        _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(ledger_path)}#{task_id}"),
+    ]
+    if _collect_delegated_task_attention(
+        attention_items=attention_items,
+        task=task,
+        task_id=task_id,
+        task_repository=task_repository,
+        source_ref=source_ref,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        task_evidence=task_evidence,
+        scope=scope,
+        profile=profile,
+        stale_hours=stale_hours,
+    ):
+        return task
+    return None
+
+
 def _delegated_task_ledger_adapter(
     *,
     config: dict[str, Any],
@@ -579,109 +954,25 @@ def _delegated_task_ledger_adapter(
     active_tasks: list[dict[str, Any]] = []
 
     for task in tasks:
-        if not isinstance(task, dict):
-            continue
-        status = str(task.get("status") or "").upper()
-        task_id = str(task.get("engineering_task_id") or "unknown-task")
-        source_ref = f"delegated_task:{task_id}"
-        task_repository = str(task.get("repository") or repository)
-        scope = task.get("scope") if isinstance(task.get("scope"), dict) else {}
-        profile = str(scope.get("delegation_profile") or task.get("task_kind") or "")
-        owner = str(task.get("owner") or task_repository)
-        task_evidence = [
-            *evidence_refs,
-            _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(path)}#{task_id}"),
-        ]
+        active_task = _collect_delegated_task_ledger_item(
+            attention_items=attention_items,
+            task=task,
+            repository=repository,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            ledger_path=path,
+            stale_hours=stale_hours,
+        )
+        if active_task is not None:
+            active_tasks.append(active_task)
 
-        def add_attention(condition: str, severity: str, action: str) -> None:
-            item = _attention_item(
-                source_system="delegated_task_ledger",
-                source_ref=source_ref,
-                repository=task_repository,
-                condition=condition,
-                severity=severity,
-                owner=owner,
-                generated_at_utc=generated_at_utc,
-                evidence_refs=task_evidence,
-                recommended_next_action=action,
-            )
-            item["engineering_task_id"] = task_id
-            item["parent_engineering_task_id"] = str(
-                scope.get("parent_engineering_task_id") or ""
-            )
-            item["delegation_profile"] = profile
-            if "write_scope" in scope:
-                item["write_scope"] = scope["write_scope"]
-            attention_items.append(item)
-
-        if status in {"FAILED", "TIMED_OUT"}:
-            add_attention(
-                "delegated_task_failed",
-                "action_required",
-                f"Review delegated task `{task_id}` failure before using its output.",
-            )
-        elif status == "LOST":
-            add_attention(
-                "delegated_task_lost",
-                "blocking",
-                f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
-            )
-
-        if status in {"QUEUED", "RUNNING"}:
-            active_tasks.append(task)
-            age = _age_hours(
-                generated_at_utc,
-                task.get("started_at") or task.get("requested_at"),
-            )
-            if age is not None and age > stale_hours:
-                add_attention(
-                    "delegated_task_stale",
-                    "warning",
-                    f"Refresh or cancel stale delegated task `{task_id}`.",
-                )
-
-        if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
-            add_attention(
-                "delegated_task_missing_evidence",
-                "action_required",
-                f"Record return-envelope evidence for delegated task `{task_id}`.",
-            )
-
-        if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
-            add_attention(
-                "delegated_task_unresolved_blocker",
-                "action_required",
-                f"Resolve main-agent review blocker for delegated task `{task_id}`.",
-            )
-
-    for index, left in enumerate(active_tasks):
-        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
-        left_write_scope = left_scope.get("write_scope")
-        if left_write_scope == "none":
-            continue
-        for right in active_tasks[index + 1 :]:
-            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
-            if _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
-                left_id = str(left.get("engineering_task_id") or "unknown-task")
-                right_id = str(right.get("engineering_task_id") or "unknown-task")
-                item = _attention_item(
-                    source_system="delegated_task_ledger",
-                    source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
-                    repository=str(left.get("repository") or repository),
-                    condition="delegated_task_write_scope_overlap",
-                    severity="action_required",
-                    owner=str(left.get("owner") or repository),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=(
-                        f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
-                    ),
-                )
-                item["engineering_task_id"] = left_id
-                item["related_engineering_task_id"] = right_id
-                item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
-                item["write_scope"] = left_write_scope
-                attention_items.append(item)
+    _append_delegated_task_overlap_attention(
+        attention_items=attention_items,
+        active_tasks=active_tasks,
+        repository=repository,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
 
     return (
         _source_inventory(
@@ -882,6 +1173,209 @@ def _mesh_certification_adapter(
     )
 
 
+def _lotus_ai_run_summary_attention(
+    *,
+    run_summary: dict[str, Any],
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    attention_items: list[dict[str, Any]] = []
+    for count_field, condition in (
+        ("failed_count", "workflow_pack_failed_runs"),
+        ("expired_count", "workflow_pack_expired_runs"),
+        ("action_required_count", "workflow_pack_action_required_runs"),
+    ):
+        count = run_summary.get(count_field, 0)
+        if isinstance(count, int) and count > 0:
+            attention_items.append(
+                _attention_item(
+                    source_system="lotus_ai",
+                    source_ref=f"run_summary:{count_field}",
+                    repository="lotus-ai",
+                    condition=condition,
+                    severity="action_required",
+                    owner="lotus-ai",
+                    generated_at_utc=generated_at_utc,
+                    evidence_refs=evidence_refs,
+                    recommended_next_action=(
+                        "Inspect lotus-ai workflow-pack run catalog and operator profiles."
+                    ),
+                )
+            )
+    status_summary = " ".join(
+        str(line).lower() for line in run_summary.get("status_summary", [])
+    )
+    if "unavailable" in status_summary or "not ready" in status_summary:
+        attention_items.append(
+            _attention_item(
+                source_system="lotus_ai",
+                source_ref="run_summary:readiness",
+                repository="lotus-ai",
+                condition="workflow_pack_runtime_degraded",
+                severity="action_required",
+                owner="lotus-ai",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    "Confirm lotus-ai workflow-pack registry and run ledger readiness."
+                ),
+            )
+        )
+    return attention_items
+
+
+def _lotus_ai_run_attention_item(
+    *,
+    item: dict[str, Any],
+    source_ref: str,
+    condition: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    recommended_next_action: str,
+    owner: str | None = None,
+) -> dict[str, Any]:
+    run_id = str(item.get("run_id") or "unknown-run")
+    pack_id = str(item.get("pack_id") or item.get("registration_ref") or "")
+    attention = _attention_item(
+        source_system="lotus_ai",
+        source_ref=source_ref,
+        repository="lotus-ai",
+        condition=condition,
+        severity="action_required",
+        owner=owner or str(item.get("workflow_authority_owner") or "lotus-ai"),
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        recommended_next_action=recommended_next_action,
+    )
+    attention["run_id"] = run_id
+    if pack_id:
+        attention["workflow_pack_id"] = pack_id
+    return attention
+
+
+def _lotus_ai_attention_queue_items(
+    *,
+    attention_queue: object,
+    config: dict[str, Any],
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    attention_items: list[dict[str, Any]] = []
+    queue_depth = (
+        attention_queue.get("queue_depth", 0) if isinstance(attention_queue, dict) else 0
+    )
+    if isinstance(queue_depth, int) and queue_depth > 0:
+        attention_items.append(
+            _attention_item(
+                source_system="lotus_ai",
+                source_ref="attention_queue:queue_depth",
+                repository="lotus-ai",
+                condition="workflow_pack_attention_queue_backlog",
+                severity="action_required",
+                owner="lotus-ai",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    "Use lotus-ai workflow-pack run catalog when queue_depth exceeds zero."
+                ),
+            )
+        )
+
+    queue_items = attention_queue.get("items", []) if isinstance(attention_queue, dict) else []
+    stale_hours = _threshold(config, "stale_workflow_pack_review_hours", 24)
+    for item in queue_items if isinstance(queue_items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        attention_items.extend(
+            _lotus_ai_queue_item_attention(
+                item=item,
+                stale_hours=stale_hours,
+                evidence_refs=evidence_refs,
+                generated_at_utc=generated_at_utc,
+            )
+        )
+    return attention_items
+
+
+def _lotus_ai_queue_item_attention(
+    *,
+    item: dict[str, Any],
+    stale_hours: float,
+    evidence_refs: list[dict[str, str]],
+    generated_at_utc: str,
+) -> list[dict[str, Any]]:
+    run_id = str(item.get("run_id") or "unknown-run")
+    item_evidence_refs = [
+        *evidence_refs,
+        _evidence_ref("WORKFLOW_PACK_RUN", run_id),
+    ]
+    source_ref = f"workflow_pack_run:{run_id}"
+    review_state = str(item.get("review_state") or "")
+    runtime_state = str(item.get("runtime_state") or "")
+    supportability_status = str(item.get("supportability_status") or "")
+    attention_items = [
+        _lotus_ai_run_attention_item(
+            item=item,
+            source_ref=source_ref,
+            condition="workflow_pack_run_action_required",
+            generated_at_utc=generated_at_utc,
+            evidence_refs=item_evidence_refs,
+            recommended_next_action=(
+                f"Inspect lotus-ai workflow-pack run `{run_id}` operator profile."
+            ),
+        )
+    ]
+
+    if review_state == "AWAITING_REVIEW":
+        age = _age_hours(generated_at_utc, item.get("created_at"))
+        if age is not None and age > stale_hours:
+            attention_items.append(
+                _lotus_ai_run_attention_item(
+                    item=item,
+                    source_ref=source_ref,
+                    condition="workflow_pack_review_stale",
+                    generated_at_utc=generated_at_utc,
+                    evidence_refs=item_evidence_refs,
+                    recommended_next_action=(
+                        f"Review stale workflow-pack run `{run_id}` before downstream use."
+                    ),
+                )
+            )
+
+    if runtime_state in {"FAILED", "EXPIRED"}:
+        attention_items.append(
+            _lotus_ai_run_attention_item(
+                item=item,
+                source_ref=source_ref,
+                condition="workflow_pack_run_terminal_failure",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=item_evidence_refs,
+                recommended_next_action=(
+                    f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
+                ),
+            )
+        )
+
+    lineage_states = {"REVISED", "SUPERSEDED"}
+    if (
+        review_state in lineage_states or runtime_state == "SUPERSEDED"
+    ) and supportability_status != "HISTORICAL":
+        attention_items.append(
+            _lotus_ai_run_attention_item(
+                item=item,
+                source_ref=source_ref,
+                condition="workflow_pack_lineage_conflict",
+                generated_at_utc=generated_at_utc,
+                evidence_refs=item_evidence_refs,
+                recommended_next_action=(
+                    f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
+                ),
+                owner="lotus-ai",
+            )
+        )
+    return attention_items
+
+
 def _lotus_ai_adapter(
     *,
     config: dict[str, Any],
@@ -935,167 +1429,28 @@ def _lotus_ai_adapter(
                     evidence_refs=evidence_refs,
                 )
             ],
-        )
+    )
 
     attention_items: list[dict[str, Any]] = []
     run_summary = runtime.get("run_summary", {})
     if isinstance(run_summary, dict):
-        for count_field, condition in (
-            ("failed_count", "workflow_pack_failed_runs"),
-            ("expired_count", "workflow_pack_expired_runs"),
-            ("action_required_count", "workflow_pack_action_required_runs"),
-        ):
-            count = run_summary.get(count_field, 0)
-            if isinstance(count, int) and count > 0:
-                attention_items.append(
-                    _attention_item(
-                        source_system="lotus_ai",
-                        source_ref=f"run_summary:{count_field}",
-                        repository="lotus-ai",
-                        condition=condition,
-                        severity="action_required",
-                        owner="lotus-ai",
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=(
-                            "Inspect lotus-ai workflow-pack run catalog and operator profiles."
-                        ),
-                    )
-                )
-        status_summary = " ".join(
-            str(line).lower() for line in run_summary.get("status_summary", [])
-        )
-        if "unavailable" in status_summary or "not ready" in status_summary:
-            attention_items.append(
-                _attention_item(
-                    source_system="lotus_ai",
-                    source_ref="run_summary:readiness",
-                    repository="lotus-ai",
-                    condition="workflow_pack_runtime_degraded",
-                    severity="action_required",
-                    owner="lotus-ai",
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=(
-                        "Confirm lotus-ai workflow-pack registry and run ledger readiness."
-                    ),
-                )
+        attention_items.extend(
+            _lotus_ai_run_summary_attention(
+                run_summary=run_summary,
+                evidence_refs=evidence_refs,
+                generated_at_utc=generated_at_utc,
             )
+        )
 
     attention_queue = runtime.get("attention_queue", {})
-    queue_depth = (
-        attention_queue.get("queue_depth", 0) if isinstance(attention_queue, dict) else 0
-    )
-    if isinstance(queue_depth, int) and queue_depth > 0:
-        attention_items.append(
-            _attention_item(
-                source_system="lotus_ai",
-                source_ref="attention_queue:queue_depth",
-                repository="lotus-ai",
-                condition="workflow_pack_attention_queue_backlog",
-                severity="action_required",
-                owner="lotus-ai",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=evidence_refs,
-                recommended_next_action=(
-                    "Use lotus-ai workflow-pack run catalog when queue_depth exceeds zero."
-                ),
-            )
-        )
-    queue_items = attention_queue.get("items", []) if isinstance(attention_queue, dict) else []
-    stale_hours = _threshold(config, "stale_workflow_pack_review_hours", 24)
-    for item in queue_items if isinstance(queue_items, list) else []:
-        if not isinstance(item, dict):
-            continue
-        run_id = str(item.get("run_id") or "unknown-run")
-        item_evidence_refs = [
-            *evidence_refs,
-            _evidence_ref("WORKFLOW_PACK_RUN", run_id),
-        ]
-        source_ref = f"workflow_pack_run:{run_id}"
-        review_state = str(item.get("review_state") or "")
-        runtime_state = str(item.get("runtime_state") or "")
-        supportability_status = str(item.get("supportability_status") or "")
-        pack_id = str(item.get("pack_id") or item.get("registration_ref") or "")
-        attention = _attention_item(
-            source_system="lotus_ai",
-            source_ref=source_ref,
-            repository="lotus-ai",
-            condition="workflow_pack_run_action_required",
-            severity="action_required",
-            owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
+    attention_items.extend(
+        _lotus_ai_attention_queue_items(
+            attention_queue=attention_queue,
+            config=config,
+            evidence_refs=evidence_refs,
             generated_at_utc=generated_at_utc,
-            evidence_refs=item_evidence_refs,
-            recommended_next_action=(
-                f"Inspect lotus-ai workflow-pack run `{run_id}` operator profile."
-            ),
         )
-        attention["run_id"] = run_id
-        if pack_id:
-            attention["workflow_pack_id"] = pack_id
-        attention_items.append(attention)
-
-        if review_state == "AWAITING_REVIEW":
-            age = _age_hours(generated_at_utc, item.get("created_at"))
-            if age is not None and age > stale_hours:
-                stale_item = _attention_item(
-                    source_system="lotus_ai",
-                    source_ref=source_ref,
-                    repository="lotus-ai",
-                    condition="workflow_pack_review_stale",
-                    severity="action_required",
-                    owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=item_evidence_refs,
-                    recommended_next_action=(
-                        f"Review stale workflow-pack run `{run_id}` before downstream use."
-                    ),
-                )
-                stale_item["run_id"] = run_id
-                if pack_id:
-                    stale_item["workflow_pack_id"] = pack_id
-                attention_items.append(stale_item)
-
-        if runtime_state in {"FAILED", "EXPIRED"}:
-            runtime_item = _attention_item(
-                source_system="lotus_ai",
-                source_ref=source_ref,
-                repository="lotus-ai",
-                condition="workflow_pack_run_terminal_failure",
-                severity="action_required",
-                owner=str(item.get("workflow_authority_owner") or "lotus-ai"),
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Inspect terminal workflow-pack runtime state `{runtime_state}` for `{run_id}`."
-                ),
-            )
-            runtime_item["run_id"] = run_id
-            if pack_id:
-                runtime_item["workflow_pack_id"] = pack_id
-            attention_items.append(runtime_item)
-
-        lineage_states = {"REVISED", "SUPERSEDED"}
-        if (
-            review_state in lineage_states or runtime_state == "SUPERSEDED"
-        ) and supportability_status != "HISTORICAL":
-            lineage_item = _attention_item(
-                source_system="lotus_ai",
-                source_ref=source_ref,
-                repository="lotus-ai",
-                condition="workflow_pack_lineage_conflict",
-                severity="action_required",
-                owner="lotus-ai",
-                generated_at_utc=generated_at_utc,
-                evidence_refs=item_evidence_refs,
-                recommended_next_action=(
-                    f"Confirm superseded workflow-pack run `{run_id}` is historical, not active-ready."
-                ),
-            )
-            lineage_item["run_id"] = run_id
-            if pack_id:
-                lineage_item["workflow_pack_id"] = pack_id
-            attention_items.append(lineage_item)
+    )
 
     return (
         _source_inventory(

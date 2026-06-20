@@ -51,6 +51,16 @@ def test_ci_enforcement_governance_route_is_unambiguous() -> None:
     assert "Promote gates that prevent real degradation." in ci_skill
     assert "Use `lotus-ci-enforcement-governance` as the primary route" in backend_skill
     assert "Use `lotus-ci-enforcement-governance` before this skill" in pr_skill
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in backend_skill
+    )
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in pr_skill
+    )
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in backend_skill
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in pr_skill
 
 
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:
@@ -70,6 +80,8 @@ def test_platform_automation_ops_uses_task_ledger_contract() -> None:
     assert "engineering_task_id" in skill
     assert "no PR merge" in skill
     assert "no wiki" in skill
+    assert "docs/operations/Local Development Runbook.md" in skill
+    assert "`Local Development Runbook.md`" not in skill
     assert "Do not summarize detached work from chat memory alone" in skill
     assert "cleanup_state" in profile_guide
     assert "Do not translate `LOST` into success" in profile_guide.replace("\n", " ")
@@ -101,6 +113,12 @@ def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> Non
 def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
 
+    assert (
+        "lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md"
+        in frontend_skill
+    )
+    assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in frontend_skill
+
     for required_text in (
         "Before editing product UI code, inspect the existing implementation enough to name:",
         "Before editing frontend code, produce a short quality intake from the actual product surface:",
@@ -121,6 +139,9 @@ def test_backend_delivery_skill_blocks_agent_quality_regressions() -> None:
     backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
 
     for required_text in (
+        "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+        "Bank-Buyable Default Bar",
+        "Every meaningful backend slice should improve or preserve at least one bank-buyable control",
         "Before editing backend code, produce a short quality intake from the actual repository:",
         "name the existing module, service, repository, model, router, and test patterns",
         "identify the canonical source of business truth",
@@ -138,6 +159,7 @@ def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
     ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
 
     for required_text in (
+        "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
         "Before changing CI enforcement, produce a short enforcement intake:",
         "name the current measured baseline and the artifact that records it",
         "identify the exact failure mode the gate prevents",
@@ -148,8 +170,29 @@ def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
         "copied implementation hotspots that a deterministic duplicate inventory can identify",
         "architecture-boundary imports or ownership drift",
         "unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift",
+        "For agent-generated code, prefer gates that enforce",
+        "degrades a Lotus app",
     ):
         assert required_text in ci_skill
+
+
+def test_lotus_delivery_skills_default_to_bank_buyable_non_degradation() -> None:
+    frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
+    readme_wiki_skill = _read(ROOT / "codex" / "skills" / "lotus-readme-wiki-governance" / "SKILL.md")
+    review_skill = _read(ROOT / "codex" / "skills" / "lotus-codebase-review-ledger" / "SKILL.md")
+
+    for skill_text in (frontend_skill, readme_wiki_skill, review_skill):
+        assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in skill_text
+
+    assert "Bank-Buyable Default Bar" in frontend_skill
+    assert "Every meaningful product-surface slice should improve or preserve" in frontend_skill
+    assert "Documentation should explain current implementation truth" in readme_wiki_skill
+    assert "evidence, not create future-state confidence" in readme_wiki_skill
+    assert "record the explicit" in readme_wiki_skill
+    assert "no-doc/no-wiki decision in PR evidence" in readme_wiki_skill
+    assert "as the default" in review_skill
+    assert "control taxonomy when reviewing a Lotus app" in review_skill
+    assert "bank-buyable control gaps" in review_skill
 
 
 def test_agent_ramp_up_requires_pre_edit_quality_intake() -> None:

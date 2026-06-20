@@ -50,6 +50,148 @@ def load_mesh_access_policies(
     return policies
 
 
+def _validate_mesh_access_product_id(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    products_by_id: dict[str, dict[str, Any]],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> tuple[str | None, dict[str, Any] | None]:
+    product_id = payload.get("product_id")
+    if not isinstance(product_id, str) or not product_id:
+        issues.append(f"{path}: product_id must be a non-empty string")
+        return None, None
+    if product_id in seen_product_ids:
+        issues.append(f"{path}: duplicate access policy for {product_id}")
+    seen_product_ids.add(product_id)
+
+    product = products_by_id.get(product_id)
+    if product is None:
+        issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
+        return product_id, None
+    return product_id, product
+
+
+def _validate_mesh_access_contract_identity(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    expected_repository: str,
+    issues: list[str],
+) -> None:
+    if payload.get("contract_id") != "lotus-mesh-access-policy":
+        issues.append(f"{path}: contract_id must be lotus-mesh-access-policy")
+    if "RFC-0091" not in payload.get("governed_by_rfcs", []):
+        issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
+    if payload.get("producer_repository") != expected_repository:
+        issues.append(
+            f"{path}: producer_repository must match catalog identity {expected_repository}"
+        )
+    if payload.get("default_posture") not in VALID_DEFAULT_POSTURES:
+        issues.append(f"{path}: default_posture must be governed")
+
+
+def _validate_allowed_consumers(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    product: dict[str, Any],
+    issues: list[str],
+) -> None:
+    allowed_consumers = payload.get("allowed_consumers")
+    if not isinstance(allowed_consumers, list) or not allowed_consumers:
+        issues.append(f"{path}: allowed_consumers must be a non-empty array")
+        return
+    approved_consumers = product.get("approved_consumers", [])
+    for index, consumer in enumerate(allowed_consumers):
+        _validate_allowed_consumer(
+            issues,
+            path,
+            index,
+            consumer,
+            approved_consumers=approved_consumers,
+        )
+
+
+def _validate_denial_posture(
+    *, path: Path, payload: dict[str, Any], issues: list[str]
+) -> None:
+    denial_posture = payload.get("denial_posture", {})
+    if not isinstance(denial_posture, dict):
+        issues.append(f"{path}: denial_posture must be an object")
+        return
+    if denial_posture.get("customer_visible_state") not in VALID_CUSTOMER_STATES:
+        issues.append(
+            f"{path}: denial_posture.customer_visible_state must be governed"
+        )
+    if denial_posture.get("operator_visible_state") not in VALID_OPERATOR_STATES:
+        issues.append(
+            f"{path}: denial_posture.operator_visible_state must be governed"
+        )
+    if not denial_posture.get("reason"):
+        issues.append(f"{path}: denial_posture.reason is required")
+
+
+def _validate_access_audit(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    expected_repository: str,
+    issues: list[str],
+) -> None:
+    audit = payload.get("audit", {})
+    if not isinstance(audit, dict):
+        issues.append(f"{path}: audit must be an object")
+        return
+    if audit.get("owner_repository") != expected_repository:
+        issues.append(f"{path}: audit.owner_repository must match producer")
+    if not audit.get("policy_owner"):
+        issues.append(f"{path}: audit.policy_owner is required")
+    if not audit.get("decision_evidence"):
+        issues.append(f"{path}: audit.decision_evidence is required")
+
+
+def _validate_mesh_access_policy_payload(
+    *,
+    path: Path,
+    payload: dict[str, Any],
+    products_by_id: dict[str, dict[str, Any]],
+    seen_product_ids: set[str],
+    issues: list[str],
+) -> None:
+    _, product = _validate_mesh_access_product_id(
+        path=path,
+        payload=payload,
+        products_by_id=products_by_id,
+        seen_product_ids=seen_product_ids,
+        issues=issues,
+    )
+    if product is None:
+        return
+
+    expected_repository = product["producer_repository"]
+    _validate_mesh_access_contract_identity(
+        path=path,
+        payload=payload,
+        expected_repository=expected_repository,
+        issues=issues,
+    )
+    _validate_allowed_consumers(
+        path=path,
+        payload=payload,
+        product=product,
+        issues=issues,
+    )
+    _validate_denial_posture(path=path, payload=payload, issues=issues)
+    _validate_access_audit(
+        path=path,
+        payload=payload,
+        expected_repository=expected_repository,
+        issues=issues,
+    )
+
+
 def validate_mesh_access_policies(
     policy_path: Path = DEFAULT_ACCESS_POLICY_DIRECTORY,
     *,
@@ -70,75 +212,13 @@ def validate_mesh_access_policies(
             issues.append(f"{path}: invalid JSON: {exc}")
             continue
 
-        product_id = payload.get("product_id")
-        if not isinstance(product_id, str) or not product_id:
-            issues.append(f"{path}: product_id must be a non-empty string")
-            continue
-        if product_id in seen_product_ids:
-            issues.append(f"{path}: duplicate access policy for {product_id}")
-        seen_product_ids.add(product_id)
-
-        product = products_by_id.get(product_id)
-        if product is None:
-            issues.append(f"{path}: product_id does not exist in catalog: {product_id}")
-            continue
-        expected_repository = product["producer_repository"]
-        if payload.get("contract_id") != "lotus-mesh-access-policy":
-            issues.append(f"{path}: contract_id must be lotus-mesh-access-policy")
-        if "RFC-0091" not in payload.get("governed_by_rfcs", []):
-            issues.append(f"{path}: governed_by_rfcs must include RFC-0091")
-        if payload.get("producer_repository") != expected_repository:
-            issues.append(
-                f"{path}: producer_repository must match catalog identity {expected_repository}"
-            )
-        if payload.get("default_posture") not in VALID_DEFAULT_POSTURES:
-            issues.append(f"{path}: default_posture must be governed")
-
-        allowed_consumers = payload.get("allowed_consumers")
-        if not isinstance(allowed_consumers, list) or not allowed_consumers:
-            issues.append(f"{path}: allowed_consumers must be a non-empty array")
-        else:
-            approved_consumers = product.get("approved_consumers", [])
-            for index, consumer in enumerate(allowed_consumers):
-                _validate_allowed_consumer(
-                    issues,
-                    path,
-                    index,
-                    consumer,
-                    approved_consumers=approved_consumers,
-                )
-
-        denial_posture = payload.get("denial_posture", {})
-        if not isinstance(denial_posture, dict):
-            issues.append(f"{path}: denial_posture must be an object")
-        else:
-            if (
-                denial_posture.get("customer_visible_state")
-                not in VALID_CUSTOMER_STATES
-            ):
-                issues.append(
-                    f"{path}: denial_posture.customer_visible_state must be governed"
-                )
-            if (
-                denial_posture.get("operator_visible_state")
-                not in VALID_OPERATOR_STATES
-            ):
-                issues.append(
-                    f"{path}: denial_posture.operator_visible_state must be governed"
-                )
-            if not denial_posture.get("reason"):
-                issues.append(f"{path}: denial_posture.reason is required")
-
-        audit = payload.get("audit", {})
-        if not isinstance(audit, dict):
-            issues.append(f"{path}: audit must be an object")
-        else:
-            if audit.get("owner_repository") != expected_repository:
-                issues.append(f"{path}: audit.owner_repository must match producer")
-            if not audit.get("policy_owner"):
-                issues.append(f"{path}: audit.policy_owner is required")
-            if not audit.get("decision_evidence"):
-                issues.append(f"{path}: audit.decision_evidence is required")
+        _validate_mesh_access_policy_payload(
+            path=path,
+            payload=payload,
+            products_by_id=products_by_id,
+            seen_product_ids=seen_product_ids,
+            issues=issues,
+        )
 
     for product_id, repository in required_products.items():
         if product_id not in seen_product_ids:

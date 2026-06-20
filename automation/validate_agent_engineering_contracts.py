@@ -175,17 +175,10 @@ def _require_set(
         errors.append(f"{label} missing required values: {', '.join(missing)}")
 
 
-def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        display_path = path
-        try:
-            display_path = path.relative_to(ROOT)
-        except ValueError:
-            pass
-        return [f"missing agent engineering contract: {display_path}"]
-
-    contract = _load_contract(path)
+def _validate_task_ledger_contract_identity(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     if contract.get("contract_id") != "lotus-platform:engineering-task-ledger-contract:v1":
         errors.append("contract_id must be lotus-platform:engineering-task-ledger-contract:v1")
     if contract.get("source_rfc") != "RFC-0094":
@@ -197,19 +190,30 @@ def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str
     if contract.get("status") != "active":
         errors.append("status must be active")
 
+
+def _validate_task_ledger_authority(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     authority = contract.get("authority")
     if not isinstance(authority, dict):
         errors.append("authority must be an object")
-    else:
-        for key in ("github_actions", "local_automation", "task_ledger", "session_summary"):
-            value = authority.get(key)
-            if not isinstance(value, str) or not value.strip():
-                errors.append(f"authority.{key} must be non-empty")
-        if "source of truth" not in str(authority.get("github_actions", "")).lower():
-            errors.append("authority.github_actions must preserve GitHub as source of truth")
-        if "working context" not in str(authority.get("session_summary", "")).lower():
-            errors.append("authority.session_summary must keep compaction as working context")
+        return
 
+    for key in ("github_actions", "local_automation", "task_ledger", "session_summary"):
+        value = authority.get(key)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"authority.{key} must be non-empty")
+    if "source of truth" not in str(authority.get("github_actions", "")).lower():
+        errors.append("authority.github_actions must preserve GitHub as source of truth")
+    if "working context" not in str(authority.get("session_summary", "")).lower():
+        errors.append("authority.session_summary must keep compaction as working context")
+
+
+def _validate_task_ledger_required_sets(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     _require_set(errors, "task_kinds", contract.get("task_kinds"), REQUIRED_TASK_KINDS)
     _require_set(
         errors, "lifecycle_states", contract.get("lifecycle_states"), REQUIRED_TASK_STATES
@@ -236,75 +240,119 @@ def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str
         REQUIRED_TASK_STATES - {"QUEUED", "RUNNING"},
     )
 
+
+def _validate_task_ledger_conditional_fields(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     conditional_fields = contract.get("conditional_fields")
     if not isinstance(conditional_fields, dict):
         errors.append("conditional_fields must be an object")
-    else:
-        for key in ("pr_number", "write_scope", "started_at", "ended_at", "error_summary"):
-            if key not in conditional_fields:
-                errors.append(f"conditional_fields missing {key}")
+        return
 
+    for key in ("pr_number", "write_scope", "started_at", "ended_at", "error_summary"):
+        if key not in conditional_fields:
+            errors.append(f"conditional_fields missing {key}")
+
+
+def _validate_task_ledger_delegation_contract(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     delegation_contract = contract.get("delegation_contract")
     if not isinstance(delegation_contract, dict):
         errors.append("delegation_contract must be an object")
-    else:
-        _require_set(
-            errors,
-            "delegation_contract.required_fields",
-            delegation_contract.get("required_fields"),
-            {"problem_statement", "expected_output", "read_scope", "task_mode"},
-        )
-        _require_set(
-            errors,
-            "delegation_contract.code_change_requirements",
-            delegation_contract.get("code_change_requirements"),
-            {
-                "explicit_write_scope",
-                "do_not_revert_unrelated_work",
-                "changed_files_returned",
-                "outcome_summary_returned",
-            },
-        )
+        return
 
+    _require_set(
+        errors,
+        "delegation_contract.required_fields",
+        delegation_contract.get("required_fields"),
+        {"problem_statement", "expected_output", "read_scope", "task_mode"},
+    )
+    _require_set(
+        errors,
+        "delegation_contract.code_change_requirements",
+        delegation_contract.get("code_change_requirements"),
+        {
+            "explicit_write_scope",
+            "do_not_revert_unrelated_work",
+            "changed_files_returned",
+            "outcome_summary_returned",
+        },
+    )
+
+
+def _validate_task_ledger_context_contract(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     context_contract = contract.get("context_preservation_contract")
     if not isinstance(context_contract, dict):
         errors.append("context_preservation_contract must be an object")
-    else:
-        if context_contract.get("source_rfc") != "RFC-0093":
-            errors.append("context_preservation_contract.source_rfc must be RFC-0093")
-        _require_set(
-            errors,
-            "context_preservation_contract.required_identifiers",
-            context_contract.get("required_identifiers"),
-            REQUIRED_IDENTIFIER_PRESERVATION,
-        )
-        _require_set(
-            errors,
-            "context_preservation_contract.decision_states",
-            context_contract.get("decision_states"),
-            {"ACCEPTED", "REJECTED", "DEFERRED", "OPEN"},
-        )
-        _require_set(
-            errors,
-            "context_preservation_contract.promotion_targets",
-            context_contract.get("promotion_targets"),
-            REQUIRED_PROMOTION_TARGETS,
-        )
+        return
 
+    if context_contract.get("source_rfc") != "RFC-0093":
+        errors.append("context_preservation_contract.source_rfc must be RFC-0093")
+    _require_set(
+        errors,
+        "context_preservation_contract.required_identifiers",
+        context_contract.get("required_identifiers"),
+        REQUIRED_IDENTIFIER_PRESERVATION,
+    )
+    _require_set(
+        errors,
+        "context_preservation_contract.decision_states",
+        context_contract.get("decision_states"),
+        {"ACCEPTED", "REJECTED", "DEFERRED", "OPEN"},
+    )
+    _require_set(
+        errors,
+        "context_preservation_contract.promotion_targets",
+        context_contract.get("promotion_targets"),
+        REQUIRED_PROMOTION_TARGETS,
+    )
+
+
+def _validate_task_ledger_invariants(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
     invariants = contract.get("invariants")
     if not isinstance(invariants, list) or not invariants:
         errors.append("invariants must be a non-empty list")
-    else:
-        invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
-        for expected in (
-            "one durable owner",
-            "terminal tasks carry evidence",
-            "github status is referenced",
-            "explicit write scope",
-            "preserve operationally relevant identifiers exactly",
-        ):
-            if expected not in invariant_text:
-                errors.append(f"invariants missing `{expected}`")
+        return
+
+    invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
+    for expected in (
+        "one durable owner",
+        "terminal tasks carry evidence",
+        "github status is referenced",
+        "explicit write scope",
+        "preserve operationally relevant identifiers exactly",
+    ):
+        if expected not in invariant_text:
+            errors.append(f"invariants missing `{expected}`")
+
+
+def validate_agent_engineering_contracts(path: Path = CONTRACT_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        display_path = path
+        try:
+            display_path = path.relative_to(ROOT)
+        except ValueError:
+            pass
+        return [f"missing agent engineering contract: {display_path}"]
+
+    contract = _load_contract(path)
+    _validate_task_ledger_contract_identity(contract, errors)
+    _validate_task_ledger_authority(contract, errors)
+    _validate_task_ledger_required_sets(contract, errors)
+    _validate_task_ledger_conditional_fields(contract, errors)
+    _validate_task_ledger_delegation_contract(contract, errors)
+    _validate_task_ledger_context_contract(contract, errors)
+    _validate_task_ledger_invariants(contract, errors)
 
     return errors
 
@@ -317,17 +365,9 @@ def _non_empty_string(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> list[str]:
-    errors: list[str] = []
-    if not path.exists():
-        display_path = path
-        try:
-            display_path = path.relative_to(ROOT)
-        except ValueError:
-            pass
-        return [f"missing delegation policy contract: {display_path}"]
-
-    contract = _load_contract(path)
+def _validate_delegation_policy_identity(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     if contract.get("contract_id") != "lotus-platform:delegation-policy-contract:v1":
         errors.append("delegation policy contract_id must be lotus-platform:delegation-policy-contract:v1")
     if contract.get("source_rfc") != "RFC-0096":
@@ -339,15 +379,23 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
     if contract.get("status") != "active":
         errors.append("delegation policy status must be active")
 
+
+def _validate_delegation_policy_authority(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     authority = contract.get("authority")
     if not isinstance(authority, dict):
         errors.append("delegation policy authority must be an object")
-    else:
-        authority_text = " ".join(str(value).lower() for value in authority.values())
-        for expected in ("main agent", "source truth", "evidence, not review", "write_scope"):
-            if expected not in authority_text:
-                errors.append(f"delegation policy authority missing `{expected}`")
+        return
+    authority_text = " ".join(str(value).lower() for value in authority.values())
+    for expected in ("main agent", "source truth", "evidence, not review", "write_scope"):
+        if expected not in authority_text:
+            errors.append(f"delegation policy authority missing `{expected}`")
 
+
+def _validate_delegation_policy_required_sets(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     _require_set(
         errors,
         "delegation_profiles",
@@ -423,53 +471,90 @@ def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> 
         },
     )
 
+
+def _validate_delegation_policy_lifecycle_mapping(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     lifecycle_mapping = contract.get("lifecycle_mapping")
     if not isinstance(lifecycle_mapping, dict):
         errors.append("delegation policy lifecycle_mapping must be an object")
-    else:
-        missing_statuses = sorted(REQUIRED_TASK_STATES - set(lifecycle_mapping.values()))
-        if missing_statuses:
-            errors.append(
-                "delegation policy lifecycle_mapping missing task states: "
-                + ", ".join(missing_statuses)
-            )
+        return
+    missing_statuses = sorted(REQUIRED_TASK_STATES - set(lifecycle_mapping.values()))
+    if missing_statuses:
+        errors.append(
+            "delegation policy lifecycle_mapping missing task states: "
+            + ", ".join(missing_statuses)
+        )
 
+
+def _validate_delegation_policy_invariants(
+    contract: dict[str, Any], errors: list[str]
+) -> None:
     invariants = contract.get("invariants")
     if not isinstance(invariants, list) or not invariants:
         errors.append("delegation policy invariants must be a non-empty list")
-    else:
-        invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
-        for expected in (
-            "one accountable main agent",
-            "evidence and not review",
-            "explicit bounded write_scope",
-            "write_scope as none",
-            "not revert unrelated work",
-            "not merge prs or publish wiki",
-            "lost delegated work",
-            "must not inspect hidden model state",
-        ):
-            if expected not in invariant_text:
-                errors.append(f"delegation policy invariants missing `{expected}`")
+        return
+    invariant_text = " ".join(item for item in invariants if isinstance(item, str)).lower()
+    for expected in (
+        "one accountable main agent",
+        "evidence and not review",
+        "explicit bounded write_scope",
+        "write_scope as none",
+        "not revert unrelated work",
+        "not merge prs or publish wiki",
+        "lost delegated work",
+        "must not inspect hidden model state",
+    ):
+        if expected not in invariant_text:
+            errors.append(f"delegation policy invariants missing `{expected}`")
+
+
+def validate_delegation_policy_contract(path: Path = DELEGATION_POLICY_PATH) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        display_path = path
+        try:
+            display_path = path.relative_to(ROOT)
+        except ValueError:
+            pass
+        return [f"missing delegation policy contract: {display_path}"]
+
+    contract = _load_contract(path)
+    _validate_delegation_policy_identity(contract, errors)
+    _validate_delegation_policy_authority(contract, errors)
+    _validate_delegation_policy_required_sets(contract, errors)
+    _validate_delegation_policy_lifecycle_mapping(contract, errors)
+    _validate_delegation_policy_invariants(contract, errors)
     return errors
 
 
-def validate_delegation_record(
+def _validate_delegation_required_input_fields(
+    *,
+    errors: list[str],
     record: dict[str, Any],
-    policy: dict[str, Any] | None = None,
-) -> list[str]:
-    policy = policy or _load_contract(DELEGATION_POLICY_PATH)
-    errors: list[str] = []
+    policy: dict[str, Any],
+) -> None:
     for field in policy["required_input_fields"]:
         if field not in record:
             errors.append(f"delegation record missing {field}")
 
-    profile = record.get("profile")
+
+def _validate_delegation_profile(
+    *,
+    errors: list[str],
+    profile: object,
+    policy: dict[str, Any],
+) -> None:
     if profile in set(policy["disallowed_profiles"]):
         errors.append(f"profile {profile} is disallowed")
     if profile not in set(policy["delegation_profiles"]):
         errors.append("profile must be a governed delegation profile")
 
+
+def _validate_delegation_identity_fields(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     for field in (
         "delegation_task_id",
         "parent_task_id",
@@ -481,12 +566,25 @@ def validate_delegation_record(
         if not _non_empty_string(record.get(field)):
             errors.append(f"{field} must be a non-empty string")
 
+
+def _validate_delegation_read_scope(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     read_scope = record.get("read_scope")
     if not isinstance(read_scope, list) or not read_scope:
         errors.append("read_scope must be a non-empty list")
     elif "." in read_scope:
         errors.append("read_scope must not be broad repo root")
 
+
+def _validate_delegation_write_scope(
+    *,
+    errors: list[str],
+    profile: object,
+    record: dict[str, Any],
+    policy: dict[str, Any],
+) -> None:
     write_scope = record.get("write_scope")
     no_write_profiles = set(policy["no_write_profiles"])
     write_required_profiles = set(policy["write_scope_required_profiles"])
@@ -500,6 +598,11 @@ def validate_delegation_record(
     elif isinstance(write_scope, list) and "." in write_scope:
         errors.append("write_scope must not be broad repo root")
 
+
+def _validate_delegation_forbidden_actions(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     forbidden_actions = set(
         item for item in _as_list(record.get("forbidden_actions")) if isinstance(item, str)
     )
@@ -509,10 +612,20 @@ def validate_delegation_record(
             "forbidden_actions missing required values: " + ", ".join(missing_actions)
         )
 
+
+def _validate_delegation_evidence_requirements(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     evidence_requirements = record.get("evidence_requirements")
     if not isinstance(evidence_requirements, list) or not evidence_requirements:
         errors.append("evidence_requirements must be a non-empty list")
 
+
+def _validate_delegation_return_envelope(
+    record: dict[str, Any],
+    errors: list[str],
+) -> None:
     return_envelope = set(
         item for item in _as_list(record.get("return_envelope")) if isinstance(item, str)
     )
@@ -521,6 +634,33 @@ def validate_delegation_record(
         errors.append(
             "return_envelope missing required values: " + ", ".join(missing_return_fields)
         )
+
+
+def validate_delegation_record(
+    record: dict[str, Any],
+    policy: dict[str, Any] | None = None,
+) -> list[str]:
+    policy = policy or _load_contract(DELEGATION_POLICY_PATH)
+    errors: list[str] = []
+    _validate_delegation_required_input_fields(
+        errors=errors,
+        record=record,
+        policy=policy,
+    )
+
+    profile = record.get("profile")
+    _validate_delegation_profile(errors=errors, profile=profile, policy=policy)
+    _validate_delegation_identity_fields(record, errors)
+    _validate_delegation_read_scope(record, errors)
+    _validate_delegation_write_scope(
+        errors=errors,
+        profile=profile,
+        record=record,
+        policy=policy,
+    )
+    _validate_delegation_forbidden_actions(record, errors)
+    _validate_delegation_evidence_requirements(record, errors)
+    _validate_delegation_return_envelope(record, errors)
     return errors
 
 

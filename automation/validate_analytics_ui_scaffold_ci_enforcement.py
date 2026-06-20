@@ -20,6 +20,25 @@ DEFAULT_SCAFFOLD_CI_CONTRACT_PATH = (
 IMPLEMENTED_FEATURE_KEY = (
     "platform.analytics.observability.scaffold_ci_enforcement"
 )
+RUNTIME_FEATURE_PREFIXES = (
+    "core.",
+    "performance.",
+    "risk.",
+    "advise.",
+    "manage.",
+    "report.",
+    "render.",
+    "archive.",
+    "ai.",
+)
+EXPLICIT_RUNTIME_FEATURE_KEYS = {
+    "analytics.backend.observability.freshness_supportability",
+    "gateway.analytics.observability.fanout_metrics",
+    "gateway.analytics.observability.protected_diagnostics",
+    "gateway.analytics.observability.all_ui_fanout_paths",
+    "workbench.analytics.observability.freshness_degraded_state",
+    "workbench.analytics.observability.all_supported_surfaces",
+}
 POST_SLICE_11_LIFECYCLE_STATUSES = {
     "slice-11-scaffold-ci-enforcement-implemented",
     "slice-12-backend-supportability-partial-implemented",
@@ -124,32 +143,29 @@ def _validate_feature_promotion(
     errors: list[str], observability_contract: dict[str, Any]
 ) -> None:
     statuses = _feature_status(observability_contract)
+    _validate_scaffold_ci_feature_status(errors, statuses)
+    _validate_runtime_feature_statuses(errors, statuses)
+
+
+def _validate_scaffold_ci_feature_status(
+    errors: list[str], statuses: dict[str, str]
+) -> None:
     if statuses.get(IMPLEMENTED_FEATURE_KEY) != "implemented":
         errors.append(f"{IMPLEMENTED_FEATURE_KEY} must be implemented after Slice 11")
 
+
+def _is_runtime_feature(feature_key: str) -> bool:
+    return feature_key.startswith(RUNTIME_FEATURE_PREFIXES) or (
+        feature_key in EXPLICIT_RUNTIME_FEATURE_KEYS
+    )
+
+
+def _validate_runtime_feature_statuses(
+    errors: list[str], statuses: dict[str, str]
+) -> None:
     for feature_key, status in statuses.items():
-        runtime_feature = (
-            feature_key.startswith("core.")
-            or feature_key.startswith("performance.")
-            or feature_key.startswith("risk.")
-            or feature_key.startswith("advise.")
-            or feature_key.startswith("manage.")
-            or feature_key.startswith("report.")
-            or feature_key.startswith("render.")
-            or feature_key.startswith("archive.")
-            or feature_key.startswith("ai.")
-            or feature_key
-            in {
-                "analytics.backend.observability.freshness_supportability",
-                "gateway.analytics.observability.fanout_metrics",
-                "gateway.analytics.observability.protected_diagnostics",
-                "gateway.analytics.observability.all_ui_fanout_paths",
-                "workbench.analytics.observability.freshness_degraded_state",
-                "workbench.analytics.observability.all_supported_surfaces",
-            }
-        )
         if (
-            runtime_feature
+            _is_runtime_feature(feature_key)
             and status != "planned"
             and feature_key not in POST_SLICE_11_IMPLEMENTED_RUNTIME_FEATURE_KEYS
         ):

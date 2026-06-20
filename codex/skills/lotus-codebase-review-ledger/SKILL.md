@@ -11,6 +11,11 @@ Use this skill to turn repository cleanup and hardening into a controlled engine
 Do not produce a loose punch list. Create or update a review playbook and ledger, review by
 pattern first, record evidence, and only sign off scopes that are actually proven.
 
+Use `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` as the default
+control taxonomy when reviewing a Lotus app for cleanup or refactor work. Review entries should map
+material findings to architecture, API/contract quality, data/methodology, security/privacy,
+observability/supportability, resilience/performance, testing/CI, or documentation/evidence.
+
 Read the repository's existing review artifacts first if they exist. In `lotus-core`, prefer:
 
 - `docs/architecture/CODEBASE-REVIEW-PLAYBOOK.md`
@@ -68,6 +73,7 @@ Use concrete classes:
 - test gap
 - documentation drift
 - CI-enforcement gap
+- bank-buyable control gaps that cause agents to keep generating plausible but low-quality code
 
 Do not record vague findings like "needs cleanup" without a specific class and consequence.
 

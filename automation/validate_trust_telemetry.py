@@ -35,6 +35,11 @@ VALID_VALIDATION_LANES = {
     "main-releasability",
     "platform-end-to-end",
 }
+TRUST_STATUS_FIELDS = {
+    "completeness_status": "completeness_statuses",
+    "reconciliation_status": "reconciliation_statuses",
+    "data_quality_status": "data_quality_statuses",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -99,12 +104,11 @@ def _load_validation_context(
     }
 
 
-def _validate_identity(
+def _validate_snapshot_contract_header(
     issues: list[str],
     path: Path,
     payload: dict[str, Any],
-    context: dict[str, Any],
-) -> dict[str, Any] | None:
+) -> None:
     if payload.get("contract_id") != "lotus-domain-product-trust-telemetry-snapshot":
         _append_issue(
             issues,
@@ -117,6 +121,13 @@ def _validate_identity(
         _append_issue(issues, path, "contract_version must be semantic versioning")
     if "RFC-0087" not in payload.get("governed_by_rfcs", []):
         _append_issue(issues, path, "governed_by_rfcs must include RFC-0087")
+
+
+def _validate_snapshot_required_identity_fields(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
     for field_name in ("emitted_at_utc", "product_id", "source_repository"):
         if not _is_non_empty_string(payload.get(field_name)):
             _append_issue(issues, path, f"{field_name} must be a non-empty string")
@@ -125,6 +136,13 @@ def _validate_identity(
     ) or not REPOSITORY_PATTERN.fullmatch(payload.get("source_repository", "")):
         _append_issue(issues, path, "source_repository must match Lotus repo naming")
 
+
+def _find_catalog_product(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
     product_id = payload.get("product_id")
     product = context["products_by_id"].get(product_id)
     if product is None:
@@ -132,7 +150,15 @@ def _validate_identity(
             issues, path, f"product_id does not exist in catalog: {product_id}"
         )
         return None
+    return product
 
+
+def _validate_catalog_identity_match(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    product: dict[str, Any],
+) -> None:
     expected_identity = {
         "producer_repository": product["producer_repository"],
         "product_name": product["product_name"],
@@ -146,6 +172,13 @@ def _validate_identity(
                 path,
                 f"{field_name} must match catalog product identity {expected_value}",
             )
+
+
+def _validate_product_identity_shape(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
     if not REPOSITORY_PATTERN.fullmatch(str(payload.get("producer_repository", ""))):
         _append_issue(issues, path, "producer_repository must match Lotus repo naming")
     if not PRODUCT_NAME_PATTERN.fullmatch(str(payload.get("product_name", ""))):
@@ -154,10 +187,82 @@ def _validate_identity(
         _append_issue(
             issues, path, "product_version must use vN or semantic versioning"
         )
+
+
+def _validate_identity(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
+    _validate_snapshot_contract_header(issues, path, payload)
+    _validate_snapshot_required_identity_fields(issues, path, payload)
+
+    product = _find_catalog_product(issues, path, payload, context)
+    if product is None:
+        return None
+
+    _validate_catalog_identity_match(issues, path, payload, product)
+    _validate_product_identity_shape(issues, path, payload)
     return product
 
 
-def _validate_statuses(
+def _validate_freshness_vocabulary(
+    issues: list[str],
+    path: Path,
+    freshness: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    if freshness.get("freshness_class") not in context["freshness_classes"]:
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_class must reference the trust vocabulary registry",
+        )
+    if freshness.get("freshness_state") not in VALID_FRESHNESS_STATES:
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_state must be current, stale, or unknown",
+        )
+    if not _is_non_empty_string(freshness.get("evaluated_at_utc")):
+        _append_issue(
+            issues,
+            path,
+            "freshness.evaluated_at_utc must be a non-empty string",
+        )
+
+
+def _validate_freshness_age(
+    issues: list[str],
+    path: Path,
+    freshness: dict[str, Any],
+) -> None:
+    freshness_state = freshness.get("freshness_state")
+    age_seconds = freshness.get("age_seconds")
+    max_allowed_age_seconds = freshness.get("max_allowed_age_seconds")
+    if age_seconds is not None and (
+        not isinstance(age_seconds, int) or age_seconds < 0
+    ):
+        _append_issue(issues, path, "freshness.age_seconds must be >= 0")
+    if max_allowed_age_seconds is not None and (
+        not isinstance(max_allowed_age_seconds, int) or max_allowed_age_seconds < 1
+    ):
+        _append_issue(issues, path, "freshness.max_allowed_age_seconds must be >= 1")
+    if (
+        freshness_state == "current"
+        and isinstance(age_seconds, int)
+        and isinstance(max_allowed_age_seconds, int)
+        and age_seconds > max_allowed_age_seconds
+    ):
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
+        )
+
+
+def _validate_freshness(
     issues: list[str],
     path: Path,
     payload: dict[str, Any],
@@ -166,63 +271,34 @@ def _validate_statuses(
     freshness = payload.get("freshness")
     if not isinstance(freshness, dict):
         _append_issue(issues, path, "freshness must be an object")
-    else:
-        freshness_class = freshness.get("freshness_class")
-        freshness_state = freshness.get("freshness_state")
-        if freshness_class not in context["freshness_classes"]:
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_class must reference the trust vocabulary registry",
-            )
-        if freshness_state not in VALID_FRESHNESS_STATES:
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_state must be current, stale, or unknown",
-            )
-        if not _is_non_empty_string(freshness.get("evaluated_at_utc")):
-            _append_issue(
-                issues,
-                path,
-                "freshness.evaluated_at_utc must be a non-empty string",
-            )
-        age_seconds = freshness.get("age_seconds")
-        max_allowed_age_seconds = freshness.get("max_allowed_age_seconds")
-        if age_seconds is not None and (
-            not isinstance(age_seconds, int) or age_seconds < 0
-        ):
-            _append_issue(issues, path, "freshness.age_seconds must be >= 0")
-        if max_allowed_age_seconds is not None and (
-            not isinstance(max_allowed_age_seconds, int) or max_allowed_age_seconds < 1
-        ):
-            _append_issue(
-                issues, path, "freshness.max_allowed_age_seconds must be >= 1"
-            )
-        if (
-            freshness_state == "current"
-            and isinstance(age_seconds, int)
-            and isinstance(max_allowed_age_seconds, int)
-            and age_seconds > max_allowed_age_seconds
-        ):
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
-            )
+        return
+    _validate_freshness_vocabulary(issues, path, freshness, context)
+    _validate_freshness_age(issues, path, freshness)
 
-    status_fields = {
-        "completeness_status": "completeness_statuses",
-        "reconciliation_status": "reconciliation_statuses",
-        "data_quality_status": "data_quality_statuses",
-    }
-    for field_name, context_key in status_fields.items():
+
+def _validate_registry_statuses(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    for field_name, context_key in TRUST_STATUS_FIELDS.items():
         if payload.get(field_name) not in context[context_key]:
             _append_issue(
                 issues,
                 path,
                 f"{field_name} must reference the trust vocabulary registry",
             )
+
+
+def _validate_statuses(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    _validate_freshness(issues, path, payload, context)
+    _validate_registry_statuses(issues, path, payload, context)
 
 
 def _validate_lineage_and_blocking(

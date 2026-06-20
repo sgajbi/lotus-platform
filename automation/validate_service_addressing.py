@@ -42,6 +42,13 @@ def _load_repo_configs(path: Path) -> dict[str, RepoConfig]:
     }
 
 
+def _local_development_runbook_path(repo_root: Path) -> Path:
+    docs_path = repo_root / "docs" / "operations" / "Local Development Runbook.md"
+    if docs_path.exists():
+        return docs_path
+    return repo_root / "Local Development Runbook.md"
+
+
 def _result(check_id: str, passed: bool, message: str, evidence: list[str]) -> dict[str, Any]:
     return {
         "check_id": check_id,
@@ -92,7 +99,7 @@ def _find_localhost_literal_observations(repo_configs: dict[str, RepoConfig]) ->
         repo_name: [
             config.path / "README.md",
             config.path / "docs" / "demo" / "README.md",
-            config.path / "Local Development Runbook.md",
+            _local_development_runbook_path(config.path),
         ]
         for repo_name, config in repo_configs.items()
     }
@@ -125,7 +132,7 @@ def validate_service_addressing(repos_path: Path) -> dict[str, Any]:
     risk_root = repo_configs["lotus-risk"].path
     report_root = repo_configs["lotus-report"].path
 
-    platform_runbook = platform_root / "Local Development Runbook.md"
+    platform_runbook = _local_development_runbook_path(platform_root)
     platform_stack_readme = platform_root / "platform-stack" / "README.md"
     dev_ingress_caddyfile = platform_root / "platform-stack" / "dev-ingress" / "Caddyfile"
     dev_ingress_hosts = platform_root / "platform-stack" / "dev-ingress" / "hosts.example"

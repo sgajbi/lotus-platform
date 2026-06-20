@@ -16,6 +16,11 @@ Use this skill after loading the smallest correct Lotus context set:
 Use the platform-owned skill source in `lotus-platform/codex/skills`, not the local Codex profile,
 as the durable home for Lotus documentation workflow guidance.
 
+Read `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` when README,
+wiki, or documentation work is part of a readiness, refactor, demo-readiness, production-readiness,
+or enterprise-grade improvement. Documentation should explain current implementation truth and
+evidence, not create future-state confidence ahead of code, tests, and validation.
+
 ## Workflow
 
 1. Classify the repository before writing:
@@ -116,6 +121,9 @@ as the durable home for Lotus documentation workflow guidance.
    names from the live wiki.
 26. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
+27. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
+   and follow-up backlog truth move with it. When no doc change is needed, record the explicit
+   no-doc/no-wiki decision in PR evidence.
 
 ## Durable Documentation Controls
 

@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-20 |
 | Owners | lotus-platform architecture; domain repository maintainers; lotus-gateway maintainers; lotus-workbench maintainers; security and operations owners |
 | Depends On | RFC-0072; RFC-0084; RFC-0085; RFC-0086; RFC-0087; RFC-0088; RFC-0089; RFC-0090 |
-| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `Continuous Integration, Validation, and Release Governance Standard.md` |
+| Related Standards | `RFC-GOVERNANCE-STANDARD.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md` |
 | Scope | Enterprise mesh maturity, runtime operations, onboarding, access governance, audit evidence |
 
 ## Executive Summary

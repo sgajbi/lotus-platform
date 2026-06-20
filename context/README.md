@@ -48,6 +48,9 @@ use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAY
    Human-maintained engineering memory for recurring platform lessons.
 11. [recent-architectural-decisions-digest.md](./recent-architectural-decisions-digest.md)
    High-signal summary of current architectural reality.
+12. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
+   Execution pack for enterprise backend refactors; `lotus-platform` uses it with the measured
+   quality artifacts under `../quality/`.
 
 ## Maintenance Rules
 
@@ -58,6 +61,8 @@ Update this directory when:
 3. cross-repository delivery expectations change,
 4. important repeated patterns should become durable guidance,
 5. the ecosystem inventory or authority model changes.
+6. enterprise refactor quality gates, scorecards, repo organization, or agent workflow expectations
+   change.
 
 If a change is repository-local only, update the repository-local context document instead.
 

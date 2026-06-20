@@ -39,7 +39,7 @@ Documentation is part of Done criteria.
 For each migration PR:
 1. Update API docs/OpenAPI summaries and examples for changed endpoints.
 2. Update RFC/ADR status for architectural or ownership changes.
-3. Update central vocabulary (`Domain Vocabulary Glossary.md`) for shared terms.
+3. Update central vocabulary (`docs/standards/Domain Vocabulary Glossary.md`) for shared terms.
 4. Remove or rewrite stale statements immediately.
 5. Run OpenAPI conformance baseline:
    - `powershell -ExecutionPolicy Bypass -File automation/Validate-OpenAPI-Conformance.ps1`

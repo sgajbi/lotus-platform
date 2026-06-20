@@ -2,7 +2,7 @@
 
 Authoritative CI governance now lives in:
 
-1. `Continuous Integration, Validation, and Release Governance Standard.md`
+1. `docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
 2. `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 
 This document remains as a concise operator-facing companion and must stay aligned to those sources.

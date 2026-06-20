@@ -1,6 +1,9 @@
+Legacy mirror of Markdown source of truth.
+Canonical document: C:\Users\sande\dev\docs\docs/architecture/Private Banking Wealth Management UI Platform.md
+
 # Private Banking Wealth Management Platform Vision and Architecture
 
-- Last updated: 2026-02-23
+- Last updated: 2026-02-22
 - Owner: Platform Architecture
 - Status: Active working draft
 
@@ -266,20 +269,8 @@ Why this first workflow:
 - This file is the source of truth for platform vision and architecture.
 - Every major architectural decision updates this file and references the corresponding RFC.
 - Changes must include rationale and implementation impact.
-- Significant implementation decisions must be captured as repository-level ADRs (see RFC-0030).
 - Day-to-day startup and troubleshooting commands live in:
-  - `docs/Local Development Runbook.md`
-
-## 14.1 Current Strategy RFC Set (Latest)
-
-- `RFC-0023-pas-api-product-and-governance-principles.md`
-- `RFC-0024-pas-pa-dpm-integration-and-boundary-model.md`
-- `RFC-0025-backend-driven-configurability-entitlements-and-workflow-control.md`
-- `RFC-0026-synchronous-vs-asynchronous-integration-patterns.md`
-- `RFC-0027-reporting-and-analytics-separation-strategy.md`
-- `RFC-0028-ui-bff-integration-model-and-responsibility-rules.md`
-- `RFC-0029-phased-integration-roadmap-pas-pa-dpm.md`
-- `RFC-0030-adr-governance-and-decision-traceability.md`
+  - `docs/operations/Local Development Runbook.md`
 
 ## 15. Recommended Tech Stack
 
@@ -305,5 +296,6 @@ Charts
 Forms/validation
 - React Hook Form
 - Zod
+
 
 

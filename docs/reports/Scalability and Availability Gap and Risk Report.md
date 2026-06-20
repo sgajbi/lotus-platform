@@ -47,7 +47,7 @@ Done criteria for this standard:
 - Resilience controls validated by unit/integration tests.
 
 Evidence artifacts:
-- `Scalability and Availability Standard.md`
+- `docs/standards/Scalability and Availability Standard.md`
 - `output/scalability-availability-compliance.json`
 - `output/scalability-availability-compliance.md`
 - Repo PRs with code/tests/docs implementing missing controls.

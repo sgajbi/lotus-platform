@@ -35,7 +35,7 @@ foreach ($repo in $repos) {
     "--glob=!**/docs/rfcs/**",
     "--glob=!**/automation/repos.json",
     "--glob=!**/automation/service-map.json",
-    "--glob=!**/Lotus Repository Rename Runbook.md",
+    "--glob=!**/docs/operations/Lotus Repository Rename Runbook.md",
     "--glob=!**/automation/Validate-Lotus-Naming.ps1"
   )
   if (-not $IncludeRfcs) {

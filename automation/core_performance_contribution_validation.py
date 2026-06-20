@@ -6,6 +6,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import requests
 
@@ -18,6 +19,253 @@ from core_performance_twr_benchmark_validation import (
     _post_json,
     _seed_core_data,
 )
+
+
+TOLERANCE = Decimal("0.0001")
+
+
+def _poll_core_portfolio_timeseries(
+    session: requests.Session,
+    *,
+    core_query_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> None:
+    _poll_post_json(
+        session,
+        f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
+        {
+            "as_of_date": "2026-03-20",
+            "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
+            "frequency": "daily",
+            "reporting_currency": "USD",
+            "consumer_system": "lotus-platform",
+        },
+        predicate=lambda payload: len(payload.get("observations", [])) == 5,
+    )
+
+
+def _post_stateful_contribution(
+    session: requests.Session,
+    *,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> dict[str, Any]:
+    contribution_response = _post_json(
+        session,
+        f"{performance_base_url}/performance/contribution",
+        {
+            "portfolio_id": scenario_ids.portfolio_id,
+            "report_start_date": "2026-03-16",
+            "report_end_date": "2026-03-20",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "emit": {"timeseries": True, "by_position_timeseries": True},
+            "input_mode": "stateful",
+            "stateful_input": {},
+        },
+    )
+    return _follow_async_result(
+        session,
+        contribution_response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/contribution/results",
+    )
+
+
+def _post_stateful_twr(
+    session: requests.Session,
+    *,
+    performance_base_url: str,
+    scenario_ids: ScenarioIds,
+) -> dict[str, Any]:
+    twr_response = _post_json(
+        session,
+        f"{performance_base_url}/performance/twr",
+        {
+            "portfolio_id": scenario_ids.portfolio_id,
+            "report_end_date": "2026-03-20",
+            "metric_basis": "NET",
+            "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
+            "input_mode": "stateful",
+            "stateful_input": {},
+            "include_benchmark": False,
+        },
+    )
+    return _follow_async_result(
+        session,
+        twr_response,
+        performance_base_url=performance_base_url,
+        fallback_result_prefix="/performance/twr/results",
+    )
+
+
+def _append_defect(
+    defects: list[dict[str, str]],
+    *,
+    code: str,
+    message: str,
+    evidence: dict[str, object],
+) -> None:
+    defects.append(
+        {
+            "app": "lotus-performance",
+            "code": code,
+            "message": message,
+            "evidence": json.dumps(evidence),
+        }
+    )
+
+
+def _sum_position_contribution(position_contributions: list[dict[str, Any]]) -> Decimal:
+    return sum(
+        Decimal(str(position["total_contribution"])) for position in position_contributions
+    )
+
+
+def _position_ids(rows: list[dict[str, Any]]) -> set[str]:
+    return {row["position_id"].split(":")[-1] for row in rows}
+
+
+def _by_position_daily_totals(
+    by_position_timeseries: list[dict[str, Any]],
+) -> dict[str, Decimal]:
+    daily_totals: dict[str, Decimal] = {}
+    for series in by_position_timeseries:
+        for point in series.get("series", []):
+            daily_totals.setdefault(point["date"], Decimal("0"))
+            daily_totals[point["date"]] += Decimal(str(point["contribution"]))
+    return daily_totals
+
+
+def _validate_contribution_input_mode(
+    contribution: dict[str, Any], defects: list[dict[str, str]]
+) -> None:
+    if contribution.get("input_mode") != "stateful":
+        _append_defect(
+            defects,
+            code="CONTRIBUTION_INPUT_MODE_MISMATCH",
+            message="Contribution response did not preserve stateful input mode.",
+            evidence={"input_mode": contribution.get("input_mode")},
+        )
+
+
+def _validate_contribution_total_return(
+    *,
+    portfolio_return: Decimal,
+    twr_portfolio_return: Decimal,
+    defects: list[dict[str, str]],
+) -> None:
+    if abs(portfolio_return - twr_portfolio_return) <= TOLERANCE:
+        return
+    _append_defect(
+        defects,
+        code="CONTRIBUTION_TWR_TOTAL_RETURN_MISMATCH",
+        message="Contribution total portfolio return does not align with live stateful TWR for the same window.",
+        evidence={
+            "contribution_total_portfolio_return": str(portfolio_return),
+            "twr_total_portfolio_return": str(twr_portfolio_return),
+        },
+    )
+
+
+def _validate_position_contribution_sum(
+    *,
+    contribution_total: Decimal,
+    summed_position_contribution: Decimal,
+    defects: list[dict[str, str]],
+) -> None:
+    if abs(contribution_total - summed_position_contribution) <= TOLERANCE:
+        return
+    _append_defect(
+        defects,
+        code="CONTRIBUTION_POSITION_SUM_MISMATCH",
+        message="Contribution total does not reconcile to the sum of flat position contributions.",
+        evidence={
+            "total_contribution": str(contribution_total),
+            "summed_position_contribution": str(summed_position_contribution),
+        },
+    )
+
+
+def _validate_daily_position_reconciliation(
+    *,
+    timeseries: list[dict[str, Any]],
+    by_position_timeseries: list[dict[str, Any]],
+    defects: list[dict[str, str]],
+) -> None:
+    by_position_totals = _by_position_daily_totals(by_position_timeseries)
+    for point in timeseries:
+        point_date = point["date"]
+        daily_total = Decimal(str(point["total_contribution"]))
+        by_position_total = by_position_totals.get(point_date, Decimal("0"))
+        if abs(daily_total - by_position_total) <= TOLERANCE:
+            continue
+        _append_defect(
+            defects,
+            code="CONTRIBUTION_DAILY_POSITION_RECONCILIATION_MISMATCH",
+            message="Contribution daily total does not reconcile to the sum of emitted per-position contribution series for the same date.",
+            evidence={
+                "date": point_date,
+                "daily_total_contribution": str(daily_total),
+                "summed_position_series_contribution": str(by_position_total),
+            },
+        )
+        break
+
+
+def _expected_position_ids(scenario_ids: ScenarioIds) -> set[str]:
+    return {
+        scenario_ids.cash_security_id,
+        scenario_ids.aapl_security_id,
+        scenario_ids.msft_security_id,
+    }
+
+
+def _validate_position_id_sets(
+    *,
+    expected_position_ids: set[str],
+    contribution_position_ids: set[str],
+    by_position_ids: set[str],
+    defects: list[dict[str, str]],
+) -> None:
+    if contribution_position_ids != expected_position_ids:
+        _append_defect(
+            defects,
+            code="CONTRIBUTION_POSITION_ID_SET_MISMATCH",
+            message="Contribution result did not include the expected seeded positions.",
+            evidence={
+                "expected_position_ids": sorted(expected_position_ids),
+                "actual_position_ids": sorted(contribution_position_ids),
+            },
+        )
+
+    if by_position_ids != expected_position_ids:
+        _append_defect(
+            defects,
+            code="CONTRIBUTION_POSITION_SERIES_SET_MISMATCH",
+            message="Contribution by-position timeseries did not include the expected seeded positions.",
+            evidence={
+                "expected_position_ids": sorted(expected_position_ids),
+                "actual_position_ids": sorted(by_position_ids),
+            },
+        )
+
+
+def _validate_position_series_lengths(
+    by_position_timeseries: list[dict[str, Any]], defects: list[dict[str, str]]
+) -> None:
+    for series in by_position_timeseries:
+        if len(series.get("series", [])) == 5:
+            continue
+        _append_defect(
+            defects,
+            code="CONTRIBUTION_POSITION_SERIES_LENGTH_MISMATCH",
+            message="Contribution by-position timeseries did not preserve the expected five business dates.",
+            evidence={
+                "position_id": series.get("position_id"),
+                "point_count": len(series.get("series", [])),
+            },
+        )
+        break
 
 
 def _run_validation(
@@ -35,57 +283,21 @@ def _run_validation(
         if not skip_seed:
             _seed_core_data(session, ingestion_base_url=core_ingestion_base_url, ids=scenario_ids)
 
-        _poll_post_json(
+        _poll_core_portfolio_timeseries(
             session,
-            f"{core_query_base_url}/integration/portfolios/{scenario_ids.portfolio_id}/analytics/portfolio-timeseries",
-            {
-                "as_of_date": "2026-03-20",
-                "window": {"start_date": "2026-03-16", "end_date": "2026-03-20"},
-                "frequency": "daily",
-                "reporting_currency": "USD",
-                "consumer_system": "lotus-platform",
-            },
-            predicate=lambda payload: len(payload.get("observations", [])) == 5,
+            core_query_base_url=core_query_base_url,
+            scenario_ids=scenario_ids,
         )
 
-        contribution_response = _post_json(
+        contribution = _post_stateful_contribution(
             session,
-            f"{performance_base_url}/performance/contribution",
-            {
-                "portfolio_id": scenario_ids.portfolio_id,
-                "report_start_date": "2026-03-16",
-                "report_end_date": "2026-03-20",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "emit": {"timeseries": True, "by_position_timeseries": True},
-                "input_mode": "stateful",
-                "stateful_input": {},
-            },
-        )
-        contribution = _follow_async_result(
-            session,
-            contribution_response,
             performance_base_url=performance_base_url,
-            fallback_result_prefix="/performance/contribution/results",
+            scenario_ids=scenario_ids,
         )
-
-        twr_response = _post_json(
+        twr = _post_stateful_twr(
             session,
-            f"{performance_base_url}/performance/twr",
-            {
-                "portfolio_id": scenario_ids.portfolio_id,
-                "report_end_date": "2026-03-20",
-                "metric_basis": "NET",
-                "analyses": [{"period": "ITD", "frequencies": ["daily"]}],
-                "input_mode": "stateful",
-                "stateful_input": {},
-                "include_benchmark": False,
-            },
-        )
-        twr = _follow_async_result(
-            session,
-            twr_response,
             performance_base_url=performance_base_url,
-            fallback_result_prefix="/performance/twr/results",
+            scenario_ids=scenario_ids,
         )
 
         contribution_itd = contribution["results_by_period"]["ITD"]
@@ -97,132 +309,34 @@ def _run_validation(
         timeseries = contribution_itd.get("timeseries") or []
         by_position_timeseries = contribution_itd.get("by_position_timeseries") or []
 
-        summed_position_contribution = sum(
-            Decimal(str(position["total_contribution"])) for position in position_contributions
+        summed_position_contribution = _sum_position_contribution(position_contributions)
+        by_position_ids = _position_ids(by_position_timeseries)
+        contribution_position_ids = _position_ids(position_contributions)
+        expected_position_ids = _expected_position_ids(scenario_ids)
+
+        _validate_contribution_input_mode(contribution, defects)
+        _validate_contribution_total_return(
+            portfolio_return=portfolio_return,
+            twr_portfolio_return=twr_portfolio_return,
+            defects=defects,
         )
-        by_position_ids = {series["position_id"].split(":")[-1] for series in by_position_timeseries}
-        contribution_position_ids = {row["position_id"].split(":")[-1] for row in position_contributions}
-
-        tolerance = Decimal("0.0001")
-
-        if contribution.get("input_mode") != "stateful":
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "CONTRIBUTION_INPUT_MODE_MISMATCH",
-                    "message": "Contribution response did not preserve stateful input mode.",
-                    "evidence": json.dumps({"input_mode": contribution.get("input_mode")}),
-                }
-            )
-
-        if abs(portfolio_return - twr_portfolio_return) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "CONTRIBUTION_TWR_TOTAL_RETURN_MISMATCH",
-                    "message": "Contribution total portfolio return does not align with live stateful TWR for the same window.",
-                    "evidence": json.dumps(
-                        {
-                            "contribution_total_portfolio_return": str(portfolio_return),
-                            "twr_total_portfolio_return": str(twr_portfolio_return),
-                        }
-                    ),
-                }
-            )
-
-        if abs(contribution_total - summed_position_contribution) > tolerance:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "CONTRIBUTION_POSITION_SUM_MISMATCH",
-                    "message": "Contribution total does not reconcile to the sum of flat position contributions.",
-                    "evidence": json.dumps(
-                        {
-                            "total_contribution": str(contribution_total),
-                            "summed_position_contribution": str(summed_position_contribution),
-                        }
-                    ),
-                }
-            )
-
-        by_position_daily_totals: dict[str, Decimal] = {}
-        for series in by_position_timeseries:
-            for point in series.get("series", []):
-                by_position_daily_totals.setdefault(point["date"], Decimal("0"))
-                by_position_daily_totals[point["date"]] += Decimal(str(point["contribution"]))
-
-        for point in timeseries:
-            point_date = point["date"]
-            daily_total = Decimal(str(point["total_contribution"]))
-            by_position_total = by_position_daily_totals.get(point_date, Decimal("0"))
-            if abs(daily_total - by_position_total) > tolerance:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "CONTRIBUTION_DAILY_POSITION_RECONCILIATION_MISMATCH",
-                        "message": "Contribution daily total does not reconcile to the sum of emitted per-position contribution series for the same date.",
-                        "evidence": json.dumps(
-                            {
-                                "date": point_date,
-                                "daily_total_contribution": str(daily_total),
-                                "summed_position_series_contribution": str(by_position_total),
-                            }
-                        ),
-                    }
-                )
-                break
-
-        expected_position_ids = {
-            scenario_ids.cash_security_id,
-            scenario_ids.aapl_security_id,
-            scenario_ids.msft_security_id,
-        }
-        if contribution_position_ids != expected_position_ids:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "CONTRIBUTION_POSITION_ID_SET_MISMATCH",
-                    "message": "Contribution result did not include the expected seeded positions.",
-                    "evidence": json.dumps(
-                        {
-                            "expected_position_ids": sorted(expected_position_ids),
-                            "actual_position_ids": sorted(contribution_position_ids),
-                        }
-                    ),
-                }
-            )
-
-        if by_position_ids != expected_position_ids:
-            defects.append(
-                {
-                    "app": "lotus-performance",
-                    "code": "CONTRIBUTION_POSITION_SERIES_SET_MISMATCH",
-                    "message": "Contribution by-position timeseries did not include the expected seeded positions.",
-                    "evidence": json.dumps(
-                        {
-                            "expected_position_ids": sorted(expected_position_ids),
-                            "actual_position_ids": sorted(by_position_ids),
-                        }
-                    ),
-                }
-            )
-
-        for series in by_position_timeseries:
-            if len(series.get("series", [])) != 5:
-                defects.append(
-                    {
-                        "app": "lotus-performance",
-                        "code": "CONTRIBUTION_POSITION_SERIES_LENGTH_MISMATCH",
-                        "message": "Contribution by-position timeseries did not preserve the expected five business dates.",
-                        "evidence": json.dumps(
-                            {
-                                "position_id": series.get("position_id"),
-                                "point_count": len(series.get("series", [])),
-                            }
-                        ),
-                    }
-                )
-                break
+        _validate_position_contribution_sum(
+            contribution_total=contribution_total,
+            summed_position_contribution=summed_position_contribution,
+            defects=defects,
+        )
+        _validate_daily_position_reconciliation(
+            timeseries=timeseries,
+            by_position_timeseries=by_position_timeseries,
+            defects=defects,
+        )
+        _validate_position_id_sets(
+            expected_position_ids=expected_position_ids,
+            contribution_position_ids=contribution_position_ids,
+            by_position_ids=by_position_ids,
+            defects=defects,
+        )
+        _validate_position_series_lengths(by_position_timeseries, defects)
 
     return {
         "generated_at_utc": datetime.now(UTC).isoformat(),
