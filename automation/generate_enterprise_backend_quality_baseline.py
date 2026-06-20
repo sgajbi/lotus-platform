@@ -815,6 +815,10 @@ Generated: `{baseline["generated_at_utc"]}`
     embedded path lookup, fallback path lookup, and file loading are isolated behind focused
     helpers, removing the canonical proof live-summary resolver from the top measured complexity
     hotspot list while preserving RFC-0108 canonical proof review behavior.
+88. Heartbeat suppressions validator extraction so contract identity, suppression-list shape,
+    required string fields, and expiry checks are isolated behind focused helpers, removing the
+    suppressions validator from the top measured complexity hotspot list while preserving RFC-0095
+    suppression policy behavior.
 
 ## Evidence
 

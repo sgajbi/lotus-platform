@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T09:33:22Z`
+Generated: `2026-06-20T09:43:48Z`
 
 ## Completed Slices
 
@@ -326,6 +326,10 @@ Generated: `2026-06-20T09:33:22Z`
     embedded path lookup, fallback path lookup, and file loading are isolated behind focused
     helpers, removing the canonical proof live-summary resolver from the top measured complexity
     hotspot list while preserving RFC-0108 canonical proof review behavior.
+88. Heartbeat suppressions validator extraction so contract identity, suppression-list shape,
+    required string fields, and expiry checks are isolated behind focused helpers, removing the
+    suppressions validator from the top measured complexity hotspot list while preserving RFC-0095
+    suppression policy behavior.
 
 ## Evidence
 

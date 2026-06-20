@@ -14,6 +14,12 @@ CONFIG_PATH = ROOT / "automation" / "heartbeat-config.json"
 SUPPRESSIONS_PATH = (
     ROOT / "platform-contracts" / "heartbeat" / "heartbeat-suppressions.json"
 )
+HEARTBEAT_SUPPRESSION_REQUIRED_FIELDS = {
+    "deduplication_key",
+    "owner",
+    "reason",
+    "expires_at_utc",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -621,6 +627,54 @@ def validate_heartbeat_runner_config(path: Path = CONFIG_PATH) -> list[str]:
     return errors
 
 
+def _validate_heartbeat_suppressions_identity(
+    errors: list[str], payload: dict[str, Any]
+) -> None:
+    if payload.get("contract_id") != "lotus-platform:heartbeat-suppressions:v1":
+        errors.append(
+            "heartbeat suppressions contract_id must be lotus-platform:heartbeat-suppressions:v1"
+        )
+    if payload.get("source_rfc") != "RFC-0095":
+        errors.append("heartbeat suppressions source_rfc must be RFC-0095")
+
+
+def _heartbeat_suppression_entries(
+    errors: list[str], payload: dict[str, Any]
+) -> list[Any] | None:
+    suppressions = payload.get("suppressions")
+    if not isinstance(suppressions, list):
+        errors.append("heartbeat suppressions must be a list")
+        return None
+    return suppressions
+
+
+def _validate_heartbeat_suppression_strings(
+    errors: list[str], label: str, suppression: dict[str, Any]
+) -> None:
+    for key in sorted(HEARTBEAT_SUPPRESSION_REQUIRED_FIELDS):
+        if not isinstance(suppression.get(key), str) or not suppression[key].strip():
+            errors.append(f"{label}.{key} must be a non-empty string")
+
+
+def _validate_heartbeat_suppression_expiry(
+    errors: list[str], label: str, suppression: dict[str, Any]
+) -> None:
+    if not _is_rfc3339_utc(suppression.get("expires_at_utc")):
+        errors.append(
+            f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+        )
+
+
+def _validate_heartbeat_suppression_entry(
+    errors: list[str], label: str, suppression: object
+) -> None:
+    _require_keys(errors, label, suppression, HEARTBEAT_SUPPRESSION_REQUIRED_FIELDS)
+    if not isinstance(suppression, dict):
+        return
+    _validate_heartbeat_suppression_strings(errors, label, suppression)
+    _validate_heartbeat_suppression_expiry(errors, label, suppression)
+
+
 def validate_heartbeat_suppressions(path: Path = SUPPRESSIONS_PATH) -> list[str]:
     errors: list[str] = []
     if not path.exists():
@@ -629,25 +683,14 @@ def validate_heartbeat_suppressions(path: Path = SUPPRESSIONS_PATH) -> list[str]
         payload = _load_json(path)
     except json.JSONDecodeError as exc:
         return [f"{path}: invalid JSON: {exc}"]
-    if payload.get("contract_id") != "lotus-platform:heartbeat-suppressions:v1":
-        errors.append("heartbeat suppressions contract_id must be lotus-platform:heartbeat-suppressions:v1")
-    if payload.get("source_rfc") != "RFC-0095":
-        errors.append("heartbeat suppressions source_rfc must be RFC-0095")
-    suppressions = payload.get("suppressions")
-    if not isinstance(suppressions, list):
-        errors.append("heartbeat suppressions must be a list")
+    _validate_heartbeat_suppressions_identity(errors, payload)
+    suppressions = _heartbeat_suppression_entries(errors, payload)
+    if suppressions is None:
         return errors
-    required = {"deduplication_key", "owner", "reason", "expires_at_utc"}
     for index, suppression in enumerate(suppressions):
-        label = f"heartbeat suppressions[{index}]"
-        _require_keys(errors, label, suppression, required)
-        if not isinstance(suppression, dict):
-            continue
-        for key in required:
-            if not isinstance(suppression.get(key), str) or not suppression[key].strip():
-                errors.append(f"{label}.{key} must be a non-empty string")
-        if not _is_rfc3339_utc(suppression.get("expires_at_utc")):
-            errors.append(f"{label}.expires_at_utc must be an RFC-3339 UTC string ending with Z")
+        _validate_heartbeat_suppression_entry(
+            errors, f"heartbeat suppressions[{index}]", suppression
+        )
     return errors
 
 
