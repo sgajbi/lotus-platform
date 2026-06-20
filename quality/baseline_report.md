@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T08:32:06Z`
+Generated: `2026-06-20T08:36:42Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `304666`
+- Total source lines: `304768`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1696`
+- Python functions: `1701`
 - Highest measured cyclomatic complexity: `12`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_mesh_slo_policies.py | evaluate_mesh_slo_violations | 235 | 12 | 102 |
 | automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
 | automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
 | automation/review_analytics_ui_canonical_proof.py | review_canonical_proof | 393 | 12 | 67 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/heartbeat_sources.py | _append_delegated_task_overlap_attention | 853 | 12 | 37 |
 | automation/review_analytics_ui_ecosystem_proof.py | _validate_screenshots | 216 | 12 | 37 |
 | automation/validate_engineering_context_system.py | _validate_agents_operating_contract | 197 | 12 | 34 |
+| automation/validate_mesh_access_policies.py | _validate_allowed_consumer | 231 | 12 | 33 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `522`
+- Unit tests collected: `523`
 - Collection command return code: `0`
-- Collection summary: `522 tests collected in 0.63s`
+- Collection summary: `523 tests collected in 0.55s`
 
 ## Security Baseline
 

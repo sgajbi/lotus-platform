@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304666
+    "total_source_lines": 304768
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 336,
-        "line": 235,
-        "lines": 102,
-        "name": "evaluate_mesh_slo_violations",
-        "path": "automation/validate_mesh_slo_policies.py"
-      },
       {
         "complexity": 12,
         "end_line": 1376,
@@ -192,6 +184,14 @@
         "lines": 47,
         "name": "_validate_gap_matrix",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 108,
+        "line": 64,
+        "lines": 45,
+        "name": "find_products",
+        "path": "automation/domain_product_discovery.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 803,
+        "end_line": 806,
         "line": 489,
-        "lines": 315,
+        "lines": 318,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1696
+    "python_function_count": 1701
   },
-  "generated_at_utc": "2026-06-20T08:32:06Z",
+  "generated_at_utc": "2026-06-20T08:36:42Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 522,
+    "collected_tests": 523,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "522 tests collected in 0.63s"
+    "summary": "523 tests collected in 0.55s"
   }
 }

@@ -232,6 +232,128 @@ def validate_mesh_slo_policies(
     return issues
 
 
+def _mesh_slo_policy_context(
+    policy_entry: tuple[Path, dict[str, Any]],
+) -> tuple[Path, dict[str, Any], str, dict[str, Any]]:
+    policy_path_for_product, policy = policy_entry
+    return (
+        policy_path_for_product,
+        policy,
+        str(policy.get("producer_repository")),
+        policy.get("escalation", {}),
+    )
+
+
+def _append_freshness_violation(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    freshness = telemetry.get("freshness", {})
+    freshness_policy = policy.get("freshness", {})
+    age_seconds = (
+        freshness.get("age_seconds") if isinstance(freshness, dict) else None
+    )
+    max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
+    if not isinstance(age_seconds, int) or not isinstance(max_allowed_age_seconds, int):
+        return
+    if age_seconds <= max_allowed_age_seconds:
+        return
+    violations.append(
+        _violation(
+            code="mesh_slo_freshness_violation",
+            product_id=product_id,
+            producer_repository=producer_repository,
+            severity=_severity(freshness_policy),
+            detail=(
+                f"Telemetry age {age_seconds}s exceeds SLO "
+                f"{max_allowed_age_seconds}s."
+            ),
+            telemetry_path=telemetry_path,
+            policy_path=policy_path,
+            escalation=escalation,
+        )
+    )
+
+
+def _append_status_violations(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    for section_name, telemetry_field, code in (
+        (
+            "completeness",
+            "completeness_status",
+            "mesh_slo_completeness_violation",
+        ),
+        (
+            "reconciliation",
+            "reconciliation_status",
+            "mesh_slo_reconciliation_violation",
+        ),
+        ("data_quality", "data_quality_status", "mesh_slo_data_quality_violation"),
+    ):
+        _append_status_violation(
+            violations,
+            telemetry=telemetry,
+            telemetry_path=telemetry_path,
+            policy=policy,
+            policy_path=policy_path,
+            product_id=product_id,
+            producer_repository=producer_repository,
+            section_name=section_name,
+            telemetry_field=telemetry_field,
+            code=code,
+            escalation=escalation,
+        )
+
+
+def _append_lineage_violation(
+    violations: list[dict[str, Any]],
+    *,
+    telemetry: dict[str, Any],
+    telemetry_path: Path,
+    policy: dict[str, Any],
+    policy_path: Path,
+    product_id: str,
+    producer_repository: str,
+    escalation: dict[str, Any],
+) -> None:
+    lineage_policy = policy.get("lineage", {})
+    lineage = telemetry.get("lineage", {})
+    if (
+        isinstance(lineage_policy, dict)
+        and lineage_policy.get("lineage_materialized_required") is True
+        and isinstance(lineage, dict)
+        and lineage.get("lineage_materialized") is not True
+    ):
+        violations.append(
+            _violation(
+                code="mesh_slo_lineage_violation",
+                product_id=product_id,
+                producer_repository=producer_repository,
+                severity=_severity(lineage_policy),
+                detail="Lineage is not materialized but the SLO requires it.",
+                telemetry_path=telemetry_path,
+                policy_path=policy_path,
+                escalation=escalation,
+            )
+        )
+
+
 def evaluate_mesh_slo_violations(
     *,
     telemetry_payloads: dict[str, tuple[Path, dict[str, Any]]],
@@ -245,35 +367,14 @@ def evaluate_mesh_slo_violations(
         policy_entry = policies.get(product_id)
         if policy_entry is None:
             continue
-        policy_path_for_product, policy = policy_entry
-        producer_repository = str(policy.get("producer_repository"))
-        escalation = policy.get("escalation", {})
+        (
+            policy_path_for_product,
+            policy,
+            producer_repository,
+            escalation,
+        ) = _mesh_slo_policy_context(policy_entry)
 
-        freshness = telemetry.get("freshness", {})
-        freshness_policy = policy.get("freshness", {})
-        age_seconds = (
-            freshness.get("age_seconds") if isinstance(freshness, dict) else None
-        )
-        max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
-        if isinstance(age_seconds, int) and isinstance(max_allowed_age_seconds, int):
-            if age_seconds > max_allowed_age_seconds:
-                violations.append(
-                    _violation(
-                        code="mesh_slo_freshness_violation",
-                        product_id=product_id,
-                        producer_repository=producer_repository,
-                        severity=_severity(freshness_policy),
-                        detail=(
-                            f"Telemetry age {age_seconds}s exceeds SLO "
-                            f"{max_allowed_age_seconds}s."
-                        ),
-                        telemetry_path=telemetry_path,
-                        policy_path=policy_path_for_product,
-                        escalation=escalation,
-                    )
-                )
-
-        _append_status_violation(
+        _append_freshness_violation(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -281,12 +382,9 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="completeness",
-            telemetry_field="completeness_status",
-            code="mesh_slo_completeness_violation",
             escalation=escalation,
         )
-        _append_status_violation(
+        _append_status_violations(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -294,12 +392,9 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="reconciliation",
-            telemetry_field="reconciliation_status",
-            code="mesh_slo_reconciliation_violation",
             escalation=escalation,
         )
-        _append_status_violation(
+        _append_lineage_violation(
             violations,
             telemetry=telemetry,
             telemetry_path=telemetry_path,
@@ -307,32 +402,8 @@ def evaluate_mesh_slo_violations(
             policy_path=policy_path_for_product,
             product_id=product_id,
             producer_repository=producer_repository,
-            section_name="data_quality",
-            telemetry_field="data_quality_status",
-            code="mesh_slo_data_quality_violation",
             escalation=escalation,
         )
-
-        lineage_policy = policy.get("lineage", {})
-        lineage = telemetry.get("lineage", {})
-        if (
-            isinstance(lineage_policy, dict)
-            and lineage_policy.get("lineage_materialized_required") is True
-            and isinstance(lineage, dict)
-            and lineage.get("lineage_materialized") is not True
-        ):
-            violations.append(
-                _violation(
-                    code="mesh_slo_lineage_violation",
-                    product_id=product_id,
-                    producer_repository=producer_repository,
-                    severity=_severity(lineage_policy),
-                    detail="Lineage is not materialized but the SLO requires it.",
-                    telemetry_path=telemetry_path,
-                    policy_path=policy_path_for_product,
-                    escalation=escalation,
-                )
-            )
     return violations
 
 

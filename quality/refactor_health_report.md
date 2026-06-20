@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:32:06Z`
+Generated: `2026-06-20T08:36:42Z`
 
 ## Completed Slices
 
@@ -275,6 +275,9 @@ Generated: `2026-06-20T08:32:06Z`
     reciprocal approval, trust metadata, graph-edge, validation-lane, and failure-posture checks
     are isolated behind focused helpers, removing consumer certification from the top measured
     complexity hotspot list and adding unit coverage for dependency-level issue classification.
+75. Mesh SLO violation evaluator extraction so policy context, freshness, status, and lineage
+    violation checks are isolated behind focused helpers, removing the RFC-0091 SLO evaluator from
+    the top measured complexity hotspot list and adding focused freshness violation coverage.
 
 ## Evidence
 
