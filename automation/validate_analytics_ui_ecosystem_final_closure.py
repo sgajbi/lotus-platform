@@ -285,10 +285,9 @@ def _validate_proof_reconciliation(
         errors.append("hardening findings contain open P0/P1 work")
 
 
-def _validate_downstream_boundary_hardening(
-    errors: list[str], final_closure: dict[str, Any]
+def _validate_downstream_gateway_evidence(
+    errors: list[str], boundary: dict[str, Any]
 ) -> None:
-    boundary = final_closure.get("downstream_boundary_hardening", {})
     if boundary.get("status") != "implemented":
         errors.append("downstream_boundary_hardening.status must be implemented")
     if boundary.get("gateway_pr") != 179:
@@ -302,6 +301,10 @@ def _validate_downstream_boundary_hardening(
             "downstream_boundary_hardening.gateway_wiki_publish_commit must reference 94ca9c7"
         )
 
+
+def _validate_downstream_manage_paths(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     manage_paths = set(boundary.get("lotus_manage_allowed_paths", []))
     if manage_paths != REQUIRED_MANAGE_PATHS:
         errors.append(
@@ -319,6 +322,10 @@ def _validate_downstream_boundary_hardening(
             f"proposal or unversioned rebalance paths: {stale_manage_paths}"
         )
 
+
+def _validate_downstream_advise_paths(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     advise_paths = set(boundary.get("lotus_advise_proposal_paths", []))
     missing_advise_paths = sorted(REQUIRED_ADVISE_PROPOSAL_PATHS - advise_paths)
     if missing_advise_paths:
@@ -332,6 +339,10 @@ def _validate_downstream_boundary_hardening(
             "/advisory/proposals, not rebalance proposal paths"
         )
 
+
+def _validate_downstream_forbidden_patterns(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     forbidden_patterns = " ".join(boundary.get("forbidden_gateway_patterns", []))
     for required_fragment in (
         "lotus-manage /rebalance/proposals",
@@ -344,6 +355,10 @@ def _validate_downstream_boundary_hardening(
                 f"{required_fragment}"
             )
 
+
+def _validate_downstream_ownership_decision(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     ownership = str(boundary.get("ownership_decision", ""))
     for required_fragment in ("lotus-advise", "lotus-manage", "strategic DPM runs"):
         if required_fragment not in ownership:
@@ -352,6 +367,10 @@ def _validate_downstream_boundary_hardening(
                 f"{required_fragment}"
             )
 
+
+def _validate_downstream_local_proof(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     local_proof = " ".join(boundary.get("local_proof", []))
     for required_fragment in ("make check passed", "make test-integration passed"):
         if required_fragment not in local_proof:
@@ -360,6 +379,10 @@ def _validate_downstream_boundary_hardening(
                 f"{required_fragment}"
             )
 
+
+def _validate_downstream_github_checks(
+    errors: list[str], boundary: dict[str, Any]
+) -> None:
     github_checks = set(boundary.get("github_checks", []))
     missing_gateway_checks = sorted(REQUIRED_GATEWAY_CHECKS - github_checks)
     if missing_gateway_checks:
@@ -367,6 +390,19 @@ def _validate_downstream_boundary_hardening(
             "downstream_boundary_hardening.github_checks missing "
             f"{missing_gateway_checks}"
         )
+
+
+def _validate_downstream_boundary_hardening(
+    errors: list[str], final_closure: dict[str, Any]
+) -> None:
+    boundary = final_closure.get("downstream_boundary_hardening", {})
+    _validate_downstream_gateway_evidence(errors, boundary)
+    _validate_downstream_manage_paths(errors, boundary)
+    _validate_downstream_advise_paths(errors, boundary)
+    _validate_downstream_forbidden_patterns(errors, boundary)
+    _validate_downstream_ownership_decision(errors, boundary)
+    _validate_downstream_local_proof(errors, boundary)
+    _validate_downstream_github_checks(errors, boundary)
 
 
 def _validate_required_proof(

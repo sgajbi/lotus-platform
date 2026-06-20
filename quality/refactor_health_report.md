@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T06:26:56Z`
+Generated: `2026-06-20T06:31:25Z`
 
 ## Completed Slices
 
@@ -166,6 +166,11 @@ Generated: `2026-06-20T06:26:56Z`
     sets, artifact paths, authority policy text, and invariant checks are isolated behind focused
     helpers, removing the heartbeat contract validator from the top measured complexity hotspot
     list while preserving heartbeat contract behavior.
+48. Analytics UI final-closure downstream-boundary extraction so Gateway evidence, lotus-manage
+    allowed paths, lotus-advise proposal paths, forbidden gateway patterns, ownership decisions,
+    local proof, and GitHub check validation are isolated behind focused helpers, removing the
+    downstream boundary validator from the top measured complexity hotspot list while preserving
+    RFC-0108 final-closure behavior.
 
 ## Evidence
 

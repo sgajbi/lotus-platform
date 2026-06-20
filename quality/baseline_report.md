@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:26:56Z`
+Generated: `2026-06-20T06:31:25Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302195`
+- Total source lines: `302236`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1514`
+- Python functions: `1521`
 - Highest measured cyclomatic complexity: `17`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_analytics_ui_ecosystem_final_closure.py | _validate_downstream_boundary_hardening | 288 | 17 | 82 |
 | automation/heartbeat_sources.py | _background_run_ledger_adapter | 469 | 17 | 70 |
 | automation/validate_trust_telemetry.py | _validate_statuses | 160 | 17 | 66 |
 | automation/explain_dev_ingress_status.py | explain_dev_ingress_status | 94 | 16 | 154 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_security.py | validate_workflow | 68 | 16 | 46 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 216 | 15 | 192 |
 | automation/validate_engineering_context_system.py | _validate_onboarding_guidance | 233 | 15 | 57 |
+| automation/validate_trust_telemetry.py | _validate_identity | 102 | 15 | 56 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.64s`
+- Collection summary: `510 tests collected in 0.53s`
 
 ## Security Baseline
 
