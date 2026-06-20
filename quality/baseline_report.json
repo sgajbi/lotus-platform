@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301432
+    "total_source_lines": 301504
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 21,
-        "end_line": 126,
-        "line": 32,
-        "lines": 95,
-        "name": "_validate_manifest_contract",
-        "path": "automation/validate_engineering_context_system.py"
-      },
       {
         "complexity": 20,
         "end_line": 152,
@@ -187,11 +179,19 @@
       },
       {
         "complexity": 15,
-        "end_line": 221,
-        "line": 165,
+        "end_line": 289,
+        "line": 233,
         "lines": 57,
         "name": "_validate_onboarding_guidance",
         "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 15,
+        "end_line": 157,
+        "line": 102,
+        "lines": 56,
+        "name": "_validate_identity",
+        "path": "automation/validate_trust_telemetry.py"
       }
     ],
     "largest_functions": [
@@ -293,19 +293,19 @@
       },
       {
         "complexity": 1,
+        "end_line": 658,
+        "line": 489,
+        "lines": 170,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
+        "complexity": 1,
         "end_line": 180,
         "line": 14,
         "lines": 167,
         "name": "test_validate_service_addressing_accepts_canonical_hostnames",
         "path": "tests/unit/test_service_addressing_validator.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 654,
-        "line": 489,
-        "lines": 166,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 2,
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 21,
+    "max_complexity": 20,
     "max_function_lines": 393,
-    "python_function_count": 1440
+    "python_function_count": 1446
   },
-  "generated_at_utc": "2026-06-20T05:45:14Z",
+  "generated_at_utc": "2026-06-20T05:49:03Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.52s"
+    "summary": "510 tests collected in 0.54s"
   }
 }

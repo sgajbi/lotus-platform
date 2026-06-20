@@ -29,17 +29,18 @@ def _normalize_text(value: str) -> str:
     return value.replace("\r\n", "\n").rstrip("\n\r")
 
 
-def _validate_manifest_contract(
+def _validate_application_registry_matches_repos(
     *,
     errors: list[str],
-    manifest: dict,
+    applications: list[dict],
     repository_registry: list[dict],
-    normalized_agents_contract: str,
-    ecosystem_registries: str,
 ) -> None:
-    applications = manifest.get("applications", [])
-    registered_repositories = {entry.get("name") for entry in repository_registry if entry.get("name")}
-    application_repositories = {entry.get("repository") for entry in applications if entry.get("repository")}
+    registered_repositories = {
+        entry.get("name") for entry in repository_registry if entry.get("name")
+    }
+    application_repositories = {
+        entry.get("repository") for entry in applications if entry.get("repository")
+    }
     if application_repositories != registered_repositories:
         missing_from_manifest = sorted(registered_repositories - application_repositories)
         missing_from_registry = sorted(application_repositories - registered_repositories)
@@ -50,6 +51,13 @@ def _validate_manifest_contract(
     if any(entry.get("status") != "implemented" for entry in applications):
         errors.append("lotus-context-manifest.json: all application context statuses must be `implemented`")
 
+
+def _validate_application_agent_contract_sync(
+    *,
+    errors: list[str],
+    applications: list[dict],
+    normalized_agents_contract: str,
+) -> None:
     for application in applications:
         repository_name = application.get("repository")
         if not repository_name:
@@ -69,6 +77,12 @@ def _validate_manifest_contract(
         if repo_agents_text != normalized_agents_contract:
             errors.append(f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md")
 
+
+def _validate_manifest_path_map(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
     context_documents = manifest.get("context_documents", {})
     for key, expected_path in {
         "index": "context/README.md",
@@ -94,8 +108,16 @@ def _validate_manifest_contract(
         if procedural_memory.get(key) != expected_path:
             errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
 
+
+def _validate_manifest_standards_registry(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
     standards_registry = manifest.get("standards_registry", [])
-    standard_names = {entry.get("name") for entry in standards_registry if isinstance(entry, dict)}
+    standard_names = {
+        entry.get("name") for entry in standards_registry if isinstance(entry, dict)
+    }
     for standard_name in (
         "Continuous Integration, Validation, and Release Governance Standard",
         "Testing Pyramid and Coverage Standard",
@@ -109,8 +131,18 @@ def _validate_manifest_contract(
         if standard_name not in standard_names:
             errors.append(f"lotus-context-manifest.json: standards registry missing `{standard_name}`")
 
+
+def _validate_manifest_rfc_postures(
+    *,
+    errors: list[str],
+    manifest: dict,
+) -> None:
     active_rfcs = manifest.get("active_rfc_registry", [])
-    rfc_postures = {entry.get("id"): entry.get("implementation_posture") for entry in active_rfcs if isinstance(entry, dict)}
+    rfc_postures = {
+        entry.get("id"): entry.get("implementation_posture")
+        for entry in active_rfcs
+        if isinstance(entry, dict)
+    }
     if rfc_postures.get("RFC-0071") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0071 implementation posture drifted")
     if "partially implemented" not in str(rfc_postures.get("RFC-0072", "")):
@@ -120,10 +152,46 @@ def _validate_manifest_contract(
     if rfc_postures.get("RFC-0074") != "implemented and governed":
         errors.append("lotus-context-manifest.json: RFC-0074 implementation posture drifted")
 
+
+def _validate_rendered_ecosystem_registries(
+    *,
+    errors: list[str],
+    manifest: dict,
+    ecosystem_registries: str,
+) -> None:
     registry_renderer = _load_registry_renderer()
     rendered_registries = registry_renderer.render_registry_document(manifest)
     if ecosystem_registries != rendered_registries:
         errors.append("ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json")
+
+
+def _validate_manifest_contract(
+    *,
+    errors: list[str],
+    manifest: dict,
+    repository_registry: list[dict],
+    normalized_agents_contract: str,
+    ecosystem_registries: str,
+) -> None:
+    applications = manifest.get("applications", [])
+    _validate_application_registry_matches_repos(
+        errors=errors,
+        applications=applications,
+        repository_registry=repository_registry,
+    )
+    _validate_application_agent_contract_sync(
+        errors=errors,
+        applications=applications,
+        normalized_agents_contract=normalized_agents_contract,
+    )
+    _validate_manifest_path_map(errors=errors, manifest=manifest)
+    _validate_manifest_standards_registry(errors=errors, manifest=manifest)
+    _validate_manifest_rfc_postures(errors=errors, manifest=manifest)
+    _validate_rendered_ecosystem_registries(
+        errors=errors,
+        manifest=manifest,
+        ecosystem_registries=ecosystem_registries,
+    )
 
 
 def _validate_agents_operating_contract(*, errors: list[str], agents_contract: str) -> None:

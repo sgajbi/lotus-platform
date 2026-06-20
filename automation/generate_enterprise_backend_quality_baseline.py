@@ -615,6 +615,10 @@ Generated: `{baseline["generated_at_utc"]}`
     request construction, async attribution result following, and acquisition/supported-window
     failure handling are isolated behind focused helpers, removing the live attribution validator
     from the top measured complexity hotspot list while preserving cross-app validation behavior.
+38. Engineering context manifest validator extraction so application registry matching, AGENTS
+    synchronization, context/procedural path maps, standards registry checks, RFC posture checks,
+    and rendered ecosystem-registry drift are isolated behind focused helpers, lowering the highest
+    measured complexity hotspot while preserving RFC-0073 context validation behavior.
 
 ## Evidence
 
