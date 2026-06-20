@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 295893
+    "total_source_lines": 295995
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -236,6 +236,14 @@
         "path": "automation/core_performance_attribution_validation.py"
       },
       {
+        "complexity": 1,
+        "end_line": 429,
+        "line": 151,
+        "lines": 279,
+        "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
+        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
+      },
+      {
         "complexity": 7,
         "end_line": 368,
         "line": 106,
@@ -258,14 +266,6 @@
         "lines": 258,
         "name": "validate_domain_product_onboarding_bundle",
         "path": "automation/generate_domain_product_onboarding.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 395,
-        "line": 148,
-        "lines": 248,
-        "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
-        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
       {
         "complexity": 38,
@@ -360,7 +360,7 @@
     "max_function_lines": 393,
     "python_function_count": 1272
   },
-  "generated_at_utc": "2026-06-20T03:07:40Z",
+  "generated_at_utc": "2026-06-20T03:11:18Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -403,7 +403,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1747,
+      "lines": 1801,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -632,7 +632,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 934,
+        "line": 939,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "503 tests collected in 0.60s"
+    "summary": "503 tests collected in 0.81s"
   }
 }

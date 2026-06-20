@@ -126,13 +126,16 @@ function Write-RepositoryEngineeringContext {
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
     'typecheck, OpenAPI quality, unit/integration/e2e tests, coverage gate, security audit, and Docker',
     'build validation.',
+    'The scaffold also starts with a bank-buyable quality scorecard under `quality/`; update it when',
+    'architecture, API, security, observability, test, CI, or documentation posture changes.',
     '',
     '## Standards And RFCs That Govern This Repository',
     '',
     '1. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`',
     '2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`',
     '3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`',
-    '4. service-specific RFCs once implementation begins',
+    '4. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`',
+    '5. service-specific RFCs once implementation begins',
     '',
     '## Known Constraints And Implementation Notes',
     '',
@@ -179,6 +182,7 @@ function Write-WikiBaseline {
     "",
     "- repo scaffolded from Lotus platform automation",
     "- wiki source lives in-repo and must be published through `lotus-platform` automation",
+    "- bank-buyable quality scorecard starts under `quality/` and must move with implementation truth",
     "- replace this page with operator-facing truth as implementation becomes real"
   ) -join "`n"
   Set-Content -Path (Join-Path $wikiRoot "Home.md") -Value $wikiHome
@@ -474,6 +478,7 @@ $dirs = @(
   "docs/rfcs",
   "evidence/rfc-implementation",
   "supported-features",
+  "quality",
   "wiki"
 )
 
@@ -1364,11 +1369,60 @@ $readme = @(
   "",
   "- CI and governance: .github/workflows/",
   "- Engineering commands: Makefile",
-  "- Platform standards docs: docs/standards/"
+  "- Bank-buyable quality contract: lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+  "- Platform standards docs: docs/standards/",
+  "- Quality scorecard and refactor decisions: quality/"
 ) -join "`n"
 Set-Content -Path (Join-Path $target "README.md") -Value $readme
 
 Set-Content -Path (Join-Path $target "docs/rfcs/README.md") -Value "# RFC Index`n"
+Set-Content -Path (Join-Path $target "quality/quality_scorecard.md") -Value @"
+# Bank-Buyable Quality Scorecard
+
+Repository: $ServiceName
+
+Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering Contract.
+
+| Control Area | Current Status | Evidence | Gap | Next Slice |
+| --- | --- | --- | --- | --- |
+| Architecture | `Partially implemented` | Platform scaffold baseline. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
+| API and contracts | `Partially implemented` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
+| Data and methodology | `Planned` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
+| Security and privacy | `Partially implemented` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
+| Observability and supportability | `Partially implemented` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
+| Resilience and performance | `Partially implemented` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
+| Testing | `Partially implemented` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
+| CI and release evidence | `Partially implemented` | Feature, PR merge, main releasability workflows. | Repo-specific thresholds need evidence. | Tighten gates after measured baseline. |
+| Documentation and operations | `Partially implemented` | README, repo context, wiki, runbooks, standards placeholders. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
+"@
+Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
+# Architecture Rules
+
+Use the Lotus layered backend default:
+
+1. routers/controllers stay thin,
+2. application services orchestrate use cases,
+3. domain logic stays framework-free,
+4. infrastructure sits behind ports/adapters,
+5. generated or scaffold placeholders must be replaced with implementation truth before promotion.
+"@
+Set-Content -Path (Join-Path $target "quality/ci_quality_gates.md") -Value @"
+# CI Quality Gates
+
+The scaffold starts with baseline gates in `Makefile` and `.github/workflows/`.
+
+Promote stricter gates only after the signal is measured, deterministic, low-noise, locally
+runnable, and tied to a real bank-buyable control.
+"@
+Set-Content -Path (Join-Path $target "quality/refactor_decisions.md") -Value @"
+# Refactor Decisions
+
+Record architecture, API, security, observability, testing, CI, and documentation decisions that
+change the repository's bank-buyable posture.
+
+Do not use this file for aspirational claims. Every entry should name code, tests, and validation
+evidence or explicitly mark the item as planned.
+"@
 Set-Content -Path (Join-Path $target "supported-features/supported-features.json") -Value @"
 {
   "repository": "$ServiceName",

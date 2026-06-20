@@ -1,12 +1,15 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:07:40Z`
+Generated: `2026-06-20T03:11:18Z`
 
 ## Completed Slices
 
 1. Baseline and CI/reporting foundation.
 2. Skill guidance hardening so backend, frontend, CI, documentation, and code-review workflows
    default to the Lotus Bank-Buyable Engineering Contract and non-degradation posture.
+3. New-service scaffold hardening so freshly generated Lotus apps start with bank-buyable
+   quality scorecards, architecture rules, CI-quality notes, refactor decisions, and
+   README/repo-context/wiki references.
 
 ## Evidence
 
@@ -19,6 +22,8 @@ Generated: `2026-06-20T03:07:40Z`
 7. Skill guidance: `codex/skills/lotus-ci-enforcement-governance/SKILL.md`
 8. Skill guidance: `codex/skills/lotus-readme-wiki-governance/SKILL.md`
 9. Skill guidance: `codex/skills/lotus-codebase-review-ledger/SKILL.md`
+10. Scaffold automation: `automation/New-Lotus-Service.ps1`
+11. Scaffold contract tests: `tests/unit/test_repository_hygiene_scaffold_contract.py`
 
 ## Current Gate Posture
 

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T03:07:40Z`
+Generated: `2026-06-20T03:11:18Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `684`
-- Total source lines: `295893`
+- Total source lines: `295995`
 - Python files: `149`
 - PowerShell files: `62`
 - Markdown files: `334`
@@ -34,7 +34,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 2701 | .json |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2058 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
-| automation/New-Lotus-Service.ps1 | 1747 | .ps1 |
+| automation/New-Lotus-Service.ps1 | 1801 | .ps1 |
 | rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md | 1655 | .md |
 
 ## Function And Complexity Hotspots
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `503`
 - Collection command return code: `0`
-- Collection summary: `503 tests collected in 0.60s`
+- Collection summary: `503 tests collected in 0.81s`
 
 ## Security Baseline
 

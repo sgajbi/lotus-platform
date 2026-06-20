@@ -35,6 +35,11 @@ Promote a quality signal to a blocking gate only after it is measured, determini
 locally runnable, covered by focused tests, and reflected in README, wiki source, repo context,
 central context, the scorecard, and relevant skill guidance.
 
+New services created with `automation/New-Lotus-Service.ps1` should start with the same posture:
+quality scorecard, architecture rules, CI-quality notes, refactor decisions, README/repo-context/wiki
+references, and baseline gates for OpenAPI, supported features, endpoint certification,
+no-sensitive-content, coverage, health/readiness, observability, and workflow lanes.
+
 ## Baseline Snapshot
 
 Use `quality/baseline_report.json` for exact machine-readable evidence,

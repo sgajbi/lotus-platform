@@ -97,6 +97,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "problem_response" in scaffold_script
     assert "structured JSON application events" in scaffold_script
     assert "supported-features/supported-features.json" in scaffold_script
+    assert '"quality",' in scaffold_script
+    assert "quality/quality_scorecard.md" in scaffold_script
+    assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in scaffold_script
     assert "evidence/rfc-implementation/README.md" in scaffold_script
     assert (
         "evidence/rfc-implementation/evidence-manifest.template.json" in scaffold_script
@@ -251,6 +254,23 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     api_certification_doc = (
         repo_root / "docs/operations/api-certification.md"
     ).read_text(encoding="utf-8")
+    readme = (repo_root / "README.md").read_text(encoding="utf-8")
+    repo_context = (repo_root / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_home = (repo_root / "wiki/Home.md").read_text(encoding="utf-8")
+    quality_scorecard = (repo_root / "quality/quality_scorecard.md").read_text(
+        encoding="utf-8"
+    )
+    architecture_rules = (repo_root / "quality/architecture_rules.md").read_text(
+        encoding="utf-8"
+    )
+    ci_quality_gates = (repo_root / "quality/ci_quality_gates.md").read_text(
+        encoding="utf-8"
+    )
+    refactor_decisions = (repo_root / "quality/refactor_decisions.md").read_text(
+        encoding="utf-8"
+    )
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -393,3 +413,17 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile
     )
+    assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in readme
+    assert "Quality scorecard and refactor decisions: quality/" in readme
+    assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in repo_context
+    assert "quality scorecard under `quality/`" in repo_context
+    assert "bank-buyable quality scorecard starts under quality/" in wiki_home
+    assert "Bank-Buyable Quality Scorecard" in quality_scorecard
+    assert "Repository: lotus-hygiene-demo" in quality_scorecard
+    assert "Control Area" in quality_scorecard
+    assert "Architecture" in quality_scorecard
+    assert "Security and privacy" in quality_scorecard
+    assert "Observability and supportability" in quality_scorecard
+    assert "routers/controllers stay thin" in architecture_rules
+    assert "Promote stricter gates only after the signal is measured" in ci_quality_gates
+    assert "Do not use this file for aspirational claims." in refactor_decisions

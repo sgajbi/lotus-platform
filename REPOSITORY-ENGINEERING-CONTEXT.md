@@ -43,6 +43,11 @@ Current repository posture:
    `quality_scorecard.md`, `refactor_health_report.md`, architecture/API/CI/security rule pages,
    and a refactor decision log. `automation/Invoke-PlatformRepoChecks.ps1` validates the quality
    reporting surface through `--check`.
+8. New FastAPI service scaffolds created by `automation/New-Lotus-Service.ps1` now include
+   bank-buyable quality defaults: `quality/quality_scorecard.md`, architecture rules,
+   CI-quality-gate notes, refactor decisions, README/repo-context/wiki references, and the
+   existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
+   observability, health/readiness, and workflow baseline gates.
 
 ## Architecture And Module Map
 
@@ -338,6 +343,8 @@ Most relevant current governance:
 7. Enterprise refactor quality artifacts under `quality/` must remain synchronized with README,
    wiki, repo context, central context, and skill guidance whenever a quality signal moves from
    report-only to a blocking gate or the baseline measurement scope changes.
+8. New-service scaffold changes should keep the bank-buyable defaults current so new Lotus apps do
+   not start below the enterprise quality bar.
 
 ## Context Maintenance Rule
 
