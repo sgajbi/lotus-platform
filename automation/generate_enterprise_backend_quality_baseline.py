@@ -569,6 +569,9 @@ Generated: `{baseline["generated_at_utc"]}`
 25. Analytics UI observability supported-feature extraction so lifecycle milestone sets and
     per-feature status policy are isolated behind named helpers, reducing the highest measured
     complexity hotspot while preserving RFC-0108 supported-feature promotion behavior.
+26. Analytics UI ecosystem completion slice-status extraction so lifecycle-to-slice expected
+    status rules and per-slice required-field checks are isolated behind focused helpers, reducing
+    the highest measured complexity hotspot while preserving RFC-0108 ecosystem completion behavior.
 
 ## Evidence
 

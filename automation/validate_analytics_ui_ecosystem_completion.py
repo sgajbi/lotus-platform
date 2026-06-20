@@ -238,110 +238,96 @@ def _validate_repositories(
         errors.append(f"app_gap_matrix missing repositories {sorted(missing_matrix)}")
 
 
-def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> None:
-    slices = ecosystem_contract.get("ecosystem_completion_slices", [])
-    slice_status = {
+def _slice_status_by_id(slices: list[Any]) -> dict[int, str]:
+    return {
         int(slice_entry.get("slice_id")): str(slice_entry.get("status"))
         for slice_entry in slices
         if isinstance(slice_entry, dict) and str(slice_entry.get("slice_id")).isdigit()
     }
+
+
+def _expected_slice_11_status(lifecycle_status: object) -> str:
+    return "implemented" if lifecycle_status in SLICE_11_OR_LATER_STATUSES else "planned"
+
+
+def _expected_slice_12_status(lifecycle_status: object) -> str:
+    return (
+        "partially_implemented"
+        if lifecycle_status in SLICE_12_OR_LATER_STATUSES
+        else "planned"
+    )
+
+
+def _expected_slice_13_status(lifecycle_status: object) -> str:
+    if lifecycle_status in SLICE_13_FULL_OR_LATER_STATUSES:
+        return "implemented"
+    if lifecycle_status == "slice-13-gateway-fanout-metrics-partial-implemented":
+        return "partially_implemented"
+    return "planned"
+
+
+def _expected_slice_14_status(lifecycle_status: object) -> str:
+    return (
+        "partially_implemented"
+        if lifecycle_status
+        in {
+            SLICE_14_PARTIAL_LIFECYCLE_STATUS,
+            SLICE_15_LIFECYCLE_STATUS,
+            SLICE_16_LIFECYCLE_STATUS,
+            SLICE_17_LIFECYCLE_STATUS,
+            SLICE_18_LIFECYCLE_STATUS,
+        }
+        else "planned"
+    )
+
+
+def _expected_slice_15_status(lifecycle_status: object) -> str:
+    return "implemented" if lifecycle_status in SLICE_15_OR_LATER_STATUSES else "planned"
+
+
+def _expected_slice_16_status(lifecycle_status: object) -> str:
+    return "implemented" if lifecycle_status in SLICE_16_OR_LATER_STATUSES else "planned"
+
+
+def _expected_slice_17_status(lifecycle_status: object) -> str:
+    return "implemented" if lifecycle_status in SLICE_17_OR_LATER_STATUSES else "planned"
+
+
+def _expected_slice_18_status(lifecycle_status: object) -> str:
+    return "implemented" if lifecycle_status == SLICE_18_LIFECYCLE_STATUS else "planned"
+
+
+def _expected_ecosystem_slice_statuses(lifecycle_status: object) -> dict[int, str]:
+    return {
+        10: "implemented",
+        11: _expected_slice_11_status(lifecycle_status),
+        12: _expected_slice_12_status(lifecycle_status),
+        13: _expected_slice_13_status(lifecycle_status),
+        14: _expected_slice_14_status(lifecycle_status),
+        15: _expected_slice_15_status(lifecycle_status),
+        16: _expected_slice_16_status(lifecycle_status),
+        17: _expected_slice_17_status(lifecycle_status),
+        18: _expected_slice_18_status(lifecycle_status),
+    }
+
+
+def _validate_slice_statuses(
+    errors: list[str],
+    *,
+    slice_status: dict[int, str],
+    lifecycle_status: object,
+) -> None:
     missing = REQUIRED_SLICE_IDS - set(slice_status)
     if missing:
         errors.append(f"ecosystem_completion_slices missing {sorted(missing)}")
-    if slice_status.get(10) != "implemented":
-        errors.append("Slice 10 must be implemented")
-    lifecycle_status = ecosystem_contract.get("lifecycle_status")
-    expected_slice_11 = (
-        "implemented"
-        if lifecycle_status
-        in {
-            "slice-11-scaffold-ci-enforcement-implemented",
-            "slice-12-backend-supportability-partial-implemented",
-            "slice-13-gateway-fanout-metrics-partial-implemented",
-            "slice-13-gateway-fanout-metrics-implemented",
-            SLICE_14_PARTIAL_LIFECYCLE_STATUS,
-            SLICE_15_LIFECYCLE_STATUS,
-            SLICE_16_LIFECYCLE_STATUS,
-            SLICE_17_LIFECYCLE_STATUS,
-            SLICE_18_LIFECYCLE_STATUS,
-        }
-        else "planned"
-    )
-    if slice_status.get(11) != expected_slice_11:
-        errors.append(f"Slice 11 must be {expected_slice_11}")
-    expected_slice_12 = (
-        "partially_implemented"
-        if lifecycle_status
-        in {
-            "slice-12-backend-supportability-partial-implemented",
-            "slice-13-gateway-fanout-metrics-partial-implemented",
-            "slice-13-gateway-fanout-metrics-implemented",
-            SLICE_14_PARTIAL_LIFECYCLE_STATUS,
-            SLICE_15_LIFECYCLE_STATUS,
-            SLICE_16_LIFECYCLE_STATUS,
-            SLICE_17_LIFECYCLE_STATUS,
-            SLICE_18_LIFECYCLE_STATUS,
-        }
-        else "planned"
-    )
-    if slice_status.get(12) != expected_slice_12:
-        errors.append(f"Slice 12 must be {expected_slice_12}")
-    if lifecycle_status in {
-        "slice-13-gateway-fanout-metrics-implemented",
-        SLICE_14_PARTIAL_LIFECYCLE_STATUS,
-        SLICE_15_LIFECYCLE_STATUS,
-        SLICE_16_LIFECYCLE_STATUS,
-        SLICE_17_LIFECYCLE_STATUS,
-        SLICE_18_LIFECYCLE_STATUS,
-    }:
-        expected_slice_13 = "implemented"
-    elif lifecycle_status == "slice-13-gateway-fanout-metrics-partial-implemented":
-        expected_slice_13 = "partially_implemented"
-    else:
-        expected_slice_13 = "planned"
-    if slice_status.get(13) != expected_slice_13:
-        errors.append(f"Slice 13 must be {expected_slice_13}")
-    expected_slice_14 = (
-        "partially_implemented"
-        if lifecycle_status
-        in {SLICE_14_PARTIAL_LIFECYCLE_STATUS, SLICE_15_LIFECYCLE_STATUS}
-        or lifecycle_status in {SLICE_16_LIFECYCLE_STATUS, SLICE_17_LIFECYCLE_STATUS}
-        or lifecycle_status == SLICE_18_LIFECYCLE_STATUS
-        else "planned"
-    )
-    if slice_status.get(14) != expected_slice_14:
-        errors.append(f"Slice 14 must be {expected_slice_14}")
-    expected_slice_15 = (
-        "implemented"
-        if lifecycle_status
-        in {
-            SLICE_15_LIFECYCLE_STATUS,
-            SLICE_16_LIFECYCLE_STATUS,
-            SLICE_17_LIFECYCLE_STATUS,
-            SLICE_18_LIFECYCLE_STATUS,
-        }
-        else "planned"
-    )
-    if slice_status.get(15) != expected_slice_15:
-        errors.append(f"Slice 15 must be {expected_slice_15}")
-    expected_slice_16 = (
-        "implemented"
-        if lifecycle_status
-        in {SLICE_16_LIFECYCLE_STATUS, SLICE_17_LIFECYCLE_STATUS, SLICE_18_LIFECYCLE_STATUS}
-        else "planned"
-    )
-    if slice_status.get(16) != expected_slice_16:
-        errors.append(f"Slice 16 must be {expected_slice_16}")
-    expected_slice_17 = (
-        "implemented"
-        if lifecycle_status in {SLICE_17_LIFECYCLE_STATUS, SLICE_18_LIFECYCLE_STATUS}
-        else "planned"
-    )
-    if slice_status.get(17) != expected_slice_17:
-        errors.append(f"Slice 17 must be {expected_slice_17}")
-    expected_slice_18 = "implemented" if lifecycle_status == SLICE_18_LIFECYCLE_STATUS else "planned"
-    if slice_status.get(18) != expected_slice_18:
-        errors.append(f"Slice 18 must be {expected_slice_18}")
+    for slice_id, expected_status in _expected_ecosystem_slice_statuses(
+        lifecycle_status
+    ).items():
+        if slice_status.get(slice_id) != expected_status:
+            errors.append(f"Slice {slice_id} must be {expected_status}")
+
+
+def _validate_slice_required_fields(errors: list[str], slices: list[Any]) -> None:
     for slice_entry in slices:
         if not slice_entry.get("purpose"):
             errors.append(f"Slice {slice_entry.get('slice_id')}: purpose is required")
@@ -349,6 +335,18 @@ def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> N
             errors.append(
                 f"Slice {slice_entry.get('slice_id')}: required_proof is required"
             )
+
+
+def _validate_slices(errors: list[str], ecosystem_contract: dict[str, Any]) -> None:
+    slices = ecosystem_contract.get("ecosystem_completion_slices", [])
+    slice_status = _slice_status_by_id(slices)
+    lifecycle_status = ecosystem_contract.get("lifecycle_status")
+    _validate_slice_statuses(
+        errors,
+        slice_status=slice_status,
+        lifecycle_status=lifecycle_status,
+    )
+    _validate_slice_required_fields(errors, slices)
 
 
 def _feature_status(observability_contract: dict[str, Any]) -> dict[str, str]:

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300723
+    "total_source_lines": 300724
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 26,
-        "end_line": 351,
-        "line": 241,
-        "lines": 111,
-        "name": "_validate_slices",
-        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
       {
         "complexity": 25,
         "end_line": 148,
@@ -115,8 +107,8 @@
       },
       {
         "complexity": 22,
-        "end_line": 484,
-        "line": 420,
+        "end_line": 482,
+        "line": 418,
         "lines": 65,
         "name": "_validate_matrix_feature_statuses",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
@@ -192,6 +184,14 @@
         "lines": 55,
         "name": "validate_heartbeat_runner_config",
         "path": "automation/validate_heartbeat_contracts.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 454,
+        "line": 320,
+        "lines": 135,
+        "name": "validate_delegation_policy_contract",
+        "path": "automation/validate_agent_engineering_contracts.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 26,
+    "max_complexity": 25,
     "max_function_lines": 393,
-    "python_function_count": 1364
+    "python_function_count": 1376
   },
-  "generated_at_utc": "2026-06-20T04:56:17Z",
+  "generated_at_utc": "2026-06-20T04:59:47Z",
   "largest_files": [
     {
       "lines": 79939,
