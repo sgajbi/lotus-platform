@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 304865
+    "total_source_lines": 304934
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 12,
-        "end_line": 459,
-        "line": 393,
-        "lines": 67,
-        "name": "review_canonical_proof",
-        "path": "automation/review_analytics_ui_canonical_proof.py"
-      },
       {
         "complexity": 12,
         "end_line": 193,
@@ -192,6 +184,14 @@
         "lines": 39,
         "name": "sync_dev_ingress_hosts",
         "path": "automation/sync_dev_ingress_hosts.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 93,
+        "line": 61,
+        "lines": 33,
+        "name": "_validate_certified_route_groups",
+        "path": "automation/validate_analytics_ui_rollout_readiness.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 814,
+        "end_line": 818,
         "line": 489,
-        "lines": 326,
+        "lines": 330,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 12,
     "max_function_lines": 393,
-    "python_function_count": 1706
+    "python_function_count": 1712
   },
-  "generated_at_utc": "2026-06-20T08:51:10Z",
+  "generated_at_utc": "2026-06-20T08:54:10Z",
   "largest_files": [
     {
       "lines": 79939,

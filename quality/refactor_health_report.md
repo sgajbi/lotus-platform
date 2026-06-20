@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:51:10Z`
+Generated: `2026-06-20T08:54:10Z`
 
 ## Completed Slices
 
@@ -286,6 +286,10 @@ Generated: `2026-06-20T08:51:10Z`
     classification is isolated behind focused helpers, removing the cross-app validation posture
     evaluator from the top measured complexity hotspot list while preserving known-issue review
     behavior.
+78. Analytics UI canonical proof reviewer extraction so source loading, QA status validation,
+    live-summary evidence validation, sensitive scan path assembly, and result writing are isolated
+    behind focused helpers, removing the canonical proof reviewer from the top measured complexity
+    hotspot list while preserving RFC-0108 proof review output.
 
 ## Evidence
 
