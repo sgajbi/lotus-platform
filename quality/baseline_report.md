@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T10:12:27Z`
+Generated: `2026-06-20T10:20:41Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `305847`
+- Total source lines: `305918`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,14 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1776`
+- Python functions: `1781`
 - Highest measured cyclomatic complexity: `11`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/validate_analytics_ui_ecosystem_completion.py | _validate_gap_matrix | 603 | 11 | 47 |
 | automation/domain_product_discovery.py | find_products | 64 | 11 | 45 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_migration_posture | 982 | 11 | 44 |
 | automation/sync_dev_ingress_hosts.py | sync_dev_ingress_hosts | 53 | 11 | 39 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_shared_infra_ownership.py | _validate_lotus_core | 127 | 10 | 98 |
 | automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
+| automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 304 | 10 | 39 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `534`
+- Unit tests collected: `536`
 - Collection command return code: `0`
-- Collection summary: `534 tests collected in 0.52s`
+- Collection summary: `536 tests collected in 0.65s`
 
 ## Security Baseline
 

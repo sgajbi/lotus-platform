@@ -195,6 +195,26 @@ def test_analytics_ui_ecosystem_completion_rejects_unknown_feature_key() -> None
     assert any("unsupported feature keys" in error for error in errors)
 
 
+def test_analytics_ui_ecosystem_completion_rejects_invalid_gap_matrix_posture() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
+    ecosystem["app_gap_matrix"][0]["posture"] = "mostly_done"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any("invalid posture mostly_done" in error for error in errors)
+
+
+def test_analytics_ui_ecosystem_completion_rejects_missing_gap_matrix_field() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
+    ecosystem["app_gap_matrix"][0]["required_proof"] = ""
+
+    errors = _validate(observability, ecosystem)
+
+    assert any("required_proof is required" in error for error in errors)
+
+
 def test_analytics_ui_ecosystem_completion_rejects_missing_branch_policy() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     ecosystem = copy.deepcopy(_load_json(ECOSYSTEM_CONTRACT_PATH))
