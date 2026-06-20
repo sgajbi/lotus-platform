@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302333
+    "total_source_lines": 302367
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 17,
-        "end_line": 225,
-        "line": 160,
-        "lines": 66,
-        "name": "_validate_statuses",
-        "path": "automation/validate_trust_telemetry.py"
-      },
       {
         "complexity": 16,
         "end_line": 247,
@@ -99,8 +91,8 @@
       },
       {
         "complexity": 15,
-        "end_line": 157,
-        "line": 102,
+        "end_line": 162,
+        "line": 107,
         "lines": 56,
         "name": "_validate_identity",
         "path": "automation/validate_trust_telemetry.py"
@@ -192,6 +184,14 @@
         "lines": 48,
         "name": "_render_single",
         "path": "automation/render_cross_app_workflow_summary.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 454,
+        "line": 418,
+        "lines": 37,
+        "name": "_matrix_feature_implementation_rule",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
       }
     ],
     "largest_functions": [
@@ -245,9 +245,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 703,
+        "end_line": 706,
         "line": 489,
-        "lines": 215,
+        "lines": 218,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 17,
+    "max_complexity": 16,
     "max_function_lines": 393,
-    "python_function_count": 1526
+    "python_function_count": 1530
   },
-  "generated_at_utc": "2026-06-20T06:36:59Z",
+  "generated_at_utc": "2026-06-20T06:40:32Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.55s"
+    "summary": "510 tests collected in 0.53s"
   }
 }

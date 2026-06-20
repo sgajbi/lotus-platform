@@ -664,6 +664,9 @@ Generated: `{baseline["generated_at_utc"]}`
     failed/lost attention, and stale active-run attention are isolated behind focused helpers,
     removing the background-run ledger adapter from the top measured complexity hotspot list while
     preserving RFC-0095/RFC-0094 heartbeat behavior.
+50. Trust telemetry status validator extraction so freshness vocabulary, freshness age consistency,
+    and governed status registry checks are isolated behind focused helpers, lowering the highest
+    measured complexity ceiling while preserving RFC-0087 trust telemetry behavior.
 
 ## Evidence
 

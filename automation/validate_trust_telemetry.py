@@ -35,6 +35,11 @@ VALID_VALIDATION_LANES = {
     "main-releasability",
     "platform-end-to-end",
 }
+TRUST_STATUS_FIELDS = {
+    "completeness_status": "completeness_statuses",
+    "reconciliation_status": "reconciliation_statuses",
+    "data_quality_status": "data_quality_statuses",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -157,7 +162,62 @@ def _validate_identity(
     return product
 
 
-def _validate_statuses(
+def _validate_freshness_vocabulary(
+    issues: list[str],
+    path: Path,
+    freshness: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    if freshness.get("freshness_class") not in context["freshness_classes"]:
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_class must reference the trust vocabulary registry",
+        )
+    if freshness.get("freshness_state") not in VALID_FRESHNESS_STATES:
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_state must be current, stale, or unknown",
+        )
+    if not _is_non_empty_string(freshness.get("evaluated_at_utc")):
+        _append_issue(
+            issues,
+            path,
+            "freshness.evaluated_at_utc must be a non-empty string",
+        )
+
+
+def _validate_freshness_age(
+    issues: list[str],
+    path: Path,
+    freshness: dict[str, Any],
+) -> None:
+    freshness_state = freshness.get("freshness_state")
+    age_seconds = freshness.get("age_seconds")
+    max_allowed_age_seconds = freshness.get("max_allowed_age_seconds")
+    if age_seconds is not None and (
+        not isinstance(age_seconds, int) or age_seconds < 0
+    ):
+        _append_issue(issues, path, "freshness.age_seconds must be >= 0")
+    if max_allowed_age_seconds is not None and (
+        not isinstance(max_allowed_age_seconds, int) or max_allowed_age_seconds < 1
+    ):
+        _append_issue(issues, path, "freshness.max_allowed_age_seconds must be >= 1")
+    if (
+        freshness_state == "current"
+        and isinstance(age_seconds, int)
+        and isinstance(max_allowed_age_seconds, int)
+        and age_seconds > max_allowed_age_seconds
+    ):
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
+        )
+
+
+def _validate_freshness(
     issues: list[str],
     path: Path,
     payload: dict[str, Any],
@@ -166,63 +226,34 @@ def _validate_statuses(
     freshness = payload.get("freshness")
     if not isinstance(freshness, dict):
         _append_issue(issues, path, "freshness must be an object")
-    else:
-        freshness_class = freshness.get("freshness_class")
-        freshness_state = freshness.get("freshness_state")
-        if freshness_class not in context["freshness_classes"]:
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_class must reference the trust vocabulary registry",
-            )
-        if freshness_state not in VALID_FRESHNESS_STATES:
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_state must be current, stale, or unknown",
-            )
-        if not _is_non_empty_string(freshness.get("evaluated_at_utc")):
-            _append_issue(
-                issues,
-                path,
-                "freshness.evaluated_at_utc must be a non-empty string",
-            )
-        age_seconds = freshness.get("age_seconds")
-        max_allowed_age_seconds = freshness.get("max_allowed_age_seconds")
-        if age_seconds is not None and (
-            not isinstance(age_seconds, int) or age_seconds < 0
-        ):
-            _append_issue(issues, path, "freshness.age_seconds must be >= 0")
-        if max_allowed_age_seconds is not None and (
-            not isinstance(max_allowed_age_seconds, int) or max_allowed_age_seconds < 1
-        ):
-            _append_issue(
-                issues, path, "freshness.max_allowed_age_seconds must be >= 1"
-            )
-        if (
-            freshness_state == "current"
-            and isinstance(age_seconds, int)
-            and isinstance(max_allowed_age_seconds, int)
-            and age_seconds > max_allowed_age_seconds
-        ):
-            _append_issue(
-                issues,
-                path,
-                "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
-            )
+        return
+    _validate_freshness_vocabulary(issues, path, freshness, context)
+    _validate_freshness_age(issues, path, freshness)
 
-    status_fields = {
-        "completeness_status": "completeness_statuses",
-        "reconciliation_status": "reconciliation_statuses",
-        "data_quality_status": "data_quality_statuses",
-    }
-    for field_name, context_key in status_fields.items():
+
+def _validate_registry_statuses(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    for field_name, context_key in TRUST_STATUS_FIELDS.items():
         if payload.get(field_name) not in context[context_key]:
             _append_issue(
                 issues,
                 path,
                 f"{field_name} must reference the trust vocabulary registry",
             )
+
+
+def _validate_statuses(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    _validate_freshness(issues, path, payload, context)
+    _validate_registry_statuses(issues, path, payload, context)
 
 
 def _validate_lineage_and_blocking(
