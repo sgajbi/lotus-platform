@@ -92,6 +92,117 @@ def _validate_status_source_inventory(
     return inventory
 
 
+def _validate_attention_item_identity(
+    *,
+    errors: list[str],
+    label: str,
+    item: dict[str, Any],
+    seen_ids: set[str],
+) -> None:
+    item_id = item.get("attention_item_id")
+    if item_id in seen_ids:
+        errors.append(f"{label}.attention_item_id must be unique")
+    if isinstance(item_id, str):
+        seen_ids.add(item_id)
+
+
+def _validate_attention_item_governance(
+    *,
+    errors: list[str],
+    label: str,
+    item: dict[str, Any],
+    source_systems: set[str],
+    severities: set[str],
+    severity_counts: dict[str, int],
+) -> object:
+    if item.get("source_system") not in source_systems:
+        errors.append(f"{label}.source_system must be governed")
+    severity = item.get("severity")
+    if severity not in severities:
+        errors.append(f"{label}.severity must be governed")
+    else:
+        severity_counts[severity] += 1
+    return severity
+
+
+def _validate_attention_item_deduplication(
+    *, errors: list[str], label: str, item: dict[str, Any]
+) -> None:
+    if not isinstance(item.get("deduplication_key"), str) or not item["deduplication_key"]:
+        errors.append(f"{label}.deduplication_key must be non-empty")
+    if item.get("deduplication_key") == item.get("attention_item_id"):
+        errors.append(f"{label}.deduplication_key must be distinct from attention_item_id")
+
+
+def _validate_attention_item_timestamps(
+    *, errors: list[str], label: str, item: dict[str, Any]
+) -> None:
+    if not _is_rfc3339_utc(item.get("first_seen_at_utc")):
+        errors.append(f"{label}.first_seen_at_utc must be an RFC-3339 UTC string ending with Z")
+    if not _is_rfc3339_utc(item.get("last_seen_at_utc")):
+        errors.append(f"{label}.last_seen_at_utc must be an RFC-3339 UTC string ending with Z")
+
+
+def _validate_attention_item_suppression(
+    *,
+    errors: list[str],
+    label: str,
+    item: dict[str, Any],
+    severity: object,
+    required_suppression_fields: set[str],
+) -> None:
+    suppression = item.get("suppression")
+    if severity == "blocking" and suppression:
+        errors.append(f"{label} blocking item cannot be suppressed")
+    if suppression is None:
+        return
+    _require_keys(
+        errors,
+        f"{label}.suppression",
+        suppression,
+        required_suppression_fields - {"deduplication_key"},
+    )
+    if isinstance(suppression, dict) and not _is_rfc3339_utc(suppression.get("expires_at_utc")):
+        errors.append(
+            f"{label}.suppression.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+        )
+
+
+def _validate_attention_item(
+    *,
+    errors: list[str],
+    label: str,
+    item: dict[str, Any],
+    seen_ids: set[str],
+    source_systems: set[str],
+    severities: set[str],
+    evidence_ref_types: set[str],
+    required_suppression_fields: set[str],
+    severity_counts: dict[str, int],
+) -> None:
+    _validate_attention_item_identity(
+        errors=errors, label=label, item=item, seen_ids=seen_ids
+    )
+    severity = _validate_attention_item_governance(
+        errors=errors,
+        label=label,
+        item=item,
+        source_systems=source_systems,
+        severities=severities,
+        severity_counts=severity_counts,
+    )
+    _validate_attention_item_suppression(
+        errors=errors,
+        label=label,
+        item=item,
+        severity=severity,
+        required_suppression_fields=required_suppression_fields,
+    )
+    _validate_attention_item_deduplication(errors=errors, label=label, item=item)
+    _validate_attention_item_timestamps(errors=errors, label=label, item=item)
+    _validate_evidence_refs(errors, label, item.get("evidence_refs"), evidence_ref_types)
+
+
 def _validate_status_attention_items(
     *,
     errors: list[str],
@@ -114,37 +225,17 @@ def _validate_status_attention_items(
         _require_keys(errors, label, item, required_attention_fields)
         if not isinstance(item, dict):
             continue
-        item_id = item.get("attention_item_id")
-        if item_id in seen_ids:
-            errors.append(f"{label}.attention_item_id must be unique")
-        if isinstance(item_id, str):
-            seen_ids.add(item_id)
-        if item.get("source_system") not in source_systems:
-            errors.append(f"{label}.source_system must be governed")
-        severity = item.get("severity")
-        if severity not in severities:
-            errors.append(f"{label}.severity must be governed")
-        else:
-            severity_counts[severity] += 1
-        if severity == "blocking" and item.get("suppression"):
-            errors.append(f"{label} blocking item cannot be suppressed")
-        if not isinstance(item.get("deduplication_key"), str) or not item["deduplication_key"]:
-            errors.append(f"{label}.deduplication_key must be non-empty")
-        if item.get("deduplication_key") == item.get("attention_item_id"):
-            errors.append(f"{label}.deduplication_key must be distinct from attention_item_id")
-        if not _is_rfc3339_utc(item.get("first_seen_at_utc")):
-            errors.append(f"{label}.first_seen_at_utc must be an RFC-3339 UTC string ending with Z")
-        if not _is_rfc3339_utc(item.get("last_seen_at_utc")):
-            errors.append(f"{label}.last_seen_at_utc must be an RFC-3339 UTC string ending with Z")
-        _validate_evidence_refs(errors, label, item.get("evidence_refs"), evidence_ref_types)
-
-        suppression = item.get("suppression")
-        if suppression is not None:
-            _require_keys(errors, f"{label}.suppression", suppression, required_suppression_fields - {"deduplication_key"})
-            if isinstance(suppression, dict) and not _is_rfc3339_utc(suppression.get("expires_at_utc")):
-                errors.append(
-                    f"{label}.suppression.expires_at_utc must be an RFC-3339 UTC string ending with Z"
-                )
+        _validate_attention_item(
+            errors=errors,
+            label=label,
+            item=item,
+            seen_ids=seen_ids,
+            source_systems=source_systems,
+            severities=severities,
+            evidence_ref_types=evidence_ref_types,
+            required_suppression_fields=required_suppression_fields,
+            severity_counts=severity_counts,
+        )
 
     return attention_items, severity_counts
 

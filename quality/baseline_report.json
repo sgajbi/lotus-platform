@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302013
+    "total_source_lines": 302108
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -35,16 +35,8 @@
     "highest_complexity_functions": [
       {
         "complexity": 18,
-        "end_line": 149,
-        "line": 95,
-        "lines": 55,
-        "name": "_validate_status_attention_items",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
-      {
-        "complexity": 18,
-        "end_line": 481,
-        "line": 427,
+        "end_line": 572,
+        "line": 518,
         "lines": 55,
         "name": "validate_heartbeat_runner_config",
         "path": "automation/validate_heartbeat_contracts.py"
@@ -59,8 +51,8 @@
       },
       {
         "complexity": 17,
-        "end_line": 351,
-        "line": 266,
+        "end_line": 442,
+        "line": 357,
         "lines": 86,
         "name": "validate_heartbeat_contract",
         "path": "automation/validate_heartbeat_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 52,
         "name": "validate_repository_hygiene",
         "path": "automation/validate_repository_hygiene.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 170,
+        "line": 67,
+        "lines": 104,
+        "name": "_evaluate_snapshot",
+        "path": "automation/generate_live_trust_certification.py"
       }
     ],
     "largest_functions": [
@@ -260,20 +260,20 @@
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
+        "complexity": 1,
+        "end_line": 682,
+        "line": 489,
+        "lines": 194,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 15,
         "end_line": 407,
         "line": 216,
         "lines": 192,
         "name": "_run_validation_once",
         "path": "automation/core_performance_attribution_validation.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 678,
-        "line": 489,
-        "lines": 190,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 1,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 18,
     "max_function_lines": 393,
-    "python_function_count": 1493
+    "python_function_count": 1499
   },
-  "generated_at_utc": "2026-06-20T06:12:32Z",
+  "generated_at_utc": "2026-06-20T06:15:53Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.58s"
+    "summary": "510 tests collected in 0.54s"
   }
 }

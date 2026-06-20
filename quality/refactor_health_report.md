@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T06:12:32Z`
+Generated: `2026-06-20T06:15:53Z`
 
 ## Completed Slices
 
@@ -150,6 +150,10 @@ Generated: `2026-06-20T06:12:32Z`
     evidence, live check sections, panel-state classification, and SHOT-INDEX validation are
     isolated behind focused helpers, lowering the highest measured complexity ceiling while
     preserving RFC-0108 proof-review behavior.
+44. Heartbeat attention-item validator extraction so identity uniqueness, source/severity
+    governance, suppression limits, deduplication keys, timestamps, and evidence references are
+    isolated behind focused helpers, removing the attention-item validator from the top measured
+    complexity hotspot list while preserving RFC-0095 heartbeat contract behavior.
 
 ## Evidence
 
