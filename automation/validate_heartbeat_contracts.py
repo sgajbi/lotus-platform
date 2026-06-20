@@ -62,6 +62,93 @@ def _validate_evidence_refs(
             errors.append(f"{ref_label}.ref must be non-empty")
 
 
+def _validate_status_source_inventory(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    source_systems: set[str],
+    read_statuses: set[str],
+    evidence_ref_types: set[str],
+    required_source_fields: set[str],
+) -> list[Any]:
+    inventory = status.get("source_inventory")
+    if not isinstance(inventory, list):
+        errors.append("source_inventory must be a list")
+        return []
+
+    for index, source in enumerate(inventory):
+        label = f"source_inventory[{index}]"
+        _require_keys(errors, label, source, required_source_fields)
+        if not isinstance(source, dict):
+            continue
+        if source.get("source_system") not in source_systems:
+            errors.append(f"{label}.source_system must be governed")
+        if source.get("read_status") not in read_statuses:
+            errors.append(f"{label}.read_status must be governed")
+        if source.get("read_status") == "healthy" and not source.get("evidence_refs"):
+            errors.append(f"{label} healthy source must carry evidence_refs")
+        _validate_evidence_refs(errors, label, source.get("evidence_refs"), evidence_ref_types)
+
+    return inventory
+
+
+def _validate_status_attention_items(
+    *,
+    errors: list[str],
+    status: dict[str, Any],
+    source_systems: set[str],
+    severities: set[str],
+    evidence_ref_types: set[str],
+    required_attention_fields: set[str],
+    required_suppression_fields: set[str],
+) -> tuple[list[Any], dict[str, int]]:
+    attention_items = status.get("attention_items")
+    if not isinstance(attention_items, list):
+        errors.append("attention_items must be a list")
+        attention_items = []
+
+    severity_counts = {severity: 0 for severity in severities}
+    seen_ids: set[str] = set()
+    for index, item in enumerate(attention_items):
+        label = f"attention_items[{index}]"
+        _require_keys(errors, label, item, required_attention_fields)
+        if not isinstance(item, dict):
+            continue
+        item_id = item.get("attention_item_id")
+        if item_id in seen_ids:
+            errors.append(f"{label}.attention_item_id must be unique")
+        if isinstance(item_id, str):
+            seen_ids.add(item_id)
+        if item.get("source_system") not in source_systems:
+            errors.append(f"{label}.source_system must be governed")
+        severity = item.get("severity")
+        if severity not in severities:
+            errors.append(f"{label}.severity must be governed")
+        else:
+            severity_counts[severity] += 1
+        if severity == "blocking" and item.get("suppression"):
+            errors.append(f"{label} blocking item cannot be suppressed")
+        if not isinstance(item.get("deduplication_key"), str) or not item["deduplication_key"]:
+            errors.append(f"{label}.deduplication_key must be non-empty")
+        if item.get("deduplication_key") == item.get("attention_item_id"):
+            errors.append(f"{label}.deduplication_key must be distinct from attention_item_id")
+        if not _is_rfc3339_utc(item.get("first_seen_at_utc")):
+            errors.append(f"{label}.first_seen_at_utc must be an RFC-3339 UTC string ending with Z")
+        if not _is_rfc3339_utc(item.get("last_seen_at_utc")):
+            errors.append(f"{label}.last_seen_at_utc must be an RFC-3339 UTC string ending with Z")
+        _validate_evidence_refs(errors, label, item.get("evidence_refs"), evidence_ref_types)
+
+        suppression = item.get("suppression")
+        if suppression is not None:
+            _require_keys(errors, f"{label}.suppression", suppression, required_suppression_fields - {"deduplication_key"})
+            if isinstance(suppression, dict) and not _is_rfc3339_utc(suppression.get("expires_at_utc")):
+                errors.append(
+                    f"{label}.suppression.expires_at_utc must be an RFC-3339 UTC string ending with Z"
+                )
+
+    return attention_items, severity_counts
+
+
 def validate_heartbeat_contract(path: Path = CONTRACT_PATH) -> list[str]:
     errors: list[str] = []
     if not path.exists():
@@ -177,66 +264,23 @@ def validate_heartbeat_status(
     required_attention_fields = _as_set(contract.get("required_attention_item_fields"))
     required_suppression_fields = _as_set(contract.get("required_suppression_fields"))
 
-    inventory = status.get("source_inventory")
-    if not isinstance(inventory, list):
-        errors.append("source_inventory must be a list")
-    else:
-        for index, source in enumerate(inventory):
-            label = f"source_inventory[{index}]"
-            _require_keys(errors, label, source, required_source_fields)
-            if not isinstance(source, dict):
-                continue
-            if source.get("source_system") not in source_systems:
-                errors.append(f"{label}.source_system must be governed")
-            if source.get("read_status") not in read_statuses:
-                errors.append(f"{label}.read_status must be governed")
-            if source.get("read_status") == "healthy" and not source.get("evidence_refs"):
-                errors.append(f"{label} healthy source must carry evidence_refs")
-            _validate_evidence_refs(errors, label, source.get("evidence_refs"), evidence_ref_types)
-
-    attention_items = status.get("attention_items")
-    if not isinstance(attention_items, list):
-        errors.append("attention_items must be a list")
-        attention_items = []
-
-    severity_counts = {severity: 0 for severity in severities}
-    seen_ids: set[str] = set()
-    for index, item in enumerate(attention_items):
-        label = f"attention_items[{index}]"
-        _require_keys(errors, label, item, required_attention_fields)
-        if not isinstance(item, dict):
-            continue
-        item_id = item.get("attention_item_id")
-        if item_id in seen_ids:
-            errors.append(f"{label}.attention_item_id must be unique")
-        if isinstance(item_id, str):
-            seen_ids.add(item_id)
-        if item.get("source_system") not in source_systems:
-            errors.append(f"{label}.source_system must be governed")
-        severity = item.get("severity")
-        if severity not in severities:
-            errors.append(f"{label}.severity must be governed")
-        else:
-            severity_counts[severity] += 1
-        if severity == "blocking" and item.get("suppression"):
-            errors.append(f"{label} blocking item cannot be suppressed")
-        if not isinstance(item.get("deduplication_key"), str) or not item["deduplication_key"]:
-            errors.append(f"{label}.deduplication_key must be non-empty")
-        if item.get("deduplication_key") == item.get("attention_item_id"):
-            errors.append(f"{label}.deduplication_key must be distinct from attention_item_id")
-        if not _is_rfc3339_utc(item.get("first_seen_at_utc")):
-            errors.append(f"{label}.first_seen_at_utc must be an RFC-3339 UTC string ending with Z")
-        if not _is_rfc3339_utc(item.get("last_seen_at_utc")):
-            errors.append(f"{label}.last_seen_at_utc must be an RFC-3339 UTC string ending with Z")
-        _validate_evidence_refs(errors, label, item.get("evidence_refs"), evidence_ref_types)
-
-        suppression = item.get("suppression")
-        if suppression is not None:
-            _require_keys(errors, f"{label}.suppression", suppression, required_suppression_fields - {"deduplication_key"})
-            if isinstance(suppression, dict) and not _is_rfc3339_utc(suppression.get("expires_at_utc")):
-                errors.append(
-                    f"{label}.suppression.expires_at_utc must be an RFC-3339 UTC string ending with Z"
-                )
+    inventory = _validate_status_source_inventory(
+        errors=errors,
+        status=status,
+        source_systems=source_systems,
+        read_statuses=read_statuses,
+        evidence_ref_types=evidence_ref_types,
+        required_source_fields=required_source_fields,
+    )
+    attention_items, severity_counts = _validate_status_attention_items(
+        errors=errors,
+        status=status,
+        source_systems=source_systems,
+        severities=severities,
+        evidence_ref_types=evidence_ref_types,
+        required_attention_fields=required_attention_fields,
+        required_suppression_fields=required_suppression_fields,
+    )
 
     summary_counts = status.get("summary_counts")
     if not isinstance(summary_counts, dict):

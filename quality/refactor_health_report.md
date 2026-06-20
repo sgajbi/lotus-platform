@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T04:01:31Z`
+Generated: `2026-06-20T04:05:08Z`
 
 ## Completed Slices
 
@@ -35,6 +35,9 @@ Generated: `2026-06-20T04:01:31Z`
 12. Domain data product producer validator extraction so product identity, approved-consumer,
     registry-reference, lineage, and deprecation checks are isolated behind focused helpers,
     reducing the highest measured complexity hotspot while preserving RFC-0084 contract behavior.
+13. Heartbeat status validator extraction so source-inventory and attention-item validation are
+    isolated behind focused helpers, reducing the highest measured complexity hotspot while
+    preserving RFC-0095 heartbeat contract behavior.
 
 ## Evidence
 

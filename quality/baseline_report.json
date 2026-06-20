@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 299831
+    "total_source_lines": 299878
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 46,
-        "end_line": 290,
-        "line": 153,
-        "lines": 138,
-        "name": "validate_heartbeat_status",
-        "path": "automation/validate_heartbeat_contracts.py"
-      },
       {
         "complexity": 44,
         "end_line": 510,
@@ -192,6 +184,14 @@
         "lines": 68,
         "name": "validate_delegation_record",
         "path": "automation/validate_agent_engineering_contracts.py"
+      },
+      {
+        "complexity": 22,
+        "end_line": 334,
+        "line": 240,
+        "lines": 95,
+        "name": "validate_heartbeat_status",
+        "path": "automation/validate_heartbeat_contracts.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_closure_governance.py"
       }
     ],
-    "max_complexity": 46,
+    "max_complexity": 44,
     "max_function_lines": 393,
-    "python_function_count": 1298
+    "python_function_count": 1300
   },
-  "generated_at_utc": "2026-06-20T04:01:31Z",
+  "generated_at_utc": "2026-06-20T04:05:08Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.67s"
+    "summary": "510 tests collected in 0.55s"
   }
 }
