@@ -1,0 +1,805 @@
+{
+  "architecture": {
+    "boundary_gate_status": "report-only",
+    "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
+  },
+  "code_size": {
+    "markdown_file_count": 334,
+    "powershell_file_count": 62,
+    "python_file_count": 149,
+    "source_file_count": 684,
+    "suffix_counts": {
+      ".json": 108,
+      ".md": 334,
+      ".ps1": 62,
+      ".py": 149,
+      ".txt": 4,
+      ".yaml": 16,
+      ".yml": 11
+    },
+    "total_source_lines": 295785
+  },
+  "documentation": {
+    "baseline_report": "quality/baseline_report.md",
+    "health_report": "quality/refactor_health_report.md",
+    "quality_docs_required": [
+      "api_governance_rules.md",
+      "architecture_rules.md",
+      "ci_quality_gates.md",
+      "refactor_decisions.md",
+      "security_findings.md"
+    ],
+    "scorecard": "quality/quality_scorecard.md"
+  },
+  "function_hotspots": {
+    "highest_complexity_functions": [
+      {
+        "complexity": 83,
+        "end_line": 396,
+        "line": 32,
+        "lines": 365,
+        "name": "validate_engineering_context_system",
+        "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 50,
+        "end_line": 341,
+        "line": 18,
+        "lines": 324,
+        "name": "validate_contract",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 50,
+        "end_line": 502,
+        "line": 290,
+        "lines": 213,
+        "name": "validate_producer_contract",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 46,
+        "end_line": 290,
+        "line": 153,
+        "lines": 138,
+        "name": "validate_heartbeat_status",
+        "path": "automation/validate_heartbeat_contracts.py"
+      },
+      {
+        "complexity": 44,
+        "end_line": 510,
+        "line": 309,
+        "lines": 202,
+        "name": "_validate_supported_features",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 39,
+        "end_line": 175,
+        "line": 47,
+        "lines": 129,
+        "name": "validate_supported_claim_register",
+        "path": "automation/validate_supported_claim_register.py"
+      },
+      {
+        "complexity": 38,
+        "end_line": 1110,
+        "line": 885,
+        "lines": 226,
+        "name": "_lotus_ai_adapter",
+        "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 35,
+        "end_line": 696,
+        "line": 557,
+        "lines": 140,
+        "name": "_delegated_task_ledger_adapter",
+        "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 34,
+        "end_line": 158,
+        "line": 25,
+        "lines": 134,
+        "name": "validate_rollout_readiness",
+        "path": "automation/validate_analytics_ui_rollout_readiness.py"
+      },
+      {
+        "complexity": 32,
+        "end_line": 1059,
+        "line": 802,
+        "lines": 258,
+        "name": "validate_domain_product_onboarding_bundle",
+        "path": "automation/generate_domain_product_onboarding.py"
+      },
+      {
+        "complexity": 31,
+        "end_line": 636,
+        "line": 509,
+        "lines": 128,
+        "name": "validate_consumer_contract_with_context",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 29,
+        "end_line": 287,
+        "line": 183,
+        "lines": 105,
+        "name": "validate_trust_metadata_registry",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 29,
+        "end_line": 310,
+        "line": 207,
+        "lines": 104,
+        "name": "validate_source_manifest",
+        "path": "automation/domain_product_discovery.py"
+      },
+      {
+        "complexity": 29,
+        "end_line": 151,
+        "line": 55,
+        "lines": 97,
+        "name": "validate_mesh_slo_policies",
+        "path": "automation/validate_mesh_slo_policies.py"
+      },
+      {
+        "complexity": 26,
+        "end_line": 298,
+        "line": 188,
+        "lines": 111,
+        "name": "_validate_slices",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 25,
+        "end_line": 148,
+        "line": 53,
+        "lines": 96,
+        "name": "validate_mesh_access_policies",
+        "path": "automation/validate_mesh_access_policies.py"
+      },
+      {
+        "complexity": 24,
+        "end_line": 309,
+        "line": 178,
+        "lines": 132,
+        "name": "validate_agent_engineering_contracts",
+        "path": "automation/validate_agent_engineering_contracts.py"
+      },
+      {
+        "complexity": 24,
+        "end_line": 277,
+        "line": 217,
+        "lines": 61,
+        "name": "validate_delegation_output",
+        "path": "automation/delegation_task_ledger.py"
+      },
+      {
+        "complexity": 23,
+        "end_line": 89,
+        "line": 20,
+        "lines": 70,
+        "name": "validate_platform_validation_coverage",
+        "path": "automation/validate_platform_validation_coverage.py"
+      },
+      {
+        "complexity": 23,
+        "end_line": 524,
+        "line": 457,
+        "lines": 68,
+        "name": "validate_delegation_record",
+        "path": "automation/validate_agent_engineering_contracts.py"
+      }
+    ],
+    "largest_functions": [
+      {
+        "complexity": 1,
+        "end_line": 466,
+        "line": 74,
+        "lines": 393,
+        "name": "test_analytics_ui_observability_contract_limits_promotion_to_implemented_foundations",
+        "path": "tests/unit/test_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 83,
+        "end_line": 396,
+        "line": 32,
+        "lines": 365,
+        "name": "validate_engineering_context_system",
+        "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 8,
+        "end_line": 476,
+        "line": 117,
+        "lines": 360,
+        "name": "validate_service_addressing",
+        "path": "automation/validate_service_addressing.py"
+      },
+      {
+        "complexity": 50,
+        "end_line": 341,
+        "line": 18,
+        "lines": 324,
+        "name": "validate_contract",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
+      },
+      {
+        "complexity": 21,
+        "end_line": 320,
+        "line": 23,
+        "lines": 298,
+        "name": "_run_validation_once",
+        "path": "automation/core_performance_attribution_validation.py"
+      },
+      {
+        "complexity": 7,
+        "end_line": 368,
+        "line": 106,
+        "lines": 263,
+        "name": "_seed_core_data",
+        "path": "automation/core_performance_twr_benchmark_validation.py"
+      },
+      {
+        "complexity": 2,
+        "end_line": 1954,
+        "line": 1695,
+        "lines": 260,
+        "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 32,
+        "end_line": 1059,
+        "line": 802,
+        "lines": 258,
+        "name": "validate_domain_product_onboarding_bundle",
+        "path": "automation/generate_domain_product_onboarding.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 395,
+        "line": 148,
+        "lines": 248,
+        "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
+        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
+      },
+      {
+        "complexity": 38,
+        "end_line": 1110,
+        "line": 885,
+        "lines": 226,
+        "name": "_lotus_ai_adapter",
+        "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 246,
+        "line": 22,
+        "lines": 225,
+        "name": "_run_validation",
+        "path": "automation/core_performance_returns_series_validation.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 243,
+        "line": 23,
+        "lines": 221,
+        "name": "_run_validation",
+        "path": "automation/core_performance_contribution_validation.py"
+      },
+      {
+        "complexity": 50,
+        "end_line": 502,
+        "line": 290,
+        "lines": 213,
+        "name": "validate_producer_contract",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 5,
+        "end_line": 389,
+        "line": 180,
+        "lines": 210,
+        "name": "run_validation",
+        "path": "automation/core_seeded_analytics_maturity_validation.py"
+      },
+      {
+        "complexity": 2,
+        "end_line": 272,
+        "line": 67,
+        "lines": 206,
+        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
+        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
+      },
+      {
+        "complexity": 44,
+        "end_line": 510,
+        "line": 309,
+        "lines": 202,
+        "name": "_validate_supported_features",
+        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 304,
+        "line": 129,
+        "lines": 176,
+        "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
+        "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 197,
+        "line": 25,
+        "lines": 173,
+        "name": "test_domain_product_onboarding_scaffold_writes_complete_bundle",
+        "path": "tests/unit/test_domain_product_onboarding_generator.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 180,
+        "line": 14,
+        "lines": 167,
+        "name": "test_validate_service_addressing_accepts_canonical_hostnames",
+        "path": "tests/unit/test_service_addressing_validator.py"
+      },
+      {
+        "complexity": 2,
+        "end_line": 167,
+        "line": 9,
+        "lines": 159,
+        "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
+        "path": "tests/unit/test_ci_governance_documentation_contract.py"
+      }
+    ],
+    "max_complexity": 83,
+    "max_function_lines": 393,
+    "python_function_count": 1271
+  },
+  "generated_at_utc": "2026-06-20T03:02:58Z",
+  "largest_files": [
+    {
+      "lines": 79939,
+      "path": "platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 36232,
+      "path": "platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 23952,
+      "path": "platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 14219,
+      "path": "platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 5120,
+      "path": "platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 2701,
+      "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 2058,
+      "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1818,
+      "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1747,
+      "path": "automation/New-Lotus-Service.ps1",
+      "suffix": ".ps1"
+    },
+    {
+      "lines": 1655,
+      "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1614,
+      "path": "rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1268,
+      "path": "automation/README.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1151,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1135,
+      "path": "rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1125,
+      "path": "automation/mesh_certification_gate.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1105,
+      "path": "automation/generate_domain_product_onboarding.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1094,
+      "path": "rfcs/RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1051,
+      "path": "rfcs/RFC-0083-lotus-core-system-of-record-target-architecture.md",
+      "suffix": ".md"
+    },
+    {
+      "lines": 1041,
+      "path": "tests/unit/test_rfc_closure_governance.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1029,
+      "path": "rfcs/RFC-0084-mesh-governance.md",
+      "suffix": ".md"
+    }
+  ],
+  "openapi": {
+    "note": "lotus-platform governs OpenAPI scaffolds and validators but does not own a business-domain API.",
+    "platform_business_api_owned": false
+  },
+  "quality_tooling": {
+    "bandit": {
+      "available": false,
+      "command": [
+        "bandit",
+        "--version"
+      ],
+      "returncode": null,
+      "summary": "tool not installed"
+    },
+    "mypy": {
+      "available": false,
+      "command": [
+        "mypy",
+        "--version"
+      ],
+      "returncode": null,
+      "summary": "tool not installed"
+    },
+    "pip_audit": {
+      "available": false,
+      "command": [
+        "pip-audit",
+        "--version"
+      ],
+      "returncode": null,
+      "summary": "tool not installed"
+    },
+    "ruff": {
+      "available": false,
+      "command": [
+        "ruff",
+        "--version"
+      ],
+      "returncode": null,
+      "summary": "tool not installed"
+    }
+  },
+  "repository": "lotus-platform",
+  "scope": {
+    "excluded_parts": [
+      ".git",
+      ".mypy_cache",
+      ".pytest_cache",
+      ".ruff_cache",
+      ".venv",
+      ".venv-platform-automation",
+      "__pycache__",
+      "generated",
+      "output"
+    ],
+    "included_roots": [
+      "automation",
+      "codex",
+      "context",
+      "docs",
+      "platform-contracts",
+      "platform-stack",
+      "platform-standards",
+      "rfcs",
+      "tests",
+      "wiki"
+    ],
+    "note": "Generated and output directories are excluded because they are derived evidence, not source truth."
+  },
+  "security": {
+    "candidate_sample_limit": 50,
+    "note": "Keyword matches are planning signals and require human review before being treated as findings.",
+    "secret_keyword_review_candidates_sample": [
+      {
+        "line": 78,
+        "path": "automation/Audit-RFC-Conformance.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 81,
+        "path": "automation/Audit-RFC-Conformance.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 64,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 67,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 71,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 73,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 499,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 500,
+        "path": "automation/core_performance_cross_app_validation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 22,
+        "path": "automation/generate_domain_product_onboarding.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 23,
+        "path": "automation/generate_domain_product_onboarding.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 108,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 276,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 277,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 278,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 284,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 285,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 292,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 350,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 442,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 934,
+        "path": "automation/New-Lotus-Service.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 22,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 23,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 24,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 25,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 26,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 31,
+        "path": "automation/Validate-Automation-Config.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 101,
+        "path": "automation/Validate-Enterprise-Readiness.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 103,
+        "path": "automation/Validate-Enterprise-Readiness.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 424,
+        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 497,
+        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 110,
+        "path": "automation/validate_supported_claim_register.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 21,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 22,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 23,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 24,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 25,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 30,
+        "path": "automation/Verify-Repo-Metadata.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 80,
+        "path": "codex/skills/lotus-demo-readiness-certification/SKILL.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 112,
+        "path": "codex/skills/lotus-frontend-delivery-governance/SKILL.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 38,
+        "path": "codex/skills/lotus-frontend-delivery-governance/references/private-banking-analytics-ui.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 98,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 121,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 325,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 340,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 382,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 403,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 404,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 405,
+        "path": "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 135,
+        "path": "docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 339,
+        "path": "docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md",
+        "signal": "sensitive-keyword-review"
+      }
+    ]
+  },
+  "tests": {
+    "available": true,
+    "collected_tests": 502,
+    "command": [
+      "C:\\Python313\\python.exe",
+      "-m",
+      "pytest",
+      "--collect-only",
+      "-q",
+      "tests/unit"
+    ],
+    "returncode": 0,
+    "summary": "502 tests collected in 1.19s"
+  }
+}

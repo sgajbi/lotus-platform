@@ -37,6 +37,12 @@ Current repository posture:
 6. `platform-stack` includes production-like local persistence dependencies for orchestrated
    services where readiness requires them, including `lotus-report-postgres` for `lotus-report`
    report-job and batch ledger readiness.
+7. The enterprise backend refactor baseline foundation is active. The report-only generator
+   `automation/generate_enterprise_backend_quality_baseline.py` writes measured quality artifacts
+   under `quality/`, including `baseline_report.md`, `baseline_report.json`,
+   `quality_scorecard.md`, `refactor_health_report.md`, architecture/API/CI/security rule pages,
+   and a refactor decision log. `automation/Invoke-PlatformRepoChecks.ps1` validates the quality
+   reporting surface through `--check`.
 
 ## Architecture And Module Map
 
@@ -72,6 +78,10 @@ Primary areas:
    ledgers, themes, and voice guidance. This area preserves drafting memory for authentic,
    non-confidential, Lotus-adjacent professional content and must not be treated as product truth,
    customer evidence, or platform marketing material.
+12. `quality/`
+   enterprise backend refactor baseline, scorecard, quality gate rules, security findings tracker,
+   and refactor decision log. This is measured refactor evidence and planning truth, not generated
+   product output.
 
 ## Runtime And Integration Boundaries
 
@@ -278,6 +288,8 @@ Use these commands as the primary local contract:
    `python automation/delegation_task_ledger.py --help`
 25. heartbeat contract validation
    `python automation/validate_heartbeat_contracts.py`
+26. enterprise backend quality baseline generation and surface validation
+   `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
 
 ## Validation And CI Expectations
 
@@ -323,6 +335,9 @@ Most relevant current governance:
    repo docs must speak in current Lotus vocabulary and current architecture.
 6. New-service scaffold changes should be centralized in `automation/New-Lotus-Service.ps1` and
    protected by scaffold contract tests rather than copied into individual service repositories.
+7. Enterprise refactor quality artifacts under `quality/` must remain synchronized with README,
+   wiki, repo context, central context, and skill guidance whenever a quality signal moves from
+   report-only to a blocking gate or the baseline measurement scope changes.
 
 ## Context Maintenance Rule
 

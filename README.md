@@ -93,6 +93,9 @@ Primary platform surfaces:
   governance and implementation RFC inventory
 - `tests/unit/`
   documentation, validator, standards, and automation contract tests
+- `quality/`
+  enterprise backend refactor baseline, scorecard, quality gate rules, security notes, and
+  decision log
 - `wiki/`
   canonical authored source for GitHub wiki publication
 
@@ -143,6 +146,8 @@ Important runtime note:
   targeted unit contract tests
 - `python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q`
   high-signal targeted documentation and operator contract pack
+- `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
+  regenerate and validate the enterprise backend quality baseline and scorecard
 - `python automation/validate_engineering_context_system.py`
   context-system drift validation
 - `powershell -ExecutionPolicy Bypass -File automation\Validate-Service-Addressing.ps1`
@@ -178,12 +183,15 @@ Important current platform truths:
    duplicated here
 5. documentation changes in this repo are partially governed by unit-level documentation contract
    tests and should be treated as contract work, not just prose edits
-6. RFC-0084 domain-data-product producer and consumer schemas live under
+6. enterprise backend refactor work starts from the report-only quality baseline under
+   `quality/`, and future gate promotion must update the scorecard, repo context, wiki, and
+   relevant skill guidance in the same slice
+7. RFC-0084 domain-data-product producer and consumer schemas live under
    `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
    `lotus-core`, `lotus-performance`, and `lotus-risk`
-7. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
+8. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
    `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
-8. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
+9. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
    `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
 
 ## Documentation Map
@@ -204,6 +212,10 @@ Important current platform truths:
   [platform-stack/README.md](platform-stack/README.md)
 - platform standards:
   [platform-standards/README.md](platform-standards/README.md)
+- enterprise backend quality baseline:
+  [quality/baseline_report.md](quality/baseline_report.md)
+- enterprise refactor scorecard:
+  [quality/quality_scorecard.md](quality/quality_scorecard.md)
 - RFC inventory:
   [rfcs/README.md](rfcs/README.md)
 - documentation layering:

@@ -39,6 +39,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
 | Design or promote high-signal CI enforcement, convert report-only inventories into blocking gates, prevent agent-driven quality degradation, or update quality scorecards and gate placement | `lotus-ci-enforcement-governance` | repo delivery governance skill, `lotus-pr-premerge-gate`, `lotus-codebase-review-ledger` | repo-native quality inventories, Make/NPM targets, GitHub Actions lanes, quality scorecards, and review ledgers |
+| Start or continue an enterprise backend refactor baseline, before/after scorecard, report-only quality measurement, or quality gate promotion in `lotus-platform` | `lotus-ci-enforcement-governance` | `lotus-backend-delivery-governance`, `lotus-readme-wiki-governance`, `lotus-codebase-review-ledger` | `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `automation/generate_enterprise_backend_quality_baseline.py`, `quality/baseline_report.md`, `quality/quality_scorecard.md`, `quality/refactor_health_report.md` |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Implement or review backend code in Lotus service repositories | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Standardize or refresh repository README and wiki documentation across Lotus repos, including business-application feature material, diagrams, implementation-backed demo readiness, current functional/non-functional posture, or restored durable documentation truth | `lotus-readme-wiki-governance` | repo delivery governance skill, `lotus-rfc-review-loop`, `lotus-pr-premerge-gate` for stranded-truth checks | repo-local engineering context, existing public-doc regression tests when present, `docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md`, `context/TASK-ROUTING-GUIDE.md`, and repo-local `wiki/` as the authored source when publishing |
@@ -112,6 +113,7 @@ Use when the task is about:
 4. adding or changing repo-native quality commands,
 5. updating CI lane placement, scorecards, or enforcement evidence,
 6. syncing skill or agent-context guidance for a repeatable enforcement pattern.
+7. establishing or updating enterprise backend refactor baseline artifacts under `quality/`.
 
 ## Keep, Tighten, Add, Remove Decisions
 

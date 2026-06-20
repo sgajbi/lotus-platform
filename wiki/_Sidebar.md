@@ -7,6 +7,7 @@
 - [Getting Started](Getting-Started)
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
+- [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality)
 - [Operations Runbook](Operations-Runbook)
 - [Analytics UI Observability](Analytics-UI-Observability)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)

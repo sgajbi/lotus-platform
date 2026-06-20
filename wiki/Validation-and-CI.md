@@ -31,6 +31,8 @@
   `python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check`
 - source-data product onboarding scaffold check:
   `python automation\generate_domain_product_onboarding.py --repository lotus-core --product-name ExampleSourceProduct --product-version v1 --output-directory output\domain-product-onboarding\example --check`
+- enterprise backend refactor quality baseline:
+  `python automation\generate_enterprise_backend_quality_baseline.py --write --check`
 
 ## What the gates protect
 
@@ -48,6 +50,8 @@
 - source-data product onboarding scaffolds: source API profile, API certification checklist,
   ingestion pipeline checklist, trust telemetry, SLO/access/evidence policy, and repo-owned
   declaration readiness
+- enterprise backend refactor quality surface: report-only baseline, scorecard, quality gate rules,
+  security review notes, and refactor decisions under `quality/`
 
 ## Mesh certification outputs
 
@@ -83,6 +87,7 @@ surface even when the tests are green.
 ```powershell
 python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q
 python automation/validate_engineering_context_system.py
+python automation/generate_enterprise_backend_quality_baseline.py --check
 ```
 
 ## Related references

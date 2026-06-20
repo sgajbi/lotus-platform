@@ -410,6 +410,22 @@ Read:
 4. `docs/` and `automation/README.md` in `lotus-platform`
 5. platform validation and ingress automation under `automation/`
 
+## Enterprise Backend Refactor Quality
+
+For `lotus-platform` enterprise backend refactor work, use:
+
+1. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
+2. `../automation/generate_enterprise_backend_quality_baseline.py`
+3. `../quality/baseline_report.md`
+4. `../quality/quality_scorecard.md`
+5. `../quality/refactor_health_report.md`
+6. `../quality/architecture_rules.md`
+7. `../quality/ci_quality_gates.md`
+
+The quality baseline is initially report-only. Promote individual signals only after they are
+measured, deterministic, low-noise, locally runnable, and represented in repo checks, scorecards,
+docs, wiki source, repo context, central context, and relevant skill guidance.
+
 ## Repository-Local Context Documents
 
 These are now the implementation-truth entrypoints for each repo:
