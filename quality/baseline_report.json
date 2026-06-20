@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303152
+    "total_source_lines": 303190
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -48,14 +48,6 @@
         "lines": 56,
         "name": "validate_cross_app",
         "path": "platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 120,
-        "line": 69,
-        "lines": 52,
-        "name": "validate_repository_hygiene",
-        "path": "automation/validate_repository_hygiene.py"
       },
       {
         "complexity": 13,
@@ -192,6 +184,14 @@
         "lines": 39,
         "name": "_validate_api_and_proof",
         "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 889,
+        "line": 853,
+        "lines": 37,
+        "name": "_append_delegated_task_overlap_attention",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -220,20 +220,20 @@
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
       {
+        "complexity": 1,
+        "end_line": 752,
+        "line": 489,
+        "lines": 264,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 7,
         "end_line": 368,
         "line": 106,
         "lines": 263,
         "name": "_seed_core_data",
         "path": "automation/core_performance_twr_benchmark_validation.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 748,
-        "line": 489,
-        "lines": 260,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 2,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 14,
     "max_function_lines": 393,
-    "python_function_count": 1598
+    "python_function_count": 1601
   },
-  "generated_at_utc": "2026-06-20T07:24:39Z",
+  "generated_at_utc": "2026-06-20T07:30:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.52s"
+    "summary": "510 tests collected in 0.59s"
   }
 }

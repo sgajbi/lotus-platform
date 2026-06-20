@@ -709,6 +709,10 @@ Generated: `{baseline["generated_at_utc"]}`
     identity fields, catalog lookup, catalog identity matching, and product identity shape checks are
     isolated behind focused helpers, reducing the measured repository complexity ceiling from 15 to
     14 while preserving RFC-0087 trust telemetry validation behavior.
+61. Repository hygiene validator extraction so hygiene paths, result assembly, required file
+    existence, required pattern coverage, and README command checks are isolated behind focused
+    helpers, removing repository hygiene validation from the top measured complexity hotspot list
+    while preserving scaffolded-service hygiene validation behavior.
 
 ## Evidence
 

@@ -42,6 +42,25 @@ REQUIRED_DOCKERIGNORE_PATTERNS = (
     "docs",
     "tests",
 )
+REQUIRED_EXISTENCE_RESULT_FIELDS = (
+    "editorconfig_exists",
+    "gitattributes_exists",
+    "gitignore_exists",
+    "dockerignore_exists",
+    "readme_exists",
+    "shared_runtime_lock_exists",
+    "ci_tooling_lock_exists",
+)
+REQUIRED_EMPTY_RESULT_FIELDS = (
+    "editorconfig_missing_patterns",
+    "gitattributes_missing_patterns",
+    "gitignore_missing_patterns",
+    "dockerignore_missing_patterns",
+)
+REQUIRED_README_COMMAND_FIELDS = (
+    "readme_has_make_check",
+    "readme_has_make_ci",
+)
 
 
 def _read_text_if_exists(path: Path) -> str:
@@ -66,58 +85,73 @@ def determine_dependency_authority(repo_root: Path) -> str:
     return "missing"
 
 
-def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
-    editorconfig = repo_root / ".editorconfig"
-    gitattributes = repo_root / ".gitattributes"
-    gitignore = repo_root / ".gitignore"
-    dockerignore = repo_root / ".dockerignore"
-    readme = repo_root / "README.md"
-    shared_runtime_lock = repo_root / "requirements" / "shared-runtime.lock.txt"
-    ci_tooling_lock = repo_root / "requirements" / "ci-tooling.lock.txt"
+def _hygiene_paths(repo_root: Path) -> dict[str, Path]:
+    return {
+        "editorconfig": repo_root / ".editorconfig",
+        "gitattributes": repo_root / ".gitattributes",
+        "gitignore": repo_root / ".gitignore",
+        "dockerignore": repo_root / ".dockerignore",
+        "readme": repo_root / "README.md",
+        "shared_runtime_lock": repo_root / "requirements" / "shared-runtime.lock.txt",
+        "ci_tooling_lock": repo_root / "requirements" / "ci-tooling.lock.txt",
+    }
 
-    editorconfig_content = _read_text_if_exists(editorconfig)
-    gitattributes_content = _read_text_if_exists(gitattributes)
-    gitignore_content = _read_text_if_exists(gitignore)
-    dockerignore_content = _read_text_if_exists(dockerignore)
-    readme_content = _read_text_if_exists(readme)
-    dependency_authority = determine_dependency_authority(repo_root)
 
+def _build_hygiene_result(repo_root: Path, paths: dict[str, Path]) -> dict[str, object]:
+    readme_content = _read_text_if_exists(paths["readme"])
     result = {
         "repo_root": str(repo_root),
-        "editorconfig_exists": editorconfig.exists(),
-        "gitattributes_exists": gitattributes.exists(),
-        "gitignore_exists": gitignore.exists(),
-        "dockerignore_exists": dockerignore.exists(),
-        "readme_exists": readme.exists(),
-        "dependency_authority": dependency_authority,
-        "shared_runtime_lock_exists": shared_runtime_lock.exists(),
-        "ci_tooling_lock_exists": ci_tooling_lock.exists(),
-        "editorconfig_missing_patterns": _missing_patterns(editorconfig_content, REQUIRED_EDITORCONFIG_PATTERNS),
-        "gitattributes_missing_patterns": _missing_patterns(
-            gitattributes_content, REQUIRED_GITATTRIBUTES_PATTERNS
+        "editorconfig_exists": paths["editorconfig"].exists(),
+        "gitattributes_exists": paths["gitattributes"].exists(),
+        "gitignore_exists": paths["gitignore"].exists(),
+        "dockerignore_exists": paths["dockerignore"].exists(),
+        "readme_exists": paths["readme"].exists(),
+        "dependency_authority": determine_dependency_authority(repo_root),
+        "shared_runtime_lock_exists": paths["shared_runtime_lock"].exists(),
+        "ci_tooling_lock_exists": paths["ci_tooling_lock"].exists(),
+        "editorconfig_missing_patterns": _missing_patterns(
+            _read_text_if_exists(paths["editorconfig"]),
+            REQUIRED_EDITORCONFIG_PATTERNS,
         ),
-        "gitignore_missing_patterns": _missing_patterns(gitignore_content, REQUIRED_GITIGNORE_PATTERNS),
-        "dockerignore_missing_patterns": _missing_patterns(dockerignore_content, REQUIRED_DOCKERIGNORE_PATTERNS),
+        "gitattributes_missing_patterns": _missing_patterns(
+            _read_text_if_exists(paths["gitattributes"]),
+            REQUIRED_GITATTRIBUTES_PATTERNS,
+        ),
+        "gitignore_missing_patterns": _missing_patterns(
+            _read_text_if_exists(paths["gitignore"]),
+            REQUIRED_GITIGNORE_PATTERNS,
+        ),
+        "dockerignore_missing_patterns": _missing_patterns(
+            _read_text_if_exists(paths["dockerignore"]),
+            REQUIRED_DOCKERIGNORE_PATTERNS,
+        ),
         "readme_has_make_check": "make check" in readme_content,
         "readme_has_make_ci": "make ci" in readme_content,
     }
-    result["ok"] = (
-        result["editorconfig_exists"]
-        and result["gitattributes_exists"]
-        and result["gitignore_exists"]
-        and result["dockerignore_exists"]
-        and result["readme_exists"]
-        and result["dependency_authority"] == "pyproject"
-        and result["shared_runtime_lock_exists"]
-        and result["ci_tooling_lock_exists"]
-        and not result["editorconfig_missing_patterns"]
-        and not result["gitattributes_missing_patterns"]
-        and not result["gitignore_missing_patterns"]
-        and not result["dockerignore_missing_patterns"]
-        and result["readme_has_make_check"]
-        and result["readme_has_make_ci"]
-    )
+    result["ok"] = _repository_hygiene_is_ok(result)
     return result
+
+
+def _repository_hygiene_is_ok(result: dict[str, object]) -> bool:
+    required_files_exist = all(
+        bool(result[field_name]) for field_name in REQUIRED_EXISTENCE_RESULT_FIELDS
+    )
+    required_patterns_present = all(
+        not result[field_name] for field_name in REQUIRED_EMPTY_RESULT_FIELDS
+    )
+    required_readme_commands_present = all(
+        bool(result[field_name]) for field_name in REQUIRED_README_COMMAND_FIELDS
+    )
+    return (
+        required_files_exist
+        and result["dependency_authority"] == "pyproject"
+        and required_patterns_present
+        and required_readme_commands_present
+    )
+
+
+def validate_repository_hygiene(repo_root: Path) -> dict[str, object]:
+    return _build_hygiene_result(repo_root, _hygiene_paths(repo_root))
 
 
 def build_markdown_report(result: dict[str, object]) -> str:
