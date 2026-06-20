@@ -540,6 +540,9 @@ Generated: `{baseline["generated_at_utc"]}`
     playbook-content, developer-environment automation, and repository-context contract checks are
     isolated behind focused helpers, reducing the highest measured complexity hotspot while
     preserving RFC-0073 context-system behavior.
+18. Delegated task ledger heartbeat extraction so task attention generation and active write-scope
+    overlap detection are isolated behind focused helpers, removing the adapter from the top
+    measured complexity hotspot list while preserving RFC-0095 heartbeat behavior.
 
 ## Evidence
 

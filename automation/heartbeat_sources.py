@@ -554,6 +554,154 @@ def _write_scopes_overlap(left: object, right: object) -> bool:
     return False
 
 
+def _append_delegated_task_attention(
+    attention_items: list[dict[str, Any]],
+    *,
+    source_ref: str,
+    task_repository: str,
+    condition: str,
+    severity: str,
+    owner: str,
+    generated_at_utc: str,
+    task_evidence: list[dict[str, Any]],
+    action: str,
+    task_id: str,
+    scope: dict[str, Any],
+    profile: str,
+) -> None:
+    item = _attention_item(
+        source_system="delegated_task_ledger",
+        source_ref=source_ref,
+        repository=task_repository,
+        condition=condition,
+        severity=severity,
+        owner=owner,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=task_evidence,
+        recommended_next_action=action,
+    )
+    item["engineering_task_id"] = task_id
+    item["parent_engineering_task_id"] = str(scope.get("parent_engineering_task_id") or "")
+    item["delegation_profile"] = profile
+    if "write_scope" in scope:
+        item["write_scope"] = scope["write_scope"]
+    attention_items.append(item)
+
+
+def _collect_delegated_task_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    task: dict[str, Any],
+    task_id: str,
+    task_repository: str,
+    source_ref: str,
+    owner: str,
+    generated_at_utc: str,
+    task_evidence: list[dict[str, Any]],
+    scope: dict[str, Any],
+    profile: str,
+    stale_hours: int,
+) -> bool:
+    status = str(task.get("status") or "").upper()
+    is_active = status in {"QUEUED", "RUNNING"}
+
+    def add_attention(condition: str, severity: str, action: str) -> None:
+        _append_delegated_task_attention(
+            attention_items,
+            source_ref=source_ref,
+            task_repository=task_repository,
+            condition=condition,
+            severity=severity,
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            task_evidence=task_evidence,
+            action=action,
+            task_id=task_id,
+            scope=scope,
+            profile=profile,
+        )
+
+    if status in {"FAILED", "TIMED_OUT"}:
+        add_attention(
+            "delegated_task_failed",
+            "action_required",
+            f"Review delegated task `{task_id}` failure before using its output.",
+        )
+    elif status == "LOST":
+        add_attention(
+            "delegated_task_lost",
+            "blocking",
+            f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
+        )
+
+    if is_active:
+        age = _age_hours(
+            generated_at_utc,
+            task.get("started_at") or task.get("requested_at"),
+        )
+        if age is not None and age > stale_hours:
+            add_attention(
+                "delegated_task_stale",
+                "warning",
+                f"Refresh or cancel stale delegated task `{task_id}`.",
+            )
+
+    if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
+        add_attention(
+            "delegated_task_missing_evidence",
+            "action_required",
+            f"Record return-envelope evidence for delegated task `{task_id}`.",
+        )
+
+    if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
+        add_attention(
+            "delegated_task_unresolved_blocker",
+            "action_required",
+            f"Resolve main-agent review blocker for delegated task `{task_id}`.",
+        )
+
+    return is_active
+
+
+def _append_delegated_task_overlap_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    active_tasks: list[dict[str, Any]],
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, Any]],
+) -> None:
+    for index, left in enumerate(active_tasks):
+        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
+        left_write_scope = left_scope.get("write_scope")
+        if left_write_scope == "none":
+            continue
+        for right in active_tasks[index + 1 :]:
+            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
+            if not _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
+                continue
+            left_id = str(left.get("engineering_task_id") or "unknown-task")
+            right_id = str(right.get("engineering_task_id") or "unknown-task")
+            item = _attention_item(
+                source_system="delegated_task_ledger",
+                source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
+                repository=str(left.get("repository") or repository),
+                condition="delegated_task_write_scope_overlap",
+                severity="action_required",
+                owner=str(left.get("owner") or repository),
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                recommended_next_action=(
+                    f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
+                ),
+            )
+            item["engineering_task_id"] = left_id
+            item["related_engineering_task_id"] = right_id
+            item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
+            item["write_scope"] = left_write_scope
+            attention_items.append(item)
+
+
 def _delegated_task_ledger_adapter(
     *,
     config: dict[str, Any],
@@ -581,7 +729,6 @@ def _delegated_task_ledger_adapter(
     for task in tasks:
         if not isinstance(task, dict):
             continue
-        status = str(task.get("status") or "").upper()
         task_id = str(task.get("engineering_task_id") or "unknown-task")
         source_ref = f"delegated_task:{task_id}"
         task_repository = str(task.get("repository") or repository)
@@ -592,96 +739,28 @@ def _delegated_task_ledger_adapter(
             *evidence_refs,
             _evidence_ref("LOCAL_JSON_ARTIFACT", f"{_display_path(path)}#{task_id}"),
         ]
-
-        def add_attention(condition: str, severity: str, action: str) -> None:
-            item = _attention_item(
-                source_system="delegated_task_ledger",
-                source_ref=source_ref,
-                repository=task_repository,
-                condition=condition,
-                severity=severity,
-                owner=owner,
-                generated_at_utc=generated_at_utc,
-                evidence_refs=task_evidence,
-                recommended_next_action=action,
-            )
-            item["engineering_task_id"] = task_id
-            item["parent_engineering_task_id"] = str(
-                scope.get("parent_engineering_task_id") or ""
-            )
-            item["delegation_profile"] = profile
-            if "write_scope" in scope:
-                item["write_scope"] = scope["write_scope"]
-            attention_items.append(item)
-
-        if status in {"FAILED", "TIMED_OUT"}:
-            add_attention(
-                "delegated_task_failed",
-                "action_required",
-                f"Review delegated task `{task_id}` failure before using its output.",
-            )
-        elif status == "LOST":
-            add_attention(
-                "delegated_task_lost",
-                "blocking",
-                f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
-            )
-
-        if status in {"QUEUED", "RUNNING"}:
+        if _collect_delegated_task_attention(
+            attention_items=attention_items,
+            task=task,
+            task_id=task_id,
+            task_repository=task_repository,
+            source_ref=source_ref,
+            owner=owner,
+            generated_at_utc=generated_at_utc,
+            task_evidence=task_evidence,
+            scope=scope,
+            profile=profile,
+            stale_hours=stale_hours,
+        ):
             active_tasks.append(task)
-            age = _age_hours(
-                generated_at_utc,
-                task.get("started_at") or task.get("requested_at"),
-            )
-            if age is not None and age > stale_hours:
-                add_attention(
-                    "delegated_task_stale",
-                    "warning",
-                    f"Refresh or cancel stale delegated task `{task_id}`.",
-                )
 
-        if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
-            add_attention(
-                "delegated_task_missing_evidence",
-                "action_required",
-                f"Record return-envelope evidence for delegated task `{task_id}`.",
-            )
-
-        if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
-            add_attention(
-                "delegated_task_unresolved_blocker",
-                "action_required",
-                f"Resolve main-agent review blocker for delegated task `{task_id}`.",
-            )
-
-    for index, left in enumerate(active_tasks):
-        left_scope = left.get("scope") if isinstance(left.get("scope"), dict) else {}
-        left_write_scope = left_scope.get("write_scope")
-        if left_write_scope == "none":
-            continue
-        for right in active_tasks[index + 1 :]:
-            right_scope = right.get("scope") if isinstance(right.get("scope"), dict) else {}
-            if _write_scopes_overlap(left_write_scope, right_scope.get("write_scope")):
-                left_id = str(left.get("engineering_task_id") or "unknown-task")
-                right_id = str(right.get("engineering_task_id") or "unknown-task")
-                item = _attention_item(
-                    source_system="delegated_task_ledger",
-                    source_ref=f"delegated_task_overlap:{left_id}:{right_id}",
-                    repository=str(left.get("repository") or repository),
-                    condition="delegated_task_write_scope_overlap",
-                    severity="action_required",
-                    owner=str(left.get("owner") or repository),
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=(
-                        f"Pause or supersede one delegated task before integrating `{left_id}` and `{right_id}`."
-                    ),
-                )
-                item["engineering_task_id"] = left_id
-                item["related_engineering_task_id"] = right_id
-                item["delegation_profile"] = str(left_scope.get("delegation_profile") or "")
-                item["write_scope"] = left_write_scope
-                attention_items.append(item)
+    _append_delegated_task_overlap_attention(
+        attention_items=attention_items,
+        active_tasks=active_tasks,
+        repository=repository,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
 
     return (
         _source_inventory(

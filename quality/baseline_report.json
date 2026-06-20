@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300087
+    "total_source_lines": 300169
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 35,
-        "end_line": 696,
-        "line": 557,
-        "lines": 140,
-        "name": "_delegated_task_ledger_adapter",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 34,
         "end_line": 158,
@@ -192,6 +184,14 @@
         "lines": 95,
         "name": "_validate_manifest_contract",
         "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 20,
+        "end_line": 152,
+        "line": 65,
+        "lines": 88,
+        "name": "validate_mesh_evidence_policies",
+        "path": "automation/generate_mesh_evidence_pack.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "automation/core_performance_mwr_validation.py"
       }
     ],
-    "max_complexity": 35,
+    "max_complexity": 34,
     "max_function_lines": 393,
-    "python_function_count": 1318
+    "python_function_count": 1321
   },
-  "generated_at_utc": "2026-06-20T04:24:35Z",
+  "generated_at_utc": "2026-06-20T04:28:21Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -423,7 +423,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1215,
+      "lines": 1294,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.52s"
+    "summary": "510 tests collected in 0.65s"
   }
 }
