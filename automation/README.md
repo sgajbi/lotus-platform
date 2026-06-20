@@ -1071,6 +1071,26 @@ Scaffold a new standards-compliant Lotus backend and auto-register it in automat
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service"
 ```
 
+Check whether app-local enterprise backend refactoring instruction copies match the canonical
+platform playbook:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly
+```
+
+Synchronize those app-local copies from the platform source when a coordinated rollout needs local
+copies:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1
+```
+
+The canonical source is
+`context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`; app-local
+`docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md` files are deployed copies. By
+default the sync scope is resolved from `automation/repos.json` so newly registered backend apps are
+covered without editing this script; pass `-Repositories` only for a deliberate bounded rollout.
+
 For a fuller governed bootstrap that also initializes git, creates the GitHub repository, makes it
 public, and applies baseline main-branch protection:
 

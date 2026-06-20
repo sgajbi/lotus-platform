@@ -48,6 +48,11 @@ Current repository posture:
    CI-quality-gate notes, refactor decisions, README/repo-context/wiki references, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
    observability, health/readiness, and workflow baseline gates.
+9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
+   `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
+   supports `-CheckOnly` drift detection for app-local deployed copies under
+   `docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md`. Its default backend scope is
+   resolved from `automation/repos.json`; use `-Repositories` only for bounded rollout slices.
 
 ## Architecture And Module Map
 
@@ -295,6 +300,8 @@ Use these commands as the primary local contract:
    `python automation/validate_heartbeat_contracts.py`
 26. enterprise backend quality baseline generation and surface validation
    `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
+27. enterprise backend refactoring instruction copy drift check
+   `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
 
 ## Validation And CI Expectations
 

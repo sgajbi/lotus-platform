@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T03:11:18Z`
+Generated: `2026-06-20T03:18:19Z`
 
 ## Completed Slices
 
@@ -10,6 +10,9 @@ Generated: `2026-06-20T03:11:18Z`
 3. New-service scaffold hardening so freshly generated Lotus apps start with bank-buyable
    quality scorecards, architecture rules, CI-quality notes, refactor decisions, and
    README/repo-context/wiki references.
+4. Enterprise refactoring instruction sync repair so deployed app-local copies come from the
+   platform canonical playbook, support `-CheckOnly` drift checks, and use registry/discovery
+   default scope rather than a single app-specific source.
 
 ## Evidence
 
@@ -24,6 +27,8 @@ Generated: `2026-06-20T03:11:18Z`
 9. Skill guidance: `codex/skills/lotus-codebase-review-ledger/SKILL.md`
 10. Scaffold automation: `automation/New-Lotus-Service.ps1`
 11. Scaffold contract tests: `tests/unit/test_repository_hygiene_scaffold_contract.py`
+12. Refactor instruction sync: `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1`
+13. Refactor instruction sync tests: `tests/unit/test_enterprise_backend_refactor_instruction_sync.py`
 
 ## Current Gate Posture
 
