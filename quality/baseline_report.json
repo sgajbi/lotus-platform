@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302492
+    "total_source_lines": 302590
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 16,
-        "end_line": 466,
-        "line": 364,
-        "lines": 103,
-        "name": "_github_adapter",
-        "path": "automation/heartbeat_sources.py"
-      },
       {
         "complexity": 16,
         "end_line": 248,
@@ -147,8 +139,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 868,
-        "line": 798,
+        "end_line": 962,
+        "line": 892,
         "lines": 71,
         "name": "_delegated_task_ledger_adapter",
         "path": "automation/heartbeat_sources.py"
@@ -192,6 +184,14 @@
         "lines": 35,
         "name": "update_delegated_task_status",
         "path": "automation/delegation_task_ledger.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 246,
+        "line": 22,
+        "lines": 225,
+        "name": "_run_validation",
+        "path": "automation/core_performance_returns_series_validation.py"
       }
     ],
     "largest_functions": [
@@ -236,20 +236,20 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
+        "complexity": 1,
+        "end_line": 714,
+        "line": 489,
+        "lines": 226,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 12,
         "end_line": 246,
         "line": 22,
         "lines": 225,
         "name": "_run_validation",
         "path": "automation/core_performance_returns_series_validation.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 710,
-        "line": 489,
-        "lines": 222,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
       {
         "complexity": 5,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 16,
     "max_function_lines": 393,
-    "python_function_count": 1543
+    "python_function_count": 1549
   },
-  "generated_at_utc": "2026-06-20T06:44:32Z",
+  "generated_at_utc": "2026-06-20T06:48:54Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1387,
+      "lines": 1481,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.53s"
+    "summary": "510 tests collected in 0.58s"
   }
 }

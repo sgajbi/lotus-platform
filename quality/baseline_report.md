@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T06:44:32Z`
+Generated: `2026-06-20T06:48:54Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302492`
+- Total source lines: `302590`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1543`
+- Python functions: `1549`
 - Highest measured cyclomatic complexity: `16`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/heartbeat_sources.py | _github_adapter | 364 | 16 | 103 |
 | automation/validate_analytics_ui_ecosystem_hardening.py | _validate_supported_features | 184 | 16 | 65 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_semantics_registry | 120 | 16 | 61 |
 | automation/validate_workflow_security.py | validate_workflow | 68 | 16 | 46 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_supported_claim_register.py | _validate_claim | 133 | 15 | 53 |
 | automation/validate_analytics_ui_scaffold_ci_enforcement.py | _validate_feature_promotion | 123 | 15 | 34 |
 | automation/validate_analytics_ui_observability_contract.py | _validate_telemetry_contract | 629 | 14 | 90 |
+| platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py | validate_cross_app | 73 | 14 | 56 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.53s`
+- Collection summary: `510 tests collected in 0.58s`
 
 ## Security Baseline
 

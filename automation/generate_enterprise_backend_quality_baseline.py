@@ -671,6 +671,10 @@ Generated: `{baseline["generated_at_utc"]}`
     failure payloads are built by focused helpers with isolated service and ingress classification,
     removing the operator explainer from the top measured complexity hotspot list while preserving
     dev ingress automation behavior.
+52. Heartbeat GitHub adapter extraction so PR monitor entry projection, query-error attention,
+    failing-check detection, and stale PR attention are isolated behind focused helpers, removing
+    the GitHub adapter from the top measured complexity hotspot list while preserving RFC-0095
+    heartbeat behavior.
 
 ## Evidence
 

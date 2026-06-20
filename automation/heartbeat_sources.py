@@ -361,6 +361,146 @@ def _normalize_pulls(value: Any) -> list[dict[str, Any]]:
     return []
 
 
+def _github_entries(payload: dict[str, Any] | list[Any] | None) -> list[Any]:
+    return payload if isinstance(payload, list) else []
+
+
+def _append_github_query_error_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    source_errors: list[dict[str, Any]],
+    repo: str,
+    query_error: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    repo_name = repo.split("/")[-1]
+    source_errors.append(
+        _source_read_error(
+            source_system="github",
+            source_ref=repo,
+            error_summary=str(query_error),
+            evidence_refs=evidence_refs,
+        )
+    )
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=repo,
+            repository=repo_name,
+            condition="github_pr_query_error",
+            severity="action_required",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Regenerate PR monitor evidence for {repo}.",
+        )
+    )
+
+
+def _github_failing_checks(pr: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        check
+        for check in _normalize_pulls(pr.get("checks"))
+        if str(check.get("state", "")).upper() in {"FAILURE", "ERROR"}
+    ]
+
+
+def _append_github_failing_check_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    repo_name: str,
+    pr_ref: str,
+    pr_number: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+) -> None:
+    if not pr.get("hasFailingChecks") and not _github_failing_checks(pr):
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=pr_ref,
+            repository=repo_name,
+            condition="github_pr_check_failed",
+            severity="action_required",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Inspect failing GitHub checks for {repo} PR #{pr_number}.",
+            pr_number=pr_number if isinstance(pr_number, int) else None,
+        )
+    )
+
+
+def _append_github_stale_pr_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    repo_name: str,
+    pr_ref: str,
+    pr_number: object,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: float,
+) -> None:
+    age = _age_hours(generated_at_utc, pr.get("updatedAt"))
+    if age is None or age <= stale_hours:
+        return
+    attention_items.append(
+        _attention_item(
+            source_system="github",
+            source_ref=pr_ref,
+            repository=repo_name,
+            condition="github_pr_stale",
+            severity="warning",
+            owner=repo_name,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action=f"Review stale PR #{pr_number} in {repo}.",
+            pr_number=pr_number if isinstance(pr_number, int) else None,
+        )
+    )
+
+
+def _collect_github_pr_attention(
+    *,
+    attention_items: list[dict[str, Any]],
+    pr: dict[str, Any],
+    repo: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    stale_hours: float,
+) -> None:
+    pr_number = pr.get("number")
+    pr_ref = str(pr.get("url") or f"{repo}#{pr_number}")
+    repo_name = repo.split("/")[-1]
+    _append_github_failing_check_attention(
+        attention_items=attention_items,
+        pr=pr,
+        repo=repo,
+        repo_name=repo_name,
+        pr_ref=pr_ref,
+        pr_number=pr_number,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+    )
+    _append_github_stale_pr_attention(
+        attention_items=attention_items,
+        pr=pr,
+        repo=repo,
+        repo_name=repo_name,
+        pr_ref=pr_ref,
+        pr_number=pr_number,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        stale_hours=stale_hours,
+    )
+
+
 def _github_adapter(
     *,
     config: dict[str, Any],
@@ -381,76 +521,30 @@ def _github_adapter(
     attention_items: list[dict[str, Any]] = []
     source_errors: list[dict[str, Any]] = []
     stale_hours = _threshold(config, "stale_pr_review_hours", 48)
-    entries = payload if isinstance(payload, list) else []
-    for entry in entries:
+    for entry in _github_entries(payload):
         if not isinstance(entry, dict):
             continue
         repo = str(entry.get("repo") or repository)
         query_error = entry.get("query_error")
         if query_error:
-            source_errors.append(
-                _source_read_error(
-                    source_system="github",
-                    source_ref=repo,
-                    error_summary=str(query_error),
-                    evidence_refs=evidence_refs,
-                )
-            )
-            attention_items.append(
-                _attention_item(
-                    source_system="github",
-                    source_ref=repo,
-                    repository=repo.split("/")[-1],
-                    condition="github_pr_query_error",
-                    severity="action_required",
-                    owner=repo.split("/")[-1],
-                    generated_at_utc=generated_at_utc,
-                    evidence_refs=evidence_refs,
-                    recommended_next_action=f"Regenerate PR monitor evidence for {repo}.",
-                )
+            _append_github_query_error_attention(
+                attention_items=attention_items,
+                source_errors=source_errors,
+                repo=repo,
+                query_error=query_error,
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
             )
             continue
         for pr in _normalize_pulls(entry.get("pulls")):
-            pr_number = pr.get("number")
-            pr_ref = str(pr.get("url") or f"{repo}#{pr_number}")
-            repo_name = repo.split("/")[-1]
-            checks = _normalize_pulls(pr.get("checks"))
-            failing_checks = [
-                check
-                for check in checks
-                if str(check.get("state", "")).upper() in {"FAILURE", "ERROR"}
-            ]
-            if pr.get("hasFailingChecks") or failing_checks:
-                attention_items.append(
-                    _attention_item(
-                        source_system="github",
-                        source_ref=pr_ref,
-                        repository=repo_name,
-                        condition="github_pr_check_failed",
-                        severity="action_required",
-                        owner=repo_name,
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Inspect failing GitHub checks for {repo} PR #{pr_number}.",
-                        pr_number=pr_number if isinstance(pr_number, int) else None,
-                    )
-                )
-            age = _age_hours(generated_at_utc, pr.get("updatedAt"))
-            if age is not None and age > stale_hours:
-                attention_items.append(
-                    _attention_item(
-                        source_system="github",
-                        source_ref=pr_ref,
-                        repository=repo_name,
-                        condition="github_pr_stale",
-                        severity="warning",
-                        owner=repo_name,
-                        generated_at_utc=generated_at_utc,
-                        evidence_refs=evidence_refs,
-                        recommended_next_action=f"Review stale PR #{pr_number} in {repo}.",
-                        pr_number=pr_number if isinstance(pr_number, int) else None,
-                    )
-                )
+            _collect_github_pr_attention(
+                attention_items=attention_items,
+                pr=pr,
+                repo=repo,
+                generated_at_utc=generated_at_utc,
+                evidence_refs=evidence_refs,
+                stale_hours=stale_hours,
+            )
 
     read_status = "error" if source_errors else "healthy"
     return (
