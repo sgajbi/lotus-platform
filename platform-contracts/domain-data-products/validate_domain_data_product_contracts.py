@@ -414,7 +414,7 @@ def _validate_product_identity(
     *,
     index: int,
     product: dict,
-    producer_repository: str,
+    producer_repository: object,
     seen_products: set[tuple[str, str]],
 ) -> None:
     product_name = product["product_name"]
@@ -750,20 +750,11 @@ def _validate_product_deprecation_policy(
         )
 
 
-def validate_producer_contract(
+def _validate_producer_contract_identity(
+    issues: list[str],
     path: Path,
     payload: dict,
-    *,
-    identifier_keys: set[str] | None = None,
-    temporal_keys: set[str] | None = None,
-    freshness_classes: set[str] | None = None,
-    completeness_statuses: set[str] | None = None,
-    trust_metadata_keys: set[str] | None = None,
-    evidence_access_classes: set[str] | None = None,
-    lineage_bundle_class_keys: set[str] | None = None,
-) -> list[str]:
-    issues: list[str] = []
-
+) -> object:
     if payload.get("contract_id") != "domain-data-products":
         _append_issue(issues, path, "contract_id must be 'domain-data-products'")
     if payload.get("governed_by_rfc") != "RFC-0084":
@@ -779,55 +770,114 @@ def validate_producer_contract(
     if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(contract_version):
         _append_issue(issues, path, "contract_version must be semantic versioning")
 
+    return producer_repository
+
+
+def _producer_contract_products(
+    issues: list[str], path: Path, payload: dict
+) -> list[Any] | None:
     products = payload.get("products")
     if not _is_non_empty_list(products):
         _append_issue(issues, path, "products must be a non-empty array")
+        return None
+    return products
+
+
+def _validate_producer_product(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: object,
+    producer_repository: object,
+    seen_products: set[tuple[str, str]],
+    identifier_keys: set[str] | None,
+    temporal_keys: set[str] | None,
+    freshness_classes: set[str] | None,
+    completeness_statuses: set[str] | None,
+    trust_metadata_keys: set[str] | None,
+    evidence_access_classes: set[str] | None,
+    lineage_bundle_class_keys: set[str] | None,
+) -> None:
+    if not isinstance(product, dict):
+        _append_issue(issues, path, f"products[{index}] must be an object")
+        return
+
+    missing = sorted(REQUIRED_PRODUCT_FIELDS - set(product))
+    if missing:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}] missing required fields: {', '.join(missing)}",
+        )
+        return
+
+    _validate_product_identity(
+        issues,
+        path,
+        index=index,
+        product=product,
+        producer_repository=producer_repository,
+        seen_products=seen_products,
+    )
+    _validate_product_approved_consumers(issues, path, index=index, product=product)
+    _validate_product_registry_references(
+        issues,
+        path,
+        index=index,
+        product=product,
+        identifier_keys=identifier_keys,
+        temporal_keys=temporal_keys,
+        freshness_classes=freshness_classes,
+        completeness_statuses=completeness_statuses,
+        trust_metadata_keys=trust_metadata_keys,
+    )
+    _validate_product_lineage_policy(
+        issues,
+        path,
+        index=index,
+        product=product,
+        evidence_access_classes=evidence_access_classes,
+        lineage_bundle_class_keys=lineage_bundle_class_keys,
+    )
+    _validate_product_deprecation_policy(issues, path, index=index, product=product)
+
+
+def validate_producer_contract(
+    path: Path,
+    payload: dict,
+    *,
+    identifier_keys: set[str] | None = None,
+    temporal_keys: set[str] | None = None,
+    freshness_classes: set[str] | None = None,
+    completeness_statuses: set[str] | None = None,
+    trust_metadata_keys: set[str] | None = None,
+    evidence_access_classes: set[str] | None = None,
+    lineage_bundle_class_keys: set[str] | None = None,
+) -> list[str]:
+    issues: list[str] = []
+    producer_repository = _validate_producer_contract_identity(issues, path, payload)
+    products = _producer_contract_products(issues, path, payload)
+    if products is None:
         return issues
 
     seen_products: set[tuple[str, str]] = set()
     for index, product in enumerate(products):
-        if not isinstance(product, dict):
-            _append_issue(issues, path, f"products[{index}] must be an object")
-            continue
-
-        missing = sorted(REQUIRED_PRODUCT_FIELDS - set(product))
-        if missing:
-            _append_issue(
-                issues,
-                path,
-                f"products[{index}] missing required fields: {', '.join(missing)}",
-            )
-            continue
-
-        _validate_product_identity(
+        _validate_producer_product(
             issues,
             path,
             index=index,
             product=product,
             producer_repository=producer_repository,
             seen_products=seen_products,
-        )
-        _validate_product_approved_consumers(issues, path, index=index, product=product)
-        _validate_product_registry_references(
-            issues,
-            path,
-            index=index,
-            product=product,
             identifier_keys=identifier_keys,
             temporal_keys=temporal_keys,
             freshness_classes=freshness_classes,
             completeness_statuses=completeness_statuses,
             trust_metadata_keys=trust_metadata_keys,
-        )
-        _validate_product_lineage_policy(
-            issues,
-            path,
-            index=index,
-            product=product,
             evidence_access_classes=evidence_access_classes,
             lineage_bundle_class_keys=lineage_bundle_class_keys,
         )
-        _validate_product_deprecation_policy(issues, path, index=index, product=product)
 
     return issues
 

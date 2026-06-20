@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -775,6 +775,75 @@ def _append_delegated_task_attention(
     attention_items.append(item)
 
 
+def _append_terminal_delegated_task_attention(
+    add_attention: Callable[[str, str, str], None],
+    *,
+    status: str,
+    task_id: str,
+) -> None:
+    if status in {"FAILED", "TIMED_OUT"}:
+        add_attention(
+            "delegated_task_failed",
+            "action_required",
+            f"Review delegated task `{task_id}` failure before using its output.",
+        )
+    elif status == "LOST":
+        add_attention(
+            "delegated_task_lost",
+            "blocking",
+            f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
+        )
+
+
+def _append_stale_delegated_task_attention(
+    add_attention: Callable[[str, str, str], None],
+    *,
+    task: dict[str, Any],
+    task_id: str,
+    generated_at_utc: str,
+    stale_hours: int,
+) -> None:
+    age = _age_hours(
+        generated_at_utc,
+        task.get("started_at") or task.get("requested_at"),
+    )
+    if age is not None and age > stale_hours:
+        add_attention(
+            "delegated_task_stale",
+            "warning",
+            f"Refresh or cancel stale delegated task `{task_id}`.",
+        )
+
+
+def _append_missing_return_envelope_attention(
+    add_attention: Callable[[str, str, str], None],
+    *,
+    status: str,
+    scope: dict[str, Any],
+    task_id: str,
+) -> None:
+    if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
+        add_attention(
+            "delegated_task_missing_evidence",
+            "action_required",
+            f"Record return-envelope evidence for delegated task `{task_id}`.",
+        )
+
+
+def _append_delegated_task_review_blocker_attention(
+    add_attention: Callable[[str, str, str], None],
+    *,
+    scope: dict[str, Any],
+    task_id: str,
+) -> None:
+    if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
+        add_attention(
+            "delegated_task_unresolved_blocker",
+            "action_required",
+            f"Resolve main-agent review blocker for delegated task `{task_id}`.",
+        )
+
+
 def _collect_delegated_task_attention(
     *,
     attention_items: list[dict[str, Any]],
@@ -808,44 +877,32 @@ def _collect_delegated_task_attention(
             profile=profile,
         )
 
-    if status in {"FAILED", "TIMED_OUT"}:
-        add_attention(
-            "delegated_task_failed",
-            "action_required",
-            f"Review delegated task `{task_id}` failure before using its output.",
-        )
-    elif status == "LOST":
-        add_attention(
-            "delegated_task_lost",
-            "blocking",
-            f"Recover, cancel, or rerun lost delegated task `{task_id}`.",
-        )
+    _append_terminal_delegated_task_attention(
+        add_attention,
+        status=status,
+        task_id=task_id,
+    )
 
     if is_active:
-        age = _age_hours(
-            generated_at_utc,
-            task.get("started_at") or task.get("requested_at"),
-        )
-        if age is not None and age > stale_hours:
-            add_attention(
-                "delegated_task_stale",
-                "warning",
-                f"Refresh or cancel stale delegated task `{task_id}`.",
-            )
-
-    if status == "SUCCEEDED" and not scope.get("return_envelope_received"):
-        add_attention(
-            "delegated_task_missing_evidence",
-            "action_required",
-            f"Record return-envelope evidence for delegated task `{task_id}`.",
+        _append_stale_delegated_task_attention(
+            add_attention,
+            task=task,
+            task_id=task_id,
+            generated_at_utc=generated_at_utc,
+            stale_hours=stale_hours,
         )
 
-    if scope.get("main_agent_review_status") in {"REJECTED", "NEEDS_CHANGES"}:
-        add_attention(
-            "delegated_task_unresolved_blocker",
-            "action_required",
-            f"Resolve main-agent review blocker for delegated task `{task_id}`.",
-        )
+    _append_missing_return_envelope_attention(
+        add_attention,
+        status=status,
+        scope=scope,
+        task_id=task_id,
+    )
+    _append_delegated_task_review_blocker_attention(
+        add_attention,
+        scope=scope,
+        task_id=task_id,
+    )
 
     return is_active
 

@@ -85,6 +85,9 @@ def _validate_telemetry_field_review(
     hardening_review: dict[str, Any],
 ) -> None:
     review = hardening_review.get("telemetry_field_review", {})
+    allowed_labels = set(observability_contract.get("allowed_labels", []))
+    forbidden_fields = set(observability_contract.get("forbidden_fields", []))
+
     if review.get("source_contract") != observability_contract.get("contract_id"):
         errors.append("telemetry_field_review.source_contract must match observability contract")
     if review.get("allowed_label_policy") != "contract_only":
@@ -94,14 +97,31 @@ def _validate_telemetry_field_review(
             "telemetry_field_review.forbidden_field_policy must be deny_all_forbidden_fields"
         )
 
-    allowed_labels = set(observability_contract.get("allowed_labels", []))
-    forbidden_fields = set(observability_contract.get("forbidden_fields", []))
-    implemented_metrics = [
-        metric
-        for metric in observability_contract.get("metric_families", [])
-        if metric.get("implemented") is True
-    ]
-    for metric in implemented_metrics:
+    _validate_implemented_metric_labels(
+        errors,
+        observability_contract=observability_contract,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
+    _validate_reviewed_implemented_events(errors, observability_contract, review)
+    _validate_telemetry_contract_attributes(
+        errors,
+        observability_contract=observability_contract,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
+
+
+def _validate_implemented_metric_labels(
+    errors: list[str],
+    *,
+    observability_contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
+    for metric in observability_contract.get("metric_families", []):
+        if metric.get("implemented") is not True:
+            continue
         labels = set(metric.get("labels", []))
         unsupported = sorted(labels - allowed_labels)
         forbidden = sorted(labels & forbidden_fields)
@@ -110,6 +130,12 @@ def _validate_telemetry_field_review(
         if forbidden:
             errors.append(f"{metric.get('metric_name')}: forbidden labels {forbidden}")
 
+
+def _validate_reviewed_implemented_events(
+    errors: list[str],
+    observability_contract: dict[str, Any],
+    review: dict[str, Any],
+) -> None:
     implemented_events = {
         event["event_name"]
         for section in ("browser_events", "gateway_log_events")
@@ -124,6 +150,14 @@ def _validate_telemetry_field_review(
             f"{missing_events}"
         )
 
+
+def _validate_telemetry_contract_attributes(
+    errors: list[str],
+    *,
+    observability_contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
     for section in (
         "trace_attributes",
         "attention_event_attributes",

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 305639
+    "total_source_lines": 305847
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,30 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 11,
-        "end_line": 832,
-        "line": 753,
-        "lines": 80,
-        "name": "validate_producer_contract",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 850,
-        "line": 778,
-        "lines": 73,
-        "name": "_collect_delegated_task_attention",
-        "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 138,
-        "line": 82,
-        "lines": 57,
-        "name": "_validate_telemetry_field_review",
-        "path": "automation/validate_analytics_ui_hardening_review.py"
-      },
       {
         "complexity": 11,
         "end_line": 111,
@@ -83,8 +59,8 @@
       },
       {
         "complexity": 11,
-        "end_line": 975,
-        "line": 932,
+        "end_line": 1025,
+        "line": 982,
         "lines": 44,
         "name": "_validate_dependency_migration_posture",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -123,16 +99,16 @@
       },
       {
         "complexity": 10,
-        "end_line": 1211,
-        "line": 1137,
+        "end_line": 1268,
+        "line": 1194,
         "lines": 75,
         "name": "_mesh_certification_adapter",
         "path": "automation/heartbeat_sources.py"
       },
       {
         "complexity": 10,
-        "end_line": 247,
-        "line": 197,
+        "end_line": 281,
+        "line": 231,
         "lines": 51,
         "name": "_validate_dashboard_review",
         "path": "automation/validate_analytics_ui_hardening_review.py"
@@ -155,8 +131,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 914,
-        "line": 881,
+        "end_line": 926,
+        "line": 893,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -187,11 +163,35 @@
       },
       {
         "complexity": 9,
-        "end_line": 1393,
-        "line": 1292,
+        "end_line": 1443,
+        "line": 1342,
         "lines": 102,
         "name": "validate_contract_directory",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 380,
+        "line": 306,
+        "lines": 75,
+        "name": "_evaluate_performance_requests",
+        "path": "automation/core_performance_cross_app_validation.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 156,
+        "line": 93,
+        "lines": 64,
+        "name": "validate_dev_ingress_smoke",
+        "path": "automation/validate_dev_ingress_smoke.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 204,
+        "line": 148,
+        "lines": 57,
+        "name": "_append_dependency_issues",
+        "path": "automation/domain_product_certification.py"
       }
     ],
     "largest_functions": [
@@ -205,9 +205,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 863,
+        "end_line": 875,
         "line": 489,
-        "lines": 375,
+        "lines": 387,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -237,8 +237,8 @@
       },
       {
         "complexity": 2,
-        "end_line": 1954,
-        "line": 1695,
+        "end_line": 1976,
+        "line": 1717,
         "lines": 260,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -317,8 +317,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 1591,
-        "line": 1450,
+        "end_line": 1613,
+        "line": 1472,
         "lines": 142,
         "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -333,24 +333,24 @@
       },
       {
         "complexity": 1,
-        "end_line": 923,
-        "line": 791,
+        "end_line": 945,
+        "line": 813,
         "lines": 133,
         "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
         "complexity": 1,
-        "end_line": 557,
-        "line": 425,
+        "end_line": 579,
+        "line": 447,
         "lines": 133,
         "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
         "complexity": 1,
-        "end_line": 788,
-        "line": 657,
+        "end_line": 810,
+        "line": 679,
         "lines": 132,
         "name": "test_rfc_0084_validator_rejects_version_drift_without_approved_transition",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 11,
     "max_function_lines": 393,
-    "python_function_count": 1763
+    "python_function_count": 1776
   },
-  "generated_at_utc": "2026-06-20T09:50:46Z",
+  "generated_at_utc": "2026-06-20T10:12:27Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -393,7 +393,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2058,
+      "lines": 2080,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -408,14 +408,14 @@
       "suffix": ".ps1"
     },
     {
+      "lines": 1672,
+      "path": "automation/heartbeat_sources.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1655,
       "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1615,
-      "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
     },
     {
       "lines": 1614,
@@ -423,7 +423,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1430,
+      "lines": 1480,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 531,
+    "collected_tests": 534,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "531 tests collected in 0.61s"
+    "summary": "534 tests collected in 0.52s"
   }
 }
