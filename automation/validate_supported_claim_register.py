@@ -49,26 +49,67 @@ def _validate_register_header(
     path: Path,
     payload: dict[str, Any],
 ) -> None:
+    _validate_register_identity_fields(issues, path, payload)
+    _validate_register_required_strings(issues, path, payload)
+    _validate_claim_taxonomy(issues, path, payload.get("claim_taxonomy"))
+
+
+def _validate_register_identity_fields(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
     if payload.get("contract_id") != "supported-claim-register":
         _issue(issues, path, "contract_id must be 'supported-claim-register'")
-    if not re.fullmatch(
-        r"^[0-9]+\.[0-9]+\.[0-9]+$", str(payload.get("contract_version") or "")
-    ):
-        _issue(issues, path, "contract_version must be semver")
-    if not re.fullmatch(r"^RFC-[0-9]{4}$", str(payload.get("governed_by_rfc") or "")):
-        _issue(issues, path, "governed_by_rfc must use RFC-0000 format")
-    if not re.fullmatch(
-        r"^lotus-[a-z0-9-]+$", str(payload.get("owner_repository") or "")
-    ):
-        _issue(issues, path, "owner_repository must be a lotus repository name")
-    if not _non_empty_string(payload.get("scenario_id")):
-        _issue(issues, path, "scenario_id must be a non-empty string")
-    if not _non_empty_string(payload.get("primary_portfolio_id")):
-        _issue(issues, path, "primary_portfolio_id must be a non-empty string")
-    if not _non_empty_string(payload.get("proof_marker")):
-        _issue(issues, path, "proof_marker must be a non-empty string")
+    _validate_header_pattern(
+        issues,
+        path,
+        value=payload.get("contract_version"),
+        pattern=r"^[0-9]+\.[0-9]+\.[0-9]+$",
+        message="contract_version must be semver",
+    )
+    _validate_header_pattern(
+        issues,
+        path,
+        value=payload.get("governed_by_rfc"),
+        pattern=r"^RFC-[0-9]{4}$",
+        message="governed_by_rfc must use RFC-0000 format",
+    )
+    _validate_header_pattern(
+        issues,
+        path,
+        value=payload.get("owner_repository"),
+        pattern=r"^lotus-[a-z0-9-]+$",
+        message="owner_repository must be a lotus repository name",
+    )
 
-    taxonomy = set(_string_list(payload.get("claim_taxonomy")))
+
+def _validate_register_required_strings(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+) -> None:
+    for field_name in ("scenario_id", "primary_portfolio_id", "proof_marker"):
+        if not _non_empty_string(payload.get(field_name)):
+            _issue(issues, path, f"{field_name} must be a non-empty string")
+
+
+def _validate_header_pattern(
+    issues: list[str],
+    path: Path,
+    *,
+    value: object,
+    pattern: str,
+    message: str,
+) -> None:
+    if not re.fullmatch(pattern, str(value or "")):
+        _issue(issues, path, message)
+
+
+def _validate_claim_taxonomy(
+    issues: list[str], path: Path, claim_taxonomy: object
+) -> None:
+    taxonomy = set(_string_list(claim_taxonomy))
     if taxonomy != ALLOWED_CLASSIFICATIONS:
         _issue(
             issues,

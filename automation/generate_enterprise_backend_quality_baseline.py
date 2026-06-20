@@ -807,6 +807,10 @@ Generated: `{baseline["generated_at_utc"]}`
     tenant/role/use-case string-list validation are isolated behind focused predicates, removing
     the mesh access allowed-consumer validator from the top measured complexity hotspot list while
     preserving RFC-0091 access-policy validation behavior.
+86. Supported-claim register header validator extraction so contract identity, required string,
+    header pattern, and claim-taxonomy checks are isolated behind focused helpers, removing the
+    supported-claim register header validator from the top measured complexity hotspot list while
+    preserving supported-claim validation error behavior.
 
 ## Evidence
 
