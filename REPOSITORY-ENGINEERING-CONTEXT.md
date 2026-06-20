@@ -264,57 +264,59 @@ Use these commands as the primary local contract:
    `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
 4. platform validation lane
    `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
-5. targeted unit contract tests
+5. platform demo-readiness certification, report-only in CI until governance promotion
+   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
+6. targeted unit contract tests
    `python -m pytest tests/unit -q`
-6. domain-product discovery artifact generation
+7. domain-product discovery artifact generation
    `python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z`
-7. domain-product discovery self-serve query
+8. domain-product discovery self-serve query
    `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
-8. domain-product trust certification artifact generation
+9. domain-product trust certification artifact generation
    `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
-9. trust telemetry snapshot validation
+10. trust telemetry snapshot validation
    `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
-10. live trust certification generation
+11. live trust certification generation
    `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
-11. mesh certification gate, platform-only advisory smoke
+12. mesh certification gate, platform-only advisory smoke
    `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
-12. mesh certification gate, local blocking proof with sibling repos
+13. mesh certification gate, local blocking proof with sibling repos
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
-13. GitHub cross-repo mesh certification gate
+14. GitHub cross-repo mesh certification gate
    `.github/workflows/mesh-certification-gate.yml`
-14. enterprise mesh maturity matrix generation
+15. enterprise mesh maturity matrix generation
    `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
-15. enterprise mesh maturity matrix freshness check
+16. enterprise mesh maturity matrix freshness check
    `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
-16. domain-product onboarding bundle scaffold
+17. domain-product onboarding bundle scaffold
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
-17. domain-product onboarding bundle check
+18. domain-product onboarding bundle check
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
-18. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
+19. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
    `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
-19. mesh SLO policy validation
+20. mesh SLO policy validation
    `python automation/validate_mesh_slo_policies.py`
-20. mesh access policy validation
+21. mesh access policy validation
    `python automation/validate_mesh_access_policies.py`
-21. mesh evidence pack generation
+22. mesh evidence pack generation
    `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
-22. enterprise mesh operating report generation
+23. enterprise mesh operating report generation
    `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
-23. agent engineering contract validation
+24. agent engineering contract validation
    `python automation/validate_agent_engineering_contracts.py`
-24. delegated task ledger create/update/review helper
+25. delegated task ledger create/update/review helper
    `python automation/delegation_task_ledger.py --help`
-25. heartbeat contract validation
+26. heartbeat contract validation
    `python automation/validate_heartbeat_contracts.py`
-26. enterprise backend quality baseline generation and surface validation
+27. enterprise backend quality baseline generation and surface validation
    `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
-27. enterprise backend refactoring instruction copy drift check
+28. enterprise backend refactoring instruction copy drift check
    `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
-28. automation discoverability inventory generation and surface validation
+29. automation discoverability inventory generation and surface validation
    `python automation/generate_automation_inventory.py --write --check`
-29. supported-claim register validation
+30. supported-claim register validation
    `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
-30. rounding governance compliance matrix generation
+31. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
 
 ## Validation And CI Expectations

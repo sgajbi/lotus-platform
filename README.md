@@ -147,6 +147,8 @@ Important runtime note:
   main releasability parity
 - `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
   platform validation lane
+- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
+  report-only platform demo-readiness certification for core/performance green-lane evidence
 - `python -m pytest tests/unit -q`
   targeted unit contract tests
 - `python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q`

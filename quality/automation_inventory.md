@@ -1,14 +1,14 @@
 # Automation Inventory
 
-Generated: `2026-06-20T03:44:10Z`
+Generated: `2026-06-20T08:18:05Z`
 
 This report is a cleanup aid. `review` and `undocumented` entries are candidates for
 documentation, consolidation, tests, or removal after behavior-specific evidence is inspected.
 
 ## Summary
 
-- Scripts inventoried: `121`
-- Covered: `95`
+- Scripts inventoried: `123`
+- Covered: `97`
 - Undocumented: `26`
 - Review candidates: `0`
 

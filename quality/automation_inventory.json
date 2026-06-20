@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 95,
+    "covered": 97,
     "undocumented": 26
   },
   "entries": [
@@ -27,6 +27,14 @@
       "reference_count": 2,
       "suffix": ".ps1",
       "test_reference_count": 0
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 0,
+      "path": "automation/certify_platform_demo_readiness.py",
+      "reference_count": 2,
+      "suffix": ".py",
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -374,6 +382,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 3,
+      "path": "automation/Invoke-PlatformDemoReadinessCertification.ps1",
+      "reference_count": 5,
+      "suffix": ".ps1",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 13,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
       "reference_count": 20,
@@ -384,7 +400,7 @@
       "classification": "covered",
       "operator_doc_reference_count": 5,
       "path": "automation/Invoke-PlatformValidationLane.ps1",
-      "reference_count": 9,
+      "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -480,15 +496,15 @@
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/render_cross_app_workflow_summary.py",
-      "reference_count": 2,
+      "reference_count": 3,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/Resolve-PlatformAutomationPython.ps1",
-      "reference_count": 8,
+      "reference_count": 9,
       "suffix": ".ps1",
       "test_reference_count": 2
     },
@@ -856,7 +872,7 @@
       "classification": "covered",
       "operator_doc_reference_count": 6,
       "path": "automation/validate_engineering_context_system.py",
-      "reference_count": 12,
+      "reference_count": 13,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -973,6 +989,6 @@
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-06-20T03:44:10Z",
-  "script_count": 121
+  "generated_at_utc": "2026-06-20T08:18:05Z",
+  "script_count": 123
 }

@@ -823,6 +823,19 @@ Run the same cross-app validators from GitHub Actions on a self-hosted runner:
 - Recommended deeper manual mode while attribution alignment is still under investigation: `validation_profile=core-performance-baseline` with `scenario_mode=skip_seed`
 - The runner must already be able to reach live `lotus-core` and `lotus-performance` base URLs, and `skip_seed` mode expects an existing stable scenario on that runner unless explicit suffixes are supplied
 
+Run the platform demo-readiness certification wrapper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
+```
+
+The command invokes `Invoke-PlatformValidationLane.ps1` for `core-performance-green-lanes`, which
+seeds deterministic synthetic scenarios in `fresh_seed` mode, calls the real `lotus-core` and
+`lotus-performance` APIs, asserts cross-app domain figures, then writes
+`output/demo-readiness/platform/platform-demo-readiness-certification.json`. The feature lane uploads
+this evidence as report-only with `continue-on-error`; promote it to a blocking gate only after the
+CI governance intake proves the signal is deterministic, low-noise, and policy-backed.
+
 Reuse an already-seeded stable scenario instead of ingesting a fresh one:
 
 ```powershell

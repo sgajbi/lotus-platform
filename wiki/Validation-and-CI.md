@@ -19,6 +19,8 @@
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
 - platform validation lane:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
+- platform demo-readiness certification, report-only:
+  `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
 - mesh certification advisory smoke:
   `python automation\mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
 - mesh certification blocking proof with sibling repos:
@@ -52,6 +54,9 @@
   declaration readiness
 - enterprise backend refactor quality surface: report-only baseline, scorecard, quality gate rules,
   security review notes, and refactor decisions under `quality/`
+- platform demo-readiness certification: report-only `core-performance-green-lanes` evidence that
+  seeds deterministic synthetic scenarios, calls real core/performance APIs, asserts domain figures,
+  and uploads `output/demo-readiness/platform/platform-demo-readiness-certification.json`
 
 ## Mesh certification outputs
 

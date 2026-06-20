@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T08:07:36Z`
+Generated: `2026-06-20T08:18:06Z`
 
 ## Completed Slices
 
@@ -260,6 +260,10 @@ Generated: `2026-06-20T08:07:36Z`
     implementation requirements are isolated behind focused helpers, removing matrix feature rule
     resolution from the top measured complexity hotspot list while preserving RFC-0108 supported
     feature validation behavior.
+71. Platform demo-readiness certification command so core/performance green-lane validation can
+    seed deterministic scenarios, call real cross-app APIs and calculations, assert expected
+    domain figures, write machine-readable demo-readiness evidence, and run in CI as report-only
+    evidence until CI governance promotes the signal.
 
 ## Evidence
 
