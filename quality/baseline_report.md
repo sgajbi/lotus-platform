@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T07:05:35Z`
+Generated: `2026-06-20T07:09:44Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `302921`
+- Total source lines: `302971`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1578`
+- Python functions: `1583`
 - Highest measured cyclomatic complexity: `15`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_engineering_context_system.py | _validate_onboarding_guidance | 233 | 15 | 57 |
 | automation/validate_trust_telemetry.py | _validate_identity | 107 | 15 | 56 |
 | automation/validate_supported_claim_register.py | _validate_claim | 133 | 15 | 53 |
 | automation/validate_analytics_ui_scaffold_ci_enforcement.py | _validate_feature_promotion | 123 | 15 | 34 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/generate_live_trust_certification.py | _evaluate_snapshot | 67 | 13 | 104 |
 | automation/validate_analytics_ui_observability_contract.py | _validate_observation_boundaries | 721 | 13 | 80 |
 | automation/heartbeat_sources.py | _delegated_task_ledger_adapter | 892 | 13 | 71 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_registry_references | 482 | 13 | 65 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `510`
 - Collection command return code: `0`
-- Collection summary: `510 tests collected in 0.59s`
+- Collection summary: `510 tests collected in 0.70s`
 
 ## Security Baseline
 

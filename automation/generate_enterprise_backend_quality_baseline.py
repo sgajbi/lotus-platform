@@ -692,6 +692,11 @@ Generated: `{baseline["generated_at_utc"]}`
     supported-window attribution summarization, reconciliation defect checks, and result assembly are
     isolated behind focused helpers, removing the live attribution validator from the top measured
     complexity hotspot list while preserving cross-app attribution validation behavior.
+57. Engineering context onboarding validator extraction so developer onboarding requirements,
+    developer stale-boundary checks, agent ramp-up requirements, agent stale-boundary checks, and
+    front-office routing checks are isolated behind focused helpers, removing the onboarding
+    guidance validator from the top measured complexity hotspot list while preserving context-system
+    validation behavior.
 
 ## Evidence
 

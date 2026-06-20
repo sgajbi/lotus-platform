@@ -230,11 +230,10 @@ def _validate_agents_operating_contract(*, errors: list[str], agents_contract: s
             errors.append(f"AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `{text}`")
 
 
-def _validate_onboarding_guidance(
+def _validate_required_developer_onboarding_text(
     *,
     errors: list[str],
     developer_onboarding: str,
-    agent_ramp_up: str,
 ) -> None:
     for text in (
         "Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast",
@@ -251,6 +250,13 @@ def _validate_onboarding_guidance(
     ):
         if text not in developer_onboarding:
             errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: missing bootstrap guidance `{text}`")
+
+
+def _validate_stale_developer_onboarding_text(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+) -> None:
     if "primary front-office demo bring-up path" not in developer_onboarding:
         errors.append("LOTUS-DEVELOPER-ONBOARDING.md: missing front-office runtime boundary guidance")
     for stale_text in (
@@ -260,17 +266,16 @@ def _validate_onboarding_guidance(
         if stale_text in developer_onboarding:
             errors.append(f"LOTUS-DEVELOPER-ONBOARDING.md: stale RFC-0074 boundary remains `{stale_text}`")
 
+
+def _validate_required_agent_ramp_up_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
     if "Do not start with Tier 3 by default." not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing context-budget guardrail")
     if "RFC-0074 is implemented and governed." not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing implemented RFC-0074 boundary")
-    for stale_text in (
-        "automated skill sync and bootstrap readiness scripts are not implemented yet",
-        "Later RFC-0074 slices will add",
-        "At Slice 3, this guide defines agent ramp-up",
-    ):
-        if stale_text in agent_ramp_up:
-            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
     if "automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast" not in agent_ramp_up:
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing bootstrap automation guidance")
     if (
@@ -278,6 +283,27 @@ def _validate_onboarding_guidance(
         and "platform-owned Lotus skills under `lotus-platform/codex/skills`" not in agent_ramp_up
     ):
         errors.append("LOTUS-AGENT-RAMP-UP.md: missing governed skill source guidance")
+
+
+def _validate_stale_agent_ramp_up_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
+    for stale_text in (
+        "automated skill sync and bootstrap readiness scripts are not implemented yet",
+        "Later RFC-0074 slices will add",
+        "At Slice 3, this guide defines agent ramp-up",
+    ):
+        if stale_text in agent_ramp_up:
+            errors.append(f"LOTUS-AGENT-RAMP-UP.md: stale RFC-0074 boundary remains `{stale_text}`")
+
+
+def _validate_agent_front_office_routing_text(
+    *,
+    errors: list[str],
+    agent_ramp_up: str,
+) -> None:
     for text in (
         "## Front-Office Runtime Routing",
         "canonical-front-office-local-runtime.md",
@@ -287,6 +313,25 @@ def _validate_onboarding_guidance(
     ):
         if text not in agent_ramp_up:
             errors.append(f"LOTUS-AGENT-RAMP-UP.md: missing front-office runtime routing `{text}`")
+
+
+def _validate_onboarding_guidance(
+    *,
+    errors: list[str],
+    developer_onboarding: str,
+    agent_ramp_up: str,
+) -> None:
+    _validate_required_developer_onboarding_text(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+    )
+    _validate_stale_developer_onboarding_text(
+        errors=errors,
+        developer_onboarding=developer_onboarding,
+    )
+    _validate_required_agent_ramp_up_text(errors=errors, agent_ramp_up=agent_ramp_up)
+    _validate_stale_agent_ramp_up_text(errors=errors, agent_ramp_up=agent_ramp_up)
+    _validate_agent_front_office_routing_text(errors=errors, agent_ramp_up=agent_ramp_up)
 
 
 def _validate_rfc_completion(*, errors: list[str], rfc: str, checklist: str) -> None:

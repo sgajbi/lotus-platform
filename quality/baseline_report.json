@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 302921
+    "total_source_lines": 302971
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 15,
-        "end_line": 289,
-        "line": 233,
-        "lines": 57,
-        "name": "_validate_onboarding_guidance",
-        "path": "automation/validate_engineering_context_system.py"
-      },
       {
         "complexity": 15,
         "end_line": 162,
@@ -192,6 +184,14 @@
         "lines": 68,
         "name": "_evaluate_expected_posture",
         "path": "automation/core_performance_cross_app_validation.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 459,
+        "line": 393,
+        "lines": 67,
+        "name": "review_canonical_proof",
+        "path": "automation/review_analytics_ui_canonical_proof.py"
       }
     ],
     "largest_functions": [
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 731,
+        "end_line": 736,
         "line": 489,
-        "lines": 243,
+        "lines": 248,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 15,
     "max_function_lines": 393,
-    "python_function_count": 1578
+    "python_function_count": 1583
   },
-  "generated_at_utc": "2026-06-20T07:05:35Z",
+  "generated_at_utc": "2026-06-20T07:09:44Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.59s"
+    "summary": "510 tests collected in 0.70s"
   }
 }
