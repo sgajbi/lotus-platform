@@ -697,6 +697,10 @@ Generated: `{baseline["generated_at_utc"]}`
     front-office routing checks are isolated behind focused helpers, removing the onboarding
     guidance validator from the top measured complexity hotspot list while preserving context-system
     validation behavior.
+58. Analytics UI scaffold CI feature-promotion validator extraction so runtime feature
+    classification, scaffold feature status enforcement, and runtime promotion policy checks are
+    isolated behind focused helpers, removing the scaffold CI promotion validator from the top
+    measured complexity hotspot list while preserving RFC-0108 Slice 11 validation behavior.
 
 ## Evidence
 
