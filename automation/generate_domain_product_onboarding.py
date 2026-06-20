@@ -799,21 +799,10 @@ def _load_required_json(path: Path, issues: list[str]) -> dict[str, Any]:
         return {}
 
 
-def validate_domain_product_onboarding_bundle(
-    *,
-    output_directory: Path,
-    repository: str,
-    product_name: str,
-    product_version: str,
-) -> list[str]:
-    _validate_identity_inputs(
-        repository=repository,
-        product_name=product_name,
-        product_version=product_version,
-    )
-    product_slug = _kebab(product_name)
-    product_id = _product_id(repository, product_name, product_version)
-    required_paths = {
+def _domain_product_onboarding_required_paths(
+    *, output_directory: Path, repository: str, product_slug: str
+) -> dict[str, Path]:
+    return {
         "product": output_directory
         / "contracts"
         / "domain-data-products"
@@ -854,21 +843,33 @@ def validate_domain_product_onboarding_bundle(
         / "docs"
         / "ANALYTICS-DATA-PRODUCT-CERTIFICATION-CHECKLIST.md",
     }
-    issues: list[str] = []
-    payloads = {
+
+
+def _load_domain_product_policy_payloads(
+    *, required_paths: dict[str, Path], issues: list[str]
+) -> dict[str, dict[str, Any]]:
+    non_json_keys = {
+        "readme",
+        "checklist",
+        "api_certification",
+        "ingestion_pipeline",
+        "analytics_certification",
+    }
+    return {
         key: _load_required_json(path, issues)
         for key, path in required_paths.items()
-        if key
-        not in {
-            "readme",
-            "checklist",
-            "api_certification",
-            "ingestion_pipeline",
-            "analytics_certification",
-        }
+        if key not in non_json_keys
     }
 
-    product_payload = payloads.get("product", {})
+
+def _validate_product_declaration(
+    *,
+    issues: list[str],
+    product_payload: dict[str, Any],
+    repository: str,
+    product_name: str,
+    product_version: str,
+) -> None:
     if product_payload.get("contract_id") != "domain-data-products":
         issues.append("product declaration contract_id must be domain-data-products")
     if product_payload.get("producer_repository") != repository:
@@ -876,15 +877,23 @@ def validate_domain_product_onboarding_bundle(
     products = product_payload.get("products", [])
     if not products:
         issues.append("product declaration must include at least one product")
-    else:
-        product = products[0]
-        if product.get("product_name") != product_name:
-            issues.append("product declaration product_name does not match")
-        if product.get("product_version") != product_version:
-            issues.append("product declaration product_version does not match")
-        if product.get("owner_repository") != repository:
-            issues.append("product declaration owner_repository does not match")
+        return
+    product = products[0]
+    if product.get("product_name") != product_name:
+        issues.append("product declaration product_name does not match")
+    if product.get("product_version") != product_version:
+        issues.append("product declaration product_version does not match")
+    if product.get("owner_repository") != repository:
+        issues.append("product declaration owner_repository does not match")
 
+
+def _validate_policy_identity(
+    *,
+    issues: list[str],
+    payloads: dict[str, dict[str, Any]],
+    product_id: str,
+    repository: str,
+) -> None:
     for key in (
         "telemetry",
         "slo",
@@ -899,7 +908,10 @@ def validate_domain_product_onboarding_bundle(
         if payload.get("producer_repository") != repository:
             issues.append(f"{key} policy producer_repository does not match")
 
-    source_api_profile = payloads.get("source_api_profile", {})
+
+def _validate_source_api_profile(
+    *, issues: list[str], source_api_profile: dict[str, Any]
+) -> None:
     if source_api_profile.get("contract_id") != "lotus-source-data-product-api-profile":
         issues.append(
             "source_api_profile contract_id must be lotus-source-data-product-api-profile"
@@ -917,7 +929,10 @@ def validate_domain_product_onboarding_bundle(
         if certification.get(field) is not True:
             issues.append(f"source_api_profile certification.{field} must be true")
 
-    analytics_profile = payloads.get("analytics_product_profile", {})
+
+def _validate_analytics_product_profile(
+    *, issues: list[str], analytics_profile: dict[str, Any]
+) -> None:
     if analytics_profile.get("contract_id") != "lotus-analytics-data-product-profile":
         issues.append(
             "analytics_product_profile contract_id must be lotus-analytics-data-product-profile"
@@ -964,26 +979,97 @@ def validate_domain_product_onboarding_bundle(
                     f"analytics_product_profile {section_name}.{field} must be true"
                 )
 
-    readme_path = required_paths["readme"]
-    if not readme_path.exists():
-        issues.append(f"{readme_path}: required onboarding file is missing")
-    else:
-        readme = readme_path.read_text(encoding="utf-8")
-        for required_text in (
+
+def _validate_required_markdown_text(
+    *,
+    issues: list[str],
+    path: Path,
+    missing_prefix: str,
+    required_texts: tuple[str, ...],
+) -> None:
+    if not path.exists():
+        issues.append(f"{path}: required onboarding file is missing")
+        return
+    content = path.read_text(encoding="utf-8")
+    for required_text in required_texts:
+        if required_text not in content:
+            issues.append(f"{missing_prefix}: {required_text}")
+
+
+def _validate_required_checklist_sections(
+    *, issues: list[str], path: Path, sections: tuple[str, ...]
+) -> None:
+    if not path.exists():
+        issues.append(f"{path}: required onboarding file is missing")
+        return
+    checklist = path.read_text(encoding="utf-8")
+    for section in sections:
+        if section not in checklist:
+            issues.append(f"checklist missing section: {section}")
+
+
+def validate_domain_product_onboarding_bundle(
+    *,
+    output_directory: Path,
+    repository: str,
+    product_name: str,
+    product_version: str,
+) -> list[str]:
+    _validate_identity_inputs(
+        repository=repository,
+        product_name=product_name,
+        product_version=product_version,
+    )
+    product_slug = _kebab(product_name)
+    product_id = _product_id(repository, product_name, product_version)
+    required_paths = _domain_product_onboarding_required_paths(
+        output_directory=output_directory,
+        repository=repository,
+        product_slug=product_slug,
+    )
+    issues: list[str] = []
+    payloads = _load_domain_product_policy_payloads(
+        required_paths=required_paths,
+        issues=issues,
+    )
+
+    _validate_product_declaration(
+        issues=issues,
+        product_payload=payloads.get("product", {}),
+        repository=repository,
+        product_name=product_name,
+        product_version=product_version,
+    )
+    _validate_policy_identity(
+        issues=issues,
+        payloads=payloads,
+        product_id=product_id,
+        repository=repository,
+    )
+    _validate_source_api_profile(
+        issues=issues,
+        source_api_profile=payloads.get("source_api_profile", {}),
+    )
+    _validate_analytics_product_profile(
+        issues=issues,
+        analytics_profile=payloads.get("analytics_product_profile", {}),
+    )
+
+    _validate_required_markdown_text(
+        issues=issues,
+        path=required_paths["readme"],
+        missing_prefix="README missing required guidance",
+        required_texts=(
             product_id,
             "Keep source truth in the producer repository",
             "Publish through `lotus-gateway`",
             "Treat placeholders as blockers before production certification",
-        ):
-            if required_text not in readme:
-                issues.append(f"README missing required guidance: {required_text}")
-
-    checklist_path = required_paths["checklist"]
-    if not checklist_path.exists():
-        issues.append(f"{checklist_path}: required onboarding file is missing")
-    else:
-        checklist = checklist_path.read_text(encoding="utf-8")
-        for section in (
+        ),
+    )
+    _validate_required_checklist_sections(
+        issues=issues,
+        path=required_paths["checklist"],
+        sections=(
             "Producer declaration",
             "Runtime telemetry",
             "SLO policy",
@@ -995,51 +1081,36 @@ def validate_domain_product_onboarding_bundle(
             "Tests",
             "Documentation",
             "Analytics product profile",
-        ):
-            if section not in checklist:
-                issues.append(f"checklist missing section: {section}")
-
-    api_certification_path = required_paths["api_certification"]
-    if not api_certification_path.exists():
-        issues.append(f"{api_certification_path}: required onboarding file is missing")
-    else:
-        api_certification = api_certification_path.read_text(encoding="utf-8")
-        for required_text in (
+        ),
+    )
+    _validate_required_markdown_text(
+        issues=issues,
+        path=required_paths["api_certification"],
+        missing_prefix="API certification checklist missing guidance",
+        required_texts=(
             "every request option",
             "every output family",
             "OpenAPI",
             "Live canonical validation",
-        ):
-            if required_text not in api_certification:
-                issues.append(
-                    f"API certification checklist missing guidance: {required_text}"
-                )
-
-    ingestion_path = required_paths["ingestion_pipeline"]
-    if not ingestion_path.exists():
-        issues.append(f"{ingestion_path}: required onboarding file is missing")
-    else:
-        ingestion = ingestion_path.read_text(encoding="utf-8")
-        for required_text in (
+        ),
+    )
+    _validate_required_markdown_text(
+        issues=issues,
+        path=required_paths["ingestion_pipeline"],
+        missing_prefix="ingestion checklist missing guidance",
+        required_texts=(
             "Authoritative source systems",
             "Idempotency keys",
             "Source batch",
             "Runtime telemetry",
             "Canonical demo seed data",
-        ):
-            if required_text not in ingestion:
-                issues.append(f"ingestion checklist missing guidance: {required_text}")
-
-    analytics_certification_path = required_paths["analytics_certification"]
-    if not analytics_certification_path.exists():
-        issues.append(
-            f"{analytics_certification_path}: required onboarding file is missing"
-        )
-    else:
-        analytics_certification = analytics_certification_path.read_text(
-            encoding="utf-8"
-        )
-        for required_text in (
+        ),
+    )
+    _validate_required_markdown_text(
+        issues=issues,
+        path=required_paths["analytics_certification"],
+        missing_prefix="analytics certification checklist missing guidance",
+        required_texts=(
             "Methodology documentation",
             "Raw result",
             "materiality classification",
@@ -1049,12 +1120,8 @@ def validate_domain_product_onboarding_bundle(
             "Workbench renders",
             "All downstream consumers",
             "mesh certification",
-        ):
-            if required_text not in analytics_certification:
-                issues.append(
-                    "analytics certification checklist missing guidance: "
-                    f"{required_text}"
-                )
+        )
+    )
 
     return issues
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300249
+    "total_source_lines": 300320
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 32,
-        "end_line": 1059,
-        "line": 802,
-        "lines": 258,
-        "name": "validate_domain_product_onboarding_bundle",
-        "path": "automation/generate_domain_product_onboarding.py"
-      },
       {
         "complexity": 31,
         "end_line": 719,
@@ -192,6 +184,14 @@
         "lines": 221,
         "name": "_run_validation",
         "path": "automation/core_performance_contribution_validation.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 822,
+        "line": 722,
+        "lines": 101,
+        "name": "validate_cross_references",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       }
     ],
     "largest_functions": [
@@ -242,14 +242,6 @@
         "lines": 260,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 32,
-        "end_line": 1059,
-        "line": 802,
-        "lines": 258,
-        "name": "validate_domain_product_onboarding_bundle",
-        "path": "automation/generate_domain_product_onboarding.py"
       },
       {
         "complexity": 12,
@@ -354,13 +346,21 @@
         "lines": 150,
         "name": "_seed_core_data",
         "path": "automation/core_performance_mwr_validation.py"
+      },
+      {
+        "complexity": 28,
+        "end_line": 164,
+        "line": 18,
+        "lines": 147,
+        "name": "_validate_supported_feature_keys",
+        "path": "automation/validate_analytics_ui_observability_contract.py"
       }
     ],
-    "max_complexity": 32,
+    "max_complexity": 31,
     "max_function_lines": 393,
-    "python_function_count": 1331
+    "python_function_count": 1339
   },
-  "generated_at_utc": "2026-06-20T04:32:05Z",
+  "generated_at_utc": "2026-06-20T04:36:54Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -428,6 +428,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1172,
+      "path": "automation/generate_domain_product_onboarding.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1135,
       "path": "rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md",
       "suffix": ".md"
@@ -435,11 +440,6 @@
     {
       "lines": 1125,
       "path": "automation/mesh_certification_gate.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1105,
-      "path": "automation/generate_domain_product_onboarding.py",
       "suffix": ".py"
     },
     {
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.56s"
+    "summary": "510 tests collected in 0.58s"
   }
 }

@@ -547,6 +547,10 @@ Generated: `{baseline["generated_at_utc"]}`
     certified route groups, evidence-required panels, rollout checklist, validator proof cases, and
     residual feature checks are isolated behind focused helpers, reducing the highest measured
     complexity hotspot while preserving RFC-0108 rollout-readiness behavior.
+20. Domain product onboarding validator extraction so required path discovery, JSON payload
+    loading, product declaration checks, policy identity checks, source API profile checks,
+    analytics profile checks, and markdown checklist checks are isolated behind focused helpers,
+    reducing the highest measured complexity hotspot while preserving generated bundle behavior.
 
 ## Evidence
 
