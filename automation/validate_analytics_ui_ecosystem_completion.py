@@ -420,32 +420,94 @@ def _matrix_feature_implementation_rule(
     feature_key: str,
     lifecycle_status: object,
 ) -> str | None:
+    for rule in (
+        _slice_12_matrix_feature_rule,
+        _slice_13_matrix_feature_rule,
+        _slice_15_matrix_feature_rule,
+        _slice_16_matrix_feature_rule,
+        _slice_17_matrix_feature_rule,
+        _slice_18_matrix_feature_rule,
+    ):
+        implementation_rule = rule(
+            feature_key=feature_key,
+            lifecycle_status=lifecycle_status,
+        )
+        if implementation_rule is not None:
+            return implementation_rule
+    return None
+
+
+def _slice_12_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status in SLICE_12_OR_LATER_STATUSES
         and feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS
     ):
         return "Slice 12 partial feature"
+    return None
+
+
+def _slice_13_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status in SLICE_13_OR_LATER_STATUSES
         and feature_key in _required_slice_13_features(lifecycle_status)
     ):
         return "Slice 13 feature"
+    return None
+
+
+def _slice_15_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status in SLICE_15_OR_LATER_STATUSES
         and feature_key == IMPLEMENTED_SLICE_15_FEATURE_KEY
     ):
         return "Slice 15 feature"
+    return None
+
+
+def _slice_16_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status in SLICE_16_OR_LATER_STATUSES
         and feature_key
         in {IMPLEMENTED_SLICE_15_FEATURE_KEY, IMPLEMENTED_SLICE_16_FEATURE_KEY}
     ):
         return "Slice 16 platform feature"
+    return None
+
+
+def _slice_17_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status in SLICE_17_OR_LATER_STATUSES
         and feature_key == IMPLEMENTED_SLICE_17_FEATURE_KEY
     ):
         return "Slice 17 feature"
+    return None
+
+
+def _slice_18_matrix_feature_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
     if (
         lifecycle_status == SLICE_18_LIFECYCLE_STATUS
         and feature_key == IMPLEMENTED_SLICE_18_FEATURE_KEY

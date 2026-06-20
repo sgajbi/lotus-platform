@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303787
+    "total_source_lines": 303853
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 454,
-        "line": 418,
-        "lines": 37,
-        "name": "_matrix_feature_implementation_rule",
-        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
       {
         "complexity": 13,
         "end_line": 214,
@@ -192,6 +184,14 @@
         "lines": 80,
         "name": "validate_producer_contract",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 850,
+        "line": 778,
+        "lines": 73,
+        "name": "_collect_delegated_task_attention",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 784,
+        "end_line": 788,
         "line": 489,
-        "lines": 296,
+        "lines": 300,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1646
+    "python_function_count": 1652
   },
-  "generated_at_utc": "2026-06-20T08:04:01Z",
+  "generated_at_utc": "2026-06-20T08:07:36Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "515 tests collected in 0.58s"
+    "summary": "515 tests collected in 0.67s"
   }
 }
