@@ -64,15 +64,14 @@ def _certification_state(issues: list[dict[str, str]]) -> str:
     return "certified" if not issues else "attention_required"
 
 
-def _evaluate_snapshot(
+def _add_validation_issues(
+    issues: list[dict[str, str]],
     path: Path,
     payload: dict[str, Any],
     *,
+    product_id: str,
     context: dict[str, Any],
-) -> tuple[dict[str, Any], list[dict[str, str]]]:
-    product_id = str(payload.get("product_id", "unknown"))
-    issues: list[dict[str, str]] = []
-
+) -> None:
     validation_issues = validate_trust_telemetry_snapshot(
         path, payload, context=context
     )
@@ -85,10 +84,15 @@ def _evaluate_snapshot(
             detail=validation_issue,
         )
 
+
+def _freshness_state(payload: dict[str, Any]) -> Any:
     freshness = payload.get("freshness", {})
-    freshness_state = (
-        freshness.get("freshness_state") if isinstance(freshness, dict) else None
-    )
+    return freshness.get("freshness_state") if isinstance(freshness, dict) else None
+
+
+def _add_freshness_issue(
+    issues: list[dict[str, str]], *, product_id: str, freshness_state: Any
+) -> None:
     if freshness_state != "current":
         _add_issue(
             issues,
@@ -98,37 +102,29 @@ def _evaluate_snapshot(
             detail=f"Freshness state is {freshness_state}.",
         )
 
-    completeness_status = payload.get("completeness_status")
-    if completeness_status in ATTENTION_COMPLETENESS_STATES:
+
+def _add_status_attention_issue(
+    issues: list[dict[str, str]],
+    *,
+    product_id: str,
+    code: str,
+    status_name: str,
+    status_value: Any,
+    attention_states: set[str],
+) -> None:
+    if status_value in attention_states:
         _add_issue(
             issues,
-            code="completeness_attention_required",
+            code=code,
             severity="warning",
             product_id=product_id,
-            detail=f"Completeness status is {completeness_status}.",
+            detail=f"{status_name} status is {status_value}.",
         )
 
-    reconciliation_status = payload.get("reconciliation_status")
-    if reconciliation_status in ATTENTION_RECONCILIATION_STATES:
-        _add_issue(
-            issues,
-            code="reconciliation_attention_required",
-            severity="warning",
-            product_id=product_id,
-            detail=f"Reconciliation status is {reconciliation_status}.",
-        )
 
-    data_quality_status = payload.get("data_quality_status")
-    if data_quality_status in ATTENTION_DATA_QUALITY_STATES:
-        _add_issue(
-            issues,
-            code="data_quality_attention_required",
-            severity="warning",
-            product_id=product_id,
-            detail=f"Data quality status is {data_quality_status}.",
-        )
-
-    lineage = payload.get("lineage", {})
+def _add_lineage_issue(
+    issues: list[dict[str, str]], *, product_id: str, lineage: Any
+) -> None:
     if isinstance(lineage, dict) and lineage.get("lineage_materialized") is not True:
         _add_issue(
             issues,
@@ -138,7 +134,10 @@ def _evaluate_snapshot(
             detail="Lineage is not materialized for the product telemetry snapshot.",
         )
 
-    blocking = payload.get("blocking", {})
+
+def _add_blocking_issue(
+    issues: list[dict[str, str]], *, product_id: str, blocking: Any
+) -> None:
     if isinstance(blocking, dict) and blocking.get("blocked") is True:
         _add_issue(
             issues,
@@ -148,7 +147,18 @@ def _evaluate_snapshot(
             detail=f"Product is blocked: {blocking.get('blocked_reason')}",
         )
 
-    certification = {
+
+def _build_snapshot_certification(
+    path: Path,
+    payload: dict[str, Any],
+    *,
+    product_id: str,
+    issues: list[dict[str, str]],
+    freshness_state: Any,
+    lineage: Any,
+    blocking: Any,
+) -> dict[str, Any]:
+    return {
         "product_id": product_id,
         "producer_repository": payload.get("producer_repository"),
         "product_name": payload.get("product_name"),
@@ -158,16 +168,78 @@ def _evaluate_snapshot(
         "emitted_at_utc": payload.get("emitted_at_utc"),
         "certification_state": _certification_state(issues),
         "freshness_state": freshness_state,
-        "completeness_status": completeness_status,
-        "reconciliation_status": reconciliation_status,
-        "data_quality_status": data_quality_status,
+        "completeness_status": payload.get("completeness_status"),
+        "reconciliation_status": payload.get("reconciliation_status"),
+        "data_quality_status": payload.get("data_quality_status"),
         "lineage_materialized": lineage.get("lineage_materialized")
         if isinstance(lineage, dict)
         else None,
         "blocked": blocking.get("blocked") if isinstance(blocking, dict) else None,
         "issue_count": len(issues),
     }
-    return certification, issues
+
+
+def _evaluate_snapshot(
+    path: Path,
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    product_id = str(payload.get("product_id", "unknown"))
+    issues: list[dict[str, str]] = []
+
+    _add_validation_issues(issues, path, payload, product_id=product_id, context=context)
+
+    freshness_state = _freshness_state(payload)
+    _add_freshness_issue(
+        issues, product_id=product_id, freshness_state=freshness_state
+    )
+
+    completeness_status = payload.get("completeness_status")
+    reconciliation_status = payload.get("reconciliation_status")
+    data_quality_status = payload.get("data_quality_status")
+    _add_status_attention_issue(
+        issues,
+        product_id=product_id,
+        code="completeness_attention_required",
+        status_name="Completeness",
+        status_value=completeness_status,
+        attention_states=ATTENTION_COMPLETENESS_STATES,
+    )
+    _add_status_attention_issue(
+        issues,
+        product_id=product_id,
+        code="reconciliation_attention_required",
+        status_name="Reconciliation",
+        status_value=reconciliation_status,
+        attention_states=ATTENTION_RECONCILIATION_STATES,
+    )
+    _add_status_attention_issue(
+        issues,
+        product_id=product_id,
+        code="data_quality_attention_required",
+        status_name="Data quality",
+        status_value=data_quality_status,
+        attention_states=ATTENTION_DATA_QUALITY_STATES,
+    )
+
+    lineage = payload.get("lineage", {})
+    blocking = payload.get("blocking", {})
+    _add_lineage_issue(issues, product_id=product_id, lineage=lineage)
+    _add_blocking_issue(issues, product_id=product_id, blocking=blocking)
+
+    return (
+        _build_snapshot_certification(
+            path,
+            payload,
+            product_id=product_id,
+            issues=issues,
+            freshness_state=freshness_state,
+            lineage=lineage,
+            blocking=blocking,
+        ),
+        issues,
+    )
 
 
 def build_live_trust_certification_report(

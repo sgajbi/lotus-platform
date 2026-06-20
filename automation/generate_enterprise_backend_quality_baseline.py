@@ -721,6 +721,10 @@ Generated: `{baseline["generated_at_utc"]}`
     checks, telemetry event section checks, attribute-group checks, dashboard/alert reference
     policies, and protected diagnostics policy checks are isolated behind focused helpers, reducing
     the measured repository complexity ceiling from 14 to 13 while preserving RFC-0108 validation.
+64. Live trust certification snapshot evaluator extraction so telemetry validation issue mapping,
+    freshness checks, status attention checks, lineage/blocking checks, and certification assembly
+    are isolated behind focused helpers, removing live trust certification evaluation from the top
+    measured complexity hotspot list while preserving RFC-0087 certification behavior.
 
 ## Evidence
 

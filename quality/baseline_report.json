@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303374
+    "total_source_lines": 303450
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 13,
-        "end_line": 170,
-        "line": 67,
-        "lines": 104,
-        "name": "_evaluate_snapshot",
-        "path": "automation/generate_live_trust_certification.py"
-      },
       {
         "complexity": 13,
         "end_line": 858,
@@ -192,6 +184,14 @@
         "lines": 34,
         "name": "_validate_agents_operating_contract",
         "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 263,
+        "line": 231,
+        "lines": 33,
+        "name": "_validate_allowed_consumer",
+        "path": "automation/validate_mesh_access_policies.py"
       }
     ],
     "largest_functions": [
@@ -221,9 +221,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 760,
+        "end_line": 764,
         "line": 489,
-        "lines": 272,
+        "lines": 276,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1619
+    "python_function_count": 1626
   },
-  "generated_at_utc": "2026-06-20T07:38:50Z",
+  "generated_at_utc": "2026-06-20T07:47:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.60s"
+    "summary": "513 tests collected in 0.54s"
   }
 }
