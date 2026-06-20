@@ -119,6 +119,67 @@ SINGLE_FEATURE_MILESTONE_STATUS_RULES = (
         "Slice 19",
     ),
 )
+ALLOWED_LIFECYCLE_STATUSES = {
+    "implementation-not-started",
+    "slice-0-implemented",
+    "slice-1-structure-implemented",
+    "slice-2-telemetry-contract-implemented",
+    "slice-3-correlation-propagation-implemented",
+    "slice-4-structured-logging-implemented",
+    "slice-5-metrics-dashboard-implemented",
+    "slice-6-attention-events-implemented",
+    "slice-7-audit-events-implemented",
+    "slice-8-canonical-proof-implemented",
+    "slice-9-rollout-readiness-implemented",
+    "second-last-hardening-implemented",
+    "final-closure-implemented",
+    "slice-10-ecosystem-contract-implemented",
+    "slice-11-scaffold-ci-enforcement-implemented",
+    "slice-12-backend-supportability-partial-implemented",
+    "slice-13-gateway-fanout-metrics-partial-implemented",
+    "slice-13-gateway-fanout-metrics-implemented",
+    "slice-14-workbench-supported-client-reads-partial-implemented",
+    "slice-15-ecosystem-dashboards-alerts-implemented",
+    "slice-16-ecosystem-implementation-proof-implemented",
+    "slice-17-ecosystem-hardening-certified",
+    "slice-18-ecosystem-final-closure-implemented",
+}
+IMPLEMENTATION_BACKED_METRIC_NAMES = {
+    "lotus_workbench_panel_hydration_duration_seconds",
+    "lotus_workbench_panel_state_total",
+    "lotus_workbench_api_request_duration_seconds",
+    "lotus_gateway_analytics_fanout_duration_seconds",
+    "lotus_gateway_analytics_degraded_total",
+    "lotus_analytics_freshness_bucket_total",
+    "lotus_analytics_ui_attention_events_total",
+    "lotus_ai_surface_supportability_state",
+}
+REQUIRED_STATES = {
+    "loading",
+    "ready",
+    "empty",
+    "partial",
+    "stale",
+    "degraded",
+    "error",
+    "permission_blocked",
+    "unsupported",
+}
+REQUIRED_ARTIFACT_TYPES = {
+    "browser",
+    "gateway-api",
+    "backend-log-metric",
+    "dashboard",
+    "sensitive-data-assertion",
+    "github-check",
+}
+REQUIRED_SCAFFOLD_REQUIREMENTS = {
+    "structured JSON event logging",
+    "product-safe problem-details errors",
+    "OpenAPI quality gate",
+    "supported-features placeholder",
+    "RFC implementation evidence directory",
+}
 
 
 def _load_contract(path: Path) -> dict[str, Any]:
@@ -273,38 +334,16 @@ def _validate_supported_feature_keys(
             errors.append(f"{key}: promotion_evidence is required")
 
 
-def validate_contract(contract: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
+def _validate_contract_identity_and_lifecycle(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+) -> None:
     if contract.get("contract_id") != "analytics-ui-observability-contract":
         errors.append("contract_id must be analytics-ui-observability-contract")
     if contract.get("governed_by_rfc") != "RFC-0108":
         errors.append("governed_by_rfc must be RFC-0108")
-    allowed_lifecycle_statuses = {
-        "implementation-not-started",
-        "slice-0-implemented",
-        "slice-1-structure-implemented",
-        "slice-2-telemetry-contract-implemented",
-        "slice-3-correlation-propagation-implemented",
-        "slice-4-structured-logging-implemented",
-        "slice-5-metrics-dashboard-implemented",
-        "slice-6-attention-events-implemented",
-        "slice-7-audit-events-implemented",
-        "slice-8-canonical-proof-implemented",
-        "slice-9-rollout-readiness-implemented",
-        "second-last-hardening-implemented",
-        "final-closure-implemented",
-        "slice-10-ecosystem-contract-implemented",
-        "slice-11-scaffold-ci-enforcement-implemented",
-        "slice-12-backend-supportability-partial-implemented",
-        "slice-13-gateway-fanout-metrics-partial-implemented",
-        "slice-13-gateway-fanout-metrics-implemented",
-        "slice-14-workbench-supported-client-reads-partial-implemented",
-        "slice-15-ecosystem-dashboards-alerts-implemented",
-        "slice-16-ecosystem-implementation-proof-implemented",
-        "slice-17-ecosystem-hardening-certified",
-        "slice-18-ecosystem-final-closure-implemented",
-    }
-    if contract.get("lifecycle_status") not in allowed_lifecycle_statuses:
+    if contract.get("lifecycle_status") not in ALLOWED_LIFECYCLE_STATUSES:
         errors.append(
             "lifecycle_status must be implementation-not-started, slice-0-implemented, "
             "slice-1-structure-implemented, slice-2-telemetry-contract-implemented, "
@@ -329,55 +368,168 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
             "slice-18-ecosystem-final-closure-implemented"
         )
 
-    allowed_labels = set(contract.get("allowed_labels", []))
-    forbidden_fields = set(contract.get("forbidden_fields", []))
+
+def _validate_label_policy(
+    *,
+    errors: list[str],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
     overlap = allowed_labels & forbidden_fields
     if overlap:
         errors.append(
             f"allowed_labels must not include forbidden fields: {sorted(overlap)}"
         )
 
+
+def _validate_metric_family(
+    *,
+    errors: list[str],
+    metric: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> None:
+    name = metric.get("metric_name", "<missing>")
+    if name in IMPLEMENTATION_BACKED_METRIC_NAMES:
+        if metric.get("implemented") is not True:
+            errors.append(f"{name}: implemented must be true after Slice 5 proof")
+    elif metric.get("implemented") is not False:
+        errors.append(
+            f"{name}: implemented must remain false before implementation proof"
+        )
+    labels = set(metric.get("labels", []))
+    unexpected_labels = labels - allowed_labels
+    if unexpected_labels:
+        errors.append(
+            f"{name}: labels are not in allowed_labels: {sorted(unexpected_labels)}"
+        )
+    forbidden_labels = labels & forbidden_fields
+    if forbidden_labels:
+        errors.append(
+            f"{name}: labels include forbidden fields: {sorted(forbidden_labels)}"
+        )
+    if not metric.get("purpose"):
+        errors.append(f"{name}: purpose is required")
+
+
+def _validate_metric_families(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+    allowed_labels: set[str],
+    forbidden_fields: set[str],
+) -> tuple[list[object], set[str]]:
     metric_families = contract.get("metric_families", [])
     if not metric_families:
         errors.append("metric_families must define planned metric candidates")
-    implementation_backed_metric_names = {
-        "lotus_workbench_panel_hydration_duration_seconds",
-        "lotus_workbench_panel_state_total",
-        "lotus_workbench_api_request_duration_seconds",
-        "lotus_gateway_analytics_fanout_duration_seconds",
-        "lotus_gateway_analytics_degraded_total",
-        "lotus_analytics_freshness_bucket_total",
-        "lotus_analytics_ui_attention_events_total",
-        "lotus_ai_surface_supportability_state",
-    }
+
     for metric in metric_families:
-        name = metric.get("metric_name", "<missing>")
-        if name in implementation_backed_metric_names:
-            if metric.get("implemented") is not True:
-                errors.append(f"{name}: implemented must be true after Slice 5 proof")
-        elif metric.get("implemented") is not False:
-            errors.append(
-                f"{name}: implemented must remain false before implementation proof"
+        if isinstance(metric, dict):
+            _validate_metric_family(
+                errors=errors,
+                metric=metric,
+                allowed_labels=allowed_labels,
+                forbidden_fields=forbidden_fields,
             )
-        labels = set(metric.get("labels", []))
-        unexpected_labels = labels - allowed_labels
-        if unexpected_labels:
-            errors.append(
-                f"{name}: labels are not in allowed_labels: {sorted(unexpected_labels)}"
-            )
-        forbidden_labels = labels & forbidden_fields
-        if forbidden_labels:
-            errors.append(
-                f"{name}: labels include forbidden fields: {sorted(forbidden_labels)}"
-            )
-        if not metric.get("purpose"):
-            errors.append(f"{name}: purpose is required")
 
     implemented_metric_names = {
         str(metric.get("metric_name"))
         for metric in metric_families
-        if metric.get("implemented") is True
+        if isinstance(metric, dict) and metric.get("implemented") is True
     }
+    return metric_families, implemented_metric_names
+
+
+def _validate_dashboard_metric_references(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
+    if not contract.get("dashboards"):
+        return
+
+    for dashboard in contract["dashboards"]:
+        dashboard_id = dashboard.get("dashboard_id", "<missing>")
+        metric_names = set(dashboard.get("metric_names", []))
+        missing_metrics = sorted(metric_names - implemented_metric_names)
+        if missing_metrics:
+            errors.append(
+                f"{dashboard_id}: dashboard references unimplemented metrics: {missing_metrics}"
+            )
+
+
+def _validate_alert_metric_references(
+    *,
+    errors: list[str],
+    contract: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
+    if not contract.get("alerts"):
+        return
+
+    for alert in contract["alerts"]:
+        alert_id = alert.get("alert_id", "<missing>")
+        metric_name = str(alert.get("metric_name", ""))
+        if metric_name not in implemented_metric_names:
+            errors.append(
+                f"{alert_id}: alert references unimplemented metric: {metric_name}"
+            )
+
+
+def _validate_state_vocabulary(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
+    states = set(contract.get("state_vocabulary", []))
+    missing_states = REQUIRED_STATES - states
+    if missing_states:
+        errors.append(
+            f"state_vocabulary missing required states: {sorted(missing_states)}"
+        )
+
+
+def _validate_evidence_requirements(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
+    evidence_requirements = contract.get("evidence_requirements", {})
+    artifact_types = set(evidence_requirements.get("artifact_types", []))
+    missing_artifacts = REQUIRED_ARTIFACT_TYPES - artifact_types
+    if missing_artifacts:
+        errors.append(
+            f"evidence_requirements missing artifact types: {sorted(missing_artifacts)}"
+        )
+
+
+def _validate_scaffold_requirements(
+    contract: dict[str, Any],
+    errors: list[str],
+) -> None:
+    scaffold_requirements = set(contract.get("scaffold_requirements", []))
+    for required in REQUIRED_SCAFFOLD_REQUIREMENTS:
+        if required not in scaffold_requirements:
+            errors.append(f"scaffold_requirements missing {required}")
+
+
+def validate_contract(contract: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    _validate_contract_identity_and_lifecycle(errors=errors, contract=contract)
+
+    allowed_labels = set(contract.get("allowed_labels", []))
+    forbidden_fields = set(contract.get("forbidden_fields", []))
+    _validate_label_policy(
+        errors=errors,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
+
+    _, implemented_metric_names = _validate_metric_families(
+        errors=errors,
+        contract=contract,
+        allowed_labels=allowed_labels,
+        forbidden_fields=forbidden_fields,
+    )
     _validate_telemetry_contract(
         errors=errors,
         contract=contract,
@@ -389,72 +541,20 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
         contract=contract,
         implemented_metric_names=implemented_metric_names,
     )
-
-    if contract.get("dashboards"):
-        for dashboard in contract["dashboards"]:
-            dashboard_id = dashboard.get("dashboard_id", "<missing>")
-            metric_names = set(dashboard.get("metric_names", []))
-            missing_metrics = sorted(metric_names - implemented_metric_names)
-            if missing_metrics:
-                errors.append(
-                    f"{dashboard_id}: dashboard references unimplemented metrics: {missing_metrics}"
-                )
-    if contract.get("alerts"):
-        for alert in contract["alerts"]:
-            alert_id = alert.get("alert_id", "<missing>")
-            metric_name = str(alert.get("metric_name", ""))
-            if metric_name not in implemented_metric_names:
-                errors.append(
-                    f"{alert_id}: alert references unimplemented metric: {metric_name}"
-                )
-
-    required_states = {
-        "loading",
-        "ready",
-        "empty",
-        "partial",
-        "stale",
-        "degraded",
-        "error",
-        "permission_blocked",
-        "unsupported",
-    }
-    states = set(contract.get("state_vocabulary", []))
-    missing_states = required_states - states
-    if missing_states:
-        errors.append(
-            f"state_vocabulary missing required states: {sorted(missing_states)}"
-        )
-
+    _validate_dashboard_metric_references(
+        errors=errors,
+        contract=contract,
+        implemented_metric_names=implemented_metric_names,
+    )
+    _validate_alert_metric_references(
+        errors=errors,
+        contract=contract,
+        implemented_metric_names=implemented_metric_names,
+    )
+    _validate_state_vocabulary(contract, errors)
     _validate_supported_feature_keys(errors=errors, contract=contract)
-
-    evidence_requirements = contract.get("evidence_requirements", {})
-    required_artifact_types = {
-        "browser",
-        "gateway-api",
-        "backend-log-metric",
-        "dashboard",
-        "sensitive-data-assertion",
-        "github-check",
-    }
-    artifact_types = set(evidence_requirements.get("artifact_types", []))
-    missing_artifacts = required_artifact_types - artifact_types
-    if missing_artifacts:
-        errors.append(
-            f"evidence_requirements missing artifact types: {sorted(missing_artifacts)}"
-        )
-
-    scaffold_requirements = set(contract.get("scaffold_requirements", []))
-    for required in {
-        "structured JSON event logging",
-        "product-safe problem-details errors",
-        "OpenAPI quality gate",
-        "supported-features placeholder",
-        "RFC implementation evidence directory",
-    }:
-        if required not in scaffold_requirements:
-            errors.append(f"scaffold_requirements missing {required}")
-
+    _validate_evidence_requirements(contract, errors)
+    _validate_scaffold_requirements(contract, errors)
     return errors
 
 

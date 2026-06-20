@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T05:25:54Z`
+Generated: `2026-06-20T05:30:35Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `711`
-- Total source lines: `301144`
+- Total source lines: `301248`
 - Python files: `153`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1415`
-- Highest measured cyclomatic complexity: `23`
+- Python functions: `1424`
+- Highest measured cyclomatic complexity: `22`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_analytics_ui_observability_contract.py | validate_contract | 276 | 23 | 183 |
 | automation/validate_heartbeat_contracts.py | validate_heartbeat_status | 240 | 22 | 95 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_matrix_feature_statuses | 418 | 22 | 65 |
 | automation/core_performance_attribution_validation.py | _run_validation_once | 23 | 21 | 298 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_cross_references | 885 | 19 | 101 |
 | automation/core_performance_baseline_validation.py | main | 239 | 19 | 85 |
 | automation/review_analytics_ui_canonical_proof.py | _validate_live_summary | 163 | 19 | 68 |
+| automation/validate_heartbeat_contracts.py | _validate_status_attention_items | 95 | 18 | 55 |
 
 ## Tooling Baseline
 

@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 301144
+    "total_source_lines": 301248
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 23,
-        "end_line": 458,
-        "line": 276,
-        "lines": 183,
-        "name": "validate_contract",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
       {
         "complexity": 22,
         "end_line": 334,
@@ -192,6 +184,14 @@
         "lines": 65,
         "name": "_validate_supported_features",
         "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 180,
+        "line": 120,
+        "lines": 61,
+        "name": "validate_semantics_registry",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       }
     ],
     "largest_functions": [
@@ -276,14 +276,6 @@
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
-        "complexity": 23,
-        "end_line": 458,
-        "line": 276,
-        "lines": 183,
-        "name": "validate_contract",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
-      {
         "complexity": 1,
         "end_line": 304,
         "line": 129,
@@ -332,6 +324,14 @@
         "path": "automation/generate_domain_product_onboarding.py"
       },
       {
+        "complexity": 1,
+        "end_line": 643,
+        "line": 489,
+        "lines": 155,
+        "name": "render_health_report",
+        "path": "automation/generate_enterprise_backend_quality_baseline.py"
+      },
+      {
         "complexity": 16,
         "end_line": 247,
         "line": 94,
@@ -340,27 +340,27 @@
         "path": "automation/explain_dev_ingress_status.py"
       },
       {
-        "complexity": 1,
-        "end_line": 639,
-        "line": 489,
-        "lines": 151,
-        "name": "render_health_report",
-        "path": "automation/generate_enterprise_backend_quality_baseline.py"
-      },
-      {
         "complexity": 5,
         "end_line": 217,
         "line": 68,
         "lines": 150,
         "name": "_seed_core_data",
         "path": "automation/core_performance_mwr_validation.py"
+      },
+      {
+        "complexity": 3,
+        "end_line": 1591,
+        "line": 1450,
+        "lines": 142,
+        "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 23,
+    "max_complexity": 22,
     "max_function_lines": 393,
-    "python_function_count": 1415
+    "python_function_count": 1424
   },
-  "generated_at_utc": "2026-06-20T05:25:54Z",
+  "generated_at_utc": "2026-06-20T05:30:35Z",
   "largest_files": [
     {
       "lines": 79939,
