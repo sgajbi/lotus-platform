@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:14:59Z`
+Generated: `2026-06-20T07:20:50Z`
 
 ## Completed Slices
 
@@ -212,6 +212,10 @@ Generated: `2026-06-20T07:14:59Z`
     classification, scaffold feature status enforcement, and runtime promotion policy checks are
     isolated behind focused helpers, removing the scaffold CI promotion validator from the top
     measured complexity hotspot list while preserving RFC-0108 Slice 11 validation behavior.
+59. Supported-claim register claim validator extraction so claim identity, classification, wording,
+    implementation-backed proof, client-facing material, backend-only screenshot, and promotion-gate
+    checks are isolated behind focused helpers, removing the supported-claim validator from the top
+    measured complexity hotspot list while preserving claim-governance validation behavior.
 
 ## Evidence
 

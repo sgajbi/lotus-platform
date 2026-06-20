@@ -130,32 +130,52 @@ def _validate_register_artifact_policy(
                 )
 
 
-def _validate_claim(
+def _validate_claim_identity(
     issues: list[str],
     path: Path,
     *,
     index: int,
-    claim: dict[str, Any],
+    claim_id: str,
     claim_ids: set[str],
 ) -> None:
-    claim_id = str(claim.get("claim_id") or "")
     if not re.fullmatch(r"^[a-z][a-z0-9_]+$", claim_id):
         _issue(issues, path, f"claims[{index}].claim_id must be snake_case")
     elif claim_id in claim_ids:
         _issue(issues, path, f"claims[{index}].claim_id duplicates {claim_id}")
     claim_ids.add(claim_id)
 
-    classification = str(claim.get("classification") or "")
+
+def _validate_claim_classification(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    classification: str,
+) -> None:
     if classification not in ALLOWED_CLASSIFICATIONS:
         _issue(issues, path, f"claims[{index}].classification is not supported")
 
-    evidence_refs = _string_list(claim.get("evidence_refs"))
-    proof_requirements = _string_list(claim.get("proof_requirements"))
-    allowed_materials = set(_string_list(claim.get("allowed_materials")))
-    wording_rules = _string_list(claim.get("wording_rules"))
 
+def _validate_claim_wording_rules(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    wording_rules: list[str],
+) -> None:
     if not wording_rules:
         _issue(issues, path, f"claims[{index}].wording_rules must be non-empty")
+
+
+def _validate_implementation_backed_claim(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    classification: str,
+    evidence_refs: list[str],
+    proof_requirements: list[str],
+) -> None:
     if classification == "IMPLEMENTATION_BACKED" and (
         not evidence_refs or not proof_requirements
     ):
@@ -164,6 +184,16 @@ def _validate_claim(
             path,
             f"claims[{index}] implementation-backed claims require evidence and proof",
         )
+
+
+def _validate_client_facing_claim_materials(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    classification: str,
+    allowed_materials: set[str],
+) -> None:
     if classification in {"PLANNED_RFC", "UNSUPPORTED"} and (
         allowed_materials & CLIENT_FACING_MATERIALS
     ):
@@ -172,6 +202,16 @@ def _validate_claim(
             path,
             f"claims[{index}] planned/unsupported claims cannot use client-facing materials",
         )
+
+
+def _validate_backend_only_claim_materials(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    classification: str,
+    allowed_materials: set[str],
+) -> None:
     if (
         classification == "BACKEND_BACKED_UI_PENDING"
         and "SCREENSHOT" in allowed_materials
@@ -181,8 +221,76 @@ def _validate_claim(
             path,
             f"claims[{index}] backend-only claims cannot be used for screenshots",
         )
+
+
+def _validate_claim_promotion_gate(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    claim: dict[str, Any],
+) -> None:
     if not _non_empty_string(claim.get("promotion_gate")):
         _issue(issues, path, f"claims[{index}].promotion_gate must be non-empty")
+
+
+def _validate_claim(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    claim: dict[str, Any],
+    claim_ids: set[str],
+) -> None:
+    claim_id = str(claim.get("claim_id") or "")
+    classification = str(claim.get("classification") or "")
+    evidence_refs = _string_list(claim.get("evidence_refs"))
+    proof_requirements = _string_list(claim.get("proof_requirements"))
+    allowed_materials = set(_string_list(claim.get("allowed_materials")))
+    wording_rules = _string_list(claim.get("wording_rules"))
+
+    _validate_claim_identity(
+        issues,
+        path,
+        index=index,
+        claim_id=claim_id,
+        claim_ids=claim_ids,
+    )
+    _validate_claim_classification(
+        issues,
+        path,
+        index=index,
+        classification=classification,
+    )
+    _validate_claim_wording_rules(
+        issues,
+        path,
+        index=index,
+        wording_rules=wording_rules,
+    )
+    _validate_implementation_backed_claim(
+        issues,
+        path,
+        index=index,
+        classification=classification,
+        evidence_refs=evidence_refs,
+        proof_requirements=proof_requirements,
+    )
+    _validate_client_facing_claim_materials(
+        issues,
+        path,
+        index=index,
+        classification=classification,
+        allowed_materials=allowed_materials,
+    )
+    _validate_backend_only_claim_materials(
+        issues,
+        path,
+        index=index,
+        classification=classification,
+        allowed_materials=allowed_materials,
+    )
+    _validate_claim_promotion_gate(issues, path, index=index, claim=claim)
 
 
 def _validate_claims(
