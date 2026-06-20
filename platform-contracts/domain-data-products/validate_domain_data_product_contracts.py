@@ -491,6 +491,47 @@ def _validate_product_registry_references(
     completeness_statuses: set[str] | None,
     trust_metadata_keys: set[str] | None,
 ) -> None:
+    _validate_product_required_trust_metadata(
+        issues,
+        path,
+        index=index,
+        product=product,
+        trust_metadata_keys=trust_metadata_keys,
+    )
+    _validate_product_identifier_refs(
+        issues,
+        path,
+        index=index,
+        product=product,
+        identifier_keys=identifier_keys,
+    )
+    _validate_product_temporal_semantics_ref(
+        issues, path, index=index, product=product, temporal_keys=temporal_keys
+    )
+    _validate_product_freshness_class(
+        issues,
+        path,
+        index=index,
+        product=product,
+        freshness_classes=freshness_classes,
+    )
+    _validate_product_completeness_status(
+        issues,
+        path,
+        index=index,
+        product=product,
+        completeness_statuses=completeness_statuses,
+    )
+
+
+def _validate_product_required_trust_metadata(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    trust_metadata_keys: set[str] | None,
+) -> None:
     if not _is_non_empty_list(product["required_trust_metadata"]):
         _append_issue(
             issues,
@@ -509,6 +550,16 @@ def _validate_product_registry_references(
                 path,
                 f"products[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
             )
+
+
+def _validate_product_identifier_refs(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    identifier_keys: set[str] | None,
+) -> None:
     if identifier_keys is not None:
         identifier_refs = product["identifier_refs"]
         if not _is_non_empty_list(identifier_refs):
@@ -523,18 +574,48 @@ def _validate_product_registry_references(
                     path,
                     f"products[{index}].identifier_refs contains unknown identifiers: {', '.join(unknown_identifier_refs)}",
                 )
+
+
+def _validate_product_temporal_semantics_ref(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    temporal_keys: set[str] | None,
+) -> None:
     if temporal_keys is not None and product["temporal_semantics_ref"] not in temporal_keys:
         _append_issue(
             issues,
             path,
             f"products[{index}].temporal_semantics_ref must reference a registered temporal semantic",
         )
+
+
+def _validate_product_freshness_class(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    freshness_classes: set[str] | None,
+) -> None:
     if freshness_classes is not None and product["freshness_policy"]["freshness_class"] not in freshness_classes:
         _append_issue(
             issues,
             path,
             f"products[{index}].freshness_policy.freshness_class must reference the trust vocabulary registry",
         )
+
+
+def _validate_product_completeness_status(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    completeness_statuses: set[str] | None,
+) -> None:
     if (
         completeness_statuses is not None
         and product["completeness_policy"]["default_status"] not in completeness_statuses

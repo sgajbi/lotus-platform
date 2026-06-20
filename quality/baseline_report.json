@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 303517
+    "total_source_lines": 303602
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -35,16 +35,8 @@
     "highest_complexity_functions": [
       {
         "complexity": 13,
-        "end_line": 546,
-        "line": 482,
-        "lines": 65,
-        "name": "_validate_product_registry_references",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 13,
-        "end_line": 597,
-        "line": 549,
+        "end_line": 678,
+        "line": 630,
         "lines": 49,
         "name": "_validate_product_lineage_policy",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -192,6 +184,14 @@
         "lines": 28,
         "name": "_resolve_live_summary",
         "path": "automation/review_analytics_ui_canonical_proof.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 651,
+        "line": 624,
+        "lines": 28,
+        "name": "validate_heartbeat_suppressions",
+        "path": "automation/validate_heartbeat_contracts.py"
       }
     ],
     "largest_functions": [
@@ -213,9 +213,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 772,
+        "end_line": 776,
         "line": 489,
-        "lines": 284,
+        "lines": 288,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 13,
     "max_function_lines": 393,
-    "python_function_count": 1632
+    "python_function_count": 1637
   },
-  "generated_at_utc": "2026-06-20T07:53:13Z",
+  "generated_at_utc": "2026-06-20T07:56:47Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -423,14 +423,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1385,
+      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1314,
       "path": "automation/README.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1304,
-      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
-      "suffix": ".py"
     },
     {
       "lines": 1172,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "513 tests collected in 0.62s"
+    "summary": "513 tests collected in 0.77s"
   }
 }

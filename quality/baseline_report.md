@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T07:53:13Z`
+Generated: `2026-06-20T07:56:47Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `712`
-- Total source lines: `303517`
+- Total source lines: `303602`
 - Python files: `154`
 - PowerShell files: `62`
 - Markdown files: `356`
@@ -39,14 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1632`
+- Python functions: `1637`
 - Highest measured cyclomatic complexity: `13`
 - Largest Python function length: `393`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_registry_references | 482 | 13 | 65 |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_lineage_policy | 549 | 13 | 49 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_product_lineage_policy | 630 | 13 | 49 |
 | automation/render_cross_app_workflow_summary.py | _render_single | 70 | 13 | 48 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _matrix_feature_implementation_rule | 418 | 13 | 37 |
 | automation/delegation_task_ledger.py | update_delegated_task_status | 180 | 13 | 35 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_mesh_slo_policies.py | evaluate_mesh_slo_violations | 235 | 12 | 102 |
 | automation/heartbeat_sources.py | _lotus_ai_queue_item_attention | 1300 | 12 | 77 |
 | automation/core_performance_cross_app_validation.py | _evaluate_expected_posture | 417 | 12 | 68 |
+| automation/review_analytics_ui_canonical_proof.py | review_canonical_proof | 393 | 12 | 67 |
 
 ## Tooling Baseline
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `513`
 - Collection command return code: `0`
-- Collection summary: `513 tests collected in 0.62s`
+- Collection summary: `513 tests collected in 0.77s`
 
 ## Security Baseline
 

@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T07:53:13Z`
+Generated: `2026-06-20T07:56:47Z`
 
 ## Completed Slices
 
@@ -244,6 +244,10 @@ Generated: `2026-06-20T07:53:13Z`
     reference assembly, and delegated-task attention collection are isolated behind a focused
     helper, removing the RFC-0096 delegated-task heartbeat adapter from the top measured complexity
     hotspot list while preserving stale/lost/missing-evidence/review-blocker/overlap behavior.
+67. Domain data product registry-reference validator extraction so trust metadata, identifier,
+    temporal semantic, freshness, and completeness registry checks are isolated behind focused
+    helpers, removing registry-reference validation from the top measured complexity hotspot list
+    while preserving RFC-0084 declaration drift detection behavior.
 
 ## Evidence
 
