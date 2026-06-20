@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-20T10:39:02Z`
+Generated: `2026-06-20T10:46:23Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `306142`
+- Total source lines: `306214`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,22 +39,22 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1796`
+- Python functions: `1802`
 - Highest measured cyclomatic complexity: `11`
-- Largest Python function length: `402`
+- Largest Python function length: `406`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/validate_analytics_ui_rollout_readiness.py | _validate_certified_route_groups | 61 | 11 | 33 |
 | automation/validate_trust_telemetry.py | _validate_freshness_age | 236 | 11 | 27 |
 | automation/validate_shared_infra_ownership.py | _validate_lotus_core | 127 | 10 | 98 |
 | automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
 | automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 304 | 10 | 39 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
-| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 908 | 10 | 34 |
+| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 912 | 10 | 34 |
 | automation/validate_repository_governance.py | normalize_actual_governance | 51 | 10 | 34 |
+| automation/validate_analytics_ui_ecosystem_completion.py | _validate_supported_feature_milestones | 368 | 10 | 29 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `541`
+- Unit tests collected: `542`
 - Collection command return code: `0`
-- Collection summary: `541 tests collected in 0.63s`
+- Collection summary: `542 tests collected in 0.56s`
 
 ## Security Baseline
 

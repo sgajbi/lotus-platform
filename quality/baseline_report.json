@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306142
+    "total_source_lines": 306214
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 93,
-        "line": 61,
-        "lines": 33,
-        "name": "_validate_certified_route_groups",
-        "path": "automation/validate_analytics_ui_rollout_readiness.py"
       },
       {
         "complexity": 11,
@@ -99,8 +91,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 941,
-        "line": 908,
+        "end_line": 945,
+        "line": 912,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 42,
         "name": "_validate_required_product_lifecycle",
         "path": "automation/mesh_certification_gate.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 1024,
+        "line": 987,
+        "lines": 38,
+        "name": "_collect_delegated_task_ledger_item",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 890,
+        "end_line": 894,
         "line": 489,
-        "lines": 402,
+        "lines": 406,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 402,
-    "python_function_count": 1796
+    "max_function_lines": 406,
+    "python_function_count": 1802
   },
-  "generated_at_utc": "2026-06-20T10:39:02Z",
+  "generated_at_utc": "2026-06-20T10:46:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 541,
+    "collected_tests": 542,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "541 tests collected in 0.63s"
+    "summary": "542 tests collected in 0.56s"
   }
 }
