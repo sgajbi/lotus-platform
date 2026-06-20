@@ -204,11 +204,9 @@ def _product_id(
     return f"{producer_repository}:{product_name}:{product_version}"
 
 
-def validate_source_manifest(
-    manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
-) -> list[str]:
-    manifest = _load_json(manifest_path)
-    issues: list[str] = []
+def _validate_source_manifest_identity(
+    *, manifest_path: Path, manifest: dict[str, Any], issues: list[str]
+) -> None:
     if manifest.get("contract_id") != "lotus-domain-product-source-manifest":
         issues.append(
             f"{manifest_path}: contract_id must be lotus-domain-product-source-manifest"
@@ -218,6 +216,193 @@ def validate_source_manifest(
     if "RFC-0088" not in manifest.get("governed_by_rfcs", []):
         issues.append(f"{manifest_path}: governed_by_rfcs must include RFC-0088")
 
+
+def _append_source_manifest_repository_identity_issues(
+    *,
+    manifest_path: Path,
+    index: int,
+    entry: dict[str, Any],
+    seen_repositories: set[str],
+    issues: list[str],
+) -> str | None:
+    repository = entry.get("repository")
+    if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
+        issues.append(
+            f"{manifest_path}: repositories[{index}].repository must be a Lotus repository name"
+        )
+        return None
+    if repository in seen_repositories:
+        issues.append(
+            f"{manifest_path}: repositories contains duplicate repository {repository}"
+        )
+        return repository
+    seen_repositories.add(repository)
+    return repository
+
+
+def _validate_source_manifest_repository_posture(
+    *,
+    manifest_path: Path,
+    index: int,
+    entry: dict[str, Any],
+    issues: list[str],
+) -> str | None:
+    if entry.get("source_mode") not in SOURCE_MODES:
+        issues.append(
+            f"{manifest_path}: repositories[{index}].source_mode is not governed"
+        )
+    if entry.get("catalog_inclusion") not in CATALOG_INCLUSION_STATES:
+        issues.append(
+            f"{manifest_path}: repositories[{index}].catalog_inclusion is not governed"
+        )
+    if entry.get("repo_native_status") not in REPO_NATIVE_STATES:
+        issues.append(
+            f"{manifest_path}: repositories[{index}].repo_native_status is not governed"
+        )
+
+    repo_native_path = entry.get("repo_native_declaration_path")
+    if (
+        not isinstance(repo_native_path, str)
+        or repo_native_path != "contracts/domain-data-products"
+    ):
+        issues.append(
+            f"{manifest_path}: repositories[{index}].repo_native_declaration_path must be contracts/domain-data-products"
+        )
+        return None
+    return repo_native_path
+
+
+def _validate_repo_native_source_directory(
+    *,
+    manifest_path: Path,
+    index: int,
+    repository: str | None,
+    repo_native_path: str | None,
+    repo_native_status: object,
+    issues: list[str],
+) -> None:
+    if repo_native_status != "implemented":
+        issues.append(
+            f"{manifest_path}: repositories[{index}] repo_native sources require repo_native_status implemented"
+        )
+    if isinstance(repository, str) and isinstance(repo_native_path, str):
+        repo_native_directory = ROOT.parent / repository / repo_native_path
+    else:
+        repo_native_directory = None
+    if repo_native_directory is not None and not repo_native_directory.exists():
+        issues.append(
+            f"{manifest_path}: repositories[{index}] repo-native declaration directory does not exist: {repo_native_directory}"
+        )
+
+
+def _validate_platform_declaration_paths(
+    *,
+    manifest_path: Path,
+    index: int,
+    platform_paths: object,
+    issues: list[str],
+) -> bool:
+    if not isinstance(platform_paths, list):
+        issues.append(
+            f"{manifest_path}: repositories[{index}].platform_declaration_paths must be an array"
+        )
+        return False
+    return True
+
+
+def _validate_platform_declaration_path_entries(
+    *,
+    manifest_path: Path,
+    index: int,
+    platform_paths: list[object],
+    issues: list[str],
+) -> None:
+    for path_index, platform_path in enumerate(platform_paths):
+        if not isinstance(platform_path, str):
+            issues.append(
+                f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] must be a string"
+            )
+            continue
+        resolved_path = ROOT / platform_path
+        if not resolved_path.exists():
+            issues.append(
+                f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] does not exist: {platform_path}"
+            )
+
+
+def _validate_source_manifest_repository_entry(
+    *,
+    manifest_path: Path,
+    index: int,
+    entry: object,
+    seen_repositories: set[str],
+    issues: list[str],
+) -> None:
+    if not isinstance(entry, dict):
+        issues.append(f"{manifest_path}: repositories[{index}] must be an object")
+        return
+
+    repository = _append_source_manifest_repository_identity_issues(
+        manifest_path=manifest_path,
+        index=index,
+        entry=entry,
+        seen_repositories=seen_repositories,
+        issues=issues,
+    )
+    repo_native_path = _validate_source_manifest_repository_posture(
+        manifest_path=manifest_path,
+        index=index,
+        entry=entry,
+        issues=issues,
+    )
+
+    source_mode = entry.get("source_mode")
+    catalog_inclusion = entry.get("catalog_inclusion")
+    platform_paths = entry.get("platform_declaration_paths")
+    platform_paths_valid = _validate_platform_declaration_paths(
+        manifest_path=manifest_path,
+        index=index,
+        platform_paths=platform_paths,
+        issues=issues,
+    )
+    if (
+        platform_paths_valid
+        and catalog_inclusion == "included"
+        and source_mode == "platform_contract_mirror"
+        and not platform_paths
+    ):
+        issues.append(
+            f"{manifest_path}: repositories[{index}] included platform-mirror repositories must list platform declaration paths"
+        )
+    if source_mode == "repo_native":
+        _validate_repo_native_source_directory(
+            manifest_path=manifest_path,
+            index=index,
+            repository=repository,
+            repo_native_path=repo_native_path,
+            repo_native_status=entry.get("repo_native_status"),
+            issues=issues,
+        )
+    if platform_paths_valid:
+        _validate_platform_declaration_path_entries(
+            manifest_path=manifest_path,
+            index=index,
+            platform_paths=platform_paths,
+            issues=issues,
+        )
+
+
+def validate_source_manifest(
+    manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+) -> list[str]:
+    manifest = _load_json(manifest_path)
+    issues: list[str] = []
+    _validate_source_manifest_identity(
+        manifest_path=manifest_path,
+        manifest=manifest,
+        issues=issues,
+    )
+
     repositories = manifest.get("repositories")
     if not isinstance(repositories, list) or not repositories:
         issues.append(f"{manifest_path}: repositories must be a non-empty array")
@@ -225,87 +410,13 @@ def validate_source_manifest(
 
     seen_repositories: set[str] = set()
     for index, entry in enumerate(repositories):
-        if not isinstance(entry, dict):
-            issues.append(f"{manifest_path}: repositories[{index}] must be an object")
-            continue
-
-        repository = entry.get("repository")
-        if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(
-            repository
-        ):
-            issues.append(
-                f"{manifest_path}: repositories[{index}].repository must be a Lotus repository name"
-            )
-        elif repository in seen_repositories:
-            issues.append(
-                f"{manifest_path}: repositories contains duplicate repository {repository}"
-            )
-        else:
-            seen_repositories.add(repository)
-
-        if entry.get("source_mode") not in SOURCE_MODES:
-            issues.append(
-                f"{manifest_path}: repositories[{index}].source_mode is not governed"
-            )
-        if entry.get("catalog_inclusion") not in CATALOG_INCLUSION_STATES:
-            issues.append(
-                f"{manifest_path}: repositories[{index}].catalog_inclusion is not governed"
-            )
-        if entry.get("repo_native_status") not in REPO_NATIVE_STATES:
-            issues.append(
-                f"{manifest_path}: repositories[{index}].repo_native_status is not governed"
-            )
-
-        repo_native_path = entry.get("repo_native_declaration_path")
-        if (
-            not isinstance(repo_native_path, str)
-            or repo_native_path != "contracts/domain-data-products"
-        ):
-            issues.append(
-                f"{manifest_path}: repositories[{index}].repo_native_declaration_path must be contracts/domain-data-products"
-            )
-
-        source_mode = entry.get("source_mode")
-        catalog_inclusion = entry.get("catalog_inclusion")
-        repo_native_status = entry.get("repo_native_status")
-        platform_paths = entry.get("platform_declaration_paths")
-        if not isinstance(platform_paths, list):
-            issues.append(
-                f"{manifest_path}: repositories[{index}].platform_declaration_paths must be an array"
-            )
-            continue
-        if (
-            catalog_inclusion == "included"
-            and source_mode == "platform_contract_mirror"
-            and not platform_paths
-        ):
-            issues.append(
-                f"{manifest_path}: repositories[{index}] included platform-mirror repositories must list platform declaration paths"
-            )
-        if source_mode == "repo_native":
-            if repo_native_status != "implemented":
-                issues.append(
-                    f"{manifest_path}: repositories[{index}] repo_native sources require repo_native_status implemented"
-                )
-            if isinstance(repository, str) and isinstance(repo_native_path, str):
-                repo_native_directory = ROOT.parent / repository / repo_native_path
-            else:
-                repo_native_directory = None
-            if repo_native_directory is not None and not repo_native_directory.exists():
-                issues.append(
-                    f"{manifest_path}: repositories[{index}] repo-native declaration directory does not exist: {repo_native_directory}"
-                )
-        for path_index, platform_path in enumerate(platform_paths):
-            if not isinstance(platform_path, str):
-                issues.append(
-                    f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] must be a string"
-                )
-                continue
-            resolved_path = ROOT / platform_path
-            if not resolved_path.exists():
-                issues.append(
-                    f"{manifest_path}: repositories[{index}].platform_declaration_paths[{path_index}] does not exist: {platform_path}"
-                )
+        _validate_source_manifest_repository_entry(
+            manifest_path=manifest_path,
+            index=index,
+            entry=entry,
+            seen_repositories=seen_repositories,
+            issues=issues,
+        )
 
     return issues
 

@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T04:44:37Z`
+Generated: `2026-06-20T04:48:23Z`
 
 ## Completed Slices
 
@@ -70,6 +70,10 @@ Generated: `2026-06-20T04:44:37Z`
     field checks, lineage bundle class checks, and required lineage-field checks are isolated
     behind focused helpers, removing the registry validator from the top measured complexity
     hotspot list while preserving RFC-0084 trust registry behavior.
+23. Domain product discovery source-manifest extraction so manifest identity, repository identity,
+    governed posture, repo-native directory, and platform declaration path checks are isolated
+    behind focused helpers, removing the source-manifest validator from the top measured complexity
+    hotspot list while preserving generated catalog freshness behavior.
 
 ## Evidence
 

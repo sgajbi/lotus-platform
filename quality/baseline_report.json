@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 300491
+    "total_source_lines": 300606
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 29,
-        "end_line": 310,
-        "line": 207,
-        "lines": 104,
-        "name": "validate_source_manifest",
-        "path": "automation/domain_product_discovery.py"
-      },
       {
         "complexity": 29,
         "end_line": 151,
@@ -192,6 +184,14 @@
         "lines": 68,
         "name": "_validate_live_summary",
         "path": "automation/review_analytics_ui_canonical_proof.py"
+      },
+      {
+        "complexity": 18,
+        "end_line": 149,
+        "line": 95,
+        "lines": 55,
+        "name": "_validate_status_attention_items",
+        "path": "automation/validate_heartbeat_contracts.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 29,
     "max_function_lines": 393,
-    "python_function_count": 1349
+    "python_function_count": 1356
   },
-  "generated_at_utc": "2026-06-20T04:44:37Z",
+  "generated_at_utc": "2026-06-20T04:48:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "510 tests collected in 0.62s"
+    "summary": "510 tests collected in 0.67s"
   }
 }
