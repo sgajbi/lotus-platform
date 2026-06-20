@@ -95,28 +95,52 @@ def _metrics_referenced_by_alerts(alert_rules: dict[str, Any]) -> set[str]:
 def _resolve_live_summary(
     qa_summary: dict[str, Any], qa_summary_path: Path
 ) -> tuple[dict[str, Any] | None, Path | None]:
-    embedded = qa_summary.get("governed_live_summary") or qa_summary.get(
+    embedded = _embedded_live_summary(qa_summary)
+    if isinstance(embedded, dict):
+        return embedded, _resolve_optional_path(
+            _embedded_live_summary_path_value(embedded, qa_summary),
+            qa_summary_path.parent,
+        )
+    if isinstance(embedded, str):
+        return _live_summary_from_path_value(
+            path_value=embedded,
+            base_dir=qa_summary_path.parent,
+        )
+
+    return _live_summary_from_path_value(
+        path_value=_fallback_live_summary_path_value(qa_summary),
+        base_dir=qa_summary_path.parent,
+    )
+
+
+def _embedded_live_summary(qa_summary: dict[str, Any]) -> object:
+    return qa_summary.get("governed_live_summary") or qa_summary.get(
         "live_validation_summary"
     )
-    if isinstance(embedded, dict):
-        path_value = (
-            embedded.get("summary_path")
-            or embedded.get("path")
-            or qa_summary.get("live_validation_summary_path")
-        )
-        return embedded, _resolve_optional_path(path_value, qa_summary_path.parent)
-    if isinstance(embedded, str):
-        summary_path = _resolve_optional_path(embedded, qa_summary_path.parent)
-        if summary_path is None or not summary_path.exists():
-            return None, summary_path
-        return _load_json(summary_path), summary_path
 
-    path_value = (
+
+def _embedded_live_summary_path_value(
+    embedded: dict[str, Any], qa_summary: dict[str, Any]
+) -> object:
+    return (
+        embedded.get("summary_path")
+        or embedded.get("path")
+        or qa_summary.get("live_validation_summary_path")
+    )
+
+
+def _fallback_live_summary_path_value(qa_summary: dict[str, Any]) -> object:
+    return (
         qa_summary.get("governed_live_summary_path")
         or qa_summary.get("live_validation_summary_path")
         or qa_summary.get("validation_summary_path")
     )
-    summary_path = _resolve_optional_path(path_value, qa_summary_path.parent)
+
+
+def _live_summary_from_path_value(
+    *, path_value: object, base_dir: Path
+) -> tuple[dict[str, Any] | None, Path | None]:
+    summary_path = _resolve_optional_path(path_value, base_dir)
     if summary_path is None or not summary_path.exists():
         return None, summary_path
     return _load_json(summary_path), summary_path

@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T09:27:51Z`
+Generated: `2026-06-20T09:33:22Z`
 
 ## Completed Slices
 
@@ -322,6 +322,10 @@ Generated: `2026-06-20T09:27:51Z`
     header pattern, and claim-taxonomy checks are isolated behind focused helpers, removing the
     supported-claim register header validator from the top measured complexity hotspot list while
     preserving supported-claim validation error behavior.
+87. Analytics UI canonical proof live-summary resolver extraction so embedded summary selection,
+    embedded path lookup, fallback path lookup, and file loading are isolated behind focused
+    helpers, removing the canonical proof live-summary resolver from the top measured complexity
+    hotspot list while preserving RFC-0108 canonical proof review behavior.
 
 ## Evidence
 

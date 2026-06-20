@@ -11,6 +11,7 @@ from automation.review_analytics_ui_canonical_proof import (
     CANONICAL_PORTFOLIO_ID,
     EXPECTED_SCREENSHOT_COUNT,
     ReviewInputs,
+    _resolve_live_summary,
     review_canonical_proof,
 )
 
@@ -254,3 +255,46 @@ def test_canonical_proof_review_rejects_unimplemented_alert_metric(
         "alert rules reference unimplemented metrics" in error
         for error in review["errors"]
     )
+
+
+def test_live_summary_resolver_supports_embedded_summary(tmp_path: Path) -> None:
+    summary_path = tmp_path / "embedded-live-summary.json"
+    qa_summary_path = tmp_path / "qa-summary.json"
+    live_summary = {
+        "summary_path": str(summary_path),
+        "portfolioId": CANONICAL_PORTFOLIO_ID,
+    }
+
+    resolved_summary, resolved_path = _resolve_live_summary(
+        {"governed_live_summary": live_summary},
+        qa_summary_path,
+    )
+
+    assert resolved_summary is live_summary
+    assert resolved_path == summary_path
+
+
+def test_live_summary_resolver_loads_embedded_path(tmp_path: Path) -> None:
+    qa_summary_path = tmp_path / "qa-summary.json"
+    live_summary_path = tmp_path / "live-validation-summary.json"
+    _write_json(live_summary_path, {"portfolioId": CANONICAL_PORTFOLIO_ID})
+
+    resolved_summary, resolved_path = _resolve_live_summary(
+        {"live_validation_summary": live_summary_path.name},
+        qa_summary_path,
+    )
+
+    assert resolved_summary == {"portfolioId": CANONICAL_PORTFOLIO_ID}
+    assert resolved_path == live_summary_path
+
+
+def test_live_summary_resolver_reports_missing_fallback_path(tmp_path: Path) -> None:
+    qa_summary_path = tmp_path / "qa-summary.json"
+
+    resolved_summary, resolved_path = _resolve_live_summary(
+        {"validation_summary_path": "missing-live-summary.json"},
+        qa_summary_path,
+    )
+
+    assert resolved_summary is None
+    assert resolved_path == ROOT / "missing-live-summary.json"
