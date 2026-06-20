@@ -415,6 +415,65 @@ def _validate_protected_feature_statuses(
             )
 
 
+def _matrix_feature_implementation_rule(
+    *,
+    feature_key: str,
+    lifecycle_status: object,
+) -> str | None:
+    if (
+        lifecycle_status in SLICE_12_OR_LATER_STATUSES
+        and feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS
+    ):
+        return "Slice 12 partial feature"
+    if (
+        lifecycle_status in SLICE_13_OR_LATER_STATUSES
+        and feature_key in _required_slice_13_features(lifecycle_status)
+    ):
+        return "Slice 13 feature"
+    if (
+        lifecycle_status in SLICE_15_OR_LATER_STATUSES
+        and feature_key == IMPLEMENTED_SLICE_15_FEATURE_KEY
+    ):
+        return "Slice 15 feature"
+    if (
+        lifecycle_status in SLICE_16_OR_LATER_STATUSES
+        and feature_key
+        in {IMPLEMENTED_SLICE_15_FEATURE_KEY, IMPLEMENTED_SLICE_16_FEATURE_KEY}
+    ):
+        return "Slice 16 platform feature"
+    if (
+        lifecycle_status in SLICE_17_OR_LATER_STATUSES
+        and feature_key == IMPLEMENTED_SLICE_17_FEATURE_KEY
+    ):
+        return "Slice 17 feature"
+    if (
+        lifecycle_status == SLICE_18_LIFECYCLE_STATUS
+        and feature_key == IMPLEMENTED_SLICE_18_FEATURE_KEY
+    ):
+        return "Slice 18 feature"
+    return None
+
+
+def _validate_matrix_feature_status(
+    *,
+    errors: list[str],
+    feature_key: str,
+    status: str | None,
+    lifecycle_status: object,
+) -> None:
+    implementation_rule = _matrix_feature_implementation_rule(
+        feature_key=feature_key,
+        lifecycle_status=lifecycle_status,
+    )
+    if implementation_rule is not None:
+        if status != "implemented":
+            errors.append(f"{feature_key}: {implementation_rule} must be implemented")
+        return
+
+    if status != "planned":
+        errors.append(f"{feature_key}: ecosystem feature must remain planned")
+
+
 def _validate_matrix_feature_statuses(
     errors: list[str],
     statuses: dict[str, str],
@@ -429,57 +488,12 @@ def _validate_matrix_feature_statuses(
             IMPLEMENTED_SLICE_11_FEATURE_KEY,
         }:
             continue
-        if (
-            lifecycle_status in SLICE_12_OR_LATER_STATUSES
-            and feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(
-                    f"{feature_key}: Slice 12 partial feature must be implemented"
-                )
-            continue
-        if (
-            lifecycle_status in SLICE_13_OR_LATER_STATUSES
-            and feature_key in _required_slice_13_features(lifecycle_status)
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(
-                    f"{feature_key}: Slice 13 feature must be implemented"
-                )
-            continue
-        if (
-            lifecycle_status in SLICE_15_OR_LATER_STATUSES
-            and feature_key == IMPLEMENTED_SLICE_15_FEATURE_KEY
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(f"{feature_key}: Slice 15 feature must be implemented")
-            continue
-        if (
-            lifecycle_status in SLICE_16_OR_LATER_STATUSES
-            and feature_key
-            in {IMPLEMENTED_SLICE_15_FEATURE_KEY, IMPLEMENTED_SLICE_16_FEATURE_KEY}
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(
-                    f"{feature_key}: Slice 16 platform feature must be implemented"
-                )
-            continue
-        if (
-            lifecycle_status in SLICE_17_OR_LATER_STATUSES
-            and feature_key == IMPLEMENTED_SLICE_17_FEATURE_KEY
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(f"{feature_key}: Slice 17 feature must be implemented")
-            continue
-        if (
-            lifecycle_status == SLICE_18_LIFECYCLE_STATUS
-            and feature_key == IMPLEMENTED_SLICE_18_FEATURE_KEY
-        ):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(f"{feature_key}: Slice 18 feature must be implemented")
-            continue
-        if statuses.get(feature_key) != "planned":
-            errors.append(f"{feature_key}: ecosystem feature must remain planned")
+        _validate_matrix_feature_status(
+            errors=errors,
+            feature_key=feature_key,
+            status=statuses.get(feature_key),
+            lifecycle_status=lifecycle_status,
+        )
 
 
 def _validate_supported_features(

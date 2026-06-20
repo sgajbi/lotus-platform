@@ -608,6 +608,9 @@ Generated: `{baseline["generated_at_utc"]}`
     counts, source-read errors, suppression decisions, and missing-source attention invariants are
     isolated behind focused helpers, removing the status validator from the top measured complexity
     hotspot list while preserving RFC-0095 heartbeat behavior.
+36. Analytics ecosystem matrix feature-status extraction so lifecycle-to-feature implementation
+    rules and per-feature status checks are isolated behind focused helpers, lowering the highest
+    measured complexity hotspot while preserving RFC-0108 ecosystem completion behavior.
 
 ## Evidence
 
