@@ -28,7 +28,13 @@ Before making a quality signal blocking, confirm:
 5. the gate is fast enough for its intended lane,
 6. focused unit tests cover pass and fail behavior,
 7. quality artifacts and scorecards will reflect the new truth,
-8. the PR evidence will show the command that developers and agents should run.
+8. the PR evidence will show the command that developers and agents should run,
+9. the blocking command does not create or rewrite durable report artifacts in a clean checkout.
+
+When the same scanner has both blocking and evidence-producing modes, keep those entrypoints
+separate. Wire the clean blocking target into `make check`, `make ci`, and GitHub lanes; reserve
+report artifacts for explicit report-only commands used by scorecards, RFC proof, or review
+evidence.
 
 Prefer promoting clean, deterministic inventories with zero accepted findings first, such as:
 

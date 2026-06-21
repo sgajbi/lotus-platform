@@ -228,6 +228,11 @@ Releasability. Main releasability additionally retains coverage evidence plus th
 and release metadata manifest required by
 `platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`.
 
+Blocking scaffold gates must not create or rewrite durable report artifacts in a clean checkout.
+For example, `make architecture-boundary-gate` runs in blocking mode and should leave the worktree
+clean when it passes or fails. Generate review evidence explicitly with the matching report command
+instead.
+
 It also starts with report-only quality evidence:
 
 1. `make architecture-boundary-report`

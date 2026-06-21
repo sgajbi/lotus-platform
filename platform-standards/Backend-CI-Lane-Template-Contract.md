@@ -96,6 +96,11 @@ New backend service scaffolds must include these repo-native report-only command
 1. `make architecture-boundary-report`
 2. `make quality-baseline`
 
+Blocking commands wired into `make check`, `make ci`, Feature Lane, PR Merge Gate, or Main
+Releasability must not create or rewrite durable report artifacts in a clean checkout. Report
+artifacts belong behind explicit report-only commands so local preflight and CI gates remain
+repeatable and worktree-clean.
+
 These commands must not become blocking CI gates until `lotus-ci-enforcement-governance` confirms
 the signal is measured, deterministic, low-noise, lane-appropriate, and backed by an exception
 policy.
