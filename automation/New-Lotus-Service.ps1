@@ -84,6 +84,28 @@ function Get-ServiceProfileDescription {
   }
 }
 
+function Normalize-ScaffoldStringList {
+  param([string[]]$Values)
+
+  $normalized = New-Object System.Collections.Generic.List[string]
+  foreach ($value in $Values) {
+    if ([string]::IsNullOrWhiteSpace($value)) {
+      continue
+    }
+    foreach ($item in ($value -split ",")) {
+      $trimmed = $item.Trim()
+      if (-not [string]::IsNullOrWhiteSpace($trimmed) -and -not $normalized.Contains($trimmed)) {
+        $normalized.Add($trimmed) | Out-Null
+      }
+    }
+  }
+  return @($normalized.ToArray())
+}
+
+$UpstreamDependencies = Normalize-ScaffoldStringList -Values $UpstreamDependencies
+$DownstreamDependencies = Normalize-ScaffoldStringList -Values $DownstreamDependencies
+$RequiredLogPatterns = Normalize-ScaffoldStringList -Values $RequiredLogPatterns
+
 function Sync-AgentOperatingContract {
   param(
     [string]$PlatformRoot,
@@ -273,6 +295,142 @@ function Add-TaskProfileTask {
   $profile.tasks += $Task
 }
 
+function Convert-ServiceNameToRepoPathVariable {
+  param([string]$RepoName)
+
+  return (($RepoName.ToUpperInvariant() -replace "[^A-Z0-9]", "_") + "_REPO_PATH")
+}
+
+function Register-AgentOperatingContractRepository {
+  param(
+    [string]$PlatformRoot,
+    [string]$RepoName
+  )
+
+  $syncScriptPath = Join-Path $PlatformRoot "automation/Sync-AgentOperatingContract.ps1"
+  if (-not (Test-Path $syncScriptPath)) {
+    return
+  }
+
+  $content = Get-Content -Raw $syncScriptPath
+  if ($content.Contains("`"$RepoName`"")) {
+    return
+  }
+
+  $archiveLineWithComma = '    "lotus-archive",'
+  $archiveLine = '    "lotus-archive"'
+  if ($content.Contains($archiveLineWithComma)) {
+    $content = $content.Replace($archiveLineWithComma, "$archiveLineWithComma`n    `"$RepoName`",")
+  }
+  elseif ($content.Contains($archiveLine)) {
+    $content = $content.Replace($archiveLine, "$archiveLine,`n    `"$RepoName`"")
+  }
+  else {
+    return
+  }
+
+  Set-Content -Path $syncScriptPath -Value $content
+  Write-Host "Updated automation/Sync-AgentOperatingContract.ps1 with $RepoName"
+}
+
+function Register-PlatformDevIngress {
+  param(
+    [string]$PlatformRoot,
+    [string]$RepoName,
+    [string]$RepoHostName,
+    [int]$RepoPort
+  )
+
+  $platformStackRoot = Join-Path $PlatformRoot "platform-stack"
+  if (-not (Test-Path $platformStackRoot)) {
+    return
+  }
+
+  $hostname = "$RepoHostName.dev.lotus"
+  $hostsPath = Join-Path $platformStackRoot "dev-ingress/hosts.example"
+  if (Test-Path $hostsPath) {
+    $hostsText = Get-Content -Raw $hostsPath
+    $hostLine = "127.0.0.1 $hostname"
+    if ($hostsText -notmatch [regex]::Escape($hostLine)) {
+      $hostsText = $hostsText.TrimEnd("`r", "`n") + "`n$hostLine`n"
+      Set-Content -Path $hostsPath -Value $hostsText
+      Write-Host "Updated platform-stack/dev-ingress/hosts.example with $hostname"
+    }
+  }
+
+  $caddyPath = Join-Path $platformStackRoot "dev-ingress/Caddyfile"
+  if (Test-Path $caddyPath) {
+    $caddyText = Get-Content -Raw $caddyPath
+    if ($caddyText -notmatch [regex]::Escape("http://$hostname")) {
+      $route = "http://$hostname {`n  reverse_proxy ${RepoName}:$RepoPort`n}`n"
+      $caddyText = $caddyText.TrimEnd("`r", "`n") + "`n`n$route"
+      Set-Content -Path $caddyPath -Value $caddyText
+      Write-Host "Updated platform-stack/dev-ingress/Caddyfile with $hostname"
+    }
+  }
+
+  $directHostCaddyPath = Join-Path $platformStackRoot "dev-ingress/Caddyfile.direct-host"
+  if (Test-Path $directHostCaddyPath) {
+    $directHostCaddyText = Get-Content -Raw $directHostCaddyPath
+    if ($directHostCaddyText -notmatch [regex]::Escape("http://$hostname")) {
+      $directHostRoute = "http://$hostname {`n`t reverse_proxy host.docker.internal:$RepoPort`n}`n"
+      $directHostCaddyText = $directHostCaddyText.TrimEnd("`r", "`n") + "`n`n$directHostRoute"
+      Set-Content -Path $directHostCaddyPath -Value $directHostCaddyText
+      Write-Host "Updated platform-stack/dev-ingress/Caddyfile.direct-host with $hostname"
+    }
+  }
+
+  $composePath = Join-Path $platformStackRoot "docker-compose.yml"
+  if (Test-Path $composePath) {
+    $composeText = Get-Content -Raw $composePath
+    if ($composeText -notmatch "(?m)^  ${RepoName}:$") {
+      $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+      $repoPathExpression = '${' + $repoPathVariable + '}'
+      $serviceBlock = @"
+  ${RepoName}:
+    build:
+      context: $repoPathExpression
+      dockerfile: Dockerfile
+    environment:
+      OTEL_SERVICE_NAME: $RepoName
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:$RepoPort/health/ready', timeout=5)"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    logging: *default-logging
+
+"@
+      if ($composeText.Contains("  bff:`r`n")) {
+        $composeText = $composeText.Replace("  bff:`r`n", "$serviceBlock  bff:`r`n")
+      }
+      elseif ($composeText.Contains("  bff:`n")) {
+        $composeText = $composeText.Replace("  bff:`n", "$serviceBlock  bff:`n")
+      }
+      if ($composeText -notmatch [regex]::Escape("      ${RepoName}:`n        condition: service_healthy")) {
+        $dependsBlock = "      ${RepoName}:`n        condition: service_healthy`n"
+        $composeText = $composeText -replace "      prometheus:\r?\n        condition: service_started", "$dependsBlock      prometheus:`n        condition: service_started"
+      }
+      Set-Content -Path $composePath -Value $composeText
+      Write-Host "Updated platform-stack/docker-compose.yml with $RepoName"
+    }
+  }
+
+  $envExamplePath = Join-Path $platformStackRoot ".env.example"
+  if (Test-Path $envExamplePath) {
+    $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+    $envText = Get-Content -Raw $envExamplePath
+    if ($envText -notmatch [regex]::Escape($repoPathVariable)) {
+      $envLine = "$repoPathVariable=c:/Users/Sandeep/projects/$RepoName"
+      $envText = $envText.TrimEnd("`r", "`n") + "`n$envLine`n"
+      Set-Content -Path $envExamplePath -Value $envText
+      Write-Host "Updated platform-stack/.env.example with $repoPathVariable"
+    }
+  }
+}
+
 function Register-PlatformContextAndAutomation {
   param(
     [string]$PlatformRoot,
@@ -285,9 +443,12 @@ function Register-PlatformContextAndAutomation {
     [string[]]$RepoUpstreamDependencies,
     [string[]]$RepoDownstreamDependencies,
     [string]$RepoHostName,
+    [int]$RepoPort,
     [string[]]$RepoLogPatterns,
     [string]$GithubRepo
   )
+
+  Register-AgentOperatingContractRepository -PlatformRoot $PlatformRoot -RepoName $RepoName
 
   $manifestPath = Join-Path $PlatformRoot "context/lotus-context-manifest.json"
   if (Test-Path $manifestPath) {
@@ -340,6 +501,10 @@ function Register-PlatformContextAndAutomation {
       $qaMatrix | ConvertTo-Json -Depth 12 | Set-Content $qaMatrixPath
       Write-Host "Updated automation/qa-matrix.json with $RepoName"
     }
+  }
+
+  if ($RepoHostName) {
+    Register-PlatformDevIngress -PlatformRoot $PlatformRoot -RepoName $RepoName -RepoHostName $RepoHostName -RepoPort $RepoPort
   }
 
   $taskProfilesPath = Join-Path $PlatformRoot "automation/task-profiles.json"
@@ -595,22 +760,24 @@ $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate 
 Set-Content $makefilePath $makefile
 
 $runtimeDependencies = [ordered]@{
-  "fastapi" = "0.133.0"
-  "uvicorn" = "0.41.0"
-  "pydantic" = "2.12.0"
-  "pydantic-settings" = "2.13.0"
-  "prometheus-fastapi-instrumentator" = "7.1.0"
-  "httpx" = "0.28.0"
+  "fastapi" = "0.138.0"
+  "starlette" = "1.3.1"
+  "uvicorn" = "0.49.0"
+  "pydantic" = "2.13.4"
+  "pydantic-settings" = "2.14.2"
+  "prometheus-fastapi-instrumentator" = "8.0.0"
+  "httpx" = "0.28.1"
 }
 
 $developmentDependencies = [ordered]@{
-  "ruff" = "0.15.0"
-  "mypy" = "1.19.1"
-  "pytest" = "9.0.3"
-  "pytest-asyncio" = "1.3.0"
+  "ruff" = "0.15.18"
+  "mypy" = "2.1.0"
+  "pytest" = "9.1.1"
+  "pytest-asyncio" = "1.4.0"
   "pytest-cov" = "7.1.0"
-  "coverage" = "7.13.5"
-  "pip-audit" = "2.10.0"
+  "httpx2" = "2.4.0"
+  "coverage" = "7.14.2"
+  "pip-audit" = "2.10.1"
 }
 
 $runtimeDependencyLines = $runtimeDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
@@ -643,6 +810,9 @@ target-version = "py312"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+filterwarnings = [
+  "error::starlette.testclient.StarletteDeprecationWarning",
+]
 "@
 Set-Content -Path (Join-Path $target "pyproject.toml") -Value $pyproject
 
@@ -679,6 +849,7 @@ $mainPy = @"
 from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from prometheus_fastapi_instrumentator import Instrumentator
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.errors import problem_response
 from app.middleware.correlation import CorrelationIdMiddleware
 from app.observability import configure_logging, log_event
@@ -707,6 +878,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         code="invalid_request",
         title="Invalid request",
         detail="Request validation failed. Correct the request fields and retry.",
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
+    log_event(
+        "request.http_error",
+        service=SERVICE_NAME,
+        path=str(request.url.path),
+        method=request.method,
+        status_code=exc.status_code,
+    )
+    return problem_response(
+        status_code=exc.status_code,
+        code="request_rejected",
+        title="Request rejected",
+        detail="The service rejected the request. Correct the request or contact support with the correlation id.",
     )
 
 
@@ -1862,13 +2050,24 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/endpoint_certification_gate.py") -Value $endpointCertificationGate
 
+$profileDescriptionPrefix = (Get-ServiceProfileDescription -Profile $ServiceProfile).Split('.')[0]
 $unitTest = @"
+from app.application.service_profile import current_service_profile
+from app.domain.service_profile import DEFAULT_SERVICE_PROFILE, ServiceProfile
 from app.errors import ProblemDetails
 from app.main import SERVICE_NAME
 
 
 def test_service_name_is_lotus_prefixed() -> None:
     assert SERVICE_NAME.startswith("lotus-")
+
+
+def test_service_profile_is_domain_authoritative() -> None:
+    profile = current_service_profile()
+    assert profile is DEFAULT_SERVICE_PROFILE
+    assert profile.name == "$ServiceProfile"
+    assert "$profileDescriptionPrefix" in profile.description
+    assert ServiceProfile(name=profile.name, description=profile.description) == profile
 
 
 def test_problem_details_are_product_safe() -> None:
@@ -1950,7 +2149,7 @@ def test_permission_denied_response_is_product_safe() -> None:
         )
 
     response = permission_denied_response(exc_info.value)
-    body = response.body.decode("utf-8").lower()
+    body = bytes(response.body).decode("utf-8").lower()
     assert response.status_code == 403
     assert "permission_denied" in body
     assert "raw entitlement" not in body
@@ -1969,6 +2168,7 @@ from app.infrastructure.downstream_client import (
     DownstreamClientConfigurationError,
     DownstreamJsonClient,
     DownstreamServiceError,
+    build_trace_headers,
 )
 
 
@@ -1982,6 +2182,20 @@ def _client_for(handler: httpx.MockTransport) -> DownstreamJsonClient:
 def test_invalid_base_url_is_rejected() -> None:
     with pytest.raises(DownstreamClientConfigurationError):
         DownstreamClientConfig(base_url="not-a-url")
+
+
+def test_invalid_timeout_is_rejected() -> None:
+    with pytest.raises(DownstreamClientConfigurationError):
+        DownstreamClientConfig(base_url="https://upstream.example", timeout_seconds=0)
+
+
+def test_default_client_can_be_constructed_for_valid_config() -> None:
+    client = DownstreamJsonClient(DownstreamClientConfig(base_url="https://upstream.example"))
+    assert client is not None
+
+
+def test_empty_trace_headers_are_omitted() -> None:
+    assert build_trace_headers(correlation_id=None, trace_id=None) == {}
 
 
 def test_trace_headers_are_forwarded() -> None:
@@ -2007,6 +2221,15 @@ def test_timeout_maps_to_safe_upstream_error() -> None:
     assert exc_info.value.code == "upstream_timeout"
 
 
+def test_generic_http_error_maps_to_safe_upstream_error() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("connection failed", request=request)
+
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        _client_for(httpx.MockTransport(handler)).get_json("/status")
+    assert exc_info.value.code == "upstream_unavailable"
+
+
 @pytest.mark.parametrize(
     ("status_code", "expected_code"),
     [(400, "upstream_rejected_request"), (404, "upstream_rejected_request"), (500, "upstream_unavailable"), (503, "upstream_unavailable")],
@@ -2024,8 +2247,40 @@ def test_malformed_response_maps_to_safe_error() -> None:
     with pytest.raises(DownstreamServiceError) as exc_info:
         client.get_json("/status")
     assert exc_info.value.code == "upstream_malformed_response"
+
+
+def test_non_object_json_response_maps_to_safe_error() -> None:
+    client = _client_for(httpx.MockTransport(lambda request: httpx.Response(200, json=["x"])))
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        client.get_json("/status")
+    assert exc_info.value.code == "upstream_malformed_response"
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_downstream_client.py") -Value $downstreamClientTest
+
+$observabilityLoggingTest = @"
+import json
+import logging
+
+from app.observability import configure_logging, log_event
+
+
+def test_configure_logging_sets_product_safe_message_format() -> None:
+    configure_logging()
+    assert logging.getLogger().level in {logging.INFO, logging.WARNING}
+
+
+def test_log_event_emits_structured_json(caplog) -> None:  # type: ignore[no-untyped-def]
+    with caplog.at_level(logging.INFO, logger="$ServiceName"):
+        log_event("scaffold.test", service="$ServiceName", status="ok")
+
+    payload = json.loads(caplog.records[-1].message)
+    assert payload == {
+        "event": "scaffold.test",
+        "service": "$ServiceName",
+        "status": "ok",
+    }
+"@
+Set-Content -Path (Join-Path $target "tests/unit/test_observability_logging.py") -Value $observabilityLoggingTest
 
 if (Test-WriteCapableServiceProfile -Profile $ServiceProfile) {
   $idempotencyAuditTest = @"
@@ -2092,8 +2347,20 @@ def test_audit_event_allows_bounded_non_sensitive_attributes() -> None:
 }
 
 $integrationTest = @"
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.main import app
+
+
+@app.get("/__test_validation/{item_id}", include_in_schema=False)
+async def _test_validation_route(item_id: int) -> dict[str, int]:
+    return {"item_id": item_id}
+
+
+@app.get("/__test_unhandled_error", include_in_schema=False)
+async def _test_unhandled_error_route() -> None:
+    raise RuntimeError("raw internal detail")
 
 
 def test_health_endpoints() -> None:
@@ -2128,6 +2395,47 @@ def test_not_found_error_is_product_safe() -> None:
     assert response.status_code == 404
     assert "portfolio" not in response.text.lower()
     assert "holding" not in response.text.lower()
+
+
+def test_validation_error_is_product_safe() -> None:
+    client = TestClient(app)
+    response = client.get("/__test_validation/not-an-int")
+    assert response.status_code == 400
+    body = response.text.lower()
+    assert "invalid_request" in body
+    assert "not-an-int" not in body
+    assert "portfolio" not in body
+
+
+def test_unhandled_error_is_product_safe() -> None:
+    client = TestClient(app, raise_server_exceptions=False)
+    response = client.get("/__test_unhandled_error")
+    assert response.status_code == 500
+    body = response.text.lower()
+    assert "internal_error" in body
+    assert "raw internal detail" not in body
+
+
+def test_http_exception_is_product_safe() -> None:
+    @app.get("/__test_http_exception", include_in_schema=False)
+    async def _test_http_exception_route() -> None:
+        raise HTTPException(status_code=403, detail="raw entitlement detail")
+
+    client = TestClient(app)
+    response = client.get("/__test_http_exception")
+    assert response.status_code == 403
+    assert "raw entitlement detail" not in response.text.lower()
+
+
+def test_starlette_http_exception_is_product_safe() -> None:
+    @app.get("/__test_starlette_http_exception", include_in_schema=False)
+    async def _test_starlette_http_exception_route() -> None:
+        raise StarletteHTTPException(status_code=403, detail="raw entitlement detail")
+
+    client = TestClient(app)
+    response = client.get("/__test_starlette_http_exception")
+    assert response.status_code == 403
+    assert "raw entitlement detail" not in response.text.lower()
 
 
 def test_readiness_reports_draining_state() -> None:
@@ -2430,7 +2738,7 @@ Evidence must name the repository, branch, commit SHA, PR number, RFC slice, val
 endpoint or route, state-machine or lifecycle decision where applicable, supported-feature posture,
 wiki publication posture, source-contract realization, downstream realization, operational
 identifiers, and result. Do not store sensitive client, portfolio, holding, transaction,
-entitlement, request-body, response-body, trace, or correlation details here unless a later
+entitlement, raw HTTP payload, trace, or correlation details here unless a later
 security review explicitly certifies the artifact.
 "@
 Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
@@ -2497,7 +2805,7 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manif
   "source_contract_realization": [],
   "downstream_realization": [],
   "review_notes": [],
-  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
+  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, raw HTTP payload, trace, or raw support details unless a later security review explicitly certifies the artifact."
 }
 "@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"
@@ -2742,7 +3050,7 @@ if (-not $SkipAutomationRegistration) {
     }
   }
 
-  Register-PlatformContextAndAutomation -PlatformRoot $repoRoot -RepoName $repoName -RepoPathNormalized $repoPathNormalized -RepoDescription $Description -RepoBusinessRole $BusinessRole -RepoCategory $Category -RepoRuntime $PrimaryRuntime -RepoUpstreamDependencies $UpstreamDependencies -RepoDownstreamDependencies $DownstreamDependencies -RepoHostName $DevHostName -RepoLogPatterns $RequiredLogPatterns -GithubRepo "$GithubOrg/$repoName"
+  Register-PlatformContextAndAutomation -PlatformRoot $repoRoot -RepoName $repoName -RepoPathNormalized $repoPathNormalized -RepoDescription $Description -RepoBusinessRole $BusinessRole -RepoCategory $Category -RepoRuntime $PrimaryRuntime -RepoUpstreamDependencies $UpstreamDependencies -RepoDownstreamDependencies $DownstreamDependencies -RepoHostName $DevHostName -RepoPort $Port -RepoLogPatterns $RequiredLogPatterns -GithubRepo "$GithubOrg/$repoName"
 }
 
 try {

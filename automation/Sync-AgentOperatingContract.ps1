@@ -22,7 +22,8 @@ $InScopeRepositories = @(
     "lotus-report",
     "lotus-ai",
     "lotus-render",
-    "lotus-archive"
+    "lotus-archive",
+    "lotus-idea"
 )
 
 function Normalize-ContractContent {

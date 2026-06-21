@@ -117,6 +117,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "lotus-render",
         "lotus-archive",
         "lotus-ai",
+        "lotus-idea",
     }
 
     assert all(entry["repo_context_path"] == "REPOSITORY-ENGINEERING-CONTEXT.md" for entry in manifest["applications"])
@@ -132,6 +133,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "reporting-and-document-generation",
         "generated-document-archive-retrieval-retention-and-legal-hold",
         "ai-capabilities",
+        "opportunity-intelligence-and-idea-lifecycle",
     }
 
     standard_names = {entry["name"] for entry in manifest["standards_registry"]}

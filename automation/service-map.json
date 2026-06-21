@@ -316,6 +316,26 @@
                                                      ]
                                     }
                                 ]
+                  },
+                  {
+                      "name":  "lotus-idea",
+                      "pathHint":  "lotus-idea",
+                      "defaultServices":  [
+                                              "lotus-idea"
+                                          ],
+                      "rules":  [
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/",
+                                                             "tests/",
+                                                             "pyproject.toml",
+                                                             "Dockerfile"
+                                                         ],
+                                        "services":  [
+                                                         "lotus-idea"
+                                                     ]
+                                    }
+                                ]
                   }
               ]
 }

@@ -87,6 +87,7 @@ Minimum required path variables:
 - `LOTUS_CORE_REPO_PATH`
 - `LOTUS_PERFORMANCE_REPO_PATH`
 - `LOTUS_REPORT_REPO_PATH`
+- `LOTUS_IDEA_REPO_PATH`
 - `LOTUS_MANAGE_REPO_PATH`
 - `BFF_REPO_PATH`
 - `UI_REPO_PATH`
@@ -96,6 +97,7 @@ Example local values:
 - `LOTUS_CORE_REPO_PATH=C:\Users\Sandeep\projects\lotus-core`
 - `LOTUS_PERFORMANCE_REPO_PATH=C:\Users\Sandeep\projects\lotus-performance`
 - `LOTUS_REPORT_REPO_PATH=C:\Users\Sandeep\projects\lotus-report`
+- `LOTUS_IDEA_REPO_PATH=C:\Users\Sandeep\projects\lotus-idea`
 - `LOTUS_MANAGE_REPO_PATH=C:\Users\Sandeep\projects\lotus-manage`
 - `BFF_REPO_PATH=C:\Users\Sandeep\projects\lotus-gateway`
 - `UI_REPO_PATH=C:\Users\Sandeep\projects\lotus-workbench`

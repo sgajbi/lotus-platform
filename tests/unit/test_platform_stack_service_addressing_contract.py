@@ -33,6 +33,7 @@ def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports(
         "lotus-manage",
         "lotus-performance",
         "lotus-report",
+        "lotus-idea",
         "bff",
         "ui",
         "prometheus",
@@ -83,6 +84,22 @@ def test_platform_stack_wires_report_to_dedicated_postgres_and_canonical_upstrea
     ]
 
 
+def test_platform_stack_wires_idea_service_to_canonical_runtime() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    idea = compose["services"]["lotus-idea"]
+    ingress = compose["services"]["dev-ingress"]
+
+    assert idea["build"]["context"] == "${LOTUS_IDEA_REPO_PATH}"
+    assert idea["build"]["dockerfile"] == "Dockerfile"
+    assert idea["environment"]["LOTUS_CORE_QUERY_BASE_URL"] == "http://lotus-core-query:8001"
+    assert idea["environment"]["LOTUS_PERFORMANCE_BASE_URL"] == "http://lotus-performance:8000"
+    assert idea["environment"]["LOTUS_MANAGE_BASE_URL"] == "http://lotus-manage:8000"
+    assert idea["environment"]["LOTUS_REPORT_BASE_URL"] == "http://lotus-report:8300"
+    assert idea["environment"]["OTEL_SERVICE_NAME"] == "lotus-idea"
+    assert "http://127.0.0.1:8330/health/ready" in " ".join(idea["healthcheck"]["test"])
+    assert ingress["depends_on"]["lotus-idea"]["condition"] == "service_healthy"
+
+
 def test_platform_stack_debug_override_preserves_optional_direct_host_ports() -> None:
     override = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.host-ports.yml")
     services = override["services"]
@@ -107,6 +124,7 @@ def test_platform_stack_dev_ingress_routes_expected_hostnames() -> None:
         "manage.dev.lotus",
         "performance.dev.lotus",
         "report.dev.lotus",
+        "idea.dev.lotus",
         "core-query.dev.lotus",
         "core-control.dev.lotus",
         "core-ingestion.dev.lotus",
@@ -116,6 +134,7 @@ def test_platform_stack_dev_ingress_routes_expected_hostnames() -> None:
         assert hostname in caddyfile
 
     assert "reverse_proxy lotus-core-control:8002" in caddyfile
+    assert "reverse_proxy lotus-idea:8330" in caddyfile
 
 
 def test_platform_stack_hosts_example_lists_required_entries() -> None:
@@ -126,3 +145,4 @@ def test_platform_stack_hosts_example_lists_required_entries() -> None:
     assert "127.0.0.1 core-query.dev.lotus" in hosts_example
     assert "127.0.0.1 core-control.dev.lotus" in hosts_example
     assert "127.0.0.1 core-ingestion.dev.lotus" in hosts_example
+    assert "127.0.0.1 idea.dev.lotus" in hosts_example

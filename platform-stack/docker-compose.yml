@@ -26,6 +26,8 @@ services:
         condition: service_healthy
       lotus-report:
         condition: service_healthy
+      lotus-idea:
+        condition: service_healthy
       prometheus:
         condition: service_started
       grafana:
@@ -270,6 +272,29 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8300/health/ready', timeout=5)"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    logging: *default-logging
+
+  lotus-idea:
+    build:
+      context: ${LOTUS_IDEA_REPO_PATH}
+      dockerfile: Dockerfile
+    environment:
+      LOTUS_CORE_BASE_URL: http://lotus-core-control:8002
+      LOTUS_CORE_QUERY_BASE_URL: http://lotus-core-query:8001
+      LOTUS_PERFORMANCE_BASE_URL: http://lotus-performance:8000
+      LOTUS_RISK_BASE_URL: http://host.docker.internal:8130
+      LOTUS_ADVISE_BASE_URL: http://host.docker.internal:8000
+      LOTUS_MANAGE_BASE_URL: http://lotus-manage:8000
+      LOTUS_REPORT_BASE_URL: http://lotus-report:8300
+      LOTUS_AI_BASE_URL: http://host.docker.internal:8140
+      OTEL_SERVICE_NAME: lotus-idea
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8330/health/ready', timeout=5)"]
       interval: 20s
       timeout: 5s
       retries: 15

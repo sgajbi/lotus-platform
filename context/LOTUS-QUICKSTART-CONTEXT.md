@@ -49,9 +49,12 @@ The core application and service landscape is:
    The deterministic document rendering service for governed reporting artifacts.
 10. `lotus-archive`
    The generated-document archive, retrieval, retention, legal hold, and access-audit service.
-11. `lotus-ai`
+11. `lotus-idea`
+   The wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion
+   orchestration service.
+12. `lotus-ai`
    The shared AI capability service for governed AI-backed features.
-12. `lotus-platform`
+13. `lotus-platform`
     The owner of shared standards, automation, ingress, validation, CI governance, and ecosystem runbooks.
 
 ## Architecture In One Pass
@@ -143,3 +146,4 @@ Continue in this order:
 3. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when execution guidance matters
 4. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
 5. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries
+

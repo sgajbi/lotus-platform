@@ -90,7 +90,8 @@
                                                              "lotus-manage",
                                                              "lotus-report",
                                                              "lotus-render",
-                                                             "lotus-ai"
+                                                             "lotus-ai",
+                                                             "lotus-idea"
                                                          ],
                              "requires_platform_end_to_end_validation":  true
                          },
@@ -298,11 +299,39 @@
                              "repo_context_path":  "REPOSITORY-ENGINEERING-CONTEXT.md",
                              "status":  "implemented",
                              "upstream_dependencies":  [
-                                                          "lotus-report",
-                                                          "lotus-render"
+                                                           "lotus-report",
+                                                           "lotus-render"
                                                        ],
                              "downstream_dependencies":  [
                                                              "lotus-gateway"
+                                                         ],
+                             "requires_platform_end_to_end_validation":  true
+                         },
+                         {
+                             "repository":  "lotus-idea",
+                             "category":  "domain-service",
+                             "business_role":  "Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services.",
+                             "primary_runtime":  "python-fastapi",
+                             "canonical_commands":  {
+                                                        "quality":  "make ci"
+                                                    },
+                             "repo_context_path":  "REPOSITORY-ENGINEERING-CONTEXT.md",
+                             "status":  "implemented",
+                             "upstream_dependencies":  [
+                                                           "lotus-core",
+                                                           "lotus-performance",
+                                                           "lotus-risk",
+                                                           "lotus-advise",
+                                                           "lotus-manage",
+                                                           "lotus-report",
+                                                           "lotus-ai"
+                                                       ],
+                             "downstream_dependencies":  [
+                                                             "lotus-gateway",
+                                                             "lotus-workbench",
+                                                             "lotus-report",
+                                                             "lotus-advise",
+                                                             "lotus-manage"
                                                          ],
                              "requires_platform_end_to_end_validation":  true
                          }
@@ -366,6 +395,16 @@
                                      "authoritative_repository":  "lotus-ai",
                                      "composition_layers":  [
                                                                 "lotus-gateway"
+                                                            ]
+                                 },
+                                 {
+                                     "domain":  "opportunity-intelligence-and-idea-lifecycle",
+                                     "authoritative_repository":  "lotus-idea",
+                                     "composition_layers":  [
+                                                                "lotus-gateway",
+                                                                "lotus-advise",
+                                                                "lotus-manage",
+                                                                "lotus-report"
                                                             ]
                                  }
                              ],

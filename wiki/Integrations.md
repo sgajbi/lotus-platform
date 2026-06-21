@@ -14,7 +14,7 @@ automation, and runtime support.
   proposal flows target `lotus-advise` `/advisory/proposals*`, while Gateway `lotus-manage`
   consumption is limited to versioned strategic run lookup, supportability summary, and capability
   posture
-- `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-ai`
+- `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-render`, `lotus-archive`, `lotus-idea`, `lotus-ai`
   standards validation, repo checks, automation registration, and cross-app validation support
 
 ## Integration surfaces
@@ -38,3 +38,4 @@ an ecosystem, it should be reclassified and moved into `lotus-platform`.
 See:
 
 - [Legacy Core Wiki Migration Ledger](Legacy-Core-Wiki-Migration-Ledger)
+

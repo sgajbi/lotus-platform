@@ -54,3 +54,7 @@ http://archive.dev.lotus {
 http://render.dev.lotus {
 	reverse_proxy host.docker.internal:8310
 }
+
+http://idea.dev.lotus {
+	reverse_proxy host.docker.internal:8330
+}

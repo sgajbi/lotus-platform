@@ -42,6 +42,7 @@ C:\Users\<user>\projects\
   lotus-report\
   lotus-render\
   lotus-archive\
+  lotus-idea\
   lotus-ai\
   lotus-gateway\
   lotus-workbench\
@@ -77,6 +78,7 @@ $repos = @(
   "lotus-report",
   "lotus-render",
   "lotus-archive",
+  "lotus-idea",
   "lotus-ai",
   "lotus-gateway",
   "lotus-workbench"
@@ -390,3 +392,4 @@ Current automation supports:
 5. redacted JSON and Markdown readiness reports,
 6. onboarding drift controls through context validation,
 7. repository-local cross-links back to the central onboarding and ramp-up guides.
+

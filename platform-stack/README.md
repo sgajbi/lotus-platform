@@ -84,6 +84,7 @@ At minimum, set these paths in `platform-stack/.env`:
 - `LOTUS_CORE_REPO_PATH`
 - `LOTUS_PERFORMANCE_REPO_PATH`
 - `LOTUS_REPORT_REPO_PATH`
+- `LOTUS_IDEA_REPO_PATH`
 - `LOTUS_MANAGE_REPO_PATH`
 - `BFF_REPO_PATH`
 - `UI_REPO_PATH`
@@ -147,6 +148,7 @@ Canonical service identities:
 - Report readiness: `http://report.dev.lotus/health/ready`
 - Archive readiness: `http://archive.dev.lotus/health/ready`
 - Render readiness: `http://render.dev.lotus/health/ready`
+- Idea readiness: `http://idea.dev.lotus/health/ready`
 
 Report readiness is PostgreSQL-backed in the centralized stack. The `lotus-report` service uses
 the dedicated `lotus-report-postgres` service through `REPORT_JOB_LEDGER_DATABASE_URL`; do not

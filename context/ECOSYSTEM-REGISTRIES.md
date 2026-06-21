@@ -20,6 +20,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `lotus-render` | `domain-service` | Deterministic document rendering service for Lotus reporting | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-ai` | `shared-capability-service` | Shared AI capability service for governed AI-backed flows | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-archive` | `shared-capability-service` | Generated-document archive, retrieval, retention, legal hold, access audit, and document lifecycle service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
+| `lotus-idea` | `domain-service` | Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services. | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 
 ## Domain Authority Map
 
@@ -33,6 +34,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `reporting-and-document-generation` | `lotus-report` | lotus-gateway, lotus-render |
 | `generated-document-archive-retrieval-retention-and-legal-hold` | `lotus-archive` | lotus-gateway, lotus-report |
 | `ai-capabilities` | `lotus-ai` | lotus-gateway |
+| `opportunity-intelligence-and-idea-lifecycle` | `lotus-idea` | lotus-gateway, lotus-advise, lotus-manage, lotus-report |
 
 ## Standards Registry
 

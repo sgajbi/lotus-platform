@@ -58,6 +58,11 @@
                                            "id":  "bootstrap-lotus-archive",
                                            "repo":  "lotus-archive",
                                            "command":  "make install"
+                                       },
+                                       {
+                                           "id":  "bootstrap-lotus-idea",
+                                           "repo":  "lotus-idea",
+                                           "command":  "make install"
                                        }
                                    ]
                      },
@@ -124,6 +129,11 @@
                                            "id":  "lotus-archive-check",
                                            "repo":  "lotus-archive",
                                            "command":  "make check \u0026\u0026 .venv/Scripts/python.exe -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "lotus-idea-check",
+                                           "repo":  "lotus-idea",
+                                           "command":  "make check \u0026\u0026 .venv/Scripts/python.exe -m pytest tests/integration -q"
                                        }
                                    ]
                      },
@@ -185,6 +195,11 @@
                                            "id":  "lotus-archive-docker-up",
                                            "repo":  "lotus-archive",
                                            "command":  "docker compose up -d --build lotus-archive"
+                                       },
+                                       {
+                                           "id":  "lotus-idea-docker-up",
+                                           "repo":  "lotus-idea",
+                                           "command":  "docker compose up -d --build lotus-idea"
                                        }
                                    ]
                      },
@@ -245,6 +260,11 @@
                                        {
                                            "id":  "lotus-archive-ci-local",
                                            "repo":  "lotus-archive",
+                                           "command":  "make ci"
+                                       },
+                                       {
+                                           "id":  "lotus-idea-ci-local",
+                                           "repo":  "lotus-idea",
                                            "command":  "make ci"
                                        }
                                    ]
@@ -307,6 +327,11 @@
                                            "id":  "lotus-archive-docker-build",
                                            "repo":  "lotus-archive",
                                            "command":  "docker compose build lotus-archive"
+                                       },
+                                       {
+                                           "id":  "lotus-idea-docker-build",
+                                           "repo":  "lotus-idea",
+                                           "command":  "docker compose build lotus-idea"
                                        }
                                    ]
                      },
@@ -403,6 +428,11 @@
                                        {
                                            "id":  "lotus-archive-integration",
                                            "repo":  "lotus-archive",
+                                           "command":  ".venv/Scripts/python.exe -m pytest tests/integration -q"
+                                       },
+                                       {
+                                           "id":  "lotus-idea-integration",
+                                           "repo":  "lotus-idea",
                                            "command":  ".venv/Scripts/python.exe -m pytest tests/integration -q"
                                        }
                                    ]
