@@ -122,11 +122,13 @@ For newly scaffolded backend services, treat `make ci-contract-gate` as the defa
 It should remain blocking through `make lint` when it is worktree-clean and validates only concrete
 lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
 permissions, 99% merge/releasability coverage, Docker validation, release evidence,
-endpoint-certification, supported-feature, security-audit, and architecture/OpenAPI gates. Rebase
-auto-merge must use a non-`GITHUB_TOKEN` merge actor such as `LOTUS_AUTOMERGE_TOKEN`; otherwise
-GitHub suppresses the `pull_request_target.closed` event that dispatches post-merge main
-releasability proof. The generated CI contract gate should enforce the token reference, explicit
-missing-token behavior, and the merged-PR main-releasability dispatcher together.
+endpoint-certification, supported-feature, security-audit, architecture/OpenAPI gates, bounded
+job-level timeouts, and no `continue-on-error: true` in critical lanes. Rebase auto-merge must use
+a non-`GITHUB_TOKEN` merge actor such as `LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the
+`pull_request_target.closed` event that dispatches post-merge main releasability proof. The
+generated CI contract gate should enforce the token reference, explicit missing-token behavior,
+bounded workflow timeouts, no-soft-fail critical workflow posture, and the merged-PR
+main-releasability dispatcher together.
 
 ## Context And Skill Maintenance
 

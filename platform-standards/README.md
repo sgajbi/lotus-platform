@@ -77,7 +77,8 @@ This generates a production-grade backend baseline with:
 - merged-PR main releasability dispatcher for explicit post-merge evidence after auto-merge
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
-- blocking CI contract gate that protects bank-buyable lane wiring from drift
+- blocking CI contract gate that protects bank-buyable lane wiring, bounded job timeouts, and
+  no-soft-fail critical workflow posture from drift
 - layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
   `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - FastAPI app with health/readiness and metrics
