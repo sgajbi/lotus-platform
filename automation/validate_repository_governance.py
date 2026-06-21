@@ -48,42 +48,66 @@ def run_gh_json(*args: str) -> dict[str, Any] | None:
     return json.loads(completed.stdout)
 
 
+def _merge_policy_defaults() -> dict[str, bool]:
+    return {
+        "allow_auto_merge": False,
+        "allow_squash_merge": False,
+        "allow_merge_commit": False,
+        "allow_rebase_merge": False,
+    }
+
+
+def _unprotected_branch_governance() -> dict[str, Any]:
+    return {
+        "protected": False,
+        "required_checks": [],
+        "strict": False,
+        "approvals": 0,
+        "dismiss_stale_reviews": False,
+        "require_conversation_resolution": False,
+        "required_linear_history": False,
+        "allow_force_pushes": False,
+        "allow_deletions": False,
+        **_merge_policy_defaults(),
+    }
+
+
+def _feature_enabled(payload: dict[str, Any], key: str) -> bool:
+    feature = payload.get(key) or {}
+    return bool(feature.get("enabled"))
+
+
+def _pull_request_review_governance(payload: dict[str, Any]) -> dict[str, Any]:
+    review_requirements = payload.get("required_pull_request_reviews") or {}
+    return {
+        "approvals": int(review_requirements.get("required_approving_review_count") or 0),
+        "dismiss_stale_reviews": bool(review_requirements.get("dismiss_stale_reviews")),
+    }
+
+
+def _required_status_check_governance(payload: dict[str, Any]) -> dict[str, Any]:
+    required_status_checks = payload.get("required_status_checks") or {}
+    return {
+        "required_checks": sorted(required_status_checks.get("contexts") or []),
+        "strict": bool(required_status_checks.get("strict")),
+    }
+
+
 def normalize_actual_governance(payload: dict[str, Any] | None) -> dict[str, Any]:
     if payload is None:
-        return {
-            "protected": False,
-            "required_checks": [],
-            "strict": False,
-            "approvals": 0,
-            "dismiss_stale_reviews": False,
-            "require_conversation_resolution": False,
-            "required_linear_history": False,
-            "allow_force_pushes": False,
-            "allow_deletions": False,
-            "allow_auto_merge": False,
-            "allow_squash_merge": False,
-            "allow_merge_commit": False,
-            "allow_rebase_merge": False,
-        }
-
-    review_requirements = payload.get("required_pull_request_reviews") or {}
-    required_status_checks = payload.get("required_status_checks") or {}
-    required_conversation_resolution = payload.get("required_conversation_resolution") or {}
-    required_linear_history = payload.get("required_linear_history") or {}
-    allow_force_pushes = payload.get("allow_force_pushes") or {}
-    allow_deletions = payload.get("allow_deletions") or {}
+        return _unprotected_branch_governance()
 
     return {
         "protected": True,
-        "required_checks": sorted(required_status_checks.get("contexts") or []),
-        "strict": bool(required_status_checks.get("strict")),
-        "approvals": int(review_requirements.get("required_approving_review_count") or 0),
-        "dismiss_stale_reviews": bool(review_requirements.get("dismiss_stale_reviews")),
-        "require_conversation_resolution": bool(required_conversation_resolution.get("enabled")),
-        "required_linear_history": bool(required_linear_history.get("enabled")),
-        "allow_force_pushes": bool(allow_force_pushes.get("enabled")),
-        "allow_deletions": bool(allow_deletions.get("enabled")),
-        "allow_auto_merge": False,
+        **_required_status_check_governance(payload),
+        **_pull_request_review_governance(payload),
+        "require_conversation_resolution": _feature_enabled(
+            payload, "required_conversation_resolution"
+        ),
+        "required_linear_history": _feature_enabled(payload, "required_linear_history"),
+        "allow_force_pushes": _feature_enabled(payload, "allow_force_pushes"),
+        "allow_deletions": _feature_enabled(payload, "allow_deletions"),
+        **_merge_policy_defaults(),
     }
 
 

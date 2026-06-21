@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 309597
+    "total_source_lines": 309662
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 10,
-        "end_line": 87,
-        "line": 51,
-        "lines": 37,
-        "name": "normalize_actual_governance",
-        "path": "automation/validate_repository_governance.py"
-      },
       {
         "complexity": 10,
         "end_line": 117,
@@ -192,6 +184,14 @@
         "lines": 23,
         "name": "load_config",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 115,
+        "line": 97,
+        "lines": 19,
+        "name": "_issue_family",
+        "path": "automation/generate_enterprise_mesh_operating_report.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 10,
     "max_function_lines": 525,
-    "python_function_count": 1842
+    "python_function_count": 1848
   },
-  "generated_at_utc": "2026-06-21T11:55:16Z",
+  "generated_at_utc": "2026-06-21T12:04:07Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 552,
+    "collected_tests": 553,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "552 tests collected in 0.61s"
+    "summary": "553 tests collected in 1.08s"
   }
 }
