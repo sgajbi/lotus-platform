@@ -675,9 +675,11 @@ actionable, and low-noise. Prefer gates that fail early through repo-native comm
 degradation such as architecture-boundary erosion, insecure first-party patterns, duplicate
 implementation hotspots, OpenAPI/vocabulary drift, or contract-validation failures. Keep noisy or
 policy-immature metrics report-only until false positives, exceptions, and lane placement are
-settled. When a repeatable enforcement pattern is learned, update platform-owned skills, routing
-context, and local agent artifacts through the bootstrap/validation automation rather than
-hand-editing local skill copies as the source of truth.
+settled. Blocking gates must leave a clean worktree; durable report artifacts belong behind
+explicit report-only commands such as `make architecture-boundary-report` or `make quality-baseline`.
+When a repeatable enforcement pattern is learned, update platform-owned skills, routing context, and
+local agent artifacts through the bootstrap/validation automation rather than hand-editing local
+skill copies as the source of truth.
 
 For enterprise backend refactors in `lotus-platform`, start from
 `automation/generate_enterprise_backend_quality_baseline.py --write --check` and the measured

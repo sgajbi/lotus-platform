@@ -81,7 +81,8 @@ This generates a production-grade backend baseline with:
 - product-safe problem-details error scaffolding
 - structured JSON application event logging
 - OpenAPI gate script
-- report-only architecture-boundary and quality-baseline commands
+- worktree-clean blocking architecture-boundary gate plus report-only architecture-boundary and
+  quality-baseline commands for explicit evidence generation
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)

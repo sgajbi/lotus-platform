@@ -10,6 +10,10 @@ supported-feature governance, caller-context and capability-policy primitives, d
 resilience templates, write-capable idempotency/audit models, demo-claims documentation, and
 report-only architecture/quality evidence.
 
+Blocking scaffold gates such as `make architecture-boundary-gate` are designed to be worktree-clean.
+Use explicit report commands such as `make architecture-boundary-report` and `make quality-baseline`
+when an RFC, PR, scorecard, or review needs durable quality artifacts.
+
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
 evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a
