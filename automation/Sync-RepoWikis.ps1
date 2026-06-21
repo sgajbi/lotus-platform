@@ -18,6 +18,22 @@ if (($CheckOnly -and $Publish) -or (-not $CheckOnly -and -not $Publish)) {
 $platformRoot = Split-Path -Parent $PSScriptRoot
 $reposConfigPath = Join-Path $PSScriptRoot "repos.json"
 
+function Invoke-GitCommand {
+    param(
+        [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
+        [string[]]$Arguments
+    )
+
+    $output = @(& git @Arguments 2>&1)
+    $exitCode = $LASTEXITCODE
+    foreach ($line in $output) {
+        Write-Host $line
+    }
+    if ($exitCode -ne 0) {
+        throw "git command failed with exit code ${exitCode}: git $($Arguments -join ' ')"
+    }
+}
+
 function Get-RepositoryNames {
     if ($AllRepositories) {
         $repos = Get-Content -LiteralPath $reposConfigPath -Raw | ConvertFrom-Json
@@ -156,17 +172,22 @@ function Ensure-WikiClone {
     }
     if (-not (Test-Path -LiteralPath $PublishedRoot)) {
         New-Item -ItemType Directory -Force -Path (Split-Path -Parent $PublishedRoot) | Out-Null
-        & git clone $remote $PublishedRoot
+        Invoke-GitCommand clone $remote $PublishedRoot
     }
     Push-Location $PublishedRoot
     try {
-        & git fetch origin --prune
-        $branch = & git branch --show-current
+        Invoke-GitCommand fetch origin --prune
+        $branch = (& git branch --show-current)
+        if ($LASTEXITCODE -ne 0) {
+            throw "git command failed with exit code ${LASTEXITCODE}: git branch --show-current"
+        }
         if (-not $branch) {
             $branch = "master"
-            & git switch $branch
+            Invoke-GitCommand switch $branch
         }
-        & git pull --ff-only origin $branch | Out-Null
+        Invoke-GitCommand config user.email "lotus-wiki-sync@users.noreply.github.com"
+        Invoke-GitCommand config user.name "Lotus Wiki Sync"
+        Invoke-GitCommand pull --ff-only origin $branch
         return $branch
     }
     finally {
@@ -192,10 +213,10 @@ foreach ($repositoryName in Get-RepositoryNames) {
             Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $publishedRoot -Recurse -Force
             $status = @(& git status --short)
             if ($status.Count -gt 0) {
-                & git add -A
-                & git commit -m "docs: publish wiki from repo source"
+                Invoke-GitCommand add --all
+                Invoke-GitCommand commit --message "docs: publish wiki from repo source"
             }
-            & git push origin $branch
+            Invoke-GitCommand push origin $branch
         }
         finally {
             Pop-Location
