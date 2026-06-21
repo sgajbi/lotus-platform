@@ -681,6 +681,11 @@ When a repeatable enforcement pattern is learned, update platform-owned skills, 
 local agent artifacts through the bootstrap/validation automation rather than hand-editing local
 skill copies as the source of truth.
 
+For newly scaffolded backend services, CI contract gates should also protect release-evidence
+semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
+`LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the
+merged `main` commit. Do not treat a green PR Merge Gate as release evidence by itself.
+
 For enterprise backend refactors in `lotus-platform`, start from
 `automation/generate_enterprise_backend_quality_baseline.py --write --check` and the measured
 artifacts under `quality/`. Treat `quality/baseline_report.md`,
