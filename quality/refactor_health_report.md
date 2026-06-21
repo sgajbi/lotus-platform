@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T12:20:06Z`
+Generated: `2026-06-21T12:29:43Z`
 
 ## Completed Slices
 
@@ -401,6 +401,10 @@ Generated: `2026-06-21T12:20:06Z`
      loading, baseline key validation, and repo-check wiring validation are isolated behind focused
      helpers, removing the quality-surface validator from the top measured complexity hotspot list
      while adding invalid-JSON and missing-key regression coverage.
+107. Delegation evidence-ref validator extraction so governed evidence-ref type validation and
+     evidence location validation are isolated behind focused helpers, removing delegation
+     output-evidence validation from the top measured complexity hotspot list while adding empty-list
+     and path-only evidence-ref regression coverage.
 
 ## Evidence
 

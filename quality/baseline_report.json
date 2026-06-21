@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 309851
+    "total_source_lines": 310222
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 29,
         "name": "_validate_supported_feature_milestones",
         "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 306,
-        "line": 287,
-        "lines": 20,
-        "name": "_validate_output_evidence_refs",
-        "path": "automation/delegation_task_ledger.py"
       },
       {
         "complexity": 9,
@@ -131,8 +123,8 @@
       },
       {
         "complexity": 9,
-        "end_line": 423,
-        "line": 387,
+        "end_line": 450,
+        "line": 414,
         "lines": 37,
         "name": "record_main_agent_review",
         "path": "automation/delegation_task_ledger.py"
@@ -192,14 +184,22 @@
         "lines": 360,
         "name": "validate_service_addressing",
         "path": "automation/validate_service_addressing.py"
+      },
+      {
+        "complexity": 8,
+        "end_line": 625,
+        "line": 512,
+        "lines": 114,
+        "name": "run_validation",
+        "path": "automation/core_performance_cross_app_validation.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 776,
-        "line": 252,
-        "lines": 525,
+        "end_line": 801,
+        "line": 255,
+        "lines": 547,
         "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
@@ -261,9 +261,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 249,
+        "end_line": 252,
         "line": 59,
-        "lines": 191,
+        "lines": 194,
         "name": "test_repository_hygiene_standard_and_templates_exist",
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
@@ -293,9 +293,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 172,
+        "end_line": 174,
         "line": 9,
-        "lines": 164,
+        "lines": 166,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 10,
-    "max_function_lines": 525,
-    "python_function_count": 1859
+    "max_function_lines": 547,
+    "python_function_count": 1864
   },
-  "generated_at_utc": "2026-06-21T12:20:06Z",
+  "generated_at_utc": "2026-06-21T12:29:43Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -388,7 +388,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 3253,
+      "lines": 3493,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -642,7 +642,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1947,
+        "line": 2178,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 556,
+    "collected_tests": 558,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "556 tests collected in 0.56s"
+    "summary": "558 tests collected in 0.70s"
   }
 }
