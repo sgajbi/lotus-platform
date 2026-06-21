@@ -246,6 +246,48 @@ def test_analytics_ui_ecosystem_completion_rejects_all_path_regression() -> None
     )
 
 
+def test_analytics_ui_ecosystem_completion_requires_slice_10_contract_feature() -> (
+    None
+):
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if (
+            feature["feature_key"]
+            == "platform.analytics.observability.ecosystem_completion_contract"
+        ):
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        "platform.analytics.observability.ecosystem_completion_contract must be implemented after Slice 10"
+        in error
+        for error in errors
+    )
+
+
+def test_analytics_ui_ecosystem_completion_requires_slice_11_scaffold_feature() -> (
+    None
+):
+    observability = copy.deepcopy(_load_json(OBSERVABILITY_CONTRACT_PATH))
+    ecosystem = _load_json(ECOSYSTEM_CONTRACT_PATH)
+    for feature in observability["supported_feature_keys"]:
+        if (
+            feature["feature_key"]
+            == "platform.analytics.observability.scaffold_ci_enforcement"
+        ):
+            feature["status"] = "planned"
+
+    errors = _validate(observability, ecosystem)
+
+    assert any(
+        "platform.analytics.observability.scaffold_ci_enforcement must be implemented after Slice 11"
+        in error
+        for error in errors
+    )
+
+
 @pytest.mark.parametrize(
     "feature_key",
     [
