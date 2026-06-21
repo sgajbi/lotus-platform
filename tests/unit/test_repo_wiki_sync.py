@@ -271,8 +271,12 @@ def test_platform_checks_include_repo_wiki_sync_gate() -> None:
     )
 
     assert (
-        'Sync-RepoWikis.ps1") -ScriptArguments @("-CheckOnly", "-Repository", '
-        '"lotus-platform", "-AllowUnpublishedSourceChanges")'
+        '$repoWikiSyncScript = Join-Path $PSScriptRoot "Sync-RepoWikis.ps1"'
+        in repo_checks
+    )
+    assert (
+        '& $repoWikiSyncScript -CheckOnly -Repository "lotus-platform" '
+        "-AllowUnpublishedSourceChanges"
         in repo_checks
     )
     assert "-AllowUnpublishedSourceChanges" in repo_checks

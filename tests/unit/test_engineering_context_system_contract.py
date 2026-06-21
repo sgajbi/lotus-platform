@@ -391,9 +391,11 @@ def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo
         in repo_checks
     )
     assert (
-        'Invoke-CheckedPowerShellScript -ScriptPath (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -ScriptArguments @("-CheckOnly")'
+        '$agentContractScript = Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1"'
         in repo_checks
     )
+    assert "& $agentContractScript -CheckOnly" in repo_checks
+    assert 'Assert-LastExitCode "$agentContractScript -CheckOnly"' in repo_checks
     assert "ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json" in validator
     assert "all application context statuses must be `implemented`" in validator
 
@@ -469,9 +471,12 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
         in repo_checks
     )
     assert (
-        'Invoke-CheckedPowerShellScript -ScriptPath (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") '
-        '-ScriptArguments @("-CheckOnly", "-Repository", "lotus-platform", '
-        '"-AllowUnpublishedSourceChanges")'
+        '$repoWikiSyncScript = Join-Path $PSScriptRoot "Sync-RepoWikis.ps1"'
+        in repo_checks
+    )
+    assert (
+        '& $repoWikiSyncScript -CheckOnly -Repository "lotus-platform" '
+        "-AllowUnpublishedSourceChanges"
         in repo_checks
     )
 
