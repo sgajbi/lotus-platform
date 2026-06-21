@@ -75,6 +75,7 @@ This generates a production-grade backend baseline with:
 - rebase auto-merge workflow for linear, non-squash history
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
+- blocking CI contract gate that protects bank-buyable lane wiring from drift
 - layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
   `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - FastAPI app with health/readiness and metrics
@@ -83,6 +84,7 @@ This generates a production-grade backend baseline with:
 - OpenAPI gate script
 - worktree-clean blocking architecture-boundary gate plus report-only architecture-boundary and
   quality-baseline commands for explicit evidence generation
+- worktree-clean `make ci-contract-gate` command wired through `make lint`
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)

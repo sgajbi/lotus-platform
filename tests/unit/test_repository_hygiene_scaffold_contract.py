@@ -160,6 +160,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert '"downstream_realization"' in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
+    assert "scripts/ci_contract_gate.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
     assert "scripts/endpoint_certification_gate.py" in scaffold_script
     assert '[string]$ServiceProfile = ""' in scaffold_script
@@ -211,6 +212,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
+    assert "ci-contract-gate:" in makefile_template
+    assert "$(MAKE) ci-contract-gate" in makefile_template
     assert "no-sensitive-content-guard:" in makefile_template
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "supported-features-gate:" in makefile_template
@@ -277,6 +280,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     endpoint_gate = subprocess.run(
         [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    ci_contract_gate_result = subprocess.run(
+        [sys.executable, "scripts/ci_contract_gate.py"],
         cwd=repo_root,
         check=True,
         capture_output=True,
@@ -406,6 +416,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     endpoint_certification_gate = (
         repo_root / "scripts/endpoint_certification_gate.py"
     ).read_text(encoding="utf-8")
+    ci_contract_gate = (repo_root / "scripts/ci_contract_gate.py").read_text(
+        encoding="utf-8"
+    )
     architecture_boundary_gate = (
         repo_root / "scripts/architecture_boundary_gate.py"
     ).read_text(encoding="utf-8")
@@ -478,6 +491,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "ENV PIP_ROOT_USER_ACTION=ignore" in dockerfile
     assert "monetary-float-guard:" in makefile
     assert "$(MAKE) monetary-float-guard" in makefile
+    assert "ci-contract-gate:" in makefile
+    assert "$(MAKE) ci-contract-gate" in makefile
     assert "no-sensitive-content-guard:" in makefile
     assert "$(MAKE) no-sensitive-content-guard" in makefile
     assert "supported-features-gate:" in makefile
@@ -584,6 +599,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "missing endpoint certification ledger entry" in endpoint_certification_gate
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
+    assert "CI contract gate passed" in ci_contract_gate_result.stdout
+    assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
+    assert "coverage report --fail-under=99" in ci_contract_gate
+    assert "contents: write" in ci_contract_gate
     assert (
         "WARNING: quality/architecture_boundary_report.json is missing"
         in missing_architecture_quality_baseline.stdout
@@ -713,6 +732,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Service profile: `domain-service`" in readme
     assert "make architecture-boundary-report" in readme
     assert "make quality-baseline" in readme
+    assert "make ci-contract-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
     assert "API certification guide: docs/operations/api-certification.md" in readme
@@ -727,6 +747,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`src/app/domain/`: framework-free domain models" in repo_context
     assert "`src/app/resilience/`: retry, backoff, timeout" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
+    assert "`make ci-contract-gate` is blocking through `make lint`" in repo_context
     assert {
         "_Sidebar.md",
         "Home.md",
@@ -751,6 +772,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Do not downgrade current action versions" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make ci-contract-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "No business feature is supported by scaffold creation alone" in (
         repo_root / "wiki/Supported-Features.md"
     ).read_text(encoding="utf-8")
@@ -758,6 +782,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Repository: lotus-hygiene-demo" in quality_scorecard
     assert "Service profile: domain-service" in quality_scorecard
     assert "Control Area" in quality_scorecard
+    assert "make ci-contract-gate" in ci_quality_gates
     assert "Architecture" in quality_scorecard
     assert (
         "Layered package skeleton plus report-only architecture-boundary report"
