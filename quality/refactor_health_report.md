@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T04:01:47Z`
+Generated: `2026-06-21T04:11:59Z`
 
 ## Completed Slices
 
@@ -370,6 +370,10 @@ Generated: `2026-06-21T04:01:47Z`
     current-state conflict checks are isolated behind focused helpers, removing freshness-age
     validation from the top measured complexity hotspot list while adding boolean numeric-field
     hardening coverage.
+99. Shared infrastructure ownership validator extraction so lotus-core evidence loading and
+    app-local ownership checks are isolated behind focused helpers, removing the lotus-core
+    validator from the top measured complexity hotspot list while adding app-local stack guide
+    boundary-drift coverage.
 
 ## Evidence
 

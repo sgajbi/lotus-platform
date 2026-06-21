@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-21T04:01:47Z`
+Generated: `2026-06-21T04:11:59Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `306278`
+- Total source lines: `306369`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -39,22 +39,22 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1807`
+- Python functions: `1818`
 - Highest measured cyclomatic complexity: `11`
-- Largest Python function length: `410`
+- Largest Python function length: `414`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/validate_shared_infra_ownership.py | _validate_lotus_core | 127 | 10 | 98 |
 | automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
 | automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 345 | 10 | 39 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
-| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 916 | 10 | 34 |
+| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 920 | 10 | 34 |
 | automation/validate_repository_governance.py | normalize_actual_governance | 51 | 10 | 34 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_supported_feature_milestones | 368 | 10 | 29 |
 | automation/delegation_task_ledger.py | _validate_output_evidence_refs | 287 | 10 | 20 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_contract_directory | 1381 | 9 | 102 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `543`
+- Unit tests collected: `544`
 - Collection command return code: `0`
-- Collection summary: `543 tests collected in 0.96s`
+- Collection summary: `544 tests collected in 0.75s`
 
 ## Security Baseline
 

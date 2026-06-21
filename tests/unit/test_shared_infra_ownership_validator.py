@@ -18,7 +18,7 @@ def _write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def test_validate_shared_infra_ownership_accepts_expected_boundary(tmp_path: Path) -> None:
+def _write_valid_shared_infra_fixture(tmp_path: Path) -> Path:
     platform = tmp_path / "lotus-platform"
     core = tmp_path / "lotus-core"
 
@@ -102,7 +102,13 @@ def test_validate_shared_infra_ownership_accepts_expected_boundary(tmp_path: Pat
         encoding="utf-8",
     )
 
-    result = validate_shared_infra_ownership(repos_path)
+    return repos_path
+
+
+def test_validate_shared_infra_ownership_accepts_expected_boundary(tmp_path: Path) -> None:
+    result = validate_shared_infra_ownership(
+        _write_valid_shared_infra_fixture(tmp_path)
+    )
 
     assert result["result"] == "ok"
     assert result["failed_count"] == 0
@@ -148,3 +154,23 @@ def test_validate_shared_infra_ownership_flags_drift(tmp_path: Path) -> None:
     assert "platform_stack_grafana_datasource_owned_in_platform" in failed_ids
     assert "lotus_core_compose_declares_app_local_contract" in failed_ids
     assert "platform_stack_otel_config_owned_in_platform" in failed_ids
+
+
+def test_validate_shared_infra_ownership_flags_app_local_stack_guide_boundary_drift(
+    tmp_path: Path,
+) -> None:
+    repos_path = _write_valid_shared_infra_fixture(tmp_path)
+    core = tmp_path / "lotus-core"
+    _write_text(
+        core / "docs" / "operations" / "App-Local-Stack-Guide.md",
+        "canonical shared Kafka broker lifecycle\n",
+    )
+
+    result = validate_shared_infra_ownership(repos_path)
+
+    failed_ids = {check["check_id"] for check in result["checks"] if not check["passed"]}
+    assert result["result"] == "failed"
+    assert (
+        "lotus_core_app_local_stack_guide_preserves_kafka_and_telemetry_boundary"
+        in failed_ids
+    )
