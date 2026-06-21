@@ -78,6 +78,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - engineers should have links to APIs, contracts, tests, RFCs, and runbooks.
    Include diagrams where they clarify flows, upstream and downstream integrations,
    feature behavior, functional capability groupings, or non-functional posture.
+   Keep the tone polished and audience-aware: business, engineering, sales, marketing,
+   operations, demo, and support readers should each be able to find useful current-state
+   guidance without confusing implemented evidence with roadmap intent.
 14. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
@@ -124,6 +127,12 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
 27. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
    and follow-up backlog truth move with it. When no doc change is needed, record the explicit
    no-doc/no-wiki decision in PR evidence.
+28. When a slice changes implementation truth, update every durable audience surface that now
+    depends on that truth: README, repo-local wiki source, deep docs, demo/operator runbooks,
+    repo-local context, central context, scorecards, ledgers, supported-features pages, skills,
+    and AGENTS guidance as applicable. Publish the wiki after merge whenever repo-local wiki source
+    changed, and sync platform-owned skills/AGENTS through bootstrap instead of hand-editing local
+    deployed copies.
 
 ## Durable Documentation Controls
 
