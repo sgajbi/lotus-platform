@@ -28,6 +28,12 @@ documents: `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 - [Local Development Runbook](operations/Local%20Development%20Runbook.md)
 - [Lotus Repository Rename Runbook](operations/Lotus%20Repository%20Rename%20Runbook.md)
 
+## Onboarding
+
+- [Lotus Backend Service Scaffold Guide](onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
+- [Lotus Developer Onboarding](onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+- [Lotus Agent Ramp-Up](onboarding/LOTUS-AGENT-RAMP-UP.md)
+
 ## Reports
 
 - [Backend Standardization Completion Tracker](reports/Backend%20Standardization%20Completion%20Tracker.md)

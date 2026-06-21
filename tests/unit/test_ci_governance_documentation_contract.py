@@ -172,6 +172,15 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
 
 def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     standards_readme = (ROOT / "platform-standards" / "README.md").read_text(encoding="utf-8")
+    docs_readme = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
+    automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    scaffold_guide = (
+        ROOT / "docs" / "onboarding" / "LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md"
+    ).read_text(encoding="utf-8")
+    wiki_scaffold = (ROOT / "wiki" / "New-Backend-Service-Scaffold.md").read_text(
+        encoding="utf-8"
+    )
+    wiki_sidebar = (ROOT / "wiki" / "_Sidebar.md").read_text(encoding="utf-8")
     bank_buyable_contract = (
         ROOT / "platform-standards" / "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"
     ).read_text(encoding="utf-8")
@@ -197,6 +206,18 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
     assert "Repository-CI-Convergence-Gap-Audit.md" in standards_readme
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in standards_readme
+    assert "LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md" in standards_readme
+    assert "LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md" in docs_readme
+    assert "LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md" in automation_readme
+    assert "Service Profiles" in scaffold_guide
+    assert "Generated Repository Shape" in scaffold_guide
+    assert "Starting Runtime Features" in scaffold_guide
+    assert "Starting Governance And Quality Features" in scaffold_guide
+    assert "What The Scaffold Does Not Provide" in scaffold_guide
+    assert "make architecture-boundary-report" in scaffold_guide
+    assert "make quality-baseline" in scaffold_guide
+    assert "New Backend Service Scaffold" in wiki_sidebar
+    assert "Lotus Backend Service Scaffold Guide" in wiki_scaffold
 
     assert "Do not fake compliance" in bank_buyable_contract
     assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in bank_buyable_contract

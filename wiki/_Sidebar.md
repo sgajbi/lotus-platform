@@ -5,6 +5,7 @@
 - [Architecture](Architecture)
 - [Platform Surfaces](Platform-Surfaces)
 - [Getting Started](Getting-Started)
+- [New Backend Service Scaffold](New-Backend-Service-Scaffold)
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)
 - [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality)

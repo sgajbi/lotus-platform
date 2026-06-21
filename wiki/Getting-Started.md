@@ -61,6 +61,23 @@ editing:
 Use this path to avoid turning the README into a second wiki or the wiki into a second `docs/`
 tree.
 
+## New backend services
+
+Use the platform scaffold when creating a new Lotus backend repository:
+
+```powershell
+cd C:\Users\<user>\projects\lotus-platform
+powershell -ExecutionPolicy Bypass -File automation\New-Lotus-Service.ps1 `
+  -ServiceName lotus-example `
+  -Description "Example Lotus backend service" `
+  -ServiceProfile domain-service `
+  -DestinationRoot C:\Users\<user>\projects
+```
+
+See [New Backend Service Scaffold](New-Backend-Service-Scaffold) for the wiki summary and
+[Lotus Backend Service Scaffold Guide](../docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
+for the detailed generated-feature and usage guide.
+
 ## Important runtime note
 
 For canonical populated front-office validation, use `lotus-workbench`:
