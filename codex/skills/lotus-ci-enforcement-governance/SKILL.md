@@ -110,11 +110,19 @@ Prefer enforcement that blocks common agent failure modes:
 3. unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift,
 4. first-party security scanner findings and unsafe production assertions,
 5. missing contract validation for data migrations, runtime evidence, or cross-service payloads.
+6. accidental removal of Makefile or GitHub Actions lane controls that are already part of the
+   bank-buyable baseline.
 
 For agent-generated code, prefer gates that enforce "improve or preserve" rather than "barely pass":
 quality scorecards, duplicate-code inventories, architecture boundary checks, OpenAPI/vocabulary
 checks, no-sensitive-observability checks, and documentation-current-state tests should make it hard
 for agents to ship code that degrades a Lotus app while satisfying the immediate prompt.
+
+For newly scaffolded backend services, treat `make ci-contract-gate` as the default anti-drift gate.
+It should remain blocking through `make lint` when it is worktree-clean and validates only concrete
+lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
+permissions, 99% merge/releasability coverage, Docker validation, release evidence,
+endpoint-certification, supported-feature, security-audit, and architecture/OpenAPI gates.
 
 ## Context And Skill Maintenance
 

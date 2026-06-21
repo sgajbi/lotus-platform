@@ -130,6 +130,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract
     assert "Main Releasability / Validate Docker Build" in template_contract
+    assert "make ci-contract-gate" in template_contract
 
     assert "Repository-Native Command Policy" in hygiene_standard
     assert ".editorconfig" in hygiene_standard
@@ -160,6 +161,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "feature-lane.backend.template.yml" in scaffold_script
     assert "pr-merge-gate.backend.template.yml" in scaffold_script
     assert "main-releasability.backend.template.yml" in scaffold_script
+    assert "scripts/ci_contract_gate.py" in scaffold_script
     assert ".gitignore.backend.template" in scaffold_script
     assert ".dockerignore.backend.template" in scaffold_script
     assert "requirements.shared-runtime.lock.template.txt" in scaffold_script
@@ -250,6 +252,7 @@ def test_backend_lane_templates_exist_and_define_explicit_lane_names() -> None:
 
     assert "name: Remote Feature Lane" in feature_lane
     assert "Feature Lane / Tests (unit)" in feature_lane
+    assert "make lint" in feature_lane
 
     assert "name: Pull Request Merge Gate" in pr_merge_gate
     assert "PR Merge Gate / Coverage Gate (Combined)" in pr_merge_gate
