@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T12:12:20Z`
+Generated: `2026-06-21T12:20:06Z`
 
 ## Completed Slices
 
@@ -397,6 +397,10 @@ Generated: `2026-06-21T12:12:20Z`
      required-string validation are isolated behind focused helpers, removing the registry-entry
      validator from the top measured complexity hotspot list while adding malformed-registry
      regression coverage.
+106. Enterprise quality-surface validator extraction so required artifact checks, baseline JSON
+     loading, baseline key validation, and repo-check wiring validation are isolated behind focused
+     helpers, removing the quality-surface validator from the top measured complexity hotspot list
+     while adding invalid-JSON and missing-key regression coverage.
 
 ## Evidence
 

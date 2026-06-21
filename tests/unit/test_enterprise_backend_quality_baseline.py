@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import automation.generate_enterprise_backend_quality_baseline as baseline_generator
 from automation.generate_enterprise_backend_quality_baseline import (
     QUALITY_DOCS,
     build_baseline,
@@ -70,6 +71,54 @@ def test_quality_surface_is_wired_into_repo_checks_and_artifacts() -> None:
     assert "function_hotspots" in baseline
     assert "tests" in baseline
     assert validate_quality_surface() == []
+
+
+def test_quality_surface_reports_invalid_baseline_json(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    quality_dir = tmp_path / "quality"
+    quality_dir.mkdir()
+    for file_name in {
+        "baseline_report.md",
+        "quality_scorecard.md",
+        "refactor_health_report.md",
+        *QUALITY_DOCS.keys(),
+    }:
+        (quality_dir / file_name).write_text("present", encoding="utf-8")
+    (quality_dir / "baseline_report.json").write_text("{", encoding="utf-8")
+    monkeypatch.setattr(baseline_generator, "QUALITY_DIR", quality_dir)
+
+    errors = baseline_generator.validate_quality_surface()
+
+    assert any(error.startswith("Invalid quality/baseline_report.json") for error in errors)
+
+
+def test_quality_surface_reports_missing_required_baseline_keys(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    quality_dir = tmp_path / "quality"
+    quality_dir.mkdir()
+    for file_name in {
+        "baseline_report.md",
+        "quality_scorecard.md",
+        "refactor_health_report.md",
+        *QUALITY_DOCS.keys(),
+    }:
+        (quality_dir / file_name).write_text("present", encoding="utf-8")
+    (quality_dir / "baseline_report.json").write_text(
+        json.dumps({"code_size": {}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(baseline_generator, "QUALITY_DIR", quality_dir)
+
+    errors = baseline_generator.validate_quality_surface()
+
+    assert "quality/baseline_report.json missing `function_hotspots`" in errors
+    assert "quality/baseline_report.json missing `quality_tooling`" in errors
+    assert "quality/baseline_report.json missing `tests`" in errors
+    assert "quality/baseline_report.json missing `security`" in errors
 
 
 def test_quality_foundation_is_discoverable_from_docs_context_wiki_and_skill() -> None:
