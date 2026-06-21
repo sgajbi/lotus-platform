@@ -276,3 +276,13 @@ def test_platform_checks_include_repo_wiki_sync_gate() -> None:
         in repo_checks
     )
     assert "-AllowUnpublishedSourceChanges" in repo_checks
+
+
+def test_repo_wiki_sync_git_wrapper_preserves_exit_code_without_stderr_noise_failure() -> None:
+    sync_script = (ROOT / "automation" / "Sync-RepoWikis.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert '$previousErrorActionPreference = $ErrorActionPreference' in sync_script
+    assert '$ErrorActionPreference = "Continue"' in sync_script
+    assert 'if ($exitCode -ne 0)' in sync_script
