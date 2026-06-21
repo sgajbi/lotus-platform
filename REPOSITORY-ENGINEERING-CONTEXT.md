@@ -44,8 +44,10 @@ Current repository posture:
    and a refactor decision log. `automation/Invoke-PlatformRepoChecks.ps1` validates the quality
    reporting surface through `--check`.
 8. New FastAPI service scaffolds created by `automation/New-Lotus-Service.ps1` now include
-   bank-buyable quality defaults: `quality/quality_scorecard.md`, architecture rules,
-   CI-quality-gate notes, refactor decisions, README/repo-context/wiki references, and the
+   bank-buyable quality defaults: service-profile-aware README/repo-context/wiki references,
+   `quality/quality_scorecard.md`, architecture rules, CI-quality-gate notes, refactor decisions,
+   a layered `src/app/api|application|domain|ports|infrastructure|observability|security`
+   skeleton, report-only `architecture-boundary-report` and `quality-baseline` commands, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
    observability, health/readiness, and workflow baseline gates.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
