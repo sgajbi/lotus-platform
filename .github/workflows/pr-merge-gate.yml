@@ -21,6 +21,7 @@ jobs:
   workflow-lint:
     name: PR Merge Gate / Workflow Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: reviewdog/action-actionlint@v1
@@ -28,6 +29,7 @@ jobs:
   repo-contracts:
     name: PR Merge Gate / Platform Repo Contracts
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
       - name: Checkout governed domain-product source repositories

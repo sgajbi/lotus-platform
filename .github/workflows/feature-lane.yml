@@ -17,6 +17,7 @@ jobs:
   workflow-lint:
     name: Feature Lane / Workflow Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: reviewdog/action-actionlint@v1
@@ -24,6 +25,7 @@ jobs:
   repo-contracts:
     name: Feature Lane / Platform Repo Contracts
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
       - name: Checkout governed domain-product source repositories
