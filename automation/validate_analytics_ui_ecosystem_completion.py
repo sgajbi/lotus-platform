@@ -365,16 +365,45 @@ def _required_slice_13_features(lifecycle_status: object) -> set[str]:
     )
 
 
+def _require_feature_implemented(
+    errors: list[str],
+    statuses: dict[str, str],
+    *,
+    feature_key: str,
+    message: str,
+) -> None:
+    if statuses.get(feature_key) != "implemented":
+        errors.append(message)
+
+
+def _validate_feature_set_milestone(
+    errors: list[str],
+    statuses: dict[str, str],
+    *,
+    feature_keys: set[str],
+    message_suffix: str,
+) -> None:
+    for feature_key in feature_keys:
+        _require_feature_implemented(
+            errors,
+            statuses,
+            feature_key=feature_key,
+            message=f"{feature_key} {message_suffix}",
+        )
+
+
 def _validate_supported_feature_milestones(
     errors: list[str],
     statuses: dict[str, str],
     *,
     lifecycle_status: object,
 ) -> None:
-    if statuses.get(IMPLEMENTED_SLICE_10_FEATURE_KEY) != "implemented":
-        errors.append(
-            f"{IMPLEMENTED_SLICE_10_FEATURE_KEY} must be implemented after Slice 10"
-        )
+    _require_feature_implemented(
+        errors,
+        statuses,
+        feature_key=IMPLEMENTED_SLICE_10_FEATURE_KEY,
+        message=f"{IMPLEMENTED_SLICE_10_FEATURE_KEY} must be implemented after Slice 10",
+    )
     if (
         lifecycle_status in SLICE_11_OR_LATER_STATUSES
         and statuses.get(IMPLEMENTED_SLICE_11_FEATURE_KEY) != "implemented"
@@ -383,17 +412,19 @@ def _validate_supported_feature_milestones(
             f"{IMPLEMENTED_SLICE_11_FEATURE_KEY} must be implemented after Slice 11"
         )
     if lifecycle_status in SLICE_12_OR_LATER_STATUSES:
-        for feature_key in IMPLEMENTED_SLICE_12_FEATURE_KEYS:
-            if statuses.get(feature_key) != "implemented":
-                errors.append(
-                    f"{feature_key} must be implemented after Slice 12 partial proof"
-                )
+        _validate_feature_set_milestone(
+            errors,
+            statuses,
+            feature_keys=IMPLEMENTED_SLICE_12_FEATURE_KEYS,
+            message_suffix="must be implemented after Slice 12 partial proof",
+        )
     if lifecycle_status in SLICE_13_OR_LATER_STATUSES:
-        for feature_key in _required_slice_13_features(lifecycle_status):
-            if statuses.get(feature_key) != "implemented":
-                errors.append(
-                    f"{feature_key} must be implemented after Slice 13 proof"
-                )
+        _validate_feature_set_milestone(
+            errors,
+            statuses,
+            feature_keys=_required_slice_13_features(lifecycle_status),
+            message_suffix="must be implemented after Slice 13 proof",
+        )
 
 
 def _validate_protected_feature_statuses(

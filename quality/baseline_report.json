@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 310222
+    "total_source_lines": 310295
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 10,
-        "end_line": 396,
-        "line": 368,
-        "lines": 29,
-        "name": "_validate_supported_feature_milestones",
-        "path": "automation/validate_analytics_ui_ecosystem_completion.py"
-      },
       {
         "complexity": 9,
         "end_line": 1540,
@@ -192,6 +184,14 @@
         "lines": 114,
         "name": "run_validation",
         "path": "automation/core_performance_cross_app_validation.py"
+      },
+      {
+        "complexity": 8,
+        "end_line": 126,
+        "line": 14,
+        "lines": 113,
+        "name": "test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable",
+        "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 10,
+    "max_complexity": 9,
     "max_function_lines": 547,
-    "python_function_count": 1864
+    "python_function_count": 1868
   },
-  "generated_at_utc": "2026-06-21T12:29:43Z",
+  "generated_at_utc": "2026-06-21T12:39:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 558,
+    "collected_tests": 560,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "558 tests collected in 0.70s"
+    "summary": "560 tests collected in 0.83s"
   }
 }
