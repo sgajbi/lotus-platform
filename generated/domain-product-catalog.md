@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-04-19T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `70`
+- Product count: `71`
 - Dependency count: `46`
 
 ## Products
@@ -45,6 +45,7 @@ This file is generated from governed domain-data-product declarations.
 | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/liquidity-reserve-requirement |
 | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/market-data/coverage |
 | `MarketDataWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/market-series |
+| `PerformanceComponentEconomics` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance | /integration/portfolios/{portfolio_id}/performance-component-economics |
 | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/planned-withdrawal-schedule |
 | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/portfolios/{portfolio_id}/analytics/reference |
 | `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/cash-movement-summary |
