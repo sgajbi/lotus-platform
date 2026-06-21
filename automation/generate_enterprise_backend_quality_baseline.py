@@ -925,16 +925,18 @@ def write_quality_artifacts(baseline: dict[str, object]) -> None:
             path.write_text(content, encoding="utf-8")
 
 
-def validate_quality_surface() -> list[str]:
-    required_files = {
+def _required_quality_files() -> set[str]:
+    return {
         "baseline_report.json",
         "baseline_report.md",
         "quality_scorecard.md",
         "refactor_health_report.md",
         *QUALITY_DOCS.keys(),
     }
-    errors: list[str] = []
-    for file_name in sorted(required_files):
+
+
+def _validate_required_quality_files(errors: list[str]) -> None:
+    for file_name in sorted(_required_quality_files()):
         path = QUALITY_DIR / file_name
         if not path.exists():
             errors.append(f"Missing quality artifact: quality/{file_name}")
@@ -942,22 +944,48 @@ def validate_quality_surface() -> list[str]:
         if path.stat().st_size == 0:
             errors.append(f"Empty quality artifact: quality/{file_name}")
 
-    baseline_path = QUALITY_DIR / "baseline_report.json"
-    if baseline_path.exists():
-        try:
-            baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            errors.append(f"Invalid quality/baseline_report.json: {exc}")
-        else:
-            for key in ("code_size", "function_hotspots", "quality_tooling", "tests", "security"):
-                if key not in baseline:
-                    errors.append(f"quality/baseline_report.json missing `{key}`")
 
+def _load_baseline_report(errors: list[str]) -> dict[str, object] | None:
+    baseline_path = QUALITY_DIR / "baseline_report.json"
+    if not baseline_path.exists():
+        return None
+    try:
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"Invalid quality/baseline_report.json: {exc}")
+        return None
+    if not isinstance(baseline, dict):
+        errors.append("quality/baseline_report.json must be an object")
+        return None
+    return baseline
+
+
+def _validate_baseline_report_keys(
+    errors: list[str],
+    baseline: dict[str, object] | None,
+) -> None:
+    if baseline is None:
+        return
+    for key in ("code_size", "function_hotspots", "quality_tooling", "tests", "security"):
+        if key not in baseline:
+            errors.append(f"quality/baseline_report.json missing `{key}`")
+
+
+def _validate_repo_check_wiring(errors: list[str]) -> None:
     repo_checks = ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1"
-    if repo_checks.exists():
-        text = repo_checks.read_text(encoding="utf-8")
-        if "generate_enterprise_backend_quality_baseline.py --check" not in text:
-            errors.append("Platform repo checks do not validate the enterprise backend quality baseline.")
+    if not repo_checks.exists():
+        return
+    text = repo_checks.read_text(encoding="utf-8")
+    if "generate_enterprise_backend_quality_baseline.py --check" not in text:
+        errors.append("Platform repo checks do not validate the enterprise backend quality baseline.")
+
+
+def validate_quality_surface() -> list[str]:
+    errors: list[str] = []
+    _validate_required_quality_files(errors)
+    baseline = _load_baseline_report(errors)
+    _validate_baseline_report_keys(errors, baseline)
+    _validate_repo_check_wiring(errors)
     return errors
 
 
