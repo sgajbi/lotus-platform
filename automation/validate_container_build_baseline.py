@@ -63,7 +63,7 @@ def validate_container_build_baseline() -> list[str]:
         for needle in (
             'DOCKER_BUILDKIT: "1"',
             'COMPOSE_DOCKER_CLI_BUILD: "1"',
-            "docker/setup-buildx-action@v3",
+            "docker/setup-buildx-action@v4",
             "Validate Docker Build",
         ):
             _require(workflow_text, needle, workflow_name, errors)

@@ -92,13 +92,13 @@ def test_mesh_certification_workflow_checks_out_expected_sibling_layout() -> Non
     steps = _steps(workflow)
     platform_checkout = _step_by_name(workflow, "Checkout lotus-platform")
 
-    assert platform_checkout["uses"] == "actions/checkout@v6"
+    assert platform_checkout["uses"] == "actions/checkout@v7"
     assert platform_checkout["with"]["path"] == "lotus-platform"
 
     checkout_steps = {
         step["with"]["path"]: step
         for step in steps
-        if step.get("uses") == "actions/checkout@v6"
+        if step.get("uses") == "actions/checkout@v7"
         and "repository" in step.get("with", {})
     }
     assert set(checkout_steps) == set(REQUIRED_REPOS)
@@ -134,7 +134,7 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     fail_step = _step_by_name(workflow, "Fail when mesh certification fails")
 
     assert upload_step["if"] == "always()"
-    assert upload_step["uses"] == "actions/upload-artifact@v5"
+    assert upload_step["uses"] == "actions/upload-artifact@v7"
     assert "mesh-certification-status.json" in upload_step["with"]["path"]
     assert "mesh-certification-status.md" in upload_step["with"]["path"]
     assert "mesh-certification-issues.json" in upload_step["with"]["path"]

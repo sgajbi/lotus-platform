@@ -137,4 +137,4 @@ def test_feature_lane_runs_demo_readiness_certification_report_only() -> None:
     assert certification_step["continue-on-error"] is True
     assert "Invoke-PlatformDemoReadinessCertification.ps1" in certification_step["run"]
     assert upload_step["if"] == "always()"
-    assert upload_step["uses"] == "actions/upload-artifact@v5"
+    assert upload_step["uses"] == "actions/upload-artifact@v7"

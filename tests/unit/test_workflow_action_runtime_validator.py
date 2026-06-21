@@ -22,10 +22,12 @@ def test_platform_workflows_and_templates_meet_core_action_runtime_baseline() ->
 
     results = {result.workflow_path: result for result in map(validate_workflow, workflow_paths)}
 
-    assert ACTION_MAJOR_BASELINE["actions/checkout"] == 6
+    assert ACTION_MAJOR_BASELINE["actions/checkout"] == 7
     assert ACTION_MAJOR_BASELINE["actions/setup-python"] == 6
-    assert ACTION_MAJOR_BASELINE["actions/setup-node"] == 5
-    assert ACTION_MAJOR_BASELINE["actions/upload-artifact"] == 5
+    assert ACTION_MAJOR_BASELINE["actions/setup-node"] == 6
+    assert ACTION_MAJOR_BASELINE["actions/upload-artifact"] == 7
+    assert ACTION_MAJOR_BASELINE["actions/download-artifact"] == 8
+    assert ACTION_MAJOR_BASELINE["docker/setup-buildx-action"] == 4
 
     for workflow_path, result in results.items():
         assert result.ok is True, f"{workflow_path} findings: {result.findings}"

@@ -10,6 +10,11 @@ supported-feature governance, caller-context and capability-policy primitives, d
 resilience templates, write-capable idempotency/audit models, demo-claims documentation, and
 report-only architecture/quality evidence.
 
+The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
+ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
+evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a
+release metadata manifest.
+
 Detailed guide:
 
 - [Lotus Backend Service Scaffold Guide](../docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)

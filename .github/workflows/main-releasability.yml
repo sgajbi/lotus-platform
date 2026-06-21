@@ -13,44 +13,44 @@ jobs:
     name: Main Releasability / Workflow Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: reviewdog/action-actionlint@v1
 
   repo-contracts:
     name: Main Releasability / Platform Repo Contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Checkout governed domain-product source repositories
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-core
           path: _federated/lotus-core
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-performance
           path: _federated/lotus-performance
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-risk
           path: _federated/lotus-risk
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-advise
           path: _federated/lotus-advise
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-report
           path: _federated/lotus-report
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-render
           path: _federated/lotus-render
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-archive
           path: _federated/lotus-archive
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-manage
           path: _federated/lotus-manage

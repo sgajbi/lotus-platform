@@ -142,6 +142,14 @@ The generated baseline is expected to pass `make ci` immediately after scaffold 
 lower coverage, dependency, OpenAPI, supported-feature, endpoint-certification, or security gates to
 make a new app appear ready. Fix the scaffold or the generated app so the gate remains meaningful.
 
+Generated workflow templates must also pass the platform workflow action runtime baseline. Keep
+`actions/checkout`, `actions/setup-python`, `actions/upload-artifact`,
+`actions/download-artifact`, and `docker/setup-buildx-action` aligned with
+`platform-standards/Workflow-Action-Runtime-and-Version-Baseline.md`; do not accept GitHub runner
+Node-runtime deprecation warnings as harmless noise. The `Main Releasability Gate` must generate
+release evidence with the supported `cyclonedx-py` console command after `make install`, producing
+`sbom.cdx.json` and `release-evidence.json`.
+
 ## Layered Application Baseline
 
 Generated backend code starts with this package layout:
@@ -202,6 +210,11 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 6. `make test`
 7. `make ci`
 8. `make security-audit`
+
+Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
+Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
+and release metadata manifest required by
+`platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`.
 
 It also starts with report-only quality evidence:
 

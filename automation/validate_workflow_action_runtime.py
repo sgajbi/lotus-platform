@@ -15,10 +15,12 @@ WORKFLOW_GLOBS = (
     ROOT / "platform-standards" / "templates" / "workflows",
 )
 ACTION_MAJOR_BASELINE = {
-    "actions/checkout": 6,
+    "actions/checkout": 7,
     "actions/setup-python": 6,
-    "actions/setup-node": 5,
-    "actions/upload-artifact": 5,
+    "actions/setup-node": 6,
+    "actions/upload-artifact": 7,
+    "actions/download-artifact": 8,
+    "docker/setup-buildx-action": 4,
 }
 VERSION_PATTERN = re.compile(r"^(?P<action>[^@]+)@v(?P<major>\d+)$")
 

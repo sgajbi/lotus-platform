@@ -69,6 +69,9 @@ This generates a production-grade backend baseline with:
 
 - service-profile-aware README, repository context, wiki source, and quality documentation
 - explicit feature, PR merge, and main releasability workflows
+- platform-approved workflow action runtime majors for checkout, Python setup, artifact upload,
+  artifact download, and Docker Buildx setup
+- main releasability release evidence with CycloneDX SBOM and release metadata artifacts
 - merge-commit auto-merge workflow
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
