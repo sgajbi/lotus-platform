@@ -58,6 +58,10 @@ def _is_non_empty_list(value: object) -> bool:
     return isinstance(value, list) and bool(value)
 
 
+def _is_json_integer(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 def _registry_keys(registry_payload: dict[str, Any], path: tuple[str, ...]) -> set[str]:
     current: Any = registry_payload
     for key in path:
@@ -233,6 +237,49 @@ def _validate_freshness_vocabulary(
         )
 
 
+def _validate_freshness_age_seconds(
+    issues: list[str],
+    path: Path,
+    age_seconds: Any,
+) -> None:
+    if age_seconds is not None and (
+        not _is_json_integer(age_seconds) or age_seconds < 0
+    ):
+        _append_issue(issues, path, "freshness.age_seconds must be >= 0")
+
+
+def _validate_freshness_max_allowed_age_seconds(
+    issues: list[str],
+    path: Path,
+    max_allowed_age_seconds: Any,
+) -> None:
+    if max_allowed_age_seconds is not None and (
+        not _is_json_integer(max_allowed_age_seconds) or max_allowed_age_seconds < 1
+    ):
+        _append_issue(issues, path, "freshness.max_allowed_age_seconds must be >= 1")
+
+
+def _validate_current_freshness_age_conflict(
+    issues: list[str],
+    path: Path,
+    *,
+    freshness_state: Any,
+    age_seconds: Any,
+    max_allowed_age_seconds: Any,
+) -> None:
+    if (
+        freshness_state == "current"
+        and _is_json_integer(age_seconds)
+        and _is_json_integer(max_allowed_age_seconds)
+        and age_seconds > max_allowed_age_seconds
+    ):
+        _append_issue(
+            issues,
+            path,
+            "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
+        )
+
+
 def _validate_freshness_age(
     issues: list[str],
     path: Path,
@@ -241,25 +288,19 @@ def _validate_freshness_age(
     freshness_state = freshness.get("freshness_state")
     age_seconds = freshness.get("age_seconds")
     max_allowed_age_seconds = freshness.get("max_allowed_age_seconds")
-    if age_seconds is not None and (
-        not isinstance(age_seconds, int) or age_seconds < 0
-    ):
-        _append_issue(issues, path, "freshness.age_seconds must be >= 0")
-    if max_allowed_age_seconds is not None and (
-        not isinstance(max_allowed_age_seconds, int) or max_allowed_age_seconds < 1
-    ):
-        _append_issue(issues, path, "freshness.max_allowed_age_seconds must be >= 1")
-    if (
-        freshness_state == "current"
-        and isinstance(age_seconds, int)
-        and isinstance(max_allowed_age_seconds, int)
-        and age_seconds > max_allowed_age_seconds
-    ):
-        _append_issue(
-            issues,
-            path,
-            "freshness.freshness_state current conflicts with age_seconds greater than max_allowed_age_seconds",
-        )
+    _validate_freshness_age_seconds(issues, path, age_seconds)
+    _validate_freshness_max_allowed_age_seconds(
+        issues,
+        path,
+        max_allowed_age_seconds,
+    )
+    _validate_current_freshness_age_conflict(
+        issues,
+        path,
+        freshness_state=freshness_state,
+        age_seconds=age_seconds,
+        max_allowed_age_seconds=max_allowed_age_seconds,
+    )
 
 
 def _validate_freshness(
