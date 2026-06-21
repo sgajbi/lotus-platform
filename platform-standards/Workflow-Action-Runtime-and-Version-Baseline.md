@@ -37,7 +37,8 @@ Platform-owned workflows and scaffold templates must use the approved action maj
 1. older majors for these actions are not allowed in platform-owned workflows or scaffold templates,
 2. introducing a new core GitHub action into the platform baseline requires adding it to the validator contract when it becomes materially relied upon,
 3. version drift must be corrected in templates first and then in live platform-owned workflows,
-4. a runner deprecation warning for a platform-owned workflow is treated as a governance gap, not an informational-only warning.
+4. a runner deprecation warning for a platform-owned workflow is treated as a governance gap, not an informational-only warning,
+5. coverage artifact aggregation jobs that use the approved `actions/download-artifact@v8` baseline must set `NODE_OPTIONS=--no-deprecation` while that upstream action emits Node `Buffer()` deprecation noise.
 
 ## Validator Expectations
 
@@ -54,4 +55,5 @@ This standard is satisfied when:
 1. the platform owns a workflow action-version validator,
 2. the validator runs in platform repo checks,
 3. platform-owned workflows and scaffold templates are both covered,
-4. platform templates and live workflows both use the approved action majors.
+4. platform templates and live workflows both use the approved action majors,
+5. scaffold coverage aggregation jobs suppress upstream action-runtime deprecation noise without downgrading the approved action major.

@@ -153,7 +153,10 @@ release evidence with the supported `cyclonedx-py` console command after `make i
 Generated workflows set Git's default initial branch to `main` through workflow environment so
 checkout does not emit default-branch hints. Generated Dockerfiles set
 `PIP_ROOT_USER_ACTION=ignore` in controlled build stages so Docker build logs do not emit root-pip
-warnings for expected image-build installs.
+warnings for expected image-build installs. Coverage artifact aggregation jobs set
+`NODE_OPTIONS=--no-deprecation` because the current approved `actions/download-artifact@v8`
+runtime can emit an upstream Node `Buffer()` deprecation warning even when repository workflow
+configuration is otherwise current.
 
 ## Layered Application Baseline
 

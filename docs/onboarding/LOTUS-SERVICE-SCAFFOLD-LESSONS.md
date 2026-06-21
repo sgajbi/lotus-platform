@@ -51,7 +51,10 @@ solving them only in the generated app.
 12. CI logs should be warning-quiet where the repository owns the cause. Set
     workflow Git config so `actions/checkout` does not emit default-branch
     hints, and set `PIP_ROOT_USER_ACTION=ignore` in Docker build stages where
-    controlled root installs are part of the image build contract.
+    controlled root installs are part of the image build contract. Coverage
+    aggregation jobs that invoke the approved `actions/download-artifact@v8`
+    baseline should set `NODE_OPTIONS=--no-deprecation` until the upstream
+    action runtime no longer emits Node `Buffer()` deprecation noise.
 13. Governed PR completion should be linear and non-squash. Scaffolded
     repositories should enable rebase merge, disable squash and merge-commit
     completion, require branch linear history, and queue auto-merge with
