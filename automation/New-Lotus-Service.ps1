@@ -1950,7 +1950,7 @@ def test_permission_denied_response_is_product_safe() -> None:
         )
 
     response = permission_denied_response(exc_info.value)
-    body = response.body.decode("utf-8").lower()
+    body = bytes(response.body).decode("utf-8").lower()
     assert response.status_code == 403
     assert "permission_denied" in body
     assert "raw entitlement" not in body
@@ -2430,7 +2430,7 @@ Evidence must name the repository, branch, commit SHA, PR number, RFC slice, val
 endpoint or route, state-machine or lifecycle decision where applicable, supported-feature posture,
 wiki publication posture, source-contract realization, downstream realization, operational
 identifiers, and result. Do not store sensitive client, portfolio, holding, transaction,
-entitlement, request-body, response-body, trace, or correlation details here unless a later
+entitlement, raw HTTP payload, trace, or correlation details here unless a later
 security review explicitly certifies the artifact.
 "@
 Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manifest.template.json") -Value @"
@@ -2497,7 +2497,7 @@ Set-Content -Path (Join-Path $target "evidence/rfc-implementation/evidence-manif
   "source_contract_realization": [],
   "downstream_realization": [],
   "review_notes": [],
-  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, request-body, response-body, trace, or raw support details unless a later security review explicitly certifies the artifact."
+  "sensitive_content_policy": "Do not store client, holding, transaction, entitlement, raw HTTP payload, trace, or raw support details unless a later security review explicitly certifies the artifact."
 }
 "@
 Set-Content -Path (Join-Path $target ".env.example") -Value @"

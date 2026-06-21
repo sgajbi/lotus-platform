@@ -8,6 +8,10 @@ finished product, domain authority, security model, data model, or business work
 must replace placeholders with implementation-backed truth before promoting any capability as
 supported.
 
+Reusable scaffold lessons discovered during new-service creation are tracked in
+`docs/onboarding/LOTUS-SERVICE-SCAFFOLD-LESSONS.md`. Repeated lessons should be promoted into
+`automation/New-Lotus-Service.ps1` and this guide rather than fixed only in the generated app.
+
 ## When To Use It
 
 Use the scaffold when creating a new Lotus backend repository that should start from the standard
@@ -128,6 +132,11 @@ The generated repository starts with:
     Empty supported-feature registry with implementation-backed promotion policy.
 16. `evidence/rfc-implementation/`
     Machine-readable evidence-manifest template for implementation slices.
+
+For implementation-bearing RFCs with many slice evidence files, prefer a per-RFC folder under
+`docs/rfcs/`, for example
+`docs/rfcs/RFC-0002-enterprise-opportunity-intelligence-operating-layer/`. Keep the top-level
+`docs/rfcs/README.md` as the navigation index.
 
 ## Layered Application Baseline
 
