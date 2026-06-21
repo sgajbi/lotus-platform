@@ -48,3 +48,7 @@ solving them only in the generated app.
     tooling. For `cyclonedx-bom` 7.x, generate SBOM evidence with the
     `cyclonedx-py` console command from the generated virtual environment,
     not the removed `cyclonedx_py` Python module invocation.
+12. CI logs should be warning-quiet where the repository owns the cause. Set
+    workflow Git config so `actions/checkout` does not emit default-branch
+    hints, and set `PIP_ROOT_USER_ACTION=ignore` in Docker build stages where
+    controlled root installs are part of the image build contract.
