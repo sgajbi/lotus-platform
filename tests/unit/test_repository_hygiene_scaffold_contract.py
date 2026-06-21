@@ -21,6 +21,41 @@ def _powershell_executable() -> str:
     return candidate
 
 
+def _run_scaffold(
+    *,
+    destination_root: Path,
+    service_name: str,
+    service_profile: str | None = None,
+    include_mesh_placeholders: bool = False,
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    command = [
+        _powershell_executable(),
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        str(ROOT / "automation" / "New-Lotus-Service.ps1"),
+        "-ServiceName",
+        service_name,
+        "-DestinationRoot",
+        str(destination_root),
+        "-SkipAutomationRegistration",
+        "-Force",
+    ]
+    if service_profile is not None:
+        command.extend(["-ServiceProfile", service_profile])
+    if include_mesh_placeholders:
+        command.append("-IncludeMeshPlaceholders")
+    return subprocess.run(
+        command,
+        cwd=ROOT,
+        check=check,
+        capture_output=True,
+        text=True,
+    )
+
+
 def test_repository_hygiene_standard_and_templates_exist() -> None:
     standards_readme = (ROOT / "platform-standards" / "README.md").read_text(
         encoding="utf-8"
@@ -128,10 +163,25 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "src/app/infrastructure" in scaffold_script
     assert "src/app/observability" in scaffold_script
     assert "src/app/security" in scaffold_script
+    assert "src/app/resilience" in scaffold_script
+    assert "src/app/security/caller_context.py" in scaffold_script
+    assert "src/app/infrastructure/downstream_client.py" in scaffold_script
+    assert "src/app/domain/idempotency.py" in scaffold_script
+    assert "src/app/domain/audit.py" in scaffold_script
+    assert "tests/unit/test_security_caller_context.py" in scaffold_script
+    assert "tests/unit/test_downstream_client.py" in scaffold_script
+    assert "tests/unit/test_idempotency_audit.py" in scaffold_script
+    assert "docs/demo/demo-claims.md" in scaffold_script
+    assert "Status: Planned" in scaffold_script
+    assert "[switch]$IncludeMeshPlaceholders" in scaffold_script
+    assert "contracts/domain-data-products" in scaffold_script
+    assert "not_certified" in scaffold_script
     assert "scripts/architecture_boundary_gate.py" in scaffold_script
     assert "scripts/generate_quality_baseline.py" in scaffold_script
     assert "architecture-boundary-report:" in scaffold_script
-    assert "quality-baseline:" in scaffold_script
+    assert "quality-baseline: architecture-boundary-report" in scaffold_script
+    assert "architecture_boundary_report_exists" in scaffold_script
+    assert "quality/architecture_boundary_report.json is missing" in scaffold_script
     assert (
         'require_response_headers = @("x-correlation-id", "x-trace-id")'
         in scaffold_script
@@ -150,8 +200,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "endpoint-certification-gate:" in makefile_template
     assert "$(MAKE) endpoint-certification-gate" in makefile_template
     assert "architecture-boundary-report:" in makefile_template
-    assert "scripts/architecture_boundary_gate.py --mode report-only" in makefile_template
-    assert "quality-baseline:" in makefile_template
+    assert (
+        "scripts/architecture_boundary_gate.py --mode report-only" in makefile_template
+    )
+    assert "quality-baseline: architecture-boundary-report" in makefile_template
     assert "scripts/generate_quality_baseline.py" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
@@ -172,31 +224,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     destination_root = tmp_path / "generated"
     destination_root.mkdir()
     service_name = "lotus-hygiene-demo"
-    scaffold_script = ROOT / "automation" / "New-Lotus-Service.ps1"
     validator_script = ROOT / "automation" / "validate_repository_hygiene.py"
     repo_root = destination_root / service_name
     output_json = tmp_path / "repository-hygiene-validation.json"
 
-    subprocess.run(
-        [
-            _powershell_executable(),
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            str(scaffold_script),
-            "-ServiceName",
-            service_name,
-            "-DestinationRoot",
-            str(destination_root),
-            "-SkipAutomationRegistration",
-            "-Force",
-        ],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    _run_scaffold(destination_root=destination_root, service_name=service_name)
 
     subprocess.run(
         [
@@ -220,6 +252,16 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         check=True,
         capture_output=True,
         text=True,
+    )
+    missing_architecture_quality_baseline = subprocess.run(
+        [sys.executable, "scripts/generate_quality_baseline.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    missing_architecture_quality_report = json.loads(
+        (repo_root / "quality/baseline_report.json").read_text(encoding="utf-8")
     )
     architecture_gate = subprocess.run(
         [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "blocking"],
@@ -245,6 +287,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         text=True,
     )
     bad_boundary.unlink()
+    subprocess.run(
+        [sys.executable, "-m", "compileall", "-q", "src", "tests"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
@@ -271,6 +320,29 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     service_contract_tests = (
         repo_root / "tests/unit/test_service_contract.py"
+    ).read_text(encoding="utf-8")
+    security_caller_context = (
+        repo_root / "src/app/security/caller_context.py"
+    ).read_text(encoding="utf-8")
+    downstream_client = (
+        repo_root / "src/app/infrastructure/downstream_client.py"
+    ).read_text(encoding="utf-8")
+    idempotency_model = (repo_root / "src/app/domain/idempotency.py").read_text(
+        encoding="utf-8"
+    )
+    audit_model = (repo_root / "src/app/domain/audit.py").read_text(encoding="utf-8")
+    security_tests = (
+        repo_root / "tests/unit/test_security_caller_context.py"
+    ).read_text(encoding="utf-8")
+    downstream_client_tests = (
+        repo_root / "tests/unit/test_downstream_client.py"
+    ).read_text(encoding="utf-8")
+    idempotency_audit_tests = (
+        repo_root / "tests/unit/test_idempotency_audit.py"
+    ).read_text(encoding="utf-8")
+    demo_claims = (repo_root / "docs/demo/demo-claims.md").read_text(encoding="utf-8")
+    durability_standard = (
+        repo_root / "docs/standards/durability-consistency.md"
     ).read_text(encoding="utf-8")
     openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(
         encoding="utf-8"
@@ -362,7 +434,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) endpoint-certification-gate" in makefile
     assert "architecture-boundary-report:" in makefile
     assert "scripts/architecture_boundary_gate.py --mode report-only" in makefile
-    assert "quality-baseline:" in makefile
+    assert "quality-baseline: architecture-boundary-report" in makefile
     assert "scripts/generate_quality_baseline.py" in makefile
     assert "ci: lint typecheck openapi-gate" in makefile
     assert "coverage-gate:" in makefile
@@ -374,11 +446,17 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert (repo_root / "src/app/infrastructure/__init__.py").exists()
     assert (repo_root / "src/app/observability/__init__.py").exists()
     assert (repo_root / "src/app/security/__init__.py").exists()
+    assert (repo_root / "src/app/resilience/__init__.py").exists()
+    assert not (repo_root / "contracts/domain-data-products").exists()
+    assert not (repo_root / "contracts/trust-telemetry").exists()
     assert "Expected dependency flow" in app_readme
     assert 'name="domain-service"' in domain_profile
     assert "Domain-authoritative backend service" in domain_profile
     assert "current_service_profile" in application_profile
-    assert "from app.observability.logging import configure_logging, log_event" in observability_init
+    assert (
+        "from app.observability.logging import configure_logging, log_event"
+        in observability_init
+    )
     assert "include_in_schema=False" in main_py
     assert 'tags=["Health"]' in main_py
     assert 'summary="Get service health"' in main_py
@@ -403,6 +481,42 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "test_not_found_error_is_product_safe" in health_tests
     assert "test_problem_details_are_product_safe" in service_contract_tests
     assert "test_supported_features_policy_starts_unpromoted" in service_contract_tests
+    assert "CallerContext" in security_caller_context
+    assert "CapabilityPolicy" in security_caller_context
+    assert "PermissionDeniedError" in security_caller_context
+    assert "permission_denied_response" in security_caller_context
+    assert "permission_denied" in security_caller_context
+    assert "raw entitlement" in security_tests
+    assert "portfolio:write" in security_tests
+    assert "DownstreamClientConfig" in downstream_client
+    assert "build_trace_headers" in downstream_client
+    assert "upstream_timeout" in downstream_client
+    assert "upstream_rejected_request" in downstream_client
+    assert "upstream_unavailable" in downstream_client
+    assert "upstream_malformed_response" in downstream_client
+    assert "test_invalid_base_url_is_rejected" in downstream_client_tests
+    assert "test_timeout_maps_to_safe_upstream_error" in downstream_client_tests
+    assert "test_malformed_response_maps_to_safe_error" in downstream_client_tests
+    assert "IdempotencyDecision" in idempotency_model
+    assert "IdempotencyPolicy" in idempotency_model
+    assert "AuditEvent" in audit_model
+    assert "FORBIDDEN_ATTRIBUTE_KEYS" in audit_model
+    assert (
+        "test_same_key_same_payload_replays_existing_record" in idempotency_audit_tests
+    )
+    assert "test_same_key_different_payload_conflicts" in idempotency_audit_tests
+    assert "test_audit_event_rejects_sensitive_attributes" in idempotency_audit_tests
+    assert "Allowed status vocabulary" in demo_claims
+    assert "`Implemented`" in demo_claims
+    assert "`Partially implemented`" in demo_claims
+    assert "`Planned`" in demo_claims
+    assert "`Not applicable`" in demo_claims
+    assert "`Unknown - requires owner review`" in demo_claims
+    assert "Service-specific business workflow | `Planned`" in demo_claims
+    assert "Mesh certification | `Planned`" in demo_claims
+    assert "\x07" not in demo_claims
+    assert "Status: Planned" in durability_standard
+    assert "not implemented by the scaffold" in durability_standard
     assert "missing summary" in openapi_gate
     assert "missing success response example" in openapi_gate
     assert "FORBIDDEN_PATTERNS" in sensitive_content_guard
@@ -414,8 +528,23 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "missing endpoint certification ledger entry" in endpoint_certification_gate
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
+    assert (
+        "WARNING: quality/architecture_boundary_report.json is missing"
+        in missing_architecture_quality_baseline.stdout
+    )
+    assert (
+        missing_architecture_quality_report["architecture_boundary_report_exists"]
+        is False
+    )
+    assert (
+        missing_architecture_quality_report["architecture_boundary_report_status"]
+        == "missing"
+    )
     assert "Architecture boundary report passed" in architecture_gate.stdout
     assert "Wrote" in quality_baseline.stdout
+    assert "passed" in quality_baseline_markdown
+    assert "passed" in quality_baseline_report["architecture_boundary_report_status"]
+    assert quality_baseline_report["architecture_boundary_report_exists"] is True
     assert architecture_failure.returncode == 1
     assert "fastapi" in architecture_failure.stdout
     assert "Domain must stay framework-free" in architecture_boundary_gate
@@ -504,7 +633,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "endpoint-certification-ledger.json" in api_certification_doc
     assert "Source-Degraded And Reconciliation Endpoints" in api_certification_doc
     assert "explicit source-owner fields" in api_certification_doc
-    assert "source-contract and downstream consumer realization evidence" in api_certification_doc
+    assert (
+        "source-contract and downstream consumer realization evidence"
+        in api_certification_doc
+    )
     assert (
         "READY, DEGRADED, BLOCKED, and NOT_SUPPORTED examples" in api_certification_doc
     )
@@ -533,11 +665,107 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Service profile: domain-service" in quality_scorecard
     assert "Control Area" in quality_scorecard
     assert "Architecture" in quality_scorecard
-    assert "Layered package skeleton plus report-only architecture-boundary report" in quality_scorecard
+    assert (
+        "Layered package skeleton plus report-only architecture-boundary report"
+        in quality_scorecard
+    )
     assert "Security and privacy" in quality_scorecard
     assert "Observability and supportability" in quality_scorecard
     assert "`src/app/api` routers/controllers stay thin" in architecture_rules
-    assert "Run `make architecture-boundary-report` for report-only evidence" in architecture_rules
-    assert "Promote stricter gates only after the signal is measured" in ci_quality_gates
+    assert (
+        "Run `make architecture-boundary-report` for report-only evidence"
+        in architecture_rules
+    )
+    assert (
+        "Promote stricter gates only after the signal is measured" in ci_quality_gates
+    )
     assert "make quality-baseline" in ci_quality_gates
     assert "Do not use this file for aspirational claims." in refactor_decisions
+
+
+def test_scaffold_service_profiles_and_invalid_profile(tmp_path: Path) -> None:
+    destination_root = tmp_path / "profiles"
+    destination_root.mkdir()
+    profiles = {
+        "domain-service": ("lotus-profile-domain", True),
+        "experience-api": ("lotus-profile-experience", False),
+        "shared-capability-service": ("lotus-profile-shared", False),
+        "client-facing-service": ("lotus-profile-client", True),
+    }
+
+    for profile, (service_name, write_capable) in profiles.items():
+        _run_scaffold(
+            destination_root=destination_root,
+            service_name=service_name,
+            service_profile=profile,
+        )
+        repo_root = destination_root / service_name
+        readme = (repo_root / "README.md").read_text(encoding="utf-8")
+        repo_context = (repo_root / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(
+            encoding="utf-8"
+        )
+        wiki_home = (repo_root / "wiki/Home.md").read_text(encoding="utf-8")
+        domain_profile = (repo_root / "src/app/domain/service_profile.py").read_text(
+            encoding="utf-8"
+        )
+
+        assert f"Service profile: `{profile}`" in readme
+        assert f"Service profile: `{profile}`" in repo_context
+        assert f"Service profile: `{profile}`" in wiki_home
+        assert f'name="{profile}"' in domain_profile
+        assert not (repo_root / "contracts/domain-data-products").exists()
+
+        idempotency_path = repo_root / "src/app/domain/idempotency.py"
+        audit_path = repo_root / "src/app/domain/audit.py"
+        idempotency_test_path = repo_root / "tests/unit/test_idempotency_audit.py"
+        assert idempotency_path.exists() is write_capable
+        assert audit_path.exists() is write_capable
+        assert idempotency_test_path.exists() is write_capable
+
+    invalid_result = _run_scaffold(
+        destination_root=destination_root,
+        service_name="lotus-profile-invalid",
+        service_profile="unsupported-profile",
+        check=False,
+    )
+    invalid_output = invalid_result.stdout + invalid_result.stderr
+    assert invalid_result.returncode != 0
+    assert "ServiceProfile must be one of:" in invalid_output
+    assert "domain-service" in invalid_output
+    assert "experience-api" in invalid_output
+    assert "shared-capability-service" in invalid_output
+    assert "client-facing-service" in invalid_output
+
+
+def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
+    destination_root = tmp_path / "mesh"
+    destination_root.mkdir()
+    default_service = "lotus-mesh-default"
+    mesh_service = "lotus-mesh-opt-in"
+
+    _run_scaffold(destination_root=destination_root, service_name=default_service)
+    default_repo = destination_root / default_service
+    assert not (default_repo / "contracts/domain-data-products").exists()
+    assert not (default_repo / "contracts/trust-telemetry").exists()
+    assert not (default_repo / "contracts/mesh-slo").exists()
+    assert not (default_repo / "docs/operations/mesh-placeholder.md").exists()
+
+    _run_scaffold(
+        destination_root=destination_root,
+        service_name=mesh_service,
+        include_mesh_placeholders=True,
+    )
+    mesh_repo = destination_root / mesh_service
+    placeholder_paths = [
+        mesh_repo / "contracts/domain-data-products/producer-consumer-placeholder.json",
+        mesh_repo / "contracts/trust-telemetry/trust-telemetry-placeholder.json",
+        mesh_repo / "contracts/mesh-slo/slo-policy-placeholder.json",
+        mesh_repo / "contracts/mesh-access/access-policy-placeholder.json",
+        mesh_repo / "contracts/mesh-evidence/evidence-policy-placeholder.json",
+        mesh_repo / "docs/operations/mesh-placeholder.md",
+    ]
+    for placeholder_path in placeholder_paths:
+        assert placeholder_path.exists()
+        content = placeholder_path.read_text(encoding="utf-8")
+        assert "Planned" in content
+        assert "not_certified" in content or "not certified" in content

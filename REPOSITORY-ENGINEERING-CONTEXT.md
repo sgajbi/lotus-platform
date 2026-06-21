@@ -47,7 +47,11 @@ Current repository posture:
    bank-buyable quality defaults: service-profile-aware README/repo-context/wiki references,
    `quality/quality_scorecard.md`, architecture rules, CI-quality-gate notes, refactor decisions,
    a layered `src/app/api|application|domain|ports|infrastructure|observability|security`
-   skeleton, report-only `architecture-boundary-report` and `quality-baseline` commands, and the
+   skeleton, caller-context and capability-policy primitives, a downstream JSON client resilience
+   template, profile-gated idempotency/audit models for write-capable services, demo-claims
+   documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders,
+   report-only `architecture-boundary-report` and `quality-baseline` commands where
+   `quality-baseline` depends on architecture evidence, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
    observability, health/readiness, and workflow baseline gates. Detailed usage and generated
    feature documentation lives in
