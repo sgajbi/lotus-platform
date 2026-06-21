@@ -187,6 +187,40 @@ def test_analytics_ui_hardening_review_rejects_unimplemented_dashboard_metric() 
     assert any("dashboard references unimplemented metrics" in error for error in errors)
 
 
+def test_analytics_ui_hardening_review_rejects_alert_rule_drift() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    rollout = _load_json(ROLLOUT_CONTRACT_PATH)
+    review = _load_json(HARDENING_REVIEW_PATH)
+    alert_rules = _load_alert_rules()
+    rule = alert_rules["groups"][0]["rules"][0]
+    rule["expr"] = "sum(lotus_unimplemented_alert_metric_total) > 0"
+    rule["labels"]["alert_id"] = "analytics-ui-test-alert-drift"
+    rule["annotations"].pop("runbook")
+
+    errors = validate_hardening_review(
+        observability_contract=observability,
+        rollout_contract=rollout,
+        hardening_review=review,
+        panel_registry=_load_json(PANEL_REGISTRY_PATH),
+        dashboard=_load_json(DASHBOARD_PATH),
+        alert_rules=alert_rules,
+    )
+
+    assert any(
+        "analytics-ui-test-alert-drift: alert references unimplemented metrics "
+        "['lotus_unimplemented_alert_metric_total']" in error
+        for error in errors
+    )
+    assert any(
+        "analytics-ui-test-alert-drift: runbook annotation is required" in error
+        for error in errors
+    )
+    assert any(
+        "dashboard_certification_review.alert_ids do not match alert rules" in error
+        for error in errors
+    )
+
+
 def test_analytics_ui_hardening_review_rejects_open_p1_finding() -> None:
     observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
     rollout = _load_json(ROLLOUT_CONTRACT_PATH)

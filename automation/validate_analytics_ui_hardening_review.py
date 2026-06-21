@@ -240,45 +240,94 @@ def _validate_dashboard_review(
         errors.append("dashboard_certification_review.dashboard_id must match dashboard uid")
     if review.get("implemented_metrics_only") is not True:
         errors.append("dashboard certification must require implemented metrics only")
-    implemented_metric_names = {
+    implemented_metric_names = _implemented_metric_names(observability_contract)
+    _validate_dashboard_metric_references(
+        errors,
+        dashboard=dashboard,
+        implemented_metric_names=implemented_metric_names,
+    )
+    _validate_alert_rule_references(
+        errors,
+        review=review,
+        alert_rules=alert_rules,
+        implemented_metric_names=implemented_metric_names,
+    )
+
+
+def _implemented_metric_names(observability_contract: dict[str, Any]) -> set[str]:
+    return {
         str(metric.get("metric_name"))
         for metric in observability_contract.get("metric_families", [])
         if metric.get("implemented") is True
     }
-    dashboard_metric_names = {
+
+
+def _metric_names_in_text(value: Any) -> set[str]:
+    return {
         _normalize_prometheus_metric_name(metric_name)
-        for metric_name in re.findall(r"lotus_[a-z0-9_]+", json.dumps(dashboard, sort_keys=True))
+        for metric_name in re.findall(r"lotus_[a-z0-9_]+", str(value))
     }
+
+
+def _validate_dashboard_metric_references(
+    errors: list[str],
+    *,
+    dashboard: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
+    dashboard_metric_names = _metric_names_in_text(json.dumps(dashboard, sort_keys=True))
     unimplemented = sorted(dashboard_metric_names - implemented_metric_names)
     if unimplemented:
         errors.append(f"dashboard references unimplemented metrics: {unimplemented}")
 
+
+def _validate_alert_rule_references(
+    errors: list[str],
+    *,
+    review: dict[str, Any],
+    alert_rules: dict[str, Any],
+    implemented_metric_names: set[str],
+) -> None:
     expected_alert_ids = set(review.get("alert_ids", []))
     actual_alert_ids: set[str] = set()
     for group in alert_rules.get("groups", []):
         for rule in group.get("rules", []):
-            labels = rule.get("labels", {})
-            annotations = rule.get("annotations", {})
-            alert_id = str(labels.get("alert_id", ""))
-            actual_alert_ids.add(alert_id)
-            expr = str(rule.get("expr", ""))
-            rule_metrics = {
-                _normalize_prometheus_metric_name(metric_name)
-                for metric_name in re.findall(r"lotus_[a-z0-9_]+", expr)
-            }
-            unimplemented_rule_metrics = sorted(rule_metrics - implemented_metric_names)
-            if unimplemented_rule_metrics:
-                errors.append(
-                    f"{alert_id}: alert references unimplemented metrics "
-                    f"{unimplemented_rule_metrics}"
-                )
-            if review.get("runbook_paths_required") is True and not annotations.get("runbook"):
-                errors.append(f"{alert_id}: runbook annotation is required")
+            _validate_alert_rule(
+                errors,
+                rule=rule,
+                actual_alert_ids=actual_alert_ids,
+                implemented_metric_names=implemented_metric_names,
+                runbook_paths_required=review.get("runbook_paths_required") is True,
+            )
     if actual_alert_ids != expected_alert_ids:
         errors.append(
             "dashboard_certification_review.alert_ids do not match alert rules: "
             f"expected {sorted(expected_alert_ids)}, actual {sorted(actual_alert_ids)}"
         )
+
+
+def _validate_alert_rule(
+    errors: list[str],
+    *,
+    rule: dict[str, Any],
+    actual_alert_ids: set[str],
+    implemented_metric_names: set[str],
+    runbook_paths_required: bool,
+) -> None:
+    labels = rule.get("labels", {})
+    annotations = rule.get("annotations", {})
+    alert_id = str(labels.get("alert_id", ""))
+    actual_alert_ids.add(alert_id)
+    unimplemented_rule_metrics = sorted(
+        _metric_names_in_text(rule.get("expr", "")) - implemented_metric_names
+    )
+    if unimplemented_rule_metrics:
+        errors.append(
+            f"{alert_id}: alert references unimplemented metrics "
+            f"{unimplemented_rule_metrics}"
+        )
+    if runbook_paths_required and not annotations.get("runbook"):
+        errors.append(f"{alert_id}: runbook annotation is required")
 
 
 def _validate_enterprise_governance(
