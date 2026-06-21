@@ -39,6 +39,10 @@ http://render.dev.lotus {
   reverse_proxy host.docker.internal:8310
 }
 
+http://idea.dev.lotus {
+  reverse_proxy lotus-idea:8330
+}
+
 http://core-query.dev.lotus {
   reverse_proxy lotus-core-query:8001
 }
