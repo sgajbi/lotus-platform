@@ -7,6 +7,7 @@ param(
   [int]$Port = 8000,
   [string]$BusinessRole = "",
   [string]$Category = "domain-service",
+  [string]$ServiceProfile = "",
   [string]$PrimaryRuntime = "python-fastapi",
   [string[]]$UpstreamDependencies = @(),
   [string[]]$DownstreamDependencies = @(),
@@ -37,6 +38,45 @@ if (-not $BusinessRole) {
   $BusinessRole = $Description
 }
 
+$validServiceProfiles = @(
+  "domain-service",
+  "experience-api",
+  "shared-capability-service",
+  "client-facing-service"
+)
+
+if (-not $ServiceProfile) {
+  $ServiceProfile = $Category
+}
+
+if ($validServiceProfiles -notcontains $ServiceProfile) {
+  throw "ServiceProfile must be one of: $($validServiceProfiles -join ', ')."
+}
+
+$Category = $ServiceProfile
+
+function Get-ServiceProfileDescription {
+  param([string]$Profile)
+
+  switch ($Profile) {
+    "domain-service" {
+      return "Domain-authoritative backend service. Keep business rules in domain/application modules and expose explicit source-owned APIs."
+    }
+    "experience-api" {
+      return "Experience API or composition service. Keep client contracts stable while avoiding drift into domain-owned business logic."
+    }
+    "shared-capability-service" {
+      return "Shared capability service. Keep provider, document, archive, AI, or platform capability boundaries explicit and consumer-aware."
+    }
+    "client-facing-service" {
+      return "Client-facing backend surface. Treat product-safe errors, permissions, auditability, and demo claims as first-class controls."
+    }
+    default {
+      return "Lotus backend service profile."
+    }
+  }
+}
+
 function Sync-AgentOperatingContract {
   param(
     [string]$PlatformRoot,
@@ -63,6 +103,8 @@ function Write-RepositoryEngineeringContext {
     [string[]]$SvcDownstreamDependencies
   )
 
+  $profileDescription = Get-ServiceProfileDescription -Profile $SvcCategory
+
   $upstreamText = if ($SvcUpstreamDependencies.Count -gt 0) {
     ($SvcUpstreamDependencies | ForEach-Object { "   - $_" }) -join "`n"
   }
@@ -84,6 +126,10 @@ function Write-RepositoryEngineeringContext {
     '',
     ('`' + $SvcName + '` is a Lotus backend service.'),
     '',
+    ('Service profile: `' + $SvcCategory + '`'),
+    '',
+    $profileDescription,
+    '',
     '## Business And Domain Responsibility',
     '',
     ('`' + $SvcName + '` owns: ' + $SvcBusinessRole),
@@ -97,10 +143,17 @@ function Write-RepositoryEngineeringContext {
     '## Architecture And Module Map',
     '',
     '1. `src/app/main.py`: application entrypoint, health/readiness, metadata.',
-    '2. `src/app/contracts/`: API and contract models.',
-    '3. `src/app/middleware/`: shared request middleware.',
-    '4. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
-    '5. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
+    '2. `src/app/api/`: route modules and API DTO mapping.',
+    '3. `src/app/application/`: use-case orchestration and application services.',
+    '4. `src/app/domain/`: framework-free domain models, policies, and calculations.',
+    '5. `src/app/ports/`: external capability interfaces used by application logic.',
+    '6. `src/app/infrastructure/`: concrete adapters and external clients behind ports.',
+    '7. `src/app/observability/`: structured logging, correlation, tracing, and metrics helpers.',
+    '8. `src/app/security/`: caller context and product-safe authorization policies.',
+    '9. `src/app/contracts/`: API and contract models.',
+    '10. `src/app/middleware/`: shared request middleware.',
+    '11. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
+    '12. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
     '',
     '## Runtime And Integration Boundaries',
     '',
@@ -168,9 +221,11 @@ function Write-WikiBaseline {
   param(
     [string]$TargetRepoRoot,
     [string]$SvcName,
-    [string]$SvcDescription
+    [string]$SvcDescription,
+    [string]$SvcProfile
   )
 
+  $profileDescription = Get-ServiceProfileDescription -Profile $SvcProfile
   $wikiRoot = Join-Path $TargetRepoRoot "wiki"
   New-Item -ItemType Directory -Force -Path $wikiRoot | Out-Null
   $wikiHome = @(
@@ -178,12 +233,17 @@ function Write-WikiBaseline {
     "",
     $SvcDescription,
     "",
+    "Service profile: ``$SvcProfile``",
+    "",
+    $profileDescription,
+    "",
     "## Current posture",
     "",
     "- repo scaffolded from Lotus platform automation",
     "- wiki source lives in-repo and must be published through `lotus-platform` automation",
     "- bank-buyable quality scorecard starts under `quality/` and must move with implementation truth",
-    "- replace this page with operator-facing truth as implementation becomes real"
+    "- replace this page with operator-facing truth as implementation becomes real",
+    "- demo claims must stay Planned until code, tests, endpoint certification, and evidence exist"
   ) -join "`n"
   Set-Content -Path (Join-Path $wikiRoot "Home.md") -Value $wikiHome
 }
@@ -467,9 +527,17 @@ $dirs = @(
   ".github/workflows",
   "requirements",
   "src/app",
+  "src/app/api",
+  "src/app/application",
   "src/app/contracts",
+  "src/app/domain",
+  "src/app/infrastructure",
   "src/app/middleware",
+  "src/app/observability",
+  "src/app/ports",
+  "src/app/security",
   "docs/operations",
+  "docs/demo",
   "tests/unit",
   "tests/integration",
   "tests/e2e",
@@ -501,10 +569,19 @@ Copy-Item (Join-Path $templateRoot "workflows/pr-auto-merge.template.yml") (Join
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint monetary-float-guard typecheck openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
-$makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
-$makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
-$makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) scripts/coverage_gate.py"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint monetary-float-guard typecheck architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
+  $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
+}
+if ($makefile -notmatch "(?m)^monetary-float-guard:") {
+  $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
+}
+if ($makefile -notmatch "(?m)^architecture-boundary-report:") {
+  $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline:`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
+}
+if ($makefile -notmatch '\$\(MAKE\) coverage-gate') {
+  $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) scripts/coverage_gate.py"
+}
 $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"
 Set-Content $makefilePath $makefile
 
@@ -731,8 +808,96 @@ async def metadata() -> dict[str, str]:
 Set-Content -Path (Join-Path $target "src/app/main.py") -Value $mainPy
 
 Set-Content -Path (Join-Path $target "src/app/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/api/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/application/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/contracts/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/domain/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/infrastructure/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/middleware/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/observability/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/ports/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/security/__init__.py") -Value ""
+
+$layerReadme = @"
+# Layered Architecture Skeleton
+
+This scaffold is intentionally minimal. Add implementation only when a real service responsibility
+exists.
+
+Expected dependency flow:
+
+1. ``api`` depends on ``application``.
+2. ``application`` depends on ``domain`` and ``ports``.
+3. ``domain`` is framework-free and must not import FastAPI, API DTOs, infrastructure, or persistence.
+4. ``infrastructure`` implements ``ports``.
+5. ``security`` provides caller-context and authorization policy primitives.
+6. ``observability`` provides structured logging, correlation, tracing, and metrics helpers.
+
+Run ``make architecture-boundary-report`` for the report-only architecture boundary check.
+"@
+Set-Content -Path (Join-Path $target "src/app/README.md") -Value $layerReadme
+
+$domainModel = @"
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ServiceProfile:
+    name: str
+    description: str
+
+
+DEFAULT_SERVICE_PROFILE = ServiceProfile(
+    name="$ServiceProfile",
+    description="$(Get-ServiceProfileDescription -Profile $ServiceProfile)",
+)
+"@
+Set-Content -Path (Join-Path $target "src/app/domain/service_profile.py") -Value $domainModel
+
+$applicationService = @"
+from __future__ import annotations
+
+from app.domain.service_profile import DEFAULT_SERVICE_PROFILE, ServiceProfile
+
+
+def current_service_profile() -> ServiceProfile:
+    return DEFAULT_SERVICE_PROFILE
+"@
+Set-Content -Path (Join-Path $target "src/app/application/service_profile.py") -Value $applicationService
+
+$apiReadme = @"
+# API Layer
+
+Keep routes thin. Route modules should validate HTTP input, call application services, and map
+application results into response DTOs. Do not put business rules or downstream clients here.
+"@
+Set-Content -Path (Join-Path $target "src/app/api/README.md") -Value $apiReadme
+
+$portsReadme = @"
+# Ports Layer
+
+Define repository, downstream client, clock, audit, idempotency, and event-publisher protocols here
+before adding concrete infrastructure adapters.
+"@
+Set-Content -Path (Join-Path $target "src/app/ports/README.md") -Value $portsReadme
+
+$infrastructureReadme = @"
+# Infrastructure Layer
+
+Concrete adapters belong here and should implement interfaces from ``app.ports``. Infrastructure code
+may depend on HTTP clients, databases, queues, or files, but domain and application code must not.
+"@
+Set-Content -Path (Join-Path $target "src/app/infrastructure/README.md") -Value $infrastructureReadme
+
+$securityReadme = @"
+# Security Layer
+
+Add caller-context, role/capability policies, and product-safe permission-denied behavior here
+before protected business endpoints are promoted.
+"@
+Set-Content -Path (Join-Path $target "src/app/security/README.md") -Value $securityReadme
 
 $errorsPy = @"
 from __future__ import annotations
@@ -756,6 +921,13 @@ def problem_response(status_code: int, code: str, title: str, detail: str) -> JS
     return JSONResponse(status_code=status_code, content=problem.model_dump())
 "@
 Set-Content -Path (Join-Path $target "src/app/errors.py") -Value $errorsPy
+
+$observabilityPackageInit = @"
+from app.observability.logging import configure_logging, log_event
+
+__all__ = ["configure_logging", "log_event"]
+"@
+Set-Content -Path (Join-Path $target "src/app/observability/__init__.py") -Value $observabilityPackageInit
 
 $observabilityPy = @"
 from __future__ import annotations
@@ -782,7 +954,7 @@ def log_event(event_name: str, service: str, level: LogLevel = "INFO", **fields:
         json.dumps(payload, sort_keys=True, default=str),
     )
 "@
-Set-Content -Path (Join-Path $target "src/app/observability.py") -Value $observabilityPy
+Set-Content -Path (Join-Path $target "src/app/observability/logging.py") -Value $observabilityPy
 
 $correlationMiddleware = @"
 from __future__ import annotations
@@ -896,6 +1068,226 @@ if __name__ == "__main__":
     main()
 "@
 Set-Content -Path (Join-Path $target "scripts/openapi_quality_gate.py") -Value $openapiGate
+
+$architectureBoundaryGate = @"
+from __future__ import annotations
+
+import argparse
+import ast
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = ROOT / "src" / "app"
+REPORT_PATH = ROOT / "quality" / "architecture_boundary_report.json"
+
+LAYER_RULES = {
+    "domain": {
+        "forbidden_prefixes": (
+            "fastapi",
+            "starlette",
+            "requests",
+            "httpx",
+            "sqlalchemy",
+            "app.api",
+            "app.infrastructure",
+            "app.contracts",
+        ),
+        "description": "Domain must stay framework-free and independent from API, contract, and infrastructure modules.",
+    },
+    "application": {
+        "forbidden_prefixes": ("fastapi", "starlette", "app.infrastructure", "app.api"),
+        "description": "Application services may orchestrate domain and ports but must not depend on HTTP/framework or concrete infrastructure.",
+    },
+    "api": {
+        "forbidden_prefixes": ("app.infrastructure",),
+        "description": "API routes should call application services rather than concrete infrastructure.",
+    },
+}
+
+
+def _module_name(path: Path) -> str:
+    return ".".join(path.relative_to(ROOT / "src").with_suffix("").parts)
+
+
+def _imports(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    imports: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.add(node.module)
+    return imports
+
+
+def _layer_for(path: Path) -> str | None:
+    relative = path.relative_to(SRC_ROOT)
+    return relative.parts[0] if relative.parts else None
+
+
+def validate_architecture_boundaries() -> list[dict[str, str]]:
+    violations: list[dict[str, str]] = []
+    for path in SRC_ROOT.rglob("*.py"):
+        layer = _layer_for(path)
+        if layer not in LAYER_RULES:
+            continue
+        imports = _imports(path)
+        for imported in sorted(imports):
+            for prefix in LAYER_RULES[layer]["forbidden_prefixes"]:
+                if imported == prefix or imported.startswith(f"{prefix}."):
+                    violations.append(
+                        {
+                            "path": str(path.relative_to(ROOT)),
+                            "module": _module_name(path),
+                            "layer": layer,
+                            "import": imported,
+                            "rule": LAYER_RULES[layer]["description"],
+                        }
+                    )
+    return violations
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--mode",
+        choices=("report-only", "blocking"),
+        default="report-only",
+    )
+    args = parser.parse_args()
+    violations = validate_architecture_boundaries()
+    report = {
+        "repository": "$ServiceName",
+        "mode": args.mode,
+        "status": "failed" if violations else "passed",
+        "violations": violations,
+        "rules": LAYER_RULES,
+    }
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if violations:
+        print(f"Architecture boundary report found {len(violations)} violation(s).")
+        if args.mode == "blocking":
+            print(json.dumps(violations, indent=2, sort_keys=True))
+            return 1
+        return 0
+    print("Architecture boundary report passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+"@
+Set-Content -Path (Join-Path $target "scripts/architecture_boundary_gate.py") -Value $architectureBoundaryGate
+
+$qualityBaseline = @"
+from __future__ import annotations
+
+import ast
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_ROOTS = (ROOT / "src", ROOT / "tests", ROOT / "scripts")
+REPORT_PATH = ROOT / "quality" / "baseline_report.json"
+MARKDOWN_PATH = ROOT / "quality" / "baseline_report.md"
+
+
+def _python_files() -> list[Path]:
+    files: list[Path] = []
+    for root in SOURCE_ROOTS:
+        if root.exists():
+            files.extend(path for path in root.rglob("*.py") if "__pycache__" not in path.parts)
+    return sorted(files)
+
+
+def _function_rows(path: Path) -> list[dict[str, object]]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    rows: list[dict[str, object]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            end_line = getattr(node, "end_lineno", node.lineno)
+            rows.append(
+                {
+                    "path": str(path.relative_to(ROOT)),
+                    "name": node.name,
+                    "line": node.lineno,
+                    "lines": end_line - node.lineno + 1,
+                }
+            )
+    return rows
+
+
+def build_report() -> dict[str, object]:
+    files = _python_files()
+    functions = [row for path in files for row in _function_rows(path)]
+    largest_files = sorted(
+        (
+            {
+                "path": str(path.relative_to(ROOT)),
+                "lines": len(path.read_text(encoding="utf-8").splitlines()),
+            }
+            for path in files
+        ),
+        key=lambda item: int(item["lines"]),
+        reverse=True,
+    )[:10]
+    largest_functions = sorted(
+        functions,
+        key=lambda item: int(item["lines"]),
+        reverse=True,
+    )[:10]
+    return {
+        "repository": "$ServiceName",
+        "mode": "report-only",
+        "service_profile": "$ServiceProfile",
+        "python_files": len(files),
+        "python_functions": len(functions),
+        "largest_files": largest_files,
+        "largest_functions": largest_functions,
+        "architecture_boundary_report": "quality/architecture_boundary_report.json",
+        "notes": [
+            "Report-only scaffold baseline. Do not promote noisy metrics before baseline and exception policy are clear.",
+            "OpenAPI, endpoint certification, supported-features, and no-sensitive-content gates remain separate deterministic scaffold checks.",
+        ],
+    }
+
+
+def main() -> None:
+    report = build_report()
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    lines = [
+        "# Quality Baseline",
+        "",
+        f"Repository: ``{report['repository']}``",
+        "",
+        "Mode: ``report-only``",
+        "",
+        f"Service profile: ``{report['service_profile']}``",
+        "",
+        f"Python files: ``{report['python_files']}``",
+        f"Python functions: ``{report['python_functions']}``",
+        "",
+        "## Largest Files",
+        "",
+    ]
+    lines.extend(f"- ``{item['path']}``: {item['lines']} lines" for item in report["largest_files"])
+    lines.extend(["", "## Largest Functions", ""])
+    lines.extend(
+        f"- ``{item['path']}::{item['name']}``: {item['lines']} lines"
+        for item in report["largest_functions"]
+    )
+    MARKDOWN_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote {REPORT_PATH} and {MARKDOWN_PATH}")
+
+
+if __name__ == "__main__":
+    main()
+"@
+Set-Content -Path (Join-Path $target "scripts/generate_quality_baseline.py") -Value $qualityBaseline
 
 $coverageGate = @"
 import sys
@@ -1313,7 +1705,7 @@ Set-Content -Path (Join-Path $target "tests/e2e/test_smoke.py") -Value $e2eTest
 
 Sync-AgentOperatingContract -PlatformRoot $repoRoot -TargetRepoRoot $target
 Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcBusinessRole $BusinessRole -SvcCategory $Category -SvcRuntime $PrimaryRuntime -SvcUpstreamDependencies $UpstreamDependencies -SvcDownstreamDependencies $DownstreamDependencies
-Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description
+Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
   "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.";
@@ -1333,12 +1725,18 @@ $readme = @(
   "",
   "$Description",
   "",
+  "Service profile: ``$ServiceProfile``",
+  "",
+  "$(Get-ServiceProfileDescription -Profile $ServiceProfile)",
+  "",
   "## Quick Start",
   "",
   '```powershell',
   "make install",
   "make lint",
   "make typecheck",
+  "make architecture-boundary-report",
+  "make quality-baseline",
   "make openapi-gate",
   "make check",
   "make ci",
@@ -1371,7 +1769,10 @@ $readme = @(
   "- Engineering commands: Makefile",
   "- Bank-buyable quality contract: lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
   "- Platform standards docs: docs/standards/",
-  "- Quality scorecard and refactor decisions: quality/"
+  "- Quality scorecard and refactor decisions: quality/",
+  "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security",
+  "- Report-only architecture boundary evidence: make architecture-boundary-report",
+  "- Report-only quality baseline evidence: make quality-baseline"
 ) -join "`n"
 Set-Content -Path (Join-Path $target "README.md") -Value $readme
 
@@ -1380,39 +1781,50 @@ Set-Content -Path (Join-Path $target "quality/quality_scorecard.md") -Value @"
 # Bank-Buyable Quality Scorecard
 
 Repository: $ServiceName
+Service profile: $ServiceProfile
 
 Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering Contract.
 
 | Control Area | Current Status | Evidence | Gap | Next Slice |
 | --- | --- | --- | --- | --- |
-| Architecture | `Partially implemented` | Platform scaffold baseline. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
-| API and contracts | `Partially implemented` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
-| Data and methodology | `Planned` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
-| Security and privacy | `Partially implemented` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
-| Observability and supportability | `Partially implemented` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
-| Resilience and performance | `Partially implemented` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
-| Testing | `Partially implemented` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | `Partially implemented` | Feature, PR merge, main releasability workflows. | Repo-specific thresholds need evidence. | Tighten gates after measured baseline. |
-| Documentation and operations | `Partially implemented` | README, repo context, wiki, runbooks, standards placeholders. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
+| Architecture | ``Partially implemented`` | Layered package skeleton plus report-only architecture-boundary report. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
+| API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
+| Data and methodology | ``Planned`` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
+| Security and privacy | ``Partially implemented`` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
+| Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
+| Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
+| Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows. | Repo-specific thresholds need evidence. | Tighten gates after measured baseline. |
+| Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards placeholders. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
 # Architecture Rules
 
 Use the Lotus layered backend default:
 
-1. routers/controllers stay thin,
-2. application services orchestrate use cases,
-3. domain logic stays framework-free,
-4. infrastructure sits behind ports/adapters,
-5. generated or scaffold placeholders must be replaced with implementation truth before promotion.
+1. ``src/app/api`` routers/controllers stay thin and depend on ``application``,
+2. ``src/app/application`` services orchestrate use cases and depend on ``domain`` and ``ports``,
+3. ``src/app/domain`` logic stays framework-free and must not import FastAPI, API DTOs, infrastructure, persistence, or HTTP clients,
+4. ``src/app/infrastructure`` sits behind ``ports`` adapters,
+5. ``src/app/security`` owns caller-context and product-safe authorization policy primitives,
+6. ``src/app/observability`` owns structured logging, correlation, tracing, and metrics helpers,
+7. generated or scaffold placeholders must be replaced with implementation truth before promotion.
+
+Run ``make architecture-boundary-report`` for report-only evidence. Promote it to blocking only after
+the signal is stable, deterministic, low-noise, and exception policy is clear.
 "@
 Set-Content -Path (Join-Path $target "quality/ci_quality_gates.md") -Value @"
 # CI Quality Gates
 
-The scaffold starts with baseline gates in `Makefile` and `.github/workflows/`.
+The scaffold starts with baseline gates in ``Makefile`` and ``.github/workflows/``.
 
 Promote stricter gates only after the signal is measured, deterministic, low-noise, locally
 runnable, and tied to a real bank-buyable control.
+
+Report-only scaffold commands:
+
+1. ``make architecture-boundary-report``
+2. ``make quality-baseline``
 "@
 Set-Content -Path (Join-Path $target "quality/refactor_decisions.md") -Value @"
 # Refactor Decisions
