@@ -390,7 +390,10 @@ def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo
         "Invoke-CheckedCommand $toolingPython automation/validate_engineering_context_system.py"
         in repo_checks
     )
-    assert 'Sync-AgentOperatingContract.ps1") -CheckOnly' in repo_checks
+    assert (
+        'Sync-AgentOperatingContract.ps1") -Arguments @("-CheckOnly")'
+        in repo_checks
+    )
     assert "ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json" in validator
     assert "all application context statuses must be `implemented`" in validator
 
@@ -467,7 +470,8 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     )
     assert (
         'Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") '
-        '-CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges'
+        '-Arguments @("-CheckOnly", "-Repository", "lotus-platform", '
+        '"-AllowUnpublishedSourceChanges")'
         in repo_checks
     )
 

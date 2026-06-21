@@ -9,11 +9,11 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 
 function Invoke-CheckedCommand {
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]$Command,
 
-        [Parameter(ValueFromRemainingArguments = $true)]
-        [string[]]$Arguments
+        [Parameter(Position = 1, ValueFromRemainingArguments = $true)]
+        [object[]]$Arguments
     )
 
     & $Command @Arguments
@@ -43,8 +43,8 @@ try {
     Invoke-CheckedCommand $toolingPython automation/generate_enterprise_backend_quality_baseline.py --check
     Invoke-CheckedCommand $toolingPython automation/generate_automation_inventory.py --check
     Invoke-CheckedCommand $toolingPython automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
-    Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -CheckOnly
-    Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges
+    Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -Arguments @("-CheckOnly")
+    Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") -Arguments @("-CheckOnly", "-Repository", "lotus-platform", "-AllowUnpublishedSourceChanges")
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
         Invoke-CheckedCommand (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")

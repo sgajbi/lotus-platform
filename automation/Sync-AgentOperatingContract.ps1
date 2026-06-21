@@ -1,5 +1,6 @@
+[CmdletBinding(PositionalBinding = $false)]
 param(
-    [string]$SourcePath = (Join-Path $PSScriptRoot "..\context\AGENTS-OPERATING-CONTRACT.md"),
+    [string]$SourcePath = "",
     [string[]]$TargetPath = @(),
     [string]$WorkspaceRoot = "",
     [string[]]$Repository = @(),
@@ -145,7 +146,13 @@ function Resolve-RequestedTargets {
 $resolvedPlatformRoot = Resolve-PlatformRoot
 $resolvedWorkspaceRoot = Resolve-WorkspaceRootPath -RequestedWorkspaceRoot $WorkspaceRoot
 $targets = Resolve-RequestedTargets -ExplicitTargetPaths $TargetPath -RepositoryNames $Repository -UseAllRepoRoots:$AllRepoRoots -UseDeployedTarget:$IncludeDeployedTarget -ResolvedWorkspaceRoot $resolvedWorkspaceRoot -ResolvedPlatformRoot $resolvedPlatformRoot
-$resolvedSource = (Resolve-Path $SourcePath).ProviderPath
+$sourcePathToUse = if ($SourcePath) {
+    $SourcePath
+}
+else {
+    Join-Path $PSScriptRoot "..\context\AGENTS-OPERATING-CONTRACT.md"
+}
+$resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
 $sourceContent = Get-Content -Raw $resolvedSource
 $normalizedSourceContent = Normalize-ContractContent $sourceContent
 
