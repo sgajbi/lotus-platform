@@ -35,3 +35,7 @@ solving them only in the generated app.
    repository in AGENTS synchronization scope, and ensure any generated
    `*.dev.lotus` QA target has a matching hosts entry, Caddy route, platform
    compose service, and `.env.example` repo-path variable.
+9. Scaffold dependency pins should track latest stable compatible releases, not
+   stale known-good versions. A dependency refresh is acceptable only when a
+   disposable generated service passes `make ci`, `pip-audit`, and warning
+   promotion for known framework deprecations.

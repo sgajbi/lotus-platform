@@ -762,21 +762,22 @@ Set-Content $makefilePath $makefile
 $runtimeDependencies = [ordered]@{
   "fastapi" = "0.138.0"
   "starlette" = "1.3.1"
-  "uvicorn" = "0.41.0"
-  "pydantic" = "2.12.0"
+  "uvicorn" = "0.49.0"
+  "pydantic" = "2.13.4"
   "pydantic-settings" = "2.14.2"
   "prometheus-fastapi-instrumentator" = "8.0.0"
-  "httpx" = "0.28.0"
+  "httpx" = "0.28.1"
 }
 
 $developmentDependencies = [ordered]@{
-  "ruff" = "0.15.0"
-  "mypy" = "1.19.1"
-  "pytest" = "9.0.3"
-  "pytest-asyncio" = "1.3.0"
+  "ruff" = "0.15.18"
+  "mypy" = "2.1.0"
+  "pytest" = "9.1.1"
+  "pytest-asyncio" = "1.4.0"
   "pytest-cov" = "7.1.0"
-  "coverage" = "7.13.5"
-  "pip-audit" = "2.10.0"
+  "httpx2" = "2.4.0"
+  "coverage" = "7.14.2"
+  "pip-audit" = "2.10.1"
 }
 
 $runtimeDependencyLines = $runtimeDependencies.GetEnumerator() | ForEach-Object { "  `"$($_.Key)==$($_.Value)`"," }
@@ -809,6 +810,9 @@ target-version = "py312"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+filterwarnings = [
+  "error::starlette.testclient.StarletteDeprecationWarning",
+]
 "@
 Set-Content -Path (Join-Path $target "pyproject.toml") -Value $pyproject
 
