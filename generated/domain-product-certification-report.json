@@ -11,7 +11,7 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 71,
+    "product_count": 70,
     "dependency_count": 46,
     "producer_repository_count": 6,
     "included_repository_count": 6,
@@ -595,23 +595,6 @@
       "product_id": "lotus-core:MarketDataWindow:v1",
       "producer_repository": "lotus-core",
       "product_name": "MarketDataWindow",
-      "product_version": "v1",
-      "lifecycle_status": "active",
-      "certification_state": "certified",
-      "checks": {
-        "trust_metadata_declared": true,
-        "approved_consumers_declared": true,
-        "route_references_declared": true,
-        "lineage_required": true,
-        "graph_node_present": true,
-        "deprecation_state": "not_deprecated"
-      },
-      "issue_count": 0
-    },
-    {
-      "product_id": "lotus-core:PerformanceComponentEconomics:v1",
-      "producer_repository": "lotus-core",
-      "product_name": "PerformanceComponentEconomics",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
