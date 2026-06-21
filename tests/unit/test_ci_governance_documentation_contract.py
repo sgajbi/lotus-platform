@@ -183,6 +183,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "--rebase --delete-branch" in auto_merge_template
     assert "--merge --delete-branch" not in auto_merge_template
     assert "--squash" not in auto_merge_template
+    assert "secrets.LOTUS_AUTOMERGE_TOKEN" in auto_merge_template
+    assert "LOTUS_AUTOMERGE_TOKEN is required" in auto_merge_template
+    assert "github.token" not in auto_merge_template
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
     assert "--ref main" in merged_pr_dispatch_template
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template

@@ -88,7 +88,9 @@ Feature-lane and main-releasability jobs must not be configured as required PR c
 ## Auto-Merge Default
 
 The scaffolded `pr-auto-merge.yml` must request rebase auto-merge, not squash or merge-commit
-auto-merge. Lotus PR completion preserves scoped commits on a linear `main` history.
+auto-merge. It must authenticate with `LOTUS_AUTOMERGE_TOKEN`, not `${{ github.token }}`, so PR
+merge completion is performed by a non-suppressed actor that can trigger post-merge workflow
+dispatch. Lotus PR completion preserves scoped commits on a linear `main` history.
 
 The scaffolded `merged-pr-main-releasability.yml` must dispatch `main-releasability.yml` when a PR
 is merged to `main`. This keeps post-merge release evidence explicit for rebase auto-merged PRs
@@ -112,10 +114,11 @@ repeatable and worktree-clean.
 
 `make ci-contract-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and validates the lane contract itself: required Makefile targets, least-privilege
-workflow permissions, approved action-runtime majors, merge-grade coverage, Docker validation,
-release evidence, endpoint certification, supported-feature promotion control, and local quality
-gate wiring. It must also protect `workflow_dispatch` on `main-releasability.yml` and the merged-PR
-dispatch workflow that starts post-merge release evidence.
+workflow permissions, non-suppressed auto-merge token usage, approved action-runtime majors,
+merge-grade coverage, Docker validation, release evidence, endpoint certification,
+supported-feature promotion control, and local quality gate wiring. It must also protect
+`workflow_dispatch` on `main-releasability.yml` and the merged-PR dispatch workflow that starts
+post-merge release evidence.
 
 Report-only commands must not become blocking CI gates until `lotus-ci-enforcement-governance`
 confirms the signal is measured, deterministic, low-noise, lane-appropriate, and backed by an

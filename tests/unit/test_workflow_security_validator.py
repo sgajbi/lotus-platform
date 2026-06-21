@@ -37,10 +37,7 @@ def test_allowlisted_templates_are_the_only_pull_request_target_exceptions() -> 
     assert auto_merge_path in ALLOWLIST
     assert workflow_results[auto_merge_path].ok is True
     assert workflow_results[auto_merge_path].has_pull_request_target is True
-    assert workflow_results[auto_merge_path].write_permissions == {
-        "contents": "write",
-        "pull-requests": "write",
-    }
+    assert workflow_results[auto_merge_path].write_permissions == {}
 
     for workflow_path, result in workflow_results.items():
         if workflow_path in {auto_merge_path, dispatch_path}:

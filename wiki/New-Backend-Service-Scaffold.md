@@ -20,7 +20,8 @@ future scaffold or agent changes from silently removing Makefile targets, least-
 permissions, approved action majors, merge/releasability coverage, Docker validation, release
 evidence, endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI
 controls. It also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
-needed for rebase auto-merged PRs.
+needed for rebase auto-merged PRs, plus `LOTUS_AUTOMERGE_TOKEN` usage so the merge actor is not
+the suppressed workflow token.
 
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
@@ -28,6 +29,8 @@ evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclon
 release metadata manifest.
 Generated repos also include a merged-PR dispatcher that starts Main Releasability on `main` after
 PR completion.
+The scaffolded auto-merge workflow requires `LOTUS_AUTOMERGE_TOKEN`; repositories without that
+secret should use a human or release actor to rebase merge.
 
 Detailed guide:
 

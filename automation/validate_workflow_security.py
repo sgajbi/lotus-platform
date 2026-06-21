@@ -23,10 +23,7 @@ ALLOWLIST = {
     },
     "platform-standards/templates/workflows/pr-auto-merge.template.yml": {
         "allow_pull_request_target": True,
-        "required_permissions": {
-            "contents": "write",
-            "pull-requests": "write",
-        },
+        "required_permissions": {},
     }
 }
 
