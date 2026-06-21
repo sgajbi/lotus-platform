@@ -1,6 +1,6 @@
 {
   "contract_id": "analytics-ui-observability-scaffold-ci-enforcement",
-  "contract_version": "0.1.0",
+  "contract_version": "0.1.1",
   "governed_by_rfc": "RFC-0108",
   "lifecycle_status": "slice-11-scaffold-ci-enforcement-implemented",
   "source_contracts": [
@@ -66,6 +66,7 @@
         "openapi-gate",
         "no-sensitive-content-guard",
         "supported-features-gate",
+        "architecture-boundary-gate",
         "architecture-boundary-report",
         "quality-baseline",
         "coverage-gate",
@@ -135,6 +136,8 @@
       "id": "generated_backend_feature_lane_template",
       "artifact_path": "platform-standards/templates/workflows/feature-lane.backend.template.yml",
       "required_terms": [
+        "Architecture Boundary Gate",
+        "make architecture-boundary-gate",
         "OpenAPI Gate",
         "Security Audit",
         "Run unit tests"
@@ -144,9 +147,22 @@
       "id": "generated_backend_pr_merge_template",
       "artifact_path": "platform-standards/templates/workflows/pr-merge-gate.backend.template.yml",
       "required_terms": [
+        "Architecture Boundary Gate",
+        "make architecture-boundary-gate",
         "OpenAPI Gate",
         "Coverage Gate",
         "Validate Docker Build"
+      ]
+    },
+    {
+      "id": "generated_backend_main_releasability_template",
+      "artifact_path": "platform-standards/templates/workflows/main-releasability.backend.template.yml",
+      "required_terms": [
+        "Architecture Boundary Gate",
+        "make architecture-boundary-gate",
+        "OpenAPI Gate",
+        "Coverage Gate",
+        "Generate release metadata manifest"
       ]
     }
   ],

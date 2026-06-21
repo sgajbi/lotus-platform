@@ -284,11 +284,23 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
-    assert "& $toolingPython -m pytest tests/unit -q" in repo_checks
-    assert "& $toolingPython automation/validate_workflow_security.py" in repo_checks
-    assert "& $toolingPython automation/validate_workflow_action_runtime.py" in repo_checks
-    assert "& $toolingPython automation/validate_container_build_baseline.py" in repo_checks
-    assert "& $toolingPython automation/validate_platform_validation_coverage.py" in repo_checks
+    assert "Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q" in repo_checks
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_workflow_security.py"
+        in repo_checks
+    )
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_workflow_action_runtime.py"
+        in repo_checks
+    )
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_container_build_baseline.py"
+        in repo_checks
+    )
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_platform_validation_coverage.py"
+        in repo_checks
+    )
     assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
