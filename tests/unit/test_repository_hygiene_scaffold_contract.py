@@ -120,6 +120,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         'Copy-Item (Join-Path $templateRoot "requirements.ci-tooling.lock.template.txt")'
         in scaffold_script
     )
+    assert "PIP_ROOT_USER_ACTION=ignore" in scaffold_script
     assert "Ensure-GitInitialCommit" in scaffold_script
     assert "git -C $TargetRepoRoot push -u origin main" in scaffold_script
     assert "missing summary" in scaffold_script
@@ -301,6 +302,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
+    dockerfile = (repo_root / "Dockerfile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
     app_readme = (repo_root / "src/app/README.md").read_text(encoding="utf-8")
@@ -428,6 +430,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert result["gitattributes_missing_patterns"] == []
     assert result["gitignore_missing_patterns"] == []
     assert result["dockerignore_missing_patterns"] == []
+    assert "ENV PIP_ROOT_USER_ACTION=ignore" in dockerfile
     assert "monetary-float-guard:" in makefile
     assert "$(MAKE) monetary-float-guard" in makefile
     assert "no-sensitive-content-guard:" in makefile

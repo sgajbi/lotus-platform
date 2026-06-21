@@ -834,6 +834,8 @@ Set-Content -Path (Join-Path $target "mypy.ini") -Value $mypy
 $dockerfile = @"
 FROM python:3.12-slim
 
+ENV PIP_ROOT_USER_ACTION=ignore
+
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src
