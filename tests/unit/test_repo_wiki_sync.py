@@ -43,6 +43,7 @@ def _init_wiki_remote(tmp_path: Path, repo_name: str, content: str) -> Path:
     _git(seed, "branch", "-M", "master")
     _git(seed, "remote", "add", "origin", str(remote))
     _git(seed, "push", "origin", "master")
+    _git(remote, "symbolic-ref", "HEAD", "refs/heads/master")
     return remote
 
 
