@@ -55,7 +55,11 @@ The engineering goal is a premium, production-critical, banking-grade platform w
 8. `lotus-archive`
    Generated-document archive, retrieval, retention, legal hold, access-audit, and lifecycle capability.
 
-9. `lotus-ai`
+9. `lotus-idea`
+   Wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion
+   orchestration capability.
+
+10. `lotus-ai`
    Shared AI capability service used behind governed product and platform flows.
 
 ### Platform and governance
@@ -72,7 +76,9 @@ The canonical relationship model is:
 3. domain services remain authoritative for their business domain,
 4. `lotus-report` may orchestrate reporting flows across upstream domain services and `lotus-render`,
 5. `lotus-archive` owns durable generated-document archive records and retrieval governance after document generation,
-6. `lotus-platform` governs how the ecosystem is run, validated, and standardized.
+6. `lotus-idea` owns opportunity intelligence and idea lifecycle state without cloning source-owned portfolio,
+   performance, risk, advisory, management, reporting, archive, render, gateway, or AI capabilities,
+7. `lotus-platform` governs how the ecosystem is run, validated, and standardized.
 
 ### Boundary rules
 
