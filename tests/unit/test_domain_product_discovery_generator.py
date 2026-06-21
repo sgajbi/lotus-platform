@@ -169,6 +169,26 @@ def test_domain_product_discovery_uses_repo_native_source_paths() -> None:
         )
         for source_path in consumer_source_paths
     )
+    assert not any("_federated/" in source_path for source_path in source_paths)
+    assert not any(
+        "_federated/" in source_path for source_path in consumer_source_paths
+    )
+
+
+def test_domain_product_discovery_normalizes_federated_checkout_paths() -> None:
+    generator = _load_generator_module()
+    federated_path = (
+        ROOT
+        / "_federated"
+        / "lotus-advise"
+        / "contracts"
+        / "domain-data-products"
+        / "lotus-advise-products.v1.json"
+    )
+
+    assert generator._relative_path(federated_path) == (
+        "lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json"
+    )
 
 
 def test_domain_product_discovery_generator_writes_json_and_markdown_outputs(
