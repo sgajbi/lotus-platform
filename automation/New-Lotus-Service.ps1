@@ -842,9 +842,10 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$Port"]
 Set-Content -Path (Join-Path $target "Dockerfile") -Value $dockerfile
 
 $mainPy = @"
-from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from prometheus_fastapi_instrumentator import Instrumentator
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.errors import problem_response
 from app.middleware.correlation import CorrelationIdMiddleware
 from app.observability import configure_logging, log_event
@@ -876,8 +877,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
     log_event(
         "request.http_error",
         service=SERVICE_NAME,
@@ -2344,6 +2345,7 @@ def test_audit_event_allows_bounded_non_sensitive_attributes() -> None:
 $integrationTest = @"
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.main import app
 
 
@@ -2417,6 +2419,17 @@ def test_http_exception_is_product_safe() -> None:
 
     client = TestClient(app)
     response = client.get("/__test_http_exception")
+    assert response.status_code == 403
+    assert "raw entitlement detail" not in response.text.lower()
+
+
+def test_starlette_http_exception_is_product_safe() -> None:
+    @app.get("/__test_starlette_http_exception", include_in_schema=False)
+    async def _test_starlette_http_exception_route() -> None:
+        raise StarletteHTTPException(status_code=403, detail="raw entitlement detail")
+
+    client = TestClient(app)
+    response = client.get("/__test_starlette_http_exception")
     assert response.status_code == 403
     assert "raw entitlement detail" not in response.text.lower()
 
