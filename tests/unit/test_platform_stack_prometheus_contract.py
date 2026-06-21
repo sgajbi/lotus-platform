@@ -23,6 +23,7 @@ def test_platform_stack_prometheus_scrapes_the_expected_orchestrated_services() 
         "lotus-archive",
         "lotus-core-ingestion",
         "lotus-core-query",
+        "lotus-idea",
         "lotus-manage",
         "lotus-performance",
         "lotus-render",

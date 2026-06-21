@@ -40,6 +40,10 @@ scrape_configs:
     static_configs:
       - targets: ["lotus-report:8300"]
 
+  - job_name: "lotus-idea"
+    static_configs:
+      - targets: ["lotus-idea:8330"]
+
   - job_name: "lotus-render"
     static_configs:
       - targets: ["host.docker.internal:8310"]
