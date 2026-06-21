@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-20T10:46:23Z`
+Generated: `2026-06-21T04:01:47Z`
 
 ## Completed Slices
 
@@ -366,6 +366,10 @@ Generated: `2026-06-20T10:46:23Z`
     evidence checks, and registry route matching are isolated behind focused helpers, removing
     certified route-group validation from the top measured complexity hotspot list while adding
     malformed-entry regression coverage.
+98. Trust telemetry freshness-age extraction so age shape validation, maximum-age validation, and
+    current-state conflict checks are isolated behind focused helpers, removing freshness-age
+    validation from the top measured complexity hotspot list while adding boolean numeric-field
+    hardening coverage.
 
 ## Evidence
 

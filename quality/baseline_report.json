@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306214
+    "total_source_lines": 306278
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 262,
-        "line": 236,
-        "lines": 27,
-        "name": "_validate_freshness_age",
-        "path": "automation/validate_trust_telemetry.py"
       },
       {
         "complexity": 10,
@@ -75,8 +67,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 342,
-        "line": 304,
+        "end_line": 383,
+        "line": 345,
         "lines": 39,
         "name": "_validate_lineage_and_blocking",
         "path": "automation/validate_trust_telemetry.py"
@@ -91,8 +83,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 945,
-        "line": 912,
+        "end_line": 949,
+        "line": 916,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 38,
         "name": "_collect_delegated_task_ledger_item",
         "path": "automation/heartbeat_sources.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 140,
+        "line": 103,
+        "lines": 38,
+        "name": "_validate_repository_reviews",
+        "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 894,
+        "end_line": 898,
         "line": 489,
-        "lines": 406,
+        "lines": 410,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 406,
-    "python_function_count": 1802
+    "max_function_lines": 410,
+    "python_function_count": 1807
   },
-  "generated_at_utc": "2026-06-20T10:46:23Z",
+  "generated_at_utc": "2026-06-21T04:01:47Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 542,
+    "collected_tests": 543,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "542 tests collected in 0.56s"
+    "summary": "543 tests collected in 0.96s"
   }
 }

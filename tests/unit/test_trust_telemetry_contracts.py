@@ -139,6 +139,25 @@ def test_trust_telemetry_rejects_ungoverned_statuses_and_metadata(
     assert any("unsupported lanes: nightly" in issue for issue in issues)
 
 
+def test_trust_telemetry_rejects_boolean_freshness_age_fields(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    snapshot = _valid_snapshot()
+    snapshot["freshness"]["age_seconds"] = True
+    snapshot["freshness"]["max_allowed_age_seconds"] = False
+    snapshot_path = tmp_path / "boolean-freshness-age.json"
+    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
+
+    issues = validator.validate_trust_telemetry_path(snapshot_path)
+
+    assert any("freshness.age_seconds must be >= 0" in issue for issue in issues)
+    assert any(
+        "freshness.max_allowed_age_seconds must be >= 1" in issue
+        for issue in issues
+    )
+
+
 def test_trust_telemetry_requires_blocked_reason_when_blocked(
     tmp_path: Path,
 ) -> None:

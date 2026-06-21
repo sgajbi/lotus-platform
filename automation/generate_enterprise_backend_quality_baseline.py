@@ -855,6 +855,10 @@ Generated: `{baseline["generated_at_utc"]}`
     evidence checks, and registry route matching are isolated behind focused helpers, removing
     certified route-group validation from the top measured complexity hotspot list while adding
     malformed-entry regression coverage.
+98. Trust telemetry freshness-age extraction so age shape validation, maximum-age validation, and
+    current-state conflict checks are isolated behind focused helpers, removing freshness-age
+    validation from the top measured complexity hotspot list while adding boolean numeric-field
+    hardening coverage.
 
 ## Evidence
 
