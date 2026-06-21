@@ -78,6 +78,75 @@ def _parse_product_version(version: str) -> tuple[int, ...] | None:
     return None
 
 
+def _validate_registry_entry_key(
+    issues: list[str],
+    path: Path,
+    *,
+    field_name: str,
+    index: int,
+    entry: dict,
+    keys: set[str],
+) -> None:
+    key = entry.get("key")
+    if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
+        _append_issue(issues, path, f"{field_name}[{index}].key must be snake_case")
+        return
+    if key in keys:
+        _append_issue(issues, path, f"{field_name} contains duplicate key {key}")
+        return
+    keys.add(key)
+
+
+def _validate_registry_entry_required_strings(
+    issues: list[str],
+    path: Path,
+    *,
+    field_name: str,
+    index: int,
+    entry: dict,
+    required_string_fields: tuple[str, ...],
+) -> None:
+    for required_field in required_string_fields:
+        value = entry.get(required_field)
+        if not isinstance(value, str) or not value.strip():
+            _append_issue(
+                issues,
+                path,
+                f"{field_name}[{index}].{required_field} must be a non-empty string",
+            )
+
+
+def _validate_registry_entry(
+    issues: list[str],
+    path: Path,
+    *,
+    field_name: str,
+    index: int,
+    entry: object,
+    keys: set[str],
+    required_string_fields: tuple[str, ...],
+) -> None:
+    if not isinstance(entry, dict):
+        _append_issue(issues, path, f"{field_name}[{index}] must be an object")
+        return
+    _validate_registry_entry_key(
+        issues,
+        path,
+        field_name=field_name,
+        index=index,
+        entry=entry,
+        keys=keys,
+    )
+    _validate_registry_entry_required_strings(
+        issues,
+        path,
+        field_name=field_name,
+        index=index,
+        entry=entry,
+        required_string_fields=required_string_fields,
+    )
+
+
 def _validate_registry_entry_list(
     issues: list[str],
     path: Path,
@@ -93,26 +162,15 @@ def _validate_registry_entry_list(
         return keys
 
     for index, entry in enumerate(entries):
-        if not isinstance(entry, dict):
-            _append_issue(issues, path, f"{field_name}[{index}] must be an object")
-            continue
-
-        key = entry.get("key")
-        if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
-            _append_issue(issues, path, f"{field_name}[{index}].key must be snake_case")
-        elif key in keys:
-            _append_issue(issues, path, f"{field_name} contains duplicate key {key}")
-        else:
-            keys.add(key)
-
-        for required_field in required_string_fields:
-            value = entry.get(required_field)
-            if not isinstance(value, str) or not value.strip():
-                _append_issue(
-                    issues,
-                    path,
-                    f"{field_name}[{index}].{required_field} must be a non-empty string",
-                )
+        _validate_registry_entry(
+            issues,
+            path,
+            field_name=field_name,
+            index=index,
+            entry=entry,
+            keys=keys,
+            required_string_fields=required_string_fields,
+        )
 
     return keys
 

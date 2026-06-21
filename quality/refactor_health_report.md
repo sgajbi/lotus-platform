@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T12:04:07Z`
+Generated: `2026-06-21T12:12:20Z`
 
 ## Completed Slices
 
@@ -393,6 +393,10 @@ Generated: `2026-06-21T12:04:07Z`
      request review parsing, and branch-protection booleans are isolated behind focused helpers,
      removing the governance normalizer from the top measured complexity hotspot list while adding
      protected-branch payload regression coverage.
+105. Domain-data-product registry-entry extraction so key validation, object-shape validation, and
+     required-string validation are isolated behind focused helpers, removing the registry-entry
+     validator from the top measured complexity hotspot list while adding malformed-registry
+     regression coverage.
 
 ## Evidence
 

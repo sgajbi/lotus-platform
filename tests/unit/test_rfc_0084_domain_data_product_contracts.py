@@ -336,6 +336,60 @@ def _load_lotus_core_modules():
     }
 
 
+def test_rfc_0084_semantics_registry_rejects_malformed_registry_entries(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    path = tmp_path / "bad-semantics-registry.json"
+    payload = {
+        "contract_id": "domain-data-product-semantics",
+        "contract_version": "1.0.0",
+        "governed_by_rfc": "RFC-0084",
+        "domain": "domain_data_product_semantics",
+        "description": "Test semantics registry.",
+        "identifiers": [
+            {
+                "key": "PortfolioId",
+                "semantic_id": "lotus.portfolio_id",
+                "stability": "stable",
+                "lifecycle": "active",
+                "description": "Portfolio identifier.",
+            },
+            {
+                "key": "portfolio_id",
+                "semantic_id": "lotus.portfolio_id",
+                "stability": "stable",
+                "lifecycle": "active",
+                "description": "Portfolio identifier.",
+            },
+            {
+                "key": "portfolio_id",
+                "semantic_id": "",
+                "stability": "stable",
+                "lifecycle": "active",
+                "description": "Duplicate portfolio identifier.",
+            },
+        ],
+        "temporal_semantics": ["not-an-object"],
+        "trust_vocabularies": {
+            "freshness_classes": [{"key": "daily", "meaning": "Daily."}],
+            "completeness_statuses": [{"key": "complete", "meaning": "Complete."}],
+            "reconciliation_statuses": [{"key": "reconciled", "meaning": "Reconciled."}],
+            "data_quality_statuses": [{"key": "quality_passed", "meaning": "Passed."}],
+        },
+    }
+
+    issues = validator.validate_semantics_registry(path, payload)
+
+    assert any("identifiers[0].key must be snake_case" in issue for issue in issues)
+    assert any("identifiers contains duplicate key portfolio_id" in issue for issue in issues)
+    assert any(
+        "identifiers[2].semantic_id must be a non-empty string" in issue
+        for issue in issues
+    )
+    assert any("temporal_semantics[0] must be an object" in issue for issue in issues)
+
+
 def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
     producer_schema = _load_json(PRODUCER_SCHEMA_PATH)
     consumer_schema = _load_json(CONSUMER_SCHEMA_PATH)
