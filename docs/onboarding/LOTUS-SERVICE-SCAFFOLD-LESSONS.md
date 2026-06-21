@@ -30,3 +30,8 @@ solving them only in the generated app.
 7. Product-safe handlers for validation, framework HTTP exceptions, and
    unhandled exceptions belong in the scaffold from day one so raw entitlement
    or internal details cannot leak through default framework responses.
+8. Platform registration must stay machine-readable. The scaffold should
+   normalize comma-delimited dependency input into JSON arrays, register the new
+   repository in AGENTS synchronization scope, and ensure any generated
+   `*.dev.lotus` QA target has a matching hosts entry, Caddy route, platform
+   compose service, and `.env.example` repo-path variable.

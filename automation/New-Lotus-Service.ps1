@@ -84,6 +84,28 @@ function Get-ServiceProfileDescription {
   }
 }
 
+function Normalize-ScaffoldStringList {
+  param([string[]]$Values)
+
+  $normalized = New-Object System.Collections.Generic.List[string]
+  foreach ($value in $Values) {
+    if ([string]::IsNullOrWhiteSpace($value)) {
+      continue
+    }
+    foreach ($item in ($value -split ",")) {
+      $trimmed = $item.Trim()
+      if (-not [string]::IsNullOrWhiteSpace($trimmed) -and -not $normalized.Contains($trimmed)) {
+        $normalized.Add($trimmed) | Out-Null
+      }
+    }
+  }
+  return @($normalized.ToArray())
+}
+
+$UpstreamDependencies = Normalize-ScaffoldStringList -Values $UpstreamDependencies
+$DownstreamDependencies = Normalize-ScaffoldStringList -Values $DownstreamDependencies
+$RequiredLogPatterns = Normalize-ScaffoldStringList -Values $RequiredLogPatterns
+
 function Sync-AgentOperatingContract {
   param(
     [string]$PlatformRoot,
@@ -273,6 +295,142 @@ function Add-TaskProfileTask {
   $profile.tasks += $Task
 }
 
+function Convert-ServiceNameToRepoPathVariable {
+  param([string]$RepoName)
+
+  return (($RepoName.ToUpperInvariant() -replace "[^A-Z0-9]", "_") + "_REPO_PATH")
+}
+
+function Register-AgentOperatingContractRepository {
+  param(
+    [string]$PlatformRoot,
+    [string]$RepoName
+  )
+
+  $syncScriptPath = Join-Path $PlatformRoot "automation/Sync-AgentOperatingContract.ps1"
+  if (-not (Test-Path $syncScriptPath)) {
+    return
+  }
+
+  $content = Get-Content -Raw $syncScriptPath
+  if ($content.Contains("`"$RepoName`"")) {
+    return
+  }
+
+  $archiveLineWithComma = '    "lotus-archive",'
+  $archiveLine = '    "lotus-archive"'
+  if ($content.Contains($archiveLineWithComma)) {
+    $content = $content.Replace($archiveLineWithComma, "$archiveLineWithComma`n    `"$RepoName`",")
+  }
+  elseif ($content.Contains($archiveLine)) {
+    $content = $content.Replace($archiveLine, "$archiveLine,`n    `"$RepoName`"")
+  }
+  else {
+    return
+  }
+
+  Set-Content -Path $syncScriptPath -Value $content
+  Write-Host "Updated automation/Sync-AgentOperatingContract.ps1 with $RepoName"
+}
+
+function Register-PlatformDevIngress {
+  param(
+    [string]$PlatformRoot,
+    [string]$RepoName,
+    [string]$RepoHostName,
+    [int]$RepoPort
+  )
+
+  $platformStackRoot = Join-Path $PlatformRoot "platform-stack"
+  if (-not (Test-Path $platformStackRoot)) {
+    return
+  }
+
+  $hostname = "$RepoHostName.dev.lotus"
+  $hostsPath = Join-Path $platformStackRoot "dev-ingress/hosts.example"
+  if (Test-Path $hostsPath) {
+    $hostsText = Get-Content -Raw $hostsPath
+    $hostLine = "127.0.0.1 $hostname"
+    if ($hostsText -notmatch [regex]::Escape($hostLine)) {
+      $hostsText = $hostsText.TrimEnd("`r", "`n") + "`n$hostLine`n"
+      Set-Content -Path $hostsPath -Value $hostsText
+      Write-Host "Updated platform-stack/dev-ingress/hosts.example with $hostname"
+    }
+  }
+
+  $caddyPath = Join-Path $platformStackRoot "dev-ingress/Caddyfile"
+  if (Test-Path $caddyPath) {
+    $caddyText = Get-Content -Raw $caddyPath
+    if ($caddyText -notmatch [regex]::Escape("http://$hostname")) {
+      $route = "http://$hostname {`n  reverse_proxy ${RepoName}:$RepoPort`n}`n"
+      $caddyText = $caddyText.TrimEnd("`r", "`n") + "`n`n$route"
+      Set-Content -Path $caddyPath -Value $caddyText
+      Write-Host "Updated platform-stack/dev-ingress/Caddyfile with $hostname"
+    }
+  }
+
+  $directHostCaddyPath = Join-Path $platformStackRoot "dev-ingress/Caddyfile.direct-host"
+  if (Test-Path $directHostCaddyPath) {
+    $directHostCaddyText = Get-Content -Raw $directHostCaddyPath
+    if ($directHostCaddyText -notmatch [regex]::Escape("http://$hostname")) {
+      $directHostRoute = "http://$hostname {`n`t reverse_proxy host.docker.internal:$RepoPort`n}`n"
+      $directHostCaddyText = $directHostCaddyText.TrimEnd("`r", "`n") + "`n`n$directHostRoute"
+      Set-Content -Path $directHostCaddyPath -Value $directHostCaddyText
+      Write-Host "Updated platform-stack/dev-ingress/Caddyfile.direct-host with $hostname"
+    }
+  }
+
+  $composePath = Join-Path $platformStackRoot "docker-compose.yml"
+  if (Test-Path $composePath) {
+    $composeText = Get-Content -Raw $composePath
+    if ($composeText -notmatch "(?m)^  ${RepoName}:$") {
+      $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+      $repoPathExpression = '${' + $repoPathVariable + '}'
+      $serviceBlock = @"
+  ${RepoName}:
+    build:
+      context: $repoPathExpression
+      dockerfile: Dockerfile
+    environment:
+      OTEL_SERVICE_NAME: $RepoName
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:$RepoPort/health/ready', timeout=5)"]
+      interval: 20s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    logging: *default-logging
+
+"@
+      if ($composeText.Contains("  bff:`r`n")) {
+        $composeText = $composeText.Replace("  bff:`r`n", "$serviceBlock  bff:`r`n")
+      }
+      elseif ($composeText.Contains("  bff:`n")) {
+        $composeText = $composeText.Replace("  bff:`n", "$serviceBlock  bff:`n")
+      }
+      if ($composeText -notmatch [regex]::Escape("      ${RepoName}:`n        condition: service_healthy")) {
+        $dependsBlock = "      ${RepoName}:`n        condition: service_healthy`n"
+        $composeText = $composeText -replace "      prometheus:\r?\n        condition: service_started", "$dependsBlock      prometheus:`n        condition: service_started"
+      }
+      Set-Content -Path $composePath -Value $composeText
+      Write-Host "Updated platform-stack/docker-compose.yml with $RepoName"
+    }
+  }
+
+  $envExamplePath = Join-Path $platformStackRoot ".env.example"
+  if (Test-Path $envExamplePath) {
+    $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+    $envText = Get-Content -Raw $envExamplePath
+    if ($envText -notmatch [regex]::Escape($repoPathVariable)) {
+      $envLine = "$repoPathVariable=c:/Users/Sandeep/projects/$RepoName"
+      $envText = $envText.TrimEnd("`r", "`n") + "`n$envLine`n"
+      Set-Content -Path $envExamplePath -Value $envText
+      Write-Host "Updated platform-stack/.env.example with $repoPathVariable"
+    }
+  }
+}
+
 function Register-PlatformContextAndAutomation {
   param(
     [string]$PlatformRoot,
@@ -285,9 +443,12 @@ function Register-PlatformContextAndAutomation {
     [string[]]$RepoUpstreamDependencies,
     [string[]]$RepoDownstreamDependencies,
     [string]$RepoHostName,
+    [int]$RepoPort,
     [string[]]$RepoLogPatterns,
     [string]$GithubRepo
   )
+
+  Register-AgentOperatingContractRepository -PlatformRoot $PlatformRoot -RepoName $RepoName
 
   $manifestPath = Join-Path $PlatformRoot "context/lotus-context-manifest.json"
   if (Test-Path $manifestPath) {
@@ -340,6 +501,10 @@ function Register-PlatformContextAndAutomation {
       $qaMatrix | ConvertTo-Json -Depth 12 | Set-Content $qaMatrixPath
       Write-Host "Updated automation/qa-matrix.json with $RepoName"
     }
+  }
+
+  if ($RepoHostName) {
+    Register-PlatformDevIngress -PlatformRoot $PlatformRoot -RepoName $RepoName -RepoHostName $RepoHostName -RepoPort $RepoPort
   }
 
   $taskProfilesPath = Join-Path $PlatformRoot "automation/task-profiles.json"
@@ -2868,7 +3033,7 @@ if (-not $SkipAutomationRegistration) {
     }
   }
 
-  Register-PlatformContextAndAutomation -PlatformRoot $repoRoot -RepoName $repoName -RepoPathNormalized $repoPathNormalized -RepoDescription $Description -RepoBusinessRole $BusinessRole -RepoCategory $Category -RepoRuntime $PrimaryRuntime -RepoUpstreamDependencies $UpstreamDependencies -RepoDownstreamDependencies $DownstreamDependencies -RepoHostName $DevHostName -RepoLogPatterns $RequiredLogPatterns -GithubRepo "$GithubOrg/$repoName"
+  Register-PlatformContextAndAutomation -PlatformRoot $repoRoot -RepoName $repoName -RepoPathNormalized $repoPathNormalized -RepoDescription $Description -RepoBusinessRole $BusinessRole -RepoCategory $Category -RepoRuntime $PrimaryRuntime -RepoUpstreamDependencies $UpstreamDependencies -RepoDownstreamDependencies $DownstreamDependencies -RepoHostName $DevHostName -RepoPort $Port -RepoLogPatterns $RequiredLogPatterns -GithubRepo "$GithubOrg/$repoName"
 }
 
 try {
