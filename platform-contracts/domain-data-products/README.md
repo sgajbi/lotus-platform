@@ -25,7 +25,8 @@ Current aligned producer declarations:
 
 1. `lotus-core-products.v1.json`
    Initial platform-mapped declaration derived from the RFC-0083 source-data product catalog and
-   governed security profiles.
+   governed security profiles. The current sync includes `PerformanceComponentEconomics` as the
+   performance-facing component-economics source evidence product.
 2. `lotus-performance-products.v1.json`
    First analytics-output producer declaration for the performance authority wave.
 3. `lotus-risk-products.v1.json`
