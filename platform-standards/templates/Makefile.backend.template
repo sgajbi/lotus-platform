@@ -39,7 +39,7 @@ typecheck:
 architecture-boundary-report:
 	$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only
 
-quality-baseline:
+quality-baseline: architecture-boundary-report
 	$(VENV_PYTHON) scripts/generate_quality_baseline.py
 
 openapi-gate:

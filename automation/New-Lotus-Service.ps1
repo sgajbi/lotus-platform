@@ -13,6 +13,7 @@ param(
   [string[]]$DownstreamDependencies = @(),
   [string]$DevHostName = "",
   [string[]]$RequiredLogPatterns = @("correlation", "trace", "service"),
+  [switch]$IncludeMeshPlaceholders,
   [switch]$Force,
   [switch]$SkipAutomationRegistration,
   [switch]$InitializeGit,
@@ -54,6 +55,12 @@ if ($validServiceProfiles -notcontains $ServiceProfile) {
 }
 
 $Category = $ServiceProfile
+
+function Test-WriteCapableServiceProfile {
+  param([string]$Profile)
+
+  return @("domain-service", "client-facing-service") -contains $Profile
+}
 
 function Get-ServiceProfileDescription {
   param([string]$Profile)
@@ -536,6 +543,7 @@ $dirs = @(
   "src/app/observability",
   "src/app/ports",
   "src/app/security",
+  "src/app/resilience",
   "docs/operations",
   "docs/demo",
   "tests/unit",
@@ -577,7 +585,7 @@ if ($makefile -notmatch "(?m)^monetary-float-guard:") {
   $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
 }
 if ($makefile -notmatch "(?m)^architecture-boundary-report:") {
-  $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline:`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
+  $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline: architecture-boundary-report`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
 }
 if ($makefile -notmatch '\$\(MAKE\) coverage-gate') {
   $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) scripts/coverage_gate.py"
@@ -591,6 +599,7 @@ $runtimeDependencies = [ordered]@{
   "pydantic" = "2.12.0"
   "pydantic-settings" = "2.13.0"
   "prometheus-fastapi-instrumentator" = "7.1.0"
+  "httpx" = "0.28.0"
 }
 
 $developmentDependencies = [ordered]@{
@@ -599,7 +608,6 @@ $developmentDependencies = [ordered]@{
   "pytest" = "9.0.3"
   "pytest-asyncio" = "1.3.0"
   "pytest-cov" = "7.1.0"
-  "httpx" = "0.28.0"
   "coverage" = "7.13.5"
   "pip-audit" = "2.10.0"
 }
@@ -816,6 +824,7 @@ Set-Content -Path (Join-Path $target "src/app/infrastructure/__init__.py") -Valu
 Set-Content -Path (Join-Path $target "src/app/middleware/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/observability/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/ports/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/resilience/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/security/__init__.py") -Value ""
 
 $layerReadme = @"
@@ -921,6 +930,260 @@ def problem_response(status_code: int, code: str, title: str, detail: str) -> JS
     return JSONResponse(status_code=status_code, content=problem.model_dump())
 "@
 Set-Content -Path (Join-Path $target "src/app/errors.py") -Value $errorsPy
+
+$callerContextPy = @"
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Iterable
+
+from fastapi import status
+from fastapi.responses import JSONResponse
+
+from app.errors import problem_response
+
+
+@dataclass(frozen=True)
+class CallerContext:
+    subject: str
+    roles: frozenset[str] = field(default_factory=frozenset)
+    capabilities: frozenset[str] = field(default_factory=frozenset)
+
+    @classmethod
+    def from_iterables(
+        cls,
+        *,
+        subject: str,
+        roles: Iterable[str] = (),
+        capabilities: Iterable[str] = (),
+    ) -> "CallerContext":
+        return cls(
+            subject=subject,
+            roles=frozenset(role.strip() for role in roles if role.strip()),
+            capabilities=frozenset(capability.strip() for capability in capabilities if capability.strip()),
+        )
+
+    def has_role(self, role: str) -> bool:
+        return role in self.roles
+
+    def has_capability(self, capability: str) -> bool:
+        return capability in self.capabilities
+
+
+@dataclass(frozen=True)
+class CapabilityPolicy:
+    required_capability: str
+    allowed_roles: frozenset[str] = field(default_factory=frozenset)
+
+    @classmethod
+    def for_roles(
+        cls,
+        *,
+        required_capability: str,
+        allowed_roles: Iterable[str] = (),
+    ) -> "CapabilityPolicy":
+        return cls(
+            required_capability=required_capability,
+            allowed_roles=frozenset(role.strip() for role in allowed_roles if role.strip()),
+        )
+
+    def allows(self, caller: CallerContext) -> bool:
+        if caller.has_capability(self.required_capability):
+            return True
+        return any(caller.has_role(role) for role in self.allowed_roles)
+
+
+class PermissionDeniedError(Exception):
+    def __init__(self, required_capability: str) -> None:
+        self.required_capability = required_capability
+        super().__init__("Permission denied")
+
+
+def require_capability(caller: CallerContext, policy: CapabilityPolicy) -> None:
+    if not policy.allows(caller):
+        raise PermissionDeniedError(policy.required_capability)
+
+
+def permission_denied_response(_: PermissionDeniedError) -> JSONResponse:
+    return problem_response(
+        status_code=status.HTTP_403_FORBIDDEN,
+        code="permission_denied",
+        title="Permission denied",
+        detail="The caller is not permitted to perform this action.",
+    )
+"@
+Set-Content -Path (Join-Path $target "src/app/security/caller_context.py") -Value $callerContextPy
+
+$downstreamClientPy = @"
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+from urllib.parse import urlparse
+
+import httpx
+
+
+class DownstreamClientConfigurationError(ValueError):
+    pass
+
+
+class DownstreamServiceError(Exception):
+    def __init__(self, *, code: str, status_code: int | None = None) -> None:
+        self.code = code
+        self.status_code = status_code
+        super().__init__(code)
+
+
+@dataclass(frozen=True)
+class DownstreamClientConfig:
+    base_url: str
+    timeout_seconds: float = 2.0
+
+    def __post_init__(self) -> None:
+        parsed = urlparse(self.base_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise DownstreamClientConfigurationError("Downstream base_url must be an absolute HTTP(S) URL.")
+        if self.timeout_seconds <= 0:
+            raise DownstreamClientConfigurationError("Downstream timeout_seconds must be positive.")
+
+
+def build_trace_headers(*, correlation_id: str | None, trace_id: str | None) -> dict[str, str]:
+    headers: dict[str, str] = {}
+    if correlation_id:
+        headers["X-Correlation-Id"] = correlation_id
+    if trace_id:
+        headers["X-Trace-Id"] = trace_id
+    return headers
+
+
+class DownstreamJsonClient:
+    def __init__(self, config: DownstreamClientConfig, client: httpx.Client | None = None) -> None:
+        self._config = config
+        self._client = client or httpx.Client(
+            base_url=config.base_url,
+            timeout=config.timeout_seconds,
+        )
+
+    def get_json(
+        self,
+        path: str,
+        *,
+        correlation_id: str | None = None,
+        trace_id: str | None = None,
+    ) -> dict[str, Any]:
+        try:
+            response = self._client.get(
+                path,
+                headers=build_trace_headers(correlation_id=correlation_id, trace_id=trace_id),
+            )
+        except httpx.TimeoutException as exc:
+            raise DownstreamServiceError(code="upstream_timeout") from exc
+        except httpx.HTTPError as exc:
+            raise DownstreamServiceError(code="upstream_unavailable") from exc
+
+        if 400 <= response.status_code < 500:
+            raise DownstreamServiceError(code="upstream_rejected_request", status_code=response.status_code)
+        if response.status_code >= 500:
+            raise DownstreamServiceError(code="upstream_unavailable", status_code=response.status_code)
+
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            raise DownstreamServiceError(code="upstream_malformed_response", status_code=response.status_code) from exc
+
+        if not isinstance(payload, dict):
+            raise DownstreamServiceError(code="upstream_malformed_response", status_code=response.status_code)
+        return payload
+"@
+Set-Content -Path (Join-Path $target "src/app/infrastructure/downstream_client.py") -Value $downstreamClientPy
+
+if (Test-WriteCapableServiceProfile -Profile $ServiceProfile) {
+  $idempotencyPy = @"
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import StrEnum
+import hashlib
+import json
+from typing import Any
+
+
+class IdempotencyDecision(StrEnum):
+    ACCEPTED = "accepted"
+    REPLAYED = "replayed"
+    CONFLICT = "conflict"
+
+
+@dataclass(frozen=True)
+class IdempotencyPolicy:
+    namespace: str
+    ttl_seconds: int = 86_400
+
+
+@dataclass(frozen=True)
+class IdempotencyRecord:
+    key: str
+    payload_hash: str
+
+
+def payload_fingerprint(payload: dict[str, Any]) -> str:
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def evaluate_idempotency(
+    *,
+    key: str,
+    payload: dict[str, Any],
+    existing: IdempotencyRecord | None,
+) -> tuple[IdempotencyDecision, IdempotencyRecord]:
+    record = IdempotencyRecord(key=key, payload_hash=payload_fingerprint(payload))
+    if existing is None:
+        return IdempotencyDecision.ACCEPTED, record
+    if existing.key == key and existing.payload_hash == record.payload_hash:
+        return IdempotencyDecision.REPLAYED, existing
+    return IdempotencyDecision.CONFLICT, existing
+"@
+  Set-Content -Path (Join-Path $target "src/app/domain/idempotency.py") -Value $idempotencyPy
+
+  $auditPy = @"
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from types import MappingProxyType
+from typing import Mapping
+
+FORBIDDEN_ATTRIBUTE_KEYS = frozenset(
+    {
+        "client_id",
+        "client_name",
+        "portfolio_id",
+        "account_id",
+        "holding_id",
+        "request_body",
+        "response_body",
+    }
+)
+
+
+@dataclass(frozen=True)
+class AuditEvent:
+    event_type: str
+    actor_subject: str
+    outcome: str
+    occurred_at_utc: datetime = field(default_factory=lambda: datetime.now(UTC))
+    attributes: Mapping[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        leaked = FORBIDDEN_ATTRIBUTE_KEYS.intersection(self.attributes)
+        if leaked:
+            raise ValueError(f"Audit event attributes contain sensitive keys: {', '.join(sorted(leaked))}")
+        object.__setattr__(self, "attributes", MappingProxyType(dict(self.attributes)))
+"@
+  Set-Content -Path (Join-Path $target "src/app/domain/audit.py") -Value $auditPy
+}
 
 $observabilityPackageInit = @"
 from app.observability.logging import configure_logging, log_event
@@ -1193,6 +1456,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = (ROOT / "src", ROOT / "tests", ROOT / "scripts")
 REPORT_PATH = ROOT / "quality" / "baseline_report.json"
 MARKDOWN_PATH = ROOT / "quality" / "baseline_report.md"
+ARCHITECTURE_REPORT_PATH = ROOT / "quality" / "architecture_boundary_report.json"
 
 
 def _python_files() -> list[Path]:
@@ -1223,6 +1487,14 @@ def _function_rows(path: Path) -> list[dict[str, object]]:
 def build_report() -> dict[str, object]:
     files = _python_files()
     functions = [row for path in files for row in _function_rows(path)]
+    architecture_report_exists = ARCHITECTURE_REPORT_PATH.exists()
+    architecture_report_status = "missing"
+    if architecture_report_exists:
+        try:
+            architecture_payload = json.loads(ARCHITECTURE_REPORT_PATH.read_text(encoding="utf-8"))
+            architecture_report_status = str(architecture_payload.get("status", "unknown"))
+        except json.JSONDecodeError:
+            architecture_report_status = "malformed"
     largest_files = sorted(
         (
             {
@@ -1248,6 +1520,8 @@ def build_report() -> dict[str, object]:
         "largest_files": largest_files,
         "largest_functions": largest_functions,
         "architecture_boundary_report": "quality/architecture_boundary_report.json",
+        "architecture_boundary_report_exists": architecture_report_exists,
+        "architecture_boundary_report_status": architecture_report_status,
         "notes": [
             "Report-only scaffold baseline. Do not promote noisy metrics before baseline and exception policy are clear.",
             "OpenAPI, endpoint certification, supported-features, and no-sensitive-content gates remain separate deterministic scaffold checks.",
@@ -1271,6 +1545,8 @@ def main() -> None:
         f"Python files: ``{report['python_files']}``",
         f"Python functions: ``{report['python_functions']}``",
         "",
+        f"Architecture boundary report: ``{report['architecture_boundary_report_status']}``",
+        "",
         "## Largest Files",
         "",
     ]
@@ -1281,6 +1557,8 @@ def main() -> None:
         for item in report["largest_functions"]
     )
     MARKDOWN_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    if not report["architecture_boundary_report_exists"]:
+        print("WARNING: quality/architecture_boundary_report.json is missing; run make architecture-boundary-report.")
     print(f"Wrote {REPORT_PATH} and {MARKDOWN_PATH}")
 
 
@@ -1632,6 +1910,185 @@ def test_endpoint_certification_ledger_starts_with_scaffold_operations() -> None
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_service_contract.py") -Value $unitTest
 
+$securityTest = @"
+import pytest
+
+from app.security.caller_context import (
+    CallerContext,
+    CapabilityPolicy,
+    PermissionDeniedError,
+    permission_denied_response,
+    require_capability,
+)
+
+
+def test_capability_policy_allows_capability() -> None:
+    caller = CallerContext.from_iterables(
+        subject="operator",
+        capabilities=("portfolio:read",),
+    )
+    policy = CapabilityPolicy.for_roles(required_capability="portfolio:read")
+    require_capability(caller, policy)
+
+
+def test_capability_policy_allows_role() -> None:
+    caller = CallerContext.from_iterables(subject="operator", roles=("ops-admin",))
+    policy = CapabilityPolicy.for_roles(
+        required_capability="portfolio:write",
+        allowed_roles=("ops-admin",),
+    )
+    require_capability(caller, policy)
+
+
+def test_permission_denied_response_is_product_safe() -> None:
+    with pytest.raises(PermissionDeniedError) as exc_info:
+        require_capability(
+            CallerContext.from_iterables(subject="operator"),
+            CapabilityPolicy.for_roles(required_capability="portfolio:write"),
+        )
+
+    response = permission_denied_response(exc_info.value)
+    body = response.body.decode("utf-8").lower()
+    assert response.status_code == 403
+    assert "permission_denied" in body
+    assert "raw entitlement" not in body
+    assert "client" not in body
+    assert "portfolio" not in body
+    assert "portfolio:write" not in body
+"@
+Set-Content -Path (Join-Path $target "tests/unit/test_security_caller_context.py") -Value $securityTest
+
+$downstreamClientTest = @"
+import httpx
+import pytest
+
+from app.infrastructure.downstream_client import (
+    DownstreamClientConfig,
+    DownstreamClientConfigurationError,
+    DownstreamJsonClient,
+    DownstreamServiceError,
+)
+
+
+def _client_for(handler: httpx.MockTransport) -> DownstreamJsonClient:
+    return DownstreamJsonClient(
+        DownstreamClientConfig(base_url="https://upstream.example", timeout_seconds=0.5),
+        client=httpx.Client(base_url="https://upstream.example", transport=handler),
+    )
+
+
+def test_invalid_base_url_is_rejected() -> None:
+    with pytest.raises(DownstreamClientConfigurationError):
+        DownstreamClientConfig(base_url="not-a-url")
+
+
+def test_trace_headers_are_forwarded() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["X-Correlation-Id"] == "corr-123"
+        assert request.headers["X-Trace-Id"] == "trace-123"
+        return httpx.Response(200, json={"status": "ok"})
+
+    payload = _client_for(httpx.MockTransport(handler)).get_json(
+        "/status",
+        correlation_id="corr-123",
+        trace_id="trace-123",
+    )
+    assert payload == {"status": "ok"}
+
+
+def test_timeout_maps_to_safe_upstream_error() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("timed out", request=request)
+
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        _client_for(httpx.MockTransport(handler)).get_json("/status")
+    assert exc_info.value.code == "upstream_timeout"
+
+
+@pytest.mark.parametrize(
+    ("status_code", "expected_code"),
+    [(400, "upstream_rejected_request"), (404, "upstream_rejected_request"), (500, "upstream_unavailable"), (503, "upstream_unavailable")],
+)
+def test_http_error_statuses_map_to_safe_errors(status_code: int, expected_code: str) -> None:
+    client = _client_for(httpx.MockTransport(lambda request: httpx.Response(status_code, json={"error": "x"})))
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        client.get_json("/status")
+    assert exc_info.value.code == expected_code
+    assert exc_info.value.status_code == status_code
+
+
+def test_malformed_response_maps_to_safe_error() -> None:
+    client = _client_for(httpx.MockTransport(lambda request: httpx.Response(200, content=b"not-json")))
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        client.get_json("/status")
+    assert exc_info.value.code == "upstream_malformed_response"
+"@
+Set-Content -Path (Join-Path $target "tests/unit/test_downstream_client.py") -Value $downstreamClientTest
+
+if (Test-WriteCapableServiceProfile -Profile $ServiceProfile) {
+  $idempotencyAuditTest = @"
+import pytest
+
+from app.domain.audit import AuditEvent
+from app.domain.idempotency import (
+    IdempotencyDecision,
+    evaluate_idempotency,
+)
+
+
+def test_same_key_same_payload_replays_existing_record() -> None:
+    decision, record = evaluate_idempotency(
+        key="request-1",
+        payload={"action": "approve", "amount": "100.00"},
+        existing=None,
+    )
+    assert decision == IdempotencyDecision.ACCEPTED
+
+    replay_decision, replay_record = evaluate_idempotency(
+        key="request-1",
+        payload={"amount": "100.00", "action": "approve"},
+        existing=record,
+    )
+    assert replay_decision == IdempotencyDecision.REPLAYED
+    assert replay_record == record
+
+
+def test_same_key_different_payload_conflicts() -> None:
+    _, record = evaluate_idempotency(
+        key="request-1",
+        payload={"action": "approve", "amount": "100.00"},
+        existing=None,
+    )
+    decision, _ = evaluate_idempotency(
+        key="request-1",
+        payload={"action": "reject", "amount": "100.00"},
+        existing=record,
+    )
+    assert decision == IdempotencyDecision.CONFLICT
+
+
+def test_audit_event_rejects_sensitive_attributes() -> None:
+    with pytest.raises(ValueError):
+        AuditEvent(
+            event_type="workflow.updated",
+            actor_subject="operator",
+            outcome="denied",
+            attributes={"portfolio_id": "PB_SG_GLOBAL_BAL_001"},
+        )
+
+
+def test_audit_event_allows_bounded_non_sensitive_attributes() -> None:
+    event = AuditEvent(
+        event_type="workflow.updated",
+        actor_subject="operator",
+        outcome="accepted",
+        attributes={"workflow_state": "planned"},
+    )
+    assert event.attributes["workflow_state"] == "planned"
+"@
+  Set-Content -Path (Join-Path $target "tests/unit/test_idempotency_audit.py") -Value $idempotencyAuditTest
+}
+
 $integrationTest = @"
 from fastapi.testclient import TestClient
 from app.main import app
@@ -1710,7 +2167,7 @@ Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription
 $standardsDocs = @{
   "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
-  "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Core write semantics and idempotency policy baseline adopted.";
+  "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
   "docs/standards/data-model-ownership.md" = "# Data Model Ownership`n`n- Service: $ServiceName`n- Owns only its bounded-context schema.";
   "docs/standards/migration-contract.md" = "# Migration Contract`n`n- Service: $ServiceName`n- Versioned migrations + CI smoke gate required.";
@@ -1718,6 +2175,121 @@ $standardsDocs = @{
 
 foreach ($entry in $standardsDocs.GetEnumerator()) {
   Set-Content -Path (Join-Path $target $entry.Key) -Value $entry.Value
+}
+
+Set-Content -Path (Join-Path $target "docs/demo/demo-claims.md") -Value @"
+# Demo Claims
+
+This file is the starting demo-readiness ledger for ``$ServiceName``.
+
+Do not promote demo claims from ``Planned`` until code, tests, endpoint certification, supported
+feature evidence, and validation artifacts exist.
+
+Allowed status vocabulary:
+
+1. ``Implemented``
+2. ``Partially implemented``
+3. ``Planned``
+4. ``Not applicable``
+5. ``Unknown - requires owner review``
+
+## Functional Capability Matrix
+
+| Capability | Status | Evidence | Gap | Next step |
+| --- | --- | --- | --- | --- |
+| Service-specific business workflow | ``Planned`` | None. | No business workflow is implemented by the scaffold. | Add implementation, tests, endpoint certification, supported-feature evidence, and demo proof. |
+| Health and readiness diagnostics | ``Implemented`` | ``/health``, ``/health/live``, ``/health/ready``, integration tests. | Dependency-aware readiness is service-specific. | Add real dependency checks when integrations exist. |
+| Metadata diagnostics | ``Implemented`` | ``/metadata``, e2e smoke test. | Domain metadata is service-specific. | Add service-owned metadata only when implementation needs it. |
+
+## Non-Functional Capability Matrix
+
+| Capability | Status | Evidence | Gap | Next step |
+| --- | --- | --- | --- | --- |
+| Product-safe errors | ``Implemented`` | ``app.errors.ProblemDetails``, generated tests. | Domain-specific denied/degraded errors are not implemented. | Add endpoint-specific errors with tests. |
+| Correlation and trace propagation | ``Implemented`` | ``CorrelationIdMiddleware``, integration tests. | Cross-service propagation depends on real downstream clients. | Certify per integration. |
+| Architecture boundary reporting | ``Partially implemented`` | ``make architecture-boundary-report``. | Report-only until governance promotes it. | Keep report-only until low-noise policy is proven. |
+| Security authorization model | ``Partially implemented`` | Caller-context and capability-policy placeholders. | No production authentication or service-specific authorization model. | Implement caller extraction and policy decisions for real endpoints. |
+| Mesh certification | ``Planned`` | None unless mesh placeholders are explicitly requested. | Not certified. | Add repo-owned mesh declarations, telemetry, SLO/access/evidence policies, and pass certification. |
+"@
+
+if ($IncludeMeshPlaceholders) {
+  $meshDirs = @(
+    "contracts/domain-data-products",
+    "contracts/trust-telemetry",
+    "contracts/mesh-slo",
+    "contracts/mesh-access",
+    "contracts/mesh-evidence",
+    "docs/operations"
+  )
+  foreach ($meshDir in $meshDirs) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $target $meshDir) | Out-Null
+  }
+
+  Set-Content -Path (Join-Path $target "contracts/domain-data-products/README.md") -Value @"
+# Domain Data Product Mesh Placeholders
+
+Status: Planned.
+Certification status: not certified.
+
+These files are opt-in scaffold placeholders only. Replace them with repo-owned producer and
+consumer declarations before requesting mesh certification.
+"@
+  Set-Content -Path (Join-Path $target "contracts/domain-data-products/producer-consumer-placeholder.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "status": "Planned",
+  "certification_status": "not_certified",
+  "producer_declarations": [],
+  "consumer_declarations": [],
+  "policy": "Replace placeholders with repo-owned implementation truth before mesh certification."
+}
+"@
+  Set-Content -Path (Join-Path $target "contracts/trust-telemetry/trust-telemetry-placeholder.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "status": "Planned",
+  "certification_status": "not_certified",
+  "telemetry_declarations": [],
+  "policy": "Replace placeholders with repo-owned trust telemetry before mesh certification."
+}
+"@
+  Set-Content -Path (Join-Path $target "contracts/mesh-slo/slo-policy-placeholder.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "status": "Planned",
+  "certification_status": "not_certified",
+  "slo_policies": [],
+  "policy": "Replace placeholders with service-owned SLOs and validation evidence."
+}
+"@
+  Set-Content -Path (Join-Path $target "contracts/mesh-access/access-policy-placeholder.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "status": "Planned",
+  "certification_status": "not_certified",
+  "access_policies": [],
+  "policy": "Replace placeholders with governed access policy before any mesh claim."
+}
+"@
+  Set-Content -Path (Join-Path $target "contracts/mesh-evidence/evidence-policy-placeholder.json") -Value @"
+{
+  "repository": "$ServiceName",
+  "status": "Planned",
+  "certification_status": "not_certified",
+  "evidence_policies": [],
+  "policy": "Replace placeholders with machine-readable evidence requirements before certification."
+}
+"@
+  Set-Content -Path (Join-Path $target "docs/operations/mesh-placeholder.md") -Value @"
+# Mesh Placeholder Posture
+
+Status: Planned.
+Certification status: not certified.
+
+Mesh declarations are scaffold placeholders only because ``-IncludeMeshPlaceholders`` was used.
+Do not claim producer, consumer, trust telemetry, SLO, access, or evidence-policy readiness until
+repo-owned implementation and certification evidence exist.
+"@
 }
 
 $readme = @(
