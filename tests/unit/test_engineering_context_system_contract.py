@@ -386,7 +386,10 @@ def test_rfc_0073_slice_five_context_drift_controls_are_wired_into_platform_repo
     assert "output/engineering-context-system-validation.json" in automation_readme
     assert "output/engineering-context-system-validation.md" in automation_readme
     assert "validate_engineering_context_system.py" in directory_map
-    assert "& $toolingPython automation/validate_engineering_context_system.py" in repo_checks
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_engineering_context_system.py"
+        in repo_checks
+    )
     assert 'Sync-AgentOperatingContract.ps1") -CheckOnly' in repo_checks
     assert "ECOSYSTEM-REGISTRIES.md is out of sync with lotus-context-manifest.json" in validator
     assert "all application context statuses must be `implemented`" in validator
@@ -458,8 +461,15 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
     assert "output/lotus-skill-alignment-validation.json" in automation_readme
     assert "validate_lotus_skill_alignment.py" in directory_map
-    assert "& $toolingPython automation/validate_lotus_skill_alignment.py" in repo_checks
-    assert 'Sync-RepoWikis.ps1") -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges' in repo_checks
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_lotus_skill_alignment.py"
+        in repo_checks
+    )
+    assert (
+        'Invoke-CheckedCommand (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") '
+        '-CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges'
+        in repo_checks
+    )
 
     assert manifest["context_documents"]["procedural_memory_index"] == "context/PROCEDURAL-MEMORY-INDEX.md"
     assert manifest["procedural_memory"]["change_playbooks"] == "context/playbooks/CHANGE-PLAYBOOKS.md"

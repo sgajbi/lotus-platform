@@ -68,6 +68,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     scaffold_script = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(
         encoding="utf-8"
     )
+    platform_checks_script = (
+        ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1"
+    ).read_text(encoding="utf-8")
     makefile_template = (
         ROOT / "platform-standards" / "templates" / "Makefile.backend.template"
     ).read_text(encoding="utf-8")
@@ -84,6 +87,13 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         / "templates"
         / "workflows"
         / "pr-merge-gate.backend.template.yml"
+    ).read_text(encoding="utf-8")
+    main_releasability_template = (
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "main-releasability.backend.template.yml"
     ).read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
@@ -187,6 +197,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "quality-baseline: architecture-boundary-report" in scaffold_script
     assert "architecture_boundary_report_exists" in scaffold_script
     assert "quality/architecture_boundary_report.json is missing" in scaffold_script
+    assert "function Invoke-CheckedCommand" in platform_checks_script
+    assert "$LASTEXITCODE -ne 0" in platform_checks_script
+    assert "Command failed with exit code" in platform_checks_script
     assert (
         'require_response_headers = @("x-correlation-id", "x-trace-id")'
         in scaffold_script
@@ -204,6 +217,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) supported-features-gate" in makefile_template
     assert "endpoint-certification-gate:" in makefile_template
     assert "$(MAKE) endpoint-certification-gate" in makefile_template
+    assert "architecture-boundary-gate:" in makefile_template
+    assert (
+        "scripts/architecture_boundary_gate.py --mode blocking" in makefile_template
+    )
     assert "architecture-boundary-report:" in makefile_template
     assert (
         "scripts/architecture_boundary_gate.py --mode report-only" in makefile_template
@@ -212,6 +229,13 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/generate_quality_baseline.py" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
+    for workflow_template in (
+        feature_lane_template,
+        pr_merge_template,
+        main_releasability_template,
+    ):
+        assert "Architecture Boundary Gate" in workflow_template
+        assert "make architecture-boundary-gate" in workflow_template
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile_template
@@ -440,11 +464,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) supported-features-gate" in makefile
     assert "endpoint-certification-gate:" in makefile
     assert "$(MAKE) endpoint-certification-gate" in makefile
+    assert "architecture-boundary-gate:" in makefile
+    assert "scripts/architecture_boundary_gate.py --mode blocking" in makefile
     assert "architecture-boundary-report:" in makefile
     assert "scripts/architecture_boundary_gate.py --mode report-only" in makefile
     assert "quality-baseline: architecture-boundary-report" in makefile
     assert "scripts/generate_quality_baseline.py" in makefile
-    assert "ci: lint typecheck openapi-gate" in makefile
+    assert "check: lint typecheck architecture-boundary-gate" in makefile
+    assert "ci: lint typecheck architecture-boundary-gate" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
     assert (repo_root / "src/app/api/__init__.py").exists()
@@ -715,13 +742,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Observability and supportability" in quality_scorecard
     assert "`src/app/api` routers/controllers stay thin" in architecture_rules
     assert "`src/app/resilience` owns retry, backoff, timeout" in architecture_rules
-    assert (
-        "Run `make architecture-boundary-report` for report-only evidence"
-        in architecture_rules
-    )
+    assert "Run `make architecture-boundary-gate` for blocking CI enforcement" in architecture_rules
     assert (
         "Promote stricter gates only after the signal is measured" in ci_quality_gates
     )
+    assert "make architecture-boundary-gate" in ci_quality_gates
     assert "make quality-baseline" in ci_quality_gates
     assert "Do not use this file for aspirational claims." in refactor_decisions
 

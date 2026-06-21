@@ -882,7 +882,7 @@ Copy-Item (Join-Path $templateRoot "workflows/pr-auto-merge.template.yml") (Join
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint monetary-float-guard typecheck architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint monetary-float-guard typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
 }
@@ -890,12 +890,16 @@ if ($makefile -notmatch "(?m)^monetary-float-guard:") {
   $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
 }
 if ($makefile -notmatch "(?m)^architecture-boundary-report:") {
-  $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline: architecture-boundary-report`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
+  $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-gate:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode blocking`n`narchitecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline: architecture-boundary-report`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
+}
+if ($makefile -notmatch "(?m)^architecture-boundary-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("architecture-boundary-report:"), "architecture-boundary-gate:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode blocking`n`narchitecture-boundary-report:"
 }
 if ($makefile -notmatch '\$\(MAKE\) coverage-gate') {
   $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) scripts/coverage_gate.py"
 }
-$makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck openapi-gate test-integration test-e2e test-coverage security-audit"
+$makefile = $makefile -replace [regex]::Escape("check: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test"), "check: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test"
+$makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"
 Set-Content $makefilePath $makefile
 
 $runtimeDependencies = [ordered]@{
@@ -2658,7 +2662,7 @@ Allowed status vocabulary:
 | --- | --- | --- | --- | --- |
 | Product-safe errors | ``Implemented`` | ``app.errors.ProblemDetails``, generated tests. | Domain-specific denied/degraded errors are not implemented. | Add endpoint-specific errors with tests. |
 | Correlation and trace propagation | ``Implemented`` | ``CorrelationIdMiddleware``, integration tests. | Cross-service propagation depends on real downstream clients. | Certify per integration. |
-| Architecture boundary reporting | ``Partially implemented`` | ``make architecture-boundary-report``. | Report-only until governance promotes it. | Keep report-only until low-noise policy is proven. |
+| Architecture boundary enforcement | ``Partially implemented`` | ``make architecture-boundary-gate`` plus ``make architecture-boundary-report``. | Service-specific boundaries are still scaffold-level. | Keep broad quality metrics report-only until low-noise policy is proven. |
 | Security authorization model | ``Partially implemented`` | Caller-context and capability-policy placeholders. | No production authentication or service-specific authorization model. | Implement caller extraction and policy decisions for real endpoints. |
 | Mesh certification | ``Planned`` | None unless mesh placeholders are explicitly requested. | Not certified. | Add repo-owned mesh declarations, telemetry, SLO/access/evidence policies, and pass certification. |
 "@
@@ -2838,8 +2842,9 @@ Use the Lotus layered backend default:
 7. ``src/app/observability`` owns structured logging, correlation, tracing, and metrics helpers,
 8. generated or scaffold placeholders must be replaced with implementation truth before promotion.
 
-Run ``make architecture-boundary-report`` for report-only evidence. Promote it to blocking only after
-the signal is stable, deterministic, low-noise, and exception policy is clear.
+Run ``make architecture-boundary-gate`` for blocking CI enforcement. Run
+``make architecture-boundary-report`` when a report artifact is needed for scorecard or review
+evidence.
 "@
 Set-Content -Path (Join-Path $target "quality/ci_quality_gates.md") -Value @"
 # CI Quality Gates
@@ -2848,6 +2853,10 @@ The scaffold starts with baseline gates in ``Makefile`` and ``.github/workflows/
 
 Promote stricter gates only after the signal is measured, deterministic, low-noise, locally
 runnable, and tied to a real bank-buyable control.
+
+Blocking scaffold commands:
+
+1. ``make architecture-boundary-gate``
 
 Report-only scaffold commands:
 

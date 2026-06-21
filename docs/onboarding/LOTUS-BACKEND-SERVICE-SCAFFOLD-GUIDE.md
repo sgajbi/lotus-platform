@@ -215,12 +215,13 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 
 1. `make lint`
 2. `make typecheck`
-3. `make openapi-gate`
-4. `make supported-features-gate`
-5. `make endpoint-certification-gate`
-6. `make test`
-7. `make ci`
-8. `make security-audit`
+3. `make architecture-boundary-gate`
+4. `make openapi-gate`
+5. `make supported-features-gate`
+6. `make endpoint-certification-gate`
+7. `make test`
+8. `make ci`
+9. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -232,8 +233,8 @@ It also starts with report-only quality evidence:
 1. `make architecture-boundary-report`
 2. `make quality-baseline`
 
-Keep those report-only until `lotus-ci-enforcement-governance` proves the signal is measured,
-deterministic, low-noise, lane-appropriate, and backed by an exception policy.
+Keep broad quality metrics report-only until `lotus-ci-enforcement-governance` proves the signal is
+measured, deterministic, low-noise, lane-appropriate, and backed by an exception policy.
 
 ## Demo And Mesh Starting Point
 
@@ -268,6 +269,7 @@ After generation:
 ```powershell
 cd C:\Users\<user>\projects\lotus-example
 make install
+make architecture-boundary-gate
 make architecture-boundary-report
 make quality-baseline
 make check
@@ -369,6 +371,9 @@ python -m pytest tests/unit/test_analytics_ui_scaffold_ci_enforcement.py -q
 python automation/validate_engineering_context_system.py
 powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformRepoChecks.ps1 -Lane feature
 ```
+
+`Invoke-PlatformRepoChecks.ps1` uses checked command execution and fails the lane on the first
+nonzero native command exit code; do not add unchecked command invocations to that wrapper.
 
 If repo-local wiki source changes, also run:
 
