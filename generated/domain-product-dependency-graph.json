@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 81,
-  "edge_count": 245,
+  "node_count": 82,
+  "edge_count": 247,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -345,6 +345,16 @@
       "node_type": "domain_product",
       "product_id": "lotus-core:MarketDataWindow:v1",
       "product_name": "MarketDataWindow",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PerformanceComponentEconomics:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PerformanceComponentEconomics:v1",
+      "product_name": "PerformanceComponentEconomics",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "analytics_input",
@@ -1106,6 +1116,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:MarketDataWindow:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PerformanceComponentEconomics:v1",
+      "to": "repo:lotus-performance"
     },
     {
       "edge_type": "approves_consumer",
@@ -2089,6 +2104,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:MarketDataWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PerformanceComponentEconomics:v1"
     },
     {
       "edge_type": "produces",
