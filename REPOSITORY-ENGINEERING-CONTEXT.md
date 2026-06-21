@@ -49,7 +49,9 @@ Current repository posture:
    a layered `src/app/api|application|domain|ports|infrastructure|observability|security`
    skeleton, report-only `architecture-boundary-report` and `quality-baseline` commands, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
-   observability, health/readiness, and workflow baseline gates.
+   observability, health/readiness, and workflow baseline gates. Detailed usage and generated
+   feature documentation lives in
+   `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
    `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
    supports `-CheckOnly` drift detection for app-local deployed copies under

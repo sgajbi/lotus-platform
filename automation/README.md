@@ -1110,6 +1110,9 @@ Scaffold a new standards-compliant Lotus backend and auto-register it in automat
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service" -ServiceProfile domain-service
 ```
 
+Detailed scaffold usage and generated-feature documentation:
+`docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
+
 Check whether app-local enterprise backend refactoring instruction copies match the canonical
 platform playbook:
 

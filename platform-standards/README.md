@@ -55,6 +55,8 @@ Cross-application bank-buyable engineering posture:
 
 ## One-Command Lotus Service Scaffold
 
+Detailed usage guide: `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-risk `
