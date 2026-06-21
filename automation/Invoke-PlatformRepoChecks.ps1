@@ -22,17 +22,14 @@ function Invoke-CheckedCommand {
     }
 }
 
-function Invoke-CheckedPowerShellScript {
+function Assert-LastExitCode {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$ScriptPath,
-
-        [string[]]$ScriptArguments = @()
+        [string]$CommandDisplay
     )
 
-    & $ScriptPath @ScriptArguments
     if ($LASTEXITCODE -ne 0) {
-        throw "Command failed with exit code ${LASTEXITCODE}: $ScriptPath $($ScriptArguments -join ' ')"
+        throw "Command failed with exit code ${LASTEXITCODE}: $CommandDisplay"
     }
 }
 
@@ -57,11 +54,18 @@ try {
     Invoke-CheckedCommand $toolingPython automation/generate_enterprise_backend_quality_baseline.py --check
     Invoke-CheckedCommand $toolingPython automation/generate_automation_inventory.py --check
     Invoke-CheckedCommand $toolingPython automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
-    Invoke-CheckedPowerShellScript -ScriptPath (Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1") -ScriptArguments @("-CheckOnly")
-    Invoke-CheckedPowerShellScript -ScriptPath (Join-Path $PSScriptRoot "Sync-RepoWikis.ps1") -ScriptArguments @("-CheckOnly", "-Repository", "lotus-platform", "-AllowUnpublishedSourceChanges")
+    $agentContractScript = Join-Path $PSScriptRoot "Sync-AgentOperatingContract.ps1"
+    & $agentContractScript -CheckOnly
+    Assert-LastExitCode "$agentContractScript -CheckOnly"
+
+    $repoWikiSyncScript = Join-Path $PSScriptRoot "Sync-RepoWikis.ps1"
+    & $repoWikiSyncScript -CheckOnly -Repository "lotus-platform" -AllowUnpublishedSourceChanges
+    Assert-LastExitCode "$repoWikiSyncScript -CheckOnly -Repository lotus-platform -AllowUnpublishedSourceChanges"
 
     if ($Lane -in @("pr-merge", "main-releasability")) {
-        Invoke-CheckedPowerShellScript -ScriptPath (Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1")
+        $backendStandardsScript = Join-Path $repoRoot "automation\Validate-Backend-Standards.ps1"
+        & $backendStandardsScript
+        Assert-LastExitCode $backendStandardsScript
     }
 }
 finally {
