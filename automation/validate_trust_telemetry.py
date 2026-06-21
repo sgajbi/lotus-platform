@@ -342,7 +342,7 @@ def _validate_statuses(
     _validate_registry_statuses(issues, path, payload, context)
 
 
-def _validate_lineage_and_blocking(
+def _validate_lineage(
     issues: list[str],
     path: Path,
     payload: dict[str, Any],
@@ -351,22 +351,22 @@ def _validate_lineage_and_blocking(
     lineage = payload.get("lineage")
     if not isinstance(lineage, dict):
         _append_issue(issues, path, "lineage must be an object")
-    else:
-        if not isinstance(lineage.get("lineage_materialized"), bool):
-            _append_issue(issues, path, "lineage.lineage_materialized must be boolean")
-        if (
-            lineage.get("evidence_access_class")
-            not in context["evidence_access_classes"]
-        ):
-            _append_issue(
-                issues,
-                path,
-                "lineage.evidence_access_class must reference the trust metadata registry",
-            )
-        evidence_uris = lineage.get("evidence_uris", [])
-        if evidence_uris is not None and not isinstance(evidence_uris, list):
-            _append_issue(issues, path, "lineage.evidence_uris must be an array")
+        return
 
+    if not isinstance(lineage.get("lineage_materialized"), bool):
+        _append_issue(issues, path, "lineage.lineage_materialized must be boolean")
+    if lineage.get("evidence_access_class") not in context["evidence_access_classes"]:
+        _append_issue(
+            issues,
+            path,
+            "lineage.evidence_access_class must reference the trust metadata registry",
+        )
+    evidence_uris = lineage.get("evidence_uris", [])
+    if evidence_uris is not None and not isinstance(evidence_uris, list):
+        _append_issue(issues, path, "lineage.evidence_uris must be an array")
+
+
+def _validate_blocking(issues: list[str], path: Path, payload: dict[str, Any]) -> None:
     blocking = payload.get("blocking")
     if not isinstance(blocking, dict):
         _append_issue(issues, path, "blocking must be an object")
@@ -381,6 +381,16 @@ def _validate_lineage_and_blocking(
             path,
             "blocking.blocked_reason is required when blocking.blocked is true",
         )
+
+
+def _validate_lineage_and_blocking(
+    issues: list[str],
+    path: Path,
+    payload: dict[str, Any],
+    context: dict[str, Any],
+) -> None:
+    _validate_lineage(issues, path, payload, context)
+    _validate_blocking(issues, path, payload)
 
 
 def _validate_observed_metadata(

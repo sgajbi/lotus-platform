@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 309569
+    "total_source_lines": 309597
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,14 +33,6 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
-      {
-        "complexity": 10,
-        "end_line": 383,
-        "line": 345,
-        "lines": 39,
-        "name": "_validate_lineage_and_blocking",
-        "path": "automation/validate_trust_telemetry.py"
-      },
       {
         "complexity": 10,
         "end_line": 87,
@@ -192,6 +184,14 @@
         "lines": 26,
         "name": "_validate_read_paths",
         "path": "automation/validate_analytics_ui_entitlement_certification.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 86,
+        "line": 64,
+        "lines": 23,
+        "name": "load_config",
+        "path": "automation/heartbeat_sources.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 10,
     "max_function_lines": 525,
-    "python_function_count": 1839
+    "python_function_count": 1842
   },
-  "generated_at_utc": "2026-06-21T11:44:57Z",
+  "generated_at_utc": "2026-06-21T11:55:16Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 551,
+    "collected_tests": 552,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "551 tests collected in 0.94s"
+    "summary": "552 tests collected in 0.61s"
   }
 }

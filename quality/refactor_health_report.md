@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T11:44:57Z`
+Generated: `2026-06-21T11:55:16Z`
 
 ## Completed Slices
 
@@ -386,6 +386,9 @@ Generated: `2026-06-21T11:44:57Z`
      matching, and first-wave certification-posture assertions are isolated behind focused helpers,
      reducing the measured repository complexity ceiling from 11 to 10 while preserving
      repo-native domain-product rollout closure behavior.
+103. Trust telemetry lineage and blocking extraction so lineage metadata checks and blocking-state
+     checks are isolated behind focused helpers, removing the trust telemetry validator from the top
+     measured complexity hotspot list while adding malformed-lineage regression coverage.
 
 ## Evidence
 
