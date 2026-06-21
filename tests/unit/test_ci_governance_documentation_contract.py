@@ -275,12 +275,18 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
 
     assert "name: Remote Feature Lane" in feature_lane
     assert "Feature Lane / Platform Repo Contracts" in feature_lane
+    assert "repository: sgajbi/lotus-render" in feature_lane
+    assert "repository: sgajbi/lotus-archive" in feature_lane
 
     assert "name: Pull Request Merge Gate" in pr_merge_gate
     assert "PR Merge Gate / Platform Repo Contracts" in pr_merge_gate
+    assert "repository: sgajbi/lotus-render" in pr_merge_gate
+    assert "repository: sgajbi/lotus-archive" in pr_merge_gate
 
     assert "name: Main Releasability Gate" in main_releasability
     assert "Main Releasability / Platform Repo Contracts" in main_releasability
+    assert "repository: sgajbi/lotus-render" in main_releasability
+    assert "repository: sgajbi/lotus-archive" in main_releasability
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
