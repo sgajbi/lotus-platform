@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 356,
+    "markdown_file_count": 359,
     "powershell_file_count": 63,
     "python_file_count": 158,
-    "source_file_count": 717,
+    "source_file_count": 720,
     "suffix_counts": {
       ".json": 108,
-      ".md": 356,
+      ".md": 359,
       ".ps1": 63,
       ".py": 158,
       ".txt": 5,
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306575
+    "total_source_lines": 309569
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,20 +34,20 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 11,
-        "end_line": 111,
-        "line": 59,
-        "lines": 53,
-        "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
-        "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
         "complexity": 10,
         "end_line": 383,
         "line": 345,
         "lines": 39,
         "name": "_validate_lineage_and_blocking",
         "path": "automation/validate_trust_telemetry.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 87,
+        "line": 51,
+        "lines": 37,
+        "name": "normalize_actual_governance",
+        "path": "automation/validate_repository_governance.py"
       },
       {
         "complexity": 10,
@@ -64,14 +64,6 @@
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 84,
-        "line": 51,
-        "lines": 34,
-        "name": "normalize_actual_governance",
-        "path": "automation/validate_repository_governance.py"
       },
       {
         "complexity": 10,
@@ -107,8 +99,8 @@
       },
       {
         "complexity": 9,
-        "end_line": 156,
-        "line": 93,
+        "end_line": 157,
+        "line": 94,
         "lines": 64,
         "name": "validate_dev_ingress_smoke",
         "path": "automation/validate_dev_ingress_smoke.py"
@@ -192,9 +184,25 @@
         "lines": 30,
         "name": "_validate_engineering_context_entrypoints",
         "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 226,
+        "line": 201,
+        "lines": 26,
+        "name": "_validate_read_paths",
+        "path": "automation/validate_analytics_ui_entitlement_certification.py"
       }
     ],
     "largest_functions": [
+      {
+        "complexity": 1,
+        "end_line": 776,
+        "line": 252,
+        "lines": 525,
+        "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
+        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
+      },
       {
         "complexity": 1,
         "end_line": 910,
@@ -218,14 +226,6 @@
         "lines": 360,
         "name": "validate_service_addressing",
         "path": "automation/validate_service_addressing.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 429,
-        "line": 151,
-        "lines": 279,
-        "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
-        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
       {
         "complexity": 7,
@@ -260,6 +260,14 @@
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
+        "complexity": 2,
+        "end_line": 249,
+        "line": 59,
+        "lines": 191,
+        "name": "test_repository_hygiene_standard_and_templates_exist",
+        "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
+      },
+      {
         "complexity": 1,
         "end_line": 304,
         "line": 129,
@@ -285,9 +293,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 170,
+        "end_line": 172,
         "line": 9,
-        "lines": 162,
+        "lines": 164,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
       },
@@ -346,21 +354,13 @@
         "lines": 133,
         "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 832,
-        "line": 701,
-        "lines": 132,
-        "name": "test_rfc_0084_validator_rejects_version_drift_without_approved_transition",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 11,
-    "max_function_lines": 422,
-    "python_function_count": 1829
+    "max_complexity": 10,
+    "max_function_lines": 525,
+    "python_function_count": 1839
   },
-  "generated_at_utc": "2026-06-21T04:28:29Z",
+  "generated_at_utc": "2026-06-21T11:44:57Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -388,6 +388,11 @@
       "suffix": ".json"
     },
     {
+      "lines": 3253,
+      "path": "automation/New-Lotus-Service.ps1",
+      "suffix": ".ps1"
+    },
+    {
       "lines": 2701,
       "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
       "suffix": ".json"
@@ -401,11 +406,6 @@
       "lines": 1818,
       "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1801,
-      "path": "automation/New-Lotus-Service.ps1",
-      "suffix": ".ps1"
     },
     {
       "lines": 1735,
@@ -428,7 +428,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1327,
+      "lines": 1337,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -642,7 +642,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 939,
+        "line": 1947,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 546,
+    "collected_tests": 551,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "546 tests collected in 0.69s"
+    "summary": "551 tests collected in 0.94s"
   }
 }
