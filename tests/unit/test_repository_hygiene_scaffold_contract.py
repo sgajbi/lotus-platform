@@ -299,6 +299,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    assert not (repo_root / "quality/architecture_boundary_report.json").exists()
+    architecture_report = subprocess.run(
+        [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "report-only"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     quality_baseline = subprocess.run(
         [sys.executable, "scripts/generate_quality_baseline.py"],
         cwd=repo_root,
@@ -312,6 +320,18 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "blocking"],
         cwd=repo_root,
         check=False,
+        capture_output=True,
+        text=True,
+    )
+    clean_architecture_boundary_report = json.loads(
+        (repo_root / "quality/architecture_boundary_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    architecture_failure_report = subprocess.run(
+        [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "report-only"],
+        cwd=repo_root,
+        check=True,
         capture_output=True,
         text=True,
     )
@@ -576,17 +596,22 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         missing_architecture_quality_report["architecture_boundary_report_status"]
         == "missing"
     )
-    assert "Architecture boundary report passed" in architecture_gate.stdout
+    assert "Architecture boundary gate passed" in architecture_gate.stdout
+    assert "Architecture boundary report passed" in architecture_report.stdout
     assert "Wrote" in quality_baseline.stdout
     assert "passed" in quality_baseline_markdown
     assert "passed" in quality_baseline_report["architecture_boundary_report_status"]
     assert quality_baseline_report["architecture_boundary_report_exists"] is True
     assert architecture_failure.returncode == 1
+    assert "Architecture boundary gate found 1 violation(s)." in architecture_failure.stdout
     assert "fastapi" in architecture_failure.stdout
+    assert clean_architecture_boundary_report["mode"] == "report-only"
+    assert clean_architecture_boundary_report["status"] == "passed"
+    assert "Architecture boundary report found 1 violation(s)." in architecture_failure_report.stdout
     assert "Domain must stay framework-free" in architecture_boundary_gate
     assert "mode" in quality_baseline_script
     assert architecture_boundary_report["repository"] == service_name
-    assert architecture_boundary_report["mode"] == "blocking"
+    assert architecture_boundary_report["mode"] == "report-only"
     assert architecture_boundary_report["status"] == "failed"
     assert architecture_boundary_report["violations"][0]["import"] == "fastapi"
     assert quality_baseline_report["repository"] == service_name
