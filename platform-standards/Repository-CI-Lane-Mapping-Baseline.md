@@ -58,6 +58,7 @@ Current scaffold source of truth for backend repositories:
 3. `platform-standards/templates/workflows/pr-merge-gate.backend.template.yml`
 4. `platform-standards/templates/workflows/main-releasability.backend.template.yml`
 5. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+6. `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml`
 
 This scaffold baseline now emits the full backend lane model by default.
 Repository rollout convergence is complete for the current in-scope backend service estate.

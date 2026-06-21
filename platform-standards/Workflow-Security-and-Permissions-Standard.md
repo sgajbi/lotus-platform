@@ -49,11 +49,16 @@ Write permissions are allowed only for explicitly approved workflow files with a
 Current approved exception:
 
 1. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+2. `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml`
 
-That workflow is allowed to request:
+`pr-auto-merge.template.yml` is allowed to request:
 
 1. `contents: write`
 2. `pull-requests: write`
+
+`merged-pr-main-releasability.template.yml` is allowed to request:
+
+1. `actions: write`
 
 No other workflow may request write permissions unless this standard and the validator allowlist are updated intentionally.
 
@@ -68,6 +73,7 @@ It is allowed only for explicitly approved workflow files whose behavior is narr
 Current approved exception:
 
 1. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
+2. `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml`
 
 ## Allowed Action Source Pattern
 
@@ -93,6 +99,7 @@ The platform validator must fail when:
 | Workflow Path | Allowed Event Exception | Allowed Write Permissions |
 | --- | --- | --- |
 | `platform-standards/templates/workflows/pr-auto-merge.template.yml` | `pull_request_target` | `contents: write`, `pull-requests: write` |
+| `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml` | `pull_request_target` | `actions: write` |
 
 ## Acceptance Posture
 

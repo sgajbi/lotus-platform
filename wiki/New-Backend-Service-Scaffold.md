@@ -19,12 +19,15 @@ review needs durable quality artifacts.
 future scaffold or agent changes from silently removing Makefile targets, least-privilege workflow
 permissions, approved action majors, merge/releasability coverage, Docker validation, release
 evidence, endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI
-controls.
+controls. It also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
+needed for rebase auto-merged PRs.
 
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
 evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a
 release metadata manifest.
+Generated repos also include a merged-PR dispatcher that starts Main Releasability on `main` after
+PR completion.
 
 Detailed guide:
 

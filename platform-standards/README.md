@@ -18,6 +18,7 @@ This folder is the reusable standards package for backend repositories.
 - `templates/workflows/pr-merge-gate.backend.template.yml`
 - `templates/workflows/main-releasability.backend.template.yml`
 - `templates/workflows/pr-auto-merge.template.yml`
+- `templates/workflows/merged-pr-main-releasability.template.yml`
 - `Development-Workflow-and-CI-Strategy-Standard.md`
 - `Backend-CI-Lane-Template-Contract.md`
 - `Repository-Hygiene-and-Dependency-Model-Standard.md`
@@ -73,6 +74,7 @@ This generates a production-grade backend baseline with:
   artifact download, and Docker Buildx setup
 - main releasability release evidence with CycloneDX SBOM and release metadata artifacts
 - rebase auto-merge workflow for linear, non-squash history
+- merged-PR main releasability dispatcher for explicit post-merge evidence after auto-merge
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
 - blocking CI contract gate that protects bank-buyable lane wiring from drift

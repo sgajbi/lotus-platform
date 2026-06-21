@@ -15,6 +15,7 @@ Define the platform-owned backend workflow template contract that new Lotus serv
 2. `.github/workflows/pr-merge-gate.yml`
 3. `.github/workflows/main-releasability.yml`
 4. `.github/workflows/pr-auto-merge.yml`
+5. `.github/workflows/merged-pr-main-releasability.yml`
 
 ## Lane Intent
 
@@ -89,6 +90,10 @@ Feature-lane and main-releasability jobs must not be configured as required PR c
 The scaffolded `pr-auto-merge.yml` must request rebase auto-merge, not squash or merge-commit
 auto-merge. Lotus PR completion preserves scoped commits on a linear `main` history.
 
+The scaffolded `merged-pr-main-releasability.yml` must dispatch `main-releasability.yml` when a PR
+is merged to `main`. This keeps post-merge release evidence explicit for rebase auto-merged PRs
+instead of depending only on a push-triggered workflow run.
+
 ## Report-Only Scaffold Quality Commands
 
 New backend service scaffolds must include these repo-native report-only commands:
@@ -109,7 +114,8 @@ repeatable and worktree-clean.
 worktree-clean and validates the lane contract itself: required Makefile targets, least-privilege
 workflow permissions, approved action-runtime majors, merge-grade coverage, Docker validation,
 release evidence, endpoint certification, supported-feature promotion control, and local quality
-gate wiring.
+gate wiring. It must also protect `workflow_dispatch` on `main-releasability.yml` and the merged-PR
+dispatch workflow that starts post-merge release evidence.
 
 Report-only commands must not become blocking CI gates until `lotus-ci-enforcement-governance`
 confirms the signal is measured, deterministic, low-noise, lane-appropriate, and backed by an

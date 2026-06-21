@@ -95,6 +95,13 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         / "workflows"
         / "main-releasability.backend.template.yml"
     ).read_text(encoding="utf-8")
+    merged_pr_dispatch_template = (
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "merged-pr-main-releasability.template.yml"
+    ).read_text(encoding="utf-8")
 
     assert "Repository-Hygiene-and-Dependency-Model-Standard.md" in standards_readme
     assert ".editorconfig" in hygiene_standard
@@ -161,6 +168,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
+    assert "merged-pr-main-releasability.template.yml" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
     assert "scripts/endpoint_certification_gate.py" in scaffold_script
     assert '[string]$ServiceProfile = ""' in scaffold_script
@@ -244,6 +252,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         in makefile_template
     )
     assert "run: ./.venv/bin/python -m pytest tests/unit" in feature_lane_template
+    assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
+    assert "--ref main" in merged_pr_dispatch_template
+    assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
     assert (
         "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report="
         in pr_merge_template
@@ -419,6 +430,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     ci_contract_gate = (repo_root / "scripts/ci_contract_gate.py").read_text(
         encoding="utf-8"
     )
+    merged_pr_dispatch_workflow = (
+        repo_root / ".github/workflows/merged-pr-main-releasability.yml"
+    ).read_text(encoding="utf-8")
     architecture_boundary_gate = (
         repo_root / "scripts/architecture_boundary_gate.py"
     ).read_text(encoding="utf-8")
@@ -603,6 +617,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
     assert "contents: write" in ci_contract_gate
+    assert "merged-pr-main-releasability.yml" in ci_contract_gate
+    assert "gh workflow run main-releasability.yml" in ci_contract_gate
+    assert "workflow_dispatch:" in ci_contract_gate
+    assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
+    assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
+    assert "--ref main" in merged_pr_dispatch_workflow
     assert (
         "WARNING: quality/architecture_boundary_report.json is missing"
         in missing_architecture_quality_baseline.stdout

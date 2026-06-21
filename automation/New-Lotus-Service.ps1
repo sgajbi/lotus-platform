@@ -212,7 +212,8 @@ function Write-RepositoryEngineeringContext {
     'build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
     'changes from silently removing architecture, OpenAPI, endpoint-certification, supported-feature,',
-    'coverage, security, Docker, release-evidence, action-version, or least-privilege workflow controls.',
+    'coverage, security, Docker, release-evidence, action-version, least-privilege workflow controls,',
+    'workflow-dispatch access, or merged-PR main-releasability dispatch.',
     'The scaffold also starts with a bank-buyable quality scorecard under `quality/`; update it when',
     'architecture, API, security, observability, test, CI, or documentation posture changes.',
     '',
@@ -364,6 +365,7 @@ function Write-WikiBaseline {
       "1. Feature Lane for fast branch feedback.",
       "2. PR Merge Gate for merge readiness.",
       "3. Main Releasability Gate for post-merge truth.",
+      "4. Merged PR Main Releasability Dispatch so rebase auto-merged PRs still generate release evidence on `main`.",
       "",
       "Repo-native commands:",
       "",
@@ -884,6 +886,7 @@ Copy-Item (Join-Path $templateRoot "workflows/feature-lane.backend.template.yml"
 Copy-Item (Join-Path $templateRoot "workflows/pr-merge-gate.backend.template.yml") (Join-Path $target ".github/workflows/pr-merge-gate.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/main-releasability.backend.template.yml") (Join-Path $target ".github/workflows/main-releasability.yml") -Force
 Copy-Item (Join-Path $templateRoot "workflows/pr-auto-merge.template.yml") (Join-Path $target ".github/workflows/pr-auto-merge.yml") -Force
+Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.template.yml") (Join-Path $target ".github/workflows/merged-pr-main-releasability.yml") -Force
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
@@ -2041,6 +2044,7 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "NODE_OPTIONS: --no-deprecation",
     ),
     "main-releasability.yml": (
+        "workflow_dispatch:",
         "permissions:\n  contents: read",
         "actions/checkout@v7",
         "actions/setup-python@v6",
@@ -2070,6 +2074,16 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "github.event.pull_request.head.repo.fork == false",
         "gh pr merge",
         "--auto --rebase --delete-branch",
+    ),
+    "merged-pr-main-releasability.yml": (
+        "pull_request_target:",
+        "types: [closed]",
+        "actions: write",
+        "contents: read",
+        "github.event.pull_request.merged == true",
+        "github.event.pull_request.base.ref == 'main'",
+        "gh workflow run main-releasability.yml",
+        "--ref main",
     ),
 }
 
@@ -3105,6 +3119,8 @@ Report-only scaffold commands:
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
 supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
 release evidence, least-privilege workflow permissions, and approved action-runtime majors.
+The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
+needed for rebase auto-merged PRs.
 "@
 Set-Content -Path (Join-Path $target "quality/refactor_decisions.md") -Value @"
 # Refactor Decisions
