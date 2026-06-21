@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-21T11:55:16Z`
+Generated: `2026-06-21T12:04:07Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `720`
-- Total source lines: `309597`
+- Total source lines: `309662`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `359`
@@ -39,13 +39,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1842`
+- Python functions: `1848`
 - Highest measured cyclomatic complexity: `10`
 - Largest Python function length: `525`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/validate_repository_governance.py | normalize_actual_governance | 51 | 10 | 37 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
 | automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 928 | 10 | 34 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_supported_feature_milestones | 368 | 10 | 29 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_dev_ingress_smoke.py | validate_dev_ingress_smoke | 94 | 9 | 64 |
 | automation/domain_product_certification.py | _append_dependency_issues | 148 | 9 | 57 |
 | automation/heartbeat_sources.py | _wiki_publication_adapter | 1085 | 9 | 56 |
+| automation/prune_merged_remote_branches.py | classify_branch | 58 | 9 | 52 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `552`
+- Unit tests collected: `553`
 - Collection command return code: `0`
-- Collection summary: `552 tests collected in 0.61s`
+- Collection summary: `553 tests collected in 1.08s`
 
 ## Security Baseline
 

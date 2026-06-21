@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T11:55:16Z`
+Generated: `2026-06-21T12:04:07Z`
 
 ## Completed Slices
 
@@ -389,6 +389,10 @@ Generated: `2026-06-21T11:55:16Z`
 103. Trust telemetry lineage and blocking extraction so lineage metadata checks and blocking-state
      checks are isolated behind focused helpers, removing the trust telemetry validator from the top
      measured complexity hotspot list while adding malformed-lineage regression coverage.
+104. Repository-governance normalizer extraction so unprotected defaults, status-check parsing, pull
+     request review parsing, and branch-protection booleans are isolated behind focused helpers,
+     removing the governance normalizer from the top measured complexity hotspot list while adding
+     protected-branch payload regression coverage.
 
 ## Evidence
 
