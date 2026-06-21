@@ -170,3 +170,21 @@ def test_trust_telemetry_requires_blocked_reason_when_blocked(
     issues = validator.validate_trust_telemetry_path(snapshot_path)
 
     assert any("blocking.blocked_reason is required" in issue for issue in issues)
+
+
+def test_trust_telemetry_rejects_malformed_lineage_fields(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    snapshot = _valid_snapshot()
+    snapshot["lineage"] = {
+        "lineage_materialized": "yes",
+        "evidence_access_class": "private",
+        "evidence_uris": "artifact://returns-series/20260419",
+    }
+    snapshot_path = tmp_path / "malformed-lineage.json"
+    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
+
+    issues = validator.validate_trust_telemetry_path(snapshot_path)
+
+    assert any("lineage.lineage_materialized must be boolean" in issue for issue in issues)
+    assert any("lineage.evidence_access_class" in issue for issue in issues)
+    assert any("lineage.evidence_uris must be an array" in issue for issue in issues)
