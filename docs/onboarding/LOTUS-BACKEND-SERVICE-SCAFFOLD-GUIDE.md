@@ -219,9 +219,10 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 4. `make openapi-gate`
 5. `make supported-features-gate`
 6. `make endpoint-certification-gate`
-7. `make test`
-8. `make ci`
-9. `make security-audit`
+7. `make ci-contract-gate`
+8. `make test`
+9. `make ci`
+10. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -232,6 +233,11 @@ Blocking scaffold gates must not create or rewrite durable report artifacts in a
 For example, `make architecture-boundary-gate` runs in blocking mode and should leave the worktree
 clean when it passes or fails. Generate review evidence explicitly with the matching report command
 instead.
+
+`make ci-contract-gate` is also blocking from day one. It prevents scaffold or agent changes from
+silently removing Makefile targets, least-privilege workflow permissions, approved workflow action
+majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
+endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI controls.
 
 It also starts with report-only quality evidence:
 
@@ -274,6 +280,7 @@ After generation:
 ```powershell
 cd C:\Users\<user>\projects\lotus-example
 make install
+make ci-contract-gate
 make architecture-boundary-gate
 make architecture-boundary-report
 make quality-baseline

@@ -59,3 +59,10 @@ solving them only in the generated app.
     repositories should enable rebase merge, disable squash and merge-commit
     completion, require branch linear history, and queue auto-merge with
     `gh pr merge --auto --rebase`.
+14. Scaffolded backend repositories need an anti-drift gate for the lane
+    contract itself. `make ci-contract-gate` should run through `make lint` and
+    fail if agent or scaffold changes remove required Makefile targets,
+    least-privilege workflow permissions, approved workflow action majors,
+    merge/releasability coverage, Docker validation, release evidence,
+    endpoint-certification, supported-feature, security-audit, architecture, or
+    OpenAPI controls.
