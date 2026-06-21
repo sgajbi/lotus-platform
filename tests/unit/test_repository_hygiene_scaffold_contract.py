@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -54,6 +55,16 @@ def _run_scaffold(
         capture_output=True,
         text=True,
     )
+
+
+def _load_generated_ci_contract_gate(repo_root: Path):
+    script_path = repo_root / "scripts" / "ci_contract_gate.py"
+    spec = importlib.util.spec_from_file_location("generated_ci_contract_gate", script_path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_repository_hygiene_standard_and_templates_exist() -> None:
@@ -624,7 +635,31 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "gh workflow run main-releasability.yml" in ci_contract_gate
     assert "workflow_dispatch:" in ci_contract_gate
     assert "_validate_job_timeouts" in ci_contract_gate
-    assert "continue-on-error: true" in ci_contract_gate
+    assert "continue-on-error:" in ci_contract_gate
+    assert "must define at least one parseable job" in ci_contract_gate
+    generated_ci_contract_gate = _load_generated_ci_contract_gate(repo_root)
+    mutated_workflow_dir = tmp_path / "mutated-generated-workflows"
+    shutil.copytree(repo_root / ".github" / "workflows", mutated_workflow_dir)
+    feature_lane = mutated_workflow_dir / "feature-lane.yml"
+    original_feature_lane = feature_lane.read_text(encoding="utf-8")
+    feature_lane.write_text(
+        original_feature_lane.replace("jobs:", "jobs: # generated lanes", 1).replace(
+            "    timeout-minutes: 10\n", "", 1
+        ),
+        encoding="utf-8",
+    )
+    timeout_errors = generated_ci_contract_gate.validate_workflows(mutated_workflow_dir)
+    assert "feature-lane.yml job `workflow-lint` missing timeout-minutes" in timeout_errors
+    feature_lane.write_text(
+        original_feature_lane.replace(
+            "    timeout-minutes: 10\n",
+            "    timeout-minutes: 10\n    continue-on-error: ${{ true }}\n",
+            1,
+        ),
+        encoding="utf-8",
+    )
+    soft_fail_errors = generated_ci_contract_gate.validate_workflows(mutated_workflow_dir)
+    assert "feature-lane.yml must not contain `continue-on-error:`" in soft_fail_errors
     assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
     assert "--ref main" in merged_pr_dispatch_workflow
