@@ -146,6 +146,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "actions/setup-python" in workflow_action_runtime_standard
     assert "actions/setup-node" in workflow_action_runtime_standard
     assert "actions/upload-artifact" in workflow_action_runtime_standard
+    assert "NODE_OPTIONS=--no-deprecation" in workflow_action_runtime_standard
     assert "Dependency SBOM Baseline" in release_evidence_standard
     assert "release-evidence.json" in release_evidence_standard
     assert "main-releasability-release-evidence" in release_evidence_standard
@@ -252,9 +253,11 @@ def test_backend_lane_templates_exist_and_define_explicit_lane_names() -> None:
 
     assert "name: Pull Request Merge Gate" in pr_merge_gate
     assert "PR Merge Gate / Coverage Gate (Combined)" in pr_merge_gate
+    assert "NODE_OPTIONS: --no-deprecation" in pr_merge_gate
 
     assert "name: Main Releasability Gate" in main_releasability
     assert "Main Releasability / Validate Docker Build" in main_releasability
+    assert "NODE_OPTIONS: --no-deprecation" in main_releasability
 
     assert "feature-lane-workflow" in standards_validator
     assert "pr-merge-gate-workflow" in standards_validator
