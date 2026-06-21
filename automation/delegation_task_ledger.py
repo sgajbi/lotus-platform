@@ -284,6 +284,42 @@ def _validate_output_write_scope(
         errors.append(f"changed file outside delegated write_scope: {changed_file}")
 
 
+def _validate_evidence_ref_type(
+    errors: list[str],
+    *,
+    index: int,
+    evidence_ref: dict[str, Any],
+) -> None:
+    ref_type = evidence_ref.get("type")
+    if ref_type not in REQUIRED_EVIDENCE_REF_TYPES:
+        errors.append(f"delegation output evidence_refs[{index}].type must be governed")
+
+
+def _validate_evidence_ref_location(
+    errors: list[str],
+    *,
+    index: int,
+    evidence_ref: dict[str, Any],
+) -> None:
+    has_ref = isinstance(evidence_ref.get("ref"), str) and evidence_ref["ref"].strip()
+    has_path = isinstance(evidence_ref.get("path"), str) and evidence_ref["path"].strip()
+    if not has_ref and not has_path:
+        errors.append(f"delegation output evidence_refs[{index}] must include ref or path")
+
+
+def _validate_evidence_ref(
+    errors: list[str],
+    *,
+    index: int,
+    evidence_ref: object,
+) -> None:
+    if not isinstance(evidence_ref, dict):
+        errors.append(f"delegation output evidence_refs[{index}] must be an object")
+        return
+    _validate_evidence_ref_type(errors, index=index, evidence_ref=evidence_ref)
+    _validate_evidence_ref_location(errors, index=index, evidence_ref=evidence_ref)
+
+
 def _validate_output_evidence_refs(
     output: dict[str, Any],
     errors: list[str],
@@ -294,16 +330,7 @@ def _validate_output_evidence_refs(
         return
 
     for index, evidence_ref in enumerate(evidence_refs):
-        if not isinstance(evidence_ref, dict):
-            errors.append(f"delegation output evidence_refs[{index}] must be an object")
-            continue
-        ref_type = evidence_ref.get("type")
-        if ref_type not in REQUIRED_EVIDENCE_REF_TYPES:
-            errors.append(f"delegation output evidence_refs[{index}].type must be governed")
-        has_ref = isinstance(evidence_ref.get("ref"), str) and evidence_ref["ref"].strip()
-        has_path = isinstance(evidence_ref.get("path"), str) and evidence_ref["path"].strip()
-        if not has_ref and not has_path:
-            errors.append(f"delegation output evidence_refs[{index}] must include ref or path")
+        _validate_evidence_ref(errors, index=index, evidence_ref=evidence_ref)
 
 
 def _validate_output_follow_up(

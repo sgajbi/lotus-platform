@@ -314,6 +314,40 @@ def test_delegation_output_rejects_malformed_evidence_refs() -> None:
     assert "delegation output evidence_refs[2] must be an object" in errors
 
 
+def test_delegation_output_rejects_empty_evidence_refs() -> None:
+    ledger = _load_module()
+    output = _valid_implementation_output()
+    output["evidence_refs"] = []
+
+    errors = ledger.validate_delegation_output(
+        output,
+        write_scope=["automation/delegation_task_ledger.py"],
+    )
+
+    assert "delegation output evidence_refs must be a non-empty list" in errors
+
+
+def test_delegation_output_accepts_path_only_evidence_ref() -> None:
+    ledger = _load_module()
+    output = _valid_implementation_output()
+    output["evidence_refs"] = [
+        {
+            "type": "LOCAL_JSON_ARTIFACT",
+            "path": "output/delegation/delegation-output.json",
+        }
+    ]
+
+    errors = ledger.validate_delegation_output(
+        output,
+        write_scope=[
+            "automation/validate_agent_engineering_contracts.py",
+            "tests/unit/test_agent_engineering_contracts.py",
+        ],
+    )
+
+    assert errors == []
+
+
 def test_record_delegation_return_requires_main_agent_review(tmp_path: Path) -> None:
     ledger = _load_module()
     ledger_path = tmp_path / "delegated-tasks.json"

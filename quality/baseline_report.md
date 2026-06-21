@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-21T12:20:06Z`
+Generated: `2026-06-21T12:29:43Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `720`
-- Total source lines: `309851`
+- Total source lines: `310222`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `359`
@@ -31,7 +31,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 14219 | .json |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
-| automation/New-Lotus-Service.ps1 | 3253 | .ps1 |
+| automation/New-Lotus-Service.ps1 | 3493 | .ps1 |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 2701 | .json |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2202 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
@@ -39,14 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1859`
+- Python functions: `1864`
 - Highest measured cyclomatic complexity: `10`
-- Largest Python function length: `525`
+- Largest Python function length: `547`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_supported_feature_milestones | 368 | 10 | 29 |
-| automation/delegation_task_ledger.py | _validate_output_evidence_refs | 287 | 10 | 20 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_contract_directory | 1439 | 9 | 102 |
 | automation/core_performance_cross_app_validation.py | _evaluate_performance_requests | 306 | 9 | 75 |
 | automation/validate_dev_ingress_smoke.py | validate_dev_ingress_smoke | 94 | 9 | 64 |
@@ -55,6 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/prune_merged_remote_branches.py | classify_branch | 58 | 9 | 52 |
 | automation/validate_analytics_ui_observability_contract.py | _validate_telemetry_events | 582 | 9 | 45 |
 | automation/mesh_certification_gate.py | _validate_required_product_lifecycle | 258 | 9 | 42 |
+| automation/heartbeat_sources.py | _collect_delegated_task_ledger_item | 987 | 9 | 38 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `556`
+- Unit tests collected: `558`
 - Collection command return code: `0`
-- Collection summary: `556 tests collected in 0.56s`
+- Collection summary: `558 tests collected in 0.70s`
 
 ## Security Baseline
 
