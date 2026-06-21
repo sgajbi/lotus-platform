@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 82,
-  "edge_count": 247,
+  "node_count": 83,
+  "edge_count": 248,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -746,6 +746,11 @@
       "repository": "lotus-gateway"
     },
     {
+      "node_id": "repo:lotus-idea",
+      "node_type": "repository",
+      "repository": "lotus-idea"
+    },
+    {
       "node_id": "repo:lotus-manage",
       "node_type": "repository",
       "repository": "lotus-manage"
@@ -1031,6 +1036,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:HoldingsAsOf:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:HoldingsAsOf:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
