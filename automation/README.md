@@ -1107,7 +1107,7 @@ python automation/validate_repository_governance.py
 Scaffold a new standards-compliant Lotus backend and auto-register it in automation:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service"
+powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 -ServiceName lotus-foo -Description "New domain service" -ServiceProfile domain-service
 ```
 
 Check whether app-local enterprise backend refactoring instruction copies match the canonical
@@ -1138,6 +1138,7 @@ powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-foo `
   -Description "New domain service" `
   -BusinessRole "New domain service" `
+  -ServiceProfile domain-service `
   -DevHostName foo `
   -InitializeGit `
   -CreateGithubRepo `
@@ -1311,8 +1312,13 @@ same workflow.
 Scaffolded backend repositories now also default to:
 - repo-local virtualenv bootstrap through `make install`
 - repo-native `make` commands in automation task profiles instead of raw host-environment Python commands
+- service-profile-aware README, repository context, wiki source, and quality documentation
+- layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
+  `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - baseline health, readiness, metrics, correlation-id and trace-id propagation, OpenAPI quality, coverage gate, and wiki-source posture from day one
 - product-safe problem-details errors, structured JSON application events, supported-features placeholders, RFC implementation evidence scaffolding, operations observability documentation, and API certification documentation from day one
+- report-only `make architecture-boundary-report` and `make quality-baseline` commands, kept out
+  of blocking CI until governance proves each signal deterministic, low-noise, and policy-backed
 - `evidence/rfc-implementation/evidence-manifest.template.json`, so RFC implementation slices can
   publish comparable machine-readable evidence across repositories without inventing local manifest
   shapes; the template now includes slice closure, API certification, state-machine review,

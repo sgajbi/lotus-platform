@@ -59,19 +59,24 @@ Cross-application bank-buyable engineering posture:
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-risk `
   -Description "Risk and exposure analytics service" `
+  -ServiceProfile domain-service `
   -Port 8130
 ```
 
 This generates a production-grade backend baseline with:
 
+- service-profile-aware README, repository context, wiki source, and quality documentation
 - explicit feature, PR merge, and main releasability workflows
 - merge-commit auto-merge workflow
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
+- layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
+  `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - FastAPI app with health/readiness and metrics
 - product-safe problem-details error scaffolding
 - structured JSON application event logging
 - OpenAPI gate script
+- report-only architecture-boundary and quality-baseline commands
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)

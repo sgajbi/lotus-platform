@@ -25,7 +25,7 @@
       "id": "backend_structured_logs_and_safe_errors",
       "artifact_path": "automation/New-Lotus-Service.ps1",
       "required_terms": [
-        "src/app/observability.py",
+        "src/app/observability/logging.py",
         "json.dumps(payload, sort_keys=True, default=str)",
         "ProblemDetails",
         "product-safe",
@@ -66,6 +66,8 @@
         "openapi-gate",
         "no-sensitive-content-guard",
         "supported-features-gate",
+        "architecture-boundary-report",
+        "quality-baseline",
         "coverage-gate",
         "security-audit"
       ]

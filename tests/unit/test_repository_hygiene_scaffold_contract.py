@@ -116,6 +116,22 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
     assert "scripts/endpoint_certification_gate.py" in scaffold_script
+    assert '[string]$ServiceProfile = ""' in scaffold_script
+    assert '"domain-service"' in scaffold_script
+    assert '"experience-api"' in scaffold_script
+    assert '"shared-capability-service"' in scaffold_script
+    assert '"client-facing-service"' in scaffold_script
+    assert "src/app/api" in scaffold_script
+    assert "src/app/application" in scaffold_script
+    assert "src/app/domain" in scaffold_script
+    assert "src/app/ports" in scaffold_script
+    assert "src/app/infrastructure" in scaffold_script
+    assert "src/app/observability" in scaffold_script
+    assert "src/app/security" in scaffold_script
+    assert "scripts/architecture_boundary_gate.py" in scaffold_script
+    assert "scripts/generate_quality_baseline.py" in scaffold_script
+    assert "architecture-boundary-report:" in scaffold_script
+    assert "quality-baseline:" in scaffold_script
     assert (
         'require_response_headers = @("x-correlation-id", "x-trace-id")'
         in scaffold_script
@@ -133,6 +149,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) supported-features-gate" in makefile_template
     assert "endpoint-certification-gate:" in makefile_template
     assert "$(MAKE) endpoint-certification-gate" in makefile_template
+    assert "architecture-boundary-report:" in makefile_template
+    assert "scripts/architecture_boundary_gate.py --mode report-only" in makefile_template
+    assert "quality-baseline:" in makefile_template
+    assert "scripts/generate_quality_baseline.py" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
     assert (
@@ -201,12 +221,46 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    architecture_gate = subprocess.run(
+        [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "blocking"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    quality_baseline = subprocess.run(
+        [sys.executable, "scripts/generate_quality_baseline.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bad_boundary = repo_root / "src/app/domain/bad_boundary.py"
+    bad_boundary.write_text("from fastapi import FastAPI\n", encoding="utf-8")
+    architecture_failure = subprocess.run(
+        [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "blocking"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    bad_boundary.unlink()
 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
-    observability_py = (repo_root / "src/app/observability.py").read_text(
+    app_readme = (repo_root / "src/app/README.md").read_text(encoding="utf-8")
+    domain_profile = (repo_root / "src/app/domain/service_profile.py").read_text(
+        encoding="utf-8"
+    )
+    application_profile = (
+        repo_root / "src/app/application/service_profile.py"
+    ).read_text(encoding="utf-8")
+    observability_init = (repo_root / "src/app/observability/__init__.py").read_text(
+        encoding="utf-8"
+    )
+    observability_py = (repo_root / "src/app/observability/logging.py").read_text(
         encoding="utf-8"
     )
     correlation_middleware = (
@@ -229,6 +283,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     ).read_text(encoding="utf-8")
     endpoint_certification_gate = (
         repo_root / "scripts/endpoint_certification_gate.py"
+    ).read_text(encoding="utf-8")
+    architecture_boundary_gate = (
+        repo_root / "scripts/architecture_boundary_gate.py"
+    ).read_text(encoding="utf-8")
+    quality_baseline_script = (
+        repo_root / "scripts/generate_quality_baseline.py"
     ).read_text(encoding="utf-8")
     supported_features = json.loads(
         (repo_root / "supported-features/supported-features.json").read_text(
@@ -271,6 +331,17 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     refactor_decisions = (repo_root / "quality/refactor_decisions.md").read_text(
         encoding="utf-8"
     )
+    architecture_boundary_report = json.loads(
+        (repo_root / "quality/architecture_boundary_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    quality_baseline_report = json.loads(
+        (repo_root / "quality/baseline_report.json").read_text(encoding="utf-8")
+    )
+    quality_baseline_markdown = (repo_root / "quality/baseline_report.md").read_text(
+        encoding="utf-8"
+    )
     assert result["ok"] is True
     assert result["dependency_authority"] == "pyproject"
     assert result["editorconfig_exists"] is True
@@ -289,8 +360,25 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) supported-features-gate" in makefile
     assert "endpoint-certification-gate:" in makefile
     assert "$(MAKE) endpoint-certification-gate" in makefile
+    assert "architecture-boundary-report:" in makefile
+    assert "scripts/architecture_boundary_gate.py --mode report-only" in makefile
+    assert "quality-baseline:" in makefile
+    assert "scripts/generate_quality_baseline.py" in makefile
+    assert "ci: lint typecheck openapi-gate" in makefile
     assert "coverage-gate:" in makefile
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile
+    assert (repo_root / "src/app/api/__init__.py").exists()
+    assert (repo_root / "src/app/application/__init__.py").exists()
+    assert (repo_root / "src/app/domain/__init__.py").exists()
+    assert (repo_root / "src/app/ports/__init__.py").exists()
+    assert (repo_root / "src/app/infrastructure/__init__.py").exists()
+    assert (repo_root / "src/app/observability/__init__.py").exists()
+    assert (repo_root / "src/app/security/__init__.py").exists()
+    assert "Expected dependency flow" in app_readme
+    assert 'name="domain-service"' in domain_profile
+    assert "Domain-authoritative backend service" in domain_profile
+    assert "current_service_profile" in application_profile
+    assert "from app.observability.logging import configure_logging, log_event" in observability_init
     assert "include_in_schema=False" in main_py
     assert 'tags=["Health"]' in main_py
     assert 'summary="Get service health"' in main_py
@@ -326,6 +414,21 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "missing endpoint certification ledger entry" in endpoint_certification_gate
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
+    assert "Architecture boundary report passed" in architecture_gate.stdout
+    assert "Wrote" in quality_baseline.stdout
+    assert architecture_failure.returncode == 1
+    assert "fastapi" in architecture_failure.stdout
+    assert "Domain must stay framework-free" in architecture_boundary_gate
+    assert "mode" in quality_baseline_script
+    assert architecture_boundary_report["repository"] == service_name
+    assert architecture_boundary_report["mode"] == "blocking"
+    assert architecture_boundary_report["status"] == "failed"
+    assert architecture_boundary_report["violations"][0]["import"] == "fastapi"
+    assert quality_baseline_report["repository"] == service_name
+    assert quality_baseline_report["mode"] == "report-only"
+    assert quality_baseline_report["service_profile"] == "domain-service"
+    assert quality_baseline_report["python_files"] > 0
+    assert "Service profile: `domain-service`" in quality_baseline_markdown
     assert supported_features == {
         "repository": service_name,
         "features": [],
@@ -414,16 +517,27 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         in makefile
     )
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in readme
+    assert "Service profile: `domain-service`" in readme
+    assert "make architecture-boundary-report" in readme
+    assert "make quality-baseline" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in repo_context
+    assert "Service profile: `domain-service`" in repo_context
+    assert "`src/app/domain/`: framework-free domain models" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
     assert "bank-buyable quality scorecard starts under quality/" in wiki_home
+    assert "Service profile: `domain-service`" in wiki_home
+    assert "demo claims must stay Planned" in wiki_home
     assert "Bank-Buyable Quality Scorecard" in quality_scorecard
     assert "Repository: lotus-hygiene-demo" in quality_scorecard
+    assert "Service profile: domain-service" in quality_scorecard
     assert "Control Area" in quality_scorecard
     assert "Architecture" in quality_scorecard
+    assert "Layered package skeleton plus report-only architecture-boundary report" in quality_scorecard
     assert "Security and privacy" in quality_scorecard
     assert "Observability and supportability" in quality_scorecard
-    assert "routers/controllers stay thin" in architecture_rules
+    assert "`src/app/api` routers/controllers stay thin" in architecture_rules
+    assert "Run `make architecture-boundary-report` for report-only evidence" in architecture_rules
     assert "Promote stricter gates only after the signal is measured" in ci_quality_gates
+    assert "make quality-baseline" in ci_quality_gates
     assert "Do not use this file for aspirational claims." in refactor_decisions

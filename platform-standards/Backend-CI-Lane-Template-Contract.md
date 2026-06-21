@@ -88,6 +88,17 @@ Feature-lane and main-releasability jobs must not be configured as required PR c
 
 The scaffolded `pr-auto-merge.yml` must request merge-commit auto-merge, not squash-only merge.
 
+## Report-Only Scaffold Quality Commands
+
+New backend service scaffolds must include these repo-native report-only commands:
+
+1. `make architecture-boundary-report`
+2. `make quality-baseline`
+
+These commands must not become blocking CI gates until `lotus-ci-enforcement-governance` confirms
+the signal is measured, deterministic, low-noise, lane-appropriate, and backed by an exception
+policy.
+
 ## Validation
 
 The platform validator `automation/Validate-Backend-Standards.ps1` must distinguish:
