@@ -164,6 +164,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "src/app/observability" in scaffold_script
     assert "src/app/security" in scaffold_script
     assert "src/app/resilience" in scaffold_script
+    assert (
+        "retry, backoff, timeout, and circuit-breaker policy primitives"
+        in scaffold_script
+    )
     assert "src/app/security/caller_context.py" in scaffold_script
     assert "src/app/infrastructure/downstream_client.py" in scaffold_script
     assert "src/app/domain/idempotency.py" in scaffold_script
@@ -450,6 +454,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert not (repo_root / "contracts/domain-data-products").exists()
     assert not (repo_root / "contracts/trust-telemetry").exists()
     assert "Expected dependency flow" in app_readme
+    assert "`resilience` provides retry, backoff, timeout" in app_readme
     assert 'name="domain-service"' in domain_profile
     assert "Domain-authoritative backend service" in domain_profile
     assert "current_service_profile" in application_profile
@@ -653,9 +658,18 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make architecture-boundary-report" in readme
     assert "make quality-baseline" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
+    assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
+    assert "API certification guide: docs/operations/api-certification.md" in readme
+    assert "Observability guide: docs/operations/observability.md" in readme
+    assert (
+        "RFC implementation evidence guide: evidence/rfc-implementation/README.md"
+        in readme
+    )
+    assert "src/app/resilience" in readme
     assert "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md" in repo_context
     assert "Service profile: `domain-service`" in repo_context
     assert "`src/app/domain/`: framework-free domain models" in repo_context
+    assert "`src/app/resilience/`: retry, backoff, timeout" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
     assert "bank-buyable quality scorecard starts under quality/" in wiki_home
     assert "Service profile: `domain-service`" in wiki_home
@@ -672,6 +686,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Security and privacy" in quality_scorecard
     assert "Observability and supportability" in quality_scorecard
     assert "`src/app/api` routers/controllers stay thin" in architecture_rules
+    assert "`src/app/resilience` owns retry, backoff, timeout" in architecture_rules
     assert (
         "Run `make architecture-boundary-report` for report-only evidence"
         in architecture_rules
