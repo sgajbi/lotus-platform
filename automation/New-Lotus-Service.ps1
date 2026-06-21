@@ -258,24 +258,163 @@ function Write-WikiBaseline {
   $profileDescription = Get-ServiceProfileDescription -Profile $SvcProfile
   $wikiRoot = Join-Path $TargetRepoRoot "wiki"
   New-Item -ItemType Directory -Force -Path $wikiRoot | Out-Null
-  $wikiHome = @(
-    "# $SvcName Wiki",
-    "",
-    $SvcDescription,
-    "",
-    "Service profile: ``$SvcProfile``",
-    "",
-    $profileDescription,
-    "",
-    "## Current posture",
-    "",
-    "- repo scaffolded from Lotus platform automation",
-    "- wiki source lives in-repo and must be published through `lotus-platform` automation",
-    "- bank-buyable quality scorecard starts under `quality/` and must move with implementation truth",
-    "- replace this page with operator-facing truth as implementation becomes real",
-    "- demo claims must stay Planned until code, tests, endpoint certification, and evidence exist"
-  ) -join "`n"
-  Set-Content -Path (Join-Path $wikiRoot "Home.md") -Value $wikiHome
+  $wikiPages = @{
+    "_Sidebar.md" = @(
+      "* [Home](Home.md)",
+      "* [Overview](Overview.md)",
+      "* [Architecture](Architecture.md)",
+      "* [Getting Started](Getting-Started.md)",
+      "* [Development Workflow](Development-Workflow.md)",
+      "* [Validation And CI](Validation-And-CI.md)",
+      "* [Operations Runbook](Operations-Runbook.md)",
+      "* [Security And Governance](Security-And-Governance.md)",
+      "* [Integrations](Integrations.md)",
+      "* [Roadmap](Roadmap.md)",
+      "* [Supported Features](Supported-Features.md)"
+    ) -join "`n";
+    "Home.md" = @(
+      "# $SvcName Wiki",
+      "",
+      $SvcDescription,
+      "",
+      "Service profile: ``$SvcProfile``",
+      "",
+      $profileDescription,
+      "",
+      "## Start Here",
+      "",
+      "1. [Overview](Overview.md)",
+      "2. [Getting Started](Getting-Started.md)",
+      "3. [Development Workflow](Development-Workflow.md)",
+      "4. [Validation And CI](Validation-And-CI.md)",
+      "5. [Architecture](Architecture.md)",
+      "6. [Operations Runbook](Operations-Runbook.md)",
+      "7. [Security And Governance](Security-And-Governance.md)",
+      "8. [Integrations](Integrations.md)",
+      "9. [Roadmap](Roadmap.md)",
+      "10. [Supported Features](Supported-Features.md)",
+      "",
+      "## Current Posture",
+      "",
+      "- repo scaffolded from Lotus platform automation",
+      "- wiki source lives in-repo and must be published through `lotus-platform` automation",
+      "- bank-buyable quality scorecard starts under `quality/` and must move with implementation truth",
+      "- replace scaffold wording with operator-facing truth as implementation becomes real",
+      "- demo claims must stay Planned until code, tests, endpoint certification, and evidence exist"
+    ) -join "`n";
+    "Overview.md" = @(
+      "# Overview",
+      "",
+      $SvcDescription,
+      "",
+      "Current support is scaffold-only. Business capabilities remain Planned until implementation, endpoint certification, supported-feature registration, and validation evidence exist.",
+      "",
+      "Service profile: ``$SvcProfile``",
+      "",
+      "Use the README for quick commands and the repository engineering context for service ownership, boundaries, and validation posture."
+    ) -join "`n";
+    "Architecture.md" = @(
+      "# Architecture",
+      "",
+      "The scaffold starts with the standard Lotus backend layering:",
+      "",
+      "1. `src/app/api` for route and DTO boundaries.",
+      "2. `src/app/application` for use-case orchestration.",
+      "3. `src/app/domain` for framework-free business rules.",
+      "4. `src/app/ports` for inbound and outbound interfaces.",
+      "5. `src/app/infrastructure` for adapters.",
+      "6. `src/app/observability`, `src/app/security`, and `src/app/resilience` for cross-cutting production controls.",
+      "",
+      "Replace this scaffold overview with service-specific architecture decisions before promoting any product capability."
+    ) -join "`n";
+    "Getting-Started.md" = @(
+      "# Getting Started",
+      "",
+      "Use the repo-native commands from the README:",
+      "",
+      '```powershell',
+      "make install",
+      "make check",
+      "make ci",
+      '```',
+      "",
+      "The scaffold exposes health, liveness, readiness, metrics, and service metadata endpoints only. Do not treat business behavior as supported until a later implementation slice adds code, tests, docs, supported-feature truth, and evidence."
+    ) -join "`n";
+    "Development-Workflow.md" = @(
+      "# Development Workflow",
+      "",
+      "Follow Lotus delivery governance:",
+      "",
+      "1. start from current `main`,",
+      "2. run stranded-truth reconciliation for RFC/docs/wiki/context/contract changes,",
+      "3. keep commits small and meaningful,",
+      "4. update tests, docs, supported features, and wiki source with implementation truth,",
+      "5. use rebase-only PR completion,",
+      "6. delete completed local and remote feature branches after merge."
+    ) -join "`n";
+    "Validation-And-CI.md" = @(
+      "# Validation And CI",
+      "",
+      "Generated repositories start with the Lotus backend lane model:",
+      "",
+      "1. Feature Lane for fast branch feedback.",
+      "2. PR Merge Gate for merge readiness.",
+      "3. Main Releasability Gate for post-merge truth.",
+      "",
+      "Repo-native commands:",
+      "",
+      '```powershell',
+      "make check",
+      "make ci",
+      "make openapi-gate",
+      "make quality-baseline",
+      '```',
+      "",
+      "Keep CI warnings actionable. Do not downgrade current action versions to hide runner noise."
+    ) -join "`n";
+    "Operations-Runbook.md" = @(
+      "# Operations Runbook",
+      "",
+      "Current posture: scaffold operations only.",
+      "",
+      "Operators may use health, liveness, readiness, metrics, OpenAPI, Docker build validation, and service metadata as baseline checks. Service-specific degraded states and escalation paths must be added with implementation-backed behavior."
+    ) -join "`n";
+    "Security-And-Governance.md" = @(
+      "# Security And Governance",
+      "",
+      "Generated services must follow `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` from day one.",
+      "",
+      "Required scaffold controls include dependency hygiene, no-sensitive-content guardrails, endpoint certification, OpenAPI quality, supported-feature discipline, branch protection, and wiki-source governance."
+    ) -join "`n";
+    "Integrations.md" = @(
+      "# Integrations",
+      "",
+      "No service-specific upstream or downstream integration is supported by the scaffold.",
+      "",
+      "Add source-authority, consumer, producer, Gateway, Workbench, report, AI, and platform integration details only when the contracts and validation evidence exist."
+    ) -join "`n";
+    "Roadmap.md" = @(
+      "# Roadmap",
+      "",
+      "The scaffold roadmap is deliberately narrow:",
+      "",
+      "1. replace placeholder ownership with repository-specific domain truth,",
+      "2. add implementation slices through governed RFCs or issues,",
+      "3. promote supported features only after code, tests, OpenAPI, CI, docs, and evidence pass,",
+      "4. publish wiki source after merge when wiki truth changes."
+    ) -join "`n";
+    "Supported-Features.md" = @(
+      "# Supported Features",
+      "",
+      "No business feature is supported by scaffold creation alone.",
+      "",
+      "Use `supported-features/supported-features.json` as implementation-backed product truth. Keep demo, README, wiki, and commercial claims aligned to that registry."
+    ) -join "`n"
+  }
+
+  foreach ($pageName in $wikiPages.Keys) {
+    Set-Content -Path (Join-Path $wikiRoot $pageName) -Value $wikiPages[$pageName]
+  }
 }
 
 function Add-TaskProfileTask {

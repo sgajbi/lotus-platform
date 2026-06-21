@@ -104,8 +104,11 @@ The generated repository starts with:
    Service role, ownership boundaries, dependency map, commands, and next-step guidance.
 3. `README.md`
    Fast entrypoint with service profile, quick start, validation commands, and standards links.
-4. `wiki/Home.md`
-   Repo-local GitHub wiki source with current scaffold posture and publication expectations.
+4. `wiki/`
+   Repo-local GitHub wiki source with the standard Lotus operator/onboarding skeleton:
+   `Home`, `Overview`, `Architecture`, `Getting Started`, `Development Workflow`,
+   `Validation and CI`, `Operations Runbook`, `Security and Governance`, `Integrations`,
+   `Roadmap`, `Supported Features`, and `_Sidebar`.
 5. `.github/workflows/feature-lane.yml`
    Remote feature lane.
 6. `.github/workflows/pr-merge-gate.yml`
@@ -292,6 +295,10 @@ For real services, the scaffold updates platform discovery and governance files 
 11. `context/CONTEXT-REFERENCE-MAP.md`
 12. `docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md`
 13. `wiki/Integrations.md`
+
+The scaffolded wiki is intentionally current-state oriented. It must not claim business capability
+support beyond health/readiness/metadata scaffolding until implementation, endpoint certification,
+supported-feature registration, CI evidence, and publication proof exist.
 
 Review those diffs before committing. Registration changes are platform truth and should not be
 left on an unmerged branch.
