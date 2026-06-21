@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306488
+    "total_source_lines": 306575
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -43,14 +43,6 @@
       },
       {
         "complexity": 10,
-        "end_line": 281,
-        "line": 231,
-        "lines": 51,
-        "name": "_validate_dashboard_review",
-        "path": "automation/validate_analytics_ui_hardening_review.py"
-      },
-      {
-        "complexity": 10,
         "end_line": 383,
         "line": 345,
         "lines": 39,
@@ -67,8 +59,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 957,
-        "line": 924,
+        "end_line": 961,
+        "line": 928,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 36,
         "name": "_mesh_status",
         "path": "tests/unit/test_enterprise_mesh_operating_report.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 458,
+        "line": 429,
+        "lines": 30,
+        "name": "_validate_engineering_context_entrypoints",
+        "path": "automation/validate_engineering_context_system.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 906,
+        "end_line": 910,
         "line": 489,
-        "lines": 418,
+        "lines": 422,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 418,
-    "python_function_count": 1823
+    "max_function_lines": 422,
+    "python_function_count": 1829
   },
-  "generated_at_utc": "2026-06-21T04:20:56Z",
+  "generated_at_utc": "2026-06-21T04:28:29Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 545,
+    "collected_tests": 546,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "545 tests collected in 0.69s"
+    "summary": "546 tests collected in 0.69s"
   }
 }

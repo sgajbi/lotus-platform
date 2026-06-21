@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T04:20:56Z`
+Generated: `2026-06-21T04:28:29Z`
 
 ## Completed Slices
 
@@ -378,6 +378,10 @@ Generated: `2026-06-21T04:20:56Z`
     attention checks are isolated behind focused helpers, removing the mesh-certification adapter
     from the top measured complexity hotspot list while adding attention-required regression
     coverage.
+101. Analytics UI hardening dashboard-review extraction so dashboard metric reconciliation and
+    alert-rule reconciliation are isolated behind focused helpers, removing the dashboard review
+    validator from the top measured complexity hotspot list while adding alert-rule drift
+    regression coverage.
 
 ## Evidence
 
