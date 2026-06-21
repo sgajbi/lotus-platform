@@ -159,6 +159,10 @@ auto-merged PRs still produce explicit post-merge release evidence.
 The auto-merge workflow must use `LOTUS_AUTOMERGE_TOKEN`, not `GITHUB_TOKEN`, so the merge event is
 not suppressed before the dispatcher can run.
 
+Generated workflows also declare job-level `timeout-minutes` values. The generated CI contract gate
+blocks missing timeouts and `continue-on-error: true` in critical lanes so a stuck job or soft-failed
+quality step cannot look like a valid enterprise gate.
+
 Generated workflows set Git's default initial branch to `main` through workflow environment so
 checkout does not emit default-branch hints. Generated Dockerfiles set
 `PIP_ROOT_USER_ACTION=ignore` in controlled build stages so Docker build logs do not emit root-pip
@@ -244,8 +248,8 @@ instead.
 silently removing Makefile targets, least-privilege workflow permissions, approved workflow action
 majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
 endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
-workflow-dispatch access, non-suppressed auto-merge token usage, or merged-PR main-releasability
-dispatch.
+workflow-dispatch access, bounded job timeouts, no-soft-fail critical workflow posture,
+non-suppressed auto-merge token usage, or merged-PR main-releasability dispatch.
 
 It also starts with report-only quality evidence:
 

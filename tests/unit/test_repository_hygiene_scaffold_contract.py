@@ -247,6 +247,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     ):
         assert "Architecture Boundary Gate" in workflow_template
         assert "make architecture-boundary-gate" in workflow_template
+        assert "timeout-minutes:" in workflow_template
     assert (
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile_template
@@ -255,6 +256,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
     assert "--ref main" in merged_pr_dispatch_template
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
+    assert "timeout-minutes: 10" in merged_pr_dispatch_template
     assert (
         "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report="
         in pr_merge_template
@@ -621,9 +623,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "merged-pr-main-releasability.yml" in ci_contract_gate
     assert "gh workflow run main-releasability.yml" in ci_contract_gate
     assert "workflow_dispatch:" in ci_contract_gate
+    assert "_validate_job_timeouts" in ci_contract_gate
+    assert "continue-on-error: true" in ci_contract_gate
     assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
     assert "--ref main" in merged_pr_dispatch_workflow
+    assert "timeout-minutes: 10" in merged_pr_dispatch_workflow
     assert (
         "WARNING: quality/architecture_boundary_report.json is missing"
         in missing_architecture_quality_baseline.stdout
