@@ -212,8 +212,8 @@ Single-developer baseline:
 Merge strategy:
 
 1. merge commits are allowed,
-2. squash merges are repository-specific preference,
-3. this standard does not require squash-by-default.
+2. squash merges are not used for governed Lotus repositories,
+3. PR completion should preserve scoped commits through rebase merge and linear history.
 
 ## 4.1 Deviation Policy
 

@@ -52,3 +52,7 @@ solving them only in the generated app.
     workflow Git config so `actions/checkout` does not emit default-branch
     hints, and set `PIP_ROOT_USER_ACTION=ignore` in Docker build stages where
     controlled root installs are part of the image build contract.
+13. Governed PR completion should be linear and non-squash. Scaffolded
+    repositories should enable rebase merge, disable squash and merge-commit
+    completion, require branch linear history, and queue auto-merge with
+    `gh pr merge --auto --rebase`.

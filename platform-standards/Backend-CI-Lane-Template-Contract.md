@@ -86,7 +86,8 @@ Feature-lane and main-releasability jobs must not be configured as required PR c
 
 ## Auto-Merge Default
 
-The scaffolded `pr-auto-merge.yml` must request merge-commit auto-merge, not squash-only merge.
+The scaffolded `pr-auto-merge.yml` must request rebase auto-merge, not squash or merge-commit
+auto-merge. Lotus PR completion preserves scoped commits on a linear `main` history.
 
 ## Report-Only Scaffold Quality Commands
 

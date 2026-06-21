@@ -661,7 +661,7 @@ function Configure-GithubRepository {
   git -C $TargetRepoRoot push -u origin main | Out-Null
 
   if ($EnableDefaults) {
-    gh repo edit $repoSlug --enable-issues --enable-wiki --enable-auto-merge --enable-squash-merge --enable-rebase-merge --delete-branch-on-merge | Out-Null
+    gh repo edit $repoSlug --enable-issues --enable-wiki --enable-auto-merge --enable-squash-merge=false --enable-merge-commit=false --enable-rebase-merge --delete-branch-on-merge | Out-Null
   }
 
   if ($ProtectMain) {
@@ -680,7 +680,7 @@ function Configure-GithubRepository {
       allow_force_pushes = $false
       allow_deletions = $false
       block_creations = $false
-      required_linear_history = $false
+      required_linear_history = $true
       lock_branch = $false
       allow_fork_syncing = $false
     } | ConvertTo-Json -Depth 8
