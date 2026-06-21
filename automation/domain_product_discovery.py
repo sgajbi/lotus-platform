@@ -213,13 +213,17 @@ def _load_platform_validator():
 
 
 def _relative_path(path: Path) -> str:
+    resolved = path.resolve()
+    if "_federated" in resolved.parts:
+        federated_index = resolved.parts.index("_federated")
+        return Path(*resolved.parts[federated_index + 1 :]).as_posix()
     try:
-        return path.resolve().relative_to(ROOT).as_posix()
+        return resolved.relative_to(ROOT).as_posix()
     except ValueError:
         try:
-            return path.resolve().relative_to(ROOT.parent).as_posix()
+            return resolved.relative_to(ROOT.parent).as_posix()
         except ValueError:
-            return path.resolve().as_posix()
+            return resolved.as_posix()
 
 
 def _product_id(
