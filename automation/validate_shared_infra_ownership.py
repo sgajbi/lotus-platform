@@ -21,6 +21,24 @@ class RepoConfig:
     path: Path
 
 
+@dataclass(frozen=True)
+class LotusCoreOwnershipEvidence:
+    compose_path: Path
+    prometheus_path: Path
+    readme_path: Path
+    grafana_guide_path: Path
+    app_local_stack_guide_path: Path
+    grafana_datasource_path: Path
+    grafana_dashboard_provider_path: Path
+    compose: dict[str, Any]
+    readme: str
+    prometheus: str
+    grafana_guide: str
+    app_local_stack_guide: str
+    grafana_datasource: str
+    grafana_dashboard_provider: str
+
+
 def _load_yaml(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle)
@@ -124,9 +142,7 @@ def _validate_platform_stack(platform_root: Path) -> list[dict[str, Any]]:
     return results
 
 
-def _validate_lotus_core(core_root: Path) -> list[dict[str, Any]]:
-    results: list[dict[str, Any]] = []
-
+def _load_lotus_core_ownership_evidence(core_root: Path) -> LotusCoreOwnershipEvidence:
     compose_path = core_root / "docker-compose.yml"
     prometheus_path = core_root / "prometheus" / "prometheus.yml"
     readme_path = core_root / "README.md"
@@ -137,91 +153,136 @@ def _validate_lotus_core(core_root: Path) -> list[dict[str, Any]]:
         core_root / "grafana" / "provisioning" / "dashboards" / "dashboard.yml"
     )
 
-    compose = _load_yaml(compose_path)
-    readme = _load_text(readme_path)
-    prometheus = _load_text(prometheus_path)
-    grafana_guide = _load_text(grafana_guide_path)
-    app_local_stack_guide = _load_text(app_local_stack_guide_path)
-    grafana_datasource = _load_text(grafana_datasource_path)
-    grafana_dashboard_provider = _load_text(grafana_dashboard_provider_path)
-
-    contract = compose.get("x-lotus-stack-contract", {})
-    results.append(
-        _result(
-            "lotus_core_compose_declares_app_local_contract",
-            (
-                compose.get("name") == "lotus-core-app-local"
-                and contract.get("stack_classification") == "app-local"
-                and contract.get("canonical_shared_infra") is False
-                and contract.get("canonical_shared_infra_owner")
-                == "lotus-platform/platform-stack"
-            ),
-            "lotus-core compose is explicitly classified as app-local rather than canonical shared infrastructure.",
-            [str(compose_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_readme_points_shared_infra_to_platform",
-            "Canonical shared infrastructure ownership now lives in `lotus-platform`" in readme
-            and "lotus-platform\\platform-stack" in readme,
-            "lotus-core README points shared infrastructure ownership to lotus-platform/platform-stack.",
-            [str(readme_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_prometheus_marked_app_local_overlay",
-            "Canonical shared Prometheus ownership lives in:" in prometheus
-            and "lotus-platform/platform-stack/prometheus/prometheus.yml" in prometheus,
-            "lotus-core Prometheus config is explicitly marked as app-local overlay.",
-            [str(prometheus_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_grafana_guide_points_to_platform_stack",
-            "Canonical shared observability baseline:" in grafana_guide
-            and "`lotus-platform/platform-stack`" in grafana_guide,
-            "lotus-core Grafana guide points to platform-stack as the canonical shared observability baseline.",
-            [str(grafana_guide_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_app_local_stack_guide_preserves_kafka_and_telemetry_boundary",
-            "canonical shared Kafka broker lifecycle" in app_local_stack_guide
-            and "canonical shared telemetry collector baseline" in app_local_stack_guide,
-            "lotus-core app-local stack guide keeps Kafka and telemetry ownership explicit.",
-            [str(app_local_stack_guide_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_grafana_datasource_marked_app_local_overlay",
-            "app-local" in grafana_datasource.lower() and "platform-stack" in grafana_datasource,
-            "lotus-core Grafana datasource provisioning is explicitly marked as app-local overlay.",
-            [str(grafana_datasource_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_grafana_dashboard_provider_marked_app_local_overlay",
-            "app-local" in grafana_dashboard_provider.lower() and "platform-stack" in grafana_dashboard_provider,
-            "lotus-core Grafana dashboard provisioning is explicitly marked as app-local overlay.",
-            [str(grafana_dashboard_provider_path)],
-        )
-    )
-    results.append(
-        _result(
-            "lotus_core_has_app_local_stack_guide",
-            app_local_stack_guide_path.exists(),
-            "lotus-core documents the app-local stack separately from the shared platform stack.",
-            [str(app_local_stack_guide_path)],
-        )
+    return LotusCoreOwnershipEvidence(
+        compose_path=compose_path,
+        prometheus_path=prometheus_path,
+        readme_path=readme_path,
+        grafana_guide_path=grafana_guide_path,
+        app_local_stack_guide_path=app_local_stack_guide_path,
+        grafana_datasource_path=grafana_datasource_path,
+        grafana_dashboard_provider_path=grafana_dashboard_provider_path,
+        compose=_load_yaml(compose_path),
+        readme=_load_text(readme_path),
+        prometheus=_load_text(prometheus_path),
+        grafana_guide=_load_text(grafana_guide_path),
+        app_local_stack_guide=_load_text(app_local_stack_guide_path),
+        grafana_datasource=_load_text(grafana_datasource_path),
+        grafana_dashboard_provider=_load_text(grafana_dashboard_provider_path),
     )
 
-    return results
+
+def _lotus_core_compose_contract_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    contract = evidence.compose.get("x-lotus-stack-contract", {})
+    return _result(
+        "lotus_core_compose_declares_app_local_contract",
+        (
+            evidence.compose.get("name") == "lotus-core-app-local"
+            and contract.get("stack_classification") == "app-local"
+            and contract.get("canonical_shared_infra") is False
+            and contract.get("canonical_shared_infra_owner")
+            == "lotus-platform/platform-stack"
+        ),
+        "lotus-core compose is explicitly classified as app-local rather than canonical shared infrastructure.",
+        [str(evidence.compose_path)],
+    )
+
+
+def _lotus_core_readme_result(evidence: LotusCoreOwnershipEvidence) -> dict[str, Any]:
+    return _result(
+        "lotus_core_readme_points_shared_infra_to_platform",
+        "Canonical shared infrastructure ownership now lives in `lotus-platform`"
+        in evidence.readme
+        and "lotus-platform\\platform-stack" in evidence.readme,
+        "lotus-core README points shared infrastructure ownership to lotus-platform/platform-stack.",
+        [str(evidence.readme_path)],
+    )
+
+
+def _lotus_core_prometheus_result(evidence: LotusCoreOwnershipEvidence) -> dict[str, Any]:
+    return _result(
+        "lotus_core_prometheus_marked_app_local_overlay",
+        "Canonical shared Prometheus ownership lives in:" in evidence.prometheus
+        and "lotus-platform/platform-stack/prometheus/prometheus.yml"
+        in evidence.prometheus,
+        "lotus-core Prometheus config is explicitly marked as app-local overlay.",
+        [str(evidence.prometheus_path)],
+    )
+
+
+def _lotus_core_grafana_guide_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    return _result(
+        "lotus_core_grafana_guide_points_to_platform_stack",
+        "Canonical shared observability baseline:" in evidence.grafana_guide
+        and "`lotus-platform/platform-stack`" in evidence.grafana_guide,
+        "lotus-core Grafana guide points to platform-stack as the canonical shared observability baseline.",
+        [str(evidence.grafana_guide_path)],
+    )
+
+
+def _lotus_core_app_local_stack_guide_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    return _result(
+        "lotus_core_app_local_stack_guide_preserves_kafka_and_telemetry_boundary",
+        "canonical shared Kafka broker lifecycle" in evidence.app_local_stack_guide
+        and "canonical shared telemetry collector baseline"
+        in evidence.app_local_stack_guide,
+        "lotus-core app-local stack guide keeps Kafka and telemetry ownership explicit.",
+        [str(evidence.app_local_stack_guide_path)],
+    )
+
+
+def _lotus_core_grafana_datasource_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    return _result(
+        "lotus_core_grafana_datasource_marked_app_local_overlay",
+        "app-local" in evidence.grafana_datasource.lower()
+        and "platform-stack" in evidence.grafana_datasource,
+        "lotus-core Grafana datasource provisioning is explicitly marked as app-local overlay.",
+        [str(evidence.grafana_datasource_path)],
+    )
+
+
+def _lotus_core_grafana_dashboard_provider_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    return _result(
+        "lotus_core_grafana_dashboard_provider_marked_app_local_overlay",
+        "app-local" in evidence.grafana_dashboard_provider.lower()
+        and "platform-stack" in evidence.grafana_dashboard_provider,
+        "lotus-core Grafana dashboard provisioning is explicitly marked as app-local overlay.",
+        [str(evidence.grafana_dashboard_provider_path)],
+    )
+
+
+def _lotus_core_app_local_stack_guide_exists_result(
+    evidence: LotusCoreOwnershipEvidence,
+) -> dict[str, Any]:
+    return _result(
+        "lotus_core_has_app_local_stack_guide",
+        evidence.app_local_stack_guide_path.exists(),
+        "lotus-core documents the app-local stack separately from the shared platform stack.",
+        [str(evidence.app_local_stack_guide_path)],
+    )
+
+
+def _validate_lotus_core(core_root: Path) -> list[dict[str, Any]]:
+    evidence = _load_lotus_core_ownership_evidence(core_root)
+    return [
+        _lotus_core_compose_contract_result(evidence),
+        _lotus_core_readme_result(evidence),
+        _lotus_core_prometheus_result(evidence),
+        _lotus_core_grafana_guide_result(evidence),
+        _lotus_core_app_local_stack_guide_result(evidence),
+        _lotus_core_grafana_datasource_result(evidence),
+        _lotus_core_grafana_dashboard_provider_result(evidence),
+        _lotus_core_app_local_stack_guide_exists_result(evidence),
+    ]
 
 
 def validate_shared_infra_ownership(repos_path: Path) -> dict[str, Any]:

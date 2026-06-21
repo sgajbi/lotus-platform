@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306278
+    "total_source_lines": 306369
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 224,
-        "line": 127,
-        "lines": 98,
-        "name": "_validate_lotus_core",
-        "path": "automation/validate_shared_infra_ownership.py"
       },
       {
         "complexity": 10,
@@ -83,8 +75,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 949,
-        "line": 916,
+        "end_line": 953,
+        "line": 920,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 38,
         "name": "_validate_repository_reviews",
         "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 423,
+        "line": 387,
+        "lines": 37,
+        "name": "record_main_agent_review",
+        "path": "automation/delegation_task_ledger.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 898,
+        "end_line": 902,
         "line": 489,
-        "lines": 410,
+        "lines": 414,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 410,
-    "python_function_count": 1807
+    "max_function_lines": 414,
+    "python_function_count": 1818
   },
-  "generated_at_utc": "2026-06-21T04:01:47Z",
+  "generated_at_utc": "2026-06-21T04:11:59Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 543,
+    "collected_tests": 544,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "543 tests collected in 0.96s"
+    "summary": "544 tests collected in 0.75s"
   }
 }
