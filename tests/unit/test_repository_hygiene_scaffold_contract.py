@@ -397,6 +397,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         encoding="utf-8"
     )
     wiki_home = (repo_root / "wiki/Home.md").read_text(encoding="utf-8")
+    wiki_pages = {path.name for path in (repo_root / "wiki").glob("*.md")}
     quality_scorecard = (repo_root / "quality/quality_scorecard.md").read_text(
         encoding="utf-8"
     )
@@ -674,9 +675,33 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`src/app/domain/`: framework-free domain models" in repo_context
     assert "`src/app/resilience/`: retry, backoff, timeout" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
+    assert {
+        "_Sidebar.md",
+        "Home.md",
+        "Overview.md",
+        "Architecture.md",
+        "Getting-Started.md",
+        "Development-Workflow.md",
+        "Validation-And-CI.md",
+        "Operations-Runbook.md",
+        "Security-And-Governance.md",
+        "Integrations.md",
+        "Roadmap.md",
+        "Supported-Features.md",
+    }.issubset(wiki_pages)
     assert "bank-buyable quality scorecard starts under quality/" in wiki_home
     assert "Service profile: `domain-service`" in wiki_home
     assert "demo claims must stay Planned" in wiki_home
+    assert "Validation And CI" in wiki_home
+    assert "delete completed local and remote feature branches after merge" in (
+        repo_root / "wiki/Development-Workflow.md"
+    ).read_text(encoding="utf-8")
+    assert "Do not downgrade current action versions" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
+    assert "No business feature is supported by scaffold creation alone" in (
+        repo_root / "wiki/Supported-Features.md"
+    ).read_text(encoding="utf-8")
     assert "Bank-Buyable Quality Scorecard" in quality_scorecard
     assert "Repository: lotus-hygiene-demo" in quality_scorecard
     assert "Service profile: domain-service" in quality_scorecard

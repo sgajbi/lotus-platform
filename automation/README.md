@@ -1308,7 +1308,7 @@ When scaffolding a new service with `New-Lotus-Service.ps1`, automation registra
 - `wiki/Integrations.md`
 
 The scaffold now also creates repo-local `AGENTS.md`, `REPOSITORY-ENGINEERING-CONTEXT.md`, and
-`wiki/Home.md` by default. Optional Git/GitHub provisioning can initialize the repository, create
+the standard repo-local wiki skeleton by default. Optional Git/GitHub provisioning can initialize the repository, create
 the remote, configure baseline repository settings, and apply protected-`main` governance in the
 same workflow.
 
