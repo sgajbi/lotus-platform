@@ -615,6 +615,58 @@ def test_mesh_certification_adapter_reports_stale_blocked_operating_report(
     assert any(item["severity"] == "blocking" for item in status["attention_items"])
 
 
+def test_mesh_certification_adapter_reports_attention_required_operating_report(
+    tmp_path: Path,
+) -> None:
+    runner = _load_module(RUNNER_PATH, "run_heartbeat")
+    operating_report = tmp_path / "enterprise-mesh-operating-report.json"
+    operating_report.write_text(
+        json.dumps(
+            {
+                "generated_at_utc": GENERATED_AT_UTC,
+                "operating_state": "attention_required",
+                "escalation_queue": [{"owner": "lotus-platform"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "heartbeat-config.json"
+    _write_config(
+        config_path,
+        enabled_sources=["mesh_certification"],
+        source_config={
+            "mesh_certification": {"operating_report_path": str(operating_report)}
+        },
+        thresholds={"stale_mesh_evidence_hours": 24},
+    )
+
+    status = runner.run_heartbeat(
+        config_path=config_path,
+        output_dir=tmp_path / "heartbeat",
+        generated_at_utc=GENERATED_AT_UTC,
+        branch="main",
+    )
+
+    assert status["run_status"] == "attention_required"
+    assert status["source_inventory"][0]["read_status"] == "degraded"
+    assert len(status["attention_items"]) == 1
+    item = status["attention_items"][0]
+    assert item["source_system"] == "mesh_certification"
+    assert item["source_ref"] == str(operating_report)
+    assert item["condition"] == "mesh_certification_attention"
+    assert item["severity"] == "action_required"
+    assert item["evidence_refs"] == [
+        {
+            "type": "MESH_CERTIFICATION_ARTIFACT",
+            "ref": str(operating_report),
+        }
+    ]
+    assert (
+        item["recommended_next_action"]
+        == "Review enterprise mesh operating report escalation queue."
+    )
+
+
 def test_lotus_ai_adapter_reports_review_backlog_without_collapsing_run_states(
     tmp_path: Path,
 ) -> None:

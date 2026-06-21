@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-21T04:11:59Z`
+Generated: `2026-06-21T04:20:56Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `717`
-- Total source lines: `306369`
+- Total source lines: `306488`
 - Python files: `158`
 - PowerShell files: `63`
 - Markdown files: `356`
@@ -35,26 +35,26 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2148 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 | automation/New-Lotus-Service.ps1 | 1801 | .ps1 |
-| automation/heartbeat_sources.py | 1672 | .py |
+| automation/heartbeat_sources.py | 1735 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1818`
+- Python functions: `1823`
 - Highest measured cyclomatic complexity: `11`
-- Largest Python function length: `414`
+- Largest Python function length: `418`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_domain_product_rollout_closure.py | test_rfc_0086_catalog_and_certification_use_repo_native_sources | 59 | 11 | 53 |
-| automation/heartbeat_sources.py | _mesh_certification_adapter | 1194 | 10 | 75 |
 | automation/validate_analytics_ui_hardening_review.py | _validate_dashboard_review | 231 | 10 | 51 |
 | automation/validate_trust_telemetry.py | _validate_lineage_and_blocking | 345 | 10 | 39 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_registry_entry_list | 81 | 10 | 37 |
-| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 920 | 10 | 34 |
+| automation/generate_enterprise_backend_quality_baseline.py | validate_quality_surface | 924 | 10 | 34 |
 | automation/validate_repository_governance.py | normalize_actual_governance | 51 | 10 | 34 |
 | automation/validate_analytics_ui_ecosystem_completion.py | _validate_supported_feature_milestones | 368 | 10 | 29 |
 | automation/delegation_task_ledger.py | _validate_output_evidence_refs | 287 | 10 | 20 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_contract_directory | 1381 | 9 | 102 |
+| automation/core_performance_cross_app_validation.py | _evaluate_performance_requests | 306 | 9 | 75 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `544`
+- Unit tests collected: `545`
 - Collection command return code: `0`
-- Collection summary: `544 tests collected in 0.75s`
+- Collection summary: `545 tests collected in 0.69s`
 
 ## Security Baseline
 

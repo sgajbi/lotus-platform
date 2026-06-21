@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-21T04:11:59Z`
+Generated: `2026-06-21T04:20:56Z`
 
 ## Completed Slices
 
@@ -374,6 +374,10 @@ Generated: `2026-06-21T04:11:59Z`
     app-local ownership checks are isolated behind focused helpers, removing the lotus-core
     validator from the top measured complexity hotspot list while adding app-local stack guide
     boundary-drift coverage.
+100. Heartbeat mesh-certification adapter extraction so stale evidence and operating-state
+    attention checks are isolated behind focused helpers, removing the mesh-certification adapter
+    from the top measured complexity hotspot list while adding attention-required regression
+    coverage.
 
 ## Evidence
 

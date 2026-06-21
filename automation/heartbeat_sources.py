@@ -1213,46 +1213,17 @@ def _mesh_certification_adapter(
         return missing_source, missing_items, missing_errors
 
     evidence_refs = [_evidence_ref("MESH_CERTIFICATION_ARTIFACT", _display_path(path))]
-    attention_items: list[dict[str, Any]] = []
     report_generated_at = payload.get("generated_at_utc") if isinstance(payload, dict) else None
-    stale_hours = _threshold(config, "stale_mesh_evidence_hours", 24)
-    age = _age_hours(generated_at_utc, report_generated_at)
-    if age is not None and age > stale_hours:
-        attention_items.append(
-            _attention_item(
-                source_system="mesh_certification",
-                source_ref=_display_path(path),
-                repository=repository,
-                condition="mesh_certification_stale",
-                severity="action_required",
-                owner=repository,
-                generated_at_utc=generated_at_utc,
-                evidence_refs=evidence_refs,
-                recommended_next_action="Regenerate enterprise mesh certification evidence.",
-            )
-        )
-
     operating_state = payload.get("operating_state") if isinstance(payload, dict) else None
-    if operating_state == "blocked":
-        severity = "blocking"
-    elif operating_state == "attention_required":
-        severity = "action_required"
-    else:
-        severity = ""
-    if severity:
-        attention_items.append(
-            _attention_item(
-                source_system="mesh_certification",
-                source_ref=_display_path(path),
-                repository=repository,
-                condition="mesh_certification_attention",
-                severity=severity,
-                owner=repository,
-                generated_at_utc=generated_at_utc,
-                evidence_refs=evidence_refs,
-                recommended_next_action="Review enterprise mesh operating report escalation queue.",
-            )
-        )
+    attention_items = _mesh_certification_attention_items(
+        config=config,
+        path=path,
+        repository=repository,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        report_generated_at=report_generated_at,
+        operating_state=operating_state,
+    )
 
     return (
         _source_inventory(
@@ -1266,6 +1237,98 @@ def _mesh_certification_adapter(
         attention_items,
         [],
     )
+
+
+def _mesh_certification_attention_items(
+    *,
+    config: dict[str, Any],
+    path: Path,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    report_generated_at: Any,
+    operating_state: Any,
+) -> list[dict[str, Any]]:
+    attention_items = _mesh_certification_stale_attention(
+        config=config,
+        path=path,
+        repository=repository,
+        generated_at_utc=generated_at_utc,
+        evidence_refs=evidence_refs,
+        report_generated_at=report_generated_at,
+    )
+    attention_items.extend(
+        _mesh_certification_state_attention(
+            path=path,
+            repository=repository,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            operating_state=operating_state,
+        )
+    )
+    return attention_items
+
+
+def _mesh_certification_stale_attention(
+    *,
+    config: dict[str, Any],
+    path: Path,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    report_generated_at: Any,
+) -> list[dict[str, Any]]:
+    stale_hours = _threshold(config, "stale_mesh_evidence_hours", 24)
+    age = _age_hours(generated_at_utc, report_generated_at)
+    if age is None or age <= stale_hours:
+        return []
+    return [
+        _attention_item(
+            source_system="mesh_certification",
+            source_ref=_display_path(path),
+            repository=repository,
+            condition="mesh_certification_stale",
+            severity="action_required",
+            owner=repository,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action="Regenerate enterprise mesh certification evidence.",
+        )
+    ]
+
+
+def _mesh_certification_state_attention(
+    *,
+    path: Path,
+    repository: str,
+    generated_at_utc: str,
+    evidence_refs: list[dict[str, str]],
+    operating_state: Any,
+) -> list[dict[str, Any]]:
+    severity = _mesh_certification_state_severity(operating_state)
+    if not severity:
+        return []
+    return [
+        _attention_item(
+            source_system="mesh_certification",
+            source_ref=_display_path(path),
+            repository=repository,
+            condition="mesh_certification_attention",
+            severity=severity,
+            owner=repository,
+            generated_at_utc=generated_at_utc,
+            evidence_refs=evidence_refs,
+            recommended_next_action="Review enterprise mesh operating report escalation queue.",
+        )
+    ]
+
+
+def _mesh_certification_state_severity(operating_state: Any) -> str:
+    if operating_state == "blocked":
+        return "blocking"
+    if operating_state == "attention_required":
+        return "action_required"
+    return ""
 
 
 def _lotus_ai_run_summary_attention(

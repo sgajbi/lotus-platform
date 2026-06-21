@@ -17,7 +17,7 @@
       ".yaml": 16,
       ".yml": 11
     },
-    "total_source_lines": 306369
+    "total_source_lines": 306488
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,14 +40,6 @@
         "lines": 53,
         "name": "test_rfc_0086_catalog_and_certification_use_repo_native_sources",
         "path": "tests/unit/test_domain_product_rollout_closure.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 1268,
-        "line": 1194,
-        "lines": 75,
-        "name": "_mesh_certification_adapter",
-        "path": "automation/heartbeat_sources.py"
       },
       {
         "complexity": 10,
@@ -75,8 +67,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 953,
-        "line": 920,
+        "end_line": 957,
+        "line": 924,
         "lines": 34,
         "name": "validate_quality_surface",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -192,14 +184,22 @@
         "lines": 37,
         "name": "record_main_agent_review",
         "path": "automation/delegation_task_ledger.py"
+      },
+      {
+        "complexity": 9,
+        "end_line": 63,
+        "line": 28,
+        "lines": 36,
+        "name": "_mesh_status",
+        "path": "tests/unit/test_enterprise_mesh_operating_report.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 902,
+        "end_line": 906,
         "line": 489,
-        "lines": 414,
+        "lines": 418,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -357,10 +357,10 @@
       }
     ],
     "max_complexity": 11,
-    "max_function_lines": 414,
-    "python_function_count": 1818
+    "max_function_lines": 418,
+    "python_function_count": 1823
   },
-  "generated_at_utc": "2026-06-21T04:11:59Z",
+  "generated_at_utc": "2026-06-21T04:20:56Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -408,7 +408,7 @@
       "suffix": ".ps1"
     },
     {
-      "lines": 1672,
+      "lines": 1735,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 544,
+    "collected_tests": 545,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "544 tests collected in 0.75s"
+    "summary": "545 tests collected in 0.69s"
   }
 }
