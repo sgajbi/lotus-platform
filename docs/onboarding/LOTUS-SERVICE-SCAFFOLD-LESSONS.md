@@ -19,3 +19,14 @@ solving them only in the generated app.
 4. New service repositories should distinguish foundation-supported behavior
    from planned business capability in README, wiki, demo claims, and
    supported-features from the first commit.
+5. Generated runtime dependency pins must pass `pip-audit` on the first remote
+   CI run. For the FastAPI scaffold, keep `fastapi`, `starlette`,
+   `pydantic-settings`, and `prometheus-fastapi-instrumentator` as a compatible
+   secure set rather than pinning one transitive dependency in isolation.
+6. Generated tests must satisfy the configured 99 percent coverage gate without
+   lowering the threshold. Scaffold coverage should prove service profile,
+   product-safe errors, logging, downstream client failures, idempotency, audit,
+   health, readiness, metadata, and correlation behavior.
+7. Product-safe handlers for validation, framework HTTP exceptions, and
+   unhandled exceptions belong in the scaffold from day one so raw entitlement
+   or internal details cannot leak through default framework responses.

@@ -138,6 +138,10 @@ For implementation-bearing RFCs with many slice evidence files, prefer a per-RFC
 `docs/rfcs/RFC-0002-enterprise-opportunity-intelligence-operating-layer/`. Keep the top-level
 `docs/rfcs/README.md` as the navigation index.
 
+The generated baseline is expected to pass `make ci` immediately after scaffold creation. Do not
+lower coverage, dependency, OpenAPI, supported-feature, endpoint-certification, or security gates to
+make a new app appear ready. Fix the scaffold or the generated app so the gate remains meaningful.
+
 ## Layered Application Baseline
 
 Generated backend code starts with this package layout:

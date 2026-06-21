@@ -595,11 +595,12 @@ $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate 
 Set-Content $makefilePath $makefile
 
 $runtimeDependencies = [ordered]@{
-  "fastapi" = "0.133.0"
+  "fastapi" = "0.138.0"
+  "starlette" = "1.3.1"
   "uvicorn" = "0.41.0"
   "pydantic" = "2.12.0"
-  "pydantic-settings" = "2.13.0"
-  "prometheus-fastapi-instrumentator" = "7.1.0"
+  "pydantic-settings" = "2.14.2"
+  "prometheus-fastapi-instrumentator" = "8.0.0"
   "httpx" = "0.28.0"
 }
 
@@ -676,7 +677,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$Port"]
 Set-Content -Path (Join-Path $target "Dockerfile") -Value $dockerfile
 
 $mainPy = @"
-from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from prometheus_fastapi_instrumentator import Instrumentator
 from app.errors import problem_response
@@ -707,6 +708,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         code="invalid_request",
         title="Invalid request",
         detail="Request validation failed. Correct the request fields and retry.",
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
+    log_event(
+        "request.http_error",
+        service=SERVICE_NAME,
+        path=str(request.url.path),
+        method=request.method,
+        status_code=exc.status_code,
+    )
+    return problem_response(
+        status_code=exc.status_code,
+        code="request_rejected",
+        title="Request rejected",
+        detail="The service rejected the request. Correct the request or contact support with the correlation id.",
     )
 
 
@@ -1862,13 +1880,24 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/endpoint_certification_gate.py") -Value $endpointCertificationGate
 
+$profileDescriptionPrefix = (Get-ServiceProfileDescription -Profile $ServiceProfile).Split('.')[0]
 $unitTest = @"
+from app.application.service_profile import current_service_profile
+from app.domain.service_profile import DEFAULT_SERVICE_PROFILE, ServiceProfile
 from app.errors import ProblemDetails
 from app.main import SERVICE_NAME
 
 
 def test_service_name_is_lotus_prefixed() -> None:
     assert SERVICE_NAME.startswith("lotus-")
+
+
+def test_service_profile_is_domain_authoritative() -> None:
+    profile = current_service_profile()
+    assert profile is DEFAULT_SERVICE_PROFILE
+    assert profile.name == "$ServiceProfile"
+    assert "$profileDescriptionPrefix" in profile.description
+    assert ServiceProfile(name=profile.name, description=profile.description) == profile
 
 
 def test_problem_details_are_product_safe() -> None:
@@ -1969,6 +1998,7 @@ from app.infrastructure.downstream_client import (
     DownstreamClientConfigurationError,
     DownstreamJsonClient,
     DownstreamServiceError,
+    build_trace_headers,
 )
 
 
@@ -1982,6 +2012,20 @@ def _client_for(handler: httpx.MockTransport) -> DownstreamJsonClient:
 def test_invalid_base_url_is_rejected() -> None:
     with pytest.raises(DownstreamClientConfigurationError):
         DownstreamClientConfig(base_url="not-a-url")
+
+
+def test_invalid_timeout_is_rejected() -> None:
+    with pytest.raises(DownstreamClientConfigurationError):
+        DownstreamClientConfig(base_url="https://upstream.example", timeout_seconds=0)
+
+
+def test_default_client_can_be_constructed_for_valid_config() -> None:
+    client = DownstreamJsonClient(DownstreamClientConfig(base_url="https://upstream.example"))
+    assert client is not None
+
+
+def test_empty_trace_headers_are_omitted() -> None:
+    assert build_trace_headers(correlation_id=None, trace_id=None) == {}
 
 
 def test_trace_headers_are_forwarded() -> None:
@@ -2007,6 +2051,15 @@ def test_timeout_maps_to_safe_upstream_error() -> None:
     assert exc_info.value.code == "upstream_timeout"
 
 
+def test_generic_http_error_maps_to_safe_upstream_error() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("connection failed", request=request)
+
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        _client_for(httpx.MockTransport(handler)).get_json("/status")
+    assert exc_info.value.code == "upstream_unavailable"
+
+
 @pytest.mark.parametrize(
     ("status_code", "expected_code"),
     [(400, "upstream_rejected_request"), (404, "upstream_rejected_request"), (500, "upstream_unavailable"), (503, "upstream_unavailable")],
@@ -2024,8 +2077,40 @@ def test_malformed_response_maps_to_safe_error() -> None:
     with pytest.raises(DownstreamServiceError) as exc_info:
         client.get_json("/status")
     assert exc_info.value.code == "upstream_malformed_response"
+
+
+def test_non_object_json_response_maps_to_safe_error() -> None:
+    client = _client_for(httpx.MockTransport(lambda request: httpx.Response(200, json=["x"])))
+    with pytest.raises(DownstreamServiceError) as exc_info:
+        client.get_json("/status")
+    assert exc_info.value.code == "upstream_malformed_response"
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_downstream_client.py") -Value $downstreamClientTest
+
+$observabilityLoggingTest = @"
+import json
+import logging
+
+from app.observability import configure_logging, log_event
+
+
+def test_configure_logging_sets_product_safe_message_format() -> None:
+    configure_logging()
+    assert logging.getLogger().level in {logging.INFO, logging.WARNING}
+
+
+def test_log_event_emits_structured_json(caplog) -> None:  # type: ignore[no-untyped-def]
+    with caplog.at_level(logging.INFO, logger="$ServiceName"):
+        log_event("scaffold.test", service="$ServiceName", status="ok")
+
+    payload = json.loads(caplog.records[-1].message)
+    assert payload == {
+        "event": "scaffold.test",
+        "service": "$ServiceName",
+        "status": "ok",
+    }
+"@
+Set-Content -Path (Join-Path $target "tests/unit/test_observability_logging.py") -Value $observabilityLoggingTest
 
 if (Test-WriteCapableServiceProfile -Profile $ServiceProfile) {
   $idempotencyAuditTest = @"
@@ -2092,8 +2177,19 @@ def test_audit_event_allows_bounded_non_sensitive_attributes() -> None:
 }
 
 $integrationTest = @"
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from app.main import app
+
+
+@app.get("/__test_validation/{item_id}", include_in_schema=False)
+async def _test_validation_route(item_id: int) -> dict[str, int]:
+    return {"item_id": item_id}
+
+
+@app.get("/__test_unhandled_error", include_in_schema=False)
+async def _test_unhandled_error_route() -> None:
+    raise RuntimeError("raw internal detail")
 
 
 def test_health_endpoints() -> None:
@@ -2128,6 +2224,36 @@ def test_not_found_error_is_product_safe() -> None:
     assert response.status_code == 404
     assert "portfolio" not in response.text.lower()
     assert "holding" not in response.text.lower()
+
+
+def test_validation_error_is_product_safe() -> None:
+    client = TestClient(app)
+    response = client.get("/__test_validation/not-an-int")
+    assert response.status_code == 400
+    body = response.text.lower()
+    assert "invalid_request" in body
+    assert "not-an-int" not in body
+    assert "portfolio" not in body
+
+
+def test_unhandled_error_is_product_safe() -> None:
+    client = TestClient(app, raise_server_exceptions=False)
+    response = client.get("/__test_unhandled_error")
+    assert response.status_code == 500
+    body = response.text.lower()
+    assert "internal_error" in body
+    assert "raw internal detail" not in body
+
+
+def test_http_exception_is_product_safe() -> None:
+    @app.get("/__test_http_exception", include_in_schema=False)
+    async def _test_http_exception_route() -> None:
+        raise HTTPException(status_code=403, detail="raw entitlement detail")
+
+    client = TestClient(app)
+    response = client.get("/__test_http_exception")
+    assert response.status_code == 403
+    assert "raw entitlement detail" not in response.text.lower()
 
 
 def test_readiness_reports_draining_state() -> None:
