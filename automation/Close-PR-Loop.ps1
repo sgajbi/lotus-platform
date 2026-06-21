@@ -3,7 +3,7 @@ param(
   [string]$OutputPath = "output/pr-lifecycle.json",
   [string]$SummaryPath = "output/pr-lifecycle.md",
   [string]$PrSearch = "author:@me",
-  [string]$MergeMethod = "squash",
+  [string]$MergeMethod = "rebase",
   [int]$MergedSinceDays = 14,
   [int]$IntervalSeconds = 30,
   [switch]$Watch,
@@ -81,8 +81,8 @@ function Queue-AutoMerge {
   $args = @("pr", "merge", "--repo", $Repo, "$Number", "--auto")
   switch ($Method) {
     "merge" { $args += "--merge" }
-    "rebase" { $args += "--rebase" }
-    default { $args += "--squash" }
+    "squash" { $args += "--squash" }
+    default { $args += "--rebase" }
   }
   $out = & gh @args 2>&1
   $text = ($out | Out-String).Trim()

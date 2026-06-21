@@ -61,6 +61,9 @@ def normalize_actual_governance(payload: dict[str, Any] | None) -> dict[str, Any
             "allow_force_pushes": False,
             "allow_deletions": False,
             "allow_auto_merge": False,
+            "allow_squash_merge": False,
+            "allow_merge_commit": False,
+            "allow_rebase_merge": False,
         }
 
     review_requirements = payload.get("required_pull_request_reviews") or {}
@@ -89,6 +92,9 @@ def fetch_repository_governance(org: str, expected: ExpectedRepositoryGovernance
     repository = run_gh_json(f"repos/{org}/{expected.name}")
     normalized = normalize_actual_governance(protection)
     normalized["allow_auto_merge"] = bool(repository["allow_auto_merge"])
+    normalized["allow_squash_merge"] = bool(repository["allow_squash_merge"])
+    normalized["allow_merge_commit"] = bool(repository["allow_merge_commit"])
+    normalized["allow_rebase_merge"] = bool(repository["allow_rebase_merge"])
     return normalized
 
 
@@ -100,10 +106,13 @@ def expected_governance(expected: ExpectedRepositoryGovernance) -> dict[str, Any
         "approvals": 0,
         "dismiss_stale_reviews": True,
         "require_conversation_resolution": True,
-        "required_linear_history": False,
+        "required_linear_history": True,
         "allow_force_pushes": False,
         "allow_deletions": False,
         "allow_auto_merge": True,
+        "allow_squash_merge": False,
+        "allow_merge_commit": False,
+        "allow_rebase_merge": True,
     }
 
 

@@ -166,7 +166,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert 'preflight_fast_command = "make check"' in scaffold_script
     assert 'preflight_full_command = "make ci"' in scaffold_script
     assert "ci.backend.template.yml" not in scaffold_script
-    assert "--merge --delete-branch" in auto_merge_template
+    assert "--rebase --delete-branch" in auto_merge_template
+    assert "--merge --delete-branch" not in auto_merge_template
     assert "--squash" not in auto_merge_template
 
 
@@ -354,7 +355,10 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "PR Merge Gate / Platform Repo Contracts" in policy
     assert "Cross-App Vocabulary Gate" in policy
     assert "automation/repository-governance-policy.json" in governance_enforcer
-    assert "required_linear_history = $false" in governance_enforcer
+    assert "required_linear_history = $true" in governance_enforcer
+    assert "allow_squash_merge=false" in governance_enforcer
+    assert "allow_merge_commit=false" in governance_enforcer
+    assert "allow_rebase_merge=true" in governance_enforcer
     assert "required_conversation_resolution = $true" in governance_enforcer
     assert "required_approving_review_count = 0" in governance_enforcer
     assert "Repository Governance Enforcement" in governance_enforcer

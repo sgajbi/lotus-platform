@@ -31,7 +31,7 @@ foreach ($repo in $policy.repos) {
             require_last_push_approval = $false
         }
         restrictions = $null
-        required_linear_history = $false
+        required_linear_history = $true
         allow_force_pushes = $false
         allow_deletions = $false
         block_creations = $false
@@ -44,7 +44,7 @@ foreach ($repo in $policy.repos) {
     $errorMessage = $null
     try {
         if ($Apply) {
-            gh api "repos/$repoName" -X PATCH -f allow_auto_merge=true | Out-Null
+            gh api "repos/$repoName" -X PATCH -F allow_auto_merge=true -F allow_squash_merge=false -F allow_merge_commit=false -F allow_rebase_merge=true | Out-Null
             $tmp = New-TemporaryFile
             $payload | ConvertTo-Json -Depth 8 | Set-Content -Path $tmp
             gh api "repos/$repoName/branches/$branch/protection" -X PUT --input $tmp | Out-Null

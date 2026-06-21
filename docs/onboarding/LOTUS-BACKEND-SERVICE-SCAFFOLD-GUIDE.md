@@ -113,7 +113,7 @@ The generated repository starts with:
 7. `.github/workflows/main-releasability.yml`
    Post-merge releasability gate.
 8. `.github/workflows/pr-auto-merge.yml`
-   Merge-commit auto-merge workflow.
+   Rebase auto-merge workflow for linear, non-squash history.
 9. `Makefile`
    Repo-native command surface for install, lint, typecheck, tests, coverage, security audit, and
    report-only baseline commands.

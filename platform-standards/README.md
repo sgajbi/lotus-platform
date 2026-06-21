@@ -72,7 +72,7 @@ This generates a production-grade backend baseline with:
 - platform-approved workflow action runtime majors for checkout, Python setup, artifact upload,
   artifact download, and Docker Buildx setup
 - main releasability release evidence with CycloneDX SBOM and release metadata artifacts
-- merge-commit auto-merge workflow
+- rebase auto-merge workflow for linear, non-squash history
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
 - layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
