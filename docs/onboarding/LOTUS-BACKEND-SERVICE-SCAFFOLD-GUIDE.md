@@ -117,23 +117,25 @@ The generated repository starts with:
    Post-merge releasability gate.
 8. `.github/workflows/pr-auto-merge.yml`
    Rebase auto-merge workflow for linear, non-squash history.
-9. `Makefile`
+9. `.github/workflows/merged-pr-main-releasability.yml`
+   Merged-PR dispatcher that starts Main Releasability after a PR lands on `main`.
+10. `Makefile`
    Repo-native command surface for install, lint, typecheck, tests, coverage, security audit, and
    report-only baseline commands.
-10. `src/app/`
+11. `src/app/`
     FastAPI app skeleton and layered package baseline.
-11. `tests/unit`, `tests/integration`, `tests/e2e`
+12. `tests/unit`, `tests/integration`, `tests/e2e`
     Starting test pyramid.
-12. `docs/operations/`
+13. `docs/operations/`
     Observability and API certification docs.
-13. `docs/standards/`
+14. `docs/standards/`
     Service-local standards placeholders that must be replaced with service truth.
-14. `quality/`
+15. `quality/`
     Scorecard, architecture rules, CI-quality notes, refactor decision log, and generated baseline
     reports.
-15. `supported-features/supported-features.json`
+16. `supported-features/supported-features.json`
     Empty supported-feature registry with implementation-backed promotion policy.
-16. `evidence/rfc-implementation/`
+17. `evidence/rfc-implementation/`
     Machine-readable evidence-manifest template for implementation slices.
 
 For implementation-bearing RFCs with many slice evidence files, prefer a per-RFC folder under
@@ -152,6 +154,8 @@ Generated workflow templates must also pass the platform workflow action runtime
 Node-runtime deprecation warnings as harmless noise. The `Main Releasability Gate` must generate
 release evidence with the supported `cyclonedx-py` console command after `make install`, producing
 `sbom.cdx.json` and `release-evidence.json`.
+The merged-PR dispatcher must call `gh workflow run main-releasability.yml --ref main` so rebase
+auto-merged PRs still produce explicit post-merge release evidence.
 
 Generated workflows set Git's default initial branch to `main` through workflow environment so
 checkout does not emit default-branch hints. Generated Dockerfiles set
@@ -237,7 +241,8 @@ instead.
 `make ci-contract-gate` is also blocking from day one. It prevents scaffold or agent changes from
 silently removing Makefile targets, least-privilege workflow permissions, approved workflow action
 majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
-endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI controls.
+endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
+workflow-dispatch access, or merged-PR main-releasability dispatch.
 
 It also starts with report-only quality evidence:
 

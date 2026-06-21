@@ -48,6 +48,13 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     auto_merge_template = (
         ROOT / "platform-standards" / "templates" / "workflows" / "pr-auto-merge.template.yml"
     ).read_text(encoding="utf-8")
+    merged_pr_dispatch_template = (
+        ROOT
+        / "platform-standards"
+        / "templates"
+        / "workflows"
+        / "merged-pr-main-releasability.template.yml"
+    ).read_text(encoding="utf-8")
 
     assert "Scaffolding-by-Default Requirement" in rfc
     assert "Remote Feature Lane" in rfc
@@ -100,6 +107,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "feature-lane.backend.template.yml" in mapping
     assert "pr-merge-gate.backend.template.yml" in mapping
     assert "main-releasability.backend.template.yml" in mapping
+    assert "merged-pr-main-releasability.template.yml" in mapping
 
     for repo_name in (
         "lotus-workbench",
@@ -130,6 +138,8 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "Generated Workflow Files" in template_contract
     assert "PR Merge Gate / Workflow Lint" in template_contract
     assert "Main Releasability / Validate Docker Build" in template_contract
+    assert "merged-pr-main-releasability.yml" in template_contract
+    assert "workflow_dispatch" in template_contract
     assert "make ci-contract-gate" in template_contract
 
     assert "Repository-Native Command Policy" in hygiene_standard
@@ -161,6 +171,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "feature-lane.backend.template.yml" in scaffold_script
     assert "pr-merge-gate.backend.template.yml" in scaffold_script
     assert "main-releasability.backend.template.yml" in scaffold_script
+    assert "merged-pr-main-releasability.template.yml" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
     assert ".gitignore.backend.template" in scaffold_script
     assert ".dockerignore.backend.template" in scaffold_script
@@ -172,6 +183,9 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "--rebase --delete-branch" in auto_merge_template
     assert "--merge --delete-branch" not in auto_merge_template
     assert "--squash" not in auto_merge_template
+    assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
+    assert "--ref main" in merged_pr_dispatch_template
+    assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
 
 
 def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
@@ -206,6 +220,7 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Workflow-Security-and-Permissions-Standard.md" in standards_readme
     assert "Workflow-Action-Runtime-and-Version-Baseline.md" in standards_readme
     assert "Release-Evidence-and-SBOM-Foundation-Standard.md" in standards_readme
+    assert "merged-pr-main-releasability.template.yml" in standards_readme
     assert "Platform-End-to-End-Validation-Coverage-Standard.md" in standards_readme
     assert "Repository-CI-Lane-Mapping-Baseline.md" in standards_readme
     assert "Repository-CI-Convergence-Gap-Audit.md" in standards_readme
@@ -215,6 +230,7 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md" in automation_readme
     assert "Service Profiles" in scaffold_guide
     assert "Generated Repository Shape" in scaffold_guide
+    assert "merged-pr-main-releasability.yml" in scaffold_guide
     assert "Starting Runtime Features" in scaffold_guide
     assert "Starting Governance And Quality Features" in scaffold_guide
     assert "What The Scaffold Does Not Provide" in scaffold_guide

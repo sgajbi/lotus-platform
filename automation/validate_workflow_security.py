@@ -15,6 +15,12 @@ WORKFLOW_GLOBS = (
 
 WRITE_SUFFIX = ": write"
 ALLOWLIST = {
+    "platform-standards/templates/workflows/merged-pr-main-releasability.template.yml": {
+        "allow_pull_request_target": True,
+        "required_permissions": {
+            "actions": "write",
+        },
+    },
     "platform-standards/templates/workflows/pr-auto-merge.template.yml": {
         "allow_pull_request_target": True,
         "required_permissions": {
