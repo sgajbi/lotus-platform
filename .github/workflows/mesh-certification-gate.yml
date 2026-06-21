@@ -67,61 +67,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout lotus-platform
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: lotus-platform
 
       - name: Checkout lotus-core
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-core
           path: lotus-core
           ref: ${{ github.event.inputs.lotus_core_ref || 'main' }}
 
       - name: Checkout lotus-performance
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-performance
           path: lotus-performance
           ref: ${{ github.event.inputs.lotus_performance_ref || 'main' }}
 
       - name: Checkout lotus-risk
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-risk
           path: lotus-risk
           ref: ${{ github.event.inputs.lotus_risk_ref || 'main' }}
 
       - name: Checkout lotus-advise
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-advise
           path: lotus-advise
           ref: ${{ github.event.inputs.lotus_advise_ref || 'main' }}
 
       - name: Checkout lotus-report
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-report
           path: lotus-report
           ref: ${{ github.event.inputs.lotus_report_ref || 'main' }}
 
       - name: Checkout lotus-manage
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-manage
           path: lotus-manage
           ref: ${{ github.event.inputs.lotus_manage_ref || 'main' }}
 
       - name: Checkout lotus-gateway
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-gateway
           path: lotus-gateway
           ref: ${{ github.event.inputs.lotus_gateway_ref || 'main' }}
 
       - name: Checkout lotus-workbench
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-workbench
           path: lotus-workbench
@@ -151,7 +151,7 @@ jobs:
 
       - name: Upload mesh certification artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: mesh-certification-${{ github.run_id }}-${{ github.sha }}
           path: |

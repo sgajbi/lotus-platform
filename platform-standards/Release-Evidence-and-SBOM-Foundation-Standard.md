@@ -22,7 +22,7 @@ Required behavior:
 Required command contract:
 
 ```text
-python -m cyclonedx_py environment --output-format JSON --output-file sbom.cdx.json
+./.venv/bin/cyclonedx-py environment --output-format JSON --output-file sbom.cdx.json
 ```
 
 ## Release Metadata Manifest Baseline

@@ -18,7 +18,10 @@ def test_main_releasability_template_emits_release_evidence_artifacts() -> None:
     )
 
     assert "Generate dependency SBOM" in template
-    assert "python -m cyclonedx_py environment --output-format JSON --output-file sbom.cdx.json" in template
+    assert (
+        "./.venv/bin/cyclonedx-py environment --output-format JSON --output-file sbom.cdx.json"
+        in template
+    )
     assert "Generate release metadata manifest" in template
     assert "release-evidence.json" in template
     assert "main-releasability-release-evidence" in template

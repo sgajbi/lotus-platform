@@ -25,10 +25,12 @@ Platform-owned workflows and scaffold templates must use the approved action maj
 
 | Action | Required Baseline |
 | --- | --- |
-| `actions/checkout` | `v6` |
+| `actions/checkout` | `v7` |
 | `actions/setup-python` | `v6` |
-| `actions/setup-node` | `v5` |
-| `actions/upload-artifact` | `v5` |
+| `actions/setup-node` | `v6` |
+| `actions/upload-artifact` | `v7` |
+| `actions/download-artifact` | `v8` |
+| `docker/setup-buildx-action` | `v4` |
 
 ## Operating Rules
 

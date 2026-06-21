@@ -39,3 +39,12 @@ solving them only in the generated app.
    stale known-good versions. A dependency refresh is acceptable only when a
    disposable generated service passes `make ci`, `pip-audit`, and warning
    promotion for known framework deprecations.
+10. Scaffold workflow action majors should track the current platform-approved
+    runtime baseline. When GitHub runner warnings identify deprecated Node
+    runtimes, update live platform workflows, backend workflow templates,
+    `Workflow-Action-Runtime-and-Version-Baseline.md`, and
+    `automation/validate_workflow_action_runtime.py` in the same slice.
+11. Release-evidence commands must be exercised against the latest stable
+    tooling. For `cyclonedx-bom` 7.x, generate SBOM evidence with the
+    `cyclonedx-py` console command from the generated virtual environment,
+    not the removed `cyclonedx_py` Python module invocation.
