@@ -143,6 +143,7 @@ Generated backend code starts with this package layout:
 | `src/app/infrastructure/` | Concrete adapters and external clients behind ports. |
 | `src/app/observability/` | Structured logging, correlation, tracing, and metrics helpers. |
 | `src/app/security/` | Caller context and product-safe authorization policy primitives. |
+| `src/app/resilience/` | Retry, backoff, timeout, and circuit-breaker policy primitives. |
 | `src/app/contracts/` | API and contract models. |
 | `src/app/middleware/` | Shared request middleware. |
 
@@ -152,7 +153,7 @@ Default dependency direction:
 2. `application` depends on `domain` and `ports`,
 3. `domain` does not import API, infrastructure, FastAPI, persistence, or HTTP clients,
 4. `infrastructure` implements `ports`,
-5. `security` and `observability` provide shared support primitives.
+5. `security`, `resilience`, and `observability` provide shared support primitives.
 
 ## Starting Runtime Features
 

@@ -157,10 +157,11 @@ function Write-RepositoryEngineeringContext {
     '6. `src/app/infrastructure/`: concrete adapters and external clients behind ports.',
     '7. `src/app/observability/`: structured logging, correlation, tracing, and metrics helpers.',
     '8. `src/app/security/`: caller context and product-safe authorization policies.',
-    '9. `src/app/contracts/`: API and contract models.',
-    '10. `src/app/middleware/`: shared request middleware.',
-    '11. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
-    '12. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
+    '9. `src/app/resilience/`: retry, backoff, timeout, and circuit-breaker policy primitives.',
+    '10. `src/app/contracts/`: API and contract models.',
+    '11. `src/app/middleware/`: shared request middleware.',
+    '12. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
+    '13. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
     '',
     '## Runtime And Integration Boundaries',
     '',
@@ -840,7 +841,8 @@ Expected dependency flow:
 3. ``domain`` is framework-free and must not import FastAPI, API DTOs, infrastructure, or persistence.
 4. ``infrastructure`` implements ``ports``.
 5. ``security`` provides caller-context and authorization policy primitives.
-6. ``observability`` provides structured logging, correlation, tracing, and metrics helpers.
+6. ``resilience`` provides retry, backoff, timeout, and circuit-breaker policy primitives.
+7. ``observability`` provides structured logging, correlation, tracing, and metrics helpers.
 
 Run ``make architecture-boundary-report`` for the report-only architecture boundary check.
 "@
@@ -2340,9 +2342,13 @@ $readme = @(
   "- CI and governance: .github/workflows/",
   "- Engineering commands: Makefile",
   "- Bank-buyable quality contract: lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+  "- Demo claims ledger: docs/demo/demo-claims.md",
+  "- API certification guide: docs/operations/api-certification.md",
+  "- Observability guide: docs/operations/observability.md",
+  "- RFC implementation evidence guide: evidence/rfc-implementation/README.md",
   "- Platform standards docs: docs/standards/",
   "- Quality scorecard and refactor decisions: quality/",
-  "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security",
+  "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
   "- Report-only quality baseline evidence: make quality-baseline"
 ) -join "`n"
@@ -2379,8 +2385,9 @@ Use the Lotus layered backend default:
 3. ``src/app/domain`` logic stays framework-free and must not import FastAPI, API DTOs, infrastructure, persistence, or HTTP clients,
 4. ``src/app/infrastructure`` sits behind ``ports`` adapters,
 5. ``src/app/security`` owns caller-context and product-safe authorization policy primitives,
-6. ``src/app/observability`` owns structured logging, correlation, tracing, and metrics helpers,
-7. generated or scaffold placeholders must be replaced with implementation truth before promotion.
+6. ``src/app/resilience`` owns retry, backoff, timeout, and circuit-breaker policy primitives; concrete downstream clients still belong behind ``ports`` in ``infrastructure``,
+7. ``src/app/observability`` owns structured logging, correlation, tracing, and metrics helpers,
+8. generated or scaffold placeholders must be replaced with implementation truth before promotion.
 
 Run ``make architecture-boundary-report`` for report-only evidence. Promote it to blocking only after
 the signal is stable, deterministic, low-noise, and exception policy is clear.
