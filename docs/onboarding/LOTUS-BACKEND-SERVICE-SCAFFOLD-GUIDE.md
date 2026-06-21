@@ -150,6 +150,11 @@ Node-runtime deprecation warnings as harmless noise. The `Main Releasability Gat
 release evidence with the supported `cyclonedx-py` console command after `make install`, producing
 `sbom.cdx.json` and `release-evidence.json`.
 
+Generated workflows set Git's default initial branch to `main` through workflow environment so
+checkout does not emit default-branch hints. Generated Dockerfiles set
+`PIP_ROOT_USER_ACTION=ignore` in controlled build stages so Docker build logs do not emit root-pip
+warnings for expected image-build installs.
+
 ## Layered Application Baseline
 
 Generated backend code starts with this package layout:

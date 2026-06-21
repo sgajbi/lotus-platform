@@ -51,6 +51,7 @@ def validate_container_build_baseline() -> list[str]:
         "FROM ${PYTHON_IMAGE} AS runtime-base",
         "FROM ${PYTHON_IMAGE} AS wheel-builder",
         "FROM runtime-base AS final",
+        "PIP_ROOT_USER_ACTION=ignore",
         "RUN --mount=type=cache,target=/root/.cache/pip",
         "USER appuser",
     ):

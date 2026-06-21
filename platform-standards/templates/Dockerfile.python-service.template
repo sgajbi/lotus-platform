@@ -5,6 +5,7 @@ FROM ${PYTHON_IMAGE} AS runtime-base
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_CONSTRAINT=/app/requirements/shared-runtime.lock.txt \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
@@ -24,6 +25,7 @@ FROM ${PYTHON_IMAGE} AS wheel-builder
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_CONSTRAINT=/build/requirements/shared-runtime.lock.txt \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
