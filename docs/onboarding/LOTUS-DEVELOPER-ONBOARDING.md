@@ -390,3 +390,4 @@ Current automation supports:
 5. redacted JSON and Markdown readiness reports,
 6. onboarding drift controls through context validation,
 7. repository-local cross-links back to the central onboarding and ramp-up guides.
+

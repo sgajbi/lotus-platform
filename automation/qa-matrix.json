@@ -92,12 +92,12 @@
                                                                   "require_response_headers":  [
                                                                                                    "x-correlation-id"
                                                                                                ],
-                                                                   "required_log_patterns":  [
-                                                                                                 "correlation",
-                                                                                                 "request.completed",
-                                                                                                 "service"
-                                                                                             ]
-                                                               }
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "request.completed",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
                                         }
                          },
                          {
@@ -461,6 +461,57 @@
                                                                                                ],
                                                                   "required_log_patterns":  [
                                                                                                 "correlation",
+                                                                                                "service"
+                                                                                            ]
+                                                              }
+                                        }
+                         },
+                         {
+                             "repo":  "lotus-idea",
+                             "startup":  {
+                                             "up_command":  "docker compose up -d --build lotus-idea",
+                                             "down_command":  "docker compose down",
+                                             "log_command":  "docker compose logs --tail=200 lotus-idea"
+                                         },
+                             "checks":  {
+                                            "api":  [
+                                                        {
+                                                            "id":  "health",
+                                                            "method":  "GET",
+                                                            "url":  "http://idea.dev.lotus/health",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "status"
+                                                                             ]
+                                                        },
+                                                        {
+                                                            "id":  "docs",
+                                                            "method":  "GET",
+                                                            "url":  "http://idea.dev.lotus/docs",
+                                                            "expected_status":  200,
+                                                            "must_contain":  [
+                                                                                 "Swagger"
+                                                                             ]
+                                                        }
+                                                    ],
+                                            "monitoring":  [
+                                                               {
+                                                                   "id":  "metrics",
+                                                                   "url":  "http://idea.dev.lotus/metrics",
+                                                                   "expected_status":  200,
+                                                                   "must_contain":  [
+                                                                                        "http"
+                                                                                    ]
+                                                               }
+                                                           ],
+                                            "observability":  {
+                                                                  "require_response_headers":  [
+                                                                                                   "x-correlation-id",
+                                                                                                   "x-trace-id"
+                                                                                               ],
+                                                                  "required_log_patterns":  [
+                                                                                                "correlation",
+                                                                                                "trace",
                                                                                                 "service"
                                                                                             ]
                                                               }

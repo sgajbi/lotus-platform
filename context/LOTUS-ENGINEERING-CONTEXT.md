@@ -757,3 +757,4 @@ Use [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when you need a human-read
 2. domain authority ownership,
 3. standards currently in force,
 4. active RFCs that still materially govern the ecosystem.
+

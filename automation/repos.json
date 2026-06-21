@@ -92,5 +92,13 @@
         "default_branch":  "main",
         "preflight_fast_command":  "make check",
         "preflight_full_command":  "make ci"
+    },
+    {
+        "name":  "lotus-idea",
+        "github":  "sgajbi/lotus-idea",
+        "path":  "C:/Users/Sandeep/projects/lotus-idea",
+        "default_branch":  "main",
+        "preflight_fast_command":  "make check",
+        "preflight_full_command":  "make ci"
     }
 ]
