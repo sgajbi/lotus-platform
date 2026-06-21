@@ -156,6 +156,8 @@ release evidence with the supported `cyclonedx-py` console command after `make i
 `sbom.cdx.json` and `release-evidence.json`.
 The merged-PR dispatcher must call `gh workflow run main-releasability.yml --ref main` so rebase
 auto-merged PRs still produce explicit post-merge release evidence.
+The auto-merge workflow must use `LOTUS_AUTOMERGE_TOKEN`, not `GITHUB_TOKEN`, so the merge event is
+not suppressed before the dispatcher can run.
 
 Generated workflows set Git's default initial branch to `main` through workflow environment so
 checkout does not emit default-branch hints. Generated Dockerfiles set
@@ -242,7 +244,8 @@ instead.
 silently removing Makefile targets, least-privilege workflow permissions, approved workflow action
 majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
 endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
-workflow-dispatch access, or merged-PR main-releasability dispatch.
+workflow-dispatch access, non-suppressed auto-merge token usage, or merged-PR main-releasability
+dispatch.
 
 It also starts with report-only quality evidence:
 

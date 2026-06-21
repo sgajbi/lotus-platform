@@ -51,10 +51,8 @@ Current approved exception:
 1. `platform-standards/templates/workflows/pr-auto-merge.template.yml`
 2. `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml`
 
-`pr-auto-merge.template.yml` is allowed to request:
-
-1. `contents: write`
-2. `pull-requests: write`
+`pr-auto-merge.template.yml` must not request write permissions from `GITHUB_TOKEN`; it uses the
+explicit `LOTUS_AUTOMERGE_TOKEN` secret so merge events are not suppressed by workflow-token rules.
 
 `merged-pr-main-releasability.template.yml` is allowed to request:
 
@@ -98,7 +96,7 @@ The platform validator must fail when:
 
 | Workflow Path | Allowed Event Exception | Allowed Write Permissions |
 | --- | --- | --- |
-| `platform-standards/templates/workflows/pr-auto-merge.template.yml` | `pull_request_target` | `contents: write`, `pull-requests: write` |
+| `platform-standards/templates/workflows/pr-auto-merge.template.yml` | `pull_request_target` | none; uses `LOTUS_AUTOMERGE_TOKEN` |
 | `platform-standards/templates/workflows/merged-pr-main-releasability.template.yml` | `pull_request_target` | `actions: write` |
 
 ## Acceptance Posture

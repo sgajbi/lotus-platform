@@ -616,7 +616,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
-    assert "contents: write" in ci_contract_gate
+    assert "secrets.LOTUS_AUTOMERGE_TOKEN" in ci_contract_gate
+    assert "LOTUS_AUTOMERGE_TOKEN is required" in ci_contract_gate
     assert "merged-pr-main-releasability.yml" in ci_contract_gate
     assert "gh workflow run main-releasability.yml" in ci_contract_gate
     assert "workflow_dispatch:" in ci_contract_gate
