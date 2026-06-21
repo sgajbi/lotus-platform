@@ -6,7 +6,9 @@ repositories.
 Use it when a new backend service should start from the governed Lotus baseline: service profile,
 layered package skeleton, repo-native Makefile, explicit CI lanes, starter health/readiness/API
 behavior, product-safe errors, structured logs, quality scorecard, endpoint certification,
-supported-feature governance, and report-only architecture/quality evidence.
+supported-feature governance, caller-context and capability-policy primitives, downstream-client
+resilience templates, write-capable idempotency/audit models, demo-claims documentation, and
+report-only architecture/quality evidence.
 
 Detailed guide:
 
@@ -27,4 +29,8 @@ Do not treat a generated repository as bank-buyable by default. The scaffold is 
 point; the owning team must add real domain behavior, tests, endpoint certification,
 supported-feature evidence, security posture, observability, runbooks, and wiki truth before
 promoting capabilities.
+
+Mesh placeholders are opt-in through `-IncludeMeshPlaceholders`. When generated, they start as
+`Planned` and `not_certified` and must be replaced with repo-owned implementation and certification
+evidence before any mesh readiness claim.
 
