@@ -34,6 +34,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `reporting-and-document-generation` | `lotus-report` | lotus-gateway, lotus-render |
 | `generated-document-archive-retrieval-retention-and-legal-hold` | `lotus-archive` | lotus-gateway, lotus-report |
 | `ai-capabilities` | `lotus-ai` | lotus-gateway |
+| `opportunity-intelligence-and-idea-lifecycle` | `lotus-idea` | lotus-gateway, lotus-advise, lotus-manage, lotus-report |
 
 ## Standards Registry
 

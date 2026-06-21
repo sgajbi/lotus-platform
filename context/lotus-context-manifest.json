@@ -90,7 +90,8 @@
                                                              "lotus-manage",
                                                              "lotus-report",
                                                              "lotus-render",
-                                                             "lotus-ai"
+                                                             "lotus-ai",
+                                                             "lotus-idea"
                                                          ],
                              "requires_platform_end_to_end_validation":  true
                          },
@@ -317,10 +318,20 @@
                              "repo_context_path":  "REPOSITORY-ENGINEERING-CONTEXT.md",
                              "status":  "implemented",
                              "upstream_dependencies":  [
-                                                           "lotus-core,lotus-performance,lotus-risk,lotus-advise,lotus-manage,lotus-report,lotus-ai"
+                                                           "lotus-core",
+                                                           "lotus-performance",
+                                                           "lotus-risk",
+                                                           "lotus-advise",
+                                                           "lotus-manage",
+                                                           "lotus-report",
+                                                           "lotus-ai"
                                                        ],
                              "downstream_dependencies":  [
-                                                             "lotus-gateway,lotus-workbench,lotus-report,lotus-advise,lotus-manage"
+                                                             "lotus-gateway",
+                                                             "lotus-workbench",
+                                                             "lotus-report",
+                                                             "lotus-advise",
+                                                             "lotus-manage"
                                                          ],
                              "requires_platform_end_to_end_validation":  true
                          }
@@ -384,6 +395,16 @@
                                      "authoritative_repository":  "lotus-ai",
                                      "composition_layers":  [
                                                                 "lotus-gateway"
+                                                            ]
+                                 },
+                                 {
+                                     "domain":  "opportunity-intelligence-and-idea-lifecycle",
+                                     "authoritative_repository":  "lotus-idea",
+                                     "composition_layers":  [
+                                                                "lotus-gateway",
+                                                                "lotus-advise",
+                                                                "lotus-manage",
+                                                                "lotus-report"
                                                             ]
                                  }
                              ],
