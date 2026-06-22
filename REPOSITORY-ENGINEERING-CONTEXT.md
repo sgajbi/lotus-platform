@@ -60,8 +60,10 @@ Current repository posture:
    check for repositories that require manual/release-actor rebase merge. Generated services also
    include `make monetary-float-guard`, which blocks money-like `float` annotations, literals,
    return annotations, and conversions while allowing operational floats such as timeout seconds.
-   Detailed usage and
-   generated services also include `make source-observability-contract-gate`, which blocks raw
+   Generated services include a tested `scripts/clean_generated_artifacts.py` utility, `make clean`
+   wiring, and CI-contract protection so cleanup remains safe, prunes `.git`, `.venv`, and
+   `node_modules`, and removes only known local cache/build/coverage artifacts. Generated services
+   also include `make source-observability-contract-gate`, which blocks raw
    `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
    generated request diagnostic helper logs route templates instead of raw URL paths. Detailed
    usage and generated feature documentation lives in

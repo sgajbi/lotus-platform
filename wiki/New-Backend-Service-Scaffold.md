@@ -21,9 +21,14 @@ Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-cont
 future scaffold or agent changes from silently removing Makefile targets, least-privilege workflow
 permissions, approved action majors, merge/releasability coverage, Docker validation, release
 evidence, endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI
-controls. It also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
-needed for rebase auto-merged PRs, plus `LOTUS_AUTOMERGE_TOKEN` usage so the merge actor is not
-the suppressed workflow token.
+controls. It also protects safe cleanup wiring, workflow-dispatch access, and the merged-PR Main
+Releasability dispatch needed for rebase auto-merged PRs, plus `LOTUS_AUTOMERGE_TOKEN` usage so
+the merge actor is not the suppressed workflow token.
+
+`make clean` calls the generated `scripts/clean_generated_artifacts.py` utility. It removes only
+known local cache, build, and coverage artifacts while pruning `.git`, `.venv`, and `node_modules`.
+The generated CI contract gate fails if future changes replace that utility with an inline
+Makefile command or remove the script.
 
 `make maintainability-gate` blocks oversized Python files/functions in `src`, `tests`, and
 `scripts` so generated services start with conservative module-size guardrails before feature work

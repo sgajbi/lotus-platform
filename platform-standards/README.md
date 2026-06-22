@@ -77,8 +77,10 @@ This generates a production-grade backend baseline with:
 - merged-PR main releasability dispatcher for explicit post-merge evidence after auto-merge
 - scaffolded `.editorconfig`, `.gitattributes`, `.gitignore`, and `.dockerignore` from platform templates
 - Makefile + lint/typecheck/test/coverage/security gates
+- generated `scripts/clean_generated_artifacts.py` with `make clean` wiring for safe cache,
+  build, and local coverage cleanup
 - blocking CI contract gate that protects bank-buyable lane wiring, bounded job timeouts, and
-  no-soft-fail critical workflow posture from drift
+  no-soft-fail critical workflow posture plus cleanup wiring from drift
 - blocking implementation-truth gate that prevents README/docs/wiki current-state claims from
   outrunning supported-feature evidence and catches stale scaffold-era demo underclaims after
   implementation evidence exists
@@ -95,6 +97,7 @@ This generates a production-grade backend baseline with:
 - worktree-clean `make documentation-contract-gate` command wired through `make lint`
 - worktree-clean `make quality-scorecard-gate` command wired through `make lint`
 - worktree-clean `make implementation-truth-gate` command wired through `make lint`
+- safe `make clean` command backed by a tested generated cleanup utility
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)

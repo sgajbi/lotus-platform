@@ -242,6 +242,7 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 15. `make test`
 16. `make ci`
 17. `make security-audit`
+18. `make clean`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -258,7 +259,14 @@ silently removing Makefile targets, least-privilege workflow permissions, approv
 majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
 endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
 workflow-dispatch access, bounded job timeouts, no-soft-fail critical workflow posture,
-non-suppressed auto-merge token usage, or merged-PR main-releasability dispatch.
+non-suppressed auto-merge token usage, safe cleanup wiring, or merged-PR main-releasability
+dispatch.
+
+`make clean` is generated as a safe hygiene command. It calls
+`python scripts/clean_generated_artifacts.py`, removes only known local cache, build, and coverage
+artifacts, and prunes `.git`, `.venv`, and `node_modules`. The generated CI contract gate fails if
+future scaffold or agent changes replace that utility with an inline Makefile command or remove
+the cleanup script.
 
 `make maintainability-gate` is blocking from day one. It prevents oversized source, test, and
 script files/functions from becoming normal generated or agent-authored service posture.
@@ -347,6 +355,7 @@ make implementation-truth-gate
 make architecture-boundary-gate
 make architecture-boundary-report
 make quality-baseline
+make clean
 make check
 make ci
 ```
