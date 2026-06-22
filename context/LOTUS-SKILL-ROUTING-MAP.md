@@ -114,7 +114,8 @@ Use when the task is about:
 5. updating CI lane placement, scorecards, or enforcement evidence,
 6. syncing skill or agent-context guidance for a repeatable enforcement pattern.
 7. establishing or updating enterprise backend refactor baseline artifacts under `quality/`.
-8. updating scaffold-level anti-drift gates such as `make ci-contract-gate`.
+8. updating scaffold-level anti-drift gates such as `make ci-contract-gate` or
+   `make implementation-truth-gate`.
 
 ## Keep, Tighten, Add, Remove Decisions
 

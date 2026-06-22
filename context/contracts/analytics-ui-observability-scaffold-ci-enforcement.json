@@ -60,11 +60,22 @@
       ]
     },
     {
+      "id": "backend_implementation_truth_guard",
+      "artifact_path": "automation/New-Lotus-Service.ps1",
+      "required_terms": [
+        "scripts/implementation_truth_gate.py",
+        "PROMOTION_PATTERNS",
+        "QUALIFIED_CONTEXT_PATTERNS",
+        "current-state"
+      ]
+    },
+    {
       "id": "backend_makefile_ci_gates",
       "artifact_path": "platform-standards/templates/Makefile.backend.template",
       "required_terms": [
         "openapi-gate",
         "no-sensitive-content-guard",
+        "implementation-truth-gate",
         "supported-features-gate",
         "architecture-boundary-gate",
         "architecture-boundary-report",

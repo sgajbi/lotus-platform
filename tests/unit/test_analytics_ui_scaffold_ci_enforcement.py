@@ -66,6 +66,7 @@ def test_scaffold_ci_contract_proves_backend_scaffold_defaults() -> None:
 
     assert "backend_health_metadata_metrics" in defaults
     assert "backend_no_sensitive_content_guard" in defaults
+    assert "backend_implementation_truth_guard" in defaults
     assert "backend_makefile_ci_gates" in defaults
     assert "scripts/no_sensitive_content_guard.py" in defaults[
         "backend_no_sensitive_content_guard"
@@ -73,6 +74,12 @@ def test_scaffold_ci_contract_proves_backend_scaffold_defaults() -> None:
     assert "supported-features-gate" in defaults["backend_makefile_ci_gates"][
         "required_terms"
     ]
+    assert "implementation-truth-gate" in defaults["backend_makefile_ci_gates"][
+        "required_terms"
+    ]
+    assert "scripts/implementation_truth_gate.py" in defaults[
+        "backend_implementation_truth_guard"
+    ]["required_terms"]
 
 
 def test_scaffold_ci_contract_proves_ui_surface_template_defaults() -> None:

@@ -79,6 +79,8 @@ This generates a production-grade backend baseline with:
 - Makefile + lint/typecheck/test/coverage/security gates
 - blocking CI contract gate that protects bank-buyable lane wiring, bounded job timeouts, and
   no-soft-fail critical workflow posture from drift
+- blocking implementation-truth gate that prevents README/docs/wiki current-state claims from
+  outrunning supported-feature evidence
 - layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
   `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - FastAPI app with health/readiness and metrics
@@ -88,6 +90,7 @@ This generates a production-grade backend baseline with:
 - worktree-clean blocking architecture-boundary gate plus report-only architecture-boundary and
   quality-baseline commands for explicit evidence generation
 - worktree-clean `make ci-contract-gate` command wired through `make lint`
+- worktree-clean `make implementation-truth-gate` command wired through `make lint`
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)

@@ -106,6 +106,7 @@ New backend service scaffolds must include these repo-native report-only command
 New backend service scaffolds must include this repo-native blocking anti-drift command:
 
 1. `make ci-contract-gate`
+2. `make implementation-truth-gate`
 
 Blocking commands wired into `make check`, `make ci`, Feature Lane, PR Merge Gate, or Main
 Releasability must not create or rewrite durable report artifacts in a clean checkout. Report
@@ -119,6 +120,11 @@ merge-grade coverage, Docker validation, release evidence, endpoint certificatio
 supported-feature promotion control, and local quality gate wiring. It must also protect
 `workflow_dispatch` on `main-releasability.yml` and the merged-PR dispatch workflow that starts
 post-merge release evidence.
+
+`make implementation-truth-gate` is allowed and expected to run through `make lint` because it is
+worktree-clean and blocks unqualified README/docs/wiki current-state claims of demo readiness,
+production support, certification, live source ingestion, Gateway/Workbench support, or
+client-ready publication before supported-feature evidence exists.
 
 Report-only commands must not become blocking CI gates until `lotus-ci-enforcement-governance`
 confirms the signal is measured, deterministic, low-noise, lane-appropriate, and backed by an

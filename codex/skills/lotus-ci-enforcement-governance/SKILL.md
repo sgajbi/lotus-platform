@@ -122,13 +122,20 @@ For newly scaffolded backend services, treat `make ci-contract-gate` as the defa
 It should remain blocking through `make lint` when it is worktree-clean and validates only concrete
 lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
 permissions, 99% merge/releasability coverage, Docker validation, release evidence,
-endpoint-certification, supported-feature, security-audit, architecture/OpenAPI gates, bounded
-job-level timeouts, and no `continue-on-error: true` in critical lanes. Rebase auto-merge must use
-a non-`GITHUB_TOKEN` merge actor such as `LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the
-`pull_request_target.closed` event that dispatches post-merge main releasability proof. The
-generated CI contract gate should enforce the token reference, explicit missing-token behavior,
-bounded workflow timeouts, no-soft-fail critical workflow posture, and the merged-PR
-main-releasability dispatcher together.
+endpoint-certification, supported-feature, implementation-truth, security-audit,
+architecture/OpenAPI gates, bounded job-level timeouts, and no `continue-on-error: true` in
+critical lanes. Rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
+`LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the `pull_request_target.closed` event that
+dispatches post-merge main releasability proof. The generated CI contract gate should enforce the
+token reference, explicit missing-token behavior, bounded workflow timeouts, no-soft-fail critical
+workflow posture, implementation-truth guard presence, and the merged-PR main-releasability
+dispatcher together.
+
+New backend scaffolds should also generate `make implementation-truth-gate` and run it through
+`make lint`. The gate should scan current-state README, repository context, operations/demo docs,
+quality docs, and wiki source for unqualified claims of demo readiness, production support,
+certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
+supported-feature evidence exists. Keep RFC target-state planning text out of this blocking scan.
 
 ## Context And Skill Maintenance
 

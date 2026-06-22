@@ -326,8 +326,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     runtime work before contract expansion is merged, plus
     `context/contracts/analytics-ui-observability-scaffold-ci-enforcement.json`,
     `automation/validate_analytics_ui_scaffold_ci_enforcement.py`, generated backend
-    no-sensitive-content and supported-features gates, a reusable Workbench/UI observability
-    template, and platform repo check wiring that keeps the baseline platform-owned. Slice 12 is
+    no-sensitive-content, implementation-truth, and supported-features gates, a reusable
+    Workbench/UI observability template, and platform repo check wiring that keeps the baseline
+    platform-owned. Slice 12 is
     now partially implemented: `lotus-risk` `POST /analytics/risk/calculate` emits
     `metadata.calculation_supportability`, bounded
     `lotus_risk_calculation_supportability_total` labels, and the implemented feature key
@@ -686,6 +687,10 @@ semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the
 merged `main` commit. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
+Newly scaffolded backend services also generate `make implementation-truth-gate` through
+`make lint`; it blocks unqualified README/docs/wiki current-state claims of demo readiness,
+production support, certification, live source ingestion, Gateway/Workbench support, or
+client-ready publication before supported-feature evidence exists.
 Do not treat a green PR Merge Gate as release evidence by itself.
 
 For enterprise backend refactors in `lotus-platform`, start from

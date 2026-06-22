@@ -235,6 +235,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) ci-contract-gate" in makefile_template
     assert "no-sensitive-content-guard:" in makefile_template
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
+    assert "implementation-truth-gate:" in makefile_template
+    assert "$(MAKE) implementation-truth-gate" in makefile_template
     assert "supported-features-gate:" in makefile_template
     assert "$(MAKE) supported-features-gate" in makefile_template
     assert "endpoint-certification-gate:" in makefile_template
@@ -522,6 +524,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) ci-contract-gate" in makefile
     assert "no-sensitive-content-guard:" in makefile
     assert "$(MAKE) no-sensitive-content-guard" in makefile
+    assert "implementation-truth-gate:" in makefile
+    assert "$(MAKE) implementation-truth-gate" in makefile
     assert "supported-features-gate:" in makefile
     assert "$(MAKE) supported-features-gate" in makefile
     assert "endpoint-certification-gate:" in makefile
@@ -794,6 +798,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make architecture-boundary-report" in readme
     assert "make quality-baseline" in readme
     assert "make ci-contract-gate" in readme
+    assert "make implementation-truth-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
     assert "API certification guide: docs/operations/api-certification.md" in readme
@@ -809,6 +814,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`src/app/resilience/`: retry, backoff, timeout" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
     assert "`make ci-contract-gate` is blocking through `make lint`" in repo_context
+    assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
         "Home.md",
@@ -836,6 +842,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make ci-contract-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make implementation-truth-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "No business feature is supported by scaffold creation alone" in (
         repo_root / "wiki/Supported-Features.md"
     ).read_text(encoding="utf-8")
@@ -844,6 +853,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Service profile: domain-service" in quality_scorecard
     assert "Control Area" in quality_scorecard
     assert "make ci-contract-gate" in ci_quality_gates
+    assert "make implementation-truth-gate" in ci_quality_gates
     assert "Architecture" in quality_scorecard
     assert (
         "Layered package skeleton plus report-only architecture-boundary report"

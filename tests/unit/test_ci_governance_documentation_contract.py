@@ -141,6 +141,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "merged-pr-main-releasability.yml" in template_contract
     assert "workflow_dispatch" in template_contract
     assert "make ci-contract-gate" in template_contract
+    assert "make implementation-truth-gate" in scaffold_script
 
     assert "Repository-Native Command Policy" in hygiene_standard
     assert ".editorconfig" in hygiene_standard
@@ -173,6 +174,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "main-releasability.backend.template.yml" in scaffold_script
     assert "merged-pr-main-releasability.template.yml" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
+    assert "scripts/implementation_truth_gate.py" in scaffold_script
     assert ".gitignore.backend.template" in scaffold_script
     assert ".dockerignore.backend.template" in scaffold_script
     assert "requirements.shared-runtime.lock.template.txt" in scaffold_script
