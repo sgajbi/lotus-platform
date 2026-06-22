@@ -92,6 +92,7 @@ This generates a production-grade backend baseline with:
   quality-baseline commands for explicit evidence generation
 - worktree-clean `make ci-contract-gate` command wired through `make lint`
 - worktree-clean `make maintainability-gate` command wired through `make lint`
+- worktree-clean `make documentation-contract-gate` command wired through `make lint`
 - worktree-clean `make implementation-truth-gate` command wired through `make lint`
 - endpoint certification ledger and gate script
 - Unit/integration/e2e tests

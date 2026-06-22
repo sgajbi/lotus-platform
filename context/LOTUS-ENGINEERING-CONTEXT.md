@@ -687,13 +687,17 @@ semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the
 merged `main` commit. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
-Newly scaffolded backend services also generate `make maintainability-gate` and
-`make implementation-truth-gate` through `automation/New-Lotus-Service.ps1` and run both through
-`make lint`; they block oversized source/test/script modules plus unqualified README/docs/wiki
-current-state claims of demo readiness, production support, certification, live source ingestion,
-Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.
-The generated implementation-truth gate also blocks stale scaffold-era demo underclaims once
-implementation and CI evidence prove a stronger current posture.
+Newly scaffolded backend services also generate `make maintainability-gate`,
+`make documentation-contract-gate`, and `make implementation-truth-gate`
+through `automation/New-Lotus-Service.ps1` and run all three through
+`make lint`; they block oversized source/test/script modules, deletion or
+thinning of required README/context/standards/runbook/quality/evidence/wiki
+surfaces, plus unqualified README/docs/wiki current-state claims of demo
+readiness, production support, certification, live source ingestion,
+Gateway/Workbench support, or client-ready publication before supported-feature
+evidence exists. The generated implementation-truth gate also blocks stale
+scaffold-era demo underclaims once implementation and CI evidence prove a
+stronger current posture.
 Do not treat a green PR Merge Gate as release evidence by itself.
 
 For enterprise backend refactors in `lotus-platform`, start from

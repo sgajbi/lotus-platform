@@ -78,3 +78,8 @@ solving them only in the generated app.
     one. `make maintainability-gate` should run through `make lint` and block
     oversized source, test, and script files/functions before agent-authored
     bloat becomes normalized.
+17. Scaffolded backend repositories also need a documentation contract gate from
+    day one. `make documentation-contract-gate` should run through `make lint`
+    and block deletion, thinning, missing anchors, or placeholder erosion in the
+    README, repository context, standards, runbooks, quality, evidence, and wiki
+    surfaces that future operators and implementation agents depend on.

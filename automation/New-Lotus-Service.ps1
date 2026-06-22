@@ -205,12 +205,13 @@ function Write-RepositoryEngineeringContext {
     '6. repo-native CI parity: `make check`, `make ci`',
     '7. CI lane contract gate: `make ci-contract-gate`',
     '8. maintainability gate: `make maintainability-gate`',
-    '9. implementation-truth gate: `make implementation-truth-gate`',
+    '9. documentation contract gate: `make documentation-contract-gate`',
+    '10. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, maintainability thresholds, OpenAPI quality, implementation-truth gate,',
+    'typecheck, maintainability thresholds, documentation contract enforcement, OpenAPI quality, implementation-truth gate,',
     'unit/integration/e2e tests, coverage gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
     'changes from silently removing architecture, maintainability, OpenAPI, endpoint-certification,',
@@ -219,6 +220,8 @@ function Write-RepositoryEngineeringContext {
     'dispatch.',
     '`make maintainability-gate` prevents oversized source, test, and script files/functions from',
     'becoming normal scaffold output or future agentic implementation drift.',
+    '`make documentation-contract-gate` keeps README, repository context, standards, runbooks,',
+    'quality, evidence, and wiki surfaces present, substantive, and anchored to validation commands.',
     '`make implementation-truth-gate` keeps current-state README, operations, demo, quality, and wiki text',
     'from claiming demo readiness, production support, certification, live source ingestion,',
     'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
@@ -363,8 +366,10 @@ function Write-WikiBaseline {
       "2. run stranded-truth reconciliation for RFC/docs/wiki/context/contract changes,",
       "3. keep commits small and meaningful,",
       "4. update tests, docs, supported features, and wiki source with implementation truth,",
-      "5. use rebase-only PR completion,",
-      "6. delete completed local and remote feature branches after merge."
+      "5. keep durable docs passing `make documentation-contract-gate`,",
+      "6. keep current-state docs passing `make implementation-truth-gate`,",
+      "7. use rebase-only PR completion,",
+      "8. delete completed local and remote feature branches after merge."
     ) -join "`n";
     "Validation-And-CI.md" = @(
       "# Validation And CI",
@@ -383,6 +388,7 @@ function Write-WikiBaseline {
       "make ci",
       "make ci-contract-gate",
       "make maintainability-gate",
+      "make documentation-contract-gate",
       "make implementation-truth-gate",
       "make openapi-gate",
       "make quality-baseline",
@@ -395,7 +401,13 @@ function Write-WikiBaseline {
       "",
       "Current posture: scaffold operations only.",
       "",
-      "Operators may use health, liveness, readiness, metrics, OpenAPI, Docker build validation, and service metadata as baseline checks. Service-specific degraded states and escalation paths must be added with implementation-backed behavior."
+      "Operators may use health, liveness, readiness, metrics, OpenAPI, Docker build validation, and service metadata as baseline checks. Service-specific degraded states and escalation paths must be added with implementation-backed behavior.",
+      "",
+      "Baseline first checks:",
+      "",
+      "1. run `make check`,",
+      "2. verify `/health/ready`,",
+      "3. inspect product-safe logs without sensitive payloads."
     ) -join "`n";
     "Security-And-Governance.md" = @(
       "# Security And Governance",
@@ -426,7 +438,13 @@ function Write-WikiBaseline {
       "",
       "No business feature is supported by scaffold creation alone.",
       "",
-      "Use `supported-features/supported-features.json` as implementation-backed product truth. Keep demo, README, wiki, and commercial claims aligned to that registry."
+      "Use `supported-features/supported-features.json` as implementation-backed product truth. Keep demo, README, wiki, and commercial claims aligned to that registry.",
+      "",
+      "Promotion rule:",
+      "",
+      "1. implement behavior,",
+      "2. certify endpoints and evidence,",
+      "3. update supported-feature truth."
     ) -join "`n"
   }
 
@@ -901,7 +919,7 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
@@ -913,6 +931,12 @@ if ($makefile -notmatch '\$\(MAKE\) maintainability-gate') {
 }
 if ($makefile -notmatch "(?m)^maintainability-gate:") {
   $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "maintainability-gate:`n`t`$(VENV_PYTHON) scripts/maintainability_gate.py`n`nmonetary-float-guard:"
+}
+if ($makefile -notmatch '\$\(MAKE\) documentation-contract-gate') {
+  $makefile = $makefile -replace [regex]::Escape("`t`$(MAKE) maintainability-gate"), "`t`$(MAKE) maintainability-gate`n`t`$(MAKE) documentation-contract-gate"
+}
+if ($makefile -notmatch "(?m)^documentation-contract-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "documentation-contract-gate:`n`t`$(VENV_PYTHON) scripts/documentation_contract_gate.py`n`nmonetary-float-guard:"
 }
 if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
@@ -2050,6 +2074,108 @@ if __name__ == "__main__":
 '@
 Set-Content -Path (Join-Path $target "scripts/maintainability_gate.py") -Value $maintainabilityGate
 
+$documentationContractGate = @'
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
+    (
+        "AGENTS.md",
+        80,
+        ("Mandatory Reading Order", "Wiki Publication Rule", "Context Maintenance Rule"),
+    ),
+    (
+        "README.md",
+        20,
+        ("Quick Start", "make documentation-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+    ),
+    (
+        "REPOSITORY-ENGINEERING-CONTEXT.md",
+        80,
+        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate"),
+    ),
+    ("docs/rfcs/README.md", 1, ("RFC Index",)),
+    (
+        "docs/standards/enterprise-readiness.md",
+        8,
+        ("make documentation-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+    ),
+    ("docs/runbooks/service-operations.md", 8, ("Standard Commands", "Health and Readiness")),
+    (
+        "docs/operations/api-certification.md",
+        8,
+        ("endpoint-certification-ledger.json", "Source-Degraded And Reconciliation Endpoints"),
+    ),
+    ("docs/operations/observability.md", 8, ("structured JSON application events",)),
+    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate",)),
+    ("quality/quality_scorecard.md", 10, ("Bank-Buyable Quality Scorecard", "Documentation and operations")),
+    ("evidence/rfc-implementation/README.md", 5, ("repository", "branch", "commit SHA")),
+    ("wiki/Home.md", 10, ("Validation And CI", "Current Posture")),
+    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate",)),
+    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate",)),
+    ("wiki/Operations-Runbook.md", 5, ("Operations Runbook",)),
+    ("wiki/Supported-Features.md", 5, ("No business feature is supported",)),
+)
+
+PROHIBITED_PLACEHOLDERS = (
+    ("TODO", re.compile(r"\bTODO\b", re.IGNORECASE)),
+    ("TBD", re.compile(r"\bTBD\b", re.IGNORECASE)),
+    ("lorem ipsum", re.compile(r"\blorem ipsum\b", re.IGNORECASE)),
+    ("coming soon", re.compile(r"\bcoming soon\b", re.IGNORECASE)),
+)
+
+
+def _non_empty_lines(content: str) -> list[str]:
+    return [line for line in content.splitlines() if line.strip()]
+
+
+def validate_documentation_contract(
+    *,
+    root: Path = ROOT,
+    surfaces: tuple[tuple[str, int, tuple[str, ...]], ...] = REQUIRED_SURFACES,
+) -> list[str]:
+    errors: list[str] = []
+    for relative_path, min_non_empty_lines, required_fragments in surfaces:
+        path = root / relative_path
+        if not path.exists():
+            errors.append(f"{relative_path}: required documentation surface is missing")
+            continue
+        content = path.read_text(encoding="utf-8")
+        non_empty_count = len(_non_empty_lines(content))
+        if non_empty_count < min_non_empty_lines:
+            errors.append(
+                f"{relative_path}: has {non_empty_count} non-empty lines; "
+                f"minimum is {min_non_empty_lines}"
+            )
+        for fragment in required_fragments:
+            if fragment not in content:
+                errors.append(f"{relative_path}: missing required fragment `{fragment}`")
+        for name, pattern in PROHIBITED_PLACEHOLDERS:
+            if pattern.search(content):
+                errors.append(f"{relative_path}: contains placeholder text `{name}`")
+    return errors
+
+
+def main() -> int:
+    errors = validate_documentation_contract()
+    if errors:
+        print("\n".join(errors))
+        return 1
+    print("Documentation contract gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/documentation_contract_gate.py") -Value $documentationContractGate
+
 $ciContractGate = @'
 from __future__ import annotations
 
@@ -2066,6 +2192,7 @@ WORKFLOWS_DIR = ROOT / ".github" / "workflows"
 REQUIRED_TARGETS = (
     "ci-contract-gate",
     "maintainability-gate",
+    "documentation-contract-gate",
     "monetary-float-guard",
     "no-sensitive-content-guard",
     "implementation-truth-gate",
@@ -2086,6 +2213,7 @@ REQUIRED_TARGETS = (
 REQUIRED_LINT_CALLS = (
     "$(MAKE) ci-contract-gate",
     "$(MAKE) maintainability-gate",
+    "$(MAKE) documentation-contract-gate",
     "$(MAKE) monetary-float-guard",
     "$(MAKE) no-sensitive-content-guard",
     "$(MAKE) implementation-truth-gate",
@@ -3190,7 +3318,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3333,6 +3461,7 @@ $readme = @(
   "make lint",
   "make ci-contract-gate",
   "make maintainability-gate",
+  "make documentation-contract-gate",
   "make implementation-truth-gate",
   "make typecheck",
   "make architecture-boundary-report",
@@ -3347,6 +3476,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe -m ruff check . && .venv\\Scripts\\python.exe -m ruff format --check .",
   ".venv\\Scripts\\python.exe scripts/ci_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/maintainability_gate.py",
+  ".venv\\Scripts\\python.exe scripts/documentation_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/implementation_truth_gate.py",
   ".venv\\Scripts\\python.exe -m mypy --config-file mypy.ini",
   ".venv\\Scripts\\python.exe scripts/openapi_quality_gate.py",
@@ -3379,6 +3509,7 @@ $readme = @(
   "- Quality scorecard and refactor decisions: quality/",
   "- Blocking CI contract evidence: make ci-contract-gate",
   "- Blocking maintainability evidence: make maintainability-gate",
+  "- Blocking documentation contract evidence: make documentation-contract-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
@@ -3404,8 +3535,8 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 | Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
 | Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
 | Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability thresholds. | Repo-specific thresholds beyond deterministic size limits need evidence. | Tighten gates after measured baseline. |
-| Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards placeholders. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability and documentation contract thresholds. | Repo-specific thresholds beyond deterministic size limits and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
+| Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards, quality scorecard, and RFC evidence guide are protected by ``make documentation-contract-gate``; current-state claims are protected by ``make implementation-truth-gate``. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
 # Architecture Rules
@@ -3438,7 +3569,8 @@ Blocking scaffold commands:
 1. ``make architecture-boundary-gate``
 2. ``make ci-contract-gate``
 3. ``make maintainability-gate``
-4. ``make implementation-truth-gate``
+4. ``make documentation-contract-gate``
+5. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3448,7 +3580,7 @@ Report-only scaffold commands:
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
 maintainability, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
-release evidence, least-privilege workflow permissions, implementation-truth enforcement, and
+release evidence, least-privilege workflow permissions, documentation contract enforcement, implementation-truth enforcement, and
 approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs.
@@ -3456,6 +3588,10 @@ needed for rebase auto-merged PRs.
 ``make maintainability-gate`` blocks oversized Python files/functions across ``src``, ``tests``,
 and ``scripts``. It is calibrated above the initial scaffold baseline so new implementation work
 must split or refactor large additions instead of normalizing hard-to-review modules.
+
+``make documentation-contract-gate`` blocks deletion, thinning, missing anchors, and placeholder
+text across the generated README, repository context, standards, runbooks, quality, evidence, and
+wiki surfaces. It keeps enterprise operating context intact for future implementation agents.
 
 ``make implementation-truth-gate`` blocks unqualified current-state claims of demo readiness,
 production readiness, external support, certification, live source ingestion, Gateway/Workbench
