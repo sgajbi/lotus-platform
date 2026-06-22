@@ -269,6 +269,13 @@ conversions while allowing non-monetary operational floats such as timeout
 seconds. This keeps generated private-banking services aligned to decimal/domain
 precision expectations before business logic lands.
 
+`make no-sensitive-content-guard` is blocking from day one. It scans generated
+evidence, log, and output artifact directories for sensitive marker names before
+those artifacts become PR or wiki evidence. The scaffold generates focused unit
+tests for clean artifacts, forbidden marker detection, allowlisted
+documentation, and binary artifact handling so the blocking guard has explicit
+pass/fail proof.
+
 `make documentation-contract-gate` is blocking from day one. It prevents removal, thinning,
 missing anchors, and placeholder erosion across README, repository context, standards, runbooks,
 quality, RFC evidence, and wiki source so future agents and operators keep the context needed to
