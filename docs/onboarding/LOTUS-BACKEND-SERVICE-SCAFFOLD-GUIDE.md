@@ -231,10 +231,11 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 6. `make endpoint-certification-gate`
 7. `make ci-contract-gate`
 8. `make maintainability-gate`
-9. `make implementation-truth-gate`
-10. `make test`
-11. `make ci`
-12. `make security-audit`
+9. `make documentation-contract-gate`
+10. `make implementation-truth-gate`
+11. `make test`
+12. `make ci`
+13. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -255,6 +256,11 @@ non-suppressed auto-merge token usage, or merged-PR main-releasability dispatch.
 
 `make maintainability-gate` is blocking from day one. It prevents oversized source, test, and
 script files/functions from becoming normal generated or agent-authored service posture.
+
+`make documentation-contract-gate` is blocking from day one. It prevents removal, thinning,
+missing anchors, and placeholder erosion across README, repository context, standards, runbooks,
+quality, RFC evidence, and wiki source so future agents and operators keep the context needed to
+apply the bank-buyable contract.
 
 `make implementation-truth-gate` is blocking from day one. It prevents generated or
 agent-authored current-state README/docs/wiki text from claiming demo readiness, production
@@ -306,6 +312,7 @@ cd C:\Users\<user>\projects\lotus-example
 make install
 make ci-contract-gate
 make maintainability-gate
+make documentation-contract-gate
 make implementation-truth-gate
 make architecture-boundary-gate
 make architecture-boundary-report

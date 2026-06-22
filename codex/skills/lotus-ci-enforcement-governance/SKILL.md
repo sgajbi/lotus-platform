@@ -131,10 +131,14 @@ token reference, explicit missing-token behavior, bounded workflow timeouts, no-
 workflow posture, implementation-truth guard presence, and the merged-PR main-releasability
 dispatcher together.
 
-New backend scaffolds should also generate `make maintainability-gate` and
-`make implementation-truth-gate` and run both through `make lint`. The maintainability gate should
-block oversized source, test, and script files/functions against conservative thresholds calibrated
-above the initial scaffold baseline. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
+New backend scaffolds should also generate `make maintainability-gate`,
+`make documentation-contract-gate`, and `make implementation-truth-gate`, and
+run all three through `make lint`. The maintainability gate should block
+oversized source, test, and script files/functions against conservative
+thresholds calibrated above the initial scaffold baseline. The documentation
+contract gate should scan required README, repository context, standards,
+runbooks, quality, evidence, and wiki surfaces for presence, minimum substance,
+required operating anchors, and placeholder erosion. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
 quality docs, and wiki source for unqualified claims of demo readiness, production support,
 certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after

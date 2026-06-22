@@ -107,7 +107,8 @@ New backend service scaffolds must include this repo-native blocking anti-drift 
 
 1. `make ci-contract-gate`
 2. `make maintainability-gate`
-3. `make implementation-truth-gate`
+3. `make documentation-contract-gate`
+4. `make implementation-truth-gate`
 
 Blocking commands wired into `make check`, `make ci`, Feature Lane, PR Merge Gate, or Main
 Releasability must not create or rewrite durable report artifacts in a clean checkout. Report
@@ -125,6 +126,12 @@ post-merge release evidence.
 `make maintainability-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and blocks oversized source, test, and script files/functions before generated or
 agent-authored backend services normalize hard-to-review modules.
+
+`make documentation-contract-gate` is allowed and expected to run through `make lint` because it is
+worktree-clean and blocks deletion, thinning, missing anchors, or placeholder erosion in required
+README, repository context, standards, runbooks, quality, evidence, and wiki surfaces. It protects
+the operator and agent context needed to apply the bank-buyable contract before business
+implementation starts.
 
 `make implementation-truth-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and blocks unqualified README/docs/wiki current-state claims of demo readiness,
