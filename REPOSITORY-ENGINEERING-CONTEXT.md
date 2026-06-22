@@ -67,7 +67,10 @@ Current repository posture:
    `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
    generated request diagnostic helper logs route templates instead of raw URL paths. Detailed
    usage and generated feature documentation lives in
-   `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
+   `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`. Generated test targets now expose
+   `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` path overrides so focused fix-forward
+   validation can stay on the repo-native Makefile surface instead of falling back to ad hoc
+   pytest commands.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
    `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
    supports `-CheckOnly` drift detection for app-local deployed copies under

@@ -115,3 +115,8 @@ solving them only in the generated app.
     `python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and
     `node_modules`, remove only known cache/build/coverage artifacts, and be
     protected by `make ci-contract-gate` plus generated unit tests.
+24. Scaffolded backend repositories should make focused validation efficient
+    without bypassing repo-native targets. Generate `UNIT_TESTS`,
+    `INTEGRATION_TESTS`, and `E2E_TESTS` Makefile variables so agents can run
+    `make test-unit UNIT_TESTS=<path>` during fix-forward work while full-suite
+    defaults remain intact for PR and CI evidence.
