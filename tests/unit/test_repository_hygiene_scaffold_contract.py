@@ -449,6 +449,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     supported_features_gate = (
         repo_root / "scripts/supported_features_gate.py"
     ).read_text(encoding="utf-8")
+    implementation_truth_gate = (
+        repo_root / "scripts/implementation_truth_gate.py"
+    ).read_text(encoding="utf-8")
     endpoint_certification_gate = (
         repo_root / "scripts/endpoint_certification_gate.py"
     ).read_text(encoding="utf-8")
@@ -628,8 +631,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`Not applicable`" in demo_claims
     assert "`Unknown - requires owner review`" in demo_claims
     assert "Service-specific business workflow | `Planned`" in demo_claims
+    assert "Scaffold creation provides only health, readiness, metadata" in demo_claims
+    assert "No business workflow is implemented by the scaffold" not in demo_claims
+    assert "Architecture and maintainability enforcement | `Implemented`" in demo_claims
+    assert "Keep broad quality metrics report-only" not in demo_claims
     assert "Mesh certification | `Planned`" in demo_claims
     assert "\x07" not in demo_claims
+    assert "STALE_SCAFFOLD_PATTERNS" in implementation_truth_gate
+    assert "stale scaffold current-state" in implementation_truth_gate
     assert "Status: Planned" in durability_standard
     assert "not implemented by the scaffold" in durability_standard
     assert "missing summary" in openapi_gate
@@ -874,9 +883,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make ci-contract-gate" in ci_quality_gates
     assert "make maintainability-gate" in ci_quality_gates
     assert "make implementation-truth-gate" in ci_quality_gates
+    assert "stale scaffold-era demo underclaims" in ci_quality_gates
     assert "Architecture" in quality_scorecard
     assert (
-        "Layered package skeleton, blocking maintainability thresholds, and report-only architecture-boundary report"
+        "Layered package skeleton, blocking architecture-boundary gate, blocking maintainability thresholds"
         in quality_scorecard
     )
     assert "Security and privacy" in quality_scorecard

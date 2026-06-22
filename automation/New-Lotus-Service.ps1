@@ -219,9 +219,10 @@ function Write-RepositoryEngineeringContext {
     'dispatch.',
     '`make maintainability-gate` prevents oversized source, test, and script files/functions from',
     'becoming normal scaffold output or future agentic implementation drift.',
-    '`make implementation-truth-gate` keeps current-state README, operations, quality, and wiki text',
+    '`make implementation-truth-gate` keeps current-state README, operations, demo, quality, and wiki text',
     'from claiming demo readiness, production support, certification, live source ingestion,',
     'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
+    'It also blocks stale scaffold-era demo underclaims after implementation evidence exists.',
     'The scaffold also starts with a bank-buyable quality scorecard under `quality/`; update it when',
     'architecture, API, security, observability, test, CI, or documentation posture changes.',
     '',
@@ -2469,6 +2470,21 @@ PROMOTION_PATTERNS: dict[str, re.Pattern[str]] = {
     "supported_feature_promoted_true": re.compile(r"\bsupportedFeaturePromoted\s*=\s*true\b"),
 }
 
+STALE_SCAFFOLD_PATTERNS: dict[str, re.Pattern[str]] = {
+    "scaffold_no_business_workflow": re.compile(
+        r"\bNo business workflow is implemented by the scaffold\b",
+        re.IGNORECASE,
+    ),
+    "architecture_report_only": re.compile(
+        r"\bReport-only until governance promotes it\b",
+        re.IGNORECASE,
+    ),
+    "keep_architecture_report_only": re.compile(
+        r"\bKeep report-only until low-noise policy is proven\b",
+        re.IGNORECASE,
+    ),
+}
+
 QUALIFIED_CONTEXT_PATTERNS = (
     re.compile(r"\bnot\b", re.IGNORECASE),
     re.compile(r"\bno\b", re.IGNORECASE),
@@ -2529,9 +2545,6 @@ def validate_implementation_truth(
 ) -> list[str]:
     if implemented_features_count is None:
         implemented_features_count = _implemented_features_count()
-    if implemented_features_count > 0:
-        return []
-
     errors: list[str] = []
     for path in _scan_files(scan_paths):
         try:
@@ -2539,9 +2552,17 @@ def validate_implementation_truth(
         except UnicodeDecodeError:
             continue
         for index, line in enumerate(lines):
+            relative_path = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+            for name, pattern in STALE_SCAFFOLD_PATTERNS.items():
+                if pattern.search(line):
+                    errors.append(
+                        f"{relative_path}:{index + 1}: stale scaffold current-state "
+                        f"claim `{name}` no longer matches repository evidence"
+                    )
+            if implemented_features_count > 0:
+                continue
             for name, pattern in PROMOTION_PATTERNS.items():
                 if pattern.search(line) and not _is_qualified(lines, index):
-                    relative_path = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
                     errors.append(
                         f"{relative_path}:{index + 1}: unqualified current-state "
                         f"promotion claim `{name}` while no supported feature is implemented"
@@ -3169,7 +3190,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3201,7 +3222,7 @@ Allowed status vocabulary:
 
 | Capability | Status | Evidence | Gap | Next step |
 | --- | --- | --- | --- | --- |
-| Service-specific business workflow | ``Planned`` | None. | No business workflow is implemented by the scaffold. | Add implementation, tests, endpoint certification, supported-feature evidence, and demo proof. |
+| Service-specific business workflow | ``Planned`` | Scaffold creation provides only health, readiness, metadata, and governance surfaces. | No service-specific business workflow is implementation-backed yet. | Replace this row with evidence-backed capability rows as endpoints, tests, endpoint certification, supported-feature evidence, and demo proof are added. |
 | Health and readiness diagnostics | ``Implemented`` | ``/health``, ``/health/live``, ``/health/ready``, integration tests. | Dependency-aware readiness is service-specific. | Add real dependency checks when integrations exist. |
 | Metadata diagnostics | ``Implemented`` | ``/metadata``, e2e smoke test. | Domain metadata is service-specific. | Add service-owned metadata only when implementation needs it. |
 
@@ -3211,7 +3232,7 @@ Allowed status vocabulary:
 | --- | --- | --- | --- | --- |
 | Product-safe errors | ``Implemented`` | ``app.errors.ProblemDetails``, generated tests. | Domain-specific denied/degraded errors are not implemented. | Add endpoint-specific errors with tests. |
 | Correlation and trace propagation | ``Implemented`` | ``CorrelationIdMiddleware``, integration tests. | Cross-service propagation depends on real downstream clients. | Certify per integration. |
-| Architecture and maintainability enforcement | ``Partially implemented`` | ``make architecture-boundary-gate``, ``make maintainability-gate``, and ``make architecture-boundary-report``. | Service-specific boundaries are still scaffold-level. | Keep broad quality metrics report-only until low-noise policy is proven. |
+| Architecture and maintainability enforcement | ``Implemented`` | ``make architecture-boundary-gate`` and ``make maintainability-gate`` are blocking; ``make architecture-boundary-report`` remains available for evidence refresh. | Service-specific business boundaries are still scaffold-level. | Extend boundary rules as real modules, adapters, and ownership boundaries appear. |
 | Security authorization model | ``Partially implemented`` | Caller-context and capability-policy placeholders. | No production authentication or service-specific authorization model. | Implement caller extraction and policy decisions for real endpoints. |
 | Mesh certification | ``Planned`` | None unless mesh placeholders are explicitly requested. | Not certified. | Add repo-owned mesh declarations, telemetry, SLO/access/evidence policies, and pass certification. |
 "@
@@ -3376,7 +3397,7 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 
 | Control Area | Current Status | Evidence | Gap | Next Slice |
 | --- | --- | --- | --- | --- |
-| Architecture | ``Partially implemented`` | Layered package skeleton, blocking maintainability thresholds, and report-only architecture-boundary report. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
+| Architecture | ``Partially implemented`` | Layered package skeleton, blocking architecture-boundary gate, blocking maintainability thresholds, and report-only architecture-boundary evidence refresh. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
 | API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
 | Data and methodology | ``Planned`` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
 | Security and privacy | ``Partially implemented`` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
@@ -3441,6 +3462,8 @@ production readiness, external support, certification, live source ingestion, Ga
 support, or client-ready publication while ``supported-features/supported-features.json`` has no
 implemented features. It prevents generated README/wiki/operations text from outpacing code,
 endpoint certification, data-mesh proof, and supported-feature evidence.
+It also blocks stale scaffold-era demo underclaims when they no longer match implementation and CI
+evidence.
 "@
 Set-Content -Path (Join-Path $target "quality/refactor_decisions.md") -Value @"
 # Refactor Decisions

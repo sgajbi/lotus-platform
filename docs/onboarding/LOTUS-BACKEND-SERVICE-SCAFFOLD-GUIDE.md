@@ -259,7 +259,9 @@ script files/functions from becoming normal generated or agent-authored service 
 `make implementation-truth-gate` is blocking from day one. It prevents generated or
 agent-authored current-state README/docs/wiki text from claiming demo readiness, production
 support, certification, live source ingestion, Gateway/Workbench support, or client-ready
-publication before supported-feature evidence exists.
+publication before supported-feature evidence exists. It also blocks stale scaffold-era demo
+underclaims after implementation evidence exists, so generated ledgers must evolve into
+evidence-backed current-state truth.
 
 It also starts with report-only quality evidence:
 
