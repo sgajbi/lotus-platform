@@ -123,15 +123,16 @@ It should remain blocking through `make lint` when it is worktree-clean and vali
 lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
 permissions, 99% merge/releasability coverage, Docker validation, release evidence,
 endpoint-certification, supported-feature, implementation-truth, security-audit,
-architecture/OpenAPI gates, bounded job-level timeouts, and no `continue-on-error: true` in
-critical lanes. Rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
+architecture/OpenAPI gates, safe generated-artifact cleanup wiring, bounded job-level timeouts, and
+no `continue-on-error: true` in critical lanes. Rebase auto-merge must use a non-`GITHUB_TOKEN`
+merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the `pull_request_target.closed` event that
 dispatches post-merge main releasability proof. The generated CI contract gate should enforce the
 token reference, explicit missing-token warning-and-skip behavior, bounded workflow timeouts,
-no-soft-fail critical workflow posture, implementation-truth guard presence, and the merged-PR
-main-releasability dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not create a permanent
-red helper check; it should skip automatic rebase merge and require an authorized human or release
-actor to merge.
+no-soft-fail critical workflow posture, implementation-truth guard presence, safe `make clean`
+delegation to `scripts/clean_generated_artifacts.py`, and the merged-PR main-releasability
+dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not create a permanent red helper check;
+it should skip automatic rebase merge and require an authorized human or release actor to merge.
 
 Generated endpoint-certification gates should require certified business/operator endpoints to cite
 bounded operation-event test evidence in the endpoint ledger. Baseline health/metadata endpoints can
@@ -162,6 +163,10 @@ certification, live source ingestion, Gateway/Workbench support, or client-ready
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after
 implementation and CI evidence prove a stronger current posture. Keep RFC target-state planning text
 out of this blocking scan.
+The generated cleanup utility should be tested and dependency-light: `make clean` should call
+`python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and `node_modules`, and
+remove only known local cache, build, and coverage artifacts. The generated CI contract gate should
+fail if an agent replaces the utility with an inline Makefile command or deletes the script.
 
 ## Context And Skill Maintenance
 
