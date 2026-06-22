@@ -121,7 +121,8 @@ The generated repository starts with:
    Merged-PR dispatcher that starts Main Releasability after a PR lands on `main`.
 10. `Makefile`
    Repo-native command surface for install, lint, typecheck, tests, coverage, security audit, and
-   report-only baseline commands.
+   report-only baseline commands. Test targets support focused validation through
+   `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` overrides.
 11. `src/app/`
     FastAPI app skeleton and layered package baseline.
 12. `tests/unit`, `tests/integration`, `tests/e2e`
@@ -243,6 +244,17 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 16. `make ci`
 17. `make security-audit`
 18. `make clean`
+
+For focused fix-forward work, keep using repo-native targets and override the path variable instead
+of bypassing the Makefile:
+
+```powershell
+make test-unit UNIT_TESTS=tests/unit/test_specific_behavior.py
+make test-integration INTEGRATION_TESTS=tests/integration/test_specific_contract.py
+make test-e2e E2E_TESTS=tests/e2e/test_specific_flow.py
+```
+
+The full default remains the complete unit, integration, or e2e suite for the selected target.
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
