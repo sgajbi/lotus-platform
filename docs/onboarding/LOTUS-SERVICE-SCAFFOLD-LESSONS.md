@@ -66,3 +66,9 @@ solving them only in the generated app.
     merge/releasability coverage, Docker validation, release evidence,
     endpoint-certification, supported-feature, security-audit, architecture, or
     OpenAPI controls.
+15. Scaffolded backend repositories also need an implementation-truth gate from
+    day one. `make implementation-truth-gate` should run through `make lint`
+    and block unqualified current-state README/docs/wiki claims that imply demo
+    readiness, production support, certification, live source ingestion,
+    Gateway/Workbench support, or client-ready publication before supported
+    feature evidence exists.

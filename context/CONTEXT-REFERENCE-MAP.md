@@ -285,8 +285,8 @@ The current reporting and analytics observability governance references are:
    branch/wiki hygiene requirements, and a deliberate no-change skills/guidance review outcome.
    Slices 10 and 11 are complete with a governed ecosystem-completion contract, per-app gap matrix,
    scaffold/CI enforcement contract, validators, first-wave protected evidence, branch policy,
-   generated backend no-sensitive-content and supported-features gates, reusable Workbench/UI
-   observability template, and platform repo check wiring. Slice 12 is partially implemented in
+   generated backend no-sensitive-content, implementation-truth, and supported-features gates,
+   reusable Workbench/UI observability template, and platform repo check wiring. Slice 12 is partially implemented in
    `lotus-risk` and `lotus-manage` for risk calculation and management action-register
    supportability posture with bounded metrics. Later PRs completed performance/risk backend
    freshness supportability and Gateway/Workbench source-supportability reconciliation for current

@@ -230,9 +230,10 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 5. `make supported-features-gate`
 6. `make endpoint-certification-gate`
 7. `make ci-contract-gate`
-8. `make test`
-9. `make ci`
-10. `make security-audit`
+8. `make implementation-truth-gate`
+9. `make test`
+10. `make ci`
+11. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -250,6 +251,11 @@ majors, 99 percent merge/releasability coverage, Docker validation, release evid
 endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
 workflow-dispatch access, bounded job timeouts, no-soft-fail critical workflow posture,
 non-suppressed auto-merge token usage, or merged-PR main-releasability dispatch.
+
+`make implementation-truth-gate` is blocking from day one. It prevents generated or
+agent-authored current-state README/docs/wiki text from claiming demo readiness, production
+support, certification, live source ingestion, Gateway/Workbench support, or client-ready
+publication before supported-feature evidence exists.
 
 It also starts with report-only quality evidence:
 
@@ -293,6 +299,7 @@ After generation:
 cd C:\Users\<user>\projects\lotus-example
 make install
 make ci-contract-gate
+make implementation-truth-gate
 make architecture-boundary-gate
 make architecture-boundary-report
 make quality-baseline

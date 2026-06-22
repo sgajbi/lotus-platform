@@ -204,16 +204,21 @@ function Write-RepositoryEngineeringContext {
     '5. integration or browser tests where applicable: `make test-integration`, `make test-e2e`',
     '6. repo-native CI parity: `make check`, `make ci`',
     '7. CI lane contract gate: `make ci-contract-gate`',
+    '8. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, OpenAPI quality, unit/integration/e2e tests, coverage gate, security audit, and Docker',
-    'build validation.',
+    'typecheck, OpenAPI quality, implementation-truth gate, unit/integration/e2e tests, coverage',
+    'gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
     'changes from silently removing architecture, OpenAPI, endpoint-certification, supported-feature,',
-    'coverage, security, Docker, release-evidence, action-version, least-privilege workflow controls,',
-    'workflow-dispatch access, or merged-PR main-releasability dispatch.',
+    'implementation-truth, coverage, security, Docker, release-evidence, action-version,',
+    'least-privilege workflow controls, workflow-dispatch access, or merged-PR main-releasability',
+    'dispatch.',
+    '`make implementation-truth-gate` keeps current-state README, operations, quality, and wiki text',
+    'from claiming demo readiness, production support, certification, live source ingestion,',
+    'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
     'The scaffold also starts with a bank-buyable quality scorecard under `quality/`; update it when',
     'architecture, API, security, observability, test, CI, or documentation posture changes.',
     '',
@@ -373,6 +378,7 @@ function Write-WikiBaseline {
       "make check",
       "make ci",
       "make ci-contract-gate",
+      "make implementation-truth-gate",
       "make openapi-gate",
       "make quality-baseline",
       '```',
@@ -391,7 +397,7 @@ function Write-WikiBaseline {
       "",
       "Generated services must follow `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` from day one.",
       "",
-      "Required scaffold controls include dependency hygiene, no-sensitive-content guardrails, endpoint certification, OpenAPI quality, supported-feature discipline, branch protection, and wiki-source governance."
+      "Required scaffold controls include dependency hygiene, no-sensitive-content guardrails, implementation-truth guardrails, endpoint certification, OpenAPI quality, supported-feature discipline, branch protection, and wiki-source governance."
     ) -join "`n";
     "Integrations.md" = @(
       "# Integrations",
@@ -890,7 +896,7 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate monetary-float-guard typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
@@ -902,6 +908,12 @@ if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
 }
 if ($makefile -notmatch "(?m)^monetary-float-guard:") {
   $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
+}
+if ($makefile -notmatch '\$\(MAKE\) implementation-truth-gate') {
+  $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) implementation-truth-gate"
+}
+if ($makefile -notmatch "(?m)^implementation-truth-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("supported-features-gate:"), "implementation-truth-gate:`n`t`$(VENV_PYTHON) scripts/implementation_truth_gate.py`n`nsupported-features-gate:"
 }
 if ($makefile -notmatch "(?m)^architecture-boundary-report:") {
   $makefile = $makefile -replace [regex]::Escape("openapi-gate:"), "architecture-boundary-gate:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode blocking`n`narchitecture-boundary-report:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode report-only`n`nquality-baseline: architecture-boundary-report`n`t`$(VENV_PYTHON) scripts/generate_quality_baseline.py`n`nopenapi-gate:"
@@ -1965,6 +1977,7 @@ REQUIRED_TARGETS = (
     "ci-contract-gate",
     "monetary-float-guard",
     "no-sensitive-content-guard",
+    "implementation-truth-gate",
     "supported-features-gate",
     "endpoint-certification-gate",
     "typecheck",
@@ -1983,6 +1996,7 @@ REQUIRED_LINT_CALLS = (
     "$(MAKE) ci-contract-gate",
     "$(MAKE) monetary-float-guard",
     "$(MAKE) no-sensitive-content-guard",
+    "$(MAKE) implementation-truth-gate",
     "$(MAKE) supported-features-gate",
     "$(MAKE) endpoint-certification-gate",
 )
@@ -2322,6 +2336,141 @@ if __name__ == "__main__":
     sys.exit(main())
 "@
 Set-Content -Path (Join-Path $target "scripts/no_sensitive_content_guard.py") -Value $sensitiveContentGuard
+
+$implementationTruthGate = @'
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SUPPORTED_FEATURES_PATH = ROOT / "supported-features" / "supported-features.json"
+SCAN_PATHS = (
+    ROOT / "README.md",
+    ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
+    ROOT / "docs" / "demo",
+    ROOT / "docs" / "operations",
+    ROOT / "quality",
+    ROOT / "wiki",
+)
+
+PROMOTION_PATTERNS: dict[str, re.Pattern[str]] = {
+    "demo_ready": re.compile(r"\bdemo[- ]ready\b", re.IGNORECASE),
+    "production_ready": re.compile(r"\bproduction[- ]ready\b", re.IGNORECASE),
+    "externally_supported": re.compile(r"\bexternally supported\b", re.IGNORECASE),
+    "supported_business_feature": re.compile(r"\bsupported business feature\b", re.IGNORECASE),
+    "supported_product_capability": re.compile(
+        r"\bsupported product (?:capability|claim|workflow)\b",
+        re.IGNORECASE,
+    ),
+    "client_ready_publication": re.compile(r"\bclient[- ]ready publication\b", re.IGNORECASE),
+    "certified_data_product": re.compile(r"\bcertified data product\b", re.IGNORECASE),
+    "data_mesh_certified": re.compile(r"\bdata[- ]mesh certified\b", re.IGNORECASE),
+    "live_source_ingestion": re.compile(r"\blive source ingestion\b", re.IGNORECASE),
+    "gateway_workbench_support": re.compile(
+        r"\bGateway/Workbench support\b",
+        re.IGNORECASE,
+    ),
+    "platform_certified_true": re.compile(r"\bplatformCertified\s*=\s*true\b"),
+    "supported_feature_promoted_true": re.compile(r"\bsupportedFeaturePromoted\s*=\s*true\b"),
+}
+
+QUALIFIED_CONTEXT_PATTERNS = (
+    re.compile(r"\bnot\b", re.IGNORECASE),
+    re.compile(r"\bno\b", re.IGNORECASE),
+    re.compile(r"\bwithout\b", re.IGNORECASE),
+    re.compile(r"\bunsupported\b", re.IGNORECASE),
+    re.compile(r"\bplanned\b", re.IGNORECASE),
+    re.compile(r"\bblocked\b", re.IGNORECASE),
+    re.compile(r"\bpending\b", re.IGNORECASE),
+    re.compile(r"\bbefore\b", re.IGNORECASE),
+    re.compile(r"\buntil\b", re.IGNORECASE),
+    re.compile(r"\brequires?\b", re.IGNORECASE),
+    re.compile(r"\bdo(?:es)? not\b", re.IGNORECASE),
+    re.compile(r"\bmust not\b", re.IGNORECASE),
+    re.compile(r"\bcannot\b", re.IGNORECASE),
+    re.compile(r"\bmust only\b", re.IGNORECASE),
+    re.compile(r"\bonly after\b", re.IGNORECASE),
+    re.compile(r"\bremain(?:s)?\b", re.IGNORECASE),
+)
+
+
+def _implemented_features_count(path: Path = SUPPORTED_FEATURES_PATH) -> int:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    features = payload.get("features", [])
+    if not isinstance(features, list):
+        return 0
+    return sum(
+        1
+        for feature in features
+        if isinstance(feature, dict) and feature.get("status") == "implemented"
+    )
+
+
+def _scan_files(paths: tuple[Path, ...] = SCAN_PATHS) -> list[Path]:
+    files: list[Path] = []
+    for path in paths:
+        if not path.exists():
+            continue
+        if path.is_file():
+            files.append(path)
+            continue
+        files.extend(
+            child
+            for child in path.rglob("*")
+            if child.is_file() and child.suffix.lower() in {".md", ".json"}
+        )
+    return files
+
+
+def _is_qualified(lines: list[str], index: int) -> bool:
+    window = " ".join(lines[max(0, index - 2) : index + 3])
+    return any(pattern.search(window) for pattern in QUALIFIED_CONTEXT_PATTERNS)
+
+
+def validate_implementation_truth(
+    *,
+    implemented_features_count: int | None = None,
+    scan_paths: tuple[Path, ...] = SCAN_PATHS,
+) -> list[str]:
+    if implemented_features_count is None:
+        implemented_features_count = _implemented_features_count()
+    if implemented_features_count > 0:
+        return []
+
+    errors: list[str] = []
+    for path in _scan_files(scan_paths):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            continue
+        for index, line in enumerate(lines):
+            for name, pattern in PROMOTION_PATTERNS.items():
+                if pattern.search(line) and not _is_qualified(lines, index):
+                    relative_path = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+                    errors.append(
+                        f"{relative_path}:{index + 1}: unqualified current-state "
+                        f"promotion claim `{name}` while no supported feature is implemented"
+                    )
+    return errors
+
+
+def main() -> int:
+    errors = validate_implementation_truth()
+    if errors:
+        print("\n".join(sorted(errors)))
+        return 1
+    print("Implementation-truth gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/implementation_truth_gate.py") -Value $implementationTruthGate
 
 $supportedFeaturesGate = @"
 import json
@@ -2929,7 +3078,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3071,6 +3220,7 @@ $readme = @(
   "make install",
   "make lint",
   "make ci-contract-gate",
+  "make implementation-truth-gate",
   "make typecheck",
   "make architecture-boundary-report",
   "make quality-baseline",
@@ -3083,6 +3233,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe -m pip install -e '.[dev]'",
   ".venv\\Scripts\\python.exe -m ruff check . && .venv\\Scripts\\python.exe -m ruff format --check .",
   ".venv\\Scripts\\python.exe scripts/ci_contract_gate.py",
+  ".venv\\Scripts\\python.exe scripts/implementation_truth_gate.py",
   ".venv\\Scripts\\python.exe -m mypy --config-file mypy.ini",
   ".venv\\Scripts\\python.exe scripts/openapi_quality_gate.py",
   ".venv\\Scripts\\python.exe -m pytest tests/unit tests/integration tests/e2e",
@@ -3113,6 +3264,7 @@ $readme = @(
   "- Platform standards docs: docs/standards/",
   "- Quality scorecard and refactor decisions: quality/",
   "- Blocking CI contract evidence: make ci-contract-gate",
+  "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
   "- Report-only quality baseline evidence: make quality-baseline"
@@ -3170,6 +3322,7 @@ Blocking scaffold commands:
 
 1. ``make architecture-boundary-gate``
 2. ``make ci-contract-gate``
+3. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3179,9 +3332,16 @@ Report-only scaffold commands:
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
 supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
-release evidence, least-privilege workflow permissions, and approved action-runtime majors.
+release evidence, least-privilege workflow permissions, implementation-truth enforcement, and
+approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs.
+
+``make implementation-truth-gate`` blocks unqualified current-state claims of demo readiness,
+production readiness, external support, certification, live source ingestion, Gateway/Workbench
+support, or client-ready publication while ``supported-features/supported-features.json`` has no
+implemented features. It prevents generated README/wiki/operations text from outpacing code,
+endpoint certification, data-mesh proof, and supported-feature evidence.
 "@
 Set-Content -Path (Join-Path $target "quality/refactor_decisions.md") -Value @"
 # Refactor Decisions
