@@ -116,11 +116,22 @@ Releasability must not create or rewrite durable report artifacts in a clean che
 artifacts belong behind explicit report-only commands so local preflight and CI gates remain
 repeatable and worktree-clean.
 
+New backend service scaffolds must also include safe developer cleanup artifacts:
+
+1. `make clean`
+2. `scripts/clean_generated_artifacts.py`
+3. generated unit tests for cleanup planning, deletion, and pruned-directory preservation
+
+`make clean` must call `python scripts/clean_generated_artifacts.py`. The generated cleanup utility
+may remove only known local cache, build, and coverage artifacts, and it must prune `.git`, `.venv`,
+and `node_modules`. `make ci-contract-gate` must fail when the `clean` target is rewired to an
+inline command or the generated cleanup script disappears.
+
 `make ci-contract-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and validates the lane contract itself: required Makefile targets, least-privilege
 workflow permissions, non-suppressed auto-merge token usage, approved action-runtime majors,
 merge-grade coverage, Docker validation, release evidence, endpoint certification,
-supported-feature promotion control, and local quality gate wiring. It must also protect
+supported-feature promotion control, safe cleanup wiring, and local quality gate wiring. It must also protect
 `workflow_dispatch` on `main-releasability.yml` and the merged-PR dispatch workflow that starts
 post-merge release evidence.
 

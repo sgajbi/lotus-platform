@@ -708,6 +708,10 @@ generated request diagnostics log route templates instead of raw URL paths.
 The generated implementation-truth gate also blocks stale
 scaffold-era demo underclaims once implementation and CI evidence prove a
 stronger current posture.
+Generated backend services also include a tested `scripts/clean_generated_artifacts.py` utility and
+`make clean` wiring. The generated CI contract gate must protect that wiring so cleanup remains a
+safe local hygiene command that prunes `.git`, `.venv`, and `node_modules` and removes only known
+cache, build, and coverage artifacts.
 Generated endpoint-certification gates require certified business/operator
 endpoints to cite bounded operation-event test evidence so API contract
 certification and supportability telemetry proof cannot drift apart.

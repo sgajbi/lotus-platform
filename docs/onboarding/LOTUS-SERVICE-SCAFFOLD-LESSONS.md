@@ -110,3 +110,8 @@ solving them only in the generated app.
     not enough by itself; the generated service should prove clean artifacts,
     forbidden marker detection, allowlisted documentation, and binary artifact
     handling from day one.
+23. Scaffolded backend repositories should generate a real cleanup utility
+    instead of an inline Makefile one-liner. `make clean` should call
+    `python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and
+    `node_modules`, remove only known cache/build/coverage artifacts, and be
+    protected by `make ci-contract-gate` plus generated unit tests.
