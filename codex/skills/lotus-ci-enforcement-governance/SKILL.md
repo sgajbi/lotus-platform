@@ -139,8 +139,9 @@ remain `baseline_certified` without operation-event evidence, but once an endpoi
 `certified`, API contract evidence and supportability telemetry proof must move together.
 
 New backend scaffolds should also generate `make maintainability-gate`,
-`make documentation-contract-gate`, `make quality-scorecard-gate`, and
-`make implementation-truth-gate`, and run all four through `make lint`.
+`make documentation-contract-gate`, `make quality-scorecard-gate`,
+`make source-observability-contract-gate`, and
+`make implementation-truth-gate`, and run all five through `make lint`.
 The maintainability gate should block
 oversized source, test, and script files/functions against conservative
 thresholds calibrated above the initial scaffold baseline. The documentation
@@ -150,7 +151,10 @@ required operating anchors, and placeholder erosion. The quality-scorecard gate
 should scan the bank-buyable control matrix for required rows, approved readiness
 statuses, non-empty evidence/gap/next-slice cells, implementation-backed evidence
 anchors, and stale scaffold-era scorecard underclaims once certified business
-endpoints exist. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
+endpoints exist. The source-observability contract gate should block raw
+`print()`, direct Python logging, and low-level `log_event` bypasses in
+`src/app` so generated and agent-authored feature code uses central
+observability helpers and route-template request diagnostics. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
 quality docs, and wiki source for unqualified claims of demo readiness, production support,
 certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after

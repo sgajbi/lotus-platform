@@ -57,7 +57,10 @@ Current repository posture:
    generated PR auto-merge helper now warns and skips auto-merge when `LOTUS_AUTOMERGE_TOKEN` is
    absent, preserving non-`GITHUB_TOKEN` merge semantics without creating a permanent red helper
    check for repositories that require manual/release-actor rebase merge. Detailed usage and
-   generated feature documentation lives in
+   generated services also include `make source-observability-contract-gate`, which blocks raw
+   `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
+   generated request diagnostic helper logs route templates instead of raw URL paths. Detailed
+   usage and generated feature documentation lives in
    `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
    `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and

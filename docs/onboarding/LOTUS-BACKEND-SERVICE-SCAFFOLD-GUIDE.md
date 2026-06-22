@@ -235,10 +235,11 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 8. `make maintainability-gate`
 9. `make documentation-contract-gate`
 10. `make quality-scorecard-gate`
-11. `make implementation-truth-gate`
-12. `make test`
-13. `make ci`
-14. `make security-audit`
+11. `make source-observability-contract-gate`
+12. `make implementation-truth-gate`
+13. `make test`
+14. `make ci`
+15. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -269,6 +270,11 @@ apply the bank-buyable contract.
 executable by validating required rows, approved readiness statuses, non-empty evidence/gap/next
 slice cells, evidence anchors, and stale scaffold-era scorecard underclaims once certified business
 endpoints exist.
+
+`make source-observability-contract-gate` is blocking from day one. It prevents generated or
+agent-authored application source from adding raw `print()`, direct Python logging, or low-level
+`log_event` bypasses outside the central observability module. Generated request diagnostics use
+route templates rather than raw URL paths.
 
 `make implementation-truth-gate` is blocking from day one. It prevents generated or
 agent-authored current-state README/docs/wiki text from claiming demo readiness, production
