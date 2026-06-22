@@ -989,6 +989,9 @@ if ($makefile -notmatch '\$\(MAKE\) coverage-gate') {
 }
 $makefile = $makefile -replace [regex]::Escape("check: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test"), "check: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test"
 $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"
+if ($makefile -notmatch "scripts/clean_generated_artifacts.py") {
+  $makefile = $makefile -replace [regex]::Escape("clean:`n`tpython -c ""import shutil, pathlib; [shutil.rmtree(p, ignore_errors=True) for p in ['.pytest_cache', '.ruff_cache', '.mypy_cache']]; [pathlib.Path(p).unlink(missing_ok=True) for p in ['.coverage', '.coverage.unit', '.coverage.integration', '.coverage.e2e']]"""), "clean:`n`tpython scripts/clean_generated_artifacts.py"
+}
 Set-Content $makefilePath $makefile
 
 $runtimeDependencies = [ordered]@{
@@ -2060,6 +2063,100 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/coverage_gate.py") -Value $coverageGate
 
+$cleanGeneratedArtifacts = @'
+from __future__ import annotations
+
+import shutil
+from dataclasses import dataclass
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+CACHE_DIR_NAMES = frozenset(
+    {
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        "__pycache__",
+    }
+)
+BUILD_DIR_NAMES = frozenset(
+    {
+        "build",
+        "dist",
+        "htmlcov",
+    }
+)
+LOCAL_FILE_NAMES = frozenset(
+    {
+        ".coverage",
+        ".coverage.unit",
+        ".coverage.integration",
+        ".coverage.e2e",
+        "coverage.xml",
+    }
+)
+PRUNED_DIR_NAMES = frozenset(
+    {
+        ".git",
+        ".venv",
+        "node_modules",
+    }
+)
+
+
+@dataclass(frozen=True)
+class CleanupPlan:
+    directories: tuple[Path, ...]
+    files: tuple[Path, ...]
+
+
+def build_cleanup_plan(root: Path = ROOT) -> CleanupPlan:
+    root = root.resolve()
+    directories: list[Path] = []
+    files: list[Path] = []
+
+    for path in sorted(root.rglob("*")):
+        if _is_pruned(path, root):
+            continue
+        if path.is_dir() and path.name in CACHE_DIR_NAMES | BUILD_DIR_NAMES:
+            directories.append(path)
+        elif path.is_file() and path.name in LOCAL_FILE_NAMES:
+            files.append(path)
+
+    return CleanupPlan(directories=tuple(directories), files=tuple(files))
+
+
+def clean_generated_artifacts(root: Path = ROOT) -> CleanupPlan:
+    plan = build_cleanup_plan(root)
+    for directory in plan.directories:
+        shutil.rmtree(directory, ignore_errors=True)
+    for file_path in plan.files:
+        file_path.unlink(missing_ok=True)
+    return plan
+
+
+def _is_pruned(path: Path, root: Path) -> bool:
+    relative_parts = path.resolve().relative_to(root).parts
+    return bool(set(relative_parts) & PRUNED_DIR_NAMES)
+
+
+def main() -> int:
+    plan = clean_generated_artifacts()
+    print(
+        "Removed "
+        f"{len(plan.directories)} generated directories and "
+        f"{len(plan.files)} local artifact files."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/clean_generated_artifacts.py") -Value $cleanGeneratedArtifacts
+
 $maintainabilityGate = @'
 from __future__ import annotations
 
@@ -2416,6 +2513,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MAKEFILE_PATH = ROOT / "Makefile"
 WORKFLOWS_DIR = ROOT / ".github" / "workflows"
+GENERATED_CLEANUP_SCRIPT = ROOT / "scripts" / "clean_generated_artifacts.py"
 
 
 REQUIRED_TARGETS = (
@@ -2439,6 +2537,7 @@ REQUIRED_TARGETS = (
     "coverage-gate",
     "security-audit",
     "docker-build",
+    "clean",
 )
 
 REQUIRED_LINT_CALLS = (
@@ -2625,7 +2724,30 @@ def validate_makefile(makefile: str) -> list[str]:
         errors.append("Makefile security-audit target must audit shared runtime lock")
     if "requirements/ci-tooling.lock.txt" not in security_audit:
         errors.append("Makefile security-audit target must audit CI tooling lock")
+
+    clean_block = _target_block(makefile, "clean")
+    if "python scripts/clean_generated_artifacts.py" not in clean_block:
+        errors.append("Makefile clean target must call `python scripts/clean_generated_artifacts.py`")
     return errors
+
+
+def validate_generated_cleanup_script() -> list[str]:
+    if not GENERATED_CLEANUP_SCRIPT.exists():
+        return ["Missing scripts/clean_generated_artifacts.py"]
+    content = _read(GENERATED_CLEANUP_SCRIPT)
+    required_fragments = (
+        "def build_cleanup_plan",
+        "def clean_generated_artifacts",
+        "PRUNED_DIR_NAMES",
+        '".venv"',
+        '"node_modules"',
+        "coverage.xml",
+    )
+    return [
+        f"scripts/clean_generated_artifacts.py missing `{fragment}`"
+        for fragment in required_fragments
+        if fragment not in content
+    ]
 
 
 def validate_workflows(workflows_dir: Path) -> list[str]:
@@ -2691,7 +2813,11 @@ def _job_blocks(workflow: str) -> dict[str, str]:
 def validate_ci_contract() -> list[str]:
     if not MAKEFILE_PATH.exists():
         return [f"Missing {MAKEFILE_PATH.relative_to(ROOT).as_posix()}"]
-    return [*validate_makefile(_read(MAKEFILE_PATH)), *validate_workflows(WORKFLOWS_DIR)]
+    return [
+        *validate_makefile(_read(MAKEFILE_PATH)),
+        *validate_generated_cleanup_script(),
+        *validate_workflows(WORKFLOWS_DIR),
+    ]
 
 
 def main() -> int:
@@ -3059,6 +3185,70 @@ def test_no_sensitive_content_guard_ignores_binary_artifacts(tmp_path: Path) -> 
     assert module.validate_no_sensitive_content(scan_roots=(logs,)) == []
 '@
 Set-Content -Path (Join-Path $target "tests/unit/test_no_sensitive_content_guard.py") -Value $sensitiveContentGuardTest
+
+$cleanGeneratedArtifactsTest = @'
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+from types import ModuleType
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _load_clean_generated_artifacts() -> ModuleType:
+    script_path = ROOT / "scripts" / "clean_generated_artifacts.py"
+    spec = importlib.util.spec_from_file_location("clean_generated_artifacts", script_path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_cleanup_plan_includes_generated_python_and_test_artifacts(
+    tmp_path: Path,
+) -> None:
+    module = _load_clean_generated_artifacts()
+    generated_directory = tmp_path / "src" / "app" / "__pycache__"
+    generated_directory.mkdir(parents=True)
+    generated_file = generated_directory / "main.cpython-313.pyc"
+    generated_file.write_bytes(b"bytecode")
+    coverage_file = tmp_path / ".coverage.unit"
+    coverage_file.write_text("coverage", encoding="utf-8")
+
+    plan = module.build_cleanup_plan(tmp_path)
+
+    assert plan.directories == (generated_directory,)
+    assert plan.files == (coverage_file,)
+
+
+def test_cleanup_removes_generated_artifacts_without_pruned_directories(
+    tmp_path: Path,
+) -> None:
+    module = _load_clean_generated_artifacts()
+    generated_directory = tmp_path / "tests" / "__pycache__"
+    generated_directory.mkdir(parents=True)
+    (generated_directory / "test_example.cpython-313.pyc").write_bytes(b"bytecode")
+    local_artifact = tmp_path / "coverage.xml"
+    local_artifact.write_text("<coverage />", encoding="utf-8")
+    venv_cache = tmp_path / ".venv" / "Lib" / "__pycache__"
+    venv_cache.mkdir(parents=True)
+    venv_marker = venv_cache / "dependency.cpython-313.pyc"
+    venv_marker.write_bytes(b"dependency bytecode")
+
+    plan = module.clean_generated_artifacts(tmp_path)
+
+    assert plan.directories == (generated_directory,)
+    assert plan.files == (local_artifact,)
+    assert not generated_directory.exists()
+    assert not local_artifact.exists()
+    assert venv_marker.exists()
+'@
+Set-Content -Path (Join-Path $target "tests/unit/test_clean_generated_artifacts.py") -Value $cleanGeneratedArtifactsTest
 
 $sourceObservabilityContractGate = @'
 from __future__ import annotations
@@ -4152,6 +4342,7 @@ $readme = @(
   "make architecture-boundary-report",
   "make quality-baseline",
   "make openapi-gate",
+  "make clean",
   "make check",
   "make ci",
   '```',
@@ -4169,6 +4360,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe scripts/openapi_quality_gate.py",
   ".venv\\Scripts\\python.exe -m pytest tests/unit tests/integration tests/e2e",
   ".venv\\Scripts\\python.exe scripts/coverage_gate.py",
+  "python scripts/clean_generated_artifacts.py",
   '```',
   "",
   "## Run",
@@ -4201,6 +4393,7 @@ $readme = @(
   "- Blocking monetary precision evidence: make monetary-float-guard",
   "- Blocking source observability evidence: make source-observability-contract-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
+  "- Generated artifact cleanup: make clean",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
   "- Report-only quality baseline evidence: make quality-baseline"

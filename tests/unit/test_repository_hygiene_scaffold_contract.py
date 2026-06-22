@@ -183,6 +183,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "tests/unit/test_no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/source_observability_contract_gate.py" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
+    assert "scripts/clean_generated_artifacts.py" in scaffold_script
+    assert "tests/unit/test_clean_generated_artifacts.py" in scaffold_script
     assert "scripts/documentation_contract_gate.py" in scaffold_script
     assert "merged-pr-main-releasability.template.yml" in scaffold_script
     assert "scripts/supported_features_gate.py" in scaffold_script
@@ -267,6 +269,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/generate_quality_baseline.py" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
+    assert "clean:" in makefile_template
+    assert "python scripts/clean_generated_artifacts.py" in makefile_template
     for workflow_template in (
         feature_lane_template,
         pr_merge_template,
@@ -444,6 +448,22 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         text=True,
     )
     bad_observability.unlink()
+    generated_cache = repo_root / "htmlcov"
+    generated_cache.mkdir(parents=True, exist_ok=True)
+    (generated_cache / "index.html").write_text("coverage", encoding="utf-8")
+    local_coverage_artifact = repo_root / "coverage.xml"
+    local_coverage_artifact.write_text("<coverage />", encoding="utf-8")
+    venv_cache = repo_root / ".venv" / "Lib" / "__pycache__"
+    venv_cache.mkdir(parents=True)
+    venv_marker = venv_cache / "dependency.cpython-313.pyc"
+    venv_marker.write_bytes(b"dependency bytecode")
+    cleanup_result = subprocess.run(
+        [sys.executable, "scripts/clean_generated_artifacts.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     bad_money = repo_root / "src/app/domain/bad_money.py"
     bad_money.write_text(
         "market_value: float = 1\n"
@@ -534,6 +554,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     ).read_text(encoding="utf-8")
     source_observability_contract_gate = (
         repo_root / "scripts/source_observability_contract_gate.py"
+    ).read_text(encoding="utf-8")
+    clean_generated_artifacts = (
+        repo_root / "scripts/clean_generated_artifacts.py"
     ).read_text(encoding="utf-8")
     supported_features_gate = (
         repo_root / "scripts/supported_features_gate.py"
@@ -651,6 +674,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "source-observability-contract-gate:" in makefile
     assert "$(MAKE) source-observability-contract-gate" in makefile
     assert (repo_root / "scripts/source_observability_contract_gate.py").exists()
+    assert "clean:" in makefile
+    assert "python scripts/clean_generated_artifacts.py" in makefile
+    assert (repo_root / "scripts/clean_generated_artifacts.py").exists()
     assert "implementation-truth-gate:" in makefile
     assert "$(MAKE) implementation-truth-gate" in makefile
     assert "supported-features-gate:" in makefile
@@ -771,6 +797,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "source; use bounded structured logging" in source_observability_contract_gate
     )
     assert "low-level log_event" in source_observability_contract_gate
+    assert "def build_cleanup_plan" in clean_generated_artifacts
+    assert "def clean_generated_artifacts" in clean_generated_artifacts
+    assert "PRUNED_DIR_NAMES" in clean_generated_artifacts
+    assert '"node_modules"' in clean_generated_artifacts
     assert "Supported-features gate passed" in supported_features_gate
     assert "implemented feature missing promotion_evidence" in supported_features_gate
     assert "Endpoint certification gate passed" in endpoint_certification_gate
@@ -794,6 +824,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "Source observability contract gate passed"
         in source_observability_gate_result.stdout
     )
+    assert "Removed " in cleanup_result.stdout
+    assert "generated directories" in cleanup_result.stdout
+    assert not generated_cache.exists()
+    assert not local_coverage_artifact.exists()
+    assert venv_marker.exists()
     assert "monetary float annotation detected" in monetary_float_failure.stdout
     assert "monetary float literal detected" in monetary_float_failure.stdout
     assert "monetary float conversion detected" in monetary_float_failure.stdout
@@ -806,6 +841,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "documentation-contract-gate" in ci_contract_gate
     assert "quality-scorecard-gate" in ci_contract_gate
     assert "source-observability-contract-gate" in ci_contract_gate
+    assert "clean_generated_artifacts.py" in ci_contract_gate
+    assert "Makefile clean target must call" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
     assert "secrets.LOTUS_AUTOMERGE_TOKEN" in ci_contract_gate
     assert "LOTUS_AUTOMERGE_TOKEN is required" in ci_contract_gate
@@ -820,6 +857,16 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "continue-on-error:" in ci_contract_gate
     assert "must define at least one parseable job" in ci_contract_gate
     generated_ci_contract_gate = _load_generated_ci_contract_gate(repo_root)
+    weakened_makefile_errors = generated_ci_contract_gate.validate_makefile(
+        makefile.replace(
+            "python scripts/clean_generated_artifacts.py",
+            'python -c "pass"',
+        )
+    )
+    assert (
+        "Makefile clean target must call `python scripts/clean_generated_artifacts.py`"
+        in weakened_makefile_errors
+    )
     mutated_workflow_dir = tmp_path / "mutated-generated-workflows"
     shutil.copytree(repo_root / ".github" / "workflows", mutated_workflow_dir)
     feature_lane = mutated_workflow_dir / "feature-lane.yml"
