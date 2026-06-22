@@ -186,6 +186,7 @@ Generated backend code starts with this package layout:
 | `src/app/domain/` | Framework-free domain models, policies, and calculations. |
 | `src/app/ports/` | Interfaces for external dependencies used by application logic. |
 | `src/app/infrastructure/` | Concrete adapters and external clients behind ports. |
+| `src/app/runtime/` | Process-local composition of repositories, adapters, publishers, and clients. |
 | `src/app/observability/` | Structured logging, correlation, tracing, and metrics helpers. |
 | `src/app/security/` | Caller context and product-safe authorization policy primitives. |
 | `src/app/resilience/` | Retry, backoff, timeout, and circuit-breaker policy primitives. |
@@ -198,7 +199,9 @@ Default dependency direction:
 2. `application` depends on `domain` and `ports`,
 3. `domain` does not import API, infrastructure, FastAPI, persistence, or HTTP clients,
 4. `infrastructure` implements `ports`,
-5. `security`, `resilience`, and `observability` provide shared support primitives.
+5. `runtime` may wire concrete dependencies for process startup, workers, and proof generators, but
+   must not import API routes, HTTP DTOs, FastAPI, or Starlette,
+6. `security`, `resilience`, and `observability` provide shared support primitives.
 
 ## Starting Runtime Features
 

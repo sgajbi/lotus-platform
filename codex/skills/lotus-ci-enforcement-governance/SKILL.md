@@ -165,6 +165,10 @@ certification, live source ingestion, Gateway/Workbench support, or client-ready
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after
 implementation and CI evidence prove a stronger current posture. Keep RFC target-state planning text
 out of this blocking scan.
+The generated architecture boundary gate should also protect `src/app/runtime`
+as the process-local composition layer for repositories, adapters, publishers,
+workers, and proof generators; runtime composition must not import API routes,
+HTTP DTOs, FastAPI, or Starlette.
 The generated cleanup utility should be tested and dependency-light: `make clean` should call
 `python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and `node_modules`, and
 remove only known local cache, build, and coverage artifacts. The generated CI contract gate should

@@ -452,6 +452,19 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         text=True,
     )
     bad_boundary.unlink()
+    bad_runtime_boundary = repo_root / "src/app/runtime/bad_runtime_boundary.py"
+    bad_runtime_boundary.write_text(
+        "from app.api import health\n",
+        encoding="utf-8",
+    )
+    runtime_architecture_failure = subprocess.run(
+        [sys.executable, "scripts/architecture_boundary_gate.py", "--mode", "blocking"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    bad_runtime_boundary.unlink()
     bad_observability = repo_root / "src/app/api/raw_logging.py"
     bad_observability.write_text(
         "def leak() -> None:\n    print('raw request')\n",
@@ -715,12 +728,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert (repo_root / "src/app/domain/__init__.py").exists()
     assert (repo_root / "src/app/ports/__init__.py").exists()
     assert (repo_root / "src/app/infrastructure/__init__.py").exists()
+    assert (repo_root / "src/app/runtime/__init__.py").exists()
     assert (repo_root / "src/app/observability/__init__.py").exists()
     assert (repo_root / "src/app/security/__init__.py").exists()
     assert (repo_root / "src/app/resilience/__init__.py").exists()
     assert not (repo_root / "contracts/domain-data-products").exists()
     assert not (repo_root / "contracts/trust-telemetry").exists()
     assert "Expected dependency flow" in app_readme
+    assert "`runtime` owns process-local composition" in app_readme
     assert "`resilience` provides retry, backoff, timeout" in app_readme
     assert 'name="domain-service"' in domain_profile
     assert "Domain-authoritative backend service" in domain_profile
@@ -945,6 +960,14 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         in architecture_failure_report.stdout
     )
     assert "Domain must stay framework-free" in architecture_boundary_gate
+    assert '"runtime": {' in architecture_boundary_gate
+    assert '"forbidden_prefixes": ("fastapi", "starlette", "app.api")' in architecture_boundary_gate
+    assert runtime_architecture_failure.returncode == 1
+    assert "Architecture boundary gate found 1 violation(s)." in (
+        runtime_architecture_failure.stdout
+    )
+    assert "app.runtime.bad_runtime_boundary" in runtime_architecture_failure.stdout
+    assert "app.api" in runtime_architecture_failure.stdout
     assert "mode" in quality_baseline_script
     assert architecture_boundary_report["repository"] == service_name
     assert architecture_boundary_report["mode"] == "report-only"
