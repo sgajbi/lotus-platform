@@ -204,18 +204,21 @@ function Write-RepositoryEngineeringContext {
     '5. integration or browser tests where applicable: `make test-integration`, `make test-e2e`',
     '6. repo-native CI parity: `make check`, `make ci`',
     '7. CI lane contract gate: `make ci-contract-gate`',
-    '8. implementation-truth gate: `make implementation-truth-gate`',
+    '8. maintainability gate: `make maintainability-gate`',
+    '9. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, OpenAPI quality, implementation-truth gate, unit/integration/e2e tests, coverage',
-    'gate, security audit, and Docker build validation.',
+    'typecheck, maintainability thresholds, OpenAPI quality, implementation-truth gate,',
+    'unit/integration/e2e tests, coverage gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
-    'changes from silently removing architecture, OpenAPI, endpoint-certification, supported-feature,',
-    'implementation-truth, coverage, security, Docker, release-evidence, action-version,',
+    'changes from silently removing architecture, maintainability, OpenAPI, endpoint-certification,',
+    'supported-feature, implementation-truth, coverage, security, Docker, release-evidence, action-version,',
     'least-privilege workflow controls, workflow-dispatch access, or merged-PR main-releasability',
     'dispatch.',
+    '`make maintainability-gate` prevents oversized source, test, and script files/functions from',
+    'becoming normal scaffold output or future agentic implementation drift.',
     '`make implementation-truth-gate` keeps current-state README, operations, quality, and wiki text',
     'from claiming demo readiness, production support, certification, live source ingestion,',
     'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
@@ -378,6 +381,7 @@ function Write-WikiBaseline {
       "make check",
       "make ci",
       "make ci-contract-gate",
+      "make maintainability-gate",
       "make implementation-truth-gate",
       "make openapi-gate",
       "make quality-baseline",
@@ -896,12 +900,18 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
 if ($makefile -notmatch "(?m)^ci-contract-gate:") {
   $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "ci-contract-gate:`n`t`$(VENV_PYTHON) scripts/ci_contract_gate.py`n`nmonetary-float-guard:"
+}
+if ($makefile -notmatch '\$\(MAKE\) maintainability-gate') {
+  $makefile = $makefile -replace [regex]::Escape("`t`$(MAKE) ci-contract-gate"), "`t`$(MAKE) ci-contract-gate`n`t`$(MAKE) maintainability-gate"
+}
+if ($makefile -notmatch "(?m)^maintainability-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "maintainability-gate:`n`t`$(VENV_PYTHON) scripts/maintainability_gate.py`n`nmonetary-float-guard:"
 }
 if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
@@ -1960,6 +1970,85 @@ if __name__ == "__main__":
 "@
 Set-Content -Path (Join-Path $target "scripts/coverage_gate.py") -Value $coverageGate
 
+$maintainabilityGate = @'
+from __future__ import annotations
+
+import ast
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+@dataclass(frozen=True)
+class ScopeLimit:
+    name: str
+    relative_path: str
+    max_file_lines: int
+    max_function_lines: int
+
+
+SCOPE_LIMITS = (
+    ScopeLimit("source", "src", max_file_lines=1200, max_function_lines=130),
+    ScopeLimit("tests", "tests", max_file_lines=1200, max_function_lines=180),
+    ScopeLimit("scripts", "scripts", max_file_lines=500, max_function_lines=120),
+)
+
+
+def _python_files(scope_root: Path) -> list[Path]:
+    if not scope_root.exists():
+        return []
+    return sorted(path for path in scope_root.rglob("*.py") if "__pycache__" not in path.parts)
+
+
+def _function_rows(path: Path) -> list[tuple[str, int, int]]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    rows: list[tuple[str, int, int]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            end_line = getattr(node, "end_lineno", node.lineno)
+            rows.append((node.name, node.lineno, end_line - node.lineno + 1))
+    return rows
+
+
+def validate_maintainability(root: Path = ROOT) -> list[str]:
+    violations: list[str] = []
+    for limit in SCOPE_LIMITS:
+        scope_root = root / limit.relative_path
+        for path in _python_files(scope_root):
+            relative_path = path.relative_to(root).as_posix()
+            lines = len(path.read_text(encoding="utf-8").splitlines())
+            if lines > limit.max_file_lines:
+                violations.append(
+                    f"{relative_path} has {lines} lines; {limit.name} files must stay at or below "
+                    f"{limit.max_file_lines} lines"
+                )
+            for function_name, line_number, function_lines in _function_rows(path):
+                if function_lines > limit.max_function_lines:
+                    violations.append(
+                        f"{relative_path}:{line_number} `{function_name}` has {function_lines} "
+                        f"lines; {limit.name} functions must stay at or below "
+                        f"{limit.max_function_lines} lines"
+                    )
+    return violations
+
+
+def main() -> int:
+    violations = validate_maintainability()
+    if violations:
+        print("Maintainability gate failed:")
+        print("\n".join(violations))
+        return 1
+    print("Maintainability gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/maintainability_gate.py") -Value $maintainabilityGate
+
 $ciContractGate = @'
 from __future__ import annotations
 
@@ -1975,6 +2064,7 @@ WORKFLOWS_DIR = ROOT / ".github" / "workflows"
 
 REQUIRED_TARGETS = (
     "ci-contract-gate",
+    "maintainability-gate",
     "monetary-float-guard",
     "no-sensitive-content-guard",
     "implementation-truth-gate",
@@ -1994,6 +2084,7 @@ REQUIRED_TARGETS = (
 
 REQUIRED_LINT_CALLS = (
     "$(MAKE) ci-contract-gate",
+    "$(MAKE) maintainability-gate",
     "$(MAKE) monetary-float-guard",
     "$(MAKE) no-sensitive-content-guard",
     "$(MAKE) implementation-truth-gate",
@@ -3078,7 +3169,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3120,7 +3211,7 @@ Allowed status vocabulary:
 | --- | --- | --- | --- | --- |
 | Product-safe errors | ``Implemented`` | ``app.errors.ProblemDetails``, generated tests. | Domain-specific denied/degraded errors are not implemented. | Add endpoint-specific errors with tests. |
 | Correlation and trace propagation | ``Implemented`` | ``CorrelationIdMiddleware``, integration tests. | Cross-service propagation depends on real downstream clients. | Certify per integration. |
-| Architecture boundary enforcement | ``Partially implemented`` | ``make architecture-boundary-gate`` plus ``make architecture-boundary-report``. | Service-specific boundaries are still scaffold-level. | Keep broad quality metrics report-only until low-noise policy is proven. |
+| Architecture and maintainability enforcement | ``Partially implemented`` | ``make architecture-boundary-gate``, ``make maintainability-gate``, and ``make architecture-boundary-report``. | Service-specific boundaries are still scaffold-level. | Keep broad quality metrics report-only until low-noise policy is proven. |
 | Security authorization model | ``Partially implemented`` | Caller-context and capability-policy placeholders. | No production authentication or service-specific authorization model. | Implement caller extraction and policy decisions for real endpoints. |
 | Mesh certification | ``Planned`` | None unless mesh placeholders are explicitly requested. | Not certified. | Add repo-owned mesh declarations, telemetry, SLO/access/evidence policies, and pass certification. |
 "@
@@ -3220,6 +3311,7 @@ $readme = @(
   "make install",
   "make lint",
   "make ci-contract-gate",
+  "make maintainability-gate",
   "make implementation-truth-gate",
   "make typecheck",
   "make architecture-boundary-report",
@@ -3233,6 +3325,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe -m pip install -e '.[dev]'",
   ".venv\\Scripts\\python.exe -m ruff check . && .venv\\Scripts\\python.exe -m ruff format --check .",
   ".venv\\Scripts\\python.exe scripts/ci_contract_gate.py",
+  ".venv\\Scripts\\python.exe scripts/maintainability_gate.py",
   ".venv\\Scripts\\python.exe scripts/implementation_truth_gate.py",
   ".venv\\Scripts\\python.exe -m mypy --config-file mypy.ini",
   ".venv\\Scripts\\python.exe scripts/openapi_quality_gate.py",
@@ -3264,6 +3357,7 @@ $readme = @(
   "- Platform standards docs: docs/standards/",
   "- Quality scorecard and refactor decisions: quality/",
   "- Blocking CI contract evidence: make ci-contract-gate",
+  "- Blocking maintainability evidence: make maintainability-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
@@ -3282,14 +3376,14 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 
 | Control Area | Current Status | Evidence | Gap | Next Slice |
 | --- | --- | --- | --- | --- |
-| Architecture | ``Partially implemented`` | Layered package skeleton plus report-only architecture-boundary report. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
+| Architecture | ``Partially implemented`` | Layered package skeleton, blocking maintainability thresholds, and report-only architecture-boundary report. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
 | API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
 | Data and methodology | ``Planned`` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
 | Security and privacy | ``Partially implemented`` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
 | Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
 | Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
 | Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows. | Repo-specific thresholds need evidence. | Tighten gates after measured baseline. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability thresholds. | Repo-specific thresholds beyond deterministic size limits need evidence. | Tighten gates after measured baseline. |
 | Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards placeholders. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
@@ -3322,7 +3416,8 @@ Blocking scaffold commands:
 
 1. ``make architecture-boundary-gate``
 2. ``make ci-contract-gate``
-3. ``make implementation-truth-gate``
+3. ``make maintainability-gate``
+4. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3331,11 +3426,15 @@ Report-only scaffold commands:
 
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
-supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
+maintainability, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
 release evidence, least-privilege workflow permissions, implementation-truth enforcement, and
 approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs.
+
+``make maintainability-gate`` blocks oversized Python files/functions across ``src``, ``tests``,
+and ``scripts``. It is calibrated above the initial scaffold baseline so new implementation work
+must split or refactor large additions instead of normalizing hard-to-review modules.
 
 ``make implementation-truth-gate`` blocks unqualified current-state claims of demo readiness,
 production readiness, external support, certification, live source ingestion, Gateway/Workbench

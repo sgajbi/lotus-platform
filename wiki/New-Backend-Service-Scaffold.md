@@ -10,8 +10,8 @@ supported-feature governance, caller-context and capability-policy primitives, d
 resilience templates, write-capable idempotency/audit models, demo-claims documentation, and
 report-only architecture/quality evidence.
 
-Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-contract-gate`, and
-`make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands
+Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-contract-gate`,
+`make maintainability-gate`, and `make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands
 such as `make architecture-boundary-report` and `make quality-baseline` when an RFC, PR,
 scorecard, or review needs durable quality artifacts.
 
@@ -22,6 +22,10 @@ evidence, endpoint-certification, supported-feature, security-audit, architectur
 controls. It also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs, plus `LOTUS_AUTOMERGE_TOKEN` usage so the merge actor is not
 the suppressed workflow token.
+
+`make maintainability-gate` blocks oversized Python files/functions in `src`, `tests`, and
+`scripts` so generated services start with conservative module-size guardrails before feature work
+begins.
 
 `make implementation-truth-gate` is the day-one current-state claim guard for generated backend
 services. It prevents generated or agent-authored README/docs/wiki text from claiming demo
