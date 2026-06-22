@@ -100,3 +100,8 @@ solving them only in the generated app.
     gate from day one. Generated app code should use the central observability
     module for route-template request diagnostics and must block raw `print()`,
     direct Python logging, or low-level `log_event` bypasses in `src/app`.
+21. Scaffolded backend repositories should generate an AST-backed
+    monetary-float guard, not a string-only search. The guard should block
+    money-like `float` annotations, literals, return annotations, and
+    conversions while allowing operational floats such as timeout seconds, and
+    scaffold tests should execute both clean and failing generated-guard paths.
