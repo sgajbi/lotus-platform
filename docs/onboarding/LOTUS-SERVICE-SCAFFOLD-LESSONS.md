@@ -58,7 +58,10 @@ solving them only in the generated app.
 13. Governed PR completion should be linear and non-squash. Scaffolded
     repositories should enable rebase merge, disable squash and merge-commit
     completion, require branch linear history, and queue auto-merge with
-    `gh pr merge --auto --rebase`.
+    `gh pr merge --auto --rebase` when `LOTUS_AUTOMERGE_TOKEN` is configured.
+    When the token is absent, the auto-merge helper should warn and skip rather
+    than leaving a red helper check; a human or release actor then performs the
+    required rebase merge.
 14. Scaffolded backend repositories need an anti-drift gate for the lane
     contract itself. `make ci-contract-gate` should run through `make lint` and
     fail if agent or scaffold changes remove required Makefile targets,

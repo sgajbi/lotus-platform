@@ -53,8 +53,11 @@ Current repository posture:
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
-   quality-scorecard truth, observability, health/readiness, and workflow baseline gates. Detailed usage and generated
-   feature documentation lives in
+   quality-scorecard truth, observability, health/readiness, and workflow baseline gates. The
+   generated PR auto-merge helper now warns and skips auto-merge when `LOTUS_AUTOMERGE_TOKEN` is
+   absent, preserving non-`GITHUB_TOKEN` merge semantics without creating a permanent red helper
+   check for repositories that require manual/release-actor rebase merge. Detailed usage and
+   generated feature documentation lives in
    `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
    `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and

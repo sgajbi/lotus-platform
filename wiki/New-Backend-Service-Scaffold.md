@@ -49,7 +49,8 @@ release metadata manifest.
 Generated repos also include a merged-PR dispatcher that starts Main Releasability on `main` after
 PR completion.
 The scaffolded auto-merge workflow requires `LOTUS_AUTOMERGE_TOKEN`; repositories without that
-secret should use a human or release actor to rebase merge.
+secret warn and skip auto-merge instead of failing the PR helper check. Those repositories should
+use a human or release actor to rebase merge.
 
 Detailed guide:
 
