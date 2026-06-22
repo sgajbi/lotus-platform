@@ -71,7 +71,9 @@ solving them only in the generated app.
     and block unqualified current-state README/docs/wiki claims that imply demo
     readiness, production support, certification, live source ingestion,
     Gateway/Workbench support, or client-ready publication before supported
-    feature evidence exists.
+    feature evidence exists. It should also block stale scaffold-era demo
+    underclaims once implementation and CI evidence prove a stronger current
+    posture.
 16. Scaffolded backend repositories also need a maintainability gate from day
     one. `make maintainability-gate` should run through `make lint` and block
     oversized source, test, and script files/functions before agent-authored

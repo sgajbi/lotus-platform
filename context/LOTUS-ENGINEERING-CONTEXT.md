@@ -692,6 +692,8 @@ Newly scaffolded backend services also generate `make maintainability-gate` and
 `make lint`; they block oversized source/test/script modules plus unqualified README/docs/wiki
 current-state claims of demo readiness, production support, certification, live source ingestion,
 Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.
+The generated implementation-truth gate also blocks stale scaffold-era demo underclaims once
+implementation and CI evidence prove a stronger current posture.
 Do not treat a green PR Merge Gate as release evidence by itself.
 
 For enterprise backend refactors in `lotus-platform`, start from

@@ -80,7 +80,8 @@ This generates a production-grade backend baseline with:
 - blocking CI contract gate that protects bank-buyable lane wiring, bounded job timeouts, and
   no-soft-fail critical workflow posture from drift
 - blocking implementation-truth gate that prevents README/docs/wiki current-state claims from
-  outrunning supported-feature evidence
+  outrunning supported-feature evidence and catches stale scaffold-era demo underclaims after
+  implementation evidence exists
 - layered `src/app/api`, `src/app/application`, `src/app/domain`, `src/app/ports`,
   `src/app/infrastructure`, `src/app/observability`, and `src/app/security` package skeleton
 - FastAPI app with health/readiness and metrics

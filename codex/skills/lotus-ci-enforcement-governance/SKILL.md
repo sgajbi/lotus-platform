@@ -137,7 +137,9 @@ block oversized source, test, and script files/functions against conservative th
 above the initial scaffold baseline. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
 quality docs, and wiki source for unqualified claims of demo readiness, production support,
 certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
-supported-feature evidence exists. Keep RFC target-state planning text out of this blocking scan.
+supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after
+implementation and CI evidence prove a stronger current posture. Keep RFC target-state planning text
+out of this blocking scan.
 
 ## Context And Skill Maintenance
 
