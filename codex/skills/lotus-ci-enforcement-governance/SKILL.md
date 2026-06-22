@@ -132,13 +132,18 @@ workflow posture, implementation-truth guard presence, and the merged-PR main-re
 dispatcher together.
 
 New backend scaffolds should also generate `make maintainability-gate`,
-`make documentation-contract-gate`, and `make implementation-truth-gate`, and
-run all three through `make lint`. The maintainability gate should block
+`make documentation-contract-gate`, `make quality-scorecard-gate`, and
+`make implementation-truth-gate`, and run all four through `make lint`.
+The maintainability gate should block
 oversized source, test, and script files/functions against conservative
 thresholds calibrated above the initial scaffold baseline. The documentation
 contract gate should scan required README, repository context, standards,
 runbooks, quality, evidence, and wiki surfaces for presence, minimum substance,
-required operating anchors, and placeholder erosion. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
+required operating anchors, and placeholder erosion. The quality-scorecard gate
+should scan the bank-buyable control matrix for required rows, approved readiness
+statuses, non-empty evidence/gap/next-slice cells, implementation-backed evidence
+anchors, and stale scaffold-era scorecard underclaims once certified business
+endpoints exist. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
 quality docs, and wiki source for unqualified claims of demo readiness, production support,
 certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after

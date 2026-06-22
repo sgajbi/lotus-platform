@@ -240,6 +240,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "documentation-contract-gate:" in makefile_template
     assert "$(MAKE) documentation-contract-gate" in makefile_template
     assert "scripts/documentation_contract_gate.py" in scaffold_script
+    assert "quality-scorecard-gate:" in makefile_template
+    assert "$(MAKE) quality-scorecard-gate" in makefile_template
+    assert "scripts/quality_scorecard_gate.py" in scaffold_script
     assert "no-sensitive-content-guard:" in makefile_template
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "implementation-truth-gate:" in makefile_template
@@ -334,6 +337,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     documentation_contract_gate_result = subprocess.run(
         [sys.executable, "scripts/documentation_contract_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    quality_scorecard_gate_result = subprocess.run(
+        [sys.executable, "scripts/quality_scorecard_gate.py"],
         cwd=repo_root,
         check=True,
         capture_output=True,
@@ -466,6 +476,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     documentation_contract_gate = (
         repo_root / "scripts/documentation_contract_gate.py"
     ).read_text(encoding="utf-8")
+    quality_scorecard_gate = (
+        repo_root / "scripts/quality_scorecard_gate.py"
+    ).read_text(encoding="utf-8")
     endpoint_certification_gate = (
         repo_root / "scripts/endpoint_certification_gate.py"
     ).read_text(encoding="utf-8")
@@ -555,6 +568,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "documentation-contract-gate:" in makefile
     assert "$(MAKE) documentation-contract-gate" in makefile
     assert (repo_root / "scripts/documentation_contract_gate.py").exists()
+    assert "quality-scorecard-gate:" in makefile
+    assert "$(MAKE) quality-scorecard-gate" in makefile
+    assert (repo_root / "scripts/quality_scorecard_gate.py").exists()
     assert "no-sensitive-content-guard:" in makefile
     assert "$(MAKE) no-sensitive-content-guard" in makefile
     assert "implementation-truth-gate:" in makefile
@@ -672,8 +688,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
     assert "Documentation contract gate passed" in documentation_contract_gate_result.stdout
+    assert "Quality scorecard gate passed" in quality_scorecard_gate_result.stdout
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "documentation-contract-gate" in ci_contract_gate
+    assert "quality-scorecard-gate" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
     assert "secrets.LOTUS_AUTOMERGE_TOKEN" in ci_contract_gate
     assert "LOTUS_AUTOMERGE_TOKEN is required" in ci_contract_gate
@@ -842,6 +860,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make ci-contract-gate" in readme
     assert "make maintainability-gate" in readme
     assert "make documentation-contract-gate" in readme
+    assert "make quality-scorecard-gate" in readme
     assert "make implementation-truth-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
@@ -860,6 +879,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`make ci-contract-gate` is blocking through `make lint`" in repo_context
     assert "`make maintainability-gate` prevents oversized source" in repo_context
     assert "`make documentation-contract-gate` keeps README" in repo_context
+    assert "`make quality-scorecard-gate` keeps the bank-buyable control matrix" in repo_context
     assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
@@ -894,6 +914,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make documentation-contract-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make quality-scorecard-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "make implementation-truth-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
@@ -907,9 +930,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make ci-contract-gate" in ci_quality_gates
     assert "make maintainability-gate" in ci_quality_gates
     assert "make documentation-contract-gate" in ci_quality_gates
+    assert "make quality-scorecard-gate" in ci_quality_gates
     assert "make implementation-truth-gate" in ci_quality_gates
     assert "REQUIRED_SURFACES" in documentation_contract_gate
     assert "contains placeholder text" in documentation_contract_gate
+    assert "REQUIRED_CONTROLS" in quality_scorecard_gate
+    assert "stale scaffold-era scorecard claim" in quality_scorecard_gate
     assert "stale scaffold-era demo underclaims" in ci_quality_gates
     assert "Architecture" in quality_scorecard
     assert (

@@ -232,10 +232,11 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 7. `make ci-contract-gate`
 8. `make maintainability-gate`
 9. `make documentation-contract-gate`
-10. `make implementation-truth-gate`
-11. `make test`
-12. `make ci`
-13. `make security-audit`
+10. `make quality-scorecard-gate`
+11. `make implementation-truth-gate`
+12. `make test`
+13. `make ci`
+14. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -261,6 +262,11 @@ script files/functions from becoming normal generated or agent-authored service 
 missing anchors, and placeholder erosion across README, repository context, standards, runbooks,
 quality, RFC evidence, and wiki source so future agents and operators keep the context needed to
 apply the bank-buyable contract.
+
+`make quality-scorecard-gate` is blocking from day one. It keeps the bank-buyable control matrix
+executable by validating required rows, approved readiness statuses, non-empty evidence/gap/next
+slice cells, evidence anchors, and stale scaffold-era scorecard underclaims once certified business
+endpoints exist.
 
 `make implementation-truth-gate` is blocking from day one. It prevents generated or
 agent-authored current-state README/docs/wiki text from claiming demo readiness, production
@@ -313,6 +319,7 @@ make install
 make ci-contract-gate
 make maintainability-gate
 make documentation-contract-gate
+make quality-scorecard-gate
 make implementation-truth-gate
 make architecture-boundary-gate
 make architecture-boundary-report

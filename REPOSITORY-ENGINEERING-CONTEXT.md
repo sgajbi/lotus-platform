@@ -53,7 +53,7 @@ Current repository posture:
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the
    existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
-   observability, health/readiness, and workflow baseline gates. Detailed usage and generated
+   quality-scorecard truth, observability, health/readiness, and workflow baseline gates. Detailed usage and generated
    feature documentation lives in
    `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
