@@ -11,7 +11,8 @@ resilience templates, write-capable idempotency/audit models, demo-claims docume
 report-only architecture/quality evidence.
 
 Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-contract-gate`,
-`make maintainability-gate`, and `make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands
+`make maintainability-gate`, `make documentation-contract-gate`, and
+`make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands
 such as `make architecture-boundary-report` and `make quality-baseline` when an RFC, PR,
 scorecard, or review needs durable quality artifacts.
 
@@ -26,6 +27,11 @@ the suppressed workflow token.
 `make maintainability-gate` blocks oversized Python files/functions in `src`, `tests`, and
 `scripts` so generated services start with conservative module-size guardrails before feature work
 begins.
+
+`make documentation-contract-gate` blocks deletion, thinning, missing anchors, and placeholder
+erosion across generated README, repository context, standards, runbooks, quality, evidence, and
+wiki surfaces so future agents and operators retain the context needed to apply the bank-buyable
+contract.
 
 `make implementation-truth-gate` is the day-one current-state claim guard for generated backend
 services. It prevents generated or agent-authored README/docs/wiki text from claiming demo
