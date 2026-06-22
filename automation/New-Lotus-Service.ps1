@@ -2958,6 +2958,7 @@ REQUIRED_FIELDS = (
     "test_evidence",
     "openapi_evidence",
 )
+OPERATION_EVENT_TEST_TERMS = ("operation_event", "operation_events")
 
 
 def _openapi_operations_from_app() -> set[tuple[str, str]]:
@@ -3048,6 +3049,16 @@ def main() -> int:
             value = endpoint.get(field)
             if not isinstance(value, list) or not value:
                 errors.append(f"{operation}: {field} must be a non-empty list")
+        if endpoint["certification_status"] == "certified":
+            test_evidence = endpoint.get("test_evidence", [])
+            if not any(
+                term in str(reference)
+                for reference in test_evidence
+                for term in OPERATION_EVENT_TEST_TERMS
+            ):
+                errors.append(
+                    f"{operation}: certified endpoint must reference bounded operation-event test evidence"
+                )
 
     missing_from_ledger = sorted(openapi_operations - ledger_operations)
     stale_in_ledger = sorted(ledger_operations - openapi_operations)
@@ -3961,6 +3972,9 @@ The machine-readable source for endpoint certification tracking is:
 - `docs/operations/endpoint-certification-ledger.json`
 
 Run `make endpoint-certification-gate` before promoting any endpoint as supported.
+Certified business/operator endpoints must cite bounded operation-event test evidence in the
+endpoint ledger so API certification stays coupled to supportability telemetry proof.
+
 ## Source-Degraded And Reconciliation Endpoints
 
 Endpoints that reconcile expected-versus-realized state or consume another Lotus app as source

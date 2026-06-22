@@ -42,6 +42,11 @@ services. It prevents generated or agent-authored README/docs/wiki text from cla
 readiness, production support, certification, live source ingestion, Gateway/Workbench support, or
 client-ready publication before supported-feature evidence exists.
 
+`make endpoint-certification-gate` keeps public OpenAPI operations synchronized with the endpoint
+ledger. Once a business/operator endpoint is marked `certified`, the ledger must also cite bounded
+operation-event test evidence so API contract certification and supportability telemetry proof move
+together. Health/readiness/metadata endpoints remain `baseline_certified`.
+
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
 evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a

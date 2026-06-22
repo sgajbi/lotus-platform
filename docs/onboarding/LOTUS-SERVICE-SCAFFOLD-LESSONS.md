@@ -91,3 +91,8 @@ solving them only in the generated app.
     and block missing bank-buyable control rows, unsupported status vocabulary,
     missing evidence anchors, and stale scaffold-era scorecard underclaims once
     certified business endpoint evidence exists.
+19. Certified business/operator endpoints should not be able to pass endpoint
+    certification without supportability telemetry proof. The generated
+    endpoint-certification gate should require bounded operation-event test
+    evidence for endpoints marked `certified`, while health/readiness/metadata
+    endpoints remain `baseline_certified`.

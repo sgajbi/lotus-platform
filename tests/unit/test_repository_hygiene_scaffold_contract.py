@@ -684,6 +684,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Endpoint certification gate passed" in endpoint_certification_gate
     assert "missing endpoint certification ledger entry" in endpoint_certification_gate
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
+    assert "OPERATION_EVENT_TEST_TERMS" in endpoint_certification_gate
+    assert (
+        "certified endpoint must reference bounded operation-event test evidence"
+        in endpoint_certification_gate
+    )
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "Maintainability gate passed" in maintainability_gate_result.stdout

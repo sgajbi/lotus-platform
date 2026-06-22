@@ -702,6 +702,9 @@ Gateway/Workbench support, or client-ready publication before supported-feature
 evidence exists. The generated implementation-truth gate also blocks stale
 scaffold-era demo underclaims once implementation and CI evidence prove a
 stronger current posture.
+Generated endpoint-certification gates require certified business/operator
+endpoints to cite bounded operation-event test evidence so API contract
+certification and supportability telemetry proof cannot drift apart.
 Do not treat a green PR Merge Gate as release evidence by itself.
 
 For enterprise backend refactors in `lotus-platform`, start from
