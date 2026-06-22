@@ -4220,7 +4220,7 @@ $standardsDocs = @{
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
   "docs/standards/data-model-ownership.md" = "# Data Model Ownership`n`n- Service: $ServiceName`n- Owns only its bounded-context schema.";
-  "docs/standards/migration-contract.md" = "# Migration Contract`n`n- Service: $ServiceName`n- Versioned migrations + CI smoke gate required.";
+  "docs/standards/migration-contract.md" = "# Migration Contract`n`n- Service: $ServiceName`n- Versioned migrations plus CI smoke gate required.`n- Each migration must have a matching rollback file, explicit table/index expectations, dependency-safe rollback order, and a repo-native contract gate that validates every required table, index, JSONB payload column, UTC timestamp column, and foreign-key relationship per migration.`n- Migration CLIs must support apply and rollback dry runs without a live database so PR checks can prove migration inventory and statement ordering before runtime execution.";
 }
 
 foreach ($entry in $standardsDocs.GetEnumerator()) {
