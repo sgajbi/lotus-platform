@@ -269,6 +269,23 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/generate_quality_baseline.py" in makefile_template
     assert "coverage-gate:" in makefile_template
     assert "$(VENV_PYTHON) scripts/coverage_gate.py" in makefile_template
+    assert "UNIT_TESTS ?= tests/unit" in makefile_template
+    assert "INTEGRATION_TESTS ?= tests/integration" in makefile_template
+    assert "E2E_TESTS ?= tests/e2e" in makefile_template
+    assert "$(VENV_PYTHON) -m pytest $(UNIT_TESTS)" in makefile_template
+    assert "$(VENV_PYTHON) -m pytest $(INTEGRATION_TESTS)" in makefile_template
+    assert "$(VENV_PYTHON) -m pytest $(E2E_TESTS)" in makefile_template
+    assert (
+        "$(VENV_PYTHON) -m pytest $(UNIT_TESTS) --cov=src --cov-report="
+        in makefile_template
+    )
+    assert "REQUIRED_TEST_SELECTORS" in scaffold_script
+    assert '"test-unit": "$(VENV_PYTHON) -m pytest $(UNIT_TESTS)"' in scaffold_script
+    assert "expected_command not in _target_block(makefile, target)" in scaffold_script
+    assert (
+        'for selector in ("$(UNIT_TESTS)", "$(INTEGRATION_TESTS)", "$(E2E_TESTS)")'
+        in scaffold_script
+    )
     assert "clean:" in makefile_template
     assert "python scripts/clean_generated_artifacts.py" in makefile_template
     for workflow_template in (
