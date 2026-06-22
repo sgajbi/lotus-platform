@@ -105,3 +105,8 @@ solving them only in the generated app.
     money-like `float` annotations, literals, return annotations, and
     conversions while allowing operational floats such as timeout seconds, and
     scaffold tests should execute both clean and failing generated-guard paths.
+22. Scaffolded backend repositories should generate pass/fail unit tests for
+    no-sensitive-content artifact guarding. A blocking artifact-leak guard is
+    not enough by itself; the generated service should prove clean artifacts,
+    forbidden marker detection, allowlisted documentation, and binary artifact
+    handling from day one.
