@@ -108,7 +108,8 @@ New backend service scaffolds must include this repo-native blocking anti-drift 
 1. `make ci-contract-gate`
 2. `make maintainability-gate`
 3. `make documentation-contract-gate`
-4. `make implementation-truth-gate`
+4. `make quality-scorecard-gate`
+5. `make implementation-truth-gate`
 
 Blocking commands wired into `make check`, `make ci`, Feature Lane, PR Merge Gate, or Main
 Releasability must not create or rewrite durable report artifacts in a clean checkout. Report
@@ -132,6 +133,12 @@ worktree-clean and blocks deletion, thinning, missing anchors, or placeholder er
 README, repository context, standards, runbooks, quality, evidence, and wiki surfaces. It protects
 the operator and agent context needed to apply the bank-buyable contract before business
 implementation starts.
+
+`make quality-scorecard-gate` is allowed and expected to run through `make lint` because it is
+worktree-clean and blocks bank-buyable scorecard drift. It must validate required control rows,
+approved readiness vocabulary, non-empty evidence/gap/next-slice cells, implementation-backed
+evidence anchors, and stale scaffold-era scorecard underclaims once certified business endpoints
+exist.
 
 `make implementation-truth-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and blocks unqualified README/docs/wiki current-state claims of demo readiness,

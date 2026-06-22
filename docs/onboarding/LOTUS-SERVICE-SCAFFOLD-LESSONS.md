@@ -83,3 +83,8 @@ solving them only in the generated app.
     and block deletion, thinning, missing anchors, or placeholder erosion in the
     README, repository context, standards, runbooks, quality, evidence, and wiki
     surfaces that future operators and implementation agents depend on.
+18. Scaffolded backend repositories also need a quality scorecard truth gate
+    from day one. `make quality-scorecard-gate` should run through `make lint`
+    and block missing bank-buyable control rows, unsupported status vocabulary,
+    missing evidence anchors, and stale scaffold-era scorecard underclaims once
+    certified business endpoint evidence exists.

@@ -142,6 +142,7 @@ def test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced() -> Non
     assert "workflow_dispatch" in template_contract
     assert "make ci-contract-gate" in template_contract
     assert "make maintainability-gate" in template_contract
+    assert "make quality-scorecard-gate" in template_contract
     assert "make implementation-truth-gate" in scaffold_script
 
     assert "Repository-Native Command Policy" in hygiene_standard
@@ -243,9 +244,11 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "make architecture-boundary-report" in scaffold_guide
     assert "make quality-baseline" in scaffold_guide
     assert "make maintainability-gate" in scaffold_guide
+    assert "make quality-scorecard-gate" in scaffold_guide
     assert "New Backend Service Scaffold" in wiki_sidebar
     assert "Lotus Backend Service Scaffold Guide" in wiki_scaffold
     assert "make maintainability-gate" in wiki_scaffold
+    assert "make quality-scorecard-gate" in wiki_scaffold
 
     assert "Do not fake compliance" in bank_buyable_contract
     assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in bank_buyable_contract

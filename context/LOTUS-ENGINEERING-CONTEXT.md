@@ -688,11 +688,13 @@ semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 merged `main` commit. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
 Newly scaffolded backend services also generate `make maintainability-gate`,
-`make documentation-contract-gate`, and `make implementation-truth-gate`
-through `automation/New-Lotus-Service.ps1` and run all three through
+`make documentation-contract-gate`, `make quality-scorecard-gate`, and
+`make implementation-truth-gate`
+through `automation/New-Lotus-Service.ps1` and run all four through
 `make lint`; they block oversized source/test/script modules, deletion or
 thinning of required README/context/standards/runbook/quality/evidence/wiki
-surfaces, plus unqualified README/docs/wiki current-state claims of demo
+surfaces, stale bank-buyable scorecard control-matrix truth, plus unqualified
+README/docs/wiki current-state claims of demo
 readiness, production support, certification, live source ingestion,
 Gateway/Workbench support, or client-ready publication before supported-feature
 evidence exists. The generated implementation-truth gate also blocks stale

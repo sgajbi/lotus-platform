@@ -206,12 +206,13 @@ function Write-RepositoryEngineeringContext {
     '7. CI lane contract gate: `make ci-contract-gate`',
     '8. maintainability gate: `make maintainability-gate`',
     '9. documentation contract gate: `make documentation-contract-gate`',
-    '10. implementation-truth gate: `make implementation-truth-gate`',
+    '10. quality scorecard gate: `make quality-scorecard-gate`',
+    '11. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, maintainability thresholds, documentation contract enforcement, OpenAPI quality, implementation-truth gate,',
+    'typecheck, maintainability thresholds, documentation contract enforcement, quality-scorecard truth, OpenAPI quality, implementation-truth gate,',
     'unit/integration/e2e tests, coverage gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
     'changes from silently removing architecture, maintainability, OpenAPI, endpoint-certification,',
@@ -222,6 +223,7 @@ function Write-RepositoryEngineeringContext {
     'becoming normal scaffold output or future agentic implementation drift.',
     '`make documentation-contract-gate` keeps README, repository context, standards, runbooks,',
     'quality, evidence, and wiki surfaces present, substantive, and anchored to validation commands.',
+    '`make quality-scorecard-gate` keeps the bank-buyable control matrix aligned with implementation truth.',
     '`make implementation-truth-gate` keeps current-state README, operations, demo, quality, and wiki text',
     'from claiming demo readiness, production support, certification, live source ingestion,',
     'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
@@ -367,9 +369,10 @@ function Write-WikiBaseline {
       "3. keep commits small and meaningful,",
       "4. update tests, docs, supported features, and wiki source with implementation truth,",
       "5. keep durable docs passing `make documentation-contract-gate`,",
-      "6. keep current-state docs passing `make implementation-truth-gate`,",
-      "7. use rebase-only PR completion,",
-      "8. delete completed local and remote feature branches after merge."
+      "6. keep the bank-buyable control matrix passing `make quality-scorecard-gate`,",
+      "7. keep current-state docs passing `make implementation-truth-gate`,",
+      "8. use rebase-only PR completion,",
+      "9. delete completed local and remote feature branches after merge."
     ) -join "`n";
     "Validation-And-CI.md" = @(
       "# Validation And CI",
@@ -389,6 +392,7 @@ function Write-WikiBaseline {
       "make ci-contract-gate",
       "make maintainability-gate",
       "make documentation-contract-gate",
+      "make quality-scorecard-gate",
       "make implementation-truth-gate",
       "make openapi-gate",
       "make quality-baseline",
@@ -919,7 +923,7 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
@@ -937,6 +941,12 @@ if ($makefile -notmatch '\$\(MAKE\) documentation-contract-gate') {
 }
 if ($makefile -notmatch "(?m)^documentation-contract-gate:") {
   $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "documentation-contract-gate:`n`t`$(VENV_PYTHON) scripts/documentation_contract_gate.py`n`nmonetary-float-guard:"
+}
+if ($makefile -notmatch '\$\(MAKE\) quality-scorecard-gate') {
+  $makefile = $makefile -replace [regex]::Escape("`t`$(MAKE) documentation-contract-gate"), "`t`$(MAKE) documentation-contract-gate`n`t`$(MAKE) quality-scorecard-gate"
+}
+if ($makefile -notmatch "(?m)^quality-scorecard-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("monetary-float-guard:"), "quality-scorecard-gate:`n`t`$(VENV_PYTHON) scripts/quality_scorecard_gate.py`n`nmonetary-float-guard:"
 }
 if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) monetary-float-guard"
@@ -2093,18 +2103,18 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
     (
         "README.md",
         20,
-        ("Quick Start", "make documentation-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("Quick Start", "make documentation-contract-gate", "make quality-scorecard-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     (
         "REPOSITORY-ENGINEERING-CONTEXT.md",
         80,
-        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate"),
+        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate", "make quality-scorecard-gate"),
     ),
     ("docs/rfcs/README.md", 1, ("RFC Index",)),
     (
         "docs/standards/enterprise-readiness.md",
         8,
-        ("make documentation-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("make documentation-contract-gate", "make quality-scorecard-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     ("docs/runbooks/service-operations.md", 8, ("Standard Commands", "Health and Readiness")),
     (
@@ -2113,12 +2123,12 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
         ("endpoint-certification-ledger.json", "Source-Degraded And Reconciliation Endpoints"),
     ),
     ("docs/operations/observability.md", 8, ("structured JSON application events",)),
-    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate",)),
-    ("quality/quality_scorecard.md", 10, ("Bank-Buyable Quality Scorecard", "Documentation and operations")),
+    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate", "make quality-scorecard-gate")),
+    ("quality/quality_scorecard.md", 10, ("Bank-Buyable Quality Scorecard", "Documentation and operations", "make quality-scorecard-gate")),
     ("evidence/rfc-implementation/README.md", 5, ("repository", "branch", "commit SHA")),
     ("wiki/Home.md", 10, ("Validation And CI", "Current Posture")),
-    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate",)),
-    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate",)),
+    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate", "make quality-scorecard-gate")),
+    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate", "make quality-scorecard-gate")),
     ("wiki/Operations-Runbook.md", 5, ("Operations Runbook",)),
     ("wiki/Supported-Features.md", 5, ("No business feature is supported",)),
 )
@@ -2176,6 +2186,170 @@ if __name__ == "__main__":
 '@
 Set-Content -Path (Join-Path $target "scripts/documentation_contract_gate.py") -Value $documentationContractGate
 
+$qualityScorecardGate = @'
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SCORECARD_PATH = ROOT / "quality" / "quality_scorecard.md"
+ENDPOINT_LEDGER_PATH = ROOT / "docs" / "operations" / "endpoint-certification-ledger.json"
+
+ALLOWED_STATUSES = {
+    "Implemented",
+    "Partially implemented",
+    "Planned",
+    "Not applicable",
+    "Unknown - requires owner review",
+}
+
+REQUIRED_CONTROLS = (
+    "Architecture",
+    "API and contracts",
+    "Data and methodology",
+    "Security and privacy",
+    "Observability and supportability",
+    "Resilience and performance",
+    "Testing",
+    "CI and release evidence",
+    "Documentation and operations",
+)
+
+REQUIRED_EVIDENCE_ANCHORS: dict[str, tuple[str, ...]] = {
+    "Architecture": ("architecture-boundary", "maintainability"),
+    "API and contracts": ("OpenAPI", "endpoint certification"),
+    "Data and methodology": ("source",),
+    "Security and privacy": ("No-sensitive-content",),
+    "Observability and supportability": ("health/readiness",),
+    "Resilience and performance": ("Docker",),
+    "Testing": ("Unit", "integration", "e2e"),
+    "CI and release evidence": ("documentation contract", "implementation-truth"),
+    "Documentation and operations": ("README", "wiki", "documentation-contract-gate"),
+}
+
+STALE_BUSINESS_ENDPOINT_PATTERNS: dict[str, re.Pattern[str]] = {
+    "business_endpoints_not_implemented": re.compile(
+        r"\bBusiness endpoints not yet implemented\b",
+        re.IGNORECASE,
+    ),
+    "business_behavior_tests_not_implemented": re.compile(
+        r"\bBusiness behavior tests not yet implemented\b",
+        re.IGNORECASE,
+    ),
+    "business_supportability_not_implemented": re.compile(
+        r"\bBusiness supportability states not yet implemented\b",
+        re.IGNORECASE,
+    ),
+}
+
+BASELINE_ENDPOINT_PATHS = {
+    "/health",
+    "/health/live",
+    "/health/ready",
+    "/metadata",
+    "/api/v1/source-readiness",
+    "/api/v1/reconciliation-status",
+}
+
+
+def _strip_markdown_code(value: str) -> str:
+    return value.strip().strip("`").strip()
+
+
+def _parse_scorecard_rows(content: str) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for line in content.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 5 or cells[0] in {"Control Area", "---"} or set(cells[0]) == {"-"}:
+            continue
+        rows.append(
+            {
+                "control_area": cells[0],
+                "status": _strip_markdown_code(cells[1]),
+                "evidence": cells[2],
+                "gap": cells[3],
+                "next_slice": cells[4],
+            }
+        )
+    return rows
+
+
+def _has_certified_business_endpoint() -> bool:
+    if not ENDPOINT_LEDGER_PATH.exists():
+        return False
+    payload = json.loads(ENDPOINT_LEDGER_PATH.read_text(encoding="utf-8"))
+    endpoints = payload.get("endpoints", [])
+    if not isinstance(endpoints, list):
+        return False
+    for endpoint in endpoints:
+        if not isinstance(endpoint, dict):
+            continue
+        path = str(endpoint.get("path", ""))
+        status = endpoint.get("certification_status")
+        if path not in BASELINE_ENDPOINT_PATHS and status in {"baseline_certified", "certified"}:
+            return True
+    return False
+
+
+def validate_quality_scorecard(path: Path = SCORECARD_PATH) -> list[str]:
+    if not path.exists():
+        return [f"{path.relative_to(ROOT).as_posix()}: required quality scorecard is missing"]
+
+    content = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    if _has_certified_business_endpoint():
+        for name, pattern in STALE_BUSINESS_ENDPOINT_PATTERNS.items():
+            if pattern.search(content):
+                errors.append(
+                    f"quality/quality_scorecard.md: stale scaffold-era scorecard claim `{name}`"
+                )
+
+    rows = _parse_scorecard_rows(content)
+    row_by_control = {row["control_area"]: row for row in rows}
+
+    for control in REQUIRED_CONTROLS:
+        row = row_by_control.get(control)
+        if row is None:
+            errors.append(f"quality/quality_scorecard.md: missing control row `{control}`")
+            continue
+        if row["status"] not in ALLOWED_STATUSES:
+            errors.append(
+                f"quality/quality_scorecard.md: `{control}` has unsupported status `{row['status']}`"
+            )
+        for field_name in ("evidence", "gap", "next_slice"):
+            if not row[field_name].strip():
+                errors.append(f"quality/quality_scorecard.md: `{control}` has empty `{field_name}` cell")
+        evidence_lower = row["evidence"].lower()
+        for anchor in REQUIRED_EVIDENCE_ANCHORS[control]:
+            if anchor.lower() not in evidence_lower:
+                errors.append(f"quality/quality_scorecard.md: `{control}` evidence missing `{anchor}`")
+
+    unexpected_controls = sorted(set(row_by_control) - set(REQUIRED_CONTROLS))
+    for control in unexpected_controls:
+        errors.append(f"quality/quality_scorecard.md: unexpected control row `{control}`")
+    return errors
+
+
+def main() -> int:
+    errors = validate_quality_scorecard()
+    if errors:
+        print("\n".join(errors))
+        return 1
+    print("Quality scorecard gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/quality_scorecard_gate.py") -Value $qualityScorecardGate
+
 $ciContractGate = @'
 from __future__ import annotations
 
@@ -2193,6 +2367,7 @@ REQUIRED_TARGETS = (
     "ci-contract-gate",
     "maintainability-gate",
     "documentation-contract-gate",
+    "quality-scorecard-gate",
     "monetary-float-guard",
     "no-sensitive-content-guard",
     "implementation-truth-gate",
@@ -2214,6 +2389,7 @@ REQUIRED_LINT_CALLS = (
     "$(MAKE) ci-contract-gate",
     "$(MAKE) maintainability-gate",
     "$(MAKE) documentation-contract-gate",
+    "$(MAKE) quality-scorecard-gate",
     "$(MAKE) monetary-float-guard",
     "$(MAKE) no-sensitive-content-guard",
     "$(MAKE) implementation-truth-gate",
@@ -3318,7 +3494,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, quality-scorecard truth, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract. ``make quality-scorecard-gate`` enforces the bank-buyable control matrix and blocks stale scaffold-era scorecard underclaims once certified business endpoints exist.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3462,6 +3638,7 @@ $readme = @(
   "make ci-contract-gate",
   "make maintainability-gate",
   "make documentation-contract-gate",
+  "make quality-scorecard-gate",
   "make implementation-truth-gate",
   "make typecheck",
   "make architecture-boundary-report",
@@ -3510,6 +3687,7 @@ $readme = @(
   "- Blocking CI contract evidence: make ci-contract-gate",
   "- Blocking maintainability evidence: make maintainability-gate",
   "- Blocking documentation contract evidence: make documentation-contract-gate",
+  "- Blocking quality scorecard evidence: make quality-scorecard-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
@@ -3530,13 +3708,13 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 | --- | --- | --- | --- | --- |
 | Architecture | ``Partially implemented`` | Layered package skeleton, blocking architecture-boundary gate, blocking maintainability thresholds, and report-only architecture-boundary evidence refresh. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
 | API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
-| Data and methodology | ``Planned`` | No business data scope promoted. | Domain methodology not yet applicable. | Add source-owner and methodology docs when data behavior exists. |
+| Data and methodology | ``Planned`` | No business source data scope is promoted by the scaffold. | Domain methodology is planned until source-owner data behavior exists. | Add source-owner and methodology docs when data behavior exists. |
 | Security and privacy | ``Partially implemented`` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
 | Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
 | Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
 | Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability and documentation contract thresholds. | Repo-specific thresholds beyond deterministic size limits and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
-| Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards, quality scorecard, and RFC evidence guide are protected by ``make documentation-contract-gate``; current-state claims are protected by ``make implementation-truth-gate``. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability, documentation contract, quality-scorecard, implementation-truth, and source-safe local quality gates. | Repo-specific thresholds beyond deterministic size limits, scorecard truth, and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
+| Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards, quality scorecard, and RFC evidence guide are protected by ``make documentation-contract-gate``, ``make quality-scorecard-gate``, and ``make implementation-truth-gate``. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
 # Architecture Rules
@@ -3570,7 +3748,8 @@ Blocking scaffold commands:
 2. ``make ci-contract-gate``
 3. ``make maintainability-gate``
 4. ``make documentation-contract-gate``
-5. ``make implementation-truth-gate``
+5. ``make quality-scorecard-gate``
+6. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3580,7 +3759,7 @@ Report-only scaffold commands:
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
 maintainability, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
-release evidence, least-privilege workflow permissions, documentation contract enforcement, implementation-truth enforcement, and
+release evidence, least-privilege workflow permissions, documentation contract enforcement, quality-scorecard truth, implementation-truth enforcement, and
 approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs.
@@ -3592,6 +3771,11 @@ must split or refactor large additions instead of normalizing hard-to-review mod
 ``make documentation-contract-gate`` blocks deletion, thinning, missing anchors, and placeholder
 text across the generated README, repository context, standards, runbooks, quality, evidence, and
 wiki surfaces. It keeps enterprise operating context intact for future implementation agents.
+
+``make quality-scorecard-gate`` blocks bank-buyable scorecard drift. It verifies the required
+control matrix, approved status vocabulary, non-empty evidence and gap cells, implementation-backed
+evidence anchors, and stale scaffold-era scorecard underclaims once certified business endpoints
+exist.
 
 ``make implementation-truth-gate`` blocks unqualified current-state claims of demo readiness,
 production readiness, external support, certification, live source ingestion, Gateway/Workbench
