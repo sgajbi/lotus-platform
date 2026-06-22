@@ -235,11 +235,13 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 8. `make maintainability-gate`
 9. `make documentation-contract-gate`
 10. `make quality-scorecard-gate`
-11. `make source-observability-contract-gate`
-12. `make implementation-truth-gate`
-13. `make test`
-14. `make ci`
-15. `make security-audit`
+11. `make monetary-float-guard`
+12. `make no-sensitive-content-guard`
+13. `make source-observability-contract-gate`
+14. `make implementation-truth-gate`
+15. `make test`
+16. `make ci`
+17. `make security-audit`
 
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
@@ -260,6 +262,12 @@ non-suppressed auto-merge token usage, or merged-PR main-releasability dispatch.
 
 `make maintainability-gate` is blocking from day one. It prevents oversized source, test, and
 script files/functions from becoming normal generated or agent-authored service posture.
+
+`make monetary-float-guard` is blocking from day one. It uses AST-backed checks
+to reject money-like `float` annotations, literals, return annotations, and
+conversions while allowing non-monetary operational floats such as timeout
+seconds. This keeps generated private-banking services aligned to decimal/domain
+precision expectations before business logic lands.
 
 `make documentation-contract-gate` is blocking from day one. It prevents removal, thinning,
 missing anchors, and placeholder erosion across README, repository context, standards, runbooks,

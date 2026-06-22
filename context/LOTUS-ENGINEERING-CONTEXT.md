@@ -326,7 +326,7 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     runtime work before contract expansion is merged, plus
     `context/contracts/analytics-ui-observability-scaffold-ci-enforcement.json`,
     `automation/validate_analytics_ui_scaffold_ci_enforcement.py`, generated backend
-    no-sensitive-content, implementation-truth, and supported-features gates, a reusable
+    AST-backed monetary-float, no-sensitive-content, implementation-truth, and supported-features gates, a reusable
     Workbench/UI observability template, and platform repo check wiring that keeps the baseline
     platform-owned. Slice 12 is
     now partially implemented: `lotus-risk` `POST /analytics/risk/calculate` emits
@@ -691,12 +691,13 @@ permanent red helper check. Generated backend workflows must also declare bounde
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`,
-`make source-observability-contract-gate`, and
+`make monetary-float-guard`, `make source-observability-contract-gate`, and
 `make implementation-truth-gate`
-through `automation/New-Lotus-Service.ps1` and run all five through
+through `automation/New-Lotus-Service.ps1` and run all six through
 `make lint`; they block oversized source/test/script modules, deletion or
 thinning of required README/context/standards/runbook/quality/evidence/wiki
-surfaces, stale bank-buyable scorecard control-matrix truth, raw application
+surfaces, stale bank-buyable scorecard control-matrix truth, money-like
+`float` annotations/literals/return annotations/conversions, raw application
 logging bypasses outside the central observability module, plus unqualified
 README/docs/wiki current-state claims of demo
 readiness, production support, certification, live source ingestion,

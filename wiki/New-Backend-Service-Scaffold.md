@@ -12,7 +12,8 @@ report-only architecture/quality evidence.
 
 Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-contract-gate`,
 `make maintainability-gate`, `make documentation-contract-gate`,
-`make quality-scorecard-gate`, `make source-observability-contract-gate`, and
+`make quality-scorecard-gate`, `make monetary-float-guard`,
+`make source-observability-contract-gate`, and
 `make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands such as `make architecture-boundary-report` and
 `make quality-baseline` when an RFC, PR, scorecard, or review needs durable quality artifacts.
 
@@ -27,6 +28,11 @@ the suppressed workflow token.
 `make maintainability-gate` blocks oversized Python files/functions in `src`, `tests`, and
 `scripts` so generated services start with conservative module-size guardrails before feature work
 begins.
+
+`make monetary-float-guard` blocks money-like `float` annotations, literals,
+return annotations, and conversions in generated application source. The guard
+is AST-backed and allows non-monetary operational floats, such as timeout
+seconds, so precision governance is strict without noisy exceptions.
 
 `make documentation-contract-gate` blocks deletion, thinning, missing anchors, and placeholder
 erosion across generated README, repository context, standards, runbooks, quality, evidence, and

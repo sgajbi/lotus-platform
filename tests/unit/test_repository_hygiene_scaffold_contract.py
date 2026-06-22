@@ -352,6 +352,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    monetary_float_guard_result = subprocess.run(
+        [sys.executable, "scripts/check_monetary_float_usage.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     source_observability_gate_result = subprocess.run(
         [sys.executable, "scripts/source_observability_contract_gate.py"],
         cwd=repo_root,
@@ -426,6 +433,24 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         text=True,
     )
     bad_observability.unlink()
+    bad_money = repo_root / "src/app/domain/bad_money.py"
+    bad_money.write_text(
+        "market_value: float = 1\n"
+        "cash_balance = 100.25\n"
+        "def parse_price(raw: str) -> object:\n"
+        "    return float(raw)\n"
+        "def notional_value() -> float:\n"
+        "    return 1\n",
+        encoding="utf-8",
+    )
+    monetary_float_failure = subprocess.run(
+        [sys.executable, "scripts/check_monetary_float_usage.py"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    bad_money.unlink()
     subprocess.run(
         [sys.executable, "-m", "compileall", "-q", "src", "tests"],
         cwd=repo_root,
@@ -489,6 +514,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     sensitive_content_guard = (
         repo_root / "scripts/no_sensitive_content_guard.py"
+    ).read_text(encoding="utf-8")
+    monetary_float_guard = (
+        repo_root / "scripts/check_monetary_float_usage.py"
     ).read_text(encoding="utf-8")
     source_observability_contract_gate = (
         repo_root / "scripts/source_observability_contract_gate.py"
@@ -713,6 +741,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "FORBIDDEN_PATTERNS" in sensitive_content_guard
     assert "request_body" in sensitive_content_guard
     assert "response_body" in sensitive_content_guard
+    assert "validate_monetary_float_usage" in monetary_float_guard
+    assert "monetary float annotation detected" in monetary_float_guard
+    assert "monetary float return annotation detected" in monetary_float_guard
     assert "ALLOWED_LOGGING_MODULES" in source_observability_contract_gate
     assert "print() is prohibited in application " in source_observability_contract_gate
     assert "source; use bounded structured logging" in source_observability_contract_gate
@@ -732,7 +763,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
     assert "Documentation contract gate passed" in documentation_contract_gate_result.stdout
     assert "Quality scorecard gate passed" in quality_scorecard_gate_result.stdout
+    assert "Monetary float guard passed" in monetary_float_guard_result.stdout
     assert "Source observability contract gate passed" in source_observability_gate_result.stdout
+    assert "monetary float annotation detected" in monetary_float_failure.stdout
+    assert "monetary float literal detected" in monetary_float_failure.stdout
+    assert "monetary float conversion detected" in monetary_float_failure.stdout
+    assert "monetary float return annotation detected" in monetary_float_failure.stdout
     assert "print() is prohibited in application source" in source_observability_failure.stdout
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "documentation-contract-gate" in ci_contract_gate

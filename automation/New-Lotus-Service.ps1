@@ -207,21 +207,25 @@ function Write-RepositoryEngineeringContext {
     '8. maintainability gate: `make maintainability-gate`',
     '9. documentation contract gate: `make documentation-contract-gate`',
     '10. quality scorecard gate: `make quality-scorecard-gate`',
-    '11. source-observability contract gate: `make source-observability-contract-gate`',
-    '12. implementation-truth gate: `make implementation-truth-gate`',
+    '11. monetary-float guard: `make monetary-float-guard`',
+    '12. no-sensitive-content guard: `make no-sensitive-content-guard`',
+    '13. source-observability contract gate: `make source-observability-contract-gate`',
+    '14. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, maintainability thresholds, documentation contract enforcement, quality-scorecard truth, source-observability contract enforcement, OpenAPI quality, implementation-truth gate,',
+    'typecheck, maintainability thresholds, documentation contract enforcement, quality-scorecard truth, monetary precision enforcement, no-sensitive-content enforcement, source-observability contract enforcement, OpenAPI quality, implementation-truth gate,',
     'unit/integration/e2e tests, coverage gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
-    'changes from silently removing architecture, maintainability, OpenAPI, endpoint-certification,',
+    'changes from silently removing architecture, maintainability, monetary-float, no-sensitive-content, OpenAPI, endpoint-certification,',
     'supported-feature, source-observability, implementation-truth, coverage, security, Docker, release-evidence, action-version,',
     'least-privilege workflow controls, workflow-dispatch access, or merged-PR main-releasability',
     'dispatch.',
     '`make maintainability-gate` prevents oversized source, test, and script files/functions from',
     'becoming normal scaffold output or future agentic implementation drift.',
+    '`make monetary-float-guard` uses AST-backed checks to block money-like float annotations,',
+    'literals, return annotations, and conversions while allowing operational floats such as timeout seconds.',
     '`make documentation-contract-gate` keeps README, repository context, standards, runbooks,',
     'quality, evidence, and wiki surfaces present, substantive, and anchored to validation commands.',
     '`make quality-scorecard-gate` keeps the bank-buyable control matrix aligned with implementation truth.',
@@ -373,10 +377,11 @@ function Write-WikiBaseline {
       "4. update tests, docs, supported features, and wiki source with implementation truth,",
       "5. keep durable docs passing `make documentation-contract-gate`,",
       "6. keep the bank-buyable control matrix passing `make quality-scorecard-gate`,",
-      "7. keep source observability passing `make source-observability-contract-gate`,",
-      "8. keep current-state docs passing `make implementation-truth-gate`,",
-      "9. use rebase-only PR completion,",
-      "10. delete completed local and remote feature branches after merge."
+      "7. keep monetary precision passing `make monetary-float-guard`,",
+      "8. keep source observability passing `make source-observability-contract-gate`,",
+      "9. keep current-state docs passing `make implementation-truth-gate`,",
+      "10. use rebase-only PR completion,",
+      "11. delete completed local and remote feature branches after merge."
     ) -join "`n";
     "Validation-And-CI.md" = @(
       "# Validation And CI",
@@ -397,6 +402,8 @@ function Write-WikiBaseline {
       "make maintainability-gate",
       "make documentation-contract-gate",
       "make quality-scorecard-gate",
+      "make monetary-float-guard",
+      "make no-sensitive-content-guard",
       "make source-observability-contract-gate",
       "make implementation-truth-gate",
       "make openapi-gate",
@@ -2151,18 +2158,18 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
     (
         "README.md",
         20,
-        ("Quick Start", "make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("Quick Start", "make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     (
         "REPOSITORY-ENGINEERING-CONTEXT.md",
         80,
-        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate"),
+        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate"),
     ),
     ("docs/rfcs/README.md", 1, ("RFC Index",)),
     (
         "docs/standards/enterprise-readiness.md",
         8,
-        ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     ("docs/runbooks/service-operations.md", 8, ("Standard Commands", "Health and Readiness")),
     (
@@ -2171,12 +2178,12 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
         ("endpoint-certification-ledger.json", "Source-Degraded And Reconciliation Endpoints"),
     ),
     ("docs/operations/observability.md", 8, ("structured JSON application events",)),
-    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
+    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate")),
     ("quality/quality_scorecard.md", 10, ("Bank-Buyable Quality Scorecard", "Documentation and operations", "make quality-scorecard-gate")),
     ("evidence/rfc-implementation/README.md", 5, ("repository", "branch", "commit SHA")),
     ("wiki/Home.md", 10, ("Validation And CI", "Current Posture")),
-    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
-    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
+    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate")),
+    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate", "make quality-scorecard-gate", "make monetary-float-guard", "make source-observability-contract-gate")),
     ("wiki/Operations-Runbook.md", 5, ("Operations Runbook",)),
     ("wiki/Supported-Features.md", 5, ("No business feature is supported",)),
 )
@@ -2270,12 +2277,12 @@ REQUIRED_CONTROLS = (
 REQUIRED_EVIDENCE_ANCHORS: dict[str, tuple[str, ...]] = {
     "Architecture": ("architecture-boundary", "maintainability"),
     "API and contracts": ("OpenAPI", "endpoint certification"),
-    "Data and methodology": ("source",),
+    "Data and methodology": ("source", "monetary-float"),
     "Security and privacy": ("No-sensitive-content", "source-observability"),
     "Observability and supportability": ("health/readiness", "source-observability"),
     "Resilience and performance": ("Docker",),
     "Testing": ("Unit", "integration", "e2e"),
-    "CI and release evidence": ("documentation contract", "source-observability", "implementation-truth"),
+    "CI and release evidence": ("documentation contract", "monetary-float", "source-observability", "implementation-truth"),
     "Documentation and operations": ("README", "wiki", "documentation-contract-gate"),
 }
 
@@ -2702,27 +2709,185 @@ if __name__ == "__main__":
 Set-Content -Path (Join-Path $target "scripts/ci_contract_gate.py") -Value $ciContractGate
 
 $floatGuard = @"
+from __future__ import annotations
+
+import ast
 import sys
 from pathlib import Path
 
-MONETARY_HINTS = ("amount", "value", "price", "cost", "pnl", "market_value", "fx_rate")
+MONETARY_HINTS = (
+    "amount",
+    "balance",
+    "cash",
+    "cost",
+    "currency",
+    "fx",
+    "market",
+    "money",
+    "mtm",
+    "nav",
+    "notional",
+    "pnl",
+    "price",
+    "rate",
+    "value",
+    "valuation",
+)
 ALLOWLIST = set()
 
 
-def likely_monetary(line: str) -> bool:
-    low = line.lower()
+def likely_monetary(value: str) -> bool:
+    low = value.lower()
     return any(token in low for token in MONETARY_HINTS)
 
 
-def main() -> int:
+def _annotation_contains_float(annotation: ast.AST | None) -> bool:
+    if annotation is None:
+        return False
+    for node in ast.walk(annotation):
+        if isinstance(node, ast.Name) and node.id == "float":
+            return True
+        if isinstance(node, ast.Attribute) and node.attr == "float":
+            return True
+    return False
+
+
+def _target_names(target: ast.AST) -> tuple[str, ...]:
+    if isinstance(target, ast.Name):
+        return (target.id,)
+    if isinstance(target, ast.Attribute):
+        return (target.attr,)
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names: list[str] = []
+        for element in target.elts:
+            names.extend(_target_names(element))
+        return tuple(names)
+    return ()
+
+
+def _is_float_call(node: ast.AST) -> bool:
+    return (
+        isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "float"
+    )
+
+
+def _line(lines: list[str], lineno: int) -> str:
+    if lineno < 1 or lineno > len(lines):
+        return ""
+    return lines[lineno - 1]
+
+
+def _violation(path: Path, node: ast.AST, reason: str) -> str:
+    return f"{path.as_posix()}:{node.lineno}: {reason}"
+
+
+def _parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
+    parents: dict[ast.AST, ast.AST] = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[child] = parent
+    return parents
+
+
+def _enclosing_function_name(parents: dict[ast.AST, ast.AST], node: ast.AST) -> str:
+    parent = parents.get(node)
+    while parent is not None:
+        if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return parent.name
+        parent = parents.get(parent)
+    return ""
+
+
+def validate_monetary_float_usage(root: Path = Path(".")) -> list[str]:
     violations: list[str] = []
-    for path in Path("src").rglob("*.py"):
+    source_root = root / "src"
+    for path in sorted(source_root.rglob("*.py")):
+        relative_path = path.relative_to(root)
         text = path.read_text(encoding="utf-8")
-        for idx, line in enumerate(text.splitlines(), start=1):
-            if "float(" in line and likely_monetary(line) and f"{path}:{idx}" not in ALLOWLIST:
-                violations.append(f"{path}:{idx}: monetary float usage detected")
+        lines = text.splitlines()
+        tree = ast.parse(text, filename=str(path))
+        parents = _parent_map(tree)
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if _annotation_contains_float(node.returns) and likely_monetary(node.name):
+                    violation = _violation(
+                        relative_path,
+                        node,
+                        "monetary float return annotation detected",
+                    )
+                    if violation not in ALLOWLIST:
+                        violations.append(violation)
+            elif isinstance(node, ast.AnnAssign):
+                target_names = _target_names(node.target)
+                if _annotation_contains_float(node.annotation) and any(
+                    likely_monetary(name) for name in target_names
+                ):
+                    violation = _violation(
+                        relative_path,
+                        node,
+                        "monetary float annotation detected",
+                    )
+                    if violation not in ALLOWLIST:
+                        violations.append(violation)
+                if isinstance(node.value, ast.Constant) and isinstance(node.value.value, float):
+                    if any(likely_monetary(name) for name in target_names):
+                        violation = _violation(
+                            relative_path,
+                            node,
+                            "monetary float literal detected",
+                        )
+                        if violation not in ALLOWLIST:
+                            violations.append(violation)
+            elif isinstance(node, ast.Assign):
+                target_names = tuple(
+                    name for target in node.targets for name in _target_names(target)
+                )
+                if isinstance(node.value, ast.Constant) and isinstance(node.value.value, float):
+                    if any(likely_monetary(name) for name in target_names):
+                        violation = _violation(
+                            relative_path,
+                            node,
+                            "monetary float literal detected",
+                        )
+                        if violation not in ALLOWLIST:
+                            violations.append(violation)
+                if _is_float_call(node.value) and any(
+                    likely_monetary(name) for name in target_names
+                ):
+                    violation = _violation(
+                        relative_path,
+                        node,
+                        "monetary float conversion detected",
+                    )
+                    if violation not in ALLOWLIST:
+                        violations.append(violation)
+            elif isinstance(node, ast.arg):
+                if _annotation_contains_float(node.annotation) and likely_monetary(node.arg):
+                    violation = _violation(
+                        relative_path,
+                        node,
+                        "monetary float parameter annotation detected",
+                    )
+                    if violation not in ALLOWLIST:
+                        violations.append(violation)
+            elif _is_float_call(node) and (
+                likely_monetary(_line(lines, node.lineno))
+                or likely_monetary(_enclosing_function_name(parents, node))
+            ):
+                violation = _violation(
+                    relative_path,
+                    node,
+                    "monetary float conversion detected",
+                )
+                if violation not in ALLOWLIST:
+                    violations.append(violation)
+    return sorted(set(violations))
+
+
+def main() -> int:
+    violations = validate_monetary_float_usage()
     if violations:
-        print("\\n".join(violations))
+        print("\n".join(violations))
         return 1
     print("Monetary float guard passed")
     return 0
@@ -3723,7 +3888,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, quality-scorecard truth, source-observability contract posture, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract. ``make quality-scorecard-gate`` enforces the bank-buyable control matrix and blocks stale scaffold-era scorecard underclaims once certified business endpoints exist. ``make source-observability-contract-gate`` blocks raw application logging bypasses so request diagnostics stay route-template based and product-safe.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, monetary precision, documentation surface contracts, quality-scorecard truth, source-observability contract posture, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract. ``make quality-scorecard-gate`` enforces the bank-buyable control matrix and blocks stale scaffold-era scorecard underclaims once certified business endpoints exist. ``make monetary-float-guard`` blocks money-like ``float`` annotations, literals, return annotations, and conversions while allowing operational floats such as timeout seconds. ``make source-observability-contract-gate`` blocks raw application logging bypasses so request diagnostics stay route-template based and product-safe.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3868,6 +4033,8 @@ $readme = @(
   "make maintainability-gate",
   "make documentation-contract-gate",
   "make quality-scorecard-gate",
+  "make monetary-float-guard",
+  "make no-sensitive-content-guard",
   "make source-observability-contract-gate",
   "make implementation-truth-gate",
   "make typecheck",
@@ -3884,6 +4051,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe scripts/ci_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/maintainability_gate.py",
   ".venv\\Scripts\\python.exe scripts/documentation_contract_gate.py",
+  ".venv\\Scripts\\python.exe scripts/check_monetary_float_usage.py",
   ".venv\\Scripts\\python.exe scripts/source_observability_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/implementation_truth_gate.py",
   ".venv\\Scripts\\python.exe -m mypy --config-file mypy.ini",
@@ -3919,6 +4087,7 @@ $readme = @(
   "- Blocking maintainability evidence: make maintainability-gate",
   "- Blocking documentation contract evidence: make documentation-contract-gate",
   "- Blocking quality scorecard evidence: make quality-scorecard-gate",
+  "- Blocking monetary precision evidence: make monetary-float-guard",
   "- Blocking source observability evidence: make source-observability-contract-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
@@ -3940,12 +4109,12 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 | --- | --- | --- | --- | --- |
 | Architecture | ``Partially implemented`` | Layered package skeleton, blocking architecture-boundary gate, blocking maintainability thresholds, and report-only architecture-boundary evidence refresh. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
 | API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
-| Data and methodology | ``Planned`` | No business source data scope is promoted by the scaffold. | Domain methodology is planned until source-owner data behavior exists. | Add source-owner and methodology docs when data behavior exists. |
+| Data and methodology | ``Planned`` | No business source data scope is promoted by the scaffold; AST-backed ``make monetary-float-guard`` is active for future monetary code. | Domain methodology is planned until source-owner data behavior exists. | Add source-owner and methodology docs when data behavior exists. |
 | Security and privacy | ``Partially implemented`` | No-sensitive-content guard, source-observability contract gate, and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
 | Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, route-template request diagnostics, health/readiness, metrics, and source-observability contract enforcement. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
 | Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
 | Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability, source-observability, documentation contract, quality-scorecard, implementation-truth, and source-safe local quality gates. | Repo-specific thresholds beyond deterministic size limits, source-observability controls, scorecard truth, and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability, monetary-float, source-observability, documentation contract, quality-scorecard, implementation-truth, and source-safe local quality gates. | Repo-specific thresholds beyond deterministic size limits, monetary precision controls, source-observability controls, scorecard truth, and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
 | Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards, quality scorecard, and RFC evidence guide are protected by ``make documentation-contract-gate``, ``make quality-scorecard-gate``, and ``make implementation-truth-gate``. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
@@ -3981,8 +4150,10 @@ Blocking scaffold commands:
 3. ``make maintainability-gate``
 4. ``make documentation-contract-gate``
 5. ``make quality-scorecard-gate``
-6. ``make source-observability-contract-gate``
-7. ``make implementation-truth-gate``
+6. ``make monetary-float-guard``
+7. ``make no-sensitive-content-guard``
+8. ``make source-observability-contract-gate``
+9. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3991,7 +4162,7 @@ Report-only scaffold commands:
 
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
-maintainability, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
+maintainability, monetary precision, no-sensitive-content, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
 release evidence, least-privilege workflow permissions, documentation contract enforcement, quality-scorecard truth, source-observability contract enforcement, implementation-truth enforcement, and
 approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
@@ -4000,6 +4171,10 @@ needed for rebase auto-merged PRs.
 ``make maintainability-gate`` blocks oversized Python files/functions across ``src``, ``tests``,
 and ``scripts``. It is calibrated above the initial scaffold baseline so new implementation work
 must split or refactor large additions instead of normalizing hard-to-review modules.
+
+``make monetary-float-guard`` blocks money-like ``float`` annotations, literals, return
+annotations, and conversions in application source. It is AST-backed and allows non-monetary
+operational floats such as timeout seconds.
 
 ``make documentation-contract-gate`` blocks deletion, thinning, missing anchors, and placeholder
 text across the generated README, repository context, standards, runbooks, quality, evidence, and

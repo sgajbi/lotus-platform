@@ -52,11 +52,15 @@ Current repository posture:
    documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders,
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the
-   existing OpenAPI, supported-features, no-sensitive-content, endpoint-certification, coverage,
+   existing OpenAPI, supported-features, AST-backed monetary-float,
+   no-sensitive-content, endpoint-certification, coverage,
    quality-scorecard truth, observability, health/readiness, and workflow baseline gates. The
    generated PR auto-merge helper now warns and skips auto-merge when `LOTUS_AUTOMERGE_TOKEN` is
    absent, preserving non-`GITHUB_TOKEN` merge semantics without creating a permanent red helper
-   check for repositories that require manual/release-actor rebase merge. Detailed usage and
+   check for repositories that require manual/release-actor rebase merge. Generated services also
+   include `make monetary-float-guard`, which blocks money-like `float` annotations, literals,
+   return annotations, and conversions while allowing operational floats such as timeout seconds.
+   Detailed usage and
    generated services also include `make source-observability-contract-gate`, which blocks raw
    `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
    generated request diagnostic helper logs route templates instead of raw URL paths. Detailed
