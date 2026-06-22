@@ -133,6 +133,11 @@ main-releasability dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not
 red helper check; it should skip automatic rebase merge and require an authorized human or release
 actor to merge.
 
+Generated endpoint-certification gates should require certified business/operator endpoints to cite
+bounded operation-event test evidence in the endpoint ledger. Baseline health/metadata endpoints can
+remain `baseline_certified` without operation-event evidence, but once an endpoint is marked
+`certified`, API contract evidence and supportability telemetry proof must move together.
+
 New backend scaffolds should also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`, and
 `make implementation-truth-gate`, and run all four through `make lint`.

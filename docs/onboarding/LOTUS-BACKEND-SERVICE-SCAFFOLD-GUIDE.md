@@ -370,7 +370,8 @@ truth:
 4. domain rules under `src/app/domain/`,
 5. port interfaces and infrastructure adapters,
 6. caller-context and authorization policy,
-7. endpoint certification entries for every public operation,
+7. endpoint certification entries for every public operation, including bounded operation-event
+   test evidence for certified business/operator endpoints,
 8. supported-features entries only for implementation-backed behavior,
 9. observability runbook details for real dependencies and failure states,
 10. security model and data-handling assumptions,
@@ -391,7 +392,8 @@ For the first implementation slice in a generated service:
 6. Add meaningful unit tests for domain/application behavior.
 7. Add integration or contract tests for public API behavior.
 8. Update endpoint certification, supported-features, docs, and wiki source only for implemented
-   behavior.
+   behavior. Certified business/operator endpoints must include operation-event test evidence before
+   they remain `certified`.
 9. Run `make check` and the relevant focused tests.
 10. Raise a PR with validation evidence, residual risks, and any follow-up backlog.
 
