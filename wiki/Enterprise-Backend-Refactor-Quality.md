@@ -39,8 +39,8 @@ New services created with `automation/New-Lotus-Service.ps1` should start with t
 service-profile-aware README/repo-context/wiki references, quality scorecard, architecture rules,
 CI-quality notes, refactor decisions, a layered `src/app/api|application|domain|ports|infrastructure|observability|security`
 skeleton, report-only architecture-boundary and quality-baseline commands, and baseline gates for
-OpenAPI, supported features, endpoint certification, no-sensitive-content, coverage,
-health/readiness, observability, and workflow lanes.
+maintainability thresholds, OpenAPI, supported features, endpoint certification,
+no-sensitive-content, coverage, health/readiness, observability, and workflow lanes.
 
 ## Baseline Snapshot
 

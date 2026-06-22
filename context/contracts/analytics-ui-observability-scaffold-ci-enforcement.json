@@ -75,6 +75,7 @@
       "required_terms": [
         "openapi-gate",
         "no-sensitive-content-guard",
+        "maintainability-gate",
         "implementation-truth-gate",
         "supported-features-gate",
         "architecture-boundary-gate",

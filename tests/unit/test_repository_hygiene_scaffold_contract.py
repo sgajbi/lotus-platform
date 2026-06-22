@@ -233,6 +233,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) monetary-float-guard" in makefile_template
     assert "ci-contract-gate:" in makefile_template
     assert "$(MAKE) ci-contract-gate" in makefile_template
+    assert "maintainability-gate:" in makefile_template
+    assert "$(MAKE) maintainability-gate" in makefile_template
+    assert "scripts/maintainability_gate.py" in scaffold_script
     assert "no-sensitive-content-guard:" in makefile_template
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "implementation-truth-gate:" in makefile_template
@@ -313,6 +316,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     ci_contract_gate_result = subprocess.run(
         [sys.executable, "scripts/ci_contract_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    maintainability_gate_result = subprocess.run(
+        [sys.executable, "scripts/maintainability_gate.py"],
         cwd=repo_root,
         check=True,
         capture_output=True,
@@ -522,6 +532,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "$(MAKE) monetary-float-guard" in makefile
     assert "ci-contract-gate:" in makefile
     assert "$(MAKE) ci-contract-gate" in makefile
+    assert "maintainability-gate:" in makefile
+    assert "$(MAKE) maintainability-gate" in makefile
+    assert (repo_root / "scripts/maintainability_gate.py").exists()
     assert "no-sensitive-content-guard:" in makefile
     assert "$(MAKE) no-sensitive-content-guard" in makefile
     assert "implementation-truth-gate:" in makefile
@@ -631,6 +644,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
+    assert "Maintainability gate passed" in maintainability_gate_result.stdout
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
     assert "secrets.LOTUS_AUTOMERGE_TOKEN" in ci_contract_gate
@@ -798,6 +812,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make architecture-boundary-report" in readme
     assert "make quality-baseline" in readme
     assert "make ci-contract-gate" in readme
+    assert "make maintainability-gate" in readme
     assert "make implementation-truth-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
@@ -814,6 +829,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`src/app/resilience/`: retry, backoff, timeout" in repo_context
     assert "quality scorecard under `quality/`" in repo_context
     assert "`make ci-contract-gate` is blocking through `make lint`" in repo_context
+    assert "`make maintainability-gate` prevents oversized source" in repo_context
     assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
@@ -842,6 +858,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make ci-contract-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make maintainability-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "make implementation-truth-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
@@ -853,10 +872,11 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Service profile: domain-service" in quality_scorecard
     assert "Control Area" in quality_scorecard
     assert "make ci-contract-gate" in ci_quality_gates
+    assert "make maintainability-gate" in ci_quality_gates
     assert "make implementation-truth-gate" in ci_quality_gates
     assert "Architecture" in quality_scorecard
     assert (
-        "Layered package skeleton plus report-only architecture-boundary report"
+        "Layered package skeleton, blocking maintainability thresholds, and report-only architecture-boundary report"
         in quality_scorecard
     )
     assert "Security and privacy" in quality_scorecard
