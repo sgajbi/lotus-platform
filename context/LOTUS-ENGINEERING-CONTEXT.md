@@ -690,16 +690,21 @@ auto-merge so an authorized human or release actor can perform the rebase merge 
 permanent red helper check. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
 Newly scaffolded backend services also generate `make maintainability-gate`,
-`make documentation-contract-gate`, `make quality-scorecard-gate`, and
+`make documentation-contract-gate`, `make quality-scorecard-gate`,
+`make source-observability-contract-gate`, and
 `make implementation-truth-gate`
-through `automation/New-Lotus-Service.ps1` and run all four through
+through `automation/New-Lotus-Service.ps1` and run all five through
 `make lint`; they block oversized source/test/script modules, deletion or
 thinning of required README/context/standards/runbook/quality/evidence/wiki
-surfaces, stale bank-buyable scorecard control-matrix truth, plus unqualified
+surfaces, stale bank-buyable scorecard control-matrix truth, raw application
+logging bypasses outside the central observability module, plus unqualified
 README/docs/wiki current-state claims of demo
 readiness, production support, certification, live source ingestion,
 Gateway/Workbench support, or client-ready publication before supported-feature
-evidence exists. The generated implementation-truth gate also blocks stale
+evidence exists. The generated source-observability gate blocks raw `print()`,
+direct Python logging, and low-level `log_event` bypasses in `src/app`, while
+generated request diagnostics log route templates instead of raw URL paths.
+The generated implementation-truth gate also blocks stale
 scaffold-era demo underclaims once implementation and CI evidence prove a
 stronger current posture.
 Generated endpoint-certification gates require certified business/operator

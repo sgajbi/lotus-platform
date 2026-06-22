@@ -178,6 +178,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert '"downstream_realization"' in scaffold_script
     assert "docs/operations/api-certification.md" in scaffold_script
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
+    assert "scripts/source_observability_contract_gate.py" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
     assert "scripts/documentation_contract_gate.py" in scaffold_script
     assert "merged-pr-main-releasability.template.yml" in scaffold_script
@@ -245,6 +246,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/quality_scorecard_gate.py" in scaffold_script
     assert "no-sensitive-content-guard:" in makefile_template
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
+    assert "source-observability-contract-gate:" in makefile_template
+    assert "$(MAKE) source-observability-contract-gate" in makefile_template
     assert "implementation-truth-gate:" in makefile_template
     assert "$(MAKE) implementation-truth-gate" in makefile_template
     assert "supported-features-gate:" in makefile_template
@@ -349,6 +352,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    source_observability_gate_result = subprocess.run(
+        [sys.executable, "scripts/source_observability_contract_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     missing_architecture_quality_baseline = subprocess.run(
         [sys.executable, "scripts/generate_quality_baseline.py"],
         cwd=repo_root,
@@ -403,6 +413,19 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         text=True,
     )
     bad_boundary.unlink()
+    bad_observability = repo_root / "src/app/api/raw_logging.py"
+    bad_observability.write_text(
+        "def leak() -> None:\n    print('raw request')\n",
+        encoding="utf-8",
+    )
+    source_observability_failure = subprocess.run(
+        [sys.executable, "scripts/source_observability_contract_gate.py"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    bad_observability.unlink()
     subprocess.run(
         [sys.executable, "-m", "compileall", "-q", "src", "tests"],
         cwd=repo_root,
@@ -466,6 +489,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     sensitive_content_guard = (
         repo_root / "scripts/no_sensitive_content_guard.py"
+    ).read_text(encoding="utf-8")
+    source_observability_contract_gate = (
+        repo_root / "scripts/source_observability_contract_gate.py"
     ).read_text(encoding="utf-8")
     supported_features_gate = (
         repo_root / "scripts/supported_features_gate.py"
@@ -573,6 +599,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert (repo_root / "scripts/quality_scorecard_gate.py").exists()
     assert "no-sensitive-content-guard:" in makefile
     assert "$(MAKE) no-sensitive-content-guard" in makefile
+    assert "source-observability-contract-gate:" in makefile
+    assert "$(MAKE) source-observability-contract-gate" in makefile
+    assert (repo_root / "scripts/source_observability_contract_gate.py").exists()
     assert "implementation-truth-gate:" in makefile
     assert "$(MAKE) implementation-truth-gate" in makefile
     assert "supported-features-gate:" in makefile
@@ -605,7 +634,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Domain-authoritative backend service" in domain_profile
     assert "current_service_profile" in application_profile
     assert (
-        "from app.observability.logging import configure_logging, log_event"
+        "from app.observability.logging import configure_logging, emit_request_diagnostic_event"
         in observability_init
     )
     assert "include_in_schema=False" in main_py
@@ -615,11 +644,16 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert 'tags=["Metadata"]' in main_py
     assert "validation_exception_handler" in main_py
     assert "unhandled_exception_handler" in main_py
+    assert "emit_request_diagnostic_event" in main_py
+    assert "_route_template(request)" in main_py
+    assert "path=str(request.url.path)" not in main_py
     assert "Request validation failed. Correct the request fields and retry." in main_py
     assert "ProblemDetails" in errors_py
     assert "Product-safe remediation guidance" in errors_py
     assert "json.dumps(payload, sort_keys=True, default=str)" in observability_py
     assert '"event": event_name' in observability_py
+    assert "REQUEST_DIAGNOSTIC_EVENTS" in observability_py
+    assert "route must be a route template without query string" in observability_py
     assert "request.state.correlation_id = correlation_id" in correlation_middleware
     assert "request.state.trace_id = trace_id" in correlation_middleware
     assert (
@@ -679,6 +713,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "FORBIDDEN_PATTERNS" in sensitive_content_guard
     assert "request_body" in sensitive_content_guard
     assert "response_body" in sensitive_content_guard
+    assert "ALLOWED_LOGGING_MODULES" in source_observability_contract_gate
+    assert "print() is prohibited in application " in source_observability_contract_gate
+    assert "source; use bounded structured logging" in source_observability_contract_gate
+    assert "low-level log_event" in source_observability_contract_gate
     assert "Supported-features gate passed" in supported_features_gate
     assert "implemented feature missing promotion_evidence" in supported_features_gate
     assert "Endpoint certification gate passed" in endpoint_certification_gate
@@ -694,9 +732,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
     assert "Documentation contract gate passed" in documentation_contract_gate_result.stdout
     assert "Quality scorecard gate passed" in quality_scorecard_gate_result.stdout
+    assert "Source observability contract gate passed" in source_observability_gate_result.stdout
+    assert "print() is prohibited in application source" in source_observability_failure.stdout
     assert "WORKFLOW_EXPECTATIONS" in ci_contract_gate
     assert "documentation-contract-gate" in ci_contract_gate
     assert "quality-scorecard-gate" in ci_contract_gate
+    assert "source-observability-contract-gate" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
     assert "secrets.LOTUS_AUTOMERGE_TOKEN" in ci_contract_gate
     assert "LOTUS_AUTOMERGE_TOKEN is required" in ci_contract_gate
@@ -867,6 +908,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make maintainability-gate" in readme
     assert "make documentation-contract-gate" in readme
     assert "make quality-scorecard-gate" in readme
+    assert "make source-observability-contract-gate" in readme
     assert "make implementation-truth-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
@@ -886,6 +928,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "`make maintainability-gate` prevents oversized source" in repo_context
     assert "`make documentation-contract-gate` keeps README" in repo_context
     assert "`make quality-scorecard-gate` keeps the bank-buyable control matrix" in repo_context
+    assert "`make source-observability-contract-gate` blocks raw print" in repo_context
     assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
@@ -923,6 +966,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make quality-scorecard-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make source-observability-contract-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "make implementation-truth-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
@@ -937,6 +983,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make maintainability-gate" in ci_quality_gates
     assert "make documentation-contract-gate" in ci_quality_gates
     assert "make quality-scorecard-gate" in ci_quality_gates
+    assert "make source-observability-contract-gate" in ci_quality_gates
     assert "make implementation-truth-gate" in ci_quality_gates
     assert "REQUIRED_SURFACES" in documentation_contract_gate
     assert "contains placeholder text" in documentation_contract_gate
@@ -950,6 +997,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     assert "Security and privacy" in quality_scorecard
     assert "Observability and supportability" in quality_scorecard
+    assert "source-observability contract enforcement" in quality_scorecard
     assert "`src/app/api` routers/controllers stay thin" in architecture_rules
     assert "`src/app/resilience` owns retry, backoff, timeout" in architecture_rules
     assert "Run `make architecture-boundary-gate` for blocking CI enforcement" in architecture_rules

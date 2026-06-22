@@ -177,7 +177,7 @@ function Write-RepositoryEngineeringContext {
     '4. `src/app/domain/`: framework-free domain models, policies, and calculations.',
     '5. `src/app/ports/`: external capability interfaces used by application logic.',
     '6. `src/app/infrastructure/`: concrete adapters and external clients behind ports.',
-    '7. `src/app/observability/`: structured logging, correlation, tracing, and metrics helpers.',
+    '7. `src/app/observability/`: structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers.',
     '8. `src/app/security/`: caller context and product-safe authorization policies.',
     '9. `src/app/resilience/`: retry, backoff, timeout, and circuit-breaker policy primitives.',
     '10. `src/app/contracts/`: API and contract models.',
@@ -207,16 +207,17 @@ function Write-RepositoryEngineeringContext {
     '8. maintainability gate: `make maintainability-gate`',
     '9. documentation contract gate: `make documentation-contract-gate`',
     '10. quality scorecard gate: `make quality-scorecard-gate`',
-    '11. implementation-truth gate: `make implementation-truth-gate`',
+    '11. source-observability contract gate: `make source-observability-contract-gate`',
+    '12. implementation-truth gate: `make implementation-truth-gate`',
     '',
     '## Validation And CI Expectations',
     '',
     ('`' + $SvcName + '` follows the standard Lotus backend lane model. Required baseline checks include lint,'),
-    'typecheck, maintainability thresholds, documentation contract enforcement, quality-scorecard truth, OpenAPI quality, implementation-truth gate,',
+    'typecheck, maintainability thresholds, documentation contract enforcement, quality-scorecard truth, source-observability contract enforcement, OpenAPI quality, implementation-truth gate,',
     'unit/integration/e2e tests, coverage gate, security audit, and Docker build validation.',
     '`make ci-contract-gate` is blocking through `make lint` and prevents future scaffold or agent',
     'changes from silently removing architecture, maintainability, OpenAPI, endpoint-certification,',
-    'supported-feature, implementation-truth, coverage, security, Docker, release-evidence, action-version,',
+    'supported-feature, source-observability, implementation-truth, coverage, security, Docker, release-evidence, action-version,',
     'least-privilege workflow controls, workflow-dispatch access, or merged-PR main-releasability',
     'dispatch.',
     '`make maintainability-gate` prevents oversized source, test, and script files/functions from',
@@ -224,6 +225,8 @@ function Write-RepositoryEngineeringContext {
     '`make documentation-contract-gate` keeps README, repository context, standards, runbooks,',
     'quality, evidence, and wiki surfaces present, substantive, and anchored to validation commands.',
     '`make quality-scorecard-gate` keeps the bank-buyable control matrix aligned with implementation truth.',
+    '`make source-observability-contract-gate` blocks raw print, direct Python logging, and',
+    'low-level log_event bypasses outside the central observability module.',
     '`make implementation-truth-gate` keeps current-state README, operations, demo, quality, and wiki text',
     'from claiming demo readiness, production support, certification, live source ingestion,',
     'Gateway/Workbench support, or client-ready publication before supported-feature evidence exists.',
@@ -370,9 +373,10 @@ function Write-WikiBaseline {
       "4. update tests, docs, supported features, and wiki source with implementation truth,",
       "5. keep durable docs passing `make documentation-contract-gate`,",
       "6. keep the bank-buyable control matrix passing `make quality-scorecard-gate`,",
-      "7. keep current-state docs passing `make implementation-truth-gate`,",
-      "8. use rebase-only PR completion,",
-      "9. delete completed local and remote feature branches after merge."
+      "7. keep source observability passing `make source-observability-contract-gate`,",
+      "8. keep current-state docs passing `make implementation-truth-gate`,",
+      "9. use rebase-only PR completion,",
+      "10. delete completed local and remote feature branches after merge."
     ) -join "`n";
     "Validation-And-CI.md" = @(
       "# Validation And CI",
@@ -393,6 +397,7 @@ function Write-WikiBaseline {
       "make maintainability-gate",
       "make documentation-contract-gate",
       "make quality-scorecard-gate",
+      "make source-observability-contract-gate",
       "make implementation-truth-gate",
       "make openapi-gate",
       "make quality-baseline",
@@ -923,7 +928,7 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard source-observability-contract-gate implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
@@ -953,6 +958,12 @@ if ($makefile -notmatch '\$\(MAKE\) monetary-float-guard') {
 }
 if ($makefile -notmatch "(?m)^monetary-float-guard:") {
   $makefile = $makefile -replace [regex]::Escape("typecheck:"), "monetary-float-guard:`n`t`$(VENV_PYTHON) scripts/check_monetary_float_usage.py`n`ntypecheck:"
+}
+if ($makefile -notmatch '\$\(MAKE\) source-observability-contract-gate') {
+  $makefile = $makefile -replace [regex]::Escape("`t`$(MAKE) no-sensitive-content-guard"), "`t`$(MAKE) no-sensitive-content-guard`n`t`$(MAKE) source-observability-contract-gate"
+}
+if ($makefile -notmatch "(?m)^source-observability-contract-gate:") {
+  $makefile = $makefile -replace [regex]::Escape("implementation-truth-gate:"), "source-observability-contract-gate:`n`t`$(VENV_PYTHON) scripts/source_observability_contract_gate.py`n`nimplementation-truth-gate:"
 }
 if ($makefile -notmatch '\$\(MAKE\) implementation-truth-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) implementation-truth-gate"
@@ -1068,7 +1079,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.errors import problem_response
 from app.middleware.correlation import CorrelationIdMiddleware
-from app.observability import configure_logging, log_event
+from app.observability import configure_logging, emit_request_diagnostic_event
 
 SERVICE_NAME = "$ServiceName"
 SERVICE_VERSION = "0.1.0"
@@ -1080,12 +1091,17 @@ Instrumentator().instrument(app).expose(app, include_in_schema=False)
 configure_logging()
 
 
+def _route_template(request: Request) -> str:
+    route = request.scope.get("route")
+    path = getattr(route, "path", None)
+    return path if isinstance(path, str) and path.startswith("/") else "/unknown"
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> Response:
-    log_event(
+    emit_request_diagnostic_event(
         "request.validation_failed",
-        service=SERVICE_NAME,
-        path=str(request.url.path),
+        route=_route_template(request),
         method=request.method,
         error_category="validation",
     )
@@ -1099,10 +1115,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
-    log_event(
+    emit_request_diagnostic_event(
         "request.http_error",
-        service=SERVICE_NAME,
-        path=str(request.url.path),
+        route=_route_template(request),
         method=request.method,
         status_code=exc.status_code,
     )
@@ -1116,11 +1131,10 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
-    log_event(
+    emit_request_diagnostic_event(
         "request.unhandled_error",
-        service=SERVICE_NAME,
         level="ERROR",
-        path=str(request.url.path),
+        route=_route_template(request),
         method=request.method,
         error_category=exc.__class__.__name__,
     )
@@ -1592,9 +1606,9 @@ class AuditEvent:
 }
 
 $observabilityPackageInit = @"
-from app.observability.logging import configure_logging, log_event
+from app.observability.logging import configure_logging, emit_request_diagnostic_event
 
-__all__ = ["configure_logging", "log_event"]
+__all__ = ["configure_logging", "emit_request_diagnostic_event"]
 "@
 Set-Content -Path (Join-Path $target "src/app/observability/__init__.py") -Value $observabilityPackageInit
 
@@ -1606,6 +1620,14 @@ import logging
 from typing import Literal
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+SERVICE_NAME = "$ServiceName"
+REQUEST_DIAGNOSTIC_EVENTS = frozenset(
+    {
+        "request.validation_failed",
+        "request.http_error",
+        "request.unhandled_error",
+    }
+)
 
 
 def configure_logging() -> None:
@@ -1622,6 +1644,32 @@ def log_event(event_name: str, service: str, level: LogLevel = "INFO", **fields:
         getattr(logging, level),
         json.dumps(payload, sort_keys=True, default=str),
     )
+
+
+def emit_request_diagnostic_event(
+    event_name: str,
+    *,
+    route: str,
+    method: str,
+    level: LogLevel = "INFO",
+    status_code: int | None = None,
+    error_category: str | None = None,
+) -> None:
+    if event_name not in REQUEST_DIAGNOSTIC_EVENTS:
+        raise ValueError(f"unsupported request diagnostic event: {event_name}")
+    if not route.startswith("/") or "?" in route:
+        raise ValueError("route must be a route template without query string")
+    if not method.strip():
+        raise ValueError("method is required")
+    fields: dict[str, object] = {
+        "route": route,
+        "method": method,
+    }
+    if status_code is not None:
+        fields["status_code"] = status_code
+    if error_category is not None:
+        fields["error_category"] = error_category
+    log_event(event_name, SERVICE_NAME, level, **fields)
 "@
 Set-Content -Path (Join-Path $target "src/app/observability/logging.py") -Value $observabilityPy
 
@@ -2103,18 +2151,18 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
     (
         "README.md",
         20,
-        ("Quick Start", "make documentation-contract-gate", "make quality-scorecard-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("Quick Start", "make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     (
         "REPOSITORY-ENGINEERING-CONTEXT.md",
         80,
-        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate", "make quality-scorecard-gate"),
+        ("Repo-Native Commands", "Validation And CI Expectations", "make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate"),
     ),
     ("docs/rfcs/README.md", 1, ("RFC Index",)),
     (
         "docs/standards/enterprise-readiness.md",
         8,
-        ("make documentation-contract-gate", "make quality-scorecard-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
+        ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate", "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"),
     ),
     ("docs/runbooks/service-operations.md", 8, ("Standard Commands", "Health and Readiness")),
     (
@@ -2123,12 +2171,12 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
         ("endpoint-certification-ledger.json", "Source-Degraded And Reconciliation Endpoints"),
     ),
     ("docs/operations/observability.md", 8, ("structured JSON application events",)),
-    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate", "make quality-scorecard-gate")),
+    ("quality/ci_quality_gates.md", 20, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
     ("quality/quality_scorecard.md", 10, ("Bank-Buyable Quality Scorecard", "Documentation and operations", "make quality-scorecard-gate")),
     ("evidence/rfc-implementation/README.md", 5, ("repository", "branch", "commit SHA")),
     ("wiki/Home.md", 10, ("Validation And CI", "Current Posture")),
-    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate", "make quality-scorecard-gate")),
-    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate", "make quality-scorecard-gate")),
+    ("wiki/Development-Workflow.md", 8, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
+    ("wiki/Validation-And-CI.md", 12, ("make documentation-contract-gate", "make quality-scorecard-gate", "make source-observability-contract-gate")),
     ("wiki/Operations-Runbook.md", 5, ("Operations Runbook",)),
     ("wiki/Supported-Features.md", 5, ("No business feature is supported",)),
 )
@@ -2223,11 +2271,11 @@ REQUIRED_EVIDENCE_ANCHORS: dict[str, tuple[str, ...]] = {
     "Architecture": ("architecture-boundary", "maintainability"),
     "API and contracts": ("OpenAPI", "endpoint certification"),
     "Data and methodology": ("source",),
-    "Security and privacy": ("No-sensitive-content",),
-    "Observability and supportability": ("health/readiness",),
+    "Security and privacy": ("No-sensitive-content", "source-observability"),
+    "Observability and supportability": ("health/readiness", "source-observability"),
     "Resilience and performance": ("Docker",),
     "Testing": ("Unit", "integration", "e2e"),
-    "CI and release evidence": ("documentation contract", "implementation-truth"),
+    "CI and release evidence": ("documentation contract", "source-observability", "implementation-truth"),
     "Documentation and operations": ("README", "wiki", "documentation-contract-gate"),
 }
 
@@ -2370,6 +2418,7 @@ REQUIRED_TARGETS = (
     "quality-scorecard-gate",
     "monetary-float-guard",
     "no-sensitive-content-guard",
+    "source-observability-contract-gate",
     "implementation-truth-gate",
     "supported-features-gate",
     "endpoint-certification-gate",
@@ -2392,6 +2441,7 @@ REQUIRED_LINT_CALLS = (
     "$(MAKE) quality-scorecard-gate",
     "$(MAKE) monetary-float-guard",
     "$(MAKE) no-sensitive-content-guard",
+    "$(MAKE) source-observability-contract-gate",
     "$(MAKE) implementation-truth-gate",
     "$(MAKE) supported-features-gate",
     "$(MAKE) endpoint-certification-gate",
@@ -2733,6 +2783,142 @@ if __name__ == "__main__":
     sys.exit(main())
 "@
 Set-Content -Path (Join-Path $target "scripts/no_sensitive_content_guard.py") -Value $sensitiveContentGuard
+
+$sourceObservabilityContractGate = @'
+from __future__ import annotations
+
+import ast
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_ROOT = ROOT / "src" / "app"
+
+ALLOWED_LOGGING_MODULES = {
+    Path("src/app/observability/logging.py"),
+}
+LOW_LEVEL_OBSERVABILITY_HELPERS = {"log_event"}
+PROHIBITED_LOGGING_ATTRIBUTES = {
+    "basicConfig",
+    "critical",
+    "debug",
+    "error",
+    "exception",
+    "getLogger",
+    "info",
+    "log",
+    "warning",
+}
+
+
+def _python_files(source_root: Path) -> list[Path]:
+    if not source_root.exists():
+        return []
+    return sorted(path for path in source_root.rglob("*.py") if "__pycache__" not in path.parts)
+
+
+def _relative(path: Path, root: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _is_allowed_logging_module(path: Path, root: Path) -> bool:
+    return Path(_relative(path, root)) in ALLOWED_LOGGING_MODULES
+
+
+def _call_name(node: ast.AST) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        parent = _call_name(node.value)
+        return f"{parent}.{node.attr}" if parent else node.attr
+    return None
+
+
+def _validate_file(path: Path, root: Path) -> list[str]:
+    relative_path = _relative(path, root)
+    allowed_logging_module = _is_allowed_logging_module(path, root)
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    errors: list[str] = []
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "logging" and not allowed_logging_module:
+                    errors.append(
+                        f"{relative_path}:{node.lineno}: direct logging imports are only "
+                        "allowed in src/app/observability/logging.py"
+                    )
+
+        if isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            imported_names = {alias.name for alias in node.names}
+            if module == "logging" and not allowed_logging_module:
+                errors.append(
+                    f"{relative_path}:{node.lineno}: direct logging imports are only "
+                    "allowed in src/app/observability/logging.py"
+                )
+            if (
+                module in {"app.observability", "app.observability.logging"}
+                and LOW_LEVEL_OBSERVABILITY_HELPERS.intersection(imported_names)
+                and not allowed_logging_module
+            ):
+                errors.append(
+                    f"{relative_path}:{node.lineno}: import central observability helpers "
+                    "instead of low-level log_event"
+                )
+
+        if isinstance(node, ast.Call):
+            call_name = _call_name(node.func)
+            if call_name == "print":
+                errors.append(
+                    f"{relative_path}:{node.lineno}: print() is prohibited in application "
+                    "source; use bounded structured logging"
+                )
+            if call_name == "log_event" and not allowed_logging_module:
+                errors.append(
+                    f"{relative_path}:{node.lineno}: call a central observability helper "
+                    "instead of log_event"
+                )
+            if (
+                call_name
+                and call_name.startswith("logging.")
+                and call_name.removeprefix("logging.") in PROHIBITED_LOGGING_ATTRIBUTES
+                and not allowed_logging_module
+            ):
+                errors.append(
+                    f"{relative_path}:{node.lineno}: direct logging calls are only allowed in "
+                    "src/app/observability/logging.py"
+                )
+
+    return errors
+
+
+def validate_source_observability_contract(root: Path = ROOT) -> list[str]:
+    source_root = root / "src" / "app"
+    errors: list[str] = []
+    for path in _python_files(source_root):
+        errors.extend(_validate_file(path, root))
+    return sorted(errors)
+
+
+def main() -> int:
+    errors = validate_source_observability_contract()
+    if errors:
+        print("Source observability contract gate failed:")
+        print("\n".join(errors))
+        return 1
+    print("Source observability contract gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+Set-Content -Path (Join-Path $target "scripts/source_observability_contract_gate.py") -Value $sourceObservabilityContractGate
 
 $implementationTruthGate = @'
 from __future__ import annotations
@@ -3292,7 +3478,10 @@ $observabilityLoggingTest = @"
 import json
 import logging
 
-from app.observability import configure_logging, log_event
+import pytest
+
+from app.observability import configure_logging, emit_request_diagnostic_event
+from app.observability.logging import log_event
 
 
 def test_configure_logging_sets_product_safe_message_format() -> None:
@@ -3310,6 +3499,34 @@ def test_log_event_emits_structured_json(caplog) -> None:  # type: ignore[no-unt
         "service": "$ServiceName",
         "status": "ok",
     }
+
+
+def test_request_diagnostic_event_logs_route_template_only(caplog) -> None:  # type: ignore[no-untyped-def]
+    with caplog.at_level(logging.INFO, logger="$ServiceName"):
+        emit_request_diagnostic_event(
+            "request.http_error",
+            route="/health/{probe}",
+            method="GET",
+            status_code=404,
+        )
+
+    payload = json.loads(caplog.records[-1].message)
+    assert payload == {
+        "event": "request.http_error",
+        "method": "GET",
+        "route": "/health/{probe}",
+        "service": "$ServiceName",
+        "status_code": 404,
+    }
+
+
+def test_request_diagnostic_event_rejects_raw_paths() -> None:
+    with pytest.raises(ValueError, match="route must be a route template"):
+        emit_request_diagnostic_event(
+            "request.http_error",
+            route="/health/probe?debug=true",
+            method="GET",
+        )
 "@
 Set-Content -Path (Join-Path $target "tests/unit/test_observability_logging.py") -Value $observabilityLoggingTest
 
@@ -3506,7 +3723,7 @@ Write-RepositoryEngineeringContext -TargetRepoRoot $target -SvcName $ServiceName
 Write-WikiBaseline -TargetRepoRoot $target -SvcName $ServiceName -SvcDescription $Description -SvcProfile $ServiceProfile
 
 $standardsDocs = @{
-  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, quality-scorecard truth, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract. ``make quality-scorecard-gate`` enforces the bank-buyable control matrix and blocks stale scaffold-era scorecard underclaims once certified business endpoints exist.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
+  "docs/standards/enterprise-readiness.md" = "# Enterprise Readiness`n`n- Service: $ServiceName`n- Status: baseline adopted.`n`nEnterprise-quality enforcement is repo-native from day one. ``make lint``, ``make check``, and GitHub lanes protect architecture boundaries, maintainability thresholds, documentation surface contracts, quality-scorecard truth, source-observability contract posture, OpenAPI quality, supported-feature promotion control, endpoint certification, security audit, coverage, workflow timeout posture, no soft-failed critical CI jobs, and implementation-truth claims in README/docs/wiki current-state surfaces.`n`nDay-one enterprise posture is governed by ``lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md``. ``make documentation-contract-gate`` enforces the minimum durable documentation surface needed for engineers, operators, reviewers, and future agents to apply that contract. ``make quality-scorecard-gate`` enforces the bank-buyable control matrix and blocks stale scaffold-era scorecard underclaims once certified business endpoints exist. ``make source-observability-contract-gate`` blocks raw application logging bypasses so request diagnostics stay route-template based and product-safe.`n`nThe maintainability gate starts with conservative source, test, and script file/function thresholds so new implementation work must split or refactor oversized additions.`n`n``make implementation-truth-gate`` also protects against stale scaffold-era underclaims in current-state demo documentation. As implementation evidence appears, the demo ledger must move from generic scaffold posture to evidence-backed capability rows plus explicit unsupported boundaries.`n`nDo not promote a scaffolded service as bank-buyable until implementation-backed evidence exists.";
   "docs/standards/scalability-availability.md" = "# Scalability and Availability`n`n- Service: $ServiceName`n- Baseline health/readiness, resilience, and metrics adopted.";
   "docs/standards/durability-consistency.md" = "# Durability and Consistency`n`n- Service: $ServiceName`n- Status: Planned.`n- Core write semantics, persistence, and service-specific idempotency policy are not implemented by the scaffold unless a later service slice adds code, tests, and evidence.";
   "docs/standards/rounding-precision.md" = "# Rounding and Precision`n`n- Service: $ServiceName`n- Canonical precision policy must be used for monetary outputs.";
@@ -3651,6 +3868,7 @@ $readme = @(
   "make maintainability-gate",
   "make documentation-contract-gate",
   "make quality-scorecard-gate",
+  "make source-observability-contract-gate",
   "make implementation-truth-gate",
   "make typecheck",
   "make architecture-boundary-report",
@@ -3666,6 +3884,7 @@ $readme = @(
   ".venv\\Scripts\\python.exe scripts/ci_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/maintainability_gate.py",
   ".venv\\Scripts\\python.exe scripts/documentation_contract_gate.py",
+  ".venv\\Scripts\\python.exe scripts/source_observability_contract_gate.py",
   ".venv\\Scripts\\python.exe scripts/implementation_truth_gate.py",
   ".venv\\Scripts\\python.exe -m mypy --config-file mypy.ini",
   ".venv\\Scripts\\python.exe scripts/openapi_quality_gate.py",
@@ -3700,6 +3919,7 @@ $readme = @(
   "- Blocking maintainability evidence: make maintainability-gate",
   "- Blocking documentation contract evidence: make documentation-contract-gate",
   "- Blocking quality scorecard evidence: make quality-scorecard-gate",
+  "- Blocking source observability evidence: make source-observability-contract-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
@@ -3721,11 +3941,11 @@ Use this scorecard to track movement toward the Lotus Bank-Buyable Engineering C
 | Architecture | ``Partially implemented`` | Layered package skeleton, blocking architecture-boundary gate, blocking maintainability thresholds, and report-only architecture-boundary evidence refresh. | Service-specific boundaries not yet implemented. | Replace scaffold placeholders with real module map and ownership truth. |
 | API and contracts | ``Partially implemented`` | Health, readiness, metadata, OpenAPI gate, endpoint certification ledger. | Business endpoints not yet implemented. | Add certification evidence with each endpoint. |
 | Data and methodology | ``Planned`` | No business source data scope is promoted by the scaffold. | Domain methodology is planned until source-owner data behavior exists. | Add source-owner and methodology docs when data behavior exists. |
-| Security and privacy | ``Partially implemented`` | No-sensitive-content guard and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
-| Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, health/readiness, metrics. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
+| Security and privacy | ``Partially implemented`` | No-sensitive-content guard, source-observability contract gate, and product-safe errors. | AuthN/AuthZ posture is service-specific. | Add explicit security model before protected APIs. |
+| Observability and supportability | ``Partially implemented`` | Correlation/trace headers, structured logs, route-template request diagnostics, health/readiness, metrics, and source-observability contract enforcement. | Business supportability states not yet implemented. | Add operation metrics and runbook updates with real workflows. |
 | Resilience and performance | ``Partially implemented`` | Readiness drain baseline and Docker healthcheck. | Timeout/retry/back-pressure posture is service-specific. | Add resilience policy with downstream clients. |
 | Testing | ``Partially implemented`` | Unit, integration, e2e scaffold tests. | Business behavior tests not yet implemented. | Add high-value tests with each feature slice. |
-| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability, documentation contract, quality-scorecard, implementation-truth, and source-safe local quality gates. | Repo-specific thresholds beyond deterministic size limits, scorecard truth, and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
+| CI and release evidence | ``Partially implemented`` | Feature, PR merge, main releasability workflows plus blocking maintainability, source-observability, documentation contract, quality-scorecard, implementation-truth, and source-safe local quality gates. | Repo-specific thresholds beyond deterministic size limits, source-observability controls, scorecard truth, and documentation surface contracts need evidence. | Tighten gates after measured baseline. |
 | Documentation and operations | ``Partially implemented`` | README, repo context, wiki, runbooks, standards, quality scorecard, and RFC evidence guide are protected by ``make documentation-contract-gate``, ``make quality-scorecard-gate``, and ``make implementation-truth-gate``. | Operator docs are scaffold-level. | Replace placeholders with implementation-backed truth. |
 "@
 Set-Content -Path (Join-Path $target "quality/architecture_rules.md") -Value @"
@@ -3739,7 +3959,7 @@ Use the Lotus layered backend default:
 4. ``src/app/infrastructure`` sits behind ``ports`` adapters,
 5. ``src/app/security`` owns caller-context and product-safe authorization policy primitives,
 6. ``src/app/resilience`` owns retry, backoff, timeout, and circuit-breaker policy primitives; concrete downstream clients still belong behind ``ports`` in ``infrastructure``,
-7. ``src/app/observability`` owns structured logging, correlation, tracing, and metrics helpers,
+7. ``src/app/observability`` owns structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers,
 8. generated or scaffold placeholders must be replaced with implementation truth before promotion.
 
 Run ``make architecture-boundary-gate`` for blocking CI enforcement. Run
@@ -3761,7 +3981,8 @@ Blocking scaffold commands:
 3. ``make maintainability-gate``
 4. ``make documentation-contract-gate``
 5. ``make quality-scorecard-gate``
-6. ``make implementation-truth-gate``
+6. ``make source-observability-contract-gate``
+7. ``make implementation-truth-gate``
 
 Report-only scaffold commands:
 
@@ -3771,7 +3992,7 @@ Report-only scaffold commands:
 ``make ci-contract-gate`` is the anti-drift gate for the day-one bank-buyable baseline. It checks
 that the Makefile and GitHub workflow lanes still include architecture boundaries, OpenAPI quality,
 maintainability, supported-feature promotion control, endpoint certification, coverage, security audit, Docker build,
-release evidence, least-privilege workflow permissions, documentation contract enforcement, quality-scorecard truth, implementation-truth enforcement, and
+release evidence, least-privilege workflow permissions, documentation contract enforcement, quality-scorecard truth, source-observability contract enforcement, implementation-truth enforcement, and
 approved action-runtime majors.
 The gate also protects workflow-dispatch access and the merged-PR Main Releasability dispatch
 needed for rebase auto-merged PRs.
@@ -3788,6 +4009,11 @@ wiki surfaces. It keeps enterprise operating context intact for future implement
 control matrix, approved status vocabulary, non-empty evidence and gap cells, implementation-backed
 evidence anchors, and stale scaffold-era scorecard underclaims once certified business endpoints
 exist.
+
+``make source-observability-contract-gate`` blocks ad hoc application logging in ``src/app``.
+Feature code must use central observability helpers rather than raw ``print()``, direct Python
+logging, or low-level ``log_event`` calls. Request diagnostics log route templates rather than raw
+URL paths.
 
 ``make implementation-truth-gate`` blocks unqualified current-state claims of demo readiness,
 production readiness, external support, certification, live source ingestion, Gateway/Workbench

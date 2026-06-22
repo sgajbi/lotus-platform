@@ -96,3 +96,7 @@ solving them only in the generated app.
     endpoint-certification gate should require bounded operation-event test
     evidence for endpoints marked `certified`, while health/readiness/metadata
     endpoints remain `baseline_certified`.
+20. Scaffolded backend repositories also need a source-observability contract
+    gate from day one. Generated app code should use the central observability
+    module for route-template request diagnostics and must block raw `print()`,
+    direct Python logging, or low-level `log_event` bypasses in `src/app`.
