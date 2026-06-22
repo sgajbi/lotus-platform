@@ -157,7 +157,9 @@ release evidence with the supported `cyclonedx-py` console command after `make i
 The merged-PR dispatcher must call `gh workflow run main-releasability.yml --ref main` so rebase
 auto-merged PRs still produce explicit post-merge release evidence.
 The auto-merge workflow must use `LOTUS_AUTOMERGE_TOKEN`, not `GITHUB_TOKEN`, so the merge event is
-not suppressed before the dispatcher can run.
+not suppressed before the dispatcher can run. If the token is absent, the workflow emits an
+explicit warning and skips auto-merge rather than failing the PR; an authorized human or release
+actor must perform the rebase merge in that posture.
 
 Generated workflows also declare job-level `timeout-minutes` values. The generated CI contract gate
 blocks missing timeouts and `continue-on-error: true` in critical lanes so a stuck job or soft-failed

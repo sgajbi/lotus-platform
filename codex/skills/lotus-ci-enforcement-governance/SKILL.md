@@ -127,9 +127,11 @@ architecture/OpenAPI gates, bounded job-level timeouts, and no `continue-on-erro
 critical lanes. Rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the `pull_request_target.closed` event that
 dispatches post-merge main releasability proof. The generated CI contract gate should enforce the
-token reference, explicit missing-token behavior, bounded workflow timeouts, no-soft-fail critical
-workflow posture, implementation-truth guard presence, and the merged-PR main-releasability
-dispatcher together.
+token reference, explicit missing-token warning-and-skip behavior, bounded workflow timeouts,
+no-soft-fail critical workflow posture, implementation-truth guard presence, and the merged-PR
+main-releasability dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not create a permanent
+red helper check; it should skip automatic rebase merge and require an authorized human or release
+actor to merge.
 
 New backend scaffolds should also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`, and

@@ -685,7 +685,9 @@ skill copies as the source of truth.
 For newly scaffolded backend services, CI contract gates should also protect release-evidence
 semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the
-merged `main` commit. Generated backend workflows must also declare bounded job-level
+merged `main` commit. When that token is absent, the generated helper should warn and skip
+auto-merge so an authorized human or release actor can perform the rebase merge without leaving a
+permanent red helper check. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`, and

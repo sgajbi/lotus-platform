@@ -15,6 +15,19 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-06-22 | Missing auto-merge token should skip helper, not fail PR quality
+
+`lotus-idea` PR #63 showed that a `pull_request_target` auto-merge helper that exits red when
+`LOTUS_AUTOMERGE_TOKEN` is absent can block or obscure an otherwise green PR Merge Gate, even when
+the repository intentionally falls back to a human or release actor for rebase merge.
+
+Implication:
+
+Future generated backend services should still require a non-`GITHUB_TOKEN` merge actor for
+automatic rebase merge, but missing-token behavior should warn and skip auto-merge rather than
+creating a permanent red helper check. The PR Merge Gate remains the quality signal; the helper is
+only queueing automation.
+
 ### 2026-04-11 | Canonical local runtime must be treated as a governed operator flow
 
 The local Lotus bring-up path only became repeatable once:
