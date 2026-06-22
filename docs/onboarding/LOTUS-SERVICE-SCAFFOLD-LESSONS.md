@@ -120,3 +120,9 @@ solving them only in the generated app.
     `INTEGRATION_TESTS`, and `E2E_TESTS` Makefile variables so agents can run
     `make test-unit UNIT_TESTS=<path>` during fix-forward work while full-suite
     defaults remain intact for PR and CI evidence.
+25. Scaffolded backend repositories should include a `src/app/runtime` package
+    for process-local dependency composition once repositories, adapters,
+    publishers, workers, or proof generators need runtime wiring. The generated
+    architecture boundary gate should block `runtime` from importing API routes,
+    HTTP DTOs, FastAPI, or Starlette so composition code does not drift into the
+    presentation layer.

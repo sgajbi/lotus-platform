@@ -708,6 +708,10 @@ generated request diagnostics log route templates instead of raw URL paths.
 The generated implementation-truth gate also blocks stale
 scaffold-era demo underclaims once implementation and CI evidence prove a
 stronger current posture.
+Generated backend architecture gates should also protect `src/app/runtime` as
+the process-local composition layer: it may wire repositories, adapters,
+publishers, workers, and proof generators, but it must not import API routes,
+HTTP DTOs, FastAPI, or Starlette.
 Generated backend Makefiles also expose `UNIT_TESTS`, `INTEGRATION_TESTS`, and
 `E2E_TESTS` path overrides so focused fix-forward validation remains
 repo-native instead of becoming ad hoc pytest invocation; the generated CI

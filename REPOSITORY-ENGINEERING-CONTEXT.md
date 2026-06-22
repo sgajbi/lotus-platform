@@ -46,9 +46,10 @@ Current repository posture:
 8. New FastAPI service scaffolds created by `automation/New-Lotus-Service.ps1` now include
    bank-buyable quality defaults: service-profile-aware README/repo-context/wiki references,
    `quality/quality_scorecard.md`, architecture rules, CI-quality-gate notes, refactor decisions,
-   a layered `src/app/api|application|domain|ports|infrastructure|observability|security|resilience`
-   skeleton, caller-context and capability-policy primitives, a downstream JSON client resilience
-   template, profile-gated idempotency/audit models for write-capable services, demo-claims
+   a layered `src/app/api|application|domain|ports|infrastructure|runtime|observability|security|resilience`
+   skeleton, runtime composition boundary protection, caller-context and capability-policy
+   primitives, a downstream JSON client resilience template, profile-gated idempotency/audit
+   models for write-capable services, demo-claims
    documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders,
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the

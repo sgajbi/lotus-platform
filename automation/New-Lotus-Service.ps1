@@ -177,13 +177,14 @@ function Write-RepositoryEngineeringContext {
     '4. `src/app/domain/`: framework-free domain models, policies, and calculations.',
     '5. `src/app/ports/`: external capability interfaces used by application logic.',
     '6. `src/app/infrastructure/`: concrete adapters and external clients behind ports.',
-    '7. `src/app/observability/`: structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers.',
-    '8. `src/app/security/`: caller context and product-safe authorization policies.',
-    '9. `src/app/resilience/`: retry, backoff, timeout, and circuit-breaker policy primitives.',
-    '10. `src/app/contracts/`: API and contract models.',
-    '11. `src/app/middleware/`: shared request middleware.',
-    '12. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
-    '13. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
+    '7. `src/app/runtime/`: process-local composition of repositories, adapters, publishers, and clients.',
+    '8. `src/app/observability/`: structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers.',
+    '9. `src/app/security/`: caller context and product-safe authorization policies.',
+    '10. `src/app/resilience/`: retry, backoff, timeout, and circuit-breaker policy primitives.',
+    '11. `src/app/contracts/`: API and contract models.',
+    '12. `src/app/middleware/`: shared request middleware.',
+    '13. `tests/unit`, `tests/integration`, `tests/e2e`: test pyramid baseline.',
+    '14. `docs/standards/`: repository standards placeholders to be replaced with service truth.',
     '',
     '## Runtime And Integration Boundaries',
     '',
@@ -349,7 +350,8 @@ function Write-WikiBaseline {
       "3. `src/app/domain` for framework-free business rules.",
       "4. `src/app/ports` for inbound and outbound interfaces.",
       "5. `src/app/infrastructure` for adapters.",
-      "6. `src/app/observability`, `src/app/security`, and `src/app/resilience` for cross-cutting production controls.",
+      "6. `src/app/runtime` for process-local dependency composition.",
+      "7. `src/app/observability`, `src/app/security`, and `src/app/resilience` for cross-cutting production controls.",
       "",
       "Replace this scaffold overview with service-specific architecture decisions before promoting any product capability."
     ) -join "`n";
@@ -899,6 +901,7 @@ $dirs = @(
   "src/app/middleware",
   "src/app/observability",
   "src/app/ports",
+  "src/app/runtime",
   "src/app/security",
   "src/app/resilience",
   "docs/operations",
@@ -1254,6 +1257,7 @@ Set-Content -Path (Join-Path $target "src/app/middleware/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/observability/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/ports/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/resilience/__init__.py") -Value ""
+Set-Content -Path (Join-Path $target "src/app/runtime/__init__.py") -Value ""
 Set-Content -Path (Join-Path $target "src/app/security/__init__.py") -Value ""
 
 $layerReadme = @"
@@ -1268,11 +1272,13 @@ Expected dependency flow:
 2. ``application`` depends on ``domain`` and ``ports``.
 3. ``domain`` is framework-free and must not import FastAPI, API DTOs, infrastructure, or persistence.
 4. ``infrastructure`` implements ``ports``.
-5. ``security`` provides caller-context and authorization policy primitives.
-6. ``resilience`` provides retry, backoff, timeout, and circuit-breaker policy primitives.
-7. ``observability`` provides structured logging, correlation, tracing, and metrics helpers.
+5. ``runtime`` owns process-local composition of repositories, adapters, publishers, and clients.
+6. ``security`` provides caller-context and authorization policy primitives.
+7. ``resilience`` provides retry, backoff, timeout, and circuit-breaker policy primitives.
+8. ``observability`` provides structured logging, correlation, tracing, and metrics helpers.
 
-Run ``make architecture-boundary-report`` for the report-only architecture boundary check.
+Run ``make architecture-boundary-gate`` for the blocking architecture boundary check and
+``make architecture-boundary-report`` when a report artifact is needed.
 "@
 Set-Content -Path (Join-Path $target "src/app/README.md") -Value $layerReadme
 
@@ -1830,6 +1836,10 @@ LAYER_RULES = {
     "api": {
         "forbidden_prefixes": ("app.infrastructure",),
         "description": "API routes should call application services rather than concrete infrastructure.",
+    },
+    "runtime": {
+        "forbidden_prefixes": ("fastapi", "starlette", "app.api"),
+        "description": "Runtime composition may wire concrete adapters but must not depend on HTTP routes, DTOs, or framework modules.",
     },
 }
 
@@ -4420,7 +4430,7 @@ $readme = @(
   "- Blocking source observability evidence: make source-observability-contract-gate",
   "- Blocking implementation-truth evidence: make implementation-truth-gate",
   "- Generated artifact cleanup: make clean",
-  "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/observability, src/app/security, src/app/resilience",
+  "- Layered architecture baseline: src/app/api, src/app/application, src/app/domain, src/app/ports, src/app/infrastructure, src/app/runtime, src/app/observability, src/app/security, src/app/resilience",
   "- Report-only architecture boundary evidence: make architecture-boundary-report",
   "- Report-only quality baseline evidence: make quality-baseline"
 ) -join "`n"
@@ -4456,10 +4466,11 @@ Use the Lotus layered backend default:
 2. ``src/app/application`` services orchestrate use cases and depend on ``domain`` and ``ports``,
 3. ``src/app/domain`` logic stays framework-free and must not import FastAPI, API DTOs, infrastructure, persistence, or HTTP clients,
 4. ``src/app/infrastructure`` sits behind ``ports`` adapters,
-5. ``src/app/security`` owns caller-context and product-safe authorization policy primitives,
-6. ``src/app/resilience`` owns retry, backoff, timeout, and circuit-breaker policy primitives; concrete downstream clients still belong behind ``ports`` in ``infrastructure``,
-7. ``src/app/observability`` owns structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers,
-8. generated or scaffold placeholders must be replaced with implementation truth before promotion.
+5. ``src/app/runtime`` owns process-local composition of repositories, adapters, publishers, and clients; it must not import API routes, HTTP DTOs, FastAPI, or Starlette,
+6. ``src/app/security`` owns caller-context and product-safe authorization policy primitives,
+7. ``src/app/resilience`` owns retry, backoff, timeout, and circuit-breaker policy primitives; concrete downstream clients still belong behind ``ports`` in ``infrastructure``,
+8. ``src/app/observability`` owns structured logging, route-template request diagnostics, correlation, tracing, and metrics helpers,
+9. generated or scaffold placeholders must be replaced with implementation truth before promotion.
 
 Run ``make architecture-boundary-gate`` for blocking CI enforcement. Run
 ``make architecture-boundary-report`` when a report artifact is needed for scorecard or review
