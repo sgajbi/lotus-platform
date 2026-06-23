@@ -1934,7 +1934,8 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     }
 
     assert performance_products["ReturnsSeriesBundle"]["approved_consumers"] == [
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-idea",
     ]
     assert performance_products["ReturnsSeriesBundle"]["current_routes"] == [
         "/integration/returns/series",
@@ -1952,7 +1953,8 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert "`lotus-risk`" in returns_series_certification
 
     assert performance_products["BenchmarkExposureContext"]["approved_consumers"] == [
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-idea",
     ]
     assert performance_products["BenchmarkExposureContext"]["current_routes"] == [
         "/integration/benchmarks/exposure-context"
@@ -1966,6 +1968,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     ] == [
         "lotus-gateway",
         "lotus-manage",
+        "lotus-idea",
     ]
     assert performance_products["MandatePerformanceHealthContext"][
         "current_routes"
@@ -1987,6 +1990,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         ("MarketDataWindow", "lotus-core"),
         ("InstrumentReferenceBundle", "lotus-core"),
         ("RiskFreeSeriesWindow", "lotus-core"),
+        ("PositionTimeseriesInput", "lotus-core"),
     }
     assert (
         "/integration/portfolios/{portfolio_id}/analytics/portfolio-timeseries"
@@ -2021,7 +2025,12 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
         "HistoricalRiskAttributionReport": "/analytics/risk/historical-attribution",
         "ConcentrationRiskReport": "/analytics/risk/concentration",
     }.items():
-        assert risk_products[product_name]["approved_consumers"] == ["lotus-gateway"]
+        expected_consumers = (
+            ["lotus-gateway", "lotus-idea"]
+            if product_name == "RiskMetricsReport"
+            else ["lotus-gateway"]
+        )
+        assert risk_products[product_name]["approved_consumers"] == expected_consumers
         assert risk_products[product_name]["current_routes"] == [route]
         assert route in risk_router_modules
         assert route in risk_endpoint_matrix
@@ -2029,6 +2038,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     assert risk_products["MandateRiskHealthContext"]["approved_consumers"] == [
         "lotus-gateway",
         "lotus-manage",
+        "lotus-idea",
     ]
     assert risk_products["MandateRiskHealthContext"]["current_routes"] == [
         "/analytics/risk/mandate-health-context"
