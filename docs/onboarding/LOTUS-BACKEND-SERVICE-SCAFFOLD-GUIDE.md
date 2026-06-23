@@ -242,11 +242,12 @@ The scaffold starts with deterministic blocking gates for low-noise controls:
 11. `make monetary-float-guard`
 12. `make no-sensitive-content-guard`
 13. `make source-observability-contract-gate`
-14. `make implementation-truth-gate`
-15. `make test`
-16. `make ci`
-17. `make security-audit`
-18. `make clean`
+14. `make operation-metric-contract-gate`
+15. `make implementation-truth-gate`
+16. `make test`
+17. `make ci`
+18. `make security-audit`
+19. `make clean`
 
 For focused fix-forward work, keep using repo-native targets and override the path variable instead
 of bypassing the Makefile:
@@ -273,6 +274,7 @@ instead.
 silently removing Makefile targets, least-privilege workflow permissions, approved workflow action
 majors, 99 percent merge/releasability coverage, Docker validation, release evidence,
 endpoint-certification, supported-feature, security-audit, architecture, OpenAPI controls,
+operation-metric contract posture,
 workflow-dispatch access, bounded job timeouts, no-soft-fail critical workflow posture,
 non-suppressed auto-merge token usage, safe cleanup wiring, or merged-PR main-releasability
 dispatch.
@@ -313,6 +315,11 @@ endpoints exist.
 agent-authored application source from adding raw `print()`, direct Python logging, or low-level
 `log_event` bypasses outside the central observability module. Generated request diagnostics use
 route templates rather than raw URL paths.
+
+`make operation-metric-contract-gate` is blocking from day one. It protects the generated
+`*_operation_events_total` vocabulary, bounded label set, and forbidden sensitive operation
+attribute keys. This is operation telemetry hygiene only; it does not certify dashboards, alerts,
+business operations, data-mesh telemetry, or supported-feature promotion.
 
 `make implementation-truth-gate` is blocking from day one. It prevents generated or
 agent-authored current-state README/docs/wiki text from claiming demo readiness, production
@@ -366,6 +373,7 @@ make ci-contract-gate
 make maintainability-gate
 make documentation-contract-gate
 make quality-scorecard-gate
+make operation-metric-contract-gate
 make implementation-truth-gate
 make architecture-boundary-gate
 make architecture-boundary-report

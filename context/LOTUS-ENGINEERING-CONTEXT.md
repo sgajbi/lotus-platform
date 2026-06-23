@@ -691,14 +691,15 @@ permanent red helper check. Generated backend workflows must also declare bounde
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`,
-`make monetary-float-guard`, `make source-observability-contract-gate`, and
-`make implementation-truth-gate`
-through `automation/New-Lotus-Service.ps1` and run all six through
+`make monetary-float-guard`, `make source-observability-contract-gate`,
+`make operation-metric-contract-gate`, and `make implementation-truth-gate`
+through `automation/New-Lotus-Service.ps1` and run all seven through
 `make lint`; they block oversized source/test/script modules, deletion or
 thinning of required README/context/standards/runbook/quality/evidence/wiki
 surfaces, stale bank-buyable scorecard control-matrix truth, money-like
 `float` annotations/literals/return annotations/conversions, raw application
-logging bypasses outside the central observability module, plus unqualified
+logging bypasses outside the central observability module, sensitive or unbounded
+operation metric names/labels/attributes, plus unqualified
 README/docs/wiki current-state claims of demo
 readiness, production support, certification, live source ingestion,
 Gateway/Workbench support, or client-ready publication before supported-feature

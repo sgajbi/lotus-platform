@@ -14,14 +14,14 @@ Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-cont
 `make maintainability-gate`, `make documentation-contract-gate`,
 `make quality-scorecard-gate`, `make monetary-float-guard`,
 `make source-observability-contract-gate`, and
-`make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands such as `make architecture-boundary-report` and
+`make operation-metric-contract-gate`, and `make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands such as `make architecture-boundary-report` and
 `make quality-baseline` when an RFC, PR, scorecard, or review needs durable quality artifacts.
 
 `make ci-contract-gate` is the day-one anti-drift check for generated backend services. It prevents
 future scaffold or agent changes from silently removing Makefile targets, least-privilege workflow
 permissions, approved action majors, merge/releasability coverage, Docker validation, release
 evidence, endpoint-certification, supported-feature, security-audit, architecture, or OpenAPI
-controls. It also protects safe cleanup wiring, workflow-dispatch access, and the merged-PR Main
+controls, plus operation metric contract posture. It also protects safe cleanup wiring, workflow-dispatch access, and the merged-PR Main
 Releasability dispatch needed for rebase auto-merged PRs, plus `LOTUS_AUTOMERGE_TOKEN` usage so
 the merge actor is not the suppressed workflow token.
 
@@ -52,6 +52,11 @@ scorecard underclaims once certified business endpoint evidence exists.
 code must use the central observability module rather than raw `print()`, direct Python logging, or
 low-level `log_event` calls. Generated request diagnostics log route templates rather than raw URL
 paths.
+
+`make operation-metric-contract-gate` protects generated operation telemetry vocabulary. It keeps
+the `*_operation_events_total` metric name, bounded label set, and forbidden sensitive operation
+attribute keys source-safe before a service adds real business workflows. It does not certify
+dashboards, alerts, business operations, data-mesh telemetry, or supported-feature promotion.
 
 `make implementation-truth-gate` is the day-one current-state claim guard for generated backend
 services. It prevents generated or agent-authored README/docs/wiki text from claiming demo

@@ -66,7 +66,10 @@ Current repository posture:
    `node_modules`, and removes only known local cache/build/coverage artifacts. Generated services
    also include `make source-observability-contract-gate`, which blocks raw
    `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
-   generated request diagnostic helper logs route templates instead of raw URL paths. Detailed
+   generated request diagnostic helper logs route templates instead of raw URL paths. Generated
+   services also include `make operation-metric-contract-gate`, which protects bounded
+   `*_operation_events_total` metric vocabulary, safe operation labels, and forbidden sensitive
+   operation attribute keys before service-specific business operations are implemented. Detailed
    usage and generated feature documentation lives in
    `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`. Generated test targets now expose
    `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` path overrides so focused fix-forward

@@ -77,6 +77,9 @@ def test_scaffold_ci_contract_proves_backend_scaffold_defaults() -> None:
     assert "maintainability-gate" in defaults["backend_makefile_ci_gates"][
         "required_terms"
     ]
+    assert "operation-metric-contract-gate" in defaults["backend_makefile_ci_gates"][
+        "required_terms"
+    ]
     assert "implementation-truth-gate" in defaults["backend_makefile_ci_gates"][
         "required_terms"
     ]

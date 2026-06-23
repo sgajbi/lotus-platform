@@ -76,6 +76,7 @@
         "openapi-gate",
         "no-sensitive-content-guard",
         "maintainability-gate",
+        "operation-metric-contract-gate",
         "implementation-truth-gate",
         "supported-features-gate",
         "architecture-boundary-gate",

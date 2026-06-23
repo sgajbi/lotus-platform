@@ -116,7 +116,8 @@ Use when the task is about:
 7. establishing or updating enterprise backend refactor baseline artifacts under `quality/`.
 8. updating scaffold-level anti-drift gates such as `make ci-contract-gate`,
    `make maintainability-gate`, `make documentation-contract-gate`,
-   `make quality-scorecard-gate`, or `make implementation-truth-gate`.
+   `make quality-scorecard-gate`, `make operation-metric-contract-gate`, or
+   `make implementation-truth-gate`.
 
 ## Keep, Tighten, Add, Remove Decisions
 
