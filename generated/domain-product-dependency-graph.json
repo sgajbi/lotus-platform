@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-04-19T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 83,
-  "edge_count": 248,
+  "edge_count": 263,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -810,6 +810,11 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
       "to": "repo:lotus-workbench"
     },
     {
@@ -830,6 +835,11 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
       "to": "repo:lotus-render"
     },
     {
@@ -846,6 +856,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -896,6 +911,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-advise:TacticalHouseViewAffectedCohort:v1",
       "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkAssignment:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1155,6 +1175,11 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioCashMovementSummary:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioCashMovementSummary:v1",
       "to": "repo:lotus-manage"
     },
     {
@@ -1166,6 +1191,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioCashflowProjection:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1226,6 +1256,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioStateSnapshot:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1339,8 +1374,18 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-manage:PortfolioActionRegister:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-performance:AttributionAnalytics:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:BenchmarkExposureContext:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1365,12 +1410,22 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-performance:MandatePerformanceHealthContext:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:MandatePerformanceHealthContext:v1",
       "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-performance:MoneyWeightedReturnAnalytics:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-performance:ReturnsSeriesBundle:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1386,6 +1441,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-report:ClientReportEvidencePack:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-report:ClientReportEvidencePack:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1410,12 +1470,22 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-risk:MandateRiskHealthContext:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:MandateRiskHealthContext:v1",
       "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",
@@ -1431,6 +1501,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-risk:RiskMetricsReport:v1",
       "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:RiskMetricsReport:v1",
+      "to": "repo:lotus-idea"
     },
     {
       "edge_type": "approves_consumer",

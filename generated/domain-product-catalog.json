@@ -276,7 +276,8 @@
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
         "lotus-gateway",
-        "lotus-workbench"
+        "lotus-workbench",
+        "lotus-idea"
       ],
       "current_routes": [
         "/advisory/copilot/evidence-packets/from-proposal-version",
@@ -343,7 +344,8 @@
         "lotus-render",
         "lotus-archive",
         "lotus-workbench",
-        "lotus-ai"
+        "lotus-ai",
+        "lotus-idea"
       ],
       "current_routes": [
         "/advisory/proposals/{proposal_id}/versions/{proposal_version_id}/policy-evaluations",
@@ -408,7 +410,8 @@
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
-        "lotus-gateway"
+        "lotus-gateway",
+        "lotus-idea"
       ],
       "current_routes": [
         "/advisory/proposals/{proposal_id}",
@@ -671,7 +674,8 @@
         "lotus-performance",
         "lotus-risk",
         "lotus-report",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/benchmark-assignment"
@@ -2583,7 +2587,8 @@
       "approved_consumers": [
         "lotus-gateway",
         "lotus-report",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/portfolios/{portfolio_id}/cash-movement-summary"
@@ -2649,7 +2654,8 @@
       "approved_consumers": [
         "lotus-gateway",
         "lotus-report",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/portfolios/{portfolio_id}/cashflow-projection"
@@ -2915,7 +2921,8 @@
         "lotus-gateway",
         "lotus-advise",
         "lotus-manage",
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-idea"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/core-snapshot"
@@ -3658,7 +3665,8 @@
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
-        "lotus-gateway"
+        "lotus-gateway",
+        "lotus-idea"
       ],
       "current_routes": [
         "/api/v1/rebalance/supportability/summary",
@@ -3769,7 +3777,8 @@
         "product_name",
         "product_version",
         "generated_at",
-        "as_of_date"
+        "as_of_date",
+        "correlation_id"
       ],
       "freshness_policy": {
         "freshness_class": "daily",
@@ -3786,7 +3795,8 @@
       },
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-idea"
       ],
       "current_routes": [
         "/integration/benchmarks/exposure-context"
@@ -3960,7 +3970,8 @@
         "as_of_date",
         "request_fingerprint",
         "source_services",
-        "benchmark_context"
+        "benchmark_context",
+        "correlation_id"
       ],
       "freshness_policy": {
         "freshness_class": "daily",
@@ -3979,7 +3990,8 @@
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
         "lotus-gateway",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/performance/mandate-health-context"
@@ -4098,7 +4110,8 @@
       },
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-idea"
       ],
       "current_routes": [
         "/integration/returns/series",
@@ -4226,7 +4239,8 @@
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
-        "lotus-gateway"
+        "lotus-gateway",
+        "lotus-idea"
       ],
       "current_routes": [
         "/reports/client-evidence-packs/{portfolio_id}",
@@ -4449,7 +4463,8 @@
         "request_fingerprint",
         "source_services",
         "upstream_request_fingerprints",
-        "benchmark_context"
+        "benchmark_context",
+        "correlation_id"
       ],
       "freshness_policy": {
         "freshness_class": "daily",
@@ -4467,7 +4482,8 @@
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
         "lotus-gateway",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/analytics/risk/mandate-health-context"
@@ -4507,7 +4523,8 @@
         "as_of_date",
         "lineage_version",
         "request_fingerprint",
-        "source_services"
+        "source_services",
+        "correlation_id"
       ],
       "freshness_policy": {
         "freshness_class": "daily",
@@ -4525,7 +4542,8 @@
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
         "lotus-gateway",
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-idea"
       ],
       "current_routes": [
         "/analytics/risk/regime-scenario-pack/evaluate"
@@ -4623,7 +4641,8 @@
         "source_services",
         "upstream_request_fingerprints",
         "benchmark_context",
-        "risk_free_context"
+        "risk_free_context",
+        "correlation_id"
       ],
       "freshness_policy": {
         "freshness_class": "daily",
@@ -4640,7 +4659,8 @@
       },
       "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
       "approved_consumers": [
-        "lotus-gateway"
+        "lotus-gateway",
+        "lotus-idea"
       ],
       "current_routes": [
         "/analytics/risk/calculate"
