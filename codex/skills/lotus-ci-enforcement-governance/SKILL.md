@@ -141,10 +141,11 @@ bounded operation-event test evidence in the endpoint ledger. Baseline health/me
 remain `baseline_certified` without operation-event evidence, but once an endpoint is marked
 `certified`, API contract evidence and supportability telemetry proof must move together.
 
-New backend scaffolds should also generate `make maintainability-gate`,
-`make documentation-contract-gate`, `make quality-scorecard-gate`,
-`make monetary-float-guard`, `make source-observability-contract-gate`, and
-`make implementation-truth-gate`, and run all six through `make lint`.
+New backend scaffolds should also generate and run this seven-gate quality pack through
+`make lint`: `make maintainability-gate`, `make documentation-contract-gate`,
+`make quality-scorecard-gate`, `make monetary-float-guard`,
+`make source-observability-contract-gate`, `make operation-metric-contract-gate`, and
+`make implementation-truth-gate`.
 The maintainability gate should block
 oversized source, test, and script files/functions against conservative
 thresholds calibrated above the initial scaffold baseline. The documentation
@@ -156,10 +157,14 @@ statuses, non-empty evidence/gap/next-slice cells, implementation-backed evidenc
 anchors, and stale scaffold-era scorecard underclaims once certified business
 endpoints exist. The monetary-float guard should be AST-backed and block
 money-like `float` annotations, literals, return annotations, and conversions
-while allowing non-monetary operational floats such as timeout seconds. The source-observability contract gate should block raw
+while allowing non-monetary operational floats such as timeout seconds. The
+source-observability contract gate should block raw
 `print()`, direct Python logging, and low-level `log_event` bypasses in
 `src/app` so generated and agent-authored feature code uses central
-observability helpers and route-template request diagnostics. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
+observability helpers and route-template request diagnostics. The operation metric contract gate
+should block sensitive or unbounded operation metric names, labels, and attributes so future
+business-operation telemetry starts source-safe before dashboards, alerts, or supported-feature
+claims exist. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
 quality docs, and wiki source for unqualified claims of demo readiness, production support,
 certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
 supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after

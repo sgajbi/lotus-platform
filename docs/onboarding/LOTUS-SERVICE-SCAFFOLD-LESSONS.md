@@ -100,27 +100,34 @@ solving them only in the generated app.
     gate from day one. Generated app code should use the central observability
     module for route-template request diagnostics and must block raw `print()`,
     direct Python logging, or low-level `log_event` bypasses in `src/app`.
-21. Scaffolded backend repositories should generate an AST-backed
+21. Scaffolded backend repositories also need an operation metric contract gate
+    from day one. Generated observability code should define a bounded
+    `*_operation_events_total` vocabulary, safe label set, and forbidden
+    sensitive operation attribute keys before service-specific workflows add
+    business-operation telemetry. This gate is telemetry hygiene only; it must
+    not claim dashboards, alerts, data-mesh certification, or supported-feature
+    promotion.
+22. Scaffolded backend repositories should generate an AST-backed
     monetary-float guard, not a string-only search. The guard should block
     money-like `float` annotations, literals, return annotations, and
     conversions while allowing operational floats such as timeout seconds, and
     scaffold tests should execute both clean and failing generated-guard paths.
-22. Scaffolded backend repositories should generate pass/fail unit tests for
+23. Scaffolded backend repositories should generate pass/fail unit tests for
     no-sensitive-content artifact guarding. A blocking artifact-leak guard is
     not enough by itself; the generated service should prove clean artifacts,
     forbidden marker detection, allowlisted documentation, and binary artifact
     handling from day one.
-23. Scaffolded backend repositories should generate a real cleanup utility
+24. Scaffolded backend repositories should generate a real cleanup utility
     instead of an inline Makefile one-liner. `make clean` should call
     `python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and
     `node_modules`, remove only known cache/build/coverage artifacts, and be
     protected by `make ci-contract-gate` plus generated unit tests.
-24. Scaffolded backend repositories should make focused validation efficient
+25. Scaffolded backend repositories should make focused validation efficient
     without bypassing repo-native targets. Generate `UNIT_TESTS`,
     `INTEGRATION_TESTS`, and `E2E_TESTS` Makefile variables so agents can run
     `make test-unit UNIT_TESTS=<path>` during fix-forward work while full-suite
     defaults remain intact for PR and CI evidence.
-25. Scaffolded backend repositories should include a `src/app/runtime` package
+26. Scaffolded backend repositories should include a `src/app/runtime` package
     for process-local dependency composition once repositories, adapters,
     publishers, workers, or proof generators need runtime wiring. The generated
     architecture boundary gate should block `runtime` from importing API routes,

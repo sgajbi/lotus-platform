@@ -182,6 +182,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "scripts/no_sensitive_content_guard.py" in scaffold_script
     assert "tests/unit/test_no_sensitive_content_guard.py" in scaffold_script
     assert "scripts/source_observability_contract_gate.py" in scaffold_script
+    assert "scripts/operation_metric_contract_gate.py" in scaffold_script
     assert "scripts/ci_contract_gate.py" in scaffold_script
     assert "scripts/clean_generated_artifacts.py" in scaffold_script
     assert "tests/unit/test_clean_generated_artifacts.py" in scaffold_script
@@ -236,6 +237,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         in scaffold_script
     )
     assert 'response.headers["X-Trace-Id"] = trace_id' in scaffold_script
+    assert "OPERATION_METRIC_LABELS" in scaffold_script
+    assert "FORBIDDEN_OPERATION_FIELD_KEYS" in scaffold_script
+    assert "emit_operation_event" in scaffold_script
     assert "monetary-float-guard:" in makefile_template
     assert "$(MAKE) monetary-float-guard" in makefile_template
     assert "ci-contract-gate:" in makefile_template
@@ -253,6 +257,8 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(MAKE) no-sensitive-content-guard" in makefile_template
     assert "source-observability-contract-gate:" in makefile_template
     assert "$(MAKE) source-observability-contract-gate" in makefile_template
+    assert "operation-metric-contract-gate:" in makefile_template
+    assert "$(MAKE) operation-metric-contract-gate" in makefile_template
     assert "implementation-truth-gate:" in makefile_template
     assert "$(MAKE) implementation-truth-gate" in makefile_template
     assert "supported-features-gate:" in makefile_template
@@ -383,6 +389,13 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     source_observability_gate_result = subprocess.run(
         [sys.executable, "scripts/source_observability_contract_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    operation_metric_gate_result = subprocess.run(
+        [sys.executable, "scripts/operation_metric_contract_gate.py"],
         cwd=repo_root,
         check=True,
         capture_output=True,
@@ -704,6 +717,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "source-observability-contract-gate:" in makefile
     assert "$(MAKE) source-observability-contract-gate" in makefile
     assert (repo_root / "scripts/source_observability_contract_gate.py").exists()
+    assert "operation-metric-contract-gate:" in makefile
+    assert "$(MAKE) operation-metric-contract-gate" in makefile
+    assert (repo_root / "scripts/operation_metric_contract_gate.py").exists()
+    assert "OPERATION_METRIC_LABELS" in (
+        repo_root / "src/app/observability/logging.py"
+    ).read_text(encoding="utf-8")
     assert "clean:" in makefile
     assert "python scripts/clean_generated_artifacts.py" in makefile
     assert (repo_root / "scripts/clean_generated_artifacts.py").exists()
@@ -740,10 +759,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert 'name="domain-service"' in domain_profile
     assert "Domain-authoritative backend service" in domain_profile
     assert "current_service_profile" in application_profile
-    assert (
-        "from app.observability.logging import configure_logging, emit_request_diagnostic_event"
-        in observability_init
-    )
+    assert "configure_logging" in observability_init
+    assert "emit_request_diagnostic_event" in observability_init
+    assert "emit_operation_event" in observability_init
     assert "include_in_schema=False" in main_py
     assert 'tags=["Health"]' in main_py
     assert 'summary="Get service health"' in main_py
@@ -856,6 +874,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "Source observability contract gate passed"
         in source_observability_gate_result.stdout
     )
+    assert "Operation metric contract gate passed" in operation_metric_gate_result.stdout
     assert "Removed " in cleanup_result.stdout
     assert "generated directories" in cleanup_result.stdout
     assert not generated_cache.exists()
@@ -873,6 +892,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "documentation-contract-gate" in ci_contract_gate
     assert "quality-scorecard-gate" in ci_contract_gate
     assert "source-observability-contract-gate" in ci_contract_gate
+    assert "operation-metric-contract-gate" in ci_contract_gate
     assert "clean_generated_artifacts.py" in ci_contract_gate
     assert "Makefile clean target must call" in ci_contract_gate
     assert "coverage report --fail-under=99" in ci_contract_gate
@@ -1077,6 +1097,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make documentation-contract-gate" in readme
     assert "make quality-scorecard-gate" in readme
     assert "make source-observability-contract-gate" in readme
+    assert "make operation-metric-contract-gate" in readme
     assert "make implementation-truth-gate" in readme
     assert "Quality scorecard and refactor decisions: quality/" in readme
     assert "Demo claims ledger: docs/demo/demo-claims.md" in readme
@@ -1100,6 +1121,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         in repo_context
     )
     assert "`make source-observability-contract-gate` blocks raw print" in repo_context
+    assert "`make operation-metric-contract-gate` keeps operation metric vocabulary" in repo_context
     assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
@@ -1140,6 +1162,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make source-observability-contract-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
+    assert "make operation-metric-contract-gate" in (
+        repo_root / "wiki/Validation-And-CI.md"
+    ).read_text(encoding="utf-8")
     assert "make implementation-truth-gate" in (
         repo_root / "wiki/Validation-And-CI.md"
     ).read_text(encoding="utf-8")
@@ -1155,6 +1180,7 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "make documentation-contract-gate" in ci_quality_gates
     assert "make quality-scorecard-gate" in ci_quality_gates
     assert "make source-observability-contract-gate" in ci_quality_gates
+    assert "make operation-metric-contract-gate" in ci_quality_gates
     assert "make implementation-truth-gate" in ci_quality_gates
     assert "REQUIRED_SURFACES" in documentation_contract_gate
     assert "contains placeholder text" in documentation_contract_gate
