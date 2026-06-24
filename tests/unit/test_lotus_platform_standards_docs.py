@@ -76,7 +76,9 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
         assert "Client-Ready Acceptance" in content
 
     operating_process = _read("docs/demo/client-demo-operating-process.md")
+    brief_template = _read("docs/demo/client-demo-brief-template.md")
     operating_wiki = _read("wiki/Client-Demo-Operating-Process.md")
+    brief_wiki = _read("wiki/Client-Demo-Brief-Template.md")
     demo_skill = _read("codex/skills/lotus-demo-readiness-certification/SKILL.md")
 
     for content in (operating_process, operating_wiki):
@@ -85,7 +87,19 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
         assert "Why it is trustworthy" in content
         assert "Data safety" in content
 
+    for content in (brief_template, brief_wiki):
+        assert "```mermaid" in content
+        assert "Client problem" in content
+        assert "Lotus response" in content
+        assert "What the client will see" in content or "Demo sequence" in content
+        assert "Why it is trustworthy" in content or "Trust proof" in content
+        assert "Current boundary" in content
+        assert "Follow-up path" in content or "Follow-up" in content
+        assert "Claim discipline" in content
+        assert "Data safety" in content or "No real client data" in content
+
     assert "one-page client brief" in demo_skill.lower()
+    assert "client-demo-brief-template.md" in demo_skill
     assert "client-ready acceptance" in demo_skill.lower()
 
     for content in (sidebar, home, canonical_demo, engineering_context, reference_map, repo_context):

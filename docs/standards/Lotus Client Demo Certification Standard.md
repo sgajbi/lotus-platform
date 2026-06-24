@@ -112,7 +112,8 @@ A certified demo pack should contain:
 
 Client-facing packs should start with a one-page brief that explains the client problem, Lotus
 response, visible demo sequence, implementation-backed proof anchor, current boundary, and
-follow-up path. The brief must use business language and exclude internal logs, raw payloads,
+follow-up path. Use [Lotus Client Demo Brief Template](../demo/client-demo-brief-template.md) for
+that artifact. The brief must use business language and exclude internal logs, raw payloads,
 internal tickets, raw prompts, raw AI output, secrets, credentials, and sensitive identifiers.
 
 ## Client-Ready Acceptance
@@ -162,6 +163,7 @@ Do not:
 
 - [Canonical DPM Demo Story](../demo/canonical-dpm-demo-story.md)
 - [Lotus Client Demo Operating Process](../demo/client-demo-operating-process.md)
+- [Lotus Client Demo Brief Template](../demo/client-demo-brief-template.md)
 - [Lotus Data Mesh Standard](Lotus%20Data%20Mesh%20Standard.md)
 - [Platform Observability Standards](Platform%20Observability%20Standards.md)
 - [Enterprise Readiness Standard](Enterprise%20Readiness%20Standard.md)

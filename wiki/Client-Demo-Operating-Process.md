@@ -60,6 +60,10 @@ flowchart LR
 
 Every external demo pack should start with a short client-facing brief:
 
+Use [Client Demo Brief Template](Client-Demo-Brief-Template) as the reusable wiki entry point for
+the one-page client brief. It translates implementation evidence into business language while
+preserving owner, command, run ID, evidence, and boundary anchors.
+
 | Brief section | What clients should get |
 | --- | --- |
 | Client problem | The private-banking workflow, operational friction, control weakness, or decision challenge being addressed. |
@@ -92,8 +96,10 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadiness
 
 ## Source Of Truth
 
+- [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Certification](Client-Demo-Certification)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
+- [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
 - [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - [Canonical demo-data contract](../context/contracts/canonical-front-office-demo-data-contract.json)

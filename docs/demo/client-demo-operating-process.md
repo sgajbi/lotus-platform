@@ -113,6 +113,11 @@ the story while preserving proof for technical and operational review.
 Every external demo should include a short client-facing brief before detailed evidence links. The
 brief is written for the buying audience, not for internal implementation review.
 
+Use [Lotus Client Demo Brief Template](client-demo-brief-template.md) as the reusable authored
+template for the one-page brief. The brief should be concise enough for a client sponsor to read
+before the meeting, while retaining proof anchors for technical, operational, security, and
+commercial follow-up.
+
 | Brief section | Required content |
 | --- | --- |
 | Client problem | The private-banking workflow, risk, operational friction, or control weakness the demo addresses. |
@@ -217,6 +222,7 @@ Use this framing when a client asks what Lotus is doing:
 ## Related References
 
 - [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Brief Template](client-demo-brief-template.md)
 - [Canonical DPM Demo Story](canonical-dpm-demo-story.md)
 - [Lotus Data Mesh Standard](../standards/Lotus%20Data%20Mesh%20Standard.md)
 - [Lotus Bank-Buyable Engineering Contract](../../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)

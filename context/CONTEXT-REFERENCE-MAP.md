@@ -198,19 +198,24 @@ For client demo certification work, use:
 2. [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
    Client-facing operating process for intake, claim classification, certification, demo packs,
    rehearsal, delivery, and follow-up.
-3. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
+3. [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
+   Reusable one-page client brief template that explains what Lotus is doing, why it is
+   trustworthy, current boundaries, and follow-up ownership.
+4. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
    Audience-ready deep demo narrative for the governed front-office DPM story.
-4. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
+5. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
    Published-source summary for business, operations, engineering, sales, pre-sales, and client demo
    preparation.
-5. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
+6. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
    Human-readable certification process summary.
-6. [Client Demo Operating Process Wiki Source](../wiki/Client-Demo-Operating-Process.md)
+7. [Client Demo Operating Process Wiki Source](../wiki/Client-Demo-Operating-Process.md)
    Human-readable client-demo workflow summary for business, sales, pre-sales, operations,
    marketing, and engineering readers.
-7. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
+8. [Client Demo Brief Template Wiki Source](../wiki/Client-Demo-Brief-Template.md)
+   Human-readable template for client-facing one-page demo briefs.
+9. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
    Platform report-only demo-readiness certification wrapper.
-8. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
+10. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
    Canonical Workbench runtime, API, panel, transcript, and screenshot evidence wrapper.
 
 ## Task Routing
