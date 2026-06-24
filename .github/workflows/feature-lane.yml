@@ -61,10 +61,14 @@ jobs:
         with:
           repository: sgajbi/lotus-manage
           path: _federated/lotus-manage
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-idea
+          path: _federated/lotus-idea
       - name: Link governed source repositories into federated workspace
         shell: bash
         run: |
-          for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-render lotus-archive lotus-manage; do
+          for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-render lotus-archive lotus-manage lotus-idea; do
             ln -s "$GITHUB_WORKSPACE/_federated/$repo" "$GITHUB_WORKSPACE/../$repo"
           done
       - uses: actions/setup-python@v6

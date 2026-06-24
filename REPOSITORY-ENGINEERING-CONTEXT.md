@@ -287,6 +287,10 @@ Boundary rules:
     client-demo claim states, evidence requirements, demo pack structure, canonical front-office
     proof, and explicit boundaries. Future client-demo material must distinguish
     implementation-backed, bounded-preview, diagnostic, planned, and unsupported claims.
+41. Platform repo-contract workflows now checkout and sibling-link `lotus-idea` with the other
+    governed source repositories because the domain-product source manifest includes
+    catalog-visible future-wave `lotus-idea` declarations. Do not remove that checkout unless the
+    manifest is changed at the same time.
 
 ## Repo-Native Commands
 
