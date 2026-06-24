@@ -14,6 +14,7 @@
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Client Demo Certification](Client-Demo-Certification)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
+- [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Data Mesh Standard](Data-Mesh-Standard)
 - [Enterprise Mesh Status](Enterprise-Mesh-Status)
 - [Troubleshooting](Troubleshooting)

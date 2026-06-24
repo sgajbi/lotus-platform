@@ -234,6 +234,8 @@ Important current platform truths:
   [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - client demo operating process:
   [docs/demo/client-demo-operating-process.md](docs/demo/client-demo-operating-process.md)
+- client demo brief template:
+  [docs/demo/client-demo-brief-template.md](docs/demo/client-demo-brief-template.md)
 - enterprise backend quality baseline:
   [quality/baseline_report.md](quality/baseline_report.md)
 - enterprise refactor scorecard:

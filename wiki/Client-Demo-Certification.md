@@ -36,6 +36,7 @@ flowchart LR
 
 - audience and objective
 - story sequence
+- one-page client brief
 - implementation-backed claims
 - current boundaries and "do not claim" list
 - validation command and run id
@@ -74,7 +75,9 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadiness
 ## Source Of Truth
 
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
+- [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
 - [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Canonical demo-data contract](../context/contracts/canonical-front-office-demo-data-contract.json)
