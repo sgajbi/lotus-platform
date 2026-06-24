@@ -8,6 +8,11 @@ reviewed evidence.
 This standard gives product, engineering, sales, marketing, operations, and client-facing teams a
 shared process for preparing demos without overstating current implementation.
 
+Use [Lotus Client Demo Operating Process](../demo/client-demo-operating-process.md) when a demo
+needs a client-facing operating model, pack structure, rehearsal process, delivery guidance, and
+follow-up discipline. This standard remains the certification rulebook; the operating process is the
+client-demo workflow.
+
 ## Demo Certification Principle
 
 Every client-facing claim must be traceable to one of these states:
@@ -138,6 +143,7 @@ Do not:
 ## Related References
 
 - [Canonical DPM Demo Story](../demo/canonical-dpm-demo-story.md)
+- [Lotus Client Demo Operating Process](../demo/client-demo-operating-process.md)
 - [Lotus Data Mesh Standard](Lotus%20Data%20Mesh%20Standard.md)
 - [Platform Observability Standards](Platform%20Observability%20Standards.md)
 - [Enterprise Readiness Standard](Enterprise%20Readiness%20Standard.md)

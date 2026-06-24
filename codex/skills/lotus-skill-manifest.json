@@ -37,7 +37,7 @@
       "path": "codex/skills/lotus-demo-readiness-certification",
       "category": "demo-readiness-certification",
       "directly_lotus_owned": true,
-      "reason": "App-wide demo readiness certification workflow for real APIs, features, seed data, calculations, evidence review, and fix-forward validation."
+      "reason": "App-wide demo readiness and client-demo operating workflow for real APIs, features, seed data, calculations, evidence review, demo packs, and fix-forward validation."
     },
     {
       "name": "lotus-frontend-delivery-governance",

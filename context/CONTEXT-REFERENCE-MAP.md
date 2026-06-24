@@ -195,16 +195,22 @@ For client demo certification work, use:
 
 1. [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
    Human standard for claim states, evidence requirements, demo packs, and client-safe boundaries.
-2. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
+2. [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
+   Client-facing operating process for intake, claim classification, certification, demo packs,
+   rehearsal, delivery, and follow-up.
+3. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
    Audience-ready deep demo narrative for the governed front-office DPM story.
-3. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
+4. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
    Published-source summary for business, operations, engineering, sales, pre-sales, and client demo
    preparation.
-4. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
+5. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
    Human-readable certification process summary.
-5. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
+6. [Client Demo Operating Process Wiki Source](../wiki/Client-Demo-Operating-Process.md)
+   Human-readable client-demo workflow summary for business, sales, pre-sales, operations,
+   marketing, and engineering readers.
+7. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
    Platform report-only demo-readiness certification wrapper.
-6. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
+8. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
    Canonical Workbench runtime, API, panel, transcript, and screenshot evidence wrapper.
 
 ## Task Routing

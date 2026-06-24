@@ -30,6 +30,11 @@ documents: `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 - [Local Development Runbook](operations/Local%20Development%20Runbook.md)
 - [Lotus Repository Rename Runbook](operations/Lotus%20Repository%20Rename%20Runbook.md)
 
+## Demo
+
+- [Canonical DPM Demo Story](demo/canonical-dpm-demo-story.md)
+- [Lotus Client Demo Operating Process](demo/client-demo-operating-process.md)
+
 ## Onboarding
 
 - [Lotus Backend Service Scaffold Guide](onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)

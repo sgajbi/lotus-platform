@@ -47,6 +47,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | Enterprise Readiness Standard | `platform-wide` | `docs/standards/Enterprise Readiness Standard.md` |
 | Lotus Data Mesh Standard | `platform-wide` | `docs/standards/Lotus Data Mesh Standard.md` |
 | Lotus Client Demo Certification Standard | `platform-wide` | `docs/standards/Lotus Client Demo Certification Standard.md` |
+| Lotus Client Demo Operating Process | `platform-wide` | `docs/demo/client-demo-operating-process.md` |
 | Lotus Bank-Buyable Engineering Contract | `platform-wide` | `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` |
 | Scalability and Availability Standard | `platform-wide` | `docs/standards/Scalability and Availability Standard.md` |
 | Domain Vocabulary Glossary | `platform-wide` | `docs/standards/Domain Vocabulary Glossary.md` |

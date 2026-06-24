@@ -13,6 +13,7 @@
 - [Analytics UI Observability](Analytics-UI-Observability)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
 - [Client Demo Certification](Client-Demo-Certification)
+- [Client Demo Operating Process](Client-Demo-Operating-Process)
 - [Data Mesh Standard](Data-Mesh-Standard)
 - [Enterprise Mesh Status](Enterprise-Mesh-Status)
 - [Troubleshooting](Troubleshooting)
