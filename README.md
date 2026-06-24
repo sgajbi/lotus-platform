@@ -197,12 +197,17 @@ Important current platform truths:
    relevant skill guidance in the same slice
 8. new-service scaffolding through `automation/New-Lotus-Service.ps1` should keep new Lotus apps
    current with bank-buyable quality defaults instead of requiring later cleanup to add them
-9. RFC-0084 domain-data-product producer and consumer schemas live under
+9. the Lotus Data Mesh Standard defines how domain-owned products become catalog-visible,
+   policy-governed, Gateway-published, Workbench-discoverable, and certified without moving product
+   authority into the platform, gateway, or UI layer
+10. the Lotus Client Demo Certification Standard defines how client-facing demo claims stay tied to
+    supported features, deterministic data, real APIs, validation evidence, and explicit boundaries
+11. RFC-0084 domain-data-product producer and consumer schemas live under
    `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
    `lotus-core`, `lotus-performance`, and `lotus-risk`
-10. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
+12. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
    `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
-11. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
+13. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
    `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
 
 ## Documentation Map
@@ -223,6 +228,10 @@ Important current platform truths:
   [platform-stack/README.md](platform-stack/README.md)
 - platform standards:
   [platform-standards/README.md](platform-standards/README.md)
+- Lotus data mesh standard:
+  [docs/standards/Lotus Data Mesh Standard.md](docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+- client demo certification standard:
+  [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - enterprise backend quality baseline:
   [quality/baseline_report.md](quality/baseline_report.md)
 - enterprise refactor scorecard:

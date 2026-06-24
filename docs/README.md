@@ -13,6 +13,8 @@ documents: `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 - [Durability and Consistency Standard](standards/Durability%20and%20Consistency%20Standard.md)
 - [Enterprise Readiness Standard](standards/Enterprise%20Readiness%20Standard.md)
 - [Financial Rounding and Precision Standard](standards/Financial%20Rounding%20and%20Precision%20Standard.md)
+- [Lotus Client Demo Certification Standard](standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Data Mesh Standard](standards/Lotus%20Data%20Mesh%20Standard.md)
 - [Migration Engineering Quality Standard](standards/Migration%20Engineering%20Quality%20Standard.md)
 - [Platform Observability Standards](standards/Platform%20Observability%20Standards.md)
 - [Scalability and Availability Standard](standards/Scalability%20and%20Availability%20Standard.md)

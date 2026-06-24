@@ -58,6 +58,10 @@ For governed analytics period naming, use:
 
 For RFC-0084 work, the highest-signal machine-readable files are:
 
+Start with [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md) when
+you need the human operating model: what data mesh means in Lotus, which apps own which role, what
+certification requires, and which anti-patterns are blocked.
+
 1. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 2. [Domain Data Product Semantics Registry](../platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json)
 3. [Domain Data Product Trust Metadata Registry](../platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json)
@@ -187,6 +191,22 @@ For RFC-0084 work, the highest-signal machine-readable files are:
 49. [Enterprise Mesh Status Wiki Source](../wiki/Enterprise-Mesh-Status.md)
     Authored wiki landing page for human-readable mesh status and restart guidance.
 
+For client demo certification work, use:
+
+1. [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+   Human standard for claim states, evidence requirements, demo packs, and client-safe boundaries.
+2. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
+   Audience-ready deep demo narrative for the governed front-office DPM story.
+3. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
+   Published-source summary for business, operations, engineering, sales, pre-sales, and client demo
+   preparation.
+4. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
+   Human-readable certification process summary.
+5. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
+   Platform report-only demo-readiness certification wrapper.
+6. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
+   Canonical Workbench runtime, API, panel, transcript, and screenshot evidence wrapper.
+
 ## Task Routing
 
 1. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
@@ -226,11 +246,13 @@ Key standards to use frequently:
 3. [Dependency Hygiene and Security Standard](../docs/standards/Dependency%20Hygiene%20and%20Security%20Standard.md)
 4. [Enterprise Readiness Standard](../docs/standards/Enterprise%20Readiness%20Standard.md)
 5. [Scalability and Availability Standard](../docs/standards/Scalability%20and%20Availability%20Standard.md)
-6. [Platform Observability Standards](../docs/standards/Platform%20Observability%20Standards.md)
-7. [Domain Vocabulary Glossary](../docs/standards/Domain%20Vocabulary%20Glossary.md)
-8. [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
-9. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
-10. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+6. [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+7. [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+8. [Platform Observability Standards](../docs/standards/Platform%20Observability%20Standards.md)
+9. [Domain Vocabulary Glossary](../docs/standards/Domain%20Vocabulary%20Glossary.md)
+10. [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
+11. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
+12. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 
 Use the bank-buyable contract as a standing non-degradation standard for Lotus app work. Use the
 enterprise backend refactoring instructions when the task is a larger measurement-backed refactor.

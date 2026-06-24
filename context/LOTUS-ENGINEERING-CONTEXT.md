@@ -91,29 +91,33 @@ The canonical relationship model is:
 
 For cross-domain governed data products:
 
-1. domain repositories remain authoritative for product truth,
-2. `lotus-platform/platform-contracts/domain-data-products/` is the platform-owned contract family
+1. `docs/standards/Lotus Data Mesh Standard.md` is the platform-owned human standard for what data
+   mesh means in Lotus, how product authority is separated from platform certification, how app
+   roles map across the ecosystem, and what proof is required before a product can be called mesh
+   certified,
+2. domain repositories remain authoritative for product truth,
+3. `lotus-platform/platform-contracts/domain-data-products/` is the platform-owned contract family
    for producer and consumer declarations introduced by RFC-0084,
-3. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
+4. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
    is the governed identifier, temporal-semantic, and trust-vocabulary registry that those
    declarations must reference,
-4. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
+5. `lotus-platform/platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
    is the governed trust metadata field registry, evidence-class registry, and lineage-bundle
    registry for those declarations,
-5. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
+6. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
-6. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
+7. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
    `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and catalog-visible
    future-wave `lotus-idea`,
-7. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
+8. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
    `lotus-advise`; `lotus-report` and `lotus-manage` are current consumer-declaration
    participants,
-8. `lotus-idea` is catalog-visible as a future-wave opportunity-intelligence producer/consumer
+9. `lotus-idea` is catalog-visible as a future-wave opportunity-intelligence producer/consumer
    with proposed products only; it is not first-wave mesh certified until runtime trust telemetry,
    SLO, access, evidence, Gateway, Workbench, and supported-feature proof pass,
-9. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
+10. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
    it owns a stable governed product or catalog-consuming capability,
-10. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+11. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
 ## Domain Vocabulary Governance
@@ -468,14 +472,17 @@ For RFC-0093/RFC-0094 agent engineering governance:
 
 For local front-office product bring-up, demo readiness, UI screenshots, and populated panel validation:
 
-1. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
-2. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
-2. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
-3. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
-4. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
-5. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
-6. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
-7. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+1. use `docs/standards/Lotus Client Demo Certification Standard.md` as the platform-owned human
+   standard for client-demo claim states, evidence requirements, demo pack structure, and
+   implementation-backed talk tracks,
+2. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
+3. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
+4. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
+5. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
+6. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
+7. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
+8. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
+9. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

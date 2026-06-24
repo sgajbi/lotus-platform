@@ -19,6 +19,7 @@ Use when the work is about:
 - QA entrypoints
 - cross-app validation wrappers
 - canonical demo evidence wrappers and governed screenshot packs
+- data mesh certification evidence and generated operating artifacts
 
 ### `context/`
 
@@ -30,6 +31,7 @@ Use when the work is about:
 - playbooks and procedural memory
 - governed operating contract content
 - canonical front-office demo-data and panel-registry contracts
+- data mesh and client-demo certification standards
 
 ### `platform-standards/`
 
@@ -90,4 +92,6 @@ Use when the work is about:
 - [Architecture](Architecture)
 - [Operations Runbook](Operations-Runbook)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
+- [Client Demo Certification](Client-Demo-Certification)
+- [Data Mesh Standard](Data-Mesh-Standard)
 - [Troubleshooting](Troubleshooting)
