@@ -110,6 +110,24 @@ A certified demo pack should contain:
 7. screenshot pack location,
 8. owner and escalation contact for each critical surface.
 
+Client-facing packs should start with a one-page brief that explains the client problem, Lotus
+response, visible demo sequence, implementation-backed proof anchor, current boundary, and
+follow-up path. The brief must use business language and exclude internal logs, raw payloads,
+internal tickets, raw prompts, raw AI output, secrets, credentials, and sensitive identifiers.
+
+## Client-Ready Acceptance
+
+Before a demo pack is marked client-ready, confirm:
+
+| Acceptance item | Required posture |
+| --- | --- |
+| Story clarity | A non-technical client can understand the workflow, value, controls, and current boundary. |
+| Claim discipline | Every claim has a certification state and owner. |
+| Evidence tie-out | Implementation-backed claims link to the owning app, command, run ID, and evidence artifact. |
+| Data safety | The pack uses only synthetic or approved demo data and excludes sensitive material. |
+| Runtime proof | Screenshots or live proof were captured only after relevant validation passed. |
+| Follow-up ownership | Product, engineering, operations, security, commercial, and marketing owners are named. |
+
 ## Certification Commands
 
 Use app-owned commands first. For the canonical front-office flow, use:

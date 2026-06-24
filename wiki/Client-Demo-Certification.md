@@ -43,6 +43,19 @@ flowchart LR
 - screenshot pack location
 - owner and escalation contact for each critical surface
 
+## Client-Ready Acceptance
+
+Before a demo pack can be used externally, confirm:
+
+| Acceptance item | Required posture |
+| --- | --- |
+| Story clarity | A non-technical client can understand the workflow, value, controls, and current boundary. |
+| Claim discipline | Every claim has a certification state and owner. |
+| Evidence tie-out | Implementation-backed claims link to the owning app, command, run ID, and evidence artifact. |
+| Data safety | The pack uses only synthetic or approved demo data and excludes sensitive material. |
+| Runtime proof | Screenshots or live proof were captured only after relevant validation passed. |
+| Follow-up ownership | Product, engineering, operations, security, commercial, and marketing owners are named. |
+
 ## Canonical Front-Office Demo
 
 The governed front-office demo is anchored on `PB_SG_GLOBAL_BAL_001`, the canonical demo-data
