@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 GENERATOR_PATH = ROOT / "automation" / "generate_enterprise_mesh_maturity_matrix.py"
 GENERATED_DIRECTORY = ROOT / "generated"
-CHECKED_IN_GENERATED_AT = "2026-04-20T00:00:00Z"
+CHECKED_IN_GENERATED_AT = "2026-06-24T00:00:00Z"
 
 
 def _load_generator_module():
@@ -64,6 +64,11 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
         assert repositories[repository]["first_wave_product_count"] == 1
 
     assert repositories["lotus-ai"]["classification"] == "not_mesh_participant"
+    assert repositories["lotus-idea"]["classification"] == "deferred"
+    assert repositories["lotus-idea"]["mesh_role"] == "producer"
+    assert repositories["lotus-idea"]["produced_product_count"] == 9
+    assert repositories["lotus-idea"]["consumed_dependency_count"] == 16
+    assert repositories["lotus-idea"]["ambiguous_participation"] is False
     assert repositories["lotus-gateway"]["mesh_role"] == "api_face"
     assert repositories["lotus-workbench"]["mesh_role"] == "discovery_and_operator_ux"
 

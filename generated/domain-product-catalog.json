@@ -5,7 +5,7 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_declaration_directory": "federated:domain-product-source-manifest",
   "source_manifest_path": "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
   "source_manifest": {
@@ -71,12 +71,21 @@
         "repo_native_declaration_path": "contracts/domain-data-products",
         "platform_declaration_paths": [],
         "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
+      },
+      {
+        "repository": "lotus-idea",
+        "source_mode": "repo_native",
+        "catalog_inclusion": "included",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [],
+        "notes": "Repo-native opportunity-intelligence producer and consumer declarations are catalog-visible for onboarding proof; products remain proposed and not mesh certified until runtime, policy, Gateway, Workbench, and supported-feature evidence pass."
       }
     ]
   },
-  "product_count": 71,
-  "dependency_count": 46,
-  "repository_count": 6,
+  "product_count": 80,
+  "dependency_count": 62,
+  "repository_count": 7,
   "repositories": [
     {
       "repository": "lotus-advise",
@@ -87,6 +96,11 @@
       "repository": "lotus-core",
       "produced_product_count": 43,
       "consumed_dependency_count": 0
+    },
+    {
+      "repository": "lotus-idea",
+      "produced_product_count": 9,
+      "consumed_dependency_count": 16
     },
     {
       "repository": "lotus-manage",
@@ -3464,6 +3478,562 @@
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
     },
     {
+      "product_id": "lotus-idea:AdvisorOpportunityQueue:v1",
+      "product_name": "AdvisorOpportunityQueue",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "tenant",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "Advisor queues must reflect latest candidate lifecycle, suppression, assignment, entitlement, and review-priority evidence without fabricating advisor action state."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaCandidate:v1",
+      "product_name": "IdeaCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Idea candidates must preserve the signal evidence, deterministic score policy, suppression posture, and source freshness used to create or refresh the candidate."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaConversionIntent:v1",
+      "product_name": "IdeaConversionIntent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "workflow_run",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "observed_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "observed_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Conversion intents must preserve human review approval, target workflow, idempotency key, evidence packet identity, and source authority posture."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-report"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaConversionOutcome:v1",
+      "product_name": "IdeaConversionOutcome",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "workflow_run",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "observed_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "observed_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Conversion outcomes must be sourced from the target workflow acknowledgement and must not imply execution, suitability approval, report generation, or client communication unless the target service certifies it."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-report"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaEvidencePacket:v1",
+      "product_name": "IdeaEvidencePacket",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "reporting_and_evidence",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Idea evidence packets are refreshed when a candidate is created, materially re-scored, reviewed, converted, expired, or included in reportable evidence."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-report"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaFeedbackEvent:v1",
+      "product_name": "IdeaFeedbackEvent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "workflow_run",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "observed_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "observed_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Feedback events must preserve the reviewer action, suppression reason, signal policy version, and source evidence hashes used by learning and queue controls."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaReviewDecision:v1",
+      "product_name": "IdeaReviewDecision",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "workflow_run",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "observed_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "observed_at",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "event_driven",
+        "max_allowed_age_description": "Review decisions are event-sourced and must be tied to the exact candidate evidence packet, reviewer context, and lifecycle transition."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-advise",
+        "lotus-manage"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:IdeaTrustTelemetry:v1",
+      "product_name": "IdeaTrustTelemetry",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "tenant",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "generated_at",
+        "freshness_basis": "event_time",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "generated_at",
+      "identifier_refs": [
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "Idea trust telemetry must describe current data-mesh certification posture, source coverage, stale-source reasons, blocked products, and safe operator remediation guidance."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "operator_only"
+      },
+      "security_profile_ref": "operator_access:client_confidential:retain_for_source_audit:audit_system_access",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
+      "product_id": "lotus-idea:OpportunitySignalCandidate:v1",
+      "product_name": "OpportunitySignalCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "owner_repository": "lotus-idea",
+      "authoritative_domain": "opportunity_intelligence",
+      "product_family": "analytics_output",
+      "lifecycle_status": "proposed",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": true
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "as_of_date",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id",
+        "correlation_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "reconciliation_status",
+        "data_quality_status",
+        "lineage_bundle_id",
+        "source_batch_fingerprint",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "daily",
+        "max_allowed_age_description": "Opportunity signal candidates must be derived from source-owned portfolio, performance, risk, advisory, management, and reporting evidence for the governed as-of date."
+      },
+      "completeness_policy": {
+        "default_status": "partial",
+        "partial_allowed": true
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "lineage_bundle_class_ref": "customer_lineage_summary",
+        "evidence_access_class_ref": "customer_consumable"
+      },
+      "security_profile_ref": "business_consumer_access:client_confidential:retain_for_client_record:audit_read_and_export",
+      "approved_consumers": [
+        "lotus-gateway"
+      ],
+      "current_routes": [],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json"
+    },
+    {
       "product_id": "lotus-manage:BulkReviewCampaignMembership:v1",
       "product_name": "BulkReviewCampaignMembership",
       "product_version": "v1",
@@ -4781,6 +5351,423 @@
             "feature",
             "pr-merge",
             "platform-end-to-end"
+          ],
+          "failure_posture": "degrade_to_partial"
+        }
+      ]
+    },
+    {
+      "consumer_repository": "lotus-idea",
+      "dependency_count": 16,
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+          "product_name": "AdvisoryCopilotInteractionRecord",
+          "producer_repository": "lotus-advise",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "supportability_lookup",
+          "business_purpose": "Reuse governed advisory AI supportability evidence where idea explanations reference advisory copilot context while keeping AI execution and evaluation behind governed source services.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "support_only"
+        },
+        {
+          "dependency_id": "lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+          "product_name": "AdvisoryPolicyEvaluationRecord",
+          "producer_repository": "lotus-advise",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Preserve advisory policy evaluation and missing-evidence posture where ideas need advisory conversion gating while keeping policy evaluation, sign-off, suitability, and client-advice authority in lotus-advise.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+          "product_name": "AdvisoryProposalLifecycleRecord",
+          "producer_repository": "lotus-advise",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Preserve advisory proposal and suitability workflow context while keeping proposal creation, suitability, and client-advice authority in lotus-advise.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-core:BenchmarkAssignment:v1",
+          "product_name": "BenchmarkAssignment",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned benchmark identity to support benchmark-dependent opportunity evidence without assigning, changing, or inferring benchmark authority.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-core:HoldingsAsOf:v1",
+          "product_name": "HoldingsAsOf",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned positions and cash balances as high-cash and holdings-backed opportunity evidence without making lotus-idea the holdings or accounting authority.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioCashMovementSummary:v1",
+          "product_name": "PortfolioCashMovementSummary",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned cash movement classification and direction evidence for liquidity opportunity context without inferring funding advice or treasury instructions.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioCashflowProjection:v1",
+          "product_name": "PortfolioCashflowProjection",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned projected cashflow and liquidity-window evidence for high-cash and cash-pressure opportunity context without making lotus-idea a financial-planning or cashflow-forecasting authority.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",
+          "product_name": "PortfolioStateSnapshot",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "source_batch_fingerprint",
+            "snapshot_id",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve portfolio, cash, holding, mandate, client, product, benchmark, and source-readiness context for opportunity detection without making lotus-idea the portfolio-state authority.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-manage:PortfolioActionRegister:v1",
+          "product_name": "PortfolioActionRegister",
+          "producer_repository": "lotus-manage",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "lineage_bundle_id",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned portfolio action and DPM workflow posture to avoid duplicate opportunity recommendations and support conversion into management workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-performance:BenchmarkExposureContext:v1",
+          "product_name": "BenchmarkExposureContext",
+          "producer_repository": "lotus-performance",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned benchmark exposure context where opportunity evidence needs benchmark composition without recomputing benchmark analytics locally.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-performance:MandatePerformanceHealthContext:v1",
+          "product_name": "MandatePerformanceHealthContext",
+          "producer_repository": "lotus-performance",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "request_fingerprint",
+            "source_services",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned active-return and mandate performance health posture as opportunity evidence without creating mandate actions or recalculating performance methodology.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-performance:ReturnsSeriesBundle:v1",
+          "product_name": "ReturnsSeriesBundle",
+          "producer_repository": "lotus-performance",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned performance returns and benchmark context as opportunity evidence without recalculating official performance methodology.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-report:ClientReportEvidencePack:v1",
+          "product_name": "ClientReportEvidencePack",
+          "producer_repository": "lotus-report",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "tenant_id",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "lineage_bundle_id",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Preserve reportable evidence requirements so reviewed ideas can be included in governed reporting without making lotus-idea the report generator.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-risk:MandateRiskHealthContext:v1",
+          "product_name": "MandateRiskHealthContext",
+          "producer_repository": "lotus-risk",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "lineage_version",
+            "request_fingerprint",
+            "source_services",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned mandate risk health posture as opportunity evidence without creating mandate actions, risk methodology, or risk approvals locally.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-risk:RegimeScenarioPackEvaluation:v1",
+          "product_name": "RegimeScenarioPackEvaluation",
+          "producer_repository": "lotus-risk",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "lineage_version",
+            "request_fingerprint",
+            "source_services",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned scenario and regime-stress evidence as opportunity context without calculating scenario methodology, CIO approval posture, or portfolio applicability locally.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-risk:RiskMetricsReport:v1",
+          "product_name": "RiskMetricsReport",
+          "producer_repository": "lotus-risk",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "lineage_version",
+            "request_fingerprint",
+            "source_services",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Use source-owned risk, concentration, drawdown, stress, and scenario evidence as idea inputs without taking ownership of risk methodology.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "main-releasability"
           ],
           "failure_posture": "degrade_to_partial"
         }

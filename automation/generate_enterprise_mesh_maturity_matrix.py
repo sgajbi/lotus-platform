@@ -26,6 +26,7 @@ LOTUS_REPOSITORIES = [
     "lotus-manage",
     "lotus-gateway",
     "lotus-workbench",
+    "lotus-idea",
     "lotus-ai",
 ]
 
@@ -298,6 +299,7 @@ def build_enterprise_mesh_maturity_matrix(
             ],
             "candidate_expansion_repositories": [],
             "explicit_posture_decision_repositories": ["lotus-ai"],
+            "future_wave_catalog_repositories": ["lotus-idea"],
             "api_face": "lotus-gateway",
             "discovery_and_operator_ux": "lotus-workbench",
             "platform_governance": "lotus-platform",

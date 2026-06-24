@@ -16,7 +16,7 @@ CERTIFICATION_REPORT_PATH = (
 CERTIFICATION_MARKDOWN_PATH = (
     ROOT / "generated" / "domain-product-certification-report.md"
 )
-CHECKED_IN_GENERATED_AT = "2026-04-19T00:00:00Z"
+CHECKED_IN_GENERATED_AT = "2026-06-24T00:00:00Z"
 
 
 def _load_discovery_module():
@@ -71,6 +71,7 @@ def test_domain_product_certification_report_certifies_current_catalog_and_graph
         "lotus-advise",
         "lotus-report",
         "lotus-manage",
+        "lotus-idea",
     ]
     assert report["source_manifest_posture"]["pending_repositories"] == []
 

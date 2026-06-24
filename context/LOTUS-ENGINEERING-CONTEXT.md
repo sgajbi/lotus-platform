@@ -103,13 +103,17 @@ For cross-domain governed data products:
 5. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
 6. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
-   `lotus-risk`, `lotus-advise`, `lotus-report`, and `lotus-manage`,
+   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and catalog-visible
+   future-wave `lotus-idea`,
 7. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
    `lotus-advise`; `lotus-report` and `lotus-manage` are current consumer-declaration
    participants,
-8. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
+8. `lotus-idea` is catalog-visible as a future-wave opportunity-intelligence producer/consumer
+   with proposed products only; it is not first-wave mesh certified until runtime trust telemetry,
+   SLO, access, evidence, Gateway, Workbench, and supported-feature proof pass,
+9. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
    it owns a stable governed product or catalog-consuming capability,
-9. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
+10. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
 ## Domain Vocabulary Governance

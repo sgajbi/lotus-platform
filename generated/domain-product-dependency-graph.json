@@ -5,10 +5,10 @@
     "RFC-0084",
     "RFC-0088"
   ],
-  "generated_at_utc": "2026-04-19T00:00:00Z",
+  "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 83,
-  "edge_count": 263,
+  "node_count": 92,
+  "edge_count": 306,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -519,6 +519,96 @@
       "producer_repository": "lotus-core",
       "product_family": "operational_source_data",
       "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-idea:AdvisorOpportunityQueue:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:AdvisorOpportunityQueue:v1",
+      "product_name": "AdvisorOpportunityQueue",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaCandidate:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaCandidate:v1",
+      "product_name": "IdeaCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaConversionIntent:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaConversionIntent:v1",
+      "product_name": "IdeaConversionIntent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaConversionOutcome:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaConversionOutcome:v1",
+      "product_name": "IdeaConversionOutcome",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaEvidencePacket:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaEvidencePacket:v1",
+      "product_name": "IdeaEvidencePacket",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "reporting_and_evidence",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaFeedbackEvent:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaFeedbackEvent:v1",
+      "product_name": "IdeaFeedbackEvent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaReviewDecision:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaReviewDecision:v1",
+      "product_name": "IdeaReviewDecision",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "workflow_and_decision_state",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:IdeaTrustTelemetry:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:IdeaTrustTelemetry:v1",
+      "product_name": "IdeaTrustTelemetry",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "supportability_and_control_plane",
+      "lifecycle_status": "proposed"
+    },
+    {
+      "node_id": "product:lotus-idea:OpportunitySignalCandidate:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-idea:OpportunitySignalCandidate:v1",
+      "product_name": "OpportunitySignalCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "product_family": "analytics_output",
+      "lifecycle_status": "proposed"
     },
     {
       "node_id": "product:lotus-manage:BulkReviewCampaignMembership:v1",
@@ -1359,6 +1449,96 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:AdvisorOpportunityQueue:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaCandidate:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionIntent:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionIntent:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionIntent:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionIntent:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionOutcome:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionOutcome:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionOutcome:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaConversionOutcome:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaEvidencePacket:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaEvidencePacket:v1",
+      "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaFeedbackEvent:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaReviewDecision:v1",
+      "to": "repo:lotus-advise"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaReviewDecision:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaReviewDecision:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:IdeaTrustTelemetry:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-idea:OpportunitySignalCandidate:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-manage:BulkReviewCampaignMembership:v1",
       "to": "repo:lotus-gateway"
     },
@@ -1534,6 +1714,197 @@
         "feature",
         "pr-merge",
         "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-advise:AdvisoryCopilotInteractionRecord:v1",
+      "consumption_mode": "supportability_lookup",
+      "failure_posture": "support_only",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-advise:AdvisoryPolicyEvaluationRecord:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-advise:AdvisoryProposalLifecycleRecord:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-core:BenchmarkAssignment:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-core:HoldingsAsOf:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-core:PortfolioCashMovementSummary:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-core:PortfolioCashflowProjection:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-core:PortfolioStateSnapshot:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-manage:PortfolioActionRegister:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-performance:BenchmarkExposureContext:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-performance:MandatePerformanceHealthContext:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-performance:ReturnsSeriesBundle:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-report:ClientReportEvidencePack:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-risk:MandateRiskHealthContext:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-risk:RegimeScenarioPackEvaluation:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-risk:RiskMetricsReport:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
       ]
     },
     {
@@ -2274,6 +2645,51 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:TransactionLedgerWindow:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:AdvisorOpportunityQueue:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaCandidate:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaConversionIntent:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaConversionOutcome:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaEvidencePacket:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaFeedbackEvent:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaReviewDecision:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:IdeaTrustTelemetry:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-idea:OpportunitySignalCandidate:v1"
     },
     {
       "edge_type": "produces",
