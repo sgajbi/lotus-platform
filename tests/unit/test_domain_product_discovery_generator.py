@@ -10,7 +10,7 @@ GENERATOR_PATH = ROOT / "automation" / "domain_product_discovery.py"
 DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
 SOURCE_MANIFEST_PATH = DECLARATION_DIRECTORY / "domain-product-source-manifest.v1.json"
 GENERATED_DIRECTORY = ROOT / "generated"
-CHECKED_IN_GENERATED_AT = "2026-04-19T00:00:00Z"
+CHECKED_IN_GENERATED_AT = "2026-06-24T00:00:00Z"
 
 
 def _load_generator_module():
@@ -103,6 +103,9 @@ def test_domain_product_source_manifest_promotes_repo_native_sources_to_catalog(
     assert by_repository["lotus-manage"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-manage"]["source_mode"] == "repo_native"
     assert by_repository["lotus-manage"]["catalog_inclusion"] == "included"
+    assert by_repository["lotus-idea"]["repo_native_status"] == "implemented"
+    assert by_repository["lotus-idea"]["source_mode"] == "repo_native"
+    assert by_repository["lotus-idea"]["catalog_inclusion"] == "included"
     assert by_repository["lotus-core"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-core"]["source_mode"] == "repo_native"
     assert by_repository["lotus-core"]["catalog_inclusion"] == "included"

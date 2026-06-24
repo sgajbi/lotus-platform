@@ -2,11 +2,11 @@
 
 This file is generated from the governed domain-product catalog and dependency graph.
 
-- Generated at UTC: `2026-04-19T00:00:00Z`
+- Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
-- Product count: `71`
-- Dependency count: `46`
-- Included repositories: `6`
+- Product count: `80`
+- Dependency count: `62`
+- Included repositories: `7`
 - Pending repositories: `0`
 - Issue count: `0`
 
@@ -65,6 +65,15 @@ This file is generated from the governed domain-product catalog and dependency g
 | `SustainabilityPreferenceProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `TransactionCostCurve` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `TransactionLedgerWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `AdvisorOpportunityQueue` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaCandidate` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaConversionIntent` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaConversionOutcome` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaEvidencePacket` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaFeedbackEvent` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaReviewDecision` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `IdeaTrustTelemetry` | `lotus-idea` | `certified` | `0` | `True` | `False` |
+| `OpportunitySignalCandidate` | `lotus-idea` | `certified` | `0` | `True` | `False` |
 | `BulkReviewCampaignMembership` | `lotus-manage` | `certified` | `0` | `True` | `True` |
 | `PmOperatingQualityScoreRun` | `lotus-manage` | `certified` | `0` | `True` | `True` |
 | `PortfolioActionRegister` | `lotus-manage` | `certified` | `0` | `True` | `True` |
@@ -91,6 +100,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
+| `lotus-idea` | `certified` | `16` | `0` |
 | `lotus-manage` | `certified` | `29` | `0` |
 | `lotus-performance` | `certified` | `7` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |

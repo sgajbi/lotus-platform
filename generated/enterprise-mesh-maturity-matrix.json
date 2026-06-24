@@ -4,7 +4,7 @@
   "governed_by_rfcs": [
     "RFC-0091"
   ],
-  "generated_at_utc": "2026-04-20T00:00:00Z",
+  "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog_path": "generated/domain-product-catalog.json",
   "implementation_boundary": {
     "required_first_wave_repositories": [
@@ -19,13 +19,16 @@
     "explicit_posture_decision_repositories": [
       "lotus-ai"
     ],
+    "future_wave_catalog_repositories": [
+      "lotus-idea"
+    ],
     "api_face": "lotus-gateway",
     "discovery_and_operator_ux": "lotus-workbench",
     "platform_governance": "lotus-platform"
   },
   "summary": {
-    "repository_count": 10,
-    "product_count": 71,
+    "repository_count": 11,
+    "product_count": 80,
     "certified_first_wave_product_count": 8,
     "candidate_product_count": 0,
     "ambiguous_repository_count": 0
@@ -141,6 +144,19 @@
       "repo_native_status": "not_applicable",
       "ambiguous_participation": false,
       "required_next_step": "Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly."
+    },
+    {
+      "repository": "lotus-idea",
+      "classification": "deferred",
+      "mesh_role": "producer",
+      "rationale": "Produces catalog products that are not yet selected for RFC-0091 maturity enforcement.",
+      "produced_product_count": 9,
+      "first_wave_product_count": 0,
+      "consumed_dependency_count": 16,
+      "repo_native_status": "implemented",
+      "source_mode": "repo_native",
+      "ambiguous_participation": false,
+      "required_next_step": "Decide whether these non-first-wave products enter a later maturity wave."
     },
     {
       "repository": "lotus-ai",
@@ -714,6 +730,105 @@
       "maturity_wave": "future_wave",
       "lifecycle_status": "active",
       "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:AdvisorOpportunityQueue:v1",
+      "product_name": "AdvisorOpportunityQueue",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaCandidate:v1",
+      "product_name": "IdeaCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaConversionIntent:v1",
+      "product_name": "IdeaConversionIntent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaConversionOutcome:v1",
+      "product_name": "IdeaConversionOutcome",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaEvidencePacket:v1",
+      "product_name": "IdeaEvidencePacket",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaFeedbackEvent:v1",
+      "product_name": "IdeaFeedbackEvent",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaReviewDecision:v1",
+      "product_name": "IdeaReviewDecision",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:IdeaTrustTelemetry:v1",
+      "product_name": "IdeaTrustTelemetry",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-idea:OpportunitySignalCandidate:v1",
+      "product_name": "OpportunitySignalCandidate",
+      "product_version": "v1",
+      "producer_repository": "lotus-idea",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "proposed",
+      "source_path": "lotus-idea/contracts/domain-data-products/lotus-idea-products.v1.json",
       "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
     },
     {

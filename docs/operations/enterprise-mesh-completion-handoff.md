@@ -44,6 +44,15 @@ The current maturity-wave producer products are:
 `lotus-ai` is explicitly not a first-wave producer or consumer declaration participant until it
 owns a governed product or a governed catalog-consuming AI capability.
 
+Catalog-visible future-wave onboarding now includes the `lotus-idea` repo-native declarations for
+opportunity intelligence. The platform catalog includes these proposed products so downstream
+readiness gates can prove source-manifest and catalog inclusion without claiming maturity-wave
+certification:
+
+| Product family | Owner repo | Certification posture |
+| --- | --- | --- |
+| Opportunity signal candidates, idea candidates, review decisions, feedback events, conversion intent/outcome records, evidence packets, advisor opportunity queue, and idea trust telemetry | `lotus-idea` | `proposed`, `future_wave`, not first-wave certified |
+
 ## Source Of Truth
 
 Product truth belongs in the producer repositories.
@@ -145,7 +154,8 @@ Future work should not reopen the mesh foundation unless a defect is found.
 
 Treat new work as product expansion or operational hardening:
 
-1. onboard additional data products,
+1. onboard additional data products, including promoting `lotus-idea` products only after runtime,
+   SLO, access, evidence, Gateway, Workbench, and supported-feature proof exists,
 2. replace static fixture telemetry with continuous runtime telemetry where needed,
 3. build more certification history,
 4. add dashboards or alerts from RFC-0092 operating state,

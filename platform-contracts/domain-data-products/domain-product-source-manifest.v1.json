@@ -61,6 +61,15 @@
       "repo_native_declaration_path": "contracts/domain-data-products",
       "platform_declaration_paths": [],
       "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
+    },
+    {
+      "repository": "lotus-idea",
+      "source_mode": "repo_native",
+      "catalog_inclusion": "included",
+      "repo_native_status": "implemented",
+      "repo_native_declaration_path": "contracts/domain-data-products",
+      "platform_declaration_paths": [],
+      "notes": "Repo-native opportunity-intelligence producer and consumer declarations are catalog-visible for onboarding proof; products remain proposed and not mesh certified until runtime, policy, Gateway, Workbench, and supported-feature evidence pass."
     }
   ]
 }

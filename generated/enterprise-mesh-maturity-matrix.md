@@ -2,10 +2,10 @@
 
 This file is generated from governed domain-product catalog evidence and RFC-0091 maturity-wave rules.
 
-- Generated at: `2026-04-20T00:00:00Z`
+- Generated at: `2026-06-24T00:00:00Z`
 - Source catalog: `generated/domain-product-catalog.json`
-- Repository count: `10`
-- Product count: `71`
+- Repository count: `11`
+- Product count: `80`
 - Certified first-wave products: `8`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
@@ -23,6 +23,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-manage` | `certified_first_wave` | `producer` | `3` | `29` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
+| `lotus-idea` | `deferred` | `producer` | `9` | `16` | Decide whether these non-first-wave products enter a later maturity wave. |
 | `lotus-ai` | `not_mesh_participant` | `explicit_posture_decision` | `0` | `0` | Not included until it owns a stable governed product or a catalog-consuming capability. |
 
 ## Product Maturity
@@ -80,6 +81,15 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:SustainabilityPreferenceProfile:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:TransactionCostCurve:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:TransactionLedgerWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:AdvisorOpportunityQueue:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaCandidate:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaConversionIntent:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaConversionOutcome:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaEvidencePacket:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaFeedbackEvent:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaReviewDecision:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:IdeaTrustTelemetry:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-idea:OpportunitySignalCandidate:v1` | `lotus-idea` | `deferred` | `future_wave` | `proposed` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-manage:BulkReviewCampaignMembership:v1` | `lotus-manage` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-manage:PmOperatingQualityScoreRun:v1` | `lotus-manage` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-manage:PortfolioActionRegister:v1` | `lotus-manage` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
