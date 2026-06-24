@@ -435,6 +435,16 @@
                                    "scope":  "platform-wide"
                                },
                                {
+                                   "name":  "Lotus Data Mesh Standard",
+                                   "path":  "docs/standards/Lotus Data Mesh Standard.md",
+                                   "scope":  "platform-wide"
+                               },
+                               {
+                                   "name":  "Lotus Client Demo Certification Standard",
+                                   "path":  "docs/standards/Lotus Client Demo Certification Standard.md",
+                                   "scope":  "platform-wide"
+                               },
+                               {
                                    "name":  "Lotus Bank-Buyable Engineering Contract",
                                    "path":  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
                                    "scope":  "platform-wide"

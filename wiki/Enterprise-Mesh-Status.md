@@ -42,6 +42,7 @@ published cross-repo documentation.
 
 Use these files to continue without old chat history:
 
+- [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
 - [Enterprise Mesh Completion Handoff](../docs/operations/enterprise-mesh-completion-handoff.md)
 - [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
 - `generated/enterprise-mesh-closure-ledger.json`

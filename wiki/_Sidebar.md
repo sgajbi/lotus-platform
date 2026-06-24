@@ -12,6 +12,8 @@
 - [Operations Runbook](Operations-Runbook)
 - [Analytics UI Observability](Analytics-UI-Observability)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
+- [Client Demo Certification](Client-Demo-Certification)
+- [Data Mesh Standard](Data-Mesh-Standard)
 - [Enterprise Mesh Status](Enterprise-Mesh-Status)
 - [Troubleshooting](Troubleshooting)
 - [Security and Governance](Security-and-Governance)

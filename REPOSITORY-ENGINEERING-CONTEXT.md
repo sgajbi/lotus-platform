@@ -278,6 +278,15 @@ Boundary rules:
     `/api/v1/advisory-copilot/actions`, source-owned `lotus-advise` supportability, and explicit
     boundaries from client-ready publication, autonomous advice, external client communication,
     and OMS/order/fill/settlement posture.
+39. `docs/standards/Lotus Data Mesh Standard.md` and `wiki/Data-Mesh-Standard.md` are the durable
+    platform standard and wiki entry point for Lotus data mesh meaning, ecosystem app roles,
+    certification controls, automation, onboarding workflow, and anti-patterns. Future app agents
+    should use this standard before promoting a product as mesh certified.
+40. `docs/standards/Lotus Client Demo Certification Standard.md` and
+    `wiki/Client-Demo-Certification.md` are the durable platform standard and wiki entry point for
+    client-demo claim states, evidence requirements, demo pack structure, canonical front-office
+    proof, and explicit boundaries. Future client-demo material must distinguish
+    implementation-backed, bounded-preview, diagnostic, planned, and unsupported claims.
 
 ## Repo-Native Commands
 
@@ -345,6 +354,8 @@ Use these commands as the primary local contract:
    `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
 31. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
+32. platform mesh and demo standard documentation contract tests
+   `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
 
 ## Validation And CI Expectations
 
