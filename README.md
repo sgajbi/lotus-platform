@@ -232,6 +232,8 @@ Important current platform truths:
   [docs/standards/Lotus Data Mesh Standard.md](docs/standards/Lotus%20Data%20Mesh%20Standard.md)
 - client demo certification standard:
   [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- client demo operating process:
+  [docs/demo/client-demo-operating-process.md](docs/demo/client-demo-operating-process.md)
 - enterprise backend quality baseline:
   [quality/baseline_report.md](quality/baseline_report.md)
 - enterprise refactor scorecard:

@@ -475,14 +475,17 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
 1. use `docs/standards/Lotus Client Demo Certification Standard.md` as the platform-owned human
    standard for client-demo claim states, evidence requirements, demo pack structure, and
    implementation-backed talk tracks,
-2. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
-3. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
-4. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
-5. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
-6. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
-7. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
-8. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
-9. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+2. use `docs/demo/client-demo-operating-process.md` as the platform-owned operating process for
+   client intake, claim classification, certification evidence, demo-pack structure, rehearsal,
+   delivery, and follow-up,
+3. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
+4. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
+5. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
+6. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
+7. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
+8. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
+9. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
+10. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

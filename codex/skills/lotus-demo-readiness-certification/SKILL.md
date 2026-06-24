@@ -1,12 +1,21 @@
 ---
 name: lotus-demo-readiness-certification
-description: Use when a Lotus app must be demo-ready, when the user asks to validate all APIs/features/calculations before a demo, when adding repeatable demo seed data or certification commands, or when reviewing demo evidence across backend APIs, frontend product surfaces, gateway flows, seeded data, observability, and supportability. Applies across Lotus apps; use app-specific delivery/runtime skills as supporting guidance.
+description: Use when a Lotus app must be demo-ready, when the user asks to validate all APIs/features/calculations before a demo, when adding repeatable demo seed data or certification commands, when preparing a client-facing demo pack or operating process, or when reviewing demo evidence across backend APIs, frontend product surfaces, gateway flows, seeded data, observability, and supportability. Applies across Lotus apps; use app-specific delivery/runtime skills as supporting guidance.
 ---
 
 # Lotus Demo Readiness Certification
 
 Use this skill to turn "make it demo ready" into evidence-backed app validation, not screenshots or
 HTTP 200 checks alone.
+
+For client-facing demo process work, use:
+
+1. `lotus-platform/docs/standards/Lotus Client Demo Certification Standard.md` for claim states,
+   evidence rules, and certification posture,
+2. `lotus-platform/docs/demo/client-demo-operating-process.md` for client intake, demo-pack
+   structure, rehearsal, delivery, and follow-up,
+3. `lotus-platform/docs/demo/canonical-dpm-demo-story.md` for the governed canonical DPM demo
+   narrative when the demo uses the front-office reference flow.
 
 ## Core Rule
 
@@ -19,12 +28,13 @@ Do not claim demo readiness from unreviewed artifacts.
 Before changing code or data, identify:
 
 1. the app and demo date,
-2. the supported demo surfaces, APIs, panels, calculations, workflows, and seeded portfolios or
+2. the audience, buying question, use case, sensitivity level, and demo objective,
+3. the supported demo surfaces, APIs, panels, calculations, workflows, and seeded portfolios or
    entities,
-3. the app-owned source of truth for supported features or capabilities,
-4. the existing seed automation and whether it is deterministic,
-5. the closest unit, integration, e2e, runtime, and docs tests,
-6. the single repo-native validation command that already exists, or the gap if none exists.
+4. the app-owned source of truth for supported features or capabilities,
+5. the existing seed automation and whether it is deterministic,
+6. the closest unit, integration, e2e, runtime, and docs tests,
+7. the single repo-native validation command that already exists, or the gap if none exists.
 
 If the app has a governed front-office Workbench path, also use `lotus-front-office-runtime`.
 If the task is backend/API focused, also use `lotus-backend-delivery-governance`.
@@ -107,6 +117,7 @@ A demo-readiness slice should leave:
 1. one documented command for the app,
 2. reviewed machine-readable evidence,
 3. focused unit/integration/e2e coverage where needed,
-4. docs, scorecards, and review ledgers updated with code truth,
-5. any residual risks stated with exact unsupported surfaces or stale evidence,
-6. branch/PR/main hygiene handled through Lotus pre-merge governance when code changes.
+4. a client-safe demo pack or operating-process update when the work affects client-facing demos,
+5. docs, scorecards, and review ledgers updated with code truth,
+6. any residual risks stated with exact unsupported surfaces or stale evidence,
+7. branch/PR/main hygiene handled through Lotus pre-merge governance when code changes.
