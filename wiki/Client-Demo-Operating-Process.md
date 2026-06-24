@@ -56,6 +56,33 @@ flowchart LR
 | Evidence manifest | Command, run ID, screenshot pack, contracts, and proof files. |
 | Follow-up | Questions, owners, and next actions. |
 
+## One-Page Client Brief
+
+Every external demo pack should start with a short client-facing brief:
+
+| Brief section | What clients should get |
+| --- | --- |
+| Client problem | The private-banking workflow, operational friction, control weakness, or decision challenge being addressed. |
+| Lotus response | The current Lotus capability in business language. |
+| What they will see | The exact screens, reports, workflows, or operating evidence in sequence. |
+| Why it is trustworthy | Owning applications, data contract, validation run, and evidence-pack anchor. |
+| Current boundary | Preview, roadmap, diagnostic-only, or unsupported items that must not be mistaken for current support. |
+| Follow-up path | Owners for commercial, product, engineering, operations, and security questions. |
+
+## Client-Ready Acceptance
+
+Do not mark a pack client-ready until these checks pass:
+
+| Check | Required posture |
+| --- | --- |
+| Story clarity | A non-technical client can understand what Lotus is doing and why it matters. |
+| Claim discipline | Every claim has a certification state and owner. |
+| Evidence tie-out | Each supported claim links to a command, run ID, and evidence artifact. |
+| Data safety | No real client data, secrets, raw payloads, raw prompts, or sensitive identifiers. |
+| Runtime proof | Screenshots or live paths were captured only after validation passed. |
+| Boundaries | The pack includes a visible "do not claim" list. |
+| Follow-up ownership | Product, engineering, operations, security, commercial, and marketing owners are named. |
+
 ## Commands
 
 ```powershell

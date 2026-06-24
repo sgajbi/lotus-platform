@@ -108,6 +108,41 @@ the story while preserving proof for technical and operational review.
 | Evidence manifest | Links to command, run ID, screenshot pack, and machine-readable proof. |
 | Follow-up plan | Captures expected questions, owners, and next actions. |
 
+### One-Page Client Brief Template
+
+Every external demo should include a short client-facing brief before detailed evidence links. The
+brief is written for the buying audience, not for internal implementation review.
+
+| Brief section | Required content |
+| --- | --- |
+| Client problem | The private-banking workflow, risk, operational friction, or control weakness the demo addresses. |
+| Lotus response | The current Lotus capability being shown, in business language. |
+| What the client will see | The exact sequence of screens, reports, workflows, or operating evidence. |
+| Why it is trustworthy | The implementation-backed proof anchor: owning apps, data contract, validation run, and evidence pack. |
+| Current boundary | Any preview, roadmap, unsupported, or diagnostic-only item that must not be mistaken for current support. |
+| Follow-up path | Named owner for commercial, product, engineering, operations, and security questions. |
+
+Use concise, current-state language. Do not include stack traces, raw payloads, internal ticket
+history, CI log dumps, raw prompts, raw AI output, sensitive telemetry paths, credentials, or real
+client identifiers in the client brief.
+
+### Client-Ready Acceptance Checklist
+
+Before a demo pack is marked client-ready, the demo owner must confirm:
+
+| Acceptance item | Pass condition |
+| --- | --- |
+| Story clarity | A non-technical client can explain what Lotus is doing and why it matters after the opening narrative. |
+| Claim discipline | Every claim is classified as implementation-backed, bounded preview, planned, diagnostic, or unsupported. |
+| Evidence tie-out | Each implementation-backed claim links to an owning app, command, run ID, and evidence artifact. |
+| Data safety | The pack contains only synthetic or approved demo data and excludes secrets, raw payloads, raw prompts, and sensitive identifiers. |
+| Runtime proof | Screenshots or live paths were captured only after the relevant API, calculation, panel, and evidence checks passed. |
+| Boundary language | The pack has a visible "do not claim" list for unsupported autonomy, execution, publication, or source-completeness claims. |
+| Follow-up ownership | Product, engineering, operations, security, commercial, and marketing follow-ups have named owners. |
+
+If any acceptance item fails, the pack remains internal. Fix the source issue, rerun validation
+where needed, and update the pack before sending it to a client or using it in an external session.
+
 ## Phase 5: Rehearsal
 
 Before the client session, rehearse the story and the failure paths.
@@ -147,6 +182,16 @@ After the demo:
 Any defect discovered during demo preparation should be fixed at source when it affects the claimed
 capability. If it is unrelated to the current demo scope, create a durable GitHub issue with the
 evidence path and owner.
+
+Follow-up material should stay audience-aware:
+
+1. send clients a concise recap, agreed next actions, and approved evidence references,
+2. keep internal validation transcripts, raw logs, and detailed defect analysis out of client
+   follow-up unless they have been reviewed and intentionally redacted,
+3. convert repeated client questions into improved talk tracks, demo briefs, supported-claim
+   language, documentation, or product backlog items,
+4. capture new implementation gaps as GitHub issues or RFC follow-ups with repository owner,
+   evidence path, severity, and demo impact.
 
 ## Client-Friendly Explanation Of Lotus
 
