@@ -30,6 +30,11 @@ FIRST_WAVE_REPOSITORIES = [
     "lotus-report",
     "lotus-manage",
 ]
+FUTURE_WAVE_CATALOG_REPOSITORIES = ["lotus-idea"]
+CATALOG_INCLUDED_REPOSITORIES = [
+    *FIRST_WAVE_REPOSITORIES,
+    *FUTURE_WAVE_CATALOG_REPOSITORIES,
+]
 
 
 def _read_json(path: Path) -> dict:
@@ -76,11 +81,11 @@ def _assert_certification_uses_first_wave_repo_sources(
 ) -> None:
     assert certification_report["summary"]["certification_state"] == "certified"
     assert certification_report["summary"]["included_repository_count"] == len(
-        FIRST_WAVE_REPOSITORIES
+        CATALOG_INCLUDED_REPOSITORIES
     )
     assert certification_report["summary"]["pending_repository_count"] == 0
     assert certification_report["source_manifest_posture"]["included_repositories"] == (
-        FIRST_WAVE_REPOSITORIES
+        CATALOG_INCLUDED_REPOSITORIES
     )
     assert certification_report["source_manifest_posture"]["pending_repositories"] == []
 
@@ -89,9 +94,9 @@ def test_rfc_0086_source_manifest_closes_first_wave_as_repo_native() -> None:
     manifest = _read_json(SOURCE_MANIFEST_PATH)
     by_repository = {entry["repository"]: entry for entry in manifest["repositories"]}
 
-    assert list(by_repository) == FIRST_WAVE_REPOSITORIES
+    assert list(by_repository) == CATALOG_INCLUDED_REPOSITORIES
 
-    for repository in FIRST_WAVE_REPOSITORIES:
+    for repository in CATALOG_INCLUDED_REPOSITORIES:
         entry = by_repository[repository]
         repo_native_directory = (
             PROJECTS_ROOT / repository / entry["repo_native_declaration_path"]
@@ -104,6 +109,11 @@ def test_rfc_0086_source_manifest_closes_first_wave_as_repo_native() -> None:
         assert repo_native_directory.exists()
         assert any(repo_native_directory.glob("*.v1.json"))
 
+    lotus_idea_note = by_repository["lotus-idea"]["notes"]
+    assert "catalog-visible" in lotus_idea_note
+    assert "proposed" in lotus_idea_note
+    assert "not mesh certified" in lotus_idea_note
+
 
 def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     catalog = _read_json(CATALOG_PATH)
@@ -112,8 +122,8 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     assert catalog["source_declaration_directory"] == (
         "federated:domain-product-source-manifest"
     )
-    assert catalog["product_count"] == 71
-    assert catalog["dependency_count"] == 46
+    assert catalog["product_count"] == 80
+    assert catalog["dependency_count"] == 62
     _assert_product_present(
         catalog,
         product_name="DpmPortfolioUniverseCandidate",
