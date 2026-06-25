@@ -6,8 +6,10 @@ matters, which controls are visible, and which claims are implementation-backed 
 
 This template is governed by the
 [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
-and the [Lotus Client Demo Operating Process](client-demo-operating-process.md). Do not use it to
-promote planned, diagnostic, or unsupported functionality as current product capability.
+and the [Lotus Client Demo Operating Process](client-demo-operating-process.md). Use
+[Lotus Client Demo Pack Template](client-demo-pack-template.md) when the one-page brief needs to
+sit inside a complete claim, evidence, boundary, rehearsal, and follow-up pack. Do not use either
+artifact to promote planned, diagnostic, or unsupported functionality as current product capability.
 
 ## Brief Flow
 
@@ -84,3 +86,9 @@ Do not include:
 
 If any checklist item fails, the brief remains internal until the source issue is fixed, validation
 is rerun where needed, and the brief is updated.
+
+## Related References
+
+- [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Operating Process](client-demo-operating-process.md)
+- [Lotus Client Demo Pack Template](client-demo-pack-template.md)

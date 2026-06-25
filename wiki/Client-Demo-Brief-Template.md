@@ -55,6 +55,8 @@ flowchart LR
 ## Source Of Truth
 
 - [Full client demo brief template](../docs/demo/client-demo-brief-template.md)
+- [Client Demo Pack Template](Client-Demo-Pack-Template)
+- [Full client demo pack template](../docs/demo/client-demo-pack-template.md)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
 - [Client Demo Certification](Client-Demo-Certification)
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)

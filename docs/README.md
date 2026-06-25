@@ -34,6 +34,7 @@ documents: `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
 - [Canonical DPM Demo Story](demo/canonical-dpm-demo-story.md)
 - [Lotus Client Demo Operating Process](demo/client-demo-operating-process.md)
+- [Lotus Client Demo Pack Template](demo/client-demo-pack-template.md)
 - [Lotus Client Demo Brief Template](demo/client-demo-brief-template.md)
 
 ## Onboarding

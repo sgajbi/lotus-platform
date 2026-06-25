@@ -201,21 +201,27 @@ For client demo certification work, use:
 3. [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
    Reusable one-page client brief template that explains what Lotus is doing, why it is
    trustworthy, current boundaries, and follow-up ownership.
-4. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
+4. [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
+   Complete demo-pack skeleton for client brief, business story, demo sequence, claim table,
+   boundary register, evidence map, rehearsal plan, and follow-up register.
+5. [Canonical DPM Demo Story](../docs/demo/canonical-dpm-demo-story.md)
    Audience-ready deep demo narrative for the governed front-office DPM story.
-5. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
+6. [Canonical DPM Demo Story Wiki Source](../wiki/Canonical-DPM-Demo-Story.md)
    Published-source summary for business, operations, engineering, sales, pre-sales, and client demo
    preparation.
-6. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
+7. [Client Demo Certification Wiki Source](../wiki/Client-Demo-Certification.md)
    Human-readable certification process summary.
-7. [Client Demo Operating Process Wiki Source](../wiki/Client-Demo-Operating-Process.md)
+8. [Client Demo Operating Process Wiki Source](../wiki/Client-Demo-Operating-Process.md)
    Human-readable client-demo workflow summary for business, sales, pre-sales, operations,
    marketing, and engineering readers.
-8. [Client Demo Brief Template Wiki Source](../wiki/Client-Demo-Brief-Template.md)
+9. [Client Demo Brief Template Wiki Source](../wiki/Client-Demo-Brief-Template.md)
    Human-readable template for client-facing one-page demo briefs.
-9. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
+10. [Client Demo Pack Template Wiki Source](../wiki/Client-Demo-Pack-Template.md)
+    Human-readable complete demo-pack structure for claim, evidence, boundary, rehearsal, and
+    follow-up governance.
+11. `../automation/Invoke-PlatformDemoReadinessCertification.ps1`
    Platform report-only demo-readiness certification wrapper.
-10. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
+12. `../automation/Invoke-Canonical-FrontOffice-QA.ps1`
    Canonical Workbench runtime, API, panel, transcript, and screenshot evidence wrapper.
 
 ## Task Routing

@@ -10,8 +10,10 @@ shared process for preparing demos without overstating current implementation.
 
 Use [Lotus Client Demo Operating Process](../demo/client-demo-operating-process.md) when a demo
 needs a client-facing operating model, pack structure, rehearsal process, delivery guidance, and
-follow-up discipline. This standard remains the certification rulebook; the operating process is the
-client-demo workflow.
+follow-up discipline. Use [Lotus Client Demo Pack Template](../demo/client-demo-pack-template.md)
+for the complete pack skeleton that translates evidence into a client-understandable story,
+claim table, boundary register, evidence map, rehearsal plan, and follow-up register. This standard
+remains the certification rulebook; the operating process is the client-demo workflow.
 
 ## Demo Certification Principle
 
@@ -99,7 +101,8 @@ client-facing pack.
 
 ## Demo Pack Structure
 
-A certified demo pack should contain:
+A certified demo pack should follow
+[Lotus Client Demo Pack Template](../demo/client-demo-pack-template.md) and contain:
 
 1. audience and scope,
 2. story sequence,
@@ -163,6 +166,7 @@ Do not:
 
 - [Canonical DPM Demo Story](../demo/canonical-dpm-demo-story.md)
 - [Lotus Client Demo Operating Process](../demo/client-demo-operating-process.md)
+- [Lotus Client Demo Pack Template](../demo/client-demo-pack-template.md)
 - [Lotus Client Demo Brief Template](../demo/client-demo-brief-template.md)
 - [Lotus Data Mesh Standard](Lotus%20Data%20Mesh%20Standard.md)
 - [Platform Observability Standards](Platform%20Observability%20Standards.md)
