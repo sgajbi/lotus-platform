@@ -455,6 +455,11 @@
                                    "scope":  "platform-wide"
                                },
                                {
+                                   "name":  "Lotus Client Demo Pack Template",
+                                   "path":  "docs/demo/client-demo-pack-template.md",
+                                   "scope":  "platform-wide"
+                               },
+                               {
                                    "name":  "Lotus Bank-Buyable Engineering Contract",
                                    "path":  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
                                    "scope":  "platform-wide"

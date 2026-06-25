@@ -80,7 +80,9 @@ only after validation passes.
 ## Source Of Truth
 
 - [Client Demo Certification](Client-Demo-Certification)
+- [Client Demo Pack Template](Client-Demo-Pack-Template)
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
 - [Deep demo story](../docs/demo/canonical-dpm-demo-story.md)
 - [Canonical demo-data contract](../context/contracts/canonical-front-office-demo-data-contract.json)
 - [Canonical invariants contract](../context/contracts/canonical-front-office-demo-data-invariants.json)

@@ -46,6 +46,10 @@ flowchart LR
 
 ## Demo Pack Contents
 
+Use [Client Demo Pack Template](Client-Demo-Pack-Template) as the full pack structure. The pack
+keeps the client story, claims, boundaries, evidence, rehearsal posture, and follow-up ownership in
+one governed artifact.
+
 | Section | What it provides |
 | --- | --- |
 | Audience and objective | Why this demo exists and what decision it supports. |
@@ -96,9 +100,11 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadiness
 
 ## Source Of Truth
 
+- [Client Demo Pack Template](Client-Demo-Pack-Template)
 - [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Certification](Client-Demo-Certification)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
+- [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
 - [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
 - [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)

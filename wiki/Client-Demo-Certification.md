@@ -75,8 +75,10 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadiness
 ## Source Of Truth
 
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Client Demo Pack Template](Client-Demo-Pack-Template)
 - [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
+- [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
 - [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
 - [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)

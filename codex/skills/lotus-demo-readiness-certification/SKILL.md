@@ -17,7 +17,10 @@ For client-facing demo process work, use:
 3. `lotus-platform/docs/demo/client-demo-brief-template.md` for the reusable one-page client
    brief that explains what Lotus is doing, why it is trustworthy, current boundaries, and
    follow-up ownership,
-4. `lotus-platform/docs/demo/canonical-dpm-demo-story.md` for the governed canonical DPM demo
+4. `lotus-platform/docs/demo/client-demo-pack-template.md` for the complete demo-pack skeleton:
+   client brief, business story, demo sequence, claim table, boundary register, evidence map,
+   rehearsal plan, and follow-up register,
+5. `lotus-platform/docs/demo/canonical-dpm-demo-story.md` for the governed canonical DPM demo
    narrative when the demo uses the front-office reference flow.
 
 ## Core Rule
@@ -121,7 +124,8 @@ A demo-readiness slice should leave:
 2. reviewed machine-readable evidence,
 3. focused unit/integration/e2e coverage where needed,
 4. a client-safe demo pack or operating-process update when the work affects client-facing demos,
-   including the one-page client brief template, claim table, client-safe Lotus explanation, and
+   including the one-page client brief template, full demo-pack template, claim table, evidence
+   map, boundary register, client-safe Lotus explanation, rehearsal plan, follow-up register, and
    client-ready acceptance checklist when external audiences are involved,
 5. docs, scorecards, and review ledgers updated with code truth,
 6. any residual risks stated with exact unsupported surfaces or stale evidence,

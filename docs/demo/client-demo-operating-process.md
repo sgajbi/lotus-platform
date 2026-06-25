@@ -6,7 +6,8 @@ This process explains how Lotus prepares and runs client-facing demonstrations s
 understand what Lotus is doing, why the capability matters, and which claims are implementation
 backed today.
 
-Use this document with the [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md).
+Use this document with the [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+and [Lotus Client Demo Pack Template](client-demo-pack-template.md).
 The standard defines the certification rules. This process defines the operating model for sales,
 pre-sales, product, engineering, operations, marketing, and client-facing teams.
 
@@ -97,6 +98,10 @@ Evidence must prove more than screen availability:
 
 A client demo pack should be concise and polished. It should help non-engineering audiences follow
 the story while preserving proof for technical and operational review.
+
+Use [Lotus Client Demo Pack Template](client-demo-pack-template.md) as the reusable authored
+structure for the complete pack. The pack should explain what Lotus is doing, what the client will
+see, which claims are implementation-backed, what remains bounded, and who owns follow-up.
 
 | Section | Purpose |
 | --- | --- |
@@ -222,6 +227,7 @@ Use this framing when a client asks what Lotus is doing:
 ## Related References
 
 - [Lotus Client Demo Certification Standard](../standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Pack Template](client-demo-pack-template.md)
 - [Lotus Client Demo Brief Template](client-demo-brief-template.md)
 - [Canonical DPM Demo Story](canonical-dpm-demo-story.md)
 - [Lotus Data Mesh Standard](../standards/Lotus%20Data%20Mesh%20Standard.md)

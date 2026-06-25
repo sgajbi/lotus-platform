@@ -77,8 +77,10 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
 
     operating_process = _read("docs/demo/client-demo-operating-process.md")
     brief_template = _read("docs/demo/client-demo-brief-template.md")
+    pack_template = _read("docs/demo/client-demo-pack-template.md")
     operating_wiki = _read("wiki/Client-Demo-Operating-Process.md")
     brief_wiki = _read("wiki/Client-Demo-Brief-Template.md")
+    pack_wiki = _read("wiki/Client-Demo-Pack-Template.md")
     demo_skill = _read("codex/skills/lotus-demo-readiness-certification/SKILL.md")
 
     for content in (operating_process, operating_wiki):
@@ -86,6 +88,18 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
         assert "Client-Ready Acceptance" in content
         assert "Why it is trustworthy" in content
         assert "Data safety" in content
+
+    for content in (pack_template, pack_wiki):
+        assert "```mermaid" in content
+        assert "Claim table" in content or "Claims and boundaries" in content
+        assert "Evidence map" in content
+        assert "Boundary" in content or "boundary" in content
+        assert "Rehearsal" in content
+        assert "Follow-up" in content
+        assert "Client-ready" in content or "Client-Ready" in content
+        assert "lotus-idea" in content
+        assert "lotus-ai" in content
+        assert "autonomous suitability approval" in content
 
     for content in (brief_template, brief_wiki):
         assert "```mermaid" in content
@@ -100,6 +114,7 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
 
     assert "one-page client brief" in demo_skill.lower()
     assert "client-demo-brief-template.md" in demo_skill
+    assert "client-demo-pack-template.md" in demo_skill
     assert "client-ready acceptance" in demo_skill.lower()
 
     for content in (sidebar, home, canonical_demo, engineering_context, reference_map, repo_context):
@@ -107,3 +122,4 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
             "Lotus Client Demo Certification Standard" in content
             or "Client Demo Certification" in content
         )
+        assert "Client Demo Pack Template" in content or "client-demo-pack-template.md" in content

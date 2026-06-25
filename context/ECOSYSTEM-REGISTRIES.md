@@ -49,6 +49,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | Lotus Client Demo Certification Standard | `platform-wide` | `docs/standards/Lotus Client Demo Certification Standard.md` |
 | Lotus Client Demo Operating Process | `platform-wide` | `docs/demo/client-demo-operating-process.md` |
 | Lotus Client Demo Brief Template | `platform-wide` | `docs/demo/client-demo-brief-template.md` |
+| Lotus Client Demo Pack Template | `platform-wide` | `docs/demo/client-demo-pack-template.md` |
 | Lotus Bank-Buyable Engineering Contract | `platform-wide` | `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` |
 | Scalability and Availability Standard | `platform-wide` | `docs/standards/Scalability and Availability Standard.md` |
 | Domain Vocabulary Glossary | `platform-wide` | `docs/standards/Domain Vocabulary Glossary.md` |

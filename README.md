@@ -202,6 +202,8 @@ Important current platform truths:
    authority into the platform, gateway, or UI layer
 10. the Lotus Client Demo Certification Standard defines how client-facing demo claims stay tied to
     supported features, deterministic data, real APIs, validation evidence, and explicit boundaries
+    while the demo pack template turns that evidence into a client-understandable brief, story,
+    claim table, evidence map, boundary register, rehearsal plan, and follow-up register
 11. RFC-0084 domain-data-product producer and consumer schemas live under
    `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
    `lotus-core`, `lotus-performance`, and `lotus-risk`
@@ -234,6 +236,8 @@ Important current platform truths:
   [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - client demo operating process:
   [docs/demo/client-demo-operating-process.md](docs/demo/client-demo-operating-process.md)
+- client demo pack template:
+  [docs/demo/client-demo-pack-template.md](docs/demo/client-demo-pack-template.md)
 - client demo brief template:
   [docs/demo/client-demo-brief-template.md](docs/demo/client-demo-brief-template.md)
 - enterprise backend quality baseline:
