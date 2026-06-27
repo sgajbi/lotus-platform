@@ -8,6 +8,34 @@ This instruction pack is application-independent. Apply it to the named target a
 
 ---
 
+# 0. Required Lotus References
+
+Before substantial refactoring work, load the smallest correct set of references:
+
+- `AGENTS.md`
+- `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
+- `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+- the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
+- `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
+- `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
+- `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+- `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md` when skill choice matters
+- `lotus-platform/docs/standards/Lotus Data Mesh Standard.md` when data products, trust telemetry, lineage, access policy, SLO policy, or evidence packs are touched
+- `lotus-platform/docs/standards/Lotus Client Demo Certification Standard.md` when demo claims, client-facing material, screenshots, or sales/marketing proof are touched
+- `lotus-platform/docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md` when changing scaffolded service structure, generated gates, or generated docs
+
+Use the right Lotus skill for the task. In particular:
+
+- use `lotus-ci-enforcement-governance` for quality gates, CI lane placement, scaffold guardrails, and anti-slop enforcement,
+- use `lotus-backend-delivery-governance` for backend implementation and architecture refactoring,
+- use `lotus-readme-wiki-governance` for README, wiki, demo, operator, and audience-aware documentation changes,
+- use `lotus-pr-premerge-gate` before push, PR update, merge, or branch cleanup,
+- use `lotus-rfc-review-loop` for RFC structure, source maps, implementation ledgers, and closure truth.
+
+Do not create a new skill unless the workflow is durable, recurring, and not already covered by an existing Lotus skill. If a new or changed skill is justified, update the platform-owned skill source, skill manifest, routing map, central context, and bootstrap/sync evidence in the same slice.
+
+---
+
 # 1. Mission
 
 Refactor the target Lotus backend application into a modular, reusable, maintainable, performant, secure, observable, enterprise-grade, production-ready, bank-buyable backend application.
@@ -593,6 +621,77 @@ Use progressive CI gating:
 
 Do not make CI weaker to complete the refactor.
 
+## 12A. Agentic Quality Gate Pack
+
+For new or heavily refactored Lotus backend services, use the scaffolded `lotus-idea` quality posture as the minimum bar, then improve it when the target repository justifies stricter controls.
+
+The repo-native local surface should include deterministic blocking gates for:
+
+- CI contract drift
+- architecture boundary drift
+- maintainability thresholds
+- documentation surface contracts
+- quality-scorecard truth
+- monetary precision
+- sensitive-content leakage
+- source-safe observability
+- operation metric vocabulary
+- implementation-truth claims
+- supported-feature promotion
+- endpoint certification
+- OpenAPI quality
+- migration contracts when persistence exists
+- runtime proof contracts when proof artifacts exist
+- repository hygiene and safe cleanup
+
+Use `make lint` or the repository's equivalent fast static command to run the anti-slop pack that prevents weak agent-generated code from passing early. Use `make check` or the repository's equivalent PR-grade command for typecheck, unit/integration tests, coverage, contract gates, security, Docker/runtime proof, and migration/runtime checks as applicable.
+
+Generated or refactored gates must be:
+
+- repo-native,
+- worktree-clean,
+- focused on concrete engineering risk,
+- covered by pass and fail tests,
+- documented in README, repo context, quality docs, and wiki source when truth changes.
+
+Do not hide weak implementation behind allowlists, lowered thresholds, or documentation-only optimism. If a gate cannot be made deterministic and low-noise, keep it report-only and record the follow-up in the scorecard or refactor decision log.
+
+## 12B. Bounded Proof Artifact Pattern
+
+When a refactor introduces cross-repository, runtime, data-mesh, downstream, AI, report/render/archive, broker, or product-surface evidence, use bounded proof artifacts instead of vague readiness prose.
+
+A proof artifact must define:
+
+- schema version,
+- owning repository,
+- generated timestamp with timezone,
+- proof type,
+- proof scope,
+- required evidence references,
+- exact routes, contracts, migrations, dashboards, alerts, or runtime commands being proven,
+- exact blockers cleared,
+- remaining blockers,
+- non-proof boundaries,
+- source-safety checks,
+- validation command,
+- focused tests for valid, invalid, missing-evidence, and sensitive-content cases.
+
+The artifact must clear only the blockers it actually proves. For example, a route-foundation proof must not become execution proof; report materialization proof must not become client-publication proof; data-mesh onboarding proof must not become mesh certification; AI workflow-pack registration proof must not become live-provider proof.
+
+Refactoring agents must keep this distinction explicit in code, tests, README, operations docs, wiki source, supported-feature ledgers, RFCs, and PR evidence. This is a core anti-overclaim control for bank-buyable Lotus work.
+
+Recommended implementation shape:
+
+- application module for proof payload construction and validation,
+- generator script that writes ignored `output/` artifacts,
+- contract gate script that can run in CI without live dependencies,
+- Make target for the contract gate,
+- aggregate readiness integration that consumes the proof only when valid,
+- tests proving blocker clearance and remaining blockers,
+- documentation section with current truth, proof boundary, non-proof boundary, commands, and evidence refs.
+
+Missing sibling evidence may write an invalid non-proof artifact and exit cleanly only when the command is designed for stable local or CI operation without sibling checkouts. Contract drift in present sibling evidence must fail.
+
 ---
 
 # 13. Required Evidence After Each Meaningful Refactoring Step
@@ -671,6 +770,31 @@ Where the application has limitations, document them honestly.
 
 Where the refactor introduces decisions, document the decision and reasoning.
 
+Documentation must not be a text dump. Use polished, audience-aware structure:
+
+- current-truth table,
+- what it proves,
+- what it does not prove,
+- blocker table,
+- response or artifact shape table,
+- implementation evidence,
+- executable commands,
+- diagrams where they clarify architecture, data flow, runtime proof, or audience understanding.
+
+Keep README concise and navigational. Put detailed proof, operations, API, and architecture content in `docs/`. Keep repo-local `wiki/` as the authored source for onboarding, operations, demo, business, sales, marketing, and support navigation. Publish the GitHub wiki after merge when wiki source changes.
+
+When implementation truth changes, update all durable surfaces that depend on it:
+
+- README,
+- `REPOSITORY-ENGINEERING-CONTEXT.md`,
+- relevant `docs/`,
+- repo-local `wiki/`,
+- supported-features material,
+- quality scorecards or review ledgers,
+- RFC source maps and implementation ledgers,
+- central platform context when the pattern is platform-wide,
+- skills and scaffold docs when the pattern is repeatable.
+
 ---
 
 # 15. Suggested Commit Sequence
@@ -720,6 +844,10 @@ Do not force the sequence if the repository needs a different safe order.
 39. tighten CI from report-only to regression-blocking
 40. tighten CI to agreed enterprise-readiness thresholds
 41. produce final before/after refactor health report
+42. reconcile docs/wiki/context/skills/scaffold updates created by the slice
+43. run stranded-truth reconciliation for durable governance paths
+44. sync enterprise refactor instructions to app-local copies when this playbook changes
+45. publish wiki source after merge when wiki truth changed
 
 ---
 
@@ -742,6 +870,9 @@ The final PR must include:
 - known limitations
 - follow-up backlog
 - review focus areas
+- proof-artifact blocker-clearance summary when the slice adds or consumes evidence artifacts
+- docs/wiki/context/skill/scaffold sync decision
+- stranded-truth reconciliation result for RFC, docs, wiki, context, contract, supported-features, API-governance, migration, and CI-workflow paths
 
 The PR must include concrete evidence, not just a narrative.
 
@@ -758,6 +889,8 @@ Required PR evidence:
 - architecture boundary result where applicable
 - before/after hotspot summary
 - known remaining hotspots
+- exact blockers cleared and exact blockers intentionally preserved
+- source-safe evidence refs for proof artifacts
 
 ---
 
@@ -780,6 +913,11 @@ The refactor is complete only when:
 - documentation is implementation-backed
 - application behavior is preserved unless changes are explicitly documented
 - final PR explains what changed, why it changed, what improved, what risks remain, and what should follow next
+- no unsupported feature, client-demo, production, data-mesh, downstream, AI, report/render/archive, or Workbench claim is promoted without implementation-backed proof
+- any new proof artifact has a contract gate, focused tests, source-safety checks, documentation, and explicit blocker semantics
+- repo-local wiki source is checked when documentation truth changed, and published after merge when required
+- central context, skills, scaffold, and app-local deployed copies are synchronized when platform-wide guidance changes
+- feature branches and worktrees are cleaned after merge, and durable truth is not stranded outside `main`
 
 ---
 

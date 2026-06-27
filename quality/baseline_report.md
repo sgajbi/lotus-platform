@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-21T12:39:40Z`
+Generated: `2026-06-27T08:33:51Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `720`
-- Total source lines: `310295`
-- Python files: `158`
+- Source files: `732`
+- Total source lines: `316864`
+- Python files: `159`
 - PowerShell files: `63`
-- Markdown files: `359`
+- Markdown files: `369`
 
 ## Largest Files
 
@@ -29,22 +29,23 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
-| platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 14219 | .json |
+| platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
+| automation/New-Lotus-Service.ps1 | 5160 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
-| automation/New-Lotus-Service.ps1 | 3493 | .ps1 |
-| platform-contracts/domain-data-products/lotus-core-products.v1.json | 2701 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2202 | .py |
+| platform-contracts/domain-data-products/lotus-core-products.v1.json | 2769 | .json |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2212 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 | automation/heartbeat_sources.py | 1735 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1868`
-- Highest measured cyclomatic complexity: `9`
-- Largest Python function length: `547`
+- Python functions: `1874`
+- Highest measured cyclomatic complexity: `15`
+- Largest Python function length: `888`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
+| tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_contract_directory | 1439 | 9 | 102 |
 | automation/core_performance_cross_app_validation.py | _evaluate_performance_requests | 306 | 9 | 75 |
 | automation/validate_dev_ingress_smoke.py | validate_dev_ingress_smoke | 94 | 9 | 64 |
@@ -54,7 +55,6 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_analytics_ui_observability_contract.py | _validate_telemetry_events | 582 | 9 | 45 |
 | automation/mesh_certification_gate.py | _validate_required_product_lifecycle | 258 | 9 | 42 |
 | automation/heartbeat_sources.py | _collect_delegated_task_ledger_item | 987 | 9 | 38 |
-| automation/validate_analytics_ui_ecosystem_hardening.py | _validate_repository_reviews | 103 | 9 | 38 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `560`
+- Unit tests collected: `564`
 - Collection command return code: `0`
-- Collection summary: `560 tests collected in 0.83s`
+- Collection summary: `564 tests collected in 0.58s`
 
 ## Security Baseline
 
