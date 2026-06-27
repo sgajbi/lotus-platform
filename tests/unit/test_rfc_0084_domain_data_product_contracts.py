@@ -2027,7 +2027,7 @@ def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -
     }.items():
         expected_consumers = (
             ["lotus-gateway", "lotus-idea"]
-            if product_name == "RiskMetricsReport"
+            if product_name in {"RiskMetricsReport", "ConcentrationRiskReport"}
             else ["lotus-gateway"]
         )
         assert risk_products[product_name]["approved_consumers"] == expected_consumers

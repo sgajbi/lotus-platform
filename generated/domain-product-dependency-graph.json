@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 92,
-  "edge_count": 306,
+  "edge_count": 308,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -1634,6 +1634,11 @@
     },
     {
       "edge_type": "approves_consumer",
+      "from": "product:lotus-risk:ConcentrationRiskReport:v1",
+      "to": "repo:lotus-idea"
+    },
+    {
+      "edge_type": "approves_consumer",
       "from": "product:lotus-risk:DrawdownAnalyticsReport:v1",
       "to": "repo:lotus-gateway"
     },
@@ -1863,6 +1868,18 @@
       "edge_type": "consumes",
       "from": "repo:lotus-idea",
       "to": "product:lotus-report:ClientReportEvidencePack:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "main-releasability"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-idea",
+      "to": "product:lotus-risk:ConcentrationRiskReport:v1",
       "consumption_mode": "api_read",
       "failure_posture": "degrade_to_partial",
       "validation_lanes": [

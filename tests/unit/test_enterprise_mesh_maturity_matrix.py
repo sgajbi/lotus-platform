@@ -67,7 +67,7 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
     assert repositories["lotus-idea"]["classification"] == "deferred"
     assert repositories["lotus-idea"]["mesh_role"] == "producer"
     assert repositories["lotus-idea"]["produced_product_count"] == 9
-    assert repositories["lotus-idea"]["consumed_dependency_count"] == 16
+    assert repositories["lotus-idea"]["consumed_dependency_count"] == 17
     assert repositories["lotus-idea"]["ambiguous_participation"] is False
     assert repositories["lotus-gateway"]["mesh_role"] == "api_face"
     assert repositories["lotus-workbench"]["mesh_role"] == "discovery_and_operator_ux"
