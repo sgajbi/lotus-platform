@@ -183,6 +183,39 @@ Generated test targets should be efficient without bypassing governance: `make t
 `UNIT_TESTS=<path>`, `INTEGRATION_TESTS=<path>`, and `E2E_TESTS=<path>` overrides. The CI contract
 gate should fail if those scoped target variables or target commands are removed.
 
+## Proof Artifact Enforcement
+
+For cross-repository or runtime evidence work, prefer bounded proof artifacts over broad readiness
+claims. A proof artifact should be treated as an enforceable contract, not as a narrative note.
+
+When a repository adds or consumes evidence for downstream services, data mesh, AI, report/render/
+archive, broker publication, Workbench/Gateway product surfaces, migrations, dashboards, alerts, or
+runtime posture, require:
+
+1. a schema version, proof type, proof scope, generated timestamp, owning repository, and source-safe
+   evidence refs,
+2. exact blocker codes cleared by the proof and exact blocker codes that intentionally remain,
+3. explicit non-proof boundaries so a narrow proof cannot be promoted into unsupported product
+   readiness,
+4. a repo-native generator or validator command,
+5. a blocking or intentionally report-only Make/NPM target with clear lane placement,
+6. focused tests for valid payloads, invalid payloads, missing evidence, drift, and
+   sensitive-content rejection,
+7. README, operations docs, wiki source, supported-feature material, RFCs, and PR evidence updated
+   only to the implementation-backed current truth.
+
+The anti-overclaim examples are deliberate and reusable:
+
+1. route-foundation proof is not downstream execution proof,
+2. report materialization proof is not client-publication proof,
+3. data-mesh onboarding proof is not mesh certification,
+4. AI workflow-pack registration proof is not live-provider proof,
+5. Workbench read-path proof is not full product-surface certification.
+
+If sibling evidence is optional for local developer ergonomics, a generator may write an invalid
+non-proof artifact and exit cleanly only for absent evidence. Present but drifting sibling evidence
+must fail so contract drift is not hidden.
+
 ## Context And Skill Maintenance
 
 If a repeatable enforcement pattern emerges:

@@ -456,8 +456,20 @@ promote a deterministic signal into a blocking gate or record why it remains rep
 
 
 def render_scorecard(baseline: dict[str, object]) -> str:
+    function_hotspots = baseline["function_hotspots"]
     rows = [
-        ["Code health", "Baseline measured", "Not yet measured", "Largest files and complexity hotspots recorded."],
+        [
+            "Code health",
+            (
+                f"Current max complexity {function_hotspots['max_complexity']} and largest function "
+                f"{function_hotspots['max_function_lines']} lines"
+            ),
+            "Reduce current hotspots without behavior drift",
+            (
+                "Largest files, highest-complexity functions, and completed extraction history are "
+                "recorded in the baseline and health report."
+            ),
+        ],
         ["Architecture", "Report-only", "Boundary rules enforced where practical", "Architecture rules documented."],
         [
             "OpenAPI quality",
@@ -871,6 +883,36 @@ Generated: `{baseline["generated_at_utc"]}`
     alert-rule reconciliation are isolated behind focused helpers, removing the dashboard review
     validator from the top measured complexity hotspot list while adding alert-rule drift
     regression coverage.
+102. RFC-0086 catalog closure test extraction so catalog source-path collection, product presence
+     matching, and first-wave certification-posture assertions are isolated behind focused helpers,
+     reducing the measured repository complexity ceiling from 11 to 10 while preserving
+     repo-native domain-product rollout closure behavior.
+103. Trust telemetry lineage and blocking extraction so lineage metadata checks and blocking-state
+     checks are isolated behind focused helpers, removing the trust telemetry validator from the top
+     measured complexity hotspot list while adding malformed-lineage regression coverage.
+104. Repository-governance normalizer extraction so unprotected defaults, status-check parsing, pull
+     request review parsing, and branch-protection booleans are isolated behind focused helpers,
+     removing the governance normalizer from the top measured complexity hotspot list while adding
+     protected-branch payload regression coverage.
+105. Domain-data-product registry-entry extraction so key validation, object-shape validation, and
+     required-string validation are isolated behind focused helpers, removing the registry-entry
+     validator from the top measured complexity hotspot list while adding malformed-registry
+     regression coverage.
+106. Enterprise quality-surface validator extraction so required artifact checks, baseline JSON
+     loading, baseline key validation, and repo-check wiring validation are isolated behind focused
+     helpers, removing the quality-surface validator from the top measured complexity hotspot list
+     while adding invalid-JSON and missing-key regression coverage.
+107. Delegation evidence-ref validator extraction so governed evidence-ref type validation and
+     evidence location validation are isolated behind focused helpers, removing delegation
+     output-evidence validation from the top measured complexity hotspot list while adding empty-list
+     and path-only evidence-ref regression coverage.
+108. Analytics UI feature-milestone validator extraction so single-feature and feature-set milestone
+     enforcement are isolated behind focused helpers, removing the final complexity-10 hotspot and
+     reducing the measured repository complexity ceiling to 9 while adding Slice 10 and Slice 11
+     milestone regression coverage.
+109. Proof-artifact guardrail hardening so enterprise refactor instructions, CI-enforcement skill
+     guidance, and instruction-sync tests pin bounded proof artifacts, exact blocker semantics,
+     source-safety checks, and anti-overclaim examples before app-local rollout.
 
 ## Evidence
 

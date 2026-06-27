@@ -29,15 +29,19 @@ $repositoryNames = $Repositories
 if ($repositoryNames.Count -eq 0) {
     $repoRegistry = Join-Path $PSScriptRoot 'repos.json'
     if (Test-Path $repoRegistry) {
+        $repoEntries = Get-Content -Raw $repoRegistry | ConvertFrom-Json
         $repositoryNames = @(
-            Get-Content -Raw $repoRegistry |
-                ConvertFrom-Json |
-                Where-Object {
-                    $_.name -like 'lotus-*' -and
-                    $_.name -ne 'lotus-platform' -and
-                    $_.name -ne 'lotus-workbench'
-                } |
-                Select-Object -ExpandProperty name
+            foreach ($entry in @($repoEntries)) {
+                if ($null -eq $entry.PSObject.Properties['name']) { continue }
+                $name = [string]$entry.name
+                if (
+                    $name -like 'lotus-*' -and
+                    $name -ne 'lotus-platform' -and
+                    $name -ne 'lotus-workbench'
+                ) {
+                    $name
+                }
+            }
         )
     } else {
         $repositoryNames = @(

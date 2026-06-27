@@ -47,8 +47,11 @@ def test_quality_reports_render_before_after_scorecard_and_guidance_review() -> 
     assert "Enterprise Refactor Quality Scorecard" in scorecard
     assert "Before" in scorecard
     assert "Target After" in scorecard
+    assert "Current max complexity" in scorecard
     assert "Conscious Guidance Review" in health_report
     assert "lotus-ci-enforcement-governance" in health_report
+    assert "108. Analytics UI feature-milestone validator extraction" in health_report
+    assert "109. Proof-artifact guardrail hardening" in health_report
 
 
 def test_quality_surface_is_wired_into_repo_checks_and_artifacts() -> None:
