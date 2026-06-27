@@ -152,7 +152,7 @@
       "rationale": "Produces catalog products that are not yet selected for RFC-0091 maturity enforcement.",
       "produced_product_count": 9,
       "first_wave_product_count": 0,
-      "consumed_dependency_count": 16,
+      "consumed_dependency_count": 17,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,

@@ -23,7 +23,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-manage` | `certified_first_wave` | `producer` | `3` | `29` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
-| `lotus-idea` | `deferred` | `producer` | `9` | `16` | Decide whether these non-first-wave products enter a later maturity wave. |
+| `lotus-idea` | `deferred` | `producer` | `9` | `17` | Decide whether these non-first-wave products enter a later maturity wave. |
 | `lotus-ai` | `not_mesh_participant` | `explicit_posture_decision` | `0` | `0` | Not included until it owns a stable governed product or a catalog-consuming capability. |
 
 ## Product Maturity

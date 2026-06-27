@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `80`
-- Dependency count: `62`
+- Dependency count: `63`
 
 ## Products
 
@@ -83,7 +83,7 @@ This file is generated from governed domain-data-product declarations.
 | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-risk, lotus-idea | /integration/returns/series, /integration/returns/series/results/{calculation_id} |
 | `TimeWeightedReturnAnalytics` | `lotus-performance` | `v1` | `analytics_output` | `active` | lotus-gateway | /performance/twr, /performance/twr/results/{calculation_id} |
 | `ClientReportEvidencePack` | `lotus-report` | `v1` | `client_reporting_evidence` | `active` | lotus-gateway, lotus-idea | /reports/client-evidence-packs/{portfolio_id}, /reports/portfolios/{portfolio_id}/review |
-| `ConcentrationRiskReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/concentration |
+| `ConcentrationRiskReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-idea | /analytics/risk/concentration |
 | `DrawdownAnalyticsReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/drawdown |
 | `HistoricalRiskAttributionReport` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway | /analytics/risk/historical-attribution |
 | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `analytics_output` | `active` | lotus-gateway, lotus-manage, lotus-idea | /analytics/risk/mandate-health-context |
@@ -111,6 +111,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-idea` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `ClientReportEvidencePack` | `lotus-report` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-idea` | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `RiskMetricsReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` |
