@@ -190,3 +190,13 @@ For a local source set intended for GitHub wiki publication:
    families, instead of presenting an unstructured endpoint dump.
 6. Add light cross-links between pages so readers can move from overview to setup to operations to
    troubleshooting without returning to the sidebar every time.
+7. Make `Home` a professional front door with audience-specific paths, repo role, evidence
+   standard, common commands, and navigation.
+8. Group `_Sidebar` navigation into sections when the page set is large enough. Typical sections
+   are overview, product capabilities, engineering, operations, and governance.
+9. Prefer concise tables for audience paths, capability matrices, quality-signal maps,
+   first-response operations, and troubleshooting escalation details.
+10. Keep supported-feature pages implementation-backed. Move planned capability, aspirational
+    readiness, or unverified market language to roadmap or platform strategy material.
+11. Review the rendered shape mentally before finishing: a wiki that is technically accurate but
+    looks like unstructured notes is not ready for business, operator, or client-adjacent use.
