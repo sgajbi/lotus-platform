@@ -86,6 +86,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - group `_Sidebar` navigation into product, engineering, operations, and governance sections
      when the page set is large enough,
    - review changed pages as rendered GitHub-flavored Markdown, not only as raw text,
+   - check changed pages for broken intra-wiki links, bare URLs, duplicate headings, malformed
+     tables, unrendered Mermaid or diagram blocks, and orphaned pages that are not reachable from
+     `Home` or `_Sidebar`,
    - add an explicit evidence standard for supported claims,
    - use concise tables for audience paths, first-response operations, feature matrices, and
      quality-signal maps,
@@ -299,7 +302,10 @@ After updating docs:
     did not,
 12. after wiki publication, run the same check-only command again or inspect the published Git tree
     when case-only page renames, deletions, or legacy page retirement were part of the slice,
-13. validate this skill with `quick_validate.py` after edits to the skill itself.
+13. before closing a README/wiki slice, re-read the changed pages from the perspective of business,
+    sales/demo, operations/support, and engineering readers; fix any page whose first screen does
+    not expose current-state scope, evidence, and next action without relying on tribal knowledge,
+14. validate this skill with `quick_validate.py` after edits to the skill itself.
 
 ## Durable Guidance
 
