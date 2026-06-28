@@ -89,7 +89,13 @@ function Get-WikiFileMap {
             throw "git command failed with exit code ${LASTEXITCODE}: git -C $Root ls-files"
         }
         foreach ($path in $trackedPaths) {
-            $map[$path] = Get-NormalizedContentHash -Path (Join-Path $Root $path)
+            $fullPath = Join-Path $Root $path
+            if (Test-Path -LiteralPath $fullPath -PathType Leaf) {
+                $map[$path] = Get-NormalizedContentHash -Path $fullPath
+            }
+            else {
+                $map[$path] = "__MISSING_TRACKED_WIKI_FILE__"
+            }
         }
         return $map
     }
