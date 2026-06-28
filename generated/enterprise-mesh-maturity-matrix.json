@@ -65,7 +65,7 @@
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
       "produced_product_count": 8,
       "first_wave_product_count": 1,
-      "consumed_dependency_count": 7,
+      "consumed_dependency_count": 8,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,

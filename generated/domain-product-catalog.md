@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `80`
-- Dependency count: `63`
+- Dependency count: `64`
 
 ## Products
 
@@ -147,6 +147,7 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
+| `lotus-performance` | `PerformanceComponentEconomics` | `lotus-core` | `v1` | `chunked_api_read` | `degrade_to_partial` |
 | `lotus-performance` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
