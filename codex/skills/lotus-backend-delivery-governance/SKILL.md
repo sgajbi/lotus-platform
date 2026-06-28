@@ -112,6 +112,11 @@ For RFC-driven business-application slices, extend that intake with:
 10. Before deleting a local or remote branch, verify it is merged or explicitly superseded with PR,
     `git log`, `git diff`, or cherry-pick evidence. Branch cleanup is part of delivery, but code
     preservation comes first.
+11. At the end of every meaningful backend slice, run a conscious guidance review: decide whether
+    the work revealed a repeatable pattern that belongs in a platform skill, repo context, central
+    context, scaffold, validator, README, wiki, or runbook. Update durable guidance in the same
+    slice when truth changed; otherwise record an explicit no-skill/no-context/no-doc/no-wiki
+    decision in PR evidence, the review ledger, or the scorecard.
 
 ## Bank-Buyable Default Bar
 
@@ -229,7 +234,10 @@ If the backend change affects governed front-office proof:
 9. Unmerged remote branches containing durable governance artifacts have been classified as
    `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active`.
 10. Any restored durable truth is indexed and pinned by tests or explicit governance evidence where
-   the repository has a docs/current-state test pack.
+    the repository has a docs/current-state test pack.
+11. Skill, context, README, wiki, and runbook guidance has been updated when the slice changed a
+    reusable workflow, command, quality gate, domain ownership boundary, API convention, or
+    documentation standard. If not, the no-change decision is explicit and reviewable.
 
 ## Cross-App Rule
 

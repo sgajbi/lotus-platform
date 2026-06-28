@@ -87,9 +87,31 @@ For each meaningful agent-authored slice:
 5. record explicit no-doc/no-wiki/no-context decisions when public truth did not change,
 6. push the branch and let GitHub run heavy lanes,
 7. turn repeated CI or review failures into future eval cases or gates.
+8. sync platform-owned skill changes through the governed bootstrap or validation automation instead
+   of editing deployed local skill copies as source truth.
 
 Do not self-grade with prose such as "production-ready" or "enterprise-grade". Use executable
 evidence and reviewable artifacts.
+
+## Skill And Context Promotion
+
+Promote a lesson into a skill or context update when it changes how future agents should approach a
+task, not merely because one implementation was imperfect.
+
+Use this decision order:
+
+1. update an existing skill when the task route is already correct but the workflow, evidence, or
+   validation expectations need sharper guidance,
+2. update `LOTUS-SKILL-ROUTING-MAP.md` when agents could reasonably choose the wrong skill,
+3. update central context or onboarding when the expectation applies across repositories,
+4. update repo-local context when the lesson is specific to one app,
+5. add a validator or CI gate when the pattern is deterministic and should block regression,
+6. create a new skill only when a durable task family is too broad or ambiguous for the existing
+   skill set.
+
+Record a no-skill/no-context decision when the lesson is not repeatable. That record should be short
+and attached to PR evidence, a scorecard, or a review ledger so future agents do not reopen the same
+question without new facts.
 
 ## Modern Reference Points
 

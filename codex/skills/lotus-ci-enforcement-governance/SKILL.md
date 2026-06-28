@@ -133,6 +133,31 @@ quality scorecards, duplicate-code inventories, architecture boundary checks, Op
 checks, no-sensitive-observability checks, and documentation-current-state tests should make it hard
 for agents to ship code that degrades a Lotus app while satisfying the immediate prompt.
 
+## Agentic Quality Feedback Loop
+
+Use `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md` when repeated agent-authored
+failures show that prose guidance is not enough. Treat CI failures, review comments, weak tests,
+optimistic docs, stale wiki/context, missed closure evidence, duplicate implementations, and
+architecture-boundary drift as candidate learning signals.
+
+For each candidate signal:
+
+1. ground it in a real Lotus PR, CI run, review finding, validation artifact, or defect,
+2. decide the right control level: skill/context guidance, scaffold improvement, report-only
+   inventory, regression-blocking gate, strict gate, or advisory evaluator case,
+3. prefer deterministic repo-native gates for merge decisions and keep LLM graders advisory until
+   datasets, graders, false-positive posture, and exception policy are proven,
+4. update the platform-owned skill source under `lotus-platform/codex/skills` when the pattern
+   changes how future agents should work,
+5. sync local deployed skills through platform automation after source changes; do not hand-edit the
+   local Codex profile as authoritative truth,
+6. record the no-change decision when the finding is local to one slice and does not justify durable
+   skill, context, scaffold, or gate changes.
+
+Do not describe this as production reinforcement learning unless there is an implemented training
+system. The Lotus control is a governed feedback loop: evidence becomes better gates, evaluator
+cases, scorecards, scaffolds, skills, and context.
+
 For newly scaffolded backend services, treat `make ci-contract-gate` as the default anti-drift gate.
 It should remain blocking through `make lint` when it is worktree-clean and validates only concrete
 lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
@@ -280,6 +305,11 @@ source in the same slice so the next agent starts from current truth.
 
 Do not hand-edit local `C:\Users\<user>\.codex\skills` as the source of truth. Sync it from
 `lotus-platform`.
+
+When changing an existing Lotus skill, keep the change proportional to the repeated failure mode.
+Tighten trigger descriptions, workflow steps, validation expectations, or reference routing before
+creating a new skill. Create or split a skill only when the routing map shows a durable task family
+that current skills cover too broadly or ambiguously.
 
 ## PR Evidence
 
