@@ -98,6 +98,13 @@ Before merge:
 
 In the single-developer Lotus operating model, approving human reviews are not required. PRs, protected `main`, required checks, conversation resolution, and audit evidence are the approval control.
 
+Use the repository's configured merge policy as the source of truth. If GitHub rejects merge
+commits or the repository requires linear history, use the approved non-squash path such as rebase
+merge and stop retrying merge commits for that repository. Do not squash governed Lotus PRs unless
+repository policy or the owner explicitly requires it. For RFC-driven, proof-driven, standards,
+context, wiki, or CI-workflow work, record the merge method in the PR evidence or slice closure
+manifest.
+
 After merge:
 
 1. delete remote feature branch,
