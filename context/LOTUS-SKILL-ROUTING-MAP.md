@@ -42,6 +42,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Start or continue an enterprise backend refactor baseline, before/after scorecard, report-only quality measurement, or quality gate promotion in `lotus-platform` | `lotus-ci-enforcement-governance` | `lotus-backend-delivery-governance`, `lotus-readme-wiki-governance`, `lotus-codebase-review-ledger` | `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `automation/generate_enterprise_backend_quality_baseline.py`, `quality/baseline_report.md`, `quality/quality_scorecard.md`, `quality/refactor_health_report.md` |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Implement or review backend code in Lotus service repositories | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
+| Implement a business-application RFC slice with domain ownership, API/error-model polish, proof artifacts, data-mesh posture, or supported-feature promotion discipline | `lotus-backend-delivery-governance` | `lotus-rfc-review-loop` for slice ledger and blocker semantics, `lotus-ci-enforcement-governance` when adding gates, `lotus-pr-premerge-gate` before push/merge | app RFC suite, repo-local engineering context, `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`, and bounded proof artifacts |
 | Standardize or refresh repository README and wiki documentation across Lotus repos, including business-application feature material, diagrams, implementation-backed demo readiness, current functional/non-functional posture, or restored durable documentation truth | `lotus-readme-wiki-governance` | repo delivery governance skill, `lotus-rfc-review-loop`, `lotus-pr-premerge-gate` for stranded-truth checks | repo-local engineering context, existing public-doc regression tests when present, `docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md`, `context/TASK-ROUTING-GUIDE.md`, and repo-local `wiki/` as the authored source when publishing |
 | Prepare, monitor, or merge a PR with Lotus CI discipline, including RFC/docs/wiki/context branch hygiene | `lotus-pr-premerge-gate` | `gh-fix-ci`, `async-task-runner`, `lotus-rfc-review-loop` when durable RFC truth may be stranded | `context/playbooks/PR-LOOP-PLAYBOOK.md` plus stranded-truth reconciliation for governance-bearing branches |
 | Launch or monitor detached platform automation profiles, local background runs, RFC-0095 heartbeat attention artifacts, or RFC-0096 governed delegation evidence | `platform-automation-ops` | `async-task-runner`, `lotus-pr-premerge-gate`, `platform-pulse-monitor` | `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md`, `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`, `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`, `platform-contracts/heartbeat/heartbeat-status.schema.json`, `automation/Start-Background-Run.ps1`, `automation/Check-Background-Runs.ps1`, `automation/Run-Heartbeat.ps1` |
@@ -122,6 +123,16 @@ Use when the task is about:
    `make implementation-truth-gate`.
 9. enforcing stable API/runtime, contract/governance, observability/security, or methodology
    test-family breadth instead of relying only on total test count.
+
+### `lotus-rfc-review-loop`
+
+Use alongside the repo delivery skill when the task is about:
+
+1. implementing an RFC slice from current `main`,
+2. preventing many partial slices from accumulating,
+3. mapping blocker codes to exact proof artifacts,
+4. preserving supported-feature and client-publication boundaries,
+5. deciding whether design modularity is enough or a runtime service split is justified.
 
 ## Keep, Tighten, Add, Remove Decisions
 

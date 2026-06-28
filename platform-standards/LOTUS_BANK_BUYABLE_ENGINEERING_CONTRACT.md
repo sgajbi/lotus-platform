@@ -70,6 +70,11 @@ Every Lotus app refactoring or readiness slice must follow these rules:
 9. Update docs, context, runbooks, contracts, and wiki source when platform or repository truth
    changes.
 10. Treat merged-to-main and validated as the definition of done for durable truth.
+11. Complete one implementation-backed slice before opening the next. A slice is incomplete while
+    its code, tests, proof artifacts, documentation truth, PR/CI evidence, and branch hygiene are
+    still unresolved.
+12. Separate design modularity from runtime modularity. Prefer clear internal packages, ports,
+    adapters, and contract seams before introducing a separate deployable service.
 
 ## Status Vocabulary
 
@@ -177,6 +182,11 @@ Required controls:
 5. Shared rules are centralized when repeated.
 6. Compatibility aliases and legacy paths are documented, tested, and retired when no longer needed.
 7. New abstractions reduce complexity or enforce a real contract.
+8. Internal bounded contexts are explicit enough to extract later, but remain in-process until
+   independent scaling, ownership, deployment, resilience, data, and operational needs justify a
+   runtime split.
+9. Runtime service splits must not be used to hide unclear domain ownership, duplicated models, weak
+   APIs, or untested orchestration.
 
 Evidence examples:
 
@@ -200,6 +210,8 @@ Required controls:
 5. Breaking changes are intentional, documented, and validated with downstream consumers.
 6. Gateway and Workbench contracts do not bypass domain authority.
 7. Contract drift is caught by repo-native tests or platform validators where available.
+8. Problem-details style errors use stable application error codes, correlation context, and safe
+   metadata so operators can diagnose failures without leaking downstream internals or client data.
 
 ## Data And Methodology Quality
 
@@ -213,6 +225,11 @@ Required controls:
 3. Data freshness, lineage, reconciliation, and fallback states are explicit.
 4. Test data is synthetic, deterministic, and representative of realistic private-banking cases.
 5. No confidential client data or unmanaged local secrets appear in fixtures, docs, logs, or CI.
+6. AI, ML, or RAG assistance is advisory unless deterministic evidence, source authority,
+   entitlements, model-risk controls, prompt/output governance, auditability, and human review are
+   implemented and tested.
+7. An app may consume AI-generated or AI-assisted evidence only through governed contracts; it must
+   not become the owner of shared AI infrastructure unless the repository is `lotus-ai`.
 
 ## Security And Privacy
 
@@ -319,6 +336,9 @@ Required controls:
 11. Use the agentic coding quality evaluation loop when repeated CI, review, QA, documentation, or
     agent-authored quality failures should become evaluator cases, scorecards, scaffolds, skills,
     context updates, or deterministic gates.
+12. If a repository disallows merge commits, preserve reviewable history with rebase merge or the
+    repository-approved linear merge path. Do not repeatedly attempt merge commits after policy is
+    known, and do not squash unless policy or the owner explicitly requires it.
 
 ## Documentation And Evidence Pack
 
@@ -389,6 +409,9 @@ During work:
     backlog.
 11. After merge, confirm main releasability, local/remote branch hygiene, wiki publication posture,
     and no stranded feature branches or PRs.
+12. For RFC-driven work, move slice by slice: select one incomplete slice, define its blockers and
+    non-proof boundaries, implement and validate it, merge it to `main`, then choose the next slice
+    from mainline truth.
 
 ## PR Evidence Requirements
 

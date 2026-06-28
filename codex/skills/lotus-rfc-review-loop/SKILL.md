@@ -27,15 +27,25 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
 7. **No stranded RFC truth**: Before starting or closing RFC work, reconcile every unmerged remote
    branch that touches governance artifacts. Unique truth must be merged, cherry-picked, explicitly
    superseded with rationale, or deleted.
-6. **Business outcome clarity**: Business application RFCs must explain the business outcome in
+8. **Business outcome clarity**: Business application RFCs must explain the business outcome in
    private-banking or platform-operating language, not only technical deliverables.
-7. **Domain vocabulary discipline**: Use industry-standard, domain-driven terminology. For banking
+9. **Domain vocabulary discipline**: Use industry-standard, domain-driven terminology. For banking
    apps, prefer precise language such as mandate, investment policy, strategic asset allocation,
    tactical tilt, house view, risk budget, tracking error, source readiness, proof pack, decision
    timeline, and outcome review over generic software labels.
-8. **Enterprise posture must improve**: New features must strengthen API quality, data-mesh posture,
+10. **Enterprise posture must improve**: New features must strengthen API quality, data-mesh posture,
    observability, logging, auditability, supportability, tests, documentation, or operational
    resilience. If a feature adds unavoidable complexity, require compensating controls.
+11. **One slice at a time**: RFC implementation should close one meaningful slice on `main` before
+   opening the next. Do not spread work across many partial slices unless a shared foundation is
+   explicitly required, and even then record which blockers remain uncleared.
+12. **Bounded proof semantics**: Proof artifacts clear exact blocker codes only. A proof for source
+    product typing, live route reachability, report materialization, data-mesh onboarding, Workbench
+    discovery, or AI workflow registration must not be promoted into unsupported readiness claims.
+13. **Design modularity before runtime modularity**: RFCs should require clean internal domain,
+    application, port, adapter, and proof-module boundaries before proposing additional deployable
+    microservices. Runtime splits require independent scaling, deployment, ownership, data, failure,
+    or security justification.
 
 ## Loop Workflow
 
@@ -213,11 +223,15 @@ Every new or reopened implementation-bearing RFC must include these slices expli
    - Remove dead code, duplicate docs, stale endpoints, old aliases, misleading target-state
      claims, and repo/document sprawl.
    - Improve module boundaries and documentation layering before adding more scope.
+   - Harden domain ownership, API naming, error models, and design modularity before adding broad
+     feature behavior.
 3. **Implementation proof slice**
    - Prove endpoints and workflows end to end with live or canonical evidence.
    - Capture full request/response artifacts under non-git-tracked `output/`.
    - Critically review every returned figure, reason code, lineage ref, readiness state, and
      degraded state.
+   - State exact blocker codes cleared, exact blockers preserved, and the non-proof boundary that
+     prevents overclaiming.
 4. **Second-last hardening and review slice**
    - Perform proper code review and tighten bugs, duplication, tests, error handling, API
      certification, OpenAPI examples, data-mesh posture, logs, metrics, health, readiness, and
@@ -250,6 +264,22 @@ Every implementation RFC must state how it will satisfy:
 5. test-pyramid coverage with meaningful unit, contract, integration, e2e, and live proof where
    appropriate,
 6. GitHub Feature Lane, PR Merge Gate, and fix-forward monitoring expectations.
+7. repository merge policy, including the default non-squash linear merge path when merge commits
+   are disabled.
+
+### Slice Execution Ledger
+
+For each active RFC slice, maintain a short execution ledger in the RFC, RFC index, source map, or
+task ledger:
+
+1. slice name and branch,
+2. current mainline baseline,
+3. blockers targeted in this slice,
+4. blockers intentionally preserved,
+5. code, API, contract, documentation, and test evidence paths,
+6. local commands and GitHub checks,
+7. merge method and branch cleanup status,
+8. next slice chosen from updated `main`.
 
 ### Documentation-As-Product
 

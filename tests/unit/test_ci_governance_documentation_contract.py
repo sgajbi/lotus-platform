@@ -279,9 +279,18 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Report-only quality inventories should be promoted to regression-blocking gates" in bank_buyable_contract
     assert "When one scanner supports both report generation and blocking enforcement" in bank_buyable_contract
     assert "agentic coding quality evaluation loop" in bank_buyable_contract
+    assert "Complete one implementation-backed slice before opening the next" in bank_buyable_contract
+    assert "Separate design modularity from runtime modularity" in bank_buyable_contract
+    assert "AI, ML, or RAG assistance is advisory unless deterministic evidence" in bank_buyable_contract
+    assert "repository-approved linear merge path" in bank_buyable_contract
     assert "test-family breadth, including API/runtime, contract/governance" in backend_refactor_instructions
     assert "When promoting a report-only inventory, use the `lotus-ci-enforcement-governance` intake" in backend_refactor_instructions
     assert "do not rely only on total collected tests" in backend_refactor_instructions
+    assert "merge one proof-backed slice before starting the next slice" in backend_refactor_instructions
+    assert "Design modularity is required before runtime modularity" in backend_refactor_instructions
+    assert "API and error-model polish is part of the refactor" in backend_refactor_instructions
+    assert "exact blocker codes" in backend_refactor_instructions
+    assert "Live API tests are valuable when upstreams are available" in backend_refactor_instructions
     assert "Agentic Coding Quality Evaluation Loop" in agentic_quality_loop
     assert "Use deterministic gates for merge decisions" in agentic_quality_loop
     assert "Total test count alone is not a gate" in agentic_quality_loop

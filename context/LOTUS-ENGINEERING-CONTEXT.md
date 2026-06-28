@@ -706,6 +706,15 @@ For agentic coding quality, use
 the merge authority, while AI or LLM-based evaluators remain advisory until their datasets, graders,
 false-positive posture, and exception policy are stable.
 
+For RFC-driven business-application implementation, work from current `main` and close one
+proof-backed slice before opening the next. Each slice should name the blocker codes it clears, the
+blocker codes it intentionally preserves, the code/API/contract/test/docs evidence, and the merge
+method used. Internal domain, application, port, adapter, and proof-module boundaries are the
+default modularity target; propose a new deployable microservice only when independent runtime
+scaling, deployment, ownership, data, failure-isolation, or security-boundary needs are proven.
+If a repository disallows merge commits, use the repository-approved non-squash linear merge path
+such as rebase merge and stop retrying merge commits after that policy is known.
+
 For newly scaffolded backend services, CI contract gates should also protect release-evidence
 semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the

@@ -224,6 +224,8 @@ runtime posture, require:
    sensitive-content rejection,
 7. README, operations docs, wiki source, supported-feature material, RFCs, and PR evidence updated
    only to the implementation-backed current truth.
+8. a single-slice readiness statement that identifies whether this proof is enough to close the
+   current slice or only clears one blocker for a later slice.
 
 The anti-overclaim examples are deliberate and reusable:
 
@@ -236,6 +238,9 @@ The anti-overclaim examples are deliberate and reusable:
 If sibling evidence is optional for local developer ergonomics, a generator may write an invalid
 non-proof artifact and exit cleanly only for absent evidence. Present but drifting sibling evidence
 must fail so contract drift is not hidden.
+
+Do not let proof gates encourage many half-finished slices. Prefer one narrow gate that proves and
+closes a blocker completely, then merge that slice before adding the next proof family.
 
 ## Context And Skill Maintenance
 
