@@ -61,6 +61,14 @@ Before changing code:
    - Docker/runtime behavior
    - cross-app contracts
    - canonical front-office runtime behavior
+5. separate design modularity from runtime modularity:
+   - use internal modules, service boundaries, typed contracts, and clear ownership first when the
+     goal is maintainability or domain clarity,
+   - propose a separately deployable service only when workload isolation, failure isolation,
+     independent scaling, data/security ownership, or operational supportability evidence justifies
+     the added distributed-systems cost,
+   - record the no-runtime-split decision when the slice intentionally improves design modularity
+     inside one deployable application.
 
 Before editing backend code, produce a short quality intake from the actual repository:
 
@@ -117,6 +125,10 @@ For RFC-driven business-application slices, extend that intake with:
     context, scaffold, validator, README, wiki, or runbook. Update durable guidance in the same
     slice when truth changed; otherwise record an explicit no-skill/no-context/no-doc/no-wiki
     decision in PR evidence, the review ledger, or the scorecard.
+12. When refactoring orchestration, analytics, inspection, batch, or operator-support code, make
+    domain ownership explicit before adding deployment boundaries. Prefer smaller cohesive
+    application services and reusable policy/helper modules unless runtime evidence shows that a
+    microservice split will improve scalability, resilience, security isolation, or team ownership.
 
 ## Bank-Buyable Default Bar
 
