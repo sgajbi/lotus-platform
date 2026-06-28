@@ -57,6 +57,8 @@ Prefer patterns such as:
 - OpenAPI/example consistency
 - stale code, dead code, or documentation drift
 - clean report-only quality inventories that should become CI regression blockers
+- measured function-size, complexity, maintainability, or architecture-boundary hotspots that can
+  be reduced through design modularity without changing runtime deployment topology
 
 Only do file-by-file review when a single file is the real risk unit.
 
@@ -67,6 +69,7 @@ Use concrete classes:
 - stale code
 - duplication
 - modularity problem
+- unclear design-vs-runtime boundary
 - query/performance risk
 - race-condition or correctness risk
 - observability gap
@@ -85,6 +88,7 @@ For each material finding:
 2. fix the issue in the smallest coherent slice
 3. add lower-level tests if the issue was previously only visible in E2E or heavy runtime checks
 4. update the ledger with evidence
+5. record whether the slice improved design modularity only or also changed runtime modularity
 
 Prefer pushing invariants downward into:
 
@@ -94,6 +98,13 @@ Prefer pushing invariants downward into:
 - repo-native quality gates when the invariant is deterministic and broadly protective
 
 Use full E2E and heavy gates as proof, not as the primary debugging loop.
+
+For measured refactor slices, make the ledger entry specific enough that the next agent can continue
+without re-triaging the same area. Include the pre-change signal, the post-change signal, the
+module or boundary introduced, the behavior preserved, the focused tests run, and any explicit
+no-runtime-split decision. Do not claim architectural progress from cosmetic renames, file moves,
+or private helper extraction unless the quality inventory, ownership boundary, or review evidence
+shows a real reduction in responsibility or blast radius.
 
 ### 5. Require evidence before sign-off
 
