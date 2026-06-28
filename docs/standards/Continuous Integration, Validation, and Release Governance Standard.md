@@ -211,9 +211,14 @@ Single-developer baseline:
 
 Merge strategy:
 
-1. merge commits are allowed,
-2. squash merges are not used for governed Lotus repositories,
-3. PR completion should preserve scoped commits through rebase merge and linear history.
+1. repository governance policy is authoritative for the allowed merge methods,
+2. governed Lotus repositories should preserve scoped commits and should not squash unless the
+   repository policy or owner explicitly requires it,
+3. when a repository requires linear history or rejects merge commits, use the repository-approved
+   non-squash linear path such as rebase merge,
+4. do not repeatedly attempt merge commits after repository policy is known,
+5. PR evidence should record the merge method used when the work is RFC-driven, proof-driven, or
+   governance-bearing.
 
 ## 4.1 Deviation Policy
 

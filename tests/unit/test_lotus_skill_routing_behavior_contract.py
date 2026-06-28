@@ -66,6 +66,13 @@ def test_ci_enforcement_governance_route_is_unambiguous() -> None:
 def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+    ci_standard = _read(
+        ROOT
+        / "docs"
+        / "standards"
+        / "Continuous Integration, Validation, and Release Governance Standard.md"
+    )
+    pr_loop = _read(ROOT / "context" / "playbooks" / "PR-LOOP-PLAYBOOK.md")
     rfc_skill = _read(ROOT / "codex" / "skills" / "lotus-rfc-review-loop" / "SKILL.md")
     ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
 
@@ -74,6 +81,10 @@ def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     assert "For RFC-driven business-application implementation" in engineering_context
     assert "proof-backed slice before opening the next" in engineering_context
     assert "stop retrying merge commits after that policy is known" in engineering_context
+    assert "repository governance policy is authoritative for the allowed merge methods" in ci_standard
+    assert "do not repeatedly attempt merge commits after repository policy is known" in ci_standard
+    assert "If GitHub rejects merge" in pr_loop
+    assert "commits or the repository requires linear history" in pr_loop
     assert "One slice at a time" in rfc_skill
     assert "Bounded proof semantics" in rfc_skill
     assert "Design modularity before runtime modularity" in rfc_skill
