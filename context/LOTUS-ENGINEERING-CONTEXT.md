@@ -573,7 +573,10 @@ Expected validation layers include:
 2. add regression tests for every real defect you fix,
 3. prefer deterministic, minimal, high-signal tests,
 4. remove stale assertions that no longer reflect the product contract,
-5. keep repo-native commands truthful to the actual CI contract.
+5. keep repo-native commands truthful to the actual CI contract,
+6. treat total test count as context, not proof by itself,
+7. preserve measured API/runtime, contract/governance, observability/security, and
+   domain-methodology test-family breadth when those inventories exist.
 
 ## Documentation Quality Standards
 
@@ -698,6 +701,10 @@ explicit report-only commands such as `make architecture-boundary-report` or `ma
 When a repeatable enforcement pattern is learned, update platform-owned skills, routing context, and
 local agent artifacts through the bootstrap/validation automation rather than hand-editing local
 skill copies as the source of truth.
+For agentic coding quality, use
+`context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md`: deterministic repository gates are
+the merge authority, while AI or LLM-based evaluators remain advisory until their datasets, graders,
+false-positive posture, and exception policy are stable.
 
 For newly scaffolded backend services, CI contract gates should also protect release-evidence
 semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as

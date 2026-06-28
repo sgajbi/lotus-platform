@@ -250,7 +250,10 @@ For client demo certification work, use:
 7. [Agent Context And Task Ledger Playbook](./playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md)
    RFC-0093/RFC-0094 sequence for scoped context assembly, exact identifier preservation,
    detached task ledger evidence, RFC-0096 delegation guardrails, and durable promotion decisions.
-8. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
+8. [Agentic Coding Quality Evaluation Loop](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
+   How to turn repeated agent-authored code, test, documentation, and CI failures into
+   deterministic gates, scorecards, evaluator cases, skills, and context improvements.
+9. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
    RFC-0096 governed profiles, input envelopes, output envelopes, write-scope rules, and heartbeat
    attention identifiers for bounded multi-agent work.
 

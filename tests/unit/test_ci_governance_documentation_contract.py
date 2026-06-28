@@ -211,6 +211,19 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     bank_buyable_contract = (
         ROOT / "platform-standards" / "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"
     ).read_text(encoding="utf-8")
+    backend_refactor_instructions = (
+        ROOT / "context" / "playbooks" / "ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md"
+    ).read_text(encoding="utf-8")
+    agentic_quality_loop = (
+        ROOT / "context" / "playbooks" / "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md"
+    ).read_text(encoding="utf-8")
+    context_readme = (ROOT / "context" / "README.md").read_text(encoding="utf-8")
+    procedural_memory_index = (ROOT / "context" / "PROCEDURAL-MEMORY-INDEX.md").read_text(
+        encoding="utf-8"
+    )
+    context_reference_map = (ROOT / "context" / "CONTEXT-REFERENCE-MAP.md").read_text(
+        encoding="utf-8"
+    )
     workflow_standard = (ROOT / "platform-standards" / "Development-Workflow-and-CI-Strategy-Standard.md").read_text(
         encoding="utf-8"
     )
@@ -262,6 +275,19 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "Platform End-to-End Validation" in bank_buyable_contract
     assert "Unknown - requires owner review" in bank_buyable_contract
     assert "merged-to-main and validated as the definition of done" in bank_buyable_contract
+    assert "Test-family breadth is measured" in bank_buyable_contract
+    assert "Report-only quality inventories should be promoted to regression-blocking gates" in bank_buyable_contract
+    assert "When one scanner supports both report generation and blocking enforcement" in bank_buyable_contract
+    assert "agentic coding quality evaluation loop" in bank_buyable_contract
+    assert "test-family breadth, including API/runtime, contract/governance" in backend_refactor_instructions
+    assert "When promoting a report-only inventory, use the `lotus-ci-enforcement-governance` intake" in backend_refactor_instructions
+    assert "do not rely only on total collected tests" in backend_refactor_instructions
+    assert "Agentic Coding Quality Evaluation Loop" in agentic_quality_loop
+    assert "Use deterministic gates for merge decisions" in agentic_quality_loop
+    assert "Total test count alone is not a gate" in agentic_quality_loop
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in context_readme
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in procedural_memory_index
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in context_reference_map
 
     assert "Authoritative CI governance now lives in" in workflow_standard
     assert "docs/standards/Continuous Integration, Validation, and Release Governance Standard.md" in workflow_standard

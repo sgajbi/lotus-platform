@@ -104,6 +104,9 @@ def _validate_manifest_path_map(
         "validation_playbook": "context/playbooks/VALIDATION-PLAYBOOK.md",
         "fix_forward_patterns": "context/playbooks/FIX-FORWARD-PATTERNS.md",
         "agent_context_and_task_ledger": "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md",
+        "agentic_coding_quality_evaluation_loop": (
+            "context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md"
+        ),
     }.items():
         if procedural_memory.get(key) != expected_path:
             errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
@@ -497,6 +500,8 @@ def _validate_procedural_memory_entrypoints(
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Fix-Forward Patterns reference")
     if "Agent Context And Task Ledger Playbook" not in procedural_memory_index:
         errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agent Context And Task Ledger Playbook reference")
+    if "Agentic Coding Quality Evaluation Loop" not in procedural_memory_index:
+        errors.append("PROCEDURAL-MEMORY-INDEX.md: missing Agentic Coding Quality Evaluation Loop reference")
 
 
 def _validate_context_entrypoints(

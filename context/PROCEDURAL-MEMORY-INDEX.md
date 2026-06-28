@@ -23,6 +23,9 @@ These playbooks turn recurring delivery practice into durable operating guidance
 7. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
    Detailed reusable instruction pack for refactoring Lotus backend applications into modular,
    secure, observable, production-ready, bank-buyable services with measurable CI and PR evidence.
+8. [Agentic Coding Quality Evaluation Loop](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
+   How to turn repeated agent-authored code, test, documentation, and CI failures into
+   deterministic gates, scorecards, evaluator cases, skills, and context improvements.
 
 ## When To Use This Layer
 
@@ -40,3 +43,5 @@ Use these playbooks when:
 8. you are starting an enterprise backend refactor and need the baseline, quality-gate, testing,
    security, observability, documentation, commit, and PR expectations in one durable instruction
    pack.
+9. you are converting repeated agent-quality failures into measured gates or advisory evaluator
+   cases without relying on subjective self-assessment.

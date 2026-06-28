@@ -45,6 +45,12 @@ Prefer promoting clean, deterministic inventories with zero accepted findings fi
 5. API vocabulary or OpenAPI contract drift,
 6. repository-native domain contract validation.
 
+Also consider regression-blocking thresholds for deterministic non-zero inventories when the
+failure mode is clear and the current baseline is stable. Good examples: minimum API/runtime test-family breadth,
+minimum contract/governance test-family breadth, and maximum uncategorized-test backlog. These gates
+should block loss of proof or unchecked taxonomy drift; they should not pretend that the entire
+taxonomy is mature.
+
 Keep report-only until stable when the signal is noisy or policy is not settled, such as:
 
 1. maintainability index,
@@ -67,6 +73,11 @@ For a new enforcement gate:
 5. add focused tests for passing and failing threshold behavior,
 6. update quality reports, scorecards, review ledgers, and PR evidence,
 7. fix discovered root causes before adding allowlists or suppressions.
+
+For test-taxonomy or proof-breadth gates, keep total test count as context rather than the gate itself.
+Gate the stable families that matter to bank-buyable behavior, such as API/runtime,
+contract/governance, observability/security, or methodology proof, and cap uncategorized growth only
+when the current count is measured and the exception policy is explicit.
 
 When a newly promoted gate finds issues, fix the issue class directly if the code change is narrow.
 Use allowlists only when the allowlist is truthful current-state governance and is documented.
@@ -112,6 +123,10 @@ Prefer enforcement that blocks common agent failure modes:
 5. missing contract validation for data migrations, runtime evidence, or cross-service payloads.
 6. accidental removal of Makefile or GitHub Actions lane controls that are already part of the
    bank-buyable baseline.
+7. removal of API/runtime or contract/governance tests hidden by unchanged or growing total test
+   counts.
+8. growth in uncategorized tests that makes future agents unable to tell which proof family a test
+   protects.
 
 For agent-generated code, prefer gates that enforce "improve or preserve" rather than "barely pass":
 quality scorecards, duplicate-code inventories, architecture boundary checks, OpenAPI/vocabulary

@@ -273,6 +273,13 @@ Required controls:
 6. Test names describe business behavior.
 7. Coverage thresholds are meaningful and ratcheted as the codebase improves.
 8. Collection gates or smoke tests catch broken test discovery where useful.
+9. Test-family breadth is measured where a repository has meaningful API/runtime, contract,
+   governance, observability, security, or domain-methodology test families.
+10. Stable test-family inventories may become regression-blocking gates when they prevent loss of
+    API/runtime or contract/governance proof, or prevent unchecked growth of uncategorized tests.
+
+Total test count is not sufficient evidence. A branch that adds many low-value tests while reducing
+API/runtime, contract/governance, or supportability proof is a quality regression.
 
 ## CI And Release Evidence
 
@@ -304,6 +311,14 @@ Required controls:
    acceptable only when no repo-native target exists and the PR evidence explains the exception.
 8. CI contract gates should block drift away from repo-native lane commands when the repository has
    an established local command surface.
+9. Report-only quality inventories should be promoted to regression-blocking gates only after the
+   measured baseline, failure mode, deterministic command, lane placement, exception policy,
+   focused pass/fail tests, and scorecard or review-ledger evidence are explicit.
+10. When one scanner supports both report generation and blocking enforcement, keep the artifact
+    refresh command separate from the worktree-clean gate command.
+11. Use the agentic coding quality evaluation loop when repeated CI, review, QA, documentation, or
+    agent-authored quality failures should become evaluator cases, scorecards, scaffolds, skills,
+    context updates, or deterministic gates.
 
 ## Documentation And Evidence Pack
 

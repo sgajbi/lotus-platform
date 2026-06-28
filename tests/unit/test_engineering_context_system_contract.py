@@ -436,6 +436,7 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "Validation Playbook" in procedural_memory_index
     assert "Fix-Forward Patterns" in procedural_memory_index
     assert "Agent Context And Task Ledger Playbook" in procedural_memory_index
+    assert "Agentic Coding Quality Evaluation Loop" in procedural_memory_index
 
     assert "Backend API And Domain-Service Change Playbook" in change_playbooks
     assert "Frontend And Product-Surface Change Playbook" in change_playbooks
@@ -452,6 +453,7 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "Promotion Decisions" in agent_context_task_ledger
     assert "Fix-Forward Patterns" in reference_map
     assert "Agent Context And Task Ledger Playbook" in reference_map
+    assert "Agentic Coding Quality Evaluation Loop" in reference_map
     assert "PROCEDURAL-MEMORY-INDEX.md" in agents_contract
     assert "AGENT-CONTEXT-AND-TASK-LEDGER.md" in agents_contract
     assert "engineering_task_id" in agents_contract
@@ -488,6 +490,10 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert (
         manifest["procedural_memory"]["agent_context_and_task_ledger"]
         == "context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md"
+    )
+    assert (
+        manifest["procedural_memory"]["agentic_coding_quality_evaluation_loop"]
+        == "context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md"
     )
 
 
