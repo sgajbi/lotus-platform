@@ -27,7 +27,19 @@ def _git(cwd: Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True)
 
 
-def _init_wiki_remote(tmp_path: Path, repo_name: str, content: str) -> Path:
+def _git_output(cwd: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=cwd,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+
+
+def _init_wiki_remote_with_files(
+    tmp_path: Path, repo_name: str, files: dict[str, str]
+) -> Path:
     remote = tmp_path / "remotes" / f"{repo_name}.wiki.git"
     seed = tmp_path / "seed" / f"{repo_name}-wiki"
     remote.parent.mkdir(parents=True)
@@ -37,14 +49,21 @@ def _init_wiki_remote(tmp_path: Path, repo_name: str, content: str) -> Path:
     _git(seed, "init")
     _git(seed, "config", "user.email", "wiki-sync@example.com")
     _git(seed, "config", "user.name", "Wiki Sync Test")
-    (seed / "Home.md").write_text(content, encoding="utf-8")
-    _git(seed, "add", "Home.md")
+    for relative_path, content in files.items():
+        path = seed / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    _git(seed, "add", "--all")
     _git(seed, "commit", "-m", "seed wiki")
     _git(seed, "branch", "-M", "master")
     _git(seed, "remote", "add", "origin", str(remote))
     _git(seed, "push", "origin", "master")
     _git(remote, "symbolic-ref", "HEAD", "refs/heads/master")
     return remote
+
+
+def _init_wiki_remote(tmp_path: Path, repo_name: str, content: str) -> Path:
+    return _init_wiki_remote_with_files(tmp_path, repo_name, {"Home.md": content})
 
 
 def test_repo_wiki_sync_check_only_passes_when_published_clone_matches_source(
@@ -109,6 +128,91 @@ def test_repo_wiki_sync_check_only_fails_on_unpublished_wiki_drift(tmp_path: Pat
     assert result.returncode != 0
     assert "published GitHub wiki is not synchronized" in result.stderr + result.stdout
     assert "Home.md" in result.stderr + result.stdout
+
+
+def test_repo_wiki_sync_check_only_fails_on_case_only_filename_drift(
+    tmp_path: Path,
+) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    source = workspace / repo_name / "wiki"
+    source.mkdir(parents=True)
+    (source / "Validation-and-CI.md").write_text("# Validation\n", encoding="utf-8")
+    _init_wiki_remote_with_files(
+        tmp_path,
+        repo_name,
+        {"Validation-And-CI.md": "# Validation\n"},
+    )
+
+    result = subprocess.run(
+        _powershell_command(
+            "-CheckOnly",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    output = result.stderr + result.stdout
+    assert result.returncode != 0
+    assert "published GitHub wiki is not synchronized" in output
+    assert "Validation-and-CI.md" in output
+    assert "Validation-And-CI.md" in output
+
+
+def test_repo_wiki_sync_check_only_uses_published_git_tree_paths(
+    tmp_path: Path,
+) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    source = workspace / repo_name / "wiki"
+    source.mkdir(parents=True)
+    (source / "Validation-and-CI.md").write_text("# Validation\n", encoding="utf-8")
+    remote = _init_wiki_remote_with_files(
+        tmp_path,
+        repo_name,
+        {"Validation-And-CI.md": "# Validation\n"},
+    )
+    published_clone = publish_root / f"{repo_name}-wiki"
+    _git(tmp_path, "clone", str(remote), str(published_clone))
+    old_path = published_clone / "Validation-And-CI.md"
+    temporary_path = published_clone / "Validation-ci.tmp"
+    new_path = published_clone / "Validation-and-CI.md"
+    old_path.rename(temporary_path)
+    temporary_path.rename(new_path)
+
+    result = subprocess.run(
+        _powershell_command(
+            "-CheckOnly",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    output = result.stderr + result.stdout
+    assert result.returncode != 0
+    assert "published GitHub wiki is not synchronized" in output
+    assert "Validation-and-CI.md" in output
+    assert "Validation-And-CI.md" in output
 
 
 def test_repo_wiki_sync_pr_gate_allows_unpublished_branch_wiki_changes(
@@ -221,6 +325,45 @@ def test_repo_wiki_sync_publish_pushes_repo_source_to_wiki_remote(tmp_path: Path
     clone = tmp_path / "published-checkout"
     _git(tmp_path, "clone", str(remote), str(clone))
     assert (clone / "Home.md").read_text(encoding="utf-8") == "# Published Home\n"
+
+
+def test_repo_wiki_sync_publish_replaces_case_only_filename_drift(tmp_path: Path) -> None:
+    repo_name = "lotus-platform"
+    workspace = tmp_path / "workspace"
+    publish_root = tmp_path / "publish"
+    source = workspace / repo_name / "wiki"
+    source.mkdir(parents=True)
+    (source / "Validation-and-CI.md").write_text("# Validation\n", encoding="utf-8")
+    remote = _init_wiki_remote_with_files(
+        tmp_path,
+        repo_name,
+        {"Validation-And-CI.md": "# Validation\n"},
+    )
+
+    result = subprocess.run(
+        _powershell_command(
+            "-Publish",
+            "-Repository",
+            repo_name,
+            "-WorkspaceRoot",
+            str(workspace),
+            "-PublishRoot",
+            str(publish_root),
+            "-RemoteOwner",
+            str(tmp_path / "remotes"),
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+
+    clone = tmp_path / "case-published-checkout"
+    _git(tmp_path, "clone", str(remote), str(clone))
+    tree = set(_git_output(clone, "ls-tree", "--name-only", "HEAD").splitlines())
+    assert "Validation-and-CI.md" in tree
+    assert "Validation-And-CI.md" not in tree
 
 
 def test_repo_wiki_sync_publish_pushes_existing_local_wiki_commit(
