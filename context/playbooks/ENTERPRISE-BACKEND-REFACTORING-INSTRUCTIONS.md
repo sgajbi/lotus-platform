@@ -73,9 +73,14 @@ Work on a feature branch.
 
 Use small, meaningful commits.
 
-Target roughly 40 to 60 well-scoped commits, unless the repository is too small or too large for that number to make sense.
+Target roughly 40 to 60 well-scoped commits for a large refactor program, unless the repository is
+too small or too large for that number to make sense. For RFC implementation programs, complete and
+merge one proof-backed slice before starting the next slice.
 
 Preserve normal commit history because the final PR will use a non-squash merge strategy.
+When the repository disallows merge commits, use the repository-approved linear merge path such as
+rebase merge. Do not retry a rejected merge-commit strategy after repository policy is known, and do
+not squash unless policy or the owner explicitly requires it.
 
 Each commit should have a clear purpose and should keep the application buildable and testable as much as practical.
 
@@ -84,6 +89,9 @@ Prefer incremental improvement over large rewrites.
 Avoid large mechanical rewrites unless they create clear architectural value and are easy to review.
 
 Do not mix unrelated concerns in one commit.
+Do not keep many partial RFC slices open at once. If a foundational change touches several future
+slices, classify which blockers it actually clears and leave the remaining slices explicitly
+blocked, planned, or unpromoted.
 
 Do not perform broad renaming, formatting, folder moves, and business refactoring in the same commit unless unavoidable.
 
@@ -189,6 +197,13 @@ Rules:
 - logs must be structured and must not leak sensitive data
 
 The core business logic should be testable without FastAPI, real databases, Kafka, Redis, cloud services, or real downstream APIs.
+
+Design modularity is required before runtime modularity. Use packages, domain modules, ports,
+adapters, application services, proof builders, and explicit contracts to make responsibilities
+clear inside the service. Create a separate deployable microservice only when independent runtime
+scaling, deployment cadence, operational ownership, data persistence, failure isolation, or security
+boundary needs are proven. Do not split a service just because a module is conceptually important;
+first make the in-process boundary clean and enforce it with tests or architecture gates.
 
 ---
 
@@ -351,6 +366,11 @@ Typical error shape should include:
 - safe contextual metadata where useful
 
 Do not expose internal exception messages, stack traces, downstream raw errors, secrets, credentials, or sensitive client data.
+
+API and error-model polish is part of the refactor, not a final cleanup task. New or changed
+business endpoints should expose stable operation IDs, response models, examples, bounded
+problem-details responses, application error codes, correlation context, and source-safe diagnostic
+metadata before they are treated as implementation-complete.
 
 ---
 
@@ -700,6 +720,11 @@ The artifact must clear only the blockers it actually proves. For example, a rou
 
 Refactoring agents must keep this distinction explicit in code, tests, README, operations docs, wiki source, supported-feature ledgers, RFCs, and PR evidence. This is a core anti-overclaim control for bank-buyable Lotus work.
 
+For opportunity, advisory, reporting, AI, data-mesh, or product-surface RFCs, treat blocker
+semantics as the implementation contract. A proof may clear only the exact blocker codes it
+validates and must preserve downstream, client-publication, supported-feature, data-mesh
+certification, Workbench/Gateway, or live-provider blockers until runtime evidence exists.
+
 Recommended implementation shape:
 
 - application module for proof payload construction and validation,
@@ -711,6 +736,11 @@ Recommended implementation shape:
 - documentation section with current truth, proof boundary, non-proof boundary, commands, and evidence refs.
 
 Missing sibling evidence may write an invalid non-proof artifact and exit cleanly only when the command is designed for stable local or CI operation without sibling checkouts. Contract drift in present sibling evidence must fail.
+
+Live API tests are valuable when upstreams are available, but they do not replace the test pyramid.
+Keep deterministic unit, contract, and adapter tests at the base; add live or canonical API proof as
+an explicit higher lane with source-safe output artifacts, stable seed data, bounded credentials,
+and clear skip/failure semantics.
 
 ---
 

@@ -63,6 +63,25 @@ def test_ci_enforcement_governance_route_is_unambiguous() -> None:
     assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in pr_skill
 
 
+def test_rfc_slice_implementation_guidance_is_explicit() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+    rfc_skill = _read(ROOT / "codex" / "skills" / "lotus-rfc-review-loop" / "SKILL.md")
+    ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
+
+    assert "| Implement a business-application RFC slice" in routing_map
+    assert "preventing many partial slices from accumulating" in routing_map
+    assert "For RFC-driven business-application implementation" in engineering_context
+    assert "proof-backed slice before opening the next" in engineering_context
+    assert "stop retrying merge commits after that policy is known" in engineering_context
+    assert "One slice at a time" in rfc_skill
+    assert "Bounded proof semantics" in rfc_skill
+    assert "Design modularity before runtime modularity" in rfc_skill
+    assert "Slice Execution Ledger" in rfc_skill
+    assert "single-slice readiness statement" in ci_skill
+    assert "many half-finished slices" in ci_skill
+
+
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     skill = _read(ROOT / "codex" / "skills" / "platform-automation-ops" / "SKILL.md")
