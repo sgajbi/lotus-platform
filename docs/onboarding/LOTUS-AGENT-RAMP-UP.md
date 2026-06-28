@@ -104,7 +104,9 @@ Use Tier 2 for:
 2. CI lane or workflow changes,
 3. API vocabulary or contract governance,
 4. cross-app integration changes,
-5. repository context or platform standards updates.
+5. repository context or platform standards updates,
+6. agentic coding quality evaluation, eval dataset design, or promotion of repeated agent failure
+   modes into deterministic gates.
 
 ### Tier 3: Deep Context
 
@@ -142,6 +144,7 @@ Common Lotus skill routes:
 | PR merge or pre-merge checks | `lotus-pr-premerge-gate` |
 | GitHub CI failure fix-forward | `gh-fix-ci` or GitHub plugin CI skill |
 | CI quality-gate design or report-only inventory promotion | `lotus-ci-enforcement-governance` |
+| agentic coding quality evaluation or anti-slop feedback loops | `lotus-ci-enforcement-governance` plus [Agentic Coding Quality Evaluation Loop](../../context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md) |
 | platform validation and QA | `lotus-qa-platform-validator` |
 | RFC quality and review loop | `lotus-rfc-review-loop` |
 | async automation monitoring | `async-task-runner` or `platform-pulse-monitor` |
@@ -176,12 +179,18 @@ items, it should keep reading instead of writing plausible code.
 For backend implementation, use `lotus-backend-delivery-governance` as more than a PR checklist.
 Before coding, identify which measured quality signals can regress in the touched area: duplicate
 implementation, architecture boundaries, security scanner posture, API/OpenAPI truth, vocabulary and
-contract validation, complexity/function size, and supportability evidence.
+contract validation, complexity/function size, test-family breadth, uncategorized-test growth, and
+supportability evidence.
 
 The default acceptable backend slice either improves one of those signals or preserves it while
 delivering tested behavior. Do not treat passing tests alone as enough when the diff adds copy-paste,
 new boundary drift, weak mocks-only tests, stale allowlists, or optimistic documentation that is not
 backed by implementation.
+
+For CI enforcement work, do not use total test count as the only quality proxy. If a repository has
+a deterministic test taxonomy or proof-breadth inventory, check whether API/runtime,
+contract/governance, observability/security, or domain-methodology families can regress even when
+the total number of tests rises.
 
 For frontend implementation, use `lotus-frontend-delivery-governance` as more than visual polish.
 Before coding, identify which product-surface signals can regress: backed API truth, state handling,
@@ -243,6 +252,9 @@ Use:
 1. [PR Loop Playbook](../../context/playbooks/PR-LOOP-PLAYBOOK.md)
 2. [Validation Playbook](../../context/playbooks/VALIDATION-PLAYBOOK.md)
 3. [Fix-Forward Patterns](../../context/playbooks/FIX-FORWARD-PATTERNS.md)
+4. [Agentic Coding Quality Evaluation Loop](../../context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
+   when repeated agent-authored code, test, documentation, or CI failures should become measured
+   gates, scorecards, evaluator cases, skills, or context guidance.
 
 ## Context Maintenance Rule
 

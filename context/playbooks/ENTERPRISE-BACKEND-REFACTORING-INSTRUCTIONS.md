@@ -560,6 +560,8 @@ Before major refactoring, create a baseline report covering:
 - formatting issues
 - type-checking issues
 - test count
+- test-family breadth, including API/runtime, contract/governance, observability/security, and
+  uncategorized tests where a repo-native taxonomy exists
 - line coverage
 - branch coverage
 - diff coverage where available
@@ -620,6 +622,17 @@ Use progressive CI gating:
 4. enforce strict enterprise-readiness gates
 
 Do not make CI weaker to complete the refactor.
+
+When promoting a report-only inventory, use the `lotus-ci-enforcement-governance` intake. A
+promotion is valid only when it names the measured baseline artifact, exact failure mode,
+repo-native command, intended CI lane, exception policy, pass/fail tests, and scorecard or ledger
+update. Do not promote broad metrics such as maintainability index, dead-code percentage, or public
+docstring coverage until false positives and remediation policy are stable.
+
+For test inventories, do not rely only on total collected tests. Stable API/runtime,
+contract/governance, observability/security, or domain-methodology family counts can be useful
+regression gates. It is acceptable to cap uncategorized-test growth while keeping finer taxonomy
+maturity report-only, provided the baseline and exception policy are documented.
 
 ## 12A. Agentic Quality Gate Pack
 

@@ -170,6 +170,10 @@ def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
         "copied implementation hotspots that a deterministic duplicate inventory can identify",
         "architecture-boundary imports or ownership drift",
         "unsupported API shape, OpenAPI, vocabulary, no-alias, or contract drift",
+        "minimum API/runtime test-family breadth",
+        "maximum uncategorized-test backlog",
+        "total test count as context rather than the gate itself",
+        "removal of API/runtime or contract/governance tests hidden by unchanged or growing total test",
         "For agent-generated code, prefer gates that enforce",
         "degrades a Lotus app",
     ):
@@ -202,7 +206,50 @@ def test_agent_ramp_up_requires_pre_edit_quality_intake() -> None:
         "Before implementation, write a short quality intake from the actual codebase.",
         "existing owner patterns, source of truth, closest meaningful tests",
         "measurable quality signal the slice will improve or preserve",
+        "test-family breadth, uncategorized-test growth",
+        "total test count as the only quality proxy",
         "it should keep reading instead of writing plausible code",
         "starting code changes before naming the existing owner pattern",
     ):
         assert required_text in ramp_up
+
+
+def test_platform_context_records_test_family_breadth_as_quality_signal() -> None:
+    engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    ledger = _read(ROOT / "context" / "platform-engineering-ledger.md")
+    ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
+
+    assert "treat total test count as context, not proof by itself" in engineering_context
+    assert "test-family breadth" in routing_map
+    assert "cap uncategorized-test drift" in routing_map
+    assert "Test-family breadth can be a CI gate when total test count hides proof loss" in ledger
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in ramp_up
+
+
+def test_agentic_coding_quality_eval_loop_is_governed_and_discoverable() -> None:
+    playbook = _read(ROOT / "context" / "playbooks" / "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md")
+    procedural_index = _read(ROOT / "context" / "PROCEDURAL-MEMORY-INDEX.md")
+    reference_map = _read(ROOT / "context" / "CONTEXT-REFERENCE-MAP.md")
+    engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
+
+    for required_text in (
+        "deterministic repository gates that block known bad patterns",
+        "evaluator datasets that replay realistic agent tasks and grade outputs",
+        "Use deterministic gates for merge decisions.",
+        "Total test count alone is not a gate.",
+        "OpenAI agent evaluation guidance",
+        "OpenTelemetry provides vendor-neutral semantic conventions",
+        "SLSA defines software supply-chain controls",
+        "OWASP ASVS provides a basis",
+        "Do not self-grade with prose",
+    ):
+        assert required_text in playbook
+
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in procedural_index
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in reference_map
+    assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in engineering_context
+    assert "agentic coding eval loops" in routing_map
+    assert "agentic coding quality evaluation or anti-slop feedback loops" in ramp_up

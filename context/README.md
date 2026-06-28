@@ -51,6 +51,9 @@ use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAY
 12. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
    Execution pack for enterprise backend refactors; `lotus-platform` uses it with the measured
    quality artifacts under `../quality/`.
+13. [Agentic Coding Quality Evaluation Loop](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
+   Procedural loop for converting repeated agent-authored code, test, documentation, and CI
+   failures into deterministic gates, scorecards, evaluator cases, skills, and context updates.
 
 ## Maintenance Rules
 
@@ -63,6 +66,8 @@ Update this directory when:
 5. the ecosystem inventory or authority model changes.
 6. enterprise refactor quality gates, scorecards, repo organization, or agent workflow expectations
    change.
+7. repeated agent-authored quality failures should become durable gates, evaluator cases, skills, or
+   context guidance.
 
 If a change is repository-local only, update the repository-local context document instead.
 

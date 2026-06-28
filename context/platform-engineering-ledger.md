@@ -15,6 +15,20 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-06-28 | Test-family breadth can be a CI gate when total test count hides proof loss
+
+`lotus-performance` PR #309 promoted a deterministic test taxonomy inventory from report-only
+measurement to a blocking evaluation gate. The useful signal was not total test count; it was the
+minimum API/runtime and contract/governance test-family breadth, plus a ceiling on uncategorized
+test growth.
+
+Implication:
+
+Future CI-hardening work should inspect whether stable test-family or proof-breadth inventories can
+block agent-driven regression before relying on total collected tests. A good promotion names the
+baseline artifact, exact failure mode, repo-native command, lane placement, exception policy,
+pass/fail tests, and scorecard or review-ledger update.
+
 ### 2026-06-22 | Missing auto-merge token should skip helper, not fail PR quality
 
 `lotus-idea` PR #63 showed that a `pull_request_target` auto-merge helper that exits red when
