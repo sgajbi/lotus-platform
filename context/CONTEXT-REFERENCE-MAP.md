@@ -484,8 +484,9 @@ These are now the implementation-truth entrypoints for each repo:
 7. `lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`
 8. `lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`
 9. `lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md`
-10. `lotus-render/REPOSITORY-ENGINEERING-CONTEXT.md`
-11. `lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md`
+10. `lotus-idea/REPOSITORY-ENGINEERING-CONTEXT.md`
+11. `lotus-render/REPOSITORY-ENGINEERING-CONTEXT.md`
+12. `lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md`
 
 Use [Repository Engineering Context Contract](./Repository-Engineering-Context-Contract.md) and [the template](./templates/REPOSITORY-ENGINEERING-CONTEXT.template.md) when updating or extending the repo-local context set.
 
