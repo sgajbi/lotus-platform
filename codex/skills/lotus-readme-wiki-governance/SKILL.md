@@ -81,53 +81,62 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    Keep the tone polished and audience-aware: business, engineering, sales, marketing,
    operations, demo, and support readers should each be able to find useful current-state
    guidance without confusing implemented evidence with roadmap intent.
-14. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
+14. Treat wiki presentation quality as part of delivery quality:
+   - make `Home` a professional reader map, not a loose link list,
+   - group `_Sidebar` navigation into product, engineering, operations, and governance sections
+     when the page set is large enough,
+   - add an explicit evidence standard for supported claims,
+   - use concise tables for audience paths, first-response operations, feature matrices, and
+     quality-signal maps,
+   - keep page titles, heading case, and section order consistent across the wiki,
+   - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs.
+15. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
-15. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
+16. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
    disabled navigation entries, and target future topology. Do not treat every historical route or
    shell label as an active product commitment.
-16. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
+17. For platform-governance repositories, keep ecosystem narrative subordinate to repo truth: use
    business or market framing only when it clarifies why the platform exists, never as a substitute
    for actual automation, standards, and runtime ownership.
-17. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
+18. When users explicitly want investor, sales, or GTM material preserved, rewrite it as
    ecosystem-level platform narrative under the platform-governance repository instead of leaving it
    stranded inside one application repo. Keep numeric pricing and deal-specific terms high-level
    unless the user explicitly asks for detailed commercial mechanics.
-18. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
+19. When legacy commercial or strategy pages contain stale implementation mechanics, dated vendor
    comparisons, or unverified market-size numbers, translate the durable business meaning into
    current Lotus ecosystem language instead of copying the old claims forward. Prefer operating-model
    value, ownership clarity, delivery leverage, and supportability posture over brittle legacy
    specifics.
-19. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
+20. Do not carry forward hard market-size figures, CAGR claims, named-customer adoption numbers, or
    competitor assertions unless they are freshly verified for the current date. For evergreen repo
    wiki pages, prefer structural market forces, buyer pain, and Lotus positioning over brittle
    point-in-time statistics.
-20. Use this content split:
+21. Use this content split:
    - `README.md`: fast repo truth, top-level contracts, commands, and navigation
    - wiki: onboarding flow, operator maps, grouped surface explanations, and runbook summaries
    - deep docs under `docs/`: detailed architecture, standards, RFCs, and long-form technical truth
    - repo-local `wiki/`: canonical authored source when a GitHub wiki is used
    - separate `*.wiki.git` clone: publish transport only, never a second authored source
-21. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
+22. When a repo has no GitHub wiki yet, create a local `wiki/` source set ready for later
    publication.
-22. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
+23. If the user asks to publish, mirror the repo-local `wiki/` source into the GitHub wiki rather
    than editing the GitHub wiki clone directly. Treat publication as a synchronization step, not as
    a second authoring workflow.
-23. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
+24. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
     carry only the intended slice or also other pending authored wiki edits.
-24. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
+25. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
    fails because of old characters such as `:`, use a bare clone publication path instead of
    mutating the repo-local `wiki/` source or skipping the publish.
-25. When replacing a legacy wiki with the current governed page set, preserve durable business or
+26. When replacing a legacy wiki with the current governed page set, preserve durable business or
    operator signal by migrating it into grounded Lotus language first; then retire the stale page
    names from the live wiki.
-26. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+27. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
-27. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
+28. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
    and follow-up backlog truth move with it. When no doc change is needed, record the explicit
    no-doc/no-wiki decision in PR evidence.
-28. When a slice changes implementation truth, update every durable audience surface that now
+29. When a slice changes implementation truth, update every durable audience surface that now
     depends on that truth: README, repo-local wiki source, deep docs, demo/operator runbooks,
     repo-local context, central context, scorecards, ledgers, supported-features pages, skills,
     and AGENTS guidance as applicable. Publish the wiki after merge whenever repo-local wiki source
@@ -198,6 +207,17 @@ For business applications, the wiki should also include:
 4. feature-flow diagrams for the main product workflows,
 5. explicit target-state roadmap material separated from implemented support,
 6. demo-preparation notes that identify which claims are implementation-backed.
+
+The wiki is not finished until its navigation is professionally usable:
+
+1. `Home` gives reader-specific paths for business/product, sales/demo, operations/support, and
+   engineering/agent audiences,
+2. `_Sidebar` is grouped and scannable when the wiki has more than a small handful of pages,
+3. support and validation pages include first-response or quality-signal tables where those tables
+   make action faster,
+4. every support or demo claim has an evidence path or is moved to roadmap language,
+5. headings, table labels, and page names read like published documentation rather than scratch
+   notes.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
