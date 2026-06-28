@@ -55,7 +55,9 @@ Cross-application bank-buyable engineering posture:
 1. `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
    Includes opportunity-intelligence service posture for `lotus-idea`: lifecycle and evidence
    ownership, source-authority boundaries, exact blocker semantics, governed AI assistance, and
-   implementation-backed promotion rules.
+   implementation-backed promotion rules. RFC-driven business-app work should use the contract's
+   slice intake, exact proof boundary, live-API higher-lane evidence, and design-before-runtime
+   modularity rules.
 
 ## One-Command Lotus Service Scaffold
 

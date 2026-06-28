@@ -75,6 +75,19 @@ Before editing backend code, produce a short quality intake from the actual repo
 
 If you cannot name those items, keep reading before writing code.
 
+For RFC-driven business-application slices, extend that intake with:
+
+1. the RFC slice or blocker family being targeted,
+2. the exact blocker codes this slice will clear,
+3. the exact blocker codes this slice will intentionally preserve,
+4. the source-authority owner for each consumed portfolio, performance, risk, advisory, suitability,
+   compliance, reporting, archive, render, AI, Gateway, or Workbench fact,
+5. the API/OpenAPI/error-model, persistence, data-mesh, proof-artifact, docs/wiki, and
+   supported-feature surfaces affected,
+6. the local gate commands and remote GitHub lanes that must pass before merge,
+7. the no-claim boundary that prevents a narrow proof from becoming a demo-ready, production-ready,
+   client-publication, supported-feature, data-mesh-certified, or live-provider claim.
+
 ## Delivery Rules
 
 1. Use repository-native commands as the source of truth.
@@ -138,6 +151,8 @@ During implementation:
    represented in API or contract truth,
 5. treat report-only inventories as planning evidence and blocking gates as minimum standards, not
    as permission to add weak code that barely passes.
+6. finish and merge one proof-backed RFC slice before opening the next, unless the user explicitly
+   asks for a planning branch and the branch is clearly marked as unmerged planning work.
 
 Do not claim progress from:
 

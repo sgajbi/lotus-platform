@@ -76,6 +76,10 @@ Every Lotus app refactoring or readiness slice must follow these rules:
     still unresolved.
 12. Separate design modularity from runtime modularity. Prefer clear internal packages, ports,
     adapters, and contract seams before introducing a separate deployable service.
+13. For RFC-driven business applications, start each slice with a written slice intake: blocker
+    codes targeted, blocker codes intentionally preserved, source authority, API/error-model impact,
+    local gate commands, documentation/wiki surfaces, and the exact promotion claim that remains
+    unsupported until later proof.
 
 ## Status Vocabulary
 
@@ -166,6 +170,13 @@ Required emphasis:
 5. No demo-ready, production-ready, client-publication, supported-feature, or data-mesh
    certification claim without implementation, tests, OpenAPI or contract evidence, docs/wiki truth,
    CI proof, and mainline validation.
+6. Slice closure must be blocker-exact. A source-product proof, live-source proof, readiness
+   aggregate, Gateway publication proof, Workbench proof, data-mesh certification, and
+   client-publication proof are different controls and must not be merged into one optimistic
+   readiness statement.
+7. Design modularity is the default. Opportunity detection, scoring, lifecycle, evidence-pack,
+   review, feedback, conversion-intent, and readiness modules should be internally separable and
+   contract-tested before any new deployable `lotus-idea` sub-service is proposed.
 
 ### Shared Capability Service
 
@@ -434,6 +445,9 @@ During work:
 12. For RFC-driven work, move slice by slice: select one incomplete slice, define its blockers and
     non-proof boundaries, implement and validate it, merge it to `main`, then choose the next slice
     from mainline truth.
+13. For proof-driven slices, keep live or canonical API calls as higher-lane evidence. They should
+    refine confidence in upstream integration and output quality, but they do not replace the base
+    test pyramid of unit, contract, adapter, API, and readiness-gate tests.
 
 ## PR Evidence Requirements
 

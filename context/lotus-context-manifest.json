@@ -1,7 +1,7 @@
 {
     "schema_version":  "1.0",
     "generated_by":  "human-maintained",
-    "last_reviewed_on":  "2026-04-11",
+    "last_reviewed_on":  "2026-06-28",
     "reading_order":  [
                           "AGENTS.md",
                           "context/LOTUS-QUICKSTART-CONTEXT.md",
@@ -19,6 +19,9 @@
                               "task_routing_guide":  "context/TASK-ROUTING-GUIDE.md",
                               "ecosystem_registries":  "context/ECOSYSTEM-REGISTRIES.md",
                               "procedural_memory_index":  "context/PROCEDURAL-MEMORY-INDEX.md",
+                              "skill_routing_map":  "context/LOTUS-SKILL-ROUTING-MAP.md",
+                              "bank_buyable_engineering_contract":  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+                              "enterprise_backend_refactoring_instructions":  "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
                               "platform_engineering_ledger":  "context/platform-engineering-ledger.md",
                               "recent_architectural_decisions_digest":  "context/recent-architectural-decisions-digest.md"
                           },
@@ -31,7 +34,9 @@
                                                 "repository responsibility changes",
                                                 "canonical commands or validation flow changes",
                                                 "repeatable patterns promoted into durable guidance",
-                                                "ecosystem inventory or authority model changes"
+                                                "ecosystem inventory or authority model changes",
+                                                "RFC slice execution or proof-artifact governance changes",
+                                                "skill routing or agent workflow expectations change"
                                             ]
                     },
     "task_routes":  {
@@ -56,6 +61,15 @@
                                                   "context/CONTEXT-REFERENCE-MAP.md",
                                                   "context/platform-engineering-ledger.md",
                                                   "context/recent-architectural-decisions-digest.md"
+                                              ],
+                        "business_app_rfc_implementation":  [
+                                                  "context/LOTUS-ENGINEERING-CONTEXT.md",
+                                                  "REPOSITORY-ENGINEERING-CONTEXT.md",
+                                                  "context/CONTEXT-REFERENCE-MAP.md",
+                                                  "context/PROCEDURAL-MEMORY-INDEX.md",
+                                                  "context/LOTUS-SKILL-ROUTING-MAP.md",
+                                                  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+                                                  "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md"
                                               ]
                     },
     "procedural_memory":  {
@@ -312,6 +326,7 @@
                              "repository":  "lotus-idea",
                              "category":  "opportunity-intelligence-service",
                              "business_role":  "Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services.",
+                             "implementation_posture":  "active RFC implementation; source-product and proof slices are incremental and must not be read as client-publication, data-mesh certification, Workbench/Gateway realization, or supported-feature readiness without merged runtime evidence.",
                              "primary_runtime":  "python-fastapi",
                              "canonical_commands":  {
                                                         "quality":  "make ci"

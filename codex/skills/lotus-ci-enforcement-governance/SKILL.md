@@ -242,6 +242,21 @@ must fail so contract drift is not hidden.
 Do not let proof gates encourage many half-finished slices. Prefer one narrow gate that proves and
 closes a blocker completely, then merge that slice before adding the next proof family.
 
+For business-application RFC work, a proof gate should fail loudly when:
+
+1. it clears a blocker that is not listed in the proof contract,
+2. it removes a remaining blocker without a corresponding source-safe evidence reference,
+3. it treats source-product proof as live-source proof,
+4. it treats route, Gateway, Workbench, data-mesh onboarding, AI registration, or report
+   materialization proof as client-publication or supported-feature proof,
+5. it updates README, wiki, supported-features, RFC, or scorecard truth beyond the code and CI
+   evidence merged in the same slice.
+
+Live or canonical API exercises are valuable quality evidence, especially for cross-service output
+review and refinement, but keep them in the appropriate higher lane. They complement deterministic
+unit, contract, adapter, API, and readiness-gate tests; they do not replace those lower-pyramid
+checks.
+
 ## Context And Skill Maintenance
 
 If a repeatable enforcement pattern emerges:
