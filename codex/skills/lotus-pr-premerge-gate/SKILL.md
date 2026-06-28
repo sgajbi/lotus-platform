@@ -1,6 +1,6 @@
 ---
 name: lotus-pr-premerge-gate
-description: "Enforce Lotus pre-merge verification using the platform multi-lane CI model. Use when preparing to open, update, or merge a PR in any Lotus repo and the goal is zero avoidable CI failures: run repository-native local gates, map the change to Feature Lane and PR Merge Gate expectations, verify required GitHub checks are green, confirm evidence is truthful, then complete merge and branch hygiene."
+description: "Enforce Lotus pre-merge verification using the platform multi-lane CI model. Use when preparing to open, update, or merge a PR in any Lotus repo and the goal is zero avoidable CI failures: run repository-native local gates, map the change to Feature Lane and PR Merge Gate expectations, verify required GitHub checks are green, confirm evidence is truthful, then complete merge, mainline releasability proof, and branch hygiene."
 ---
 
 # Lotus PR Premerge Gate
@@ -206,14 +206,26 @@ After merge completes:
 3. Switch to main and sync:
    - `git checkout main`
    - `git pull --ff-only origin main`
-4. Confirm clean and aligned state:
+4. Capture the merge commit SHA from local `main`:
+   - `git rev-parse HEAD`
+5. Confirm clean and aligned state:
    - `git status --short --branch`
    - `git branch -vv`
-5. Confirm authoritative remote branch state (server truth):
+6. Confirm authoritative remote branch state (server truth):
    - `git ls-remote --heads origin`
-6. Confirm GitHub PR state:
+7. Confirm GitHub PR state:
    - `gh pr list --state open --limit 100`
-7. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
+8. Prove mainline releasability for the exact merge commit when the repository has a Main
+   Releasability Gate:
+   - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
+   - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
+9. If no Main Releasability Gate run exists for the merge SHA and the workflow has
+   `workflow_dispatch`, dispatch it from `main` and monitor it to completion:
+   - `gh workflow run main-releasability.yml --ref main`
+   - `gh run watch <run-id> --interval 10`
+10. Treat a missing, failed, or wrong-SHA main releasability run as an open release-evidence gap;
+   fix forward or record the explicit non-applicability reason before claiming closure.
+11. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
    is now superseded.
 
 Target end-state: local = remote = main.
@@ -234,7 +246,9 @@ Target end-state: local = remote = main.
 6. `Tiering:` confirm whether heavy checks are PR-blocking or scheduled/manual for this change
 7. `Stranded truth:` unmerged governance-bearing branches classified, with any restored or
    superseded durable truth named explicitly
-8. `Non-degradation:` measured quality movement, or a precise preservation statement for
+8. `Post-merge mainline proof:` Main Releasability Gate run URL and conclusion for the merge SHA,
+   or an explicit reason this repository/change does not require mainline releasability evidence
+9. `Non-degradation:` measured quality movement, or a precise preservation statement for
    duplicate-code, complexity, architecture boundaries, security, API contracts, accessibility, and
    supportability as applicable
 
@@ -259,3 +273,5 @@ Target end-state: local = remote = main.
 6. Branch cleanup must be verified with both local refs (`git branch -r`) and remote server truth (`git ls-remote --heads origin`).
 7. For RFC/docs/wiki/context/contract PRs, merged code or docs without reconciled mainline closure
    truth is not complete.
+8. A green PR Merge Gate is not release evidence by itself when a repository has a Main
+   Releasability Gate; post-merge proof must point to the merge SHA.

@@ -15,6 +15,19 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-06-29 | Post-merge mainline proof must point to the merge SHA
+
+`lotus-performance` PR #320 merged cleanly, but the latest automatic Main Releasability Gate was
+not present for the merge commit. Manual dispatch proved the exact merged `main` SHA afterward.
+
+Implication:
+
+Future PR closure should query Main Releasability by merge SHA after syncing local `main`. If no
+run exists and the workflow supports `workflow_dispatch`, dispatch it from `main`, monitor it, and
+record the run URL. A green PR Merge Gate is not release evidence by itself for repositories with a
+mainline releasability lane. No wiki source change is needed for this lesson because it is
+agent-facing merge workflow guidance.
+
 ### 2026-06-28 | Skill improvements should follow measured agent failure patterns
 
 Ongoing `lotus-performance` refactor work showed that future-agent quality improves when repeated

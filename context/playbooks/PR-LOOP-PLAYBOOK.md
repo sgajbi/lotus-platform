@@ -12,7 +12,8 @@ Use this playbook for branch preparation, push cadence, GitHub monitoring, merge
 6. monitor required checks asynchronously
 7. fix forward from real failure logs
 8. merge only when required checks are green
-9. clean local and remote branch state after merge
+9. prove post-merge mainline releasability for the merge commit when the repo has that lane
+10. clean local and remote branch state after merge
 
 ## Stranded Governance Truth Rule
 
@@ -110,6 +111,26 @@ After merge:
 1. delete remote feature branch,
 2. delete local feature branch,
 3. fast-forward local `main`,
-4. verify the repo is clean,
-5. for governance-bearing work, confirm any branch that previously held the only copy of restored
+4. capture the merge commit SHA with `git rev-parse HEAD`,
+5. when the repo has a Main Releasability Gate, prove a successful run exists for that SHA:
+
+   ```powershell
+   gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5
+   gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
+   ```
+
+6. if no run exists for the merge SHA and the workflow supports manual dispatch, run it from `main`
+   and monitor it to completion:
+
+   ```powershell
+   gh workflow run main-releasability.yml --ref main
+   gh run watch <run-id> --interval 10
+   ```
+
+7. verify the repo is clean,
+8. for governance-bearing work, confirm any branch that previously held the only copy of restored
    truth is merged, deleted, or explicitly recorded as superseded/active.
+
+A green PR Merge Gate is not release evidence by itself when the repository has a Main
+Releasability Gate. Post-merge closure must name the successful run URL for the merge SHA, or
+record why the repository/change does not require that evidence.
