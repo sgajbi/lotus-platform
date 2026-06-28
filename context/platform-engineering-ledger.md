@@ -15,6 +15,20 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-06-28 | Skill improvements should follow measured agent failure patterns
+
+Ongoing `lotus-performance` refactor work showed that future-agent quality improves when repeated
+review, documentation, CI, and closure failures are promoted into the right durable control instead
+of staying in chat memory.
+
+Implication:
+
+Future Lotus slices should run an explicit guidance review before closure. If the work reveals a
+repeatable agent failure mode, update the platform-owned skill source, routing map, context,
+scaffold, evaluator case, or deterministic gate that will prevent the same failure. If it does not,
+record a short no-skill/no-context/no-doc/no-wiki decision in PR evidence, the scorecard, or the
+review ledger. Deployed local Codex skills are sync targets, not authoritative source.
+
 ### 2026-06-28 | Test-family breadth can be a CI gate when total test count hides proof loss
 
 `lotus-performance` PR #309 promoted a deterministic test taxonomy inventory from report-only
