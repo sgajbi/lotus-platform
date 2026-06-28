@@ -131,18 +131,21 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    a second authoring workflow.
 24. Before publishing, check the repo-local `wiki/` diff so you understand whether the publish will
     carry only the intended slice or also other pending authored wiki edits.
-25. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
+25. Treat case-only wiki page renames as real publication changes. Verify them against the
+   published Git tree or the repo-wiki sync check rather than trusting a Windows working tree view.
+   A professional wiki publish must not leave both old and new page-name casing reachable.
+26. When the existing GitHub wiki contains legacy filenames that are not Windows-safe, or checkout
    fails because of old characters such as `:`, use a bare clone publication path instead of
    mutating the repo-local `wiki/` source or skipping the publish.
-26. When replacing a legacy wiki with the current governed page set, preserve durable business or
+27. When replacing a legacy wiki with the current governed page set, preserve durable business or
    operator signal by migrating it into grounded Lotus language first; then retire the stale page
    names from the live wiki.
-27. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
+28. When the new documentation pattern changes Lotus-wide guidance, update the platform-owned skill
    inventory and routing guidance in the same slice.
-28. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
+29. When a code slice improves bank-buyable posture, make sure README, wiki, repo context, scorecard,
    and follow-up backlog truth move with it. When no doc change is needed, record the explicit
    no-doc/no-wiki decision in PR evidence.
-29. When a slice changes implementation truth, update every durable audience surface that now
+30. When a slice changes implementation truth, update every durable audience surface that now
     depends on that truth: README, repo-local wiki source, deep docs, demo/operator runbooks,
     repo-local context, central context, scorecards, ledgers, supported-features pages, skills,
     and AGENTS guidance as applicable. Publish the wiki after merge whenever repo-local wiki source
@@ -244,6 +247,9 @@ Use this professional acceptance bar before calling a wiki update complete:
 8. `Home` and `_Sidebar` remain useful after the change: a first-time business, operations, sales,
    or engineering reader can find the right page without scanning an ungrouped page dump, and no
    page is reachable only through tribal knowledge.
+9. PR evidence names the changed wiki pages, the reader audiences they serve, the supported claims
+   or evidence paths they rely on, and whether the wiki was intentionally unchanged, check-only
+   clean, or published after merge.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
@@ -288,7 +294,12 @@ After updating docs:
 9. if repo-native checks regenerate artifacts such as OpenAPI snapshots or API vocabulary files,
    inspect the diff and avoid committing timestamp-only or otherwise non-semantic churn in a docs slice,
 10. run any lightweight repo checks needed to confirm commands or paths if they were uncertain,
-11. validate this skill with `quick_validate.py` after edits to the skill itself.
+11. run `lotus-platform/automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>` before
+    merge when repo-local wiki source changed, and record the exact no-wiki-change decision when it
+    did not,
+12. after wiki publication, run the same check-only command again or inspect the published Git tree
+    when case-only page renames, deletions, or legacy page retirement were part of the slice,
+13. validate this skill with `quick_validate.py` after edits to the skill itself.
 
 ## Durable Guidance
 
