@@ -85,10 +85,13 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - make `Home` a professional reader map, not a loose link list,
    - group `_Sidebar` navigation into product, engineering, operations, and governance sections
      when the page set is large enough,
+   - review changed pages as rendered GitHub-flavored Markdown, not only as raw text,
    - add an explicit evidence standard for supported claims,
    - use concise tables for audience paths, first-response operations, feature matrices, and
      quality-signal maps,
    - keep page titles, heading case, and section order consistent across the wiki,
+   - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller
+     audience, capability, operations, or evidence tables,
    - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs,
    - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
      "production-ready" claims unless they are intentionally documented in a roadmap or gap
@@ -238,6 +241,9 @@ Use this professional acceptance bar before calling a wiki update complete:
 7. the page set looks intentionally published: consistent title case, concise paragraphs, no
    orphaned one-line sections, no unexplained acronyms, and no raw backlog notes mixed into
    current-state guidance.
+8. `Home` and `_Sidebar` remain useful after the change: a first-time business, operations, sales,
+   or engineering reader can find the right page without scanning an ungrouped page dump, and no
+   page is reachable only through tribal knowledge.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
