@@ -200,3 +200,26 @@ For a local source set intended for GitHub wiki publication:
     readiness, or unverified market language to roadmap or platform strategy material.
 11. Review the rendered shape mentally before finishing: a wiki that is technically accurate but
     looks like unstructured notes is not ready for business, operator, or client-adjacent use.
+
+## Professional Publication Checklist
+
+Before treating a wiki source update as complete, verify:
+
+1. `Home` works as a polished reader map with repository role, current maturity, evidence standard,
+   common commands, and audience-specific paths.
+2. `_Sidebar` is grouped when the page set is large enough, and the grouping matches the page
+   purpose rather than the order files happened to be created.
+3. Each page opens with the page purpose and current-state scope before detailed background.
+4. Capability, operations, evidence, and quality-signal tables use stable column labels across the
+   page set so readers can scan without relearning the structure.
+5. Business, demo, sales, support, operations, and engineering readers can each find their
+   decision-critical path without reading every page.
+6. Unsupported, planned, degraded, or bounded-preview behavior is visible next to the claim it
+   qualifies, not buried at the end of a long page.
+7. Diagrams clarify system ownership, workflow, integration, or evidence flow; they do not replace
+   implementation-backed text or duplicate deeper architecture documents.
+8. Links route to implementation evidence, commands, RFCs, standards, contracts, runbooks, or
+   authoritative docs.
+9. No page includes scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, or unqualified
+   "production-ready" language unless the wording is intentionally part of a roadmap, gap register,
+   or current limitation.
