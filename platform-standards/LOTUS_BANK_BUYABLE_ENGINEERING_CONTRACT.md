@@ -19,8 +19,9 @@ This contract applies to:
    Product UI and front-office experience.
 2. `lotus-gateway`
    Experience API and governed composition boundary.
-3. `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`
-   Domain-authoritative or domain workflow services.
+3. `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`,
+   `lotus-idea`
+   Domain-authoritative, domain workflow, or opportunity-intelligence services.
 4. `lotus-render`, `lotus-archive`, `lotus-ai`
    Shared capability services.
 5. `lotus-platform`
@@ -144,6 +145,27 @@ Required emphasis:
 3. Deterministic business calculations.
 4. Explicit API contracts and domain vocabulary.
 5. Meaningful unit, contract, integration, and migration/runtime checks.
+
+### Opportunity Intelligence Service
+
+Applies primarily to `lotus-idea`.
+
+Required emphasis:
+
+1. Clear ownership of opportunity detection, idea lifecycle state, governed evidence packs, scoring,
+   review workflow, feedback capture, conversion intent, and readiness posture.
+2. Strong source-authority boundaries. Opportunity intelligence must consume portfolio,
+   performance, risk, advisory, suitability, compliance, reporting, archive, render, gateway, and
+   AI evidence through governed contracts or proof artifacts; it must not become the source of
+   truth for those domains.
+3. Exact proof semantics. Evidence artifacts should clear only the blocker codes they prove and
+   preserve live-source, Workbench/Gateway, data-mesh certification, client-publication,
+   supported-feature, and AI-provider blockers until those layers have runtime evidence.
+4. AI, ML, or RAG support only as governed assistance behind deterministic source evidence,
+   entitlement checks, model-risk controls, prompt/output governance, audit, and human review.
+5. No demo-ready, production-ready, client-publication, supported-feature, or data-mesh
+   certification claim without implementation, tests, OpenAPI or contract evidence, docs/wiki truth,
+   CI proof, and mainline validation.
 
 ### Shared Capability Service
 

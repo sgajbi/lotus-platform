@@ -53,6 +53,9 @@ Authoritative cross-repository CI governance:
 Cross-application bank-buyable engineering posture:
 
 1. `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+   Includes opportunity-intelligence service posture for `lotus-idea`: lifecycle and evidence
+   ownership, source-authority boundaries, exact blocker semantics, governed AI assistance, and
+   implementation-backed promotion rules.
 
 ## One-Command Lotus Service Scaffold
 

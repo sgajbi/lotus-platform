@@ -205,6 +205,16 @@ scaling, deployment cadence, operational ownership, data persistence, failure is
 boundary needs are proven. Do not split a service just because a module is conceptually important;
 first make the in-process boundary clean and enforce it with tests or architecture gates.
 
+For opportunity-intelligence, advisory-orchestration, reporting-orchestration, and other
+cross-domain workflow services, harden source ownership before adding breadth. The service may own
+its lifecycle state, orchestration decisions, evidence-pack assembly, readiness posture, and
+operator workflow, but it must consume portfolio accounting, performance, risk, suitability,
+compliance, reporting, archive, render, gateway, AI, and other source-domain truth through governed
+contracts, ports, proof artifacts, or live-source APIs. Do not copy source-domain approval logic,
+calculation methods, persistence models, or supportability claims into the orchestrating service.
+Name modules, APIs, errors, metrics, and proof artifacts after the business responsibility they
+actually own.
+
 ---
 
 # 6. Layer Responsibilities
@@ -371,6 +381,11 @@ API and error-model polish is part of the refactor, not a final cleanup task. Ne
 business endpoints should expose stable operation IDs, response models, examples, bounded
 problem-details responses, application error codes, correlation context, and source-safe diagnostic
 metadata before they are treated as implementation-complete.
+
+For orchestrating services, API errors must distinguish local lifecycle failures from source-owned
+unavailable, stale, denied, degraded, or not-certified evidence. Do not collapse upstream source
+posture into generic local validation errors, and do not expose raw upstream exception text or
+source-sensitive identifiers in problem details.
 
 ---
 

@@ -310,7 +310,7 @@
                          },
                          {
                              "repository":  "lotus-idea",
-                             "category":  "domain-service",
+                             "category":  "opportunity-intelligence-service",
                              "business_role":  "Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services.",
                              "primary_runtime":  "python-fastapi",
                              "canonical_commands":  {

@@ -20,7 +20,7 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | `lotus-render` | `domain-service` | Deterministic document rendering service for Lotus reporting | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-ai` | `shared-capability-service` | Shared AI capability service for governed AI-backed flows | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 | `lotus-archive` | `shared-capability-service` | Generated-document archive, retrieval, retention, legal hold, access audit, and document lifecycle service | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
-| `lotus-idea` | `domain-service` | Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services. | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
+| `lotus-idea` | `opportunity-intelligence-service` | Owns wealth opportunity intelligence, idea lifecycle, governed idea evidence, and conversion orchestration while consuming source-owned Lotus domain services. | `python-fastapi` | `REPOSITORY-ENGINEERING-CONTEXT.md` | `quality: make ci` | Yes |
 
 ## Domain Authority Map
 

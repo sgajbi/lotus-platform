@@ -1,6 +1,6 @@
 ---
 name: lotus-backend-delivery-governance
-description: "Use when implementing or reviewing backend work in Lotus repositories such as lotus-core, lotus-performance, lotus-risk, lotus-advise, lotus-manage, lotus-report, lotus-gateway, or lotus-ai. Apply the Lotus platform CI lane model, enterprise security baseline, contract-governance rules, repository-native command policy, truthful PR evidence process defined by RFC-0072, and non-degradation guardrails that prevent low-quality agent-generated backend code."
+description: "Use when implementing or reviewing backend work in Lotus repositories such as lotus-core, lotus-performance, lotus-risk, lotus-advise, lotus-manage, lotus-report, lotus-idea, lotus-gateway, or lotus-ai. Apply the Lotus platform CI lane model, enterprise security baseline, contract-governance rules, repository-native command policy, truthful PR evidence process defined by RFC-0072, and non-degradation guardrails that prevent low-quality agent-generated backend code."
 ---
 
 # Lotus Backend Delivery Governance
@@ -42,6 +42,7 @@ Before changing code:
 2. classify the repo:
    - Experience API
    - Domain API
+   - Opportunity Intelligence / Domain Workflow Service
    - Shared Capability Service
    - Platform Governance / Automation
 3. identify the repository-native commands for:
