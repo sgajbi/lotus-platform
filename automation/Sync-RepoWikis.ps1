@@ -78,8 +78,19 @@ function Get-RelativePath {
 function Get-WikiFileMap {
     param([Parameter(Mandatory = $true)][string]$Root)
 
-    $map = @{}
+    $map = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
     if (-not (Test-Path -LiteralPath $Root)) {
+        return $map
+    }
+
+    if (Test-Path -LiteralPath (Join-Path $Root ".git")) {
+        $trackedPaths = @(& git -C $Root ls-files)
+        if ($LASTEXITCODE -ne 0) {
+            throw "git command failed with exit code ${LASTEXITCODE}: git -C $Root ls-files"
+        }
+        foreach ($path in $trackedPaths) {
+            $map[$path] = Get-NormalizedContentHash -Path (Join-Path $Root $path)
+        }
         return $map
     }
 
@@ -91,6 +102,18 @@ function Get-WikiFileMap {
     return $map
 }
 
+function Get-WikiMapValue {
+    param(
+        [Parameter(Mandatory = $true)]$Map,
+        [Parameter(Mandatory = $true)][string]$Path
+    )
+
+    if ($Map.ContainsKey($Path)) {
+        return $Map[$Path]
+    }
+    return $null
+}
+
 function Compare-WikiDirectories {
     param(
         [Parameter(Mandatory = $true)][string]$SourceRoot,
@@ -99,10 +122,16 @@ function Compare-WikiDirectories {
 
     $sourceMap = Get-WikiFileMap -Root $SourceRoot
     $publishedMap = Get-WikiFileMap -Root $PublishedRoot
-    $allPaths = @($sourceMap.Keys + $publishedMap.Keys | Sort-Object -Unique)
+    $allPaths = [System.Collections.Generic.SortedSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($path in $sourceMap.Keys) {
+        $null = $allPaths.Add($path)
+    }
+    foreach ($path in $publishedMap.Keys) {
+        $null = $allPaths.Add($path)
+    }
     $diffs = @()
     foreach ($path in $allPaths) {
-        if ($sourceMap[$path] -ne $publishedMap[$path]) {
+        if ((Get-WikiMapValue -Map $sourceMap -Path $path) -ne (Get-WikiMapValue -Map $publishedMap -Path $path)) {
             $diffs += $path
         }
     }
@@ -217,10 +246,11 @@ foreach ($repositoryName in Get-RepositoryNames) {
         Push-Location $publishedRoot
         try {
             Clear-PublishedWikiContent -PublishedRoot $publishedRoot
+            Invoke-GitCommand rm -r --quiet --ignore-unmatch .
             Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $publishedRoot -Recurse -Force
+            Invoke-GitCommand add --all
             $status = @(& git status --short)
             if ($status.Count -gt 0) {
-                Invoke-GitCommand add --all
                 Invoke-GitCommand commit --message "docs: publish wiki from repo source"
             }
             Invoke-GitCommand push origin $branch
