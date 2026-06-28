@@ -229,6 +229,35 @@ def test_lotus_delivery_skills_default_to_bank_buyable_non_degradation() -> None
     assert "bank-buyable control gaps" in review_skill
 
 
+def test_readme_wiki_skill_requires_professional_wiki_publication_quality() -> None:
+    readme_wiki_skill = _read(ROOT / "codex" / "skills" / "lotus-readme-wiki-governance" / "SKILL.md")
+    wiki_reference = _read(
+        ROOT / "codex" / "skills" / "lotus-readme-wiki-governance" / "references" / "lotus-wiki-pages.md"
+    )
+
+    for required_text in (
+        "professional acceptance bar",
+        "the first screen of `Home` explains the repository role, current maturity, and fastest reader",
+        "each page starts with purpose and current-state scope before deep details",
+        "repeated tables use stable column names across pages",
+        "diagrams are used when they clarify ownership, flow, or integration posture",
+        "unsupported, planned, or degraded capability is visible",
+        "consistent title case, concise paragraphs, no",
+        "scratch-note language",
+    ):
+        assert required_text in readme_wiki_skill
+
+    for required_text in (
+        "Professional Publication Checklist",
+        "`Home` works as a polished reader map",
+        "`_Sidebar` is grouped when the page set is large enough",
+        "Business, demo, sales, support, operations, and engineering readers",
+        "Unsupported, planned, degraded, or bounded-preview behavior is visible",
+        "No page includes scratch-note terms",
+    ):
+        assert required_text in wiki_reference
+
+
 def test_agent_ramp_up_requires_pre_edit_quality_intake() -> None:
     ramp_up = _read(ROOT / "docs" / "onboarding" / "LOTUS-AGENT-RAMP-UP.md")
 

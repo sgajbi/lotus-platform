@@ -89,7 +89,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - use concise tables for audience paths, first-response operations, feature matrices, and
      quality-signal maps,
    - keep page titles, heading case, and section order consistent across the wiki,
-   - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs.
+   - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs,
+   - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
+     "production-ready" claims unless they are intentionally documented in a roadmap or gap
+     section.
 15. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
@@ -218,6 +221,23 @@ The wiki is not finished until its navigation is professionally usable:
 4. every support or demo claim has an evidence path or is moved to roadmap language,
 5. headings, table labels, and page names read like published documentation rather than scratch
    notes.
+
+Use this professional acceptance bar before calling a wiki update complete:
+
+1. the first screen of `Home` explains the repository role, current maturity, and fastest reader
+   paths without requiring a reader to infer structure from raw links,
+2. each page starts with purpose and current-state scope before deep details,
+3. repeated tables use stable column names across pages, especially for capability, evidence,
+   operations, and quality-signal matrices,
+4. diagrams are used when they clarify ownership, flow, or integration posture; do not add
+   decorative diagrams or duplicate diagrams that belong in deeper architecture docs,
+5. unsupported, planned, or degraded capability is visible where a business, demo, support, or
+   operator reader would make a decision from the page,
+6. links point to implementation evidence, commands, RFCs, standards, contracts, or runbooks instead
+   of vague assertions,
+7. the page set looks intentionally published: consistent title case, concise paragraphs, no
+   orphaned one-line sections, no unexplained acronyms, and no raw backlog notes mixed into
+   current-state guidance.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
