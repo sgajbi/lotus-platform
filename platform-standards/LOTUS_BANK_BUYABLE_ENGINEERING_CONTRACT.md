@@ -299,6 +299,11 @@ Required controls:
 4. Release evidence includes SBOM/provenance where applicable.
 5. Artifacts are useful for diagnosis and do not leak restricted data.
 6. Heavy checks may run asynchronously in GitHub, but failures must be inspected and fixed forward.
+7. GitHub lanes consume repo-native Make/NPM targets for tests, coverage, contract gates, and
+   quality gates. Raw workflow-level `pytest`, direct runner, or ad hoc script invocations are
+   acceptable only when no repo-native target exists and the PR evidence explains the exception.
+8. CI contract gates should block drift away from repo-native lane commands when the repository has
+   an established local command surface.
 
 ## Documentation And Evidence Pack
 

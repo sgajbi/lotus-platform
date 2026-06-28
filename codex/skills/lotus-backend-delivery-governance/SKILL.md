@@ -179,6 +179,12 @@ Map validation to the platform lanes:
 4. Platform End-to-End Validation:
    - required when the change affects canonical product flows, gateway/upstream behavior, seeded demo flows, or platform runtime assumptions
 
+Remote workflows should consume repo-native commands rather than reimplementing local validation in
+YAML. If a Make/NPM target exists for a test, coverage, contract, security, or quality gate, call
+that target from GitHub Actions. Add or repair the target before adding raw workflow-level `pytest`,
+coverage, or scanner commands, and update the CI contract gate when workflow drift should become
+blocking.
+
 If the backend change affects governed front-office proof:
 
 1. validate the authoritative service locally,

@@ -62,13 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - suite: unit
-            path: tests/unit
-          - suite: integration
-            path: tests/integration
-          - suite: e2e
-            path: tests/e2e
+        suite: [unit, integration, e2e]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -78,9 +72,7 @@ jobs:
       - name: Install
         run: make install
       - name: Run tests with coverage data
-        env:
-          COVERAGE_FILE: .coverage.${{ matrix.suite }}
-        run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report=
+        run: make test-${{ matrix.suite }}-coverage
       - name: Upload coverage data
         uses: actions/upload-artifact@v7
         with:

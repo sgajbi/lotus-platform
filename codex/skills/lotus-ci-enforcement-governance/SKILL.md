@@ -135,6 +135,11 @@ delegation to `scripts/clean_generated_artifacts.py`, scoped test-target variabl
 merged-PR main-releasability dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not create a
 permanent red helper check; it should skip automatic rebase merge and require an authorized human or
 release actor to merge.
+GitHub workflows should call the repo-native targets that developers and agents run locally. For
+generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
+use `make test-${{ matrix.suite }}-coverage`, and `make ci-contract-gate` should fail if an agent
+reintroduces raw workflow-level `./.venv/bin/python -m pytest` commands or bypasses suite coverage
+targets.
 
 Generated endpoint-certification gates should require certified business/operator endpoints to cite
 bounded operation-event test evidence in the endpoint ledger. Baseline health/metadata endpoints can
@@ -181,7 +186,8 @@ fail if an agent replaces the utility with an inline Makefile command or deletes
 Generated test targets should be efficient without bypassing governance: `make test-unit`,
 `make test-integration`, and `make test-e2e` should default to full suites while accepting
 `UNIT_TESTS=<path>`, `INTEGRATION_TESTS=<path>`, and `E2E_TESTS=<path>` overrides. The CI contract
-gate should fail if those scoped target variables or target commands are removed.
+gate should fail if those scoped target variables, suite coverage targets, workflow Make calls, or
+target commands are removed.
 
 ## Proof Artifact Enforcement
 

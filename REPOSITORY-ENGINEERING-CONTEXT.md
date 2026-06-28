@@ -74,7 +74,9 @@ Current repository posture:
    `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`. Generated test targets now expose
    `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` path overrides so focused fix-forward
    validation can stay on the repo-native Makefile surface instead of falling back to ad hoc
-   pytest commands.
+   pytest commands. Generated workflows now consume the same surface with `make test-unit` and
+   `make test-${{ matrix.suite }}-coverage`, and the generated CI contract gate rejects raw
+   workflow-level `pytest` shortcuts or missing suite coverage targets.
 9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
    `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
    supports `-CheckOnly` drift detection for app-local deployed copies under

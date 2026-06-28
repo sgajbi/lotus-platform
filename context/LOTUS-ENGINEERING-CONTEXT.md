@@ -733,7 +733,11 @@ HTTP DTOs, FastAPI, or Starlette.
 Generated backend Makefiles also expose `UNIT_TESTS`, `INTEGRATION_TESTS`, and
 `E2E_TESTS` path overrides so focused fix-forward validation remains
 repo-native instead of becoming ad hoc pytest invocation; the generated CI
-contract gate protects those variables and target commands.
+contract gate protects those variables and target commands. Generated GitHub
+workflow templates must consume the same Makefile surface: Feature Lane calls
+`make test-unit`, PR/Main suite matrices call `make test-${{ matrix.suite }}-coverage`,
+and the generated CI contract gate rejects raw workflow-level `pytest` shortcuts
+or coverage paths that bypass repo-native targets.
 Generated backend services also include a tested `scripts/clean_generated_artifacts.py` utility and
 `make clean` wiring. The generated CI contract gate must protect that wiring so cleanup remains a
 safe local hygiene command that prunes `.git`, `.venv`, and `node_modules` and removes only known

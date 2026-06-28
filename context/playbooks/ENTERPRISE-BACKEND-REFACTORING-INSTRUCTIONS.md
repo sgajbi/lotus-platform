@@ -646,6 +646,13 @@ The repo-native local surface should include deterministic blocking gates for:
 
 Use `make lint` or the repository's equivalent fast static command to run the anti-slop pack that prevents weak agent-generated code from passing early. Use `make check` or the repository's equivalent PR-grade command for typecheck, unit/integration tests, coverage, contract gates, security, Docker/runtime proof, and migration/runtime checks as applicable.
 
+GitHub Actions lanes should be consumers of that repo-native command surface, not a parallel
+validation implementation. Before editing workflows, map each remote step to the local Make/NPM
+target that a developer or agent can run. Do not add raw workflow-level `pytest`, direct Python
+runner, coverage, or scanner invocations when a repo-native target exists; add or fix the target
+first, then call it from the workflow. When a CI contract gate exists, add pass/fail coverage that
+proves the gate rejects workflow shortcuts and missing suite-level coverage targets.
+
 Generated or refactored gates must be:
 
 - repo-native,

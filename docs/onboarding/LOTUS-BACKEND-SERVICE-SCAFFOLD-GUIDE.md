@@ -122,7 +122,9 @@ The generated repository starts with:
 10. `Makefile`
    Repo-native command surface for install, lint, typecheck, tests, coverage, security audit, and
    report-only baseline commands. Test targets support focused validation through
-   `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` overrides.
+   `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` overrides. Suite coverage targets
+   (`make test-unit-coverage`, `make test-integration-coverage`, and `make test-e2e-coverage`)
+   are the workflow entrypoints for merge/main coverage data.
 11. `src/app/`
     FastAPI app skeleton and layered package baseline.
 12. `tests/unit`, `tests/integration`, `tests/e2e`
@@ -165,6 +167,12 @@ actor must perform the rebase merge in that posture.
 Generated workflows also declare job-level `timeout-minutes` values. The generated CI contract gate
 blocks missing timeouts and `continue-on-error: true` in critical lanes so a stuck job or soft-failed
 quality step cannot look like a valid enterprise gate.
+
+Generated workflows must call the repo-native Makefile surface instead of embedding raw test
+commands in YAML. Feature Lane runs `make test-unit`; PR Merge Gate and Main Releasability run
+`make test-${{ matrix.suite }}-coverage`. The generated CI contract gate rejects raw
+workflow-level `./.venv/bin/python -m pytest` shortcuts and missing suite coverage targets so
+local validation, GitHub validation, and future agent guidance remain aligned.
 
 Generated workflows set Git's default initial branch to `main` through workflow environment so
 checkout does not emit default-branch hints. Generated Dockerfiles set
