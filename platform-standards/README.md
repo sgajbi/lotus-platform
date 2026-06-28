@@ -57,7 +57,8 @@ Cross-application bank-buyable engineering posture:
    ownership, source-authority boundaries, exact blocker semantics, governed AI assistance, and
    implementation-backed promotion rules. RFC-driven business-app work should use the contract's
    slice intake, exact proof boundary, live-API higher-lane evidence, and design-before-runtime
-   modularity rules.
+   modularity rules. Slice closure must also record merge method, post-merge validation, wiki or
+   no-wiki decision, and branch cleanup evidence before the next slice starts.
 
 ## One-Command Lotus Service Scaffold
 

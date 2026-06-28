@@ -279,7 +279,14 @@ task ledger:
 5. code, API, contract, documentation, and test evidence paths,
 6. local commands and GitHub checks,
 7. merge method and branch cleanup status,
-8. next slice chosen from updated `main`.
+8. post-merge validation and wiki publication status,
+9. branch/code-loss audit evidence such as PR merge state, `git log origin/main..<branch>`,
+   `git diff origin/main..<branch>`, or cherry-pick evidence before branch deletion,
+10. next slice chosen from updated `main`.
+
+Use the ledger as the slice closure manifest. It should be compact enough for a PR reviewer to read
+but exact enough that a future agent can prove which code, docs, wiki, contracts, and proof truth
+landed on `main` and which blockers intentionally remain.
 
 ### Documentation-As-Product
 

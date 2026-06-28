@@ -187,6 +187,14 @@ delivering tested behavior. Do not treat passing tests alone as enough when the 
 new boundary drift, weak mocks-only tests, stale allowlists, or optimistic documentation that is not
 backed by implementation.
 
+For RFC-driven or proof-driven work, do not move to the next slice until the current slice has a
+closure manifest in the PR, RFC ledger, task ledger, or repo-local proof document. It should record
+blockers cleared, blockers intentionally preserved, proof artifacts, commands, docs/wiki and
+supported-feature decisions, merge method, post-merge validation, and branch cleanup evidence.
+Before deleting local or remote branches, verify merge or superseded status with PR state plus
+`git log`, `git diff`, or cherry-pick evidence so implementation code and durable truth are not
+lost during hygiene.
+
 For CI enforcement work, do not use total test count as the only quality proxy. If a repository has
 a deterministic test taxonomy or proof-breadth inventory, check whether API/runtime,
 contract/governance, observability/security, or domain-methodology families can regress even when
@@ -299,6 +307,8 @@ Avoid:
     production-grade progress.
 12. starting code changes before naming the existing owner pattern, source of truth, closest tests,
     validation command, and measurable quality signal for the slice.
+13. deleting branches because they look stale without proving their unique commits and durable
+    truth are already merged, cherry-picked, or explicitly superseded.
 
 ## Current RFC-0074 Boundary
 

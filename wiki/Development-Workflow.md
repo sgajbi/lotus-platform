@@ -27,6 +27,15 @@ Classify each branch as `must-merge`, `cherry-pick`, `superseded`, `delete`, or 
 Do not claim RFC closure or product support while durable governance truth exists only on an
 unmerged side branch.
 
+For RFC-driven or proof-driven slices, keep a compact slice closure manifest in the PR, RFC ledger,
+task ledger, or repo-local proof document. It should name blockers cleared, blockers preserved,
+proof artifacts, commands, docs/wiki and supported-feature decisions, merge method, post-merge
+validation, and branch cleanup evidence.
+
+Before deleting a local or remote branch, verify that it is merged or explicitly superseded with PR
+state plus `git log origin/main..<branch>`, `git diff origin/main..<branch>`, or cherry-pick
+evidence. Branch cleanup is required, but code and durable truth preservation comes first.
+
 ## Common commands
 
 ```powershell
