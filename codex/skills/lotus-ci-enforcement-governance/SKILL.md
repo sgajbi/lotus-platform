@@ -242,6 +242,12 @@ must fail so contract drift is not hidden.
 Do not let proof gates encourage many half-finished slices. Prefer one narrow gate that proves and
 closes a blocker completely, then merge that slice before adding the next proof family.
 
+When a new proof gate is added for an RFC slice, require a slice closure manifest in the PR or RFC
+ledger before promotion. The manifest should name the proof gate, blockers cleared, blockers
+preserved, local command, GitHub lane, documentation/wiki/supported-feature decisions, and branch
+cleanup evidence. This keeps enforcement work from becoming another source of partial, unmerged
+truth.
+
 For business-application RFC work, a proof gate should fail loudly when:
 
 1. it clears a blocker that is not listed in the proof contract,

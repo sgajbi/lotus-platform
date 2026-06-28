@@ -714,6 +714,11 @@ default modularity target; propose a new deployable microservice only when indep
 scaling, deployment, ownership, data, failure-isolation, or security-boundary needs are proven.
 If a repository disallows merge commits, use the repository-approved non-squash linear merge path
 such as rebase merge and stop retrying merge commits after that policy is known.
+For proof-driven RFC slices, record a compact slice closure manifest before moving on: blockers
+cleared, blockers preserved, proof artifacts, commands, docs/wiki/supported-feature decisions,
+merge method, post-merge validation, and branch cleanup evidence. Before deleting branches, verify
+merged or superseded status with PR state plus `git log`, `git diff`, or cherry-pick evidence so
+no implementation code or durable truth is lost during hygiene.
 
 For newly scaffolded backend services, CI contract gates should also protect release-evidence
 semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as

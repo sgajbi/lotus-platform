@@ -86,7 +86,8 @@ For RFC-driven business-application slices, extend that intake with:
    supported-feature surfaces affected,
 6. the local gate commands and remote GitHub lanes that must pass before merge,
 7. the no-claim boundary that prevents a narrow proof from becoming a demo-ready, production-ready,
-   client-publication, supported-feature, data-mesh-certified, or live-provider claim.
+   client-publication, supported-feature, data-mesh-certified, or live-provider claim,
+8. where the slice closure manifest will be recorded before PR merge.
 
 ## Delivery Rules
 
@@ -105,6 +106,12 @@ For RFC-driven business-application slices, extend that intake with:
 8. When a quality inventory is clean, deterministic, and already measured, consider whether
    `lotus-ci-enforcement-governance` should promote it to a blocking gate instead of leaving it as
    report-only evidence.
+9. For RFC or proof-driven slices, do not move to the next slice until the PR or ledger records a
+   closure manifest: blockers cleared, blockers preserved, proof artifacts, commands, docs/wiki and
+   supported-feature decisions, merge method, post-merge validation, and branch cleanup evidence.
+10. Before deleting a local or remote branch, verify it is merged or explicitly superseded with PR,
+    `git log`, `git diff`, or cherry-pick evidence. Branch cleanup is part of delivery, but code
+    preservation comes first.
 
 ## Bank-Buyable Default Bar
 
@@ -239,4 +246,6 @@ When closing backend work, report:
 1. what changed,
 2. which repository-native commands were run,
 3. which lane(s) were satisfied,
-4. any remaining gap or governed deviation.
+4. any remaining gap or governed deviation,
+5. for RFC/proof-driven slices, where the slice closure manifest was recorded and how branch
+   cleanup was proven.

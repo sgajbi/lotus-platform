@@ -126,6 +126,25 @@ For RFC-driven application work, write a short slice intake before editing:
 Do not continue into the next RFC slice while the current slice is unmerged, its CI evidence is
 unknown, wiki publication is pending, or local/remote branch hygiene is unresolved.
 
+Before PR merge or before choosing the next slice, leave a slice closure manifest in the PR body,
+RFC implementation ledger, task ledger, or repo-local proof document. It should be short but exact:
+
+- blocker codes cleared,
+- blocker codes intentionally preserved,
+- code, contract, OpenAPI, proof-artifact, test, documentation, wiki, supported-features, and
+  scorecard evidence,
+- local commands and GitHub checks,
+- merge method used,
+- post-merge validation result,
+- wiki publication or explicit no-wiki-change decision,
+- local and remote branch cleanup evidence,
+- next slice selected from updated `main`.
+
+Before deleting any branch, prove that it is merged or intentionally superseded. Check the PR merge
+state plus `git log origin/main..<branch>` and `git diff origin/main..<branch>` or equivalent
+cherry-pick evidence. Do not delete a branch while unique code, proof, RFC, docs, wiki, context,
+contract, supported-feature, migration, or workflow truth remains only on that branch.
+
 ---
 
 # 3. Codex Safety Rules
@@ -957,6 +976,9 @@ The final PR must include:
 - proof-artifact blocker-clearance summary when the slice adds or consumes evidence artifacts
 - docs/wiki/context/skill/scaffold sync decision
 - stranded-truth reconciliation result for RFC, docs, wiki, context, contract, supported-features, API-governance, migration, and CI-workflow paths
+- slice closure manifest with blockers cleared, blockers preserved, merge method, post-merge
+  validation, wiki publication decision, and branch cleanup evidence when the PR is RFC-driven or
+  proof-driven
 
 The PR must include concrete evidence, not just a narrative.
 
@@ -1002,6 +1024,8 @@ The refactor is complete only when:
 - repo-local wiki source is checked when documentation truth changed, and published after merge when required
 - central context, skills, scaffold, and app-local deployed copies are synchronized when platform-wide guidance changes
 - feature branches and worktrees are cleaned after merge, and durable truth is not stranded outside `main`
+- branch cleanup is backed by merge, diff, or cherry-pick evidence so implementation code is not
+  lost while removing stale branches
 
 ---
 

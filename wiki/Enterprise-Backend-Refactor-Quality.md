@@ -35,6 +35,11 @@ Promote a quality signal to a blocking gate only after it is measured, determini
 locally runnable, covered by focused tests, and reflected in README, wiki source, repo context,
 central context, the scorecard, and relevant skill guidance.
 
+For RFC-driven refactor slices, use a slice closure manifest before moving on. Record blockers
+cleared, blockers preserved, proof artifacts, commands, docs/wiki and supported-feature decisions,
+merge method, post-merge validation, and branch cleanup evidence. Branches should be deleted only
+after merge, diff, or cherry-pick evidence proves no code or durable governance truth is stranded.
+
 New services created with `automation/New-Lotus-Service.ps1` should start with the same posture:
 service-profile-aware README/repo-context/wiki references, quality scorecard, architecture rules,
 CI-quality notes, refactor decisions, a layered `src/app/api|application|domain|ports|infrastructure|runtime|observability|security|resilience`

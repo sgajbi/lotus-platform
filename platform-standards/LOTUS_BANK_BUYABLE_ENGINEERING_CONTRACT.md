@@ -80,6 +80,10 @@ Every Lotus app refactoring or readiness slice must follow these rules:
     codes targeted, blocker codes intentionally preserved, source authority, API/error-model impact,
     local gate commands, documentation/wiki surfaces, and the exact promotion claim that remains
     unsupported until later proof.
+14. Close each RFC slice with a compact slice closure manifest in the PR body, RFC ledger, task
+    ledger, or repository-local proof document. It must record blockers cleared, blockers preserved,
+    proof artifacts, commands, docs/wiki/supported-feature decisions, merge method, post-merge
+    validation, and local/remote branch cleanup evidence.
 
 ## Status Vocabulary
 
@@ -448,6 +452,9 @@ During work:
 13. For proof-driven slices, keep live or canonical API calls as higher-lane evidence. They should
     refine confidence in upstream integration and output quality, but they do not replace the base
     test pyramid of unit, contract, adapter, API, and readiness-gate tests.
+14. Before deleting a branch or declaring no code was lost, verify the branch is merged or explicitly
+    superseded with `git log origin/main..<branch>`, `git diff origin/main..<branch>`, or equivalent
+    PR/cherry-pick evidence. Do not rely only on branch names or memory.
 
 ## PR Evidence Requirements
 
@@ -460,7 +467,9 @@ Every readiness PR should explain:
 5. which CI lanes passed,
 6. what documentation or wiki source changed,
 7. what residual risks remain,
-8. which follow-up backlog items should be handled next.
+8. which follow-up backlog items should be handled next,
+9. the slice closure manifest for RFC or proof-driven work, including merge method, post-merge
+   validation, wiki publication decision, and branch cleanup evidence.
 
 ## Standard Agent Goal Prompt
 
