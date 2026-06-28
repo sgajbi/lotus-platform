@@ -123,7 +123,7 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
         "federated:domain-product-source-manifest"
     )
     assert catalog["product_count"] == 80
-    assert catalog["dependency_count"] == 63
+    assert catalog["dependency_count"] == 64
     _assert_product_present(
         catalog,
         product_name="DpmPortfolioUniverseCandidate",
