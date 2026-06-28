@@ -253,7 +253,11 @@ For client demo certification work, use:
 8. [Agentic Coding Quality Evaluation Loop](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
    How to turn repeated agent-authored code, test, documentation, and CI failures into
    deterministic gates, scorecards, evaluator cases, skills, and context improvements.
-9. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
+9. [Enterprise Backend Refactoring Instructions](./playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md)
+   Detailed backend and business-application RFC slice guidance, including source-ownership,
+   exact blocker semantics, API/error-model polish, test-pyramid posture, and design-before-runtime
+   modularity.
+10. [Delegation Policy Contract](../platform-contracts/agent-engineering/delegation-policy-contract.v1.json)
    RFC-0096 governed profiles, input envelopes, output envelopes, write-scope rules, and heartbeat
    attention identifiers for bounded multi-agent work.
 

@@ -107,6 +107,25 @@ Use the repository's existing conventions where they are good.
 
 Improve conventions where they are weak, inconsistent, unsafe, or not enterprise-ready.
 
+## 2A. RFC Slice Intake And Closure
+
+For RFC-driven application work, write a short slice intake before editing:
+
+- current branch and mainline commit,
+- RFC slice or blocker family being targeted,
+- exact blocker codes this slice intends to clear,
+- exact blocker codes that must intentionally remain,
+- source-authority owner for every consumed fact,
+- API, OpenAPI, error-model, persistence, data-mesh, Gateway, Workbench, wiki, and
+  supported-feature surfaces affected,
+- local commands that prove the slice before PR,
+- remote GitHub lanes required before merge,
+- no-claim boundary: the product, demo, client-publication, production, AI, data-mesh, or
+  supported-feature claims this slice still does not support.
+
+Do not continue into the next RFC slice while the current slice is unmerged, its CI evidence is
+unknown, wiki publication is pending, or local/remote branch hygiene is unresolved.
+
 ---
 
 # 3. Codex Safety Rules
