@@ -281,6 +281,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "$(VENV_PYTHON) -m pytest $(UNIT_TESTS)" in makefile_template
     assert "$(VENV_PYTHON) -m pytest $(INTEGRATION_TESTS)" in makefile_template
     assert "$(VENV_PYTHON) -m pytest $(E2E_TESTS)" in makefile_template
+    assert "test-unit-coverage:" in makefile_template
+    assert "test-integration-coverage:" in makefile_template
+    assert "test-e2e-coverage:" in makefile_template
     assert (
         "$(VENV_PYTHON) -m pytest $(UNIT_TESTS) --cov=src --cov-report="
         in makefile_template
@@ -289,9 +292,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert '"test-unit": "$(VENV_PYTHON) -m pytest $(UNIT_TESTS)"' in scaffold_script
     assert "expected_command not in _target_block(makefile, target)" in scaffold_script
     assert (
-        'for selector in ("$(UNIT_TESTS)", "$(INTEGRATION_TESTS)", "$(E2E_TESTS)")'
+        'for target in ("test-unit-coverage", "test-integration-coverage", "test-e2e-coverage")'
         in scaffold_script
     )
+    assert "Makefile test-coverage target must depend on" in scaffold_script
     assert "clean:" in makefile_template
     assert "python scripts/clean_generated_artifacts.py" in makefile_template
     for workflow_template in (
@@ -306,15 +310,18 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
         "$(VENV_PYTHON) -m pip_audit -r requirements/shared-runtime.lock.txt -r requirements/ci-tooling.lock.txt"
         in makefile_template
     )
-    assert "run: ./.venv/bin/python -m pytest tests/unit" in feature_lane_template
+    assert "run: make test-unit" in feature_lane_template
+    assert "run: ./.venv/bin/python -m pytest tests/unit" not in feature_lane_template
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
     assert "--ref main" in merged_pr_dispatch_template
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
     assert "timeout-minutes: 10" in merged_pr_dispatch_template
+    assert "suite: [unit, integration, e2e]" in pr_merge_template
     assert (
-        "run: ./.venv/bin/python -m pytest ${{ matrix.path }} --cov=src --cov-report="
+        "run: make test-${{ matrix.suite }}-coverage"
         in pr_merge_template
     )
+    assert "matrix.path" not in pr_merge_template
     assert "./.venv/bin/python -m coverage combine coverage-data" in pr_merge_template
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
 
@@ -907,6 +914,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "workflow_dispatch:" in ci_contract_gate
     assert "_validate_job_timeouts" in ci_contract_gate
     assert "continue-on-error:" in ci_contract_gate
+    assert '"test-unit-coverage"' in ci_contract_gate
+    assert '"make test-${{ matrix.suite }}-coverage"' in ci_contract_gate
+    assert '"run: ./.venv/bin/python -m pytest"' in ci_contract_gate
     assert "must define at least one parseable job" in ci_contract_gate
     generated_ci_contract_gate = _load_generated_ci_contract_gate(repo_root)
     weakened_makefile_errors = generated_ci_contract_gate.validate_makefile(
@@ -945,6 +955,20 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         mutated_workflow_dir
     )
     assert "feature-lane.yml must not contain `continue-on-error:`" in soft_fail_errors
+    feature_lane.write_text(
+        original_feature_lane.replace(
+            "run: make test-unit",
+            "run: ./.venv/bin/python -m pytest tests/unit",
+        ),
+        encoding="utf-8",
+    )
+    raw_pytest_errors = generated_ci_contract_gate.validate_workflows(
+        mutated_workflow_dir
+    )
+    assert (
+        "feature-lane.yml must not contain `run: ./.venv/bin/python -m pytest`"
+        in raw_pytest_errors
+    )
     assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
     assert "--ref main" in merged_pr_dispatch_workflow

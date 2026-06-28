@@ -135,6 +135,12 @@ supported-feature promotion control, safe cleanup wiring, and local quality gate
 `workflow_dispatch` on `main-releasability.yml` and the merged-PR dispatch workflow that starts
 post-merge release evidence.
 
+Backend workflow templates must call repo-native Make targets for unit tests and suite coverage:
+Feature Lane uses `make test-unit`, and PR/Main test matrices use
+`make test-${{ matrix.suite }}-coverage`. The generated CI contract gate must reject raw
+workflow-level `./.venv/bin/python -m pytest` shortcuts, missing suite coverage targets, and
+coverage paths that bypass the Makefile command surface.
+
 `make maintainability-gate` is allowed and expected to run through `make lint` because it is
 worktree-clean and blocks oversized source, test, and script files/functions before generated or
 agent-authored backend services normalize hard-to-review modules.

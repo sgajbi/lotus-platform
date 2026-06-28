@@ -943,7 +943,7 @@ Copy-Item (Join-Path $templateRoot "workflows/merged-pr-main-releasability.templ
 
 $makefilePath = Join-Path $target "Makefile"
 $makefile = Get-Content $makefilePath -Raw
-$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard source-observability-contract-gate operation-metric-contract-gate implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean"
+$makefile = $makefile -replace [regex]::Escape(".PHONY: install lint typecheck openapi-gate test test-unit test-integration test-e2e test-coverage security-audit check ci docker-build clean"), ".PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard source-observability-contract-gate operation-metric-contract-gate implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-unit-coverage test-integration-coverage test-e2e-coverage test-coverage coverage-gate security-audit check ci docker-build clean"
 if ($makefile -notmatch '\$\(MAKE\) ci-contract-gate') {
   $makefile = $makefile -replace [regex]::Escape("lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check ."), "lint:`n`t`$(VENV_PYTHON) -m ruff check .`n`t`$(VENV_PYTHON) -m ruff format --check .`n`t`$(MAKE) ci-contract-gate"
 }
@@ -999,7 +999,7 @@ if ($makefile -notmatch "(?m)^architecture-boundary-gate:") {
   $makefile = $makefile -replace [regex]::Escape("architecture-boundary-report:"), "architecture-boundary-gate:`n`t`$(VENV_PYTHON) scripts/architecture_boundary_gate.py --mode blocking`n`narchitecture-boundary-report:"
 }
 if ($makefile -notmatch '\$\(MAKE\) coverage-gate') {
-  $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) scripts/coverage_gate.py"
+  $makefile = $makefile -replace [regex]::Escape("test-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest tests/unit --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest tests/integration --cov=src --cov-report=`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest tests/e2e --cov=src --cov-report=`n`t`$(VENV_PYTHON) -m coverage combine .coverage.unit .coverage.integration .coverage.e2e`n`t`$(VENV_PYTHON) -m coverage report --fail-under=99"), "test-unit-coverage:`n`tCOVERAGE_FILE=.coverage.unit `$(VENV_PYTHON) -m pytest `$(UNIT_TESTS) --cov=src --cov-report=`n`ntest-integration-coverage:`n`tCOVERAGE_FILE=.coverage.integration `$(VENV_PYTHON) -m pytest `$(INTEGRATION_TESTS) --cov=src --cov-report=`n`ntest-e2e-coverage:`n`tCOVERAGE_FILE=.coverage.e2e `$(VENV_PYTHON) -m pytest `$(E2E_TESTS) --cov=src --cov-report=`n`ntest-coverage: test-unit-coverage test-integration-coverage test-e2e-coverage`n`t`$(MAKE) coverage-gate"
 }
 $makefile = $makefile -replace [regex]::Escape("check: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test"), "check: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test"
 $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"), "ci: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"
@@ -2620,6 +2620,9 @@ REQUIRED_TARGETS = (
     "test-unit",
     "test-integration",
     "test-e2e",
+    "test-unit-coverage",
+    "test-integration-coverage",
+    "test-e2e-coverage",
     "test-coverage",
     "coverage-gate",
     "security-audit",
@@ -2683,7 +2686,7 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "make architecture-boundary-gate",
         "make openapi-gate",
         "make security-audit",
-        "pytest tests/unit",
+        "make test-unit",
     ),
     "pr-merge-gate.yml": (
         "permissions:\n  contents: read",
@@ -2693,14 +2696,13 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "actions/upload-artifact@v7",
         "actions/download-artifact@v8",
         "docker/setup-buildx-action@v4",
-        "suite: unit",
-        "suite: integration",
-        "suite: e2e",
+        "suite: [unit, integration, e2e]",
         "make lint",
         "make typecheck",
         "make architecture-boundary-gate",
         "make openapi-gate",
         "make security-audit",
+        "make test-${{ matrix.suite }}-coverage",
         "coverage report --fail-under=99",
         "make docker-build",
         "NODE_OPTIONS: --no-deprecation",
@@ -2714,14 +2716,13 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "actions/upload-artifact@v7",
         "actions/download-artifact@v8",
         "docker/setup-buildx-action@v4",
-        "suite: unit",
-        "suite: integration",
-        "suite: e2e",
+        "suite: [unit, integration, e2e]",
         "make lint",
         "make typecheck",
         "make architecture-boundary-gate",
         "make openapi-gate",
         "make security-audit",
+        "make test-${{ matrix.suite }}-coverage",
         "coverage report --fail-under=99",
         "make docker-build",
         "cyclonedx-py environment",
@@ -2757,18 +2758,21 @@ PROHIBITED_WORKFLOW_PATTERNS: dict[str, tuple[str, ...]] = {
         "contents: write",
         "pull-requests: write",
         "continue-on-error:",
+        "run: ./.venv/bin/python -m pytest",
     ),
     "pr-merge-gate.yml": (
         "pull_request_target:",
         "contents: write",
         "pull-requests: write",
         "continue-on-error:",
+        "run: ./.venv/bin/python -m pytest",
     ),
     "main-releasability.yml": (
         "pull_request_target:",
         "contents: write",
         "pull-requests: write",
         "continue-on-error:",
+        "run: ./.venv/bin/python -m pytest",
     ),
     "pr-auto-merge.yml": ("continue-on-error:",),
     "merged-pr-main-releasability.yml": ("continue-on-error:",),
@@ -2821,15 +2825,20 @@ def validate_makefile(makefile: str) -> list[str]:
         "test-unit": "$(VENV_PYTHON) -m pytest $(UNIT_TESTS)",
         "test-integration": "$(VENV_PYTHON) -m pytest $(INTEGRATION_TESTS)",
         "test-e2e": "$(VENV_PYTHON) -m pytest $(E2E_TESTS)",
+        "test-unit-coverage": "COVERAGE_FILE=.coverage.unit $(VENV_PYTHON) -m pytest $(UNIT_TESTS) --cov=src --cov-report=",
+        "test-integration-coverage": "COVERAGE_FILE=.coverage.integration $(VENV_PYTHON) -m pytest $(INTEGRATION_TESTS) --cov=src --cov-report=",
+        "test-e2e-coverage": "COVERAGE_FILE=.coverage.e2e $(VENV_PYTHON) -m pytest $(E2E_TESTS) --cov=src --cov-report=",
     }
     for target, expected_command in test_target_expectations.items():
         if expected_command not in _target_block(makefile, target):
             errors.append(f"Makefile {target} target must run `{expected_command}`")
 
     coverage_block = _target_block(makefile, "test-coverage")
-    for selector in ("$(UNIT_TESTS)", "$(INTEGRATION_TESTS)", "$(E2E_TESTS)"):
-        if selector not in coverage_block:
-            errors.append(f"Makefile test-coverage target must use `{selector}`")
+    for target in ("test-unit-coverage", "test-integration-coverage", "test-e2e-coverage"):
+        if target not in coverage_block:
+            errors.append(f"Makefile test-coverage target must depend on `{target}`")
+    if "$(MAKE) coverage-gate" not in coverage_block:
+        errors.append("Makefile test-coverage target must call `$(MAKE) coverage-gate`")
 
     security_audit = _target_block(makefile, "security-audit")
     if "-m pip_audit" not in security_audit:

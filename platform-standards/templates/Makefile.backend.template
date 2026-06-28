@@ -1,4 +1,4 @@
-.PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard source-observability-contract-gate operation-metric-contract-gate implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-coverage coverage-gate security-audit check ci docker-build clean
+.PHONY: install lint ci-contract-gate maintainability-gate documentation-contract-gate quality-scorecard-gate monetary-float-guard no-sensitive-content-guard source-observability-contract-gate operation-metric-contract-gate implementation-truth-gate supported-features-gate endpoint-certification-gate typecheck architecture-boundary-gate architecture-boundary-report quality-baseline openapi-gate test test-unit test-integration test-e2e test-unit-coverage test-integration-coverage test-e2e-coverage test-coverage coverage-gate security-audit check ci docker-build clean
 
 VENV_DIR ?= .venv
 UNIT_TESTS ?= tests/unit
@@ -91,10 +91,16 @@ test-integration:
 test-e2e:
 	$(VENV_PYTHON) -m pytest $(E2E_TESTS)
 
-test-coverage:
+test-unit-coverage:
 	COVERAGE_FILE=.coverage.unit $(VENV_PYTHON) -m pytest $(UNIT_TESTS) --cov=src --cov-report=
+
+test-integration-coverage:
 	COVERAGE_FILE=.coverage.integration $(VENV_PYTHON) -m pytest $(INTEGRATION_TESTS) --cov=src --cov-report=
+
+test-e2e-coverage:
 	COVERAGE_FILE=.coverage.e2e $(VENV_PYTHON) -m pytest $(E2E_TESTS) --cov=src --cov-report=
+
+test-coverage: test-unit-coverage test-integration-coverage test-e2e-coverage
 	$(MAKE) coverage-gate
 
 coverage-gate:
