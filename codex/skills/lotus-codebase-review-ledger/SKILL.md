@@ -106,6 +106,15 @@ no-runtime-split decision. Do not claim architectural progress from cosmetic ren
 or private helper extraction unless the quality inventory, ownership boundary, or review evidence
 shows a real reduction in responsibility or blast radius.
 
+For agent-driven refactor programs, every `Hardened` ledger entry should include enough closure
+evidence to stop future churn:
+
+1. the exact quality inventory or hotspot that moved,
+2. the focused behavior test that protects the refactor,
+3. the aggregate repo-native gate result when it has completed,
+4. the README, docs, wiki, context, and skill update decision,
+5. the remaining next slice if the reviewed scope is improved but not fully signed off.
+
 ### 5. Require evidence before sign-off
 
 Do not mark a scope as signed off unless you have:

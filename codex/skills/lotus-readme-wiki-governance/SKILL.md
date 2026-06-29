@@ -254,6 +254,18 @@ Use this professional acceptance bar before calling a wiki update complete:
    or evidence paths they rely on, and whether the wiki was intentionally unchanged, check-only
    clean, or published after merge.
 
+When the user calls out that a wiki is unprofessional, hard to scan, or poorly formatted, run a
+polish pass before adding more content:
+
+1. open `Home`, `_Sidebar`, and every changed page as the working set,
+2. rewrite the first screen for current-state scope, evidence, and reader paths,
+3. normalize heading case, table labels, page titles, and section order,
+4. split wide tables and long paragraphs before adding new claims,
+5. make limitations, unsupported capabilities, degraded states, and ownership boundaries visible
+   where business, demo, support, or operations readers would make decisions,
+6. verify that each page is reachable from `Home` or `_Sidebar`,
+7. record the check-only or publish decision with the exact changed pages in PR evidence.
+
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.
 
