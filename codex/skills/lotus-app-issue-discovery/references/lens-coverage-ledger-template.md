@@ -40,6 +40,8 @@ Use `Y/N` proof flags:
 | Unit of work and transactions | `lens/unit-of-work-transactions` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Event and outbox contracts | `lens/event-outbox-contracts` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Capability and supported-feature publication | `lens/capability-publication` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Evidence and proof contracts | `lens/evidence-proof-contracts` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Source contract and dependency semantics | `lens/source-contract-dependency-semantics` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Database operations | `lens/database-operations` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Data model quality | `lens/data-model-quality` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |

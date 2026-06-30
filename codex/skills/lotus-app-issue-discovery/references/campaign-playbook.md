@@ -18,6 +18,19 @@ into an operating loop that a future agent can follow without prior chat context
    `references/lens-coverage-ledger-template.md`.
 7. Read the ledger comments or table before choosing a lens. Do not rely on chat memory.
 
+Use this quick command set at the start of a resumed campaign:
+
+```powershell
+git status --short --branch
+gh issue list --repo <owner>/<repo> --state open --search "\"Issue Discovery Ledger\"" --json number,title,url
+gh issue list --repo <owner>/<repo> --state open --label issue-discovery --limit 100 --json number,title,labels,url
+gh pr list --repo <owner>/<repo> --state open --json number,title,headRefName,url
+```
+
+If the worktree is dirty, identify whether the changed files overlap the next lens. If they do,
+inspect the diff and mark the lens `Blocked By Active Fix` or `Needs Recheck` unless a distinct
+root cause can be proven from stable files.
+
 ## 2. Pick The Next Lens
 
 Choose the next lens using this order:
@@ -45,9 +58,20 @@ For every candidate finding, assemble this packet before filing:
 - Duplicate searches: broad lens terms and concrete symbol terms across open and closed issues.
 - Fix direction: smallest coherent implementation slice.
 - Acceptance criteria: tests, contract checks, docs/context updates, runtime proof, or gate evidence.
+- Owner boundary: why this repository owns the fix, or why this is an integration/publication
+  contract issue rather than a wrong-owner domain issue.
 
 Do not file if evidence or duplicate search is missing. Do not file style preferences, future product
 ideas, or broad refactoring wishes without a specific failing behavior.
+
+Before filing, ask this final gate:
+
+1. Would a competent implementation agent know where to start?
+2. Can the fix be merged as one coherent slice?
+3. Can tests or contract checks prove it?
+4. Would the issue still matter if the user did not ask for more issue count?
+
+If any answer is no, refine, split, or ledger the candidate instead of filing.
 
 ## 4. Inspect Code Like A Review Lead
 
@@ -70,6 +94,10 @@ Use docs repo knowledge as a standard, not decoration:
 
 If a repo's responsibility does not include the domain being inspected, do not create wrong-owner
 issues. Instead, ledger the boundary and inspect the integration contract.
+
+Prefer current source-owned evidence over generated artifacts. Use generated OpenAPI, catalogs,
+scorecards, proof files, or output evidence only when those artifacts are the consumer-facing or
+operator-facing contract under review.
 
 ## 5. Handle Active Fixes
 
@@ -106,6 +134,15 @@ gh issue create --repo <owner>/<repo> `
 Use exactly one primary `lens/*` label unless the repository has a stricter convention. Mention
 secondary lenses in the issue body.
 
+Use these title patterns:
+
+- `Add <missing control> for <specific route/workflow/model>`
+- `Move <leaking responsibility> out of <layer> into <target layer/port>`
+- `Enforce <domain/contract rule> for <lifecycle/calculation/publication path>`
+- `Make <diagnostic/evidence/capability> reproducible from <runtime/source>`
+
+Avoid titles like `Improve architecture`, `Fix observability`, or `Clean up code`.
+
 ## 7. Update The Ledger Every Time
 
 After every lens pass, add a compact ledger comment with:
@@ -118,6 +155,7 @@ After every lens pass, add a compact ledger comment with:
 - active-fix blockers,
 - residual risk,
 - next suggested lens.
+- recommendation: continue this app, wait for active fixes, or move to another app.
 
 Use status consistently:
 
@@ -155,6 +193,10 @@ When asked "are we done?", answer with:
 - remaining high-value lenses,
 - recommendation to continue or move to another app.
 
+Use the ledger, not memory, to answer coverage questions. Include approximate completion only as a
+ledger-backed statement such as "12 of 33 lenses have a completed or issue-raised pass; 4 are
+blocked by active fixes; the remaining high-value lenses are X, Y, Z."
+
 ## 10. Improve The Skill When Learning Repeats
 
 Promote learning into the platform-owned skill when any of these recur:
@@ -165,6 +207,9 @@ Promote learning into the platform-owned skill when any of these recur:
 - agents file broad issues without implementation-ready acceptance criteria,
 - docs KB anchors should be mandatory for a lens,
 - GitHub issue labels or ledger behavior are inconsistent across apps.
+- a Lotus-specific review area keeps being forced into a generic label, such as capability
+  publication or evidence/proof contracts.
+- agents need the same GitHub issue searches, issue-body structure, or ledger fields repeatedly.
 
 Update the source under `lotus-platform/codex/skills/lotus-app-issue-discovery`, validate it, commit
 it, raise a PR, merge it, sync local skills, and return `lotus-platform` to clean `main`.

@@ -26,6 +26,8 @@ LABELS = [
     ("lens/unit-of-work-transactions", "1f6feb", "Lens: unit of work, commits, rollback, multi-write flows"),
     ("lens/event-outbox-contracts", "1f6feb", "Lens: events, outbox, schema versions, replay, DLQ, delivery idempotency"),
     ("lens/data-product-trust-telemetry", "1f6feb", "Lens: data-product declarations and runtime trust telemetry"),
+    ("lens/capability-publication", "1f6feb", "Lens: supported-feature, Gateway, Workbench, and capability publication truth"),
+    ("lens/evidence-proof-contracts", "1f6feb", "Lens: proof artifacts, certification evidence, scorecards, and evidence contracts"),
     ("lens/source-contract-dependency-semantics", "1f6feb", "Lens: source contracts, dependency semantics, lifecycle identity"),
     ("lens/database-operations", "1f6feb", "Lens: database operations, indexes, query plans, locks, migrations, pooling"),
     ("lens/data-model-quality", "1f6feb", "Lens: data models, migrations, indexes, identifiers, temporal and lineage fields"),

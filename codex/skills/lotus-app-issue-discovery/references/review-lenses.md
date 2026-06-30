@@ -24,6 +24,8 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Unit of work and transactions | `lens/unit-of-work-transactions` |
 | Event and outbox contracts | `lens/event-outbox-contracts` |
 | Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` |
+| Capability and supported-feature publication | `lens/capability-publication` |
+| Evidence and proof contracts | `lens/evidence-proof-contracts` |
 | Source contract and dependency semantics | `lens/source-contract-dependency-semantics` |
 | Database operations | `lens/database-operations` |
 | Data model quality | `lens/data-model-quality` |
@@ -71,6 +73,8 @@ Use these cross-cutting labels when useful:
 | Unit of work and transactions | DB session lifecycle, repository commits, multi-write workflows | partial commits, inconsistent rollback behavior, race-prone claim/update/write flows |
 | Event and outbox contracts | events, topics, schema versions, DLQ, replay, idempotency, outbox emission | schema drift, direct Kafka publishing, weak poison-message handling, missing duplicate-delivery tests |
 | Data product and trust telemetry contracts | domain data-product declarations, trust telemetry snapshots, producer/consumer declarations, platform catalog validators | governed product declarations without runtime trust proof, missing freshness/lineage/blocking evidence, stale approved-consumer truth |
+| Capability and supported-feature publication | supported-feature ledgers, capability registries, Gateway publication, Workbench consumption, README/wiki feature claims, demo/publication contracts | published features without implemented or certified endpoints, stale Workbench/Gateway capability truth, UI-visible claims backed by unsupported behavior |
+| Evidence and proof contracts | implementation proofs, certification artifacts, scorecards, validation outputs, generated evidence packs, proof schemas, evidence lineage | proof artifacts not reproducible from current code, unbounded/manual evidence, stale scorecards, missing evidence fingerprints or contract provenance |
 | Source contract and dependency semantics | upstream source products consumed by the app, required trust metadata, source lifecycle identity, restatement/version/correction semantics | consumer contracts missing source-event identity, lifecycle/correction fields lost during normalization, fail-open dependency posture |
 | Database operations | migrations, repository query shape, indexes, unique constraints, lock/lease flows, connection/session lifecycle, query tests | unbounded scans, N+1 reads, no uniqueness for idempotency, unsafe update races, missing index for hot filter/sort paths |
 | Data model quality | ORM models, migrations, indexes, identifiers, temporal fields, lineage fields | missing unique constraints, weak temporal semantics, overloaded identifiers, no lineage/audit fields |
@@ -97,7 +101,8 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 1. Existing issues, active branches, repository context, and ledger posture.
 2. Architecture boundaries, runtime composition, API/application/domain/ports/infrastructure layers.
 3. API design, HTTP boundary controls, validation, idempotency, auditability, and lineage.
-4. Data model, database operations, source contracts, data products, downstream integration.
+4. Data model, database operations, source contracts, data products, capability publication,
+   evidence/proof contracts, downstream integration.
 5. Product/domain lenses: vocabulary, calculations, methodology, transaction lifecycle, position lifecycle.
 6. Reliability lenses: events/outbox, resilience, performance/scalability, observability, operational supportability.
 7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/runbooks.
@@ -122,6 +127,8 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "API design, versioning, routing, pagination, filtering, sorting, errors" | `lens/api-design-governance` | routers, OpenAPI, DTOs, list APIs, problem details, examples, response models |
 | "HTTP boundary controls" | `lens/http-boundary-controls`, `lens/security-privacy` | CORS, trusted hosts, secure headers, request size limits, content-type checks, abuse protection |
 | "validation, idempotency, correlation IDs, auditability, lineage, traceability" | `lens/validation-idempotency`, `lens/auditability-lineage`, `lens/observability` | idempotency store, duplicate conflict semantics, correlation propagation, audit/evidence records |
+| "supported features", "capability publication", "Gateway", "Workbench discovery", "UI backed by backend" | `lens/capability-publication`, `lens/api-design-governance`, `lens/documentation-runbooks` | supported-feature ledgers, capability registries, Gateway routes, Workbench consumers, README/wiki claims, endpoint certification |
+| "proof artifacts", "certification evidence", "scorecard", "implementation proof", "evidence pack" | `lens/evidence-proof-contracts`, `lens/ci-release-evidence`, `lens/operational-supportability` | generated evidence files, proof schemas, certification commands, scorecards, evidence fingerprints, reproducibility from current source |
 | "race conditions" | `lens/unit-of-work-transactions`, `lens/database-operations`, `lens/event-outbox-contracts` | claim/lease flows, uniqueness constraints, row locks, transaction scopes, outbox delivery tests |
 | "unnecessary data processing", "lack of correct logic", "batching/caching" | `lens/performance-scalability`, `lens/database-operations` | repeated full scans, N+1 reads, missing filters/indexes, pagination, cache invalidation, batch APIs |
 | "logging, tracing, monitoring" | `lens/observability`, `lens/operational-supportability` | structured logs, metrics, trace propagation, route templates, health/readiness, runbooks |
@@ -166,6 +173,8 @@ Use these anchors to make issues practical:
 | Layering and boundaries | import path or function showing cross-layer leakage, plus target direction |
 | API | route, DTO, OpenAPI behavior, error model, or missing pagination/filter contract |
 | Data/model/lifecycle | model/migration/DTO field, state transition, linked-leg behavior, or missing lineage |
+| Capability/publication | supported-feature or capability declaration plus missing runtime/API/test proof or stale consumer publication |
+| Evidence/proof | generated proof, scorecard, certification artifact, or evidence contract that cannot be reproduced or traced |
 | Database/performance | query path, migration/index/constraint, hot access pattern, or batch/pagination gap |
 | Security/config | concrete auth/config/header/secret/sensitive-data path and expected safe behavior |
 | Observability/support | log/metric/trace/health/readiness/runbook path and missing diagnostic outcome |
@@ -203,7 +212,13 @@ rg -n "Kafka|publish_message|create_outbox_event|model_dump\\(mode=\"json\"\\)|j
 ### Data Products And Source Contracts
 
 ```powershell
-rg -n "domain-data-product|trust-telemetry|producer_repository|consumer_repository|required_trust_metadata|freshness_policy|lineage_policy|approved_consumers|source_event|source_snapshot|restatement|correction|reversal" contracts docs tests src --glob "*.json" --glob "*.md" --glob "*.py"
+rg -n "domain-data-product|trust-telemetry|producer_repository|consumer_repository|required_trust_metadata|freshness_policy|lineage_policy|approved_consumers|source_event|source_snapshot|restatement|correction|reversal|supported-feature|supported_feature|capability|Gateway|Workbench|publication|certification|evidence|proof|scorecard" contracts docs tests src wiki --glob "*.json" --glob "*.md" --glob "*.py"
+```
+
+### Capability Publication And Proof Evidence
+
+```powershell
+rg -n "supported-feature|supported_feature|capability|capabilities|Gateway|Workbench|publication|published|certification|certified|evidence|proof|scorecard|demo-ready|demo ready|api catalog|API catalog" README.md docs wiki contracts src tests output --glob "*.md" --glob "*.json" --glob "*.py" --glob "*.yml" --glob "*.yaml"
 ```
 
 ### Data Model And Queries
