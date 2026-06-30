@@ -104,6 +104,11 @@ label names, the baseline lens queue, and search starters. For a reusable campai
 read `references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
 discovery campaign.
 
+For a multi-turn review, a time-boxed defect-discovery run, or a request to "work like you", read
+`references/campaign-playbook.md` before inspecting code. That playbook is the operational runbook
+for start/resume decisions, lens sequencing, issue filing, ledger updates, active-fix handling,
+user status updates, and skill self-improvement.
+
 Use `references/review-lenses.md` to translate user wording into canonical labels. For example,
 "business logic out of routers" maps to `lens/api-design-governance`, `lens/application-layer`,
 `lens/domain-layer`, and `lens/infrastructure` depending on the evidence; "logic testable without
@@ -203,6 +208,10 @@ For each lens pass, use this loop:
 5. create or update labels with `scripts/ensure_issue_discovery_labels.py`,
 6. file only evidence-backed issues with canonical labels,
 7. update the ledger with inspected areas, duplicate searches, issue numbers, and residual risk.
+
+If the user asks whether the campaign is done or whether to move to another app, answer from the
+ledger, not memory. Report lenses covered, lenses remaining, active-fix blockers, highest-value
+remaining risk, and whether the current repository has reached a sensible handoff point.
 
 ### 1A. Lens Pass Standard
 
@@ -469,6 +478,11 @@ context in `lotus-platform` rather than relying on memory. Examples:
 For skill updates, edit the platform-owned source under `lotus-platform/codex/skills`, validate it,
 commit, raise a PR, sync the local skill after merge, and return the repo to clean `main`.
 
+When strengthening this skill, update the smallest durable artifact that will change future agent
+behavior: `SKILL.md` for mandatory workflow, `references/review-lenses.md` for lens/label/search
+coverage, `references/lens-coverage-ledger-template.md` for ledger shape, `references/campaign-playbook.md`
+for operating procedure, and scripts for deterministic GitHub or validation behavior.
+
 ### 7. GitHub Issue Ledger Procedure
 
 Use this exact pattern for app-ledger issues:
@@ -532,6 +546,8 @@ Related but not duplicate of: #<issue>, #<issue>
 
 - `references/review-lenses.md`: canonical lenses, label taxonomy, search starters, and severity calibration.
 - `references/lens-coverage-ledger-template.md`: durable issue-ledger structure and per-lens note shape.
+- `references/campaign-playbook.md`: start/resume, lens execution, issue filing, ledger,
+  active-fix, time-box, and self-improvement operating procedure.
 - `scripts/ensure_issue_discovery_labels.py`: creates or updates the canonical `issue-discovery`,
   `lens/*`, and `impact/*` labels in a target GitHub repository.
 
