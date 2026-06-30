@@ -49,6 +49,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Launch or monitor detached platform automation profiles, local background runs, RFC-0095 heartbeat attention artifacts, or RFC-0096 governed delegation evidence | `platform-automation-ops` | `async-task-runner`, `lotus-pr-premerge-gate`, `platform-pulse-monitor` | `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md`, `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`, `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`, `platform-contracts/heartbeat/heartbeat-status.schema.json`, `automation/Start-Background-Run.ps1`, `automation/Check-Background-Runs.ps1`, `automation/Run-Heartbeat.ps1` |
 | Fix failing GitHub Actions checks | `gh-fix-ci` | `lotus-pr-premerge-gate` | GitHub run logs plus repository-native local gates |
 | Review, standardize, or create Lotus RFCs and governance docs, including pre-implementation gold-standard hardening, source maps, work-to-be-done ledgers, supported-feature ledgers, branch-graph reconciliation, mandatory slices, and enterprise/data-mesh baselines | `lotus-rfc-review-loop` | `lotus-readme-wiki-governance` when README/wiki product material changes, `lotus-pr-premerge-gate` before merge | RFC file, central platform context, and unmerged-branch stranded-truth evidence |
+| Review a Lotus app lens by lens to identify high-value evidence-backed GitHub issues without editing code, including architecture, API, domain, lifecycle, mapping, data model, calculations, security, observability, performance, resilience, testing, docs, and operational supportability | `lotus-app-issue-discovery` | repo delivery governance skill for app type, `lotus-codebase-review-ledger` when durable review ledgers are updated, `lotus-ci-enforcement-governance` when findings should become reusable gates or skills | target repo code/docs/tests, existing GitHub issues, `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`, and `codex/skills/lotus-app-issue-discovery/references/review-lenses.md` |
 | Review codebase patterns, dead code, duplication, or modularity debt | `lotus-codebase-review-ledger` | repo delivery governance skill | review ledger plus repo-local code evidence |
 | Upgrade methodology documents to auditable standard | `lotus-methodology-doc-v3` | repo delivery governance skill | methodology docs plus domain source material |
 
@@ -75,6 +76,16 @@ Use when the task is about:
 2. service health, logs, metrics, or observability checks,
 3. standards conformance and issue filing,
 4. platform QA that does not require populated canonical front-office screenshots.
+
+### `lotus-app-issue-discovery`
+
+Use when the task is about:
+
+1. reviewing a Lotus repository only to find and raise GitHub issues,
+2. continuing a lens-by-lens issue-discovery campaign,
+3. finding the next set of high-value defects or improvement opportunities,
+4. applying functional or technical knowledge to inspect code before filing issues,
+5. avoiding duplicate GitHub issues while producing evidence-backed acceptance criteria.
 
 ### `lotus-demo-readiness-certification`
 

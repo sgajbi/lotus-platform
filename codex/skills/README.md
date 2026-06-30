@@ -11,8 +11,9 @@ This directory contains:
 1. Lotus domain and delivery governance skills,
 2. CI-enforcement and quality-gate governance skills,
 3. app-wide demo-readiness and validation certification skills,
-4. platform automation and pulse-monitoring skills,
-5. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+4. evidence-backed app issue-discovery skills,
+5. platform automation and pulse-monitoring skills,
+6. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
 
 It does not own:
 
@@ -56,13 +57,15 @@ When the task is explicitly to improve skills, agent context, or reusable guidan
 1. start with the existing skill route in `context/LOTUS-SKILL-ROUTING-MAP.md`,
 2. use `lotus-ci-enforcement-governance` for repeated agent-quality, CI, closure, API, architecture,
    or test-quality failures,
-3. use `lotus-readme-wiki-governance` when the surfaced failure is README/wiki professionalism,
+3. use `lotus-app-issue-discovery` when the task is to inspect a Lotus app lens by lens and raise
+   high-value evidence-backed issues without editing code,
+4. use `lotus-readme-wiki-governance` when the surfaced failure is README/wiki professionalism,
    reader navigation, publication hygiene, or documentation presentation quality,
-4. update an existing skill before creating a new one unless the routing map proves a durable
+5. update an existing skill before creating a new one unless the routing map proves a durable
    uncovered task family,
-5. sync deployed local skills through `automation/Bootstrap-LotusDeveloperEnvironment.ps1` after the
+6. sync deployed local skills through `automation/Bootstrap-LotusDeveloperEnvironment.ps1` after the
    platform-owned source changes,
-6. record a short no-skill/no-context decision when the lesson is local to one slice and does not
+7. record a short no-skill/no-context decision when the lesson is local to one slice and does not
    justify durable guidance.
 
 When the task is documentation-system work rather than code delivery, prefer the dedicated Lotus

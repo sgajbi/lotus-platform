@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus App Issue Discovery"
+  short_description: "Evidence-backed issue discovery across Lotus app quality lenses."
+  default_prompt: "Review a Lotus app lens by lens, inspect code before making claims, avoid duplicate issues, and raise high-value GitHub issues with concrete evidence and acceptance criteria."
