@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+
+
+LABELS = [
+    ("issue-discovery", "6f42c1", "Raised from governed Lotus issue-discovery review"),
+    ("impact/correctness", "d73a4a", "Wrong business, calculation, lifecycle, or API behavior risk"),
+    ("impact/security", "b60205", "Security, privacy, authorization, secrets, or abuse risk"),
+    ("impact/operability", "fbca04", "Readiness, diagnostics, recovery, or supportability risk"),
+    ("impact/performance", "0e8a16", "Latency, scalability, query, batching, or resource risk"),
+    ("impact/architecture", "5319e7", "Boundary, dependency, modularity, contract, or ownership risk"),
+    ("lens/architecture-boundaries", "1f6feb", "Lens: architecture boundaries and dependency direction"),
+    ("lens/api-design-governance", "1f6feb", "Lens: API design, routing, OpenAPI, pagination, filtering, sorting, errors"),
+    ("lens/application-layer", "1f6feb", "Lens: application services and use-case orchestration"),
+    ("lens/domain-layer", "1f6feb", "Lens: domain models, policies, calculations, validation, state transitions"),
+    ("lens/ports-adapters", "1f6feb", "Lens: ports, adapters, repositories, clients, publishers"),
+    ("lens/infrastructure", "1f6feb", "Lens: infrastructure repositories, clients, config, adapters"),
+    ("lens/mapping-anti-corruption", "1f6feb", "Lens: DTO, event, row, and source anti-corruption mapping"),
+    ("lens/unit-of-work-transactions", "1f6feb", "Lens: unit of work, commits, rollback, multi-write flows"),
+    ("lens/event-outbox-contracts", "1f6feb", "Lens: events, outbox, schema versions, replay, DLQ, delivery idempotency"),
+    ("lens/data-product-trust-telemetry", "1f6feb", "Lens: data-product declarations and runtime trust telemetry"),
+    ("lens/source-contract-dependency-semantics", "1f6feb", "Lens: source contracts, dependency semantics, lifecycle identity"),
+    ("lens/data-model-quality", "1f6feb", "Lens: data models, migrations, indexes, identifiers, temporal and lineage fields"),
+    ("lens/transaction-lifecycle", "1f6feb", "Lens: transaction lifecycle, linked legs, reversals, corrections"),
+    ("lens/position-lifecycle", "1f6feb", "Lens: position lifecycle, lots, availability, collateral, restatements"),
+    ("lens/calculations-methodology", "1f6feb", "Lens: calculations, methodology, precision, FX, income, cashflows"),
+    ("lens/domain-vocabulary", "1f6feb", "Lens: domain vocabulary in APIs, models, docs, metrics, tests"),
+    ("lens/validation-idempotency", "1f6feb", "Lens: validation, duplicate handling, idempotency, conflict semantics"),
+    ("lens/auditability-lineage", "1f6feb", "Lens: auditability, lineage, source identity, correlation, evidence"),
+    ("lens/observability", "1f6feb", "Lens: logs, metrics, tracing, health, readiness, diagnostics"),
+    ("lens/security-privacy", "1f6feb", "Lens: authn, authz, CORS, headers, secrets, sensitive data"),
+    ("lens/resilience", "1f6feb", "Lens: timeouts, retries, backoff, degradation, downstream errors"),
+    ("lens/performance-scalability", "1f6feb", "Lens: indexes, query shape, batching, pagination, caching, pooling"),
+    ("lens/testing-quality", "1f6feb", "Lens: unit, integration, contract, API, security, regression, E2E tests"),
+    ("lens/documentation-runbooks", "1f6feb", "Lens: README, architecture docs, API catalog, RFCs, wiki, runbooks"),
+    ("lens/operational-supportability", "1f6feb", "Lens: runbooks, dashboards, alerts, replay, recovery, support APIs"),
+]
+
+
+def run(command: list[str], dry_run: bool) -> None:
+    if dry_run:
+        print(" ".join(command))
+        return
+    subprocess.run(command, check=True)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Create or update canonical Lotus issue-discovery labels in a GitHub repository."
+    )
+    parser.add_argument("--repo", required=True, help="GitHub repository in owner/name form.")
+    parser.add_argument("--dry-run", action="store_true", help="Print gh commands without executing them.")
+    args = parser.parse_args()
+
+    for name, color, description in LABELS:
+        run(
+            [
+                "gh",
+                "label",
+                "create",
+                name,
+                "--repo",
+                args.repo,
+                "--color",
+                color,
+                "--description",
+                description,
+                "--force",
+            ],
+            args.dry_run,
+        )
+
+    print(f"Ensured {len(LABELS)} issue-discovery labels in {args.repo}.")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except subprocess.CalledProcessError as exc:
+        print(f"Command failed with exit code {exc.returncode}: {' '.join(exc.cmd)}", file=sys.stderr)
+        raise SystemExit(exc.returncode)
