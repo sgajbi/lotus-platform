@@ -25,6 +25,11 @@ creation.
 
 Act like a senior Lotus review lead, not a bug-title generator.
 
+Default to execution. When the user asks to continue a campaign, strengthen the skill, find issues,
+check a lens, or decide whether to move apps, do not stop at a plan. Rebuild state from durable
+sources, inspect evidence, file or decline issues, update the ledger, and report the next useful
+decision.
+
 Your job is to make another implementation agent successful. A good issue-discovery pass leaves
 behind:
 
@@ -45,6 +50,15 @@ For every issue, prove four things before filing:
 
 Prefer fewer, stronger issues. If a finding is speculative, stale, duplicate, or below the
 bank-buyable bar, record it in the ledger as residual risk instead of filing noise.
+
+Think in campaign outcomes:
+
+1. `file`: a new, fixable, evidence-backed issue is needed;
+2. `reuse`: an existing issue already covers the root cause, so link or comment there;
+3. `block`: an active branch or PR is changing the same evidence, so mark the lens blocked or
+   needs recheck;
+4. `ledger-only`: the observation is useful but not issue-worthy yet;
+5. `covered`: the lens has enough representative proof for the current campaign depth.
 
 ## Autonomous Campaign Contract
 
@@ -84,6 +98,11 @@ If the user gives a time box, optimize for complete lens passes over issue count
 more proof than the time box allows, record it as residual risk and continue with the next most
 provable candidate.
 
+When the user asks to strengthen this skill, preserve this autonomous contract. The skill should
+teach the next agent what to do without relying on prior chat: context loading, lens selection,
+evidence standard, duplicate searches, GitHub labels, ledger updates, active-fix handling, and app
+handoff decisions all belong in the durable skill or its references.
+
 ## Agent Execution Algorithm
 
 Use this algorithm when a future agent has only the skill and the user's latest request:
@@ -118,6 +137,24 @@ Use this algorithm when a future agent has only the skill and the user's latest 
 
 If any step cannot be completed, record the reason in the ledger and continue with the next
 defensible action. Do not silently skip duplicate searches, standards lookup, or ledger updates.
+
+### Fast Autopilot Checklist
+
+Run this checklist for ordinary "continue", "next issues", and "check this lens" turns:
+
+1. `git status --short --branch` in the target repo.
+2. `gh pr list` and open `issue-discovery` issues for the target repo.
+3. Find or create the `<repo> Issue Discovery Ledger`.
+4. Read the latest ledger comments before choosing a lens.
+5. Read `references/review-lenses.md` and `references/campaign-playbook.md`.
+6. Load only the repo/platform/docs KB files required for the chosen lens.
+7. Inspect source plus a test/doc/contract/workflow counterpart.
+8. Duplicate-search GitHub with at least one broad lens query and one concrete symbol query.
+9. Ensure labels, then create or reuse one issue per root cause.
+10. Comment on the ledger with status, proof flags, inspected paths, searches, issues, blockers,
+    residual risk, and next recommendation.
+
+If a step produces "nothing to file", still update the ledger so campaign coverage remains visible.
 
 ## Required Context
 
@@ -286,6 +323,16 @@ remaining risk, and whether the current repository has reached a sensible handof
 When the user asks for "N issues", interpret `N` as an upper bound, not a quota. Stop early when the
 remaining candidates are weak, duplicate, blocked by active fixes, or too broad for one agent.
 
+When maintaining a ledger, keep it usable for human campaign steering. The ledger should let the
+user see:
+
+1. which lenses were actually inspected,
+2. which issue labels were applied,
+3. which open issues are waiting for implementation,
+4. which lenses are blocked by active fixes,
+5. which high-value lenses remain,
+6. whether it is sensible to keep reviewing this app or move to another app.
+
 ### 1A. Lens Pass Standard
 
 For each lens, complete this minimum pass before filing:
@@ -319,6 +366,10 @@ version of this packet:
    expected from the fix.
 
 Do not file from a packet that is missing either `Evidence` or `Duplicate search`.
+
+Add `Owner boundary` whenever the issue touches cross-app behavior. State why the target repository
+owns the fix, or whether it is a publication, Gateway, Workbench, source-contract, or consumer
+integration issue. This prevents wrong-owner defects in a distributed Lotus review.
 
 ### 1C. Lens Completion Rules
 
@@ -370,6 +421,10 @@ If another agent is actively fixing defects in the target worktree or branch:
 
 Use this posture to avoid noisy duplicate issues while still giving the implementation agent
 actionable evidence.
+
+If the active fix is in the same lens but the root cause is distinct, file a new issue and link the
+active issue or PR. If it is the same root cause, comment on the existing issue or PR instead of
+creating a duplicate.
 
 If a duplicate exists but lacks the current lens label, add the canonical label only when the issue
 clearly maps to that lens and the repository uses the shared taxonomy. If the existing issue is too
@@ -425,6 +480,10 @@ A strong pass usually reads at least:
 
 Use `rg --files` and targeted `rg -n` before opening files. Prefer source-owned evidence over
 generated artifacts unless the generated artifact is the actual contract consumers use.
+
+For high-risk backend lenses, add a second pass over tests and contracts before filing. Typical
+examples are lifecycle/corporate-action behavior, idempotency, transactionality, security,
+operational diagnostics, proof/capability publication, and public API shape.
 
 ### 4. Calibrate Value
 
@@ -594,6 +653,9 @@ Related but not duplicate of: #<issue>, #<issue>
 
 Duplicate searches:
 - `<query>`: <result summary>
+
+Owner boundary:
+- <why this repo owns the issue or which integration/publication boundary makes it actionable here>
 
 ## Why This Matters
 <business, engineering, operational, security, or domain consequence>

@@ -50,6 +50,24 @@ If the worktree is dirty, identify whether the changed files overlap the next le
 inspect the diff and mark the lens `Blocked By Active Fix` or `Needs Recheck` unless a distinct
 root cause can be proven from stable files.
 
+### Campaign Autopilot Rules
+
+Use these rules when the user expects you to keep moving:
+
+1. Do not ask which lens to run when the ledger already shows a sensible next lens.
+2. Do not count issues as progress unless each issue has evidence, duplicate searches, labels, and
+   implementation-ready acceptance criteria.
+3. Do not leave a lens half-finished without a ledger comment naming what remains.
+4. Do not mark a lens complete from a GitHub search alone; inspect representative code and a
+   test/doc/contract/workflow counterpart.
+5. Do not treat an active fix branch as stable truth. Inspect its diff, then mark the lens blocked,
+   needs recheck, or file only distinct root causes.
+6. Do not create cross-app or wrong-owner issues without an owner-boundary note.
+7. Do not continue mining low-value issues after the ledger shows the app is waiting on
+   implementation for the high-value lenses.
+
+The default useful unit of work is one complete lens pass, not a fixed number of issues.
+
 ## 2. Pick The Next Lens
 
 Choose the next lens using this order:
@@ -68,6 +86,10 @@ Avoid repeatedly mining the same area. If a lens already has one or more strong 
 new distinct root cause is visible, mark the lens `Issues Raised` or `Needs Recheck`, then move to
 the next ledger gap. The campaign goal is coverage of meaningful risk, not issue volume.
 
+When a user asks for "next 5" or "next 10", treat the number as a ceiling. Choose a coherent lens
+group, but stop early when the next candidate is duplicate-heavy, speculative, or too broad. Record
+the stopped reason in the ledger so the user understands why more issues were not filed.
+
 ## 3. Build A Lens Evidence Packet
 
 For every candidate finding, assemble this packet before filing:
@@ -83,6 +105,8 @@ For every candidate finding, assemble this packet before filing:
 - Acceptance criteria: tests, contract checks, docs/context updates, runtime proof, or gate evidence.
 - Owner boundary: why this repository owns the fix, or why this is an integration/publication
   contract issue rather than a wrong-owner domain issue.
+- Ledger outcome: whether this pass will mark the lens `Issues Raised`, `Covered For Now`,
+  `Blocked By Active Fix`, `Needs Recheck`, or `ledger-only residual risk`.
 
 Do not file if evidence or duplicate search is missing. Do not file style preferences, future product
 ideas, or broad refactoring wishes without a specific failing behavior.
@@ -95,6 +119,16 @@ Before filing, ask this final gate:
 4. Would the issue still matter if the user did not ask for more issue count?
 
 If any answer is no, refine, split, or ledger the candidate instead of filing.
+
+Use this issue outcome decision:
+
+| Candidate State | Action |
+| --- | --- |
+| New root cause, strong evidence, fixable slice | File one GitHub issue |
+| Same root cause already open | Reuse, link, or comment on the existing issue |
+| Same root cause in active PR or branch | Comment there or mark the ledger blocked |
+| Plausible but not yet proven | Ledger residual risk and inspect later |
+| Product idea or style preference | Do not file |
 
 ## 4. Inspect Code Like A Review Lead
 
@@ -179,6 +213,7 @@ After every lens pass, add a compact ledger comment with:
 - residual risk,
 - next suggested lens.
 - recommendation: continue this app, wait for active fixes, or move to another app.
+- coverage posture: continue, pause for implementation, recheck after merge, or move app.
 
 Also keep the ledger useful for the user:
 
@@ -196,6 +231,26 @@ Use status consistently:
 - `Blocked By Active Fix`: same area is changing now.
 - `Needs Recheck`: evidence may be stale after a merge or broad fix.
 
+Use this compact comment skeleton:
+
+```markdown
+### Lens pass: <Lens> - <YYYY-MM-DD>
+
+- Status: <Covered For Now | Issues Raised | Blocked By Active Fix | Needs Recheck | ledger-only residual risk>
+- Issues: #<new/reused issue numbers or none>
+- Proof flags: Code:Y Docs:Y Dup:Y Labels:Y Ledger:Y
+- Inspected:
+  - `<path>`: <symbol/route/workflow>
+- Standards consulted:
+  - `<path/standard>`: <why it mattered>
+- Duplicate searches:
+  - `<query>`: <result>
+- Active-fix blockers: <branch/PR/issue or none>
+- Residual risk: <specific remaining risk or none>
+- Recommendation: <continue this app | wait for fixes | recheck after merge | move app>
+- Next suggested lens: <lens and reason>
+```
+
 ### Move-App Decision
 
 Recommend moving to another app when most high-value lenses are `Covered For Now`, `Issues Raised`
@@ -203,6 +258,14 @@ with implementation waiting, or `Blocked By Active Fix`, and the remaining lense
 duplicate-heavy, or need runtime evidence that is not currently available. Recommend continuing
 when unreviewed lenses still cover source-owned domain behavior, public API contracts, production
 supportability, security/privacy, data lifecycle, performance hot paths, or release evidence.
+
+When answering "are we done?", use this structure:
+
+1. what the ledger proves is covered,
+2. what open issue-discovery issues are waiting for implementation,
+3. what active fixes block recheck,
+4. what high-value lenses remain,
+5. whether to continue, pause, or move apps.
 
 ## 8. Work In Time Boxes
 
@@ -260,6 +323,7 @@ it, raise a PR, merge it, sync local skills, and return `lotus-platform` to clea
 For skill-maintenance slices, include this proof pack in the PR or final note:
 
 - skill files changed and why;
+- whether `agents/openai.yaml` was updated because the trigger/default prompt changed;
 - confirmation that the manifest changed only if a skill was added, removed, renamed, or moved;
 - `python <skill-creator>/scripts/quick_validate.py codex/skills/lotus-app-issue-discovery`;
 - `python automation/validate_lotus_skill_alignment.py`;

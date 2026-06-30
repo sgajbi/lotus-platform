@@ -14,6 +14,24 @@ The ledger is a navigation aid, not a substitute for code inspection or duplicat
 - `Needs Recheck`: issue overlap, code changes, or stale evidence means the lens should be revisited.
 - `Covered For Now`: representative inspection and duplicate checks are complete for the current campaign depth; remaining risk is recorded.
 
+## Campaign Summary
+
+Maintain this summary at the top of a newly created ledger issue, or restate it in periodic comments
+when the ledger is managed through comments:
+
+- Target repository: `<owner>/<repo>`
+- Local path when known: `<path>`
+- Current branch or active PRs: `<branch/PR>`
+- Latest campaign recommendation: `<continue | pause for implementation | recheck after merge | move app>`
+- Covered for now: `<lens labels or count>`
+- Issues raised / implementation waiting: `<issue numbers or count>`
+- Blocked by active fixes: `<branches/PRs/issues or none>`
+- Needs recheck: `<lens labels or none>`
+- Highest-value remaining lenses: `<lens labels>`
+
+The summary is for navigation only. Do not use it as evidence for filing an issue; inspect current
+code and GitHub state before every new finding.
+
 ## Ledger Table
 
 Use `Y/N` proof flags:
