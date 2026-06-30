@@ -312,6 +312,14 @@ Before editing skills, context, or agent guidance, produce a short maintenance i
 5. run skill alignment validation, focused routing/context tests, and bootstrap sync after source
    changes so deployed local skills are consumers of platform truth,
 6. record whether repo-local wiki source changed or explicitly why no wiki update was needed.
+7. when the user asks to "improve skills as needed", inspect the current failure pattern and the
+   active Lotus routing map before editing. Prefer one or two precise skill changes at the point
+   where future agents make the decision; do not create a new skill, update the manifest, or rewrite
+   broad context unless routing, discoverability, or repeatability actually changed.
+8. when a backend refactor exposes stale quality reports, weak wiki presentation, missing
+   no-doc/no-wiki decisions, or incomplete PR evidence, update the backend delivery and
+   README/wiki skills before adding another CI gate. Use gates for deterministic regression
+   blockers; use skills for judgment-heavy workflow behavior that agents must remember.
 
 When a quality signal changes repo organization, gate posture, or future-agent workflow, update
 README, repo-local wiki source, `REPOSITORY-ENGINEERING-CONTEXT.md`, central context, and this skill

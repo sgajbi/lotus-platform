@@ -271,7 +271,13 @@ polish pass before adding more content:
    where business, demo, support, or operations readers would make decisions,
 6. verify that each page is reachable from `Home` or `_Sidebar`,
 7. run the repo wiki check-only command when repo-local wiki source changed,
-8. record the check-only or publish decision with the exact changed pages in PR evidence.
+8. record the check-only or publish decision with the exact changed pages in PR evidence,
+9. if the wiki is already published, fix the repo-local `wiki/` source first and publish from that
+   source after merge. Do not hand-edit the standalone GitHub wiki clone to hide formatting defects
+   that are absent from governed source.
+10. if the polish problem appears during a backend or refactor PR, update the backend slice evidence
+    too: name the changed pages, the audiences they serve, and the implementation-backed claims or
+    limitations that moved.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.

@@ -120,15 +120,21 @@ For RFC-driven business-application slices, extend that intake with:
 10. Before deleting a local or remote branch, verify it is merged or explicitly superseded with PR,
     `git log`, `git diff`, or cherry-pick evidence. Branch cleanup is part of delivery, but code
     preservation comes first.
-11. At the end of every meaningful backend slice, run a conscious guidance review: decide whether
-    the work revealed a repeatable pattern that belongs in a platform skill, repo context, central
-    context, scaffold, validator, README, wiki, or runbook. Update durable guidance in the same
-    slice when truth changed; otherwise record an explicit no-skill/no-context/no-doc/no-wiki
-    decision in PR evidence, the review ledger, or the scorecard.
+11. At the end of every meaningful backend slice, run a conscious guidance review before final
+    validation and again before PR closure. Decide whether the work revealed a repeatable pattern
+    that belongs in a platform skill, repo context, central context, scaffold, validator, README,
+    wiki, or runbook. Update durable guidance in the same slice when truth changed; otherwise
+    record an explicit no-skill/no-context/no-doc/no-wiki decision in PR evidence, the review
+    ledger, or the scorecard.
 12. When refactoring orchestration, analytics, inspection, batch, or operator-support code, make
     domain ownership explicit before adding deployment boundaries. Prefer smaller cohesive
     application services and reusable policy/helper modules unless runtime evidence shows that a
     microservice split will improve scalability, resilience, security isolation, or team ownership.
+13. Treat documentation presentation as part of backend delivery when the slice changes public,
+    operator, or agent-facing truth. A backend PR should not leave README, wiki, scorecard, or
+    context pages with stale branch names, stale quality numbers, unprofessional navigation,
+    unsupported readiness claims, or hard-to-scan tables that would mislead business, engineering,
+    sales, marketing, operations, support, or future-agent readers.
 
 ## Bank-Buyable Default Bar
 
@@ -250,6 +256,10 @@ If the backend change affects governed front-office proof:
 11. Skill, context, README, wiki, and runbook guidance has been updated when the slice changed a
     reusable workflow, command, quality gate, domain ownership boundary, API convention, or
     documentation standard. If not, the no-change decision is explicit and reviewable.
+12. README/wiki presentation has been reviewed when docs changed or the user flagged weak
+    formatting. Changed wiki pages have professional first-screen scope, clear reader paths,
+    implementation-backed claims, reachable navigation, and a recorded check-only or publication
+    decision.
 
 ## Cross-App Rule
 
