@@ -34,6 +34,13 @@
       "description": "Canonical position identifier for position-level source and derived analytics products."
     },
     {
+      "key": "source_position_key",
+      "semantic_id": "lotus.source_position_key",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical source-position grain key used when analytics must preserve account, custody, sleeve, strategy, mandate, or tax-lot distinctions beneath a business position identifier."
+    },
+    {
       "key": "instrument_id",
       "semantic_id": "lotus.instrument_id",
       "stability": "stable",
