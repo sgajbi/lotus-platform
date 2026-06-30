@@ -80,7 +80,11 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
     assert "`references/review-lenses.md`" in issue_skill
     assert "scripts/ensure_issue_discovery_labels.py" in issue_skill
     assert "Transaction lifecycle" in lens_catalog
-    assert "Observability" in lens_catalog
+    assert "Monitoring and observability" in lens_catalog
+    assert "Data mesh, data product, and trust telemetry contracts" in lens_catalog
+    assert "Repo organization" in lens_catalog
+    assert "Agents/context organization" in lens_catalog
+    assert "Documentation, wiki, README, and runbooks" in lens_catalog
     assert "Security and privacy" in lens_catalog
 
 
