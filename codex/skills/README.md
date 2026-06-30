@@ -75,6 +75,22 @@ documentation workflow:
 2. use the `lotus-readme-wiki-governance` skill for README/wiki standardization
 3. treat repo-local `wiki/` as the authored source when a GitHub wiki is published
 
+## Validation And Sync Proof
+
+Skill-maintenance work is complete only when the platform-owned source and deployed local consumer
+are aligned.
+
+For a changed Lotus skill:
+
+1. validate that the manifest changes only when a skill is added, moved, renamed, removed, or its
+   governed ownership changes,
+2. sync deployed local skills with:
+   `powershell -ExecutionPolicy Bypass -File automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast -ValidateAfterSync`,
+3. run `python automation/validate_lotus_skill_alignment.py`,
+4. confirm source-to-deployed parity for the touched skill when the same session depends on the new
+   guidance,
+5. record the no-wiki-change decision unless repo-local wiki source changed.
+
 ## Runtime Boundary
 
 The platform-owned source of truth for Lotus skills is this directory.

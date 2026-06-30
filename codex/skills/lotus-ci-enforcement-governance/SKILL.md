@@ -333,6 +333,23 @@ Tighten trigger descriptions, workflow steps, validation expectations, or refere
 creating a new skill. Create or split a skill only when the routing map shows a durable task family
 that current skills cover too broadly or ambiguously.
 
+For a skill-maintenance slice, do not treat edited Markdown as enough proof. Before PR closure,
+record a skill maintenance proof pack:
+
+1. touched skill names and why each one changed,
+2. confirmation that `codex/skills/lotus-skill-manifest.json` was unchanged because no skill was
+   added, moved, renamed, or removed, or the exact manifest change when it was,
+3. `powershell -ExecutionPolicy Bypass -File automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast -ValidateAfterSync`,
+4. `python automation/validate_lotus_skill_alignment.py`,
+5. source-to-deployed parity for each touched Lotus skill when the local profile will consume the
+   new guidance in the same work session,
+6. explicit no-wiki-change decision unless repo-local `wiki/` source changed,
+7. any follow-up needed when a repeated failure should become a deterministic gate or evaluator
+   case rather than more prose guidance.
+
+If the bootstrap or alignment validation reports stale deployed skills, fix the sync issue before
+claiming the skill improvement is usable by future agents.
+
 ## PR Evidence
 
 For CI-enforcement PRs, include:
