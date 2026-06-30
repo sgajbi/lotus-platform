@@ -52,6 +52,15 @@ When the user says "continue", "next issues", "check this lens", "make the skill
 or otherwise expects ongoing review, run the campaign without asking for more instructions unless
 the target repository or GitHub issue target is genuinely ambiguous.
 
+Assume future agents may have no useful chat history. Reconstruct campaign state from durable
+sources, not memory:
+
+1. the target repository branch and worktree,
+2. the app's GitHub issue-discovery ledger,
+3. current open issue-discovery issues and active PRs,
+4. repo/platform/docs context for the selected lens,
+5. current code, tests, contracts, workflows, docs, and runtime evidence.
+
 Use this default behavior:
 
 1. infer the target repository from the current working directory, explicit repo name, or latest
@@ -68,6 +77,8 @@ Use this default behavior:
    acceptance criteria;
 10. update the ledger after every pass, including no-issue decisions and blocked-by-active-fix
     states.
+11. answer "are we done?" and "should we move apps?" from ledger coverage, active-fix blockers,
+    open issue posture, and remaining high-value lenses, not from the number of issues raised.
 
 If the user gives a time box, optimize for complete lens passes over issue count. If a finding needs
 more proof than the time box allows, record it as residual risk and continue with the next most
@@ -99,7 +110,10 @@ Use this algorithm when a future agent has only the skill and the user's latest 
     duplicate checks are complete, or record why nothing met the bar.
 11. **Update ledger**: add a compact comment with status, proof flags, inspected paths, duplicate
     searches, issue numbers, active blockers, residual risk, and next lens.
-12. **Report**: tell the user which lens was covered, what was filed or declined, current worktree
+12. **Maintain the skill**: when the pass reveals a repeatable review failure, update the
+    platform-owned skill source, validate, sync, and PR the skill improvement instead of relying on
+    chat memory.
+13. **Report**: tell the user which lens was covered, what was filed or declined, current worktree
     state, and the recommended next lens or app handoff point.
 
 If any step cannot be completed, record the reason in the ledger and continue with the next
@@ -140,6 +154,12 @@ For a multi-turn review, a time-boxed defect-discovery run, or a request to "wor
 `references/campaign-playbook.md` before inspecting code. That playbook is the operational runbook
 for start/resume decisions, lens sequencing, issue filing, ledger updates, active-fix handling,
 user status updates, and skill self-improvement.
+
+When the request asks to make this skill stronger, use `skill-creator` and
+`lotus-ci-enforcement-governance`, update the canonical source under
+`lotus-platform/codex/skills/lotus-app-issue-discovery`, run the skill validation and Lotus skill
+alignment/sync checks, open a PR, and sync the local deployed skill from platform source. Do not
+hand-edit the local deployed skill as the source of truth.
 
 Use `references/review-lenses.md` to translate user wording into canonical labels. For example,
 "business logic out of routers" maps to `lens/api-design-governance`, `lens/application-layer`,
