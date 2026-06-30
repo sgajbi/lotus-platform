@@ -34,14 +34,16 @@ Load the smallest correct context set:
 7. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
 8. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend issue lenses
 9. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-10. relevant docs repo knowledge-base pages from `<workspace-root>/docs`, especially product,
-   technical, data-model, transaction/position lifecycle, methodology, API, security,
-   observability, DevOps, and operations references that match the lens
+10. relevant docs knowledge-base pages from the sibling repository `<workspace-root>/docs` when
+   present, especially product, technical, data-model, transaction/position lifecycle, methodology,
+   API, security, observability, DevOps, and operations references that match the lens
 11. app-specific RFCs, standards, methodology docs, or source contracts when the lens needs them
 
-Use the docs repo knowledge base, Lotus platform context, repository engineering context, and
-`ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the standard for review. Do not treat local code
-convention as sufficient when it contradicts those sources.
+Use the sibling docs repo knowledge base when present, Lotus platform context, repository
+engineering context, and `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the standard for
+review. Do not treat local code convention as sufficient when it contradicts those sources. If the
+docs repo is absent from the workspace, record that context gap in the ledger and do not claim a
+docs-backed review for that lens.
 
 For the lens catalog, read `references/review-lenses.md`. Also use that file for canonical GitHub
 label names. For a reusable campaign ledger shape, read
@@ -50,8 +52,8 @@ discovery campaign.
 
 ## Docs Knowledge Routing
 
-Use the docs repository as a knowledge base, not as decorative background. Load only the pages that
-match the current lens:
+Use the sibling docs repository at `<workspace-root>/docs` as a knowledge base, not as decorative
+background. Load only the pages that match the current lens:
 
 - product, lifecycle, transaction, position, cash-flow, instrument-static, source-ownership, and
   calculation lenses: `docs/docs/products/`
