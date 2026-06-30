@@ -51,6 +51,7 @@ REQUIRED_SKILL_REFERENCES = {
         "docs repo knowledge base",
         "references/review-lenses.md",
         "references/lens-coverage-ledger-template.md",
+        "references/campaign-playbook.md",
         "scripts/ensure_issue_discovery_labels.py",
     ],
     "platform-automation-ops": [
