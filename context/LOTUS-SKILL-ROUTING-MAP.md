@@ -20,11 +20,12 @@ When multiple Lotus skills appear relevant, choose in this order:
 
 1. front-office runtime and populated product-surface proof,
 2. app-wide demo readiness certification,
-3. platform or backend validation,
-4. CI-enforcement and quality-gate design,
-5. repo-local frontend or backend delivery governance,
-6. PR merge and CI fix-forward workflows,
-7. RFC/governance/documentation-only workflows.
+3. no-code issue-discovery campaigns that should inspect and raise GitHub issues without editing implementation code,
+4. platform or backend validation,
+5. CI-enforcement and quality-gate design,
+6. repo-local frontend or backend delivery governance,
+7. PR merge and CI fix-forward workflows,
+8. RFC/governance/documentation-only workflows.
 
 This prevents broad generic skills from intercepting more specific governed runtime tasks.
 

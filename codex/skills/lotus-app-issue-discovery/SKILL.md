@@ -29,13 +29,15 @@ Load the smallest correct context set:
 2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
 3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 4. target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
-6. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend issue lenses
-7. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-8. relevant docs repo knowledge-base pages from `<workspace-root>/docs`, especially product,
+5. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
+6. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` for long-running campaign execution
+7. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
+8. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend issue lenses
+9. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+10. relevant docs repo knowledge-base pages from `<workspace-root>/docs`, especially product,
    technical, data-model, transaction/position lifecycle, methodology, API, security,
    observability, DevOps, and operations references that match the lens
-9. app-specific RFCs, standards, methodology docs, or source contracts when the lens needs them
+11. app-specific RFCs, standards, methodology docs, or source contracts when the lens needs them
 
 Use the docs repo knowledge base, Lotus platform context, repository engineering context, and
 `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the standard for review. Do not treat local code
