@@ -34,9 +34,9 @@ Load the smallest correct context set:
 7. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
 8. app-specific RFCs, standards, methodology docs, or docs repo knowledge only when the lens needs them
 
-For the lens catalog, read `references/review-lenses.md`. For a reusable campaign ledger shape,
-read `references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
-discovery campaign.
+For the lens catalog and canonical GitHub label names, read `references/review-lenses.md`. For a
+reusable campaign ledger shape, read `references/lens-coverage-ledger-template.md` when starting or
+resuming a multi-lens defect discovery campaign.
 
 ## Workflow
 
@@ -61,6 +61,7 @@ slice. Use a temp note only as a short-lived draft before creating or updating t
 issue. Track:
 
 - lens name,
+- canonical lens label,
 - status: `Not Started`, `In Review`, `Issues Raised`, `Blocked By Active Fix`, `Needs Recheck`,
   or `Covered For Now`,
 - issue numbers raised or existing issues reused,
@@ -159,6 +160,29 @@ Keep titles specific and implementation-oriented:
 - good: `Move Kafka event payload mapping into explicit event adapters instead of inline consumers and repositories`
 - weak: `Improve events`
 
+Apply labels while creating issues:
+
+1. use the canonical lens label from `references/review-lenses.md`, for example
+   `lens/api-design-governance` or `lens/security-privacy`,
+2. add `issue-discovery` to every issue created by this skill,
+3. add one optional impact label only when it materially improves triage, such as
+   `impact/correctness`, `impact/security`, `impact/operability`, `impact/performance`, or
+   `impact/architecture`,
+4. create missing labels in the target repository before issue creation instead of filing unlabeled
+   issues,
+5. do not invent app-local lens labels when a canonical label exists.
+
+Use stable GitHub CLI labels, for example:
+
+```powershell
+gh label create "lens/api-design-governance" --repo <owner>/<repo> --color "1f6feb" --description "Issue-discovery lens: API design, routing, OpenAPI, pagination, filtering, sorting, and errors" --force
+gh label create "issue-discovery" --repo <owner>/<repo> --color "6f42c1" --description "Raised from a governed Lotus issue-discovery review" --force
+gh issue create --repo <owner>/<repo> --title "<title>" --body-file <body.md> --label "issue-discovery" --label "lens/api-design-governance" --label "impact/operability"
+```
+
+When updating existing issues discovered earlier, add the canonical labels if the issue clearly maps
+to one lens. Do not relabel unrelated or ambiguous issues in bulk.
+
 ### 6. Verify And Summarize
 
 After filing:
@@ -166,15 +190,18 @@ After filing:
 1. list the created issue numbers,
 2. re-check `git status --short --branch`,
 3. state whether files were edited,
-4. update the app's GitHub issue-discovery ledger issue or state why no durable ledger update was
+4. confirm which lens and impact labels were applied,
+5. update the app's GitHub issue-discovery ledger issue or state why no durable ledger update was
    made,
-5. summarize the lens covered and remaining logical next lens.
+6. summarize the lens covered and remaining logical next lens.
 
 ## Issue Body Template
 
 ```markdown
 ## Lens
 <lens name>
+
+Labels: `issue-discovery`, `lens/<canonical-lens-label>`, `impact/<optional-impact>`
 
 ## Finding
 <specific finding in current implementation>
