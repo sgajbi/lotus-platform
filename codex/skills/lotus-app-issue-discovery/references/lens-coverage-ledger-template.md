@@ -57,7 +57,7 @@ Use `Y/N` proof flags:
 | Mapping and anti-corruption | `lens/mapping-anti-corruption` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Unit of work and transactions | `lens/unit-of-work-transactions` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Event and outbox contracts | `lens/event-outbox-contracts` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
-| Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Data mesh, data product, and trust telemetry contracts | `lens/data-product-trust-telemetry` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Capability and supported-feature publication | `lens/capability-publication` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Evidence and proof contracts | `lens/evidence-proof-contracts` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Source contract and dependency semantics | `lens/source-contract-dependency-semantics` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
@@ -69,16 +69,18 @@ Use `Y/N` proof flags:
 | Domain vocabulary | `lens/domain-vocabulary` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Validation and idempotency | `lens/validation-idempotency` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Auditability and lineage | `lens/auditability-lineage` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
-| Observability | `lens/observability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Monitoring and observability | `lens/observability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Security and privacy | `lens/security-privacy` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Resilience | `lens/resilience` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Performance and scalability | `lens/performance-scalability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Testing quality | `lens/testing-quality` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | CI and release evidence | `lens/ci-release-evidence` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
-| Documentation and runbooks | `lens/documentation-runbooks` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Documentation, wiki, README, and runbooks | `lens/documentation-runbooks` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Operational supportability | `lens/operational-supportability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Dead code and duplicate logic | `lens/dead-code-duplication` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Dependency hygiene and supply chain | `lens/dependency-hygiene` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Repo organization | `lens/repo-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Agents/context organization | `lens/agents-context-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 
 ## Per-Lens Note Shape
 

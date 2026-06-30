@@ -23,7 +23,7 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Mapping and anti-corruption | `lens/mapping-anti-corruption` |
 | Unit of work and transactions | `lens/unit-of-work-transactions` |
 | Event and outbox contracts | `lens/event-outbox-contracts` |
-| Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` |
+| Data mesh, data product, and trust telemetry contracts | `lens/data-product-trust-telemetry` |
 | Capability and supported-feature publication | `lens/capability-publication` |
 | Evidence and proof contracts | `lens/evidence-proof-contracts` |
 | Source contract and dependency semantics | `lens/source-contract-dependency-semantics` |
@@ -35,16 +35,18 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Domain vocabulary | `lens/domain-vocabulary` |
 | Validation and idempotency | `lens/validation-idempotency` |
 | Auditability and lineage | `lens/auditability-lineage` |
-| Observability | `lens/observability` |
+| Monitoring and observability | `lens/observability` |
 | Security and privacy | `lens/security-privacy` |
 | Resilience | `lens/resilience` |
 | Performance and scalability | `lens/performance-scalability` |
 | Testing quality | `lens/testing-quality` |
 | CI and release evidence | `lens/ci-release-evidence` |
-| Documentation and runbooks | `lens/documentation-runbooks` |
+| Documentation, wiki, README, and runbooks | `lens/documentation-runbooks` |
 | Operational supportability | `lens/operational-supportability` |
 | Dead code and duplicate logic | `lens/dead-code-duplication` |
 | Dependency hygiene and supply chain | `lens/dependency-hygiene` |
+| Repo organization | `lens/repo-organization` |
+| Agents/context organization | `lens/agents-context-organization` |
 
 Use these cross-cutting labels when useful:
 
@@ -74,7 +76,7 @@ Use these cross-cutting labels when useful:
 | Mapping and anti-corruption | API DTO <-> command/result, ORM/read row <-> record, event payload <-> model, response assembly | inline event serialization, untyped row mapping, source-data builders mixing mapping and policy |
 | Unit of work and transactions | DB session lifecycle, repository commits, multi-write workflows | partial commits, inconsistent rollback behavior, race-prone claim/update/write flows |
 | Event and outbox contracts | events, topics, schema versions, DLQ, replay, idempotency, outbox emission | schema drift, direct Kafka publishing, weak poison-message handling, missing duplicate-delivery tests |
-| Data product and trust telemetry contracts | domain data-product declarations, trust telemetry snapshots, producer/consumer declarations, platform catalog validators | governed product declarations without runtime trust proof, missing freshness/lineage/blocking evidence, stale approved-consumer truth |
+| Data mesh, data product, and trust telemetry contracts | domain data-product declarations, trust telemetry snapshots, producer/consumer declarations, platform catalog validators, mesh catalog publication, SLO/access/evidence policies | governed product declarations without runtime trust proof, missing freshness/lineage/blocking evidence, stale approved-consumer truth, mesh catalog entries not backed by runtime evidence |
 | Capability and supported-feature publication | supported-feature ledgers, capability registries, Gateway publication, Workbench consumption, README/wiki feature claims, demo/publication contracts | published features without implemented or certified endpoints, stale Workbench/Gateway capability truth, UI-visible claims backed by unsupported behavior |
 | Evidence and proof contracts | implementation proofs, certification artifacts, scorecards, validation outputs, generated evidence packs, proof schemas, evidence lineage | proof artifacts not reproducible from current code, unbounded/manual evidence, stale scorecards, missing evidence fingerprints or contract provenance |
 | Source contract and dependency semantics | upstream source products consumed by the app, required trust metadata, source lifecycle identity, restatement/version/correction semantics | consumer contracts missing source-event identity, lifecycle/correction fields lost during normalization, fail-open dependency posture |
@@ -86,16 +88,18 @@ Use these cross-cutting labels when useful:
 | Domain vocabulary | names in APIs, models, fields, docs, metrics, tests | ambiguous `client_id`, generic status names, non-standard transaction/instrument terms |
 | Validation and idempotency | request validation, duplicate handling, idempotency keys, conflict semantics | same key/different payload not rejected, weak replay/correction validation, missing bounded error codes |
 | Auditability and lineage | audit records, source batch, correlation IDs, evidence fingerprints | missing source identity, raw payload retention, no correlation chain across event/API/DB |
-| Observability | structured logs, metrics, traces, health/readiness, diagnostics | raw logging, sensitive labels, missing route templates, health not dependency-aware |
+| Monitoring and observability | structured logs, metrics, traces, health/readiness, diagnostics, alert rules, dashboards, SLO/error-budget evidence | raw logging, sensitive labels, missing route templates, health not dependency-aware, no alert/dashboard path for critical failures |
 | Security and privacy | authn/authz, CORS, headers, secrets, sensitive data, API abuse controls | missing authorization boundaries, unsafe CORS, secret leakage, raw exception exposure |
 | Resilience | timeouts, retries, backoff, circuit breaking, graceful degradation | unbounded retries, no timeout budget, inconsistent downstream error mapping |
 | Performance and scalability | indexes, query shape, batching, pagination, caching, connection pooling | N+1 queries, unbounded scans, missing indexes, repeated expensive processing |
 | Testing quality | unit, integration, contract, API, security, regression, e2e, test taxonomy | mock-only tests, missing contract tests, no edge cases, weak mapper/lifecycle/calculation golden tests |
 | CI and release evidence | Make/NPM targets, GitHub Actions lanes, security scans, coverage, Docker/runtime proof, release evidence, branch hygiene | workflows bypass repo-native targets, soft-failed critical gates, no main releasability evidence, stale wiki/context truth |
-| Documentation and runbooks | README, repo context, architecture docs, API catalog, RFCs, wiki, supported features | docs claim unsupported behavior, stale commands, missing operator diagnostics, unlinked issues |
+| Documentation, wiki, README, and runbooks | README, repo context, architecture docs, API catalog, RFCs, wiki, supported features, docs regression tests | docs claim unsupported behavior, stale commands, missing operator diagnostics, unlinked issues, wiki/README truth drifting from implementation |
 | Operational supportability | runbooks, dashboards, alerts, replay/recovery, support APIs | no safe operator view, weak stuck-state diagnostics, missing replay evidence |
 | Dead code and duplicate logic | stale modules, duplicate builders, unused routes, abandoned tests, repeated policy logic, conflicting helper paths | unsupported behavior still reachable, duplicate rules drifting apart, obsolete code confusing ownership, tests exercising dead paths |
 | Dependency hygiene and supply chain | dependency manifests, lockfiles, scanner config, import usage, transitive risk, license posture | vulnerable or unpinned dependencies, unused heavy packages, scanner blind spots, dependency drift across runtime and CI |
+| Repo organization | repository layout, source tree, generated artifacts, cleanup scripts, local byproduct policy, repo hygiene gates, script and quality-artifact organization | generated/runtime artifacts not aligned with cleanup policy, source/generated truth mixed, stale or confusing top-level layout, repo hygiene gaps letting agent byproducts become source truth |
+| Agents/context organization | `AGENTS.md`, repo context, platform context cross-links, skill routing, procedural memory, agent onboarding paths, local/deployed skill source alignment | mandatory reading order not discoverable, repo context bypasses skill routing, local skill drift, procedural memory missing for repeated work |
 
 ## Baseline Lens Queue
 
@@ -105,12 +109,13 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 1. Existing issues, active branches, repository context, and ledger posture.
 2. Architecture boundaries, runtime composition, API/application/domain/ports/infrastructure layers.
 3. API design, HTTP boundary controls, validation, idempotency, auditability, and lineage.
-4. Data model, database operations, source contracts, data products, capability publication,
+4. Data model, database operations, source contracts, data mesh/data products, capability publication,
    evidence/proof contracts, downstream integration.
 5. Product/domain lenses: vocabulary, calculations, methodology, transaction lifecycle, position lifecycle.
-6. Reliability lenses: events/outbox, resilience, performance/scalability, observability, operational supportability.
-7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/runbooks.
-8. Dead-code/duplication and dependency-hygiene passes when prior lenses reveal stale paths,
+6. Reliability lenses: events/outbox, resilience, performance/scalability, monitoring/observability, operational supportability.
+7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/wiki/README/runbooks.
+8. Repo organization and agents/context organization where layout, generated-artifact policy, agent onboarding, or skill-routing discoverability affects future implementation quality.
+9. Dead-code/duplication and dependency-hygiene passes when prior lenses reveal stale paths,
    repeated logic, vulnerable dependencies, or cleanup work with real behavioral or supportability
    impact.
 
@@ -128,7 +133,7 @@ points, not exemptions from the baseline queue.
 | Workflow service such as `lotus-advise`, `lotus-manage`, `lotus-report`, or `lotus-idea` | lifecycle state transitions, idempotency, event/outbox, proof/evidence, operational supportability, capability publication |
 | Experience/composition service such as `lotus-gateway` | API governance, downstream integration, mapping/anti-corruption, authorization, fan-out resilience, capability publication |
 | Product UI such as `lotus-workbench` | Gateway/BFF consumption, supported-feature truth, entitlement/error states, observability, accessibility/usability defects that hide backend truth |
-| Platform/governance repository such as `lotus-platform` | CI/release evidence, standards/contracts, scaffold drift, skill/context routing, validation automation, docs/wiki truth |
+| Platform/governance repository such as `lotus-platform` | CI/release evidence, standards/contracts, scaffold drift, repo organization, skill/context routing, agents/context organization, validation automation, docs/wiki truth |
 
 For any profile, verify the app's current `REPOSITORY-ENGINEERING-CONTEXT.md` before filing. If the
 profile and repo context disagree, use repo context as the ownership boundary and record the
@@ -191,16 +196,20 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "race conditions" | `lens/unit-of-work-transactions`, `lens/database-operations`, `lens/event-outbox-contracts` | claim/lease flows, uniqueness constraints, row locks, transaction scopes, outbox delivery tests |
 | "unnecessary data processing", "lack of correct logic", "batching/caching" | `lens/performance-scalability`, `lens/database-operations` | repeated full scans, N+1 reads, missing filters/indexes, pagination, cache invalidation, batch APIs |
 | "logging, tracing, monitoring" | `lens/observability`, `lens/operational-supportability` | structured logs, metrics, trace propagation, route templates, health/readiness, runbooks |
+| "monitoring, alerts, dashboards, metrics, SLOs" | `lens/observability`, `lens/operational-supportability` | metric contracts, alert rules, dashboards, SLO/error-budget evidence, runbooks, health/readiness behavior |
 | "security, vulnerabilities, auth, CORS, headers, secrets" | `lens/security-privacy`, `lens/configuration-secrets`, `lens/http-boundary-controls` | authn/authz, secret handling, config defaults, sensitive data exposure, abuse controls |
 | "database operations, indexes, performance" | `lens/database-operations`, `lens/performance-scalability`, `lens/data-model-quality` | migrations, query paths, indexes/constraints, hot filters/sorts, pooling/timeouts |
 | "domain modeling and private banking vocabulary" | `lens/domain-vocabulary`, `lens/domain-layer`, `lens/data-model-quality` | API/model/field names, status/state terms, docs vocabulary, product taxonomy alignment |
 | "transactions, lifecycle handling, positions" | `lens/transaction-lifecycle`, `lens/position-lifecycle`, `lens/data-model-quality` | linked legs, cash/security side, corrections/reversals, settlements, corporate actions, lots, availability |
 | "calculations" | `lens/calculations-methodology` | methodology docs, Decimal/rounding, FX, accrued interest, cost basis, income, cashflow, golden tests |
 | "CI, quality gates, release evidence" | `lens/ci-release-evidence`, `lens/testing-quality` | Make targets, workflows, continue-on-error, timeout-minutes, coverage, security scans, main release proof |
-| "README, wiki, architecture docs, API catalog, runbooks" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source |
+| "data mesh", "data product", "catalog", "producer/consumer declarations", "trust telemetry" | `lens/data-product-trust-telemetry`, `lens/source-contract-dependency-semantics` | data-product declarations, mesh catalog publication, producer/consumer policy, trust telemetry, freshness/lineage/SLO/access evidence |
+| "repo organization", "repository layout", "generated artifacts", "cleanup policy", "script organization", "repository hygiene" | `lens/repo-organization`, `lens/dead-code-duplication`, `lens/ci-release-evidence` | top-level layout, generated-artifact paths, `.gitignore`, `.dockerignore`, clean scripts, Make targets, hygiene gates, source-vs-output boundaries |
+| "agents", "agent context", "AGENTS.md", "skill routing", "procedural memory", "future agents should know what to read" | `lens/agents-context-organization`, `lens/documentation-runbooks`, `lens/ci-release-evidence` | `AGENTS.md`, repo engineering context, platform context links, skill routing map, procedural memory, local/deployed skill alignment, onboarding docs |
+| "README, wiki, architecture docs, API catalog, runbooks", "documentation truth" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source, docs regression tests |
 | "dead code", "duplicate logic", "stale code", "obsolete paths", "cleanup with impact" | `lens/dead-code-duplication`, `lens/architecture-boundaries`, `lens/testing-quality` | unused routes/modules/tests, duplicate rules or builders, unreachable adapters, divergent helpers, stale docs or workflows still referencing removed behavior |
 | "dependencies", "vulnerable packages", "supply chain", "lockfile", "dependency hygiene" | `lens/dependency-hygiene`, `lens/security-privacy`, `lens/ci-release-evidence` | manifests, lockfiles, scanner workflows, import usage, vulnerability output, dependency policy docs |
-| "skill should work like you", "make issue discovery reusable", "future agents should know what to do" | `lens/ci-release-evidence`, `lens/documentation-runbooks` for the platform skill source, or no app issue when it is a skill-maintenance slice | skill source, routing map, campaign playbook, ledger template, validation/sync commands, PR proof pack |
+| "skill should work like you", "make issue discovery reusable", "future agents should know what to do" | `lens/agents-context-organization`, `lens/ci-release-evidence`, `lens/documentation-runbooks` for the platform skill source, or no app issue when it is a skill-maintenance slice | skill source, routing map, campaign playbook, ledger template, validation/sync commands, PR proof pack |
 
 ## Finding Decision Tree
 
@@ -242,6 +251,8 @@ Use these anchors to make issues practical:
 | Observability/support | log/metric/trace/health/readiness/runbook path and missing diagnostic outcome |
 | Testing/CI | exact test family, Make target, workflow, gate, or release-evidence path |
 | Documentation | current-state claim, missing operator instruction, stale RFC/wiki/API catalog link |
+| Repo organization | layout, generated-artifact, cleanup script, ignore file, Make target, or hygiene-gate path |
+| Agents/context organization | `AGENTS.md`, repo context, skill-routing, procedural-memory, onboarding, or local skill sync path |
 | Dead-code/duplication | stale or duplicate path plus evidence that it is still imported, tested, published, or confusing ownership |
 | Dependency hygiene | dependency declaration or scanner path plus import/runtime/CI evidence that the dependency posture matters |
 
@@ -325,6 +336,19 @@ rg -n "timeout|retry|backoff|sleep|while True|gather|Semaphore|pool|cache|batch|
 
 ```powershell
 rg -n "pytest|make |npm run|continue-on-error|timeout-minutes|permissions:|pull_request_target|coverage|docker|trivy|bandit|pip-audit|main-releasability|merge gate" .github Makefile package.json pyproject.toml docs wiki --glob "*.yml" --glob "*.yaml" --glob "*.md" --glob "Makefile" --glob "*.toml" --glob "*.json"
+```
+
+### Repo Organization And Cleanup
+
+```powershell
+rg -n "clean_generated_artifacts|repository-hygiene|output/|artifacts/|lineage_data|generated|source of truth|Makefile|quality/" .gitignore .dockerignore Makefile docs wiki scripts automation quality --glob "*.md" --glob "*.py" --glob "*.ps1" --glob "*.yml" --glob "*.yaml" --glob "Makefile"
+rg --files | rg "^(artifacts|output|lineage_data|quality|scripts|automation|docs|wiki|src|tests)/|README.md|AGENTS.md|REPOSITORY-ENGINEERING-CONTEXT.md|Makefile|\\.gitignore|\\.dockerignore"
+```
+
+### Agents And Context Organization
+
+```powershell
+rg -n "AGENTS.md|REPOSITORY-ENGINEERING-CONTEXT|LOTUS-SKILL-ROUTING|PROCEDURAL-MEMORY|mandatory reading|agent|context|skill routing|deployed skill|local skill" AGENTS.md README.md REPOSITORY-ENGINEERING-CONTEXT.md docs wiki .github --glob "*.md" --glob "*.yml" --glob "*.yaml"
 ```
 
 ### Dead Code, Duplicate Logic, And Dependency Hygiene
