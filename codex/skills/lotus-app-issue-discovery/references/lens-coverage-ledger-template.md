@@ -19,16 +19,21 @@ The ledger is a navigation aid, not a substitute for code inspection or duplicat
 | Lens | Label | Status | Issues | Code Areas Inspected | Remaining Questions / Residual Risk | Last Reviewed |
 | --- | --- | --- | --- | --- | --- | --- |
 | Architecture boundaries | `lens/architecture-boundaries` | Not Started | - | - | - | - |
+| Runtime composition | `lens/runtime-composition` | Not Started | - | - | - | - |
 | API design and governance | `lens/api-design-governance` | Not Started | - | - | - | - |
+| HTTP boundary controls | `lens/http-boundary-controls` | Not Started | - | - | - | - |
 | Application layer | `lens/application-layer` | Not Started | - | - | - | - |
 | Domain layer | `lens/domain-layer` | Not Started | - | - | - | - |
 | Ports and adapters | `lens/ports-adapters` | Not Started | - | - | - | - |
 | Infrastructure | `lens/infrastructure` | Not Started | - | - | - | - |
+| Configuration and secrets | `lens/configuration-secrets` | Not Started | - | - | - | - |
+| Downstream integration | `lens/downstream-integration` | Not Started | - | - | - | - |
 | Mapping and anti-corruption | `lens/mapping-anti-corruption` | Not Started | - | - | - | - |
 | Unit of work and transactions | `lens/unit-of-work-transactions` | Not Started | - | - | - | - |
 | Event and outbox contracts | `lens/event-outbox-contracts` | Not Started | - | - | - | - |
 | Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` | Not Started | - | - | - | - |
 | Source contract and dependency semantics | `lens/source-contract-dependency-semantics` | Not Started | - | - | - | - |
+| Database operations | `lens/database-operations` | Not Started | - | - | - | - |
 | Data model quality | `lens/data-model-quality` | Not Started | - | - | - | - |
 | Transaction lifecycle | `lens/transaction-lifecycle` | Not Started | - | - | - | - |
 | Position lifecycle | `lens/position-lifecycle` | Not Started | - | - | - | - |
@@ -41,6 +46,7 @@ The ledger is a navigation aid, not a substitute for code inspection or duplicat
 | Resilience | `lens/resilience` | Not Started | - | - | - | - |
 | Performance and scalability | `lens/performance-scalability` | Not Started | - | - | - | - |
 | Testing quality | `lens/testing-quality` | Not Started | - | - | - | - |
+| CI and release evidence | `lens/ci-release-evidence` | Not Started | - | - | - | - |
 | Documentation and runbooks | `lens/documentation-runbooks` | Not Started | - | - | - | - |
 | Operational supportability | `lens/operational-supportability` | Not Started | - | - | - | - |
 
