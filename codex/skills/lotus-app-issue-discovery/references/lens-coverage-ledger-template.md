@@ -27,6 +27,8 @@ The ledger is a navigation aid, not a substitute for code inspection or duplicat
 | Mapping and anti-corruption | Not Started | - | - | - | - |
 | Unit of work and transactions | Not Started | - | - | - | - |
 | Event and outbox contracts | Not Started | - | - | - | - |
+| Data product and trust telemetry contracts | Not Started | - | - | - | - |
+| Source contract and dependency semantics | Not Started | - | - | - | - |
 | Data model quality | Not Started | - | - | - | - |
 | Transaction lifecycle | Not Started | - | - | - | - |
 | Position lifecycle | Not Started | - | - | - | - |
