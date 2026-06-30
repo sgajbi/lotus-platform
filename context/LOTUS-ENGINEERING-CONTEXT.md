@@ -641,6 +641,11 @@ This means:
 2. treat latency and performance regressions as product quality issues,
 3. keep Docker, ingress, runtime, and validation paths repeatable,
 4. provide evidence for readiness through CI artifacts, validation summaries, and truthful checks.
+5. keep CI/runtime service membership in canonical service-set registries when a repository has
+   one, and make scripts/tests consume those registries rather than copying command lists. Runtime
+   gates that need bootstrap services such as migrations, topic creation, seed loaders, or
+   control-plane one-shot containers should add them once to the shared set and let latency, E2E,
+   performance, failure-recovery, and institutional validation inherit the same truth.
 
 ## Naming And Vocabulary Standards
 
