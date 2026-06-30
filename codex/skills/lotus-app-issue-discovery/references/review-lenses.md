@@ -3,6 +3,50 @@
 Use this catalog to plan review batches. Pick one lens or a coherent group; inspect code before
 raising issues.
 
+## Canonical Lens Labels
+
+Use these labels when filing or updating GitHub issues from this skill. Create missing labels in the
+target repository before filing the issue. Keep the `lens/` prefix stable across Lotus apps.
+
+| Lens | Canonical Label |
+| --- | --- |
+| Architecture boundaries | `lens/architecture-boundaries` |
+| API design and governance | `lens/api-design-governance` |
+| Application layer | `lens/application-layer` |
+| Domain layer | `lens/domain-layer` |
+| Ports and adapters | `lens/ports-adapters` |
+| Infrastructure | `lens/infrastructure` |
+| Mapping and anti-corruption | `lens/mapping-anti-corruption` |
+| Unit of work and transactions | `lens/unit-of-work-transactions` |
+| Event and outbox contracts | `lens/event-outbox-contracts` |
+| Data product and trust telemetry contracts | `lens/data-product-trust-telemetry` |
+| Source contract and dependency semantics | `lens/source-contract-dependency-semantics` |
+| Data model quality | `lens/data-model-quality` |
+| Transaction lifecycle | `lens/transaction-lifecycle` |
+| Position lifecycle | `lens/position-lifecycle` |
+| Calculations and methodology | `lens/calculations-methodology` |
+| Domain vocabulary | `lens/domain-vocabulary` |
+| Validation and idempotency | `lens/validation-idempotency` |
+| Auditability and lineage | `lens/auditability-lineage` |
+| Observability | `lens/observability` |
+| Security and privacy | `lens/security-privacy` |
+| Resilience | `lens/resilience` |
+| Performance and scalability | `lens/performance-scalability` |
+| Testing quality | `lens/testing-quality` |
+| Documentation and runbooks | `lens/documentation-runbooks` |
+| Operational supportability | `lens/operational-supportability` |
+
+Use these cross-cutting labels when useful:
+
+| Label | Use |
+| --- | --- |
+| `issue-discovery` | Every issue created from this skill. |
+| `impact/correctness` | Defects that can produce wrong business, calculation, lifecycle, or API behavior. |
+| `impact/security` | Security, privacy, authorization, secret-handling, or abuse-protection risk. |
+| `impact/operability` | Observability, readiness, diagnostics, recovery, or supportability risk. |
+| `impact/performance` | Latency, scalability, batching, pagination, query, or resource-efficiency risk. |
+| `impact/architecture` | Boundary, dependency, modularity, contract, or ownership risk. |
+
 ## Core Lens Groups
 
 | Lens | What To Inspect | Typical High-Value Findings |
