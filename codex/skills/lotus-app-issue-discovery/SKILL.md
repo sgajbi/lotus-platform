@@ -25,6 +25,10 @@ creation.
 
 Act like a senior Lotus review lead, not a bug-title generator.
 
+Execute as if the next implementation agent will only see the GitHub issue and the ledger. Preserve
+the reasoning that normally lives in chat: what was inspected, what standard was applied, why the
+target repo owns the issue, what duplicate searches were run, and what would prove the fix complete.
+
 Default to execution. When the user asks to continue a campaign, strengthen the skill, find issues,
 check a lens, or decide whether to move apps, do not stop at a plan. Rebuild state from durable
 sources, inspect evidence, file or decline issues, update the ledger, and report the next useful
@@ -74,6 +78,10 @@ Think in campaign outcomes:
    needs recheck;
 4. `ledger-only`: the observation is useful but not issue-worthy yet;
 5. `covered`: the lens has enough representative proof for the current campaign depth.
+
+Never optimize for issue count. Optimize for campaign truth: complete lens passes,
+implementation-ready defects, clear labels, and a ledger that lets the user decide whether to keep
+reviewing, wait for fixes, recheck after merges, or move to another app.
 
 ## Autonomous Campaign Contract
 
@@ -147,11 +155,36 @@ Use this algorithm when a future agent has only the skill and the user's latest 
 12. **Maintain the skill**: when the pass reveals a repeatable review failure, update the
     platform-owned skill source, validate, sync, and PR the skill improvement instead of relying on
     chat memory.
-13. **Report**: tell the user which lens was covered, what was filed or declined, current worktree
+13. **Improve the knowledge base**: when the pass reveals a reusable domain or technical standard
+    gap, update the docs knowledge base in a separate KB-maintenance slice instead of burying the
+    lesson in an app issue or chat memory.
+14. **Report**: tell the user which lens was covered, what was filed or declined, current worktree
     state, and the recommended next lens or app handoff point.
 
 If any step cannot be completed, record the reason in the ledger and continue with the next
 defensible action. Do not silently skip duplicate searches, standards lookup, or ledger updates.
+
+### Senior Reviewer Decision Loop
+
+For every candidate, walk this loop before creating an issue:
+
+1. **Current truth**: prove the behavior in current source, tests, docs, contracts, workflow,
+   migrations, generated contract output, or runtime evidence. Do not rely on old chat or stale
+   memory.
+2. **Expected truth**: tie the expected behavior to target repo context, platform context, the
+   refactoring playbook, bank-buyable contract, docs KB, RFC/contract, or a recognized domain or
+   technical standard.
+3. **Owner truth**: state why this repo owns the fix or why this repo's publication/consumer
+   contract makes the issue actionable here.
+4. **Duplicate truth**: search open and closed GitHub issues with lens terms and concrete symbols.
+   Reuse, comment, or link instead of filing when the root cause is already covered.
+5. **Fixability truth**: make the implementation slice small enough to start and acceptance
+   criteria testable enough to finish.
+6. **Campaign truth**: update the ledger whether the outcome is new issue, reused issue, blocked
+   active fix, residual risk, or no issue.
+
+If any truth is missing, inspect one more bounded path or ledger the gap. Do not file a weak issue
+just because the user asked for a count.
 
 ### Fast Autopilot Checklist
 
@@ -168,6 +201,11 @@ Run this checklist for ordinary "continue", "next issues", and "check this lens"
 9. Ensure labels, then create or reuse one issue per root cause.
 10. Comment on the ledger with status, proof flags, inspected paths, searches, issues, blockers,
     residual risk, and next recommendation.
+11. If the pass exposes a repeatable review-process weakness, update this platform-owned skill in a
+    separate skill-maintenance slice and sync the local deployed copy after validation.
+12. If the pass exposes missing reusable product, domain, technical, API, security, observability,
+    testing, or operating-model knowledge, update the docs knowledge base in a separate
+    KB-maintenance slice and reference it from future issue standards.
 
 If a step produces "nothing to file", still update the ledger so campaign coverage remains visible.
 
@@ -223,6 +261,11 @@ maps to `lens/unit-of-work-transactions`, `lens/database-operations`,
 publication", "Gateway capability", or "what the app claims it supports" maps to
 `lens/capability-publication`; "proof artifacts", "certification evidence", "scorecards", or
 "implementation proof" maps to `lens/evidence-proof-contracts`.
+For "dead code", "duplicate logic", "stale code paths", or "cleanup that affects maintainability",
+use `lens/dead-code-duplication` only when the evidence has behavioral, supportability, test,
+security, or ownership impact; do not file taste-only cleanup issues. For dependency, package,
+scanner, lockfile, vulnerable transitive dependency, or supply-chain posture, use
+`lens/dependency-hygiene` unless the concrete issue is primarily runtime security behavior.
 
 ## Docs Knowledge Routing
 
@@ -275,6 +318,10 @@ Use this review-standard stack in order:
 
 If these sources conflict, prefer implementation truth for what exists now and platform/repo/docs
 truth for what the behavior must become. Record the conflict explicitly in the issue or ledger.
+
+When repo source and docs disagree, do not silently choose the more convenient source. File a
+capability-publication, documentation-runbooks, evidence-proof-contracts, or implementation issue
+based on ownership and impact, and name the truth conflict in the issue body.
 
 ## Workflow
 
@@ -379,6 +426,10 @@ version of this packet:
 6. `Fix direction`: the smallest implementation direction that addresses the root cause.
 7. `Tests`: the meaningful unit, integration, contract, API, security, regression, or E2E tests
    expected from the fix.
+8. `Non-goals`: adjacent rewrites, service splits, or product decisions that are not required for
+   the first fix, when the finding could otherwise become too broad.
+9. `Recheck trigger`: branch, PR, issue, or runtime evidence that should cause the lens to be
+   revisited.
 
 Do not file from a packet that is missing either `Evidence` or `Duplicate search`.
 
@@ -646,6 +697,26 @@ behavior: `SKILL.md` for mandatory workflow, `references/review-lenses.md` for l
 coverage, `references/lens-coverage-ledger-template.md` for ledger shape, `references/campaign-playbook.md`
 for operating procedure, and scripts for deterministic GitHub or validation behavior.
 
+When issue discovery exposes a reusable knowledge gap, update the sibling docs repository rather
+than overloading the skill. Use the docs KB for durable product/domain/technical knowledge that
+engineers should learn from across apps; use this skill for the process of finding, filing, and
+ledgering defects. Keep app-specific facts in the app repository issue, ledger, README, wiki, RFC,
+or repo context.
+
+KB updates are appropriate when:
+
+1. multiple apps need the same standard or review rule;
+2. a product, lifecycle, transaction, position, calculation, architecture, API, security,
+   observability, testing, CI, or operations concept is missing or ambiguous in the docs repo;
+3. a repeated issue-discovery finding would be prevented by a clearer reusable reference;
+4. the docs KB contains stale, duplicate, or weak guidance that future issues are citing;
+5. a new review lens needs a learning page, worked example, or checklist to make future agents and
+   engineers faster.
+
+KB updates are not appropriate for one-off app bugs, speculative future features, confidential
+client data, or implementation details that belong only in the target app's issue, RFC, README,
+wiki, or repository context.
+
 ### 7. GitHub Issue Ledger Procedure
 
 Use this exact pattern for app-ledger issues:
@@ -694,10 +765,16 @@ Owner boundary:
 ## Expected Direction
 <target design or behavior, preserving existing behavior unless intentionally changed>
 
+Non-goals:
+- <adjacent rewrite, runtime split, or product decision not required for the first fix>
+
 ## Acceptance Criteria
 - <testable condition>
 - <testable condition>
 - <docs/context/gate update if truth changes>
+
+Recheck trigger:
+- <PR/branch/runtime evidence/issue that should cause this lens to be revisited>
 ```
 
 ## Guardrails

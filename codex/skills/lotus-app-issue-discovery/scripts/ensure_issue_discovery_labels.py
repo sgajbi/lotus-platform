@@ -45,6 +45,8 @@ LABELS = [
     ("lens/ci-release-evidence", "1f6feb", "Lens: CI lanes, repo-native gates, release evidence, branch and PR hygiene"),
     ("lens/documentation-runbooks", "1f6feb", "Lens: README, architecture docs, API catalog, RFCs, wiki, runbooks"),
     ("lens/operational-supportability", "1f6feb", "Lens: runbooks, dashboards, alerts, replay, recovery, support APIs"),
+    ("lens/dead-code-duplication", "1f6feb", "Lens: dead code, duplicate logic, stale paths, and maintainability-impact cleanup"),
+    ("lens/dependency-hygiene", "1f6feb", "Lens: dependencies, lockfiles, scanners, vulnerable packages, and supply-chain posture"),
 ]
 
 

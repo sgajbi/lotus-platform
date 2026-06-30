@@ -43,6 +43,8 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | CI and release evidence | `lens/ci-release-evidence` |
 | Documentation and runbooks | `lens/documentation-runbooks` |
 | Operational supportability | `lens/operational-supportability` |
+| Dead code and duplicate logic | `lens/dead-code-duplication` |
+| Dependency hygiene and supply chain | `lens/dependency-hygiene` |
 
 Use these cross-cutting labels when useful:
 
@@ -92,6 +94,8 @@ Use these cross-cutting labels when useful:
 | CI and release evidence | Make/NPM targets, GitHub Actions lanes, security scans, coverage, Docker/runtime proof, release evidence, branch hygiene | workflows bypass repo-native targets, soft-failed critical gates, no main releasability evidence, stale wiki/context truth |
 | Documentation and runbooks | README, repo context, architecture docs, API catalog, RFCs, wiki, supported features | docs claim unsupported behavior, stale commands, missing operator diagnostics, unlinked issues |
 | Operational supportability | runbooks, dashboards, alerts, replay/recovery, support APIs | no safe operator view, weak stuck-state diagnostics, missing replay evidence |
+| Dead code and duplicate logic | stale modules, duplicate builders, unused routes, abandoned tests, repeated policy logic, conflicting helper paths | unsupported behavior still reachable, duplicate rules drifting apart, obsolete code confusing ownership, tests exercising dead paths |
+| Dependency hygiene and supply chain | dependency manifests, lockfiles, scanner config, import usage, transitive risk, license posture | vulnerable or unpinned dependencies, unused heavy packages, scanner blind spots, dependency drift across runtime and CI |
 
 ## Baseline Lens Queue
 
@@ -106,6 +110,9 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 5. Product/domain lenses: vocabulary, calculations, methodology, transaction lifecycle, position lifecycle.
 6. Reliability lenses: events/outbox, resilience, performance/scalability, observability, operational supportability.
 7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/runbooks.
+8. Dead-code/duplication and dependency-hygiene passes when prior lenses reveal stale paths,
+   repeated logic, vulnerable dependencies, or cleanup work with real behavioral or supportability
+   impact.
 
 For every lens, record whether the pass was code-backed, docs-backed, duplicate-checked, and ledgered.
 
@@ -191,6 +198,8 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "calculations" | `lens/calculations-methodology` | methodology docs, Decimal/rounding, FX, accrued interest, cost basis, income, cashflow, golden tests |
 | "CI, quality gates, release evidence" | `lens/ci-release-evidence`, `lens/testing-quality` | Make targets, workflows, continue-on-error, timeout-minutes, coverage, security scans, main release proof |
 | "README, wiki, architecture docs, API catalog, runbooks" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source |
+| "dead code", "duplicate logic", "stale code", "obsolete paths", "cleanup with impact" | `lens/dead-code-duplication`, `lens/architecture-boundaries`, `lens/testing-quality` | unused routes/modules/tests, duplicate rules or builders, unreachable adapters, divergent helpers, stale docs or workflows still referencing removed behavior |
+| "dependencies", "vulnerable packages", "supply chain", "lockfile", "dependency hygiene" | `lens/dependency-hygiene`, `lens/security-privacy`, `lens/ci-release-evidence` | manifests, lockfiles, scanner workflows, import usage, vulnerability output, dependency policy docs |
 | "skill should work like you", "make issue discovery reusable", "future agents should know what to do" | `lens/ci-release-evidence`, `lens/documentation-runbooks` for the platform skill source, or no app issue when it is a skill-maintenance slice | skill source, routing map, campaign playbook, ledger template, validation/sync commands, PR proof pack |
 
 ## Finding Decision Tree
@@ -233,6 +242,8 @@ Use these anchors to make issues practical:
 | Observability/support | log/metric/trace/health/readiness/runbook path and missing diagnostic outcome |
 | Testing/CI | exact test family, Make target, workflow, gate, or release-evidence path |
 | Documentation | current-state claim, missing operator instruction, stale RFC/wiki/API catalog link |
+| Dead-code/duplication | stale or duplicate path plus evidence that it is still imported, tested, published, or confusing ownership |
+| Dependency hygiene | dependency declaration or scanner path plus import/runtime/CI evidence that the dependency posture matters |
 
 ## Lens-Specific Search Starters
 
@@ -314,6 +325,13 @@ rg -n "timeout|retry|backoff|sleep|while True|gather|Semaphore|pool|cache|batch|
 
 ```powershell
 rg -n "pytest|make |npm run|continue-on-error|timeout-minutes|permissions:|pull_request_target|coverage|docker|trivy|bandit|pip-audit|main-releasability|merge gate" .github Makefile package.json pyproject.toml docs wiki --glob "*.yml" --glob "*.yaml" --glob "*.md" --glob "Makefile" --glob "*.toml" --glob "*.json"
+```
+
+### Dead Code, Duplicate Logic, And Dependency Hygiene
+
+```powershell
+rg -n "TODO|FIXME|deprecated|legacy|unused|duplicate|copy|fallback|compat|temporary|remove after|dead code|not used|pass #|pragma: no cover" src tests docs wiki --glob "*.py" --glob "*.md"
+rg --files | rg "requirements|constraints|poetry.lock|uv.lock|package-lock|pnpm-lock|yarn.lock|pyproject.toml|package.json|pip-audit|safety|trivy|bandit|npm audit"
 ```
 
 ## Duplicate Check Keywords

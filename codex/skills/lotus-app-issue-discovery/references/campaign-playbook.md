@@ -68,6 +68,24 @@ Use these rules when the user expects you to keep moving:
 
 The default useful unit of work is one complete lens pass, not a fixed number of issues.
 
+### One-Pass Execution Recipe
+
+For a normal "continue" turn, complete this recipe before responding:
+
+1. Rebuild state with `git status`, open issue-discovery issues, open PRs, and the ledger issue.
+2. Select one primary lens and name any secondary lenses only as context.
+3. Read the smallest repo/platform/docs KB sources that define the expected behavior.
+4. Inspect source plus one counterpart artifact such as a test, contract, migration, workflow,
+   README/wiki source, generated OpenAPI, or runtime proof.
+5. Build the evidence packet and classify each candidate as new, duplicate, active-fix feedback,
+   residual risk, or no issue.
+6. Run duplicate searches with one broad lens query and one concrete symbol/file/query term.
+7. Ensure labels, then create or reuse one issue per root cause.
+8. Update the ledger with proof flags, issue numbers, inspected paths, searches, blockers,
+   residual risk, and a continue/pause/recheck/move-app recommendation.
+
+Do not stop after state discovery unless the repository target or GitHub access is blocked.
+
 ## 2. Pick The Next Lens
 
 Choose the next lens using this order:
@@ -336,6 +354,53 @@ Promote learning into the platform-owned skill when any of these recur:
 
 Update the source under `lotus-platform/codex/skills/lotus-app-issue-discovery`, validate it, commit
 it, raise a PR, merge it, sync local skills, and return `lotus-platform` to clean `main`.
+
+When the user asks to "make the skill powerful" or "make it work like you", improve the durable
+workflow, not just prose. Check whether the change belongs in:
+
+- `SKILL.md` for mandatory behavior and trigger-time instructions;
+- `references/review-lenses.md` for lens, label, search, and evidence taxonomy;
+- `references/lens-coverage-ledger-template.md` for campaign-state visibility;
+- `references/campaign-playbook.md` for start/resume, active-fix, issue-count, handoff, and
+  self-improvement procedure;
+- `scripts/ensure_issue_discovery_labels.py` when labels change.
+
+Then run validation and sync so a fresh future agent can use the deployed skill without reading the
+chat that caused the improvement.
+
+## 11. Improve The Docs Knowledge Base When Standards Are Missing
+
+Use the sibling `docs` repository as the durable knowledge base for reusable product, domain, and
+technical learning. During issue discovery, update or propose KB improvements when the review
+uncovers a knowledge gap that will matter across apps.
+
+Create a separate KB-maintenance slice when:
+
+1. the same defect pattern appears across more than one app and the docs KB lacks a clear standard;
+2. an issue depends on domain knowledge that is not documented well enough for a fixing agent to
+   implement correctly;
+3. the docs KB has stale, duplicate, or weak guidance that future issues would cite;
+4. a new lens needs a reusable checklist, worked example, vocabulary guide, or methodology note;
+5. a product, lifecycle, transaction, position, data model, calculation, API, security,
+   observability, testing, CI, or operations concept should become reusable learning material.
+
+Do not put app-specific bug evidence into the docs KB. Keep current app evidence in GitHub issues,
+ledgers, RFCs, repo context, README, wiki, tests, or implementation proof. The docs KB should teach
+the general standard and reusable examples.
+
+Use this routing:
+
+- product/domain knowledge: `docs/docs/products/`;
+- backend, API, data, CI/CD, infrastructure, observability, security, performance, testing,
+  documentation, and SRE knowledge: `docs/docs/technical/`;
+- wealth-platform architecture, operating model, strategy, and leadership context:
+  `docs/docs/reference/`;
+- prompt/agent workflow material: `docs/docs/prompts/`.
+
+When filing an app issue that relies on a newly improved KB page, cite the KB page as the standard
+and keep the issue body focused on current repository evidence. When the KB gap is real but outside
+the current app issue-discovery scope, record it as ledger residual risk or create a separate docs
+repo issue/PR according to the user's direction.
 
 For skill-maintenance slices, include this proof pack in the PR or final note:
 
