@@ -32,11 +32,56 @@ Load the smallest correct context set:
 5. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
 6. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend issue lenses
 7. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-8. app-specific RFCs, standards, methodology docs, or docs repo knowledge only when the lens needs them
+8. relevant docs repo knowledge-base pages from `<workspace-root>/docs`, especially product,
+   technical, data-model, transaction/position lifecycle, methodology, API, security,
+   observability, DevOps, and operations references that match the lens
+9. app-specific RFCs, standards, methodology docs, or source contracts when the lens needs them
 
-For the lens catalog and canonical GitHub label names, read `references/review-lenses.md`. For a
-reusable campaign ledger shape, read `references/lens-coverage-ledger-template.md` when starting or
-resuming a multi-lens defect discovery campaign.
+Use the docs repo knowledge base, Lotus platform context, repository engineering context, and
+`ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the standard for review. Do not treat local code
+convention as sufficient when it contradicts those sources.
+
+For the lens catalog, read `references/review-lenses.md`. Also use that file for canonical GitHub
+label names. For a reusable campaign ledger shape, read
+`references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
+discovery campaign.
+
+## Docs Knowledge Routing
+
+Use the docs repository as a knowledge base, not as decorative background. Load only the pages that
+match the current lens:
+
+- product, lifecycle, transaction, position, cash-flow, instrument-static, source-ownership, and
+  calculation lenses: `docs/docs/products/`
+- backend boundaries, API contracts, data products, CI/CD, infrastructure, SRE, security,
+  performance, testing, documentation, and leadership lenses: `docs/docs/technical/`
+- wealth-platform architecture, strategy, operating model, and domain-engineering lenses:
+  `docs/docs/reference/`
+- reusable prompt or agent-workflow lenses: `docs/docs/prompts/`
+
+High-signal product anchors include:
+
+- `docs/docs/products/cross-product-transaction-position-data-model.md`
+- `docs/docs/products/product-lifecycle-cashflow-and-event-guide.md`
+- `docs/docs/products/product-calculation-example-catalog.md`
+- `docs/docs/products/source-ownership-calculation-reporting-matrix.md`
+- `docs/docs/products/product-taxonomy-and-vocabulary-guide.md`
+
+High-signal technical anchors include:
+
+- `docs/docs/technical/backend-service-design/`
+- `docs/docs/technical/api-contract-engineering/`
+- `docs/docs/technical/data-product-engineering/`
+- `docs/docs/technical/cicd-devsecops-release-evidence/`
+- `docs/docs/technical/observability-sre-supportability/`
+- `docs/docs/technical/security-cyber-resilience/`
+- `docs/docs/technical/performance-scalability-resilience-async/`
+- `docs/docs/technical/testing-quality-certification/`
+- `docs/docs/technical/documentation-knowledge-governance/`
+
+When filing an issue, cite docs or platform standards only when they materially explain why the code
+is wrong, incomplete, or risky. Do not turn the issue into a generic essay; keep it tied to the
+target repository evidence.
 
 ## Workflow
 
@@ -72,6 +117,16 @@ issue. Track:
 Do not mark a lens `Covered For Now` just because issues were filed. Use that status only when
 duplicate checks, representative code inspection, and residual-risk notes are complete for the
 current campaign depth.
+
+For each lens pass, use this loop:
+
+1. read the target repo context and the relevant docs KB/technical standard,
+2. inspect representative code, tests, docs, contracts, migrations, and runtime wiring,
+3. search open and closed GitHub issues by lens terms and concrete symbols,
+4. decide whether the finding is new, duplicate, active-fix feedback, or below the issue bar,
+5. create or update labels with `scripts/ensure_issue_discovery_labels.py`,
+6. file only evidence-backed issues with canonical labels,
+7. update the ledger with inspected areas, duplicate searches, issue numbers, and residual risk.
 
 ### 2. Check Existing Issues First
 
@@ -172,11 +227,10 @@ Apply labels while creating issues:
    issues,
 5. do not invent app-local lens labels when a canonical label exists.
 
-Use stable GitHub CLI labels, for example:
+Create or update the canonical labels before issue creation:
 
 ```powershell
-gh label create "lens/api-design-governance" --repo <owner>/<repo> --color "1f6feb" --description "Issue-discovery lens: API design, routing, OpenAPI, pagination, filtering, sorting, and errors" --force
-gh label create "issue-discovery" --repo <owner>/<repo> --color "6f42c1" --description "Raised from a governed Lotus issue-discovery review" --force
+python <skill-dir>/scripts/ensure_issue_discovery_labels.py --repo <owner>/<repo>
 gh issue create --repo <owner>/<repo> --title "<title>" --body-file <body.md> --label "issue-discovery" --label "lens/api-design-governance" --label "impact/operability"
 ```
 
@@ -233,4 +287,11 @@ Related but not duplicate of: #<issue>, #<issue>
 - Do not claim a lens is fully complete unless the current-state evidence proves it.
 - Do not let a broad architecture issue hide a concrete defect that needs its own fixable issue.
 - Do not create runtime service-split issues before in-process modularity has been evaluated.
+
+## Bundled Resources
+
+- `references/review-lenses.md`: canonical lenses, label taxonomy, search starters, and severity calibration.
+- `references/lens-coverage-ledger-template.md`: durable issue-ledger structure and per-lens note shape.
+- `scripts/ensure_issue_discovery_labels.py`: creates or updates the canonical `issue-discovery`,
+  `lens/*`, and `impact/*` labels in a target GitHub repository.
 
