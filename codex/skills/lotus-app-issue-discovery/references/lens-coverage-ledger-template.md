@@ -77,6 +77,8 @@ Use `Y/N` proof flags:
 | CI and release evidence | `lens/ci-release-evidence` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Documentation and runbooks | `lens/documentation-runbooks` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Operational supportability | `lens/operational-supportability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Dead code and duplicate logic | `lens/dead-code-duplication` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Dependency hygiene and supply chain | `lens/dependency-hygiene` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 
 ## Per-Lens Note Shape
 
