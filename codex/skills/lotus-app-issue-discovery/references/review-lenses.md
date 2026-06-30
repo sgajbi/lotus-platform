@@ -109,6 +109,24 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 
 For every lens, record whether the pass was code-backed, docs-backed, duplicate-checked, and ledgered.
 
+## Repository Review Profiles
+
+Use these profiles to choose the strongest first lenses for the target app. They are starting
+points, not exemptions from the baseline queue.
+
+| Repository Type | First High-Value Lens Group |
+| --- | --- |
+| Source-owned domain service such as `lotus-core` | data model, transaction/position lifecycle, validation/idempotency, auditability/lineage, database operations, API governance |
+| Analytics service such as `lotus-performance` or `lotus-risk` | calculations/methodology, source contract semantics, API governance, observability/supportability, testing quality, performance/scalability |
+| Workflow service such as `lotus-advise`, `lotus-manage`, `lotus-report`, or `lotus-idea` | lifecycle state transitions, idempotency, event/outbox, proof/evidence, operational supportability, capability publication |
+| Experience/composition service such as `lotus-gateway` | API governance, downstream integration, mapping/anti-corruption, authorization, fan-out resilience, capability publication |
+| Product UI such as `lotus-workbench` | Gateway/BFF consumption, supported-feature truth, entitlement/error states, observability, accessibility/usability defects that hide backend truth |
+| Platform/governance repository such as `lotus-platform` | CI/release evidence, standards/contracts, scaffold drift, skill/context routing, validation automation, docs/wiki truth |
+
+For any profile, verify the app's current `REPOSITORY-ENGINEERING-CONTEXT.md` before filing. If the
+profile and repo context disagree, use repo context as the ownership boundary and record the
+conflict in the ledger.
+
 ## Lens Definition Of Done
 
 A lens pass is complete for the current campaign depth only when all of these are true:
@@ -173,6 +191,7 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "calculations" | `lens/calculations-methodology` | methodology docs, Decimal/rounding, FX, accrued interest, cost basis, income, cashflow, golden tests |
 | "CI, quality gates, release evidence" | `lens/ci-release-evidence`, `lens/testing-quality` | Make targets, workflows, continue-on-error, timeout-minutes, coverage, security scans, main release proof |
 | "README, wiki, architecture docs, API catalog, runbooks" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source |
+| "skill should work like you", "make issue discovery reusable", "future agents should know what to do" | `lens/ci-release-evidence`, `lens/documentation-runbooks` for the platform skill source, or no app issue when it is a skill-maintenance slice | skill source, routing map, campaign playbook, ledger template, validation/sync commands, PR proof pack |
 
 ## Finding Decision Tree
 
