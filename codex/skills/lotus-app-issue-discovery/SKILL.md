@@ -25,6 +25,16 @@ creation.
 
 Act like a senior Lotus review lead, not a bug-title generator.
 
+Your job is to make another implementation agent successful. A good issue-discovery pass leaves
+behind:
+
+1. a clear lens decision,
+2. code-backed evidence,
+3. the standard or domain rule used to judge the evidence,
+4. duplicate-search proof,
+5. a GitHub issue that is small enough to implement,
+6. a ledger update that tells the user what has been covered and what remains.
+
 For every issue, prove four things before filing:
 
 1. the repository evidence exists,
@@ -35,6 +45,33 @@ For every issue, prove four things before filing:
 
 Prefer fewer, stronger issues. If a finding is speculative, stale, duplicate, or below the
 bank-buyable bar, record it in the ledger as residual risk instead of filing noise.
+
+## Autonomous Campaign Contract
+
+When the user says "continue", "next issues", "check this lens", "make the skill do what you do",
+or otherwise expects ongoing review, run the campaign without asking for more instructions unless
+the target repository or GitHub issue target is genuinely ambiguous.
+
+Use this default behavior:
+
+1. infer the target repository from the current working directory, explicit repo name, or latest
+   active campaign ledger;
+2. inspect `git status --short --branch` and never edit or revert unrelated local changes;
+3. find or create the app ledger issue named `<repo> Issue Discovery Ledger`;
+4. choose the next lens from the ledger status and the baseline lens queue;
+5. read the smallest context and docs KB set that makes the lens judgment defensible;
+6. inspect code, tests, docs, contracts, migrations, workflows, and runtime wiring before making
+   claims;
+7. duplicate-check GitHub issues using both lens keywords and concrete symbols;
+8. create missing labels before filing issues;
+9. file only high-value issues with one root cause, concrete evidence, expected direction, and
+   acceptance criteria;
+10. update the ledger after every pass, including no-issue decisions and blocked-by-active-fix
+    states.
+
+If the user gives a time box, optimize for complete lens passes over issue count. If a finding needs
+more proof than the time box allows, record it as residual risk and continue with the next most
+provable candidate.
 
 ## Required Context
 
@@ -56,14 +93,24 @@ Load the smallest correct context set:
 
 Use the sibling docs repo knowledge base when present, Lotus platform context, repository
 engineering context, and `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the standard for
-review. Do not treat local code convention as sufficient when it contradicts those sources. If the
-docs repo is absent from the workspace, record that context gap in the ledger and do not claim a
-docs-backed review for that lens.
+review. Also use the target repository's own README, wiki source, RFCs, architecture docs, API
+catalog, supported-feature material, and tests as implementation truth. Do not treat local code
+convention as sufficient when it contradicts those sources. If the docs repo is absent from the
+workspace, record that context gap in the ledger and do not claim a docs-backed review for that
+lens.
 
 For the lens catalog, read `references/review-lenses.md`. Also use that file for canonical GitHub
 label names, the baseline lens queue, and search starters. For a reusable campaign ledger shape,
 read `references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
 discovery campaign.
+
+Use `references/review-lenses.md` to translate user wording into canonical labels. For example,
+"business logic out of routers" maps to `lens/api-design-governance`, `lens/application-layer`,
+`lens/domain-layer`, and `lens/infrastructure` depending on the evidence; "logic testable without
+FastAPI/database/Kafka/Redis/cloud" maps primarily to `lens/domain-layer`, `lens/application-layer`,
+`lens/ports-adapters`, and `lens/testing-quality`; "race conditions and unnecessary processing"
+maps to `lens/unit-of-work-transactions`, `lens/database-operations`,
+`lens/performance-scalability`, and `lens/resilience`.
 
 ## Docs Knowledge Routing
 
@@ -174,6 +221,36 @@ For implementation-review of another agent's active branch, prefer feedback on t
 PR when the problem is an unfinished acceptance criterion. File a new issue only for a distinct
 root cause.
 
+### 1B. Evidence Packet
+
+Before creating an issue, assemble a compact evidence packet. The issue body should be a polished
+version of this packet:
+
+1. `Lens`: the current lens and canonical label.
+2. `Standard`: exact platform/doc/repo source that explains the expected posture.
+3. `Evidence`: file path, line or symbol, and the observed behavior.
+4. `Impact`: what can go wrong in correctness, operability, performance, security, architecture, or
+   supportability terms.
+5. `Duplicate search`: exact GitHub searches and result summary.
+6. `Fix direction`: the smallest implementation direction that addresses the root cause.
+7. `Tests`: the meaningful unit, integration, contract, API, security, regression, or E2E tests
+   expected from the fix.
+
+Do not file from a packet that is missing either `Evidence` or `Duplicate search`.
+
+### 1C. Lens Completion Rules
+
+Use these ledger outcomes consistently:
+
+1. `Issues Raised`: at least one new or reused issue exists, but residual review may remain.
+2. `Covered For Now`: representative code inspection, docs/context comparison, duplicate searches,
+   and residual-risk notes are complete for the current campaign depth.
+3. `Blocked By Active Fix`: a branch or PR is actively changing the same area; record the branch,
+   PR, or issue and recheck after merge.
+4. `Needs Recheck`: evidence is stale, a broad issue landed, or adjacent code changed.
+
+Never mark a lens complete just because labels exist or because a search found no obvious hits.
+
 ### 2. Check Existing Issues First
 
 Before raising issues, search GitHub for duplicates and adjacent work:
@@ -212,6 +289,11 @@ If another agent is actively fixing defects in the target worktree or branch:
 Use this posture to avoid noisy duplicate issues while still giving the implementation agent
 actionable evidence.
 
+If a duplicate exists but lacks the current lens label, add the canonical label only when the issue
+clearly maps to that lens and the repository uses the shared taxonomy. If the existing issue is too
+broad, create a focused child issue only when it names a distinct implementation slice and links
+back to the parent.
+
 ### 3. Inspect Code Before Claims
 
 Use targeted searches, then open representative files:
@@ -248,6 +330,20 @@ Use the target app's role to avoid wrong-owner issues. For example:
 - `lotus-gateway` owns experience composition and publication, not domain authority.
 - `lotus-workbench` owns the product UI and must consume supported backend/Gateway capability.
 
+### 3A. Source Inspection Depth
+
+A strong pass usually reads at least:
+
+1. one delivery or runtime entry point,
+2. one application or domain path,
+3. one adapter, repository, client, or workflow path when relevant,
+4. one test path or the absence of a test path,
+5. one contract, migration, README/wiki, OpenAPI, workflow, or docs path when the lens touches
+   durable truth.
+
+Use `rg --files` and targeted `rg -n` before opening files. Prefer source-owned evidence over
+generated artifacts unless the generated artifact is the actual contract consumers use.
+
 ### 4. Calibrate Value
 
 File only issues that materially improve at least one bank-buyable control:
@@ -283,6 +379,9 @@ Do not raise the issue when:
 - the same root cause is already being fixed,
 - the only evidence is an isolated search hit with no behavior or contract consequence,
 - the issue would be too broad for another agent to start fixing.
+
+When in doubt, ask whether the issue would change a future implementation agent's actual work. If
+the answer is "no", keep it in the ledger as residual risk.
 
 ### 5. Write Actionable Issues
 
@@ -333,6 +432,11 @@ Issue quality bar:
 6. labels include `issue-discovery`, exactly one `lens/*`, and at most one primary `impact/*`
    unless the repository already uses a stricter triage convention.
 
+Prefer one canonical `lens/*` label per issue. When a finding crosses several lenses, choose the
+root-cause lens and mention the secondary lenses in the body. Example: missing idempotency storage
+that also hurts auditability should usually use `lens/validation-idempotency`; the issue body can
+state that it also affects `lens/auditability-lineage`.
+
 ### 6. Verify And Summarize
 
 After filing:
@@ -345,6 +449,14 @@ After filing:
    made,
 6. summarize the lens covered and remaining logical next lens.
 
+If no issue was filed, still update the ledger with:
+
+1. the lens,
+2. inspected paths,
+3. duplicate searches,
+4. why no issue met the bar,
+5. residual risk or next recheck trigger.
+
 If the review exposes a repeatable review weakness, update the skill source, routing map, or Lotus
 context in `lotus-platform` rather than relying on memory. Examples:
 
@@ -356,6 +468,22 @@ context in `lotus-platform` rather than relying on memory. Examples:
 
 For skill updates, edit the platform-owned source under `lotus-platform/codex/skills`, validate it,
 commit, raise a PR, sync the local skill after merge, and return the repo to clean `main`.
+
+### 7. GitHub Issue Ledger Procedure
+
+Use this exact pattern for app-ledger issues:
+
+1. find existing ledger:
+   `gh issue list --repo <owner>/<repo> --state open --search "\"Issue Discovery Ledger\"" --json number,title,url`
+2. create it if missing with the template from `references/lens-coverage-ledger-template.md`;
+3. after each pass, add a compact comment instead of rewriting history unless the user asks for a
+   fully refreshed table;
+4. mention issue numbers, labels, inspected paths, duplicate searches, and next lens;
+5. keep the ledger in the target app repository, not in `lotus-platform`, unless the campaign is
+   platform-wide.
+
+Ledger comments should help the user answer: "Which lenses are done, which are remaining, and when
+is it sensible to move to another app?"
 
 ## Issue Body Template
 
