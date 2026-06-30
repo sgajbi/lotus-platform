@@ -1,6 +1,6 @@
 ---
 name: lotus-readme-wiki-governance
-description: Create or refresh a gold-standard README.md and GitHub wiki structure for Lotus repositories. Use when standardizing repository documentation, seeding a new repo wiki, upgrading a weak README, aligning repo docs to Lotus platform governance, or producing a reusable README/wiki pattern that must stay consistent across Lotus apps.
+description: Create or refresh a gold-standard README.md and GitHub wiki structure for Lotus repositories. Use when standardizing repository documentation, seeding a new repo wiki, upgrading a weak or unprofessional wiki, aligning repo docs to Lotus platform governance, polishing reader navigation, or producing a reusable README/wiki pattern that must stay consistent across Lotus apps.
 ---
 
 # Lotus Readme Wiki Governance
@@ -85,6 +85,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - make `Home` a professional reader map, not a loose link list,
    - group `_Sidebar` navigation into product, engineering, operations, and governance sections
      when the page set is large enough,
+   - make every changed page's first screen state current scope, evidence posture, and next action,
+   - keep each supported claim tied to an implementation, command, artifact, RFC, or runbook link,
+   - make each changed page reachable from `Home` or `_Sidebar`,
    - review changed pages as rendered GitHub-flavored Markdown, not only as raw text,
    - check changed pages for broken intra-wiki links, bare URLs, duplicate headings, malformed
      tables, unrendered Mermaid or diagram blocks, and orphaned pages that are not reachable from
@@ -264,7 +267,8 @@ polish pass before adding more content:
 5. make limitations, unsupported capabilities, degraded states, and ownership boundaries visible
    where business, demo, support, or operations readers would make decisions,
 6. verify that each page is reachable from `Home` or `_Sidebar`,
-7. record the check-only or publish decision with the exact changed pages in PR evidence.
+7. run the repo wiki check-only command when repo-local wiki source changed,
+8. record the check-only or publish decision with the exact changed pages in PR evidence.
 
 Trim pages if the repo truly does not need one, but do not omit a page just because the current
 repo docs are thin.

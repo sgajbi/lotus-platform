@@ -72,7 +72,7 @@
       "path": "codex/skills/lotus-readme-wiki-governance",
       "category": "documentation-governance",
       "directly_lotus_owned": true,
-      "reason": "Gold-standard README and wiki structure for Lotus repositories, including doc-contract-aware validation, durable documentation control artifacts, business-application feature material, diagrams, and implementation-backed demo readiness."
+      "reason": "Gold-standard README and wiki structure for Lotus repositories, including professional wiki polish, reader navigation, doc-contract-aware validation, durable documentation control artifacts, business-application feature material, diagrams, and implementation-backed demo readiness."
     },
     {
       "name": "lotus-qa-platform-validator",

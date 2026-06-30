@@ -6,6 +6,7 @@ import sys
 
 SKILL_DIR = Path(__file__).resolve().parent
 SKILL_FILE = SKILL_DIR / "SKILL.md"
+WIKI_REFERENCE_FILE = SKILL_DIR / "references" / "lotus-wiki-pages.md"
 
 REQUIRED_SNIPPETS = [
     "# Lotus Readme Wiki Governance",
@@ -15,6 +16,17 @@ REQUIRED_SNIPPETS = [
     "## Validation",
     "README.md",
     "wiki/",
+    "Home",
+    "_Sidebar",
+    "changed pages",
+]
+
+REQUIRED_WIKI_REFERENCE_SNIPPETS = [
+    "## Professional Publication Checklist",
+    "## Rendered Quality Pass",
+    "implementation-backed claim",
+    "reader journey",
+    "wiki-quality evidence",
 ]
 
 REQUIRED_RELATIVE_PATHS = [
@@ -26,6 +38,7 @@ REQUIRED_RELATIVE_PATHS = [
 
 def main() -> int:
     text = SKILL_FILE.read_text(encoding="utf-8")
+    wiki_reference_text = WIKI_REFERENCE_FILE.read_text(encoding="utf-8")
     failures: list[str] = []
 
     for snippet in REQUIRED_SNIPPETS:
@@ -36,6 +49,10 @@ def main() -> int:
         target = SKILL_DIR / relative_path
         if not target.exists():
             failures.append(f"missing referenced file: {relative_path}")
+
+    for snippet in REQUIRED_WIKI_REFERENCE_SNIPPETS:
+        if snippet not in wiki_reference_text:
+            failures.append(f"missing required wiki reference snippet: {snippet}")
 
     if failures:
         for failure in failures:
