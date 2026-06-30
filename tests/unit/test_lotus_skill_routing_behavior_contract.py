@@ -76,7 +76,9 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
     assert '"lotus-app-issue-discovery"' in skill_manifest
     assert "Do not edit code unless the user explicitly asks for fixes." in issue_skill
     assert "Before raising issues, search GitHub for duplicates" in issue_skill
-    assert "For the lens catalog, read `references/review-lenses.md`." in issue_skill
+    assert "For the lens catalog" in issue_skill
+    assert "`references/review-lenses.md`" in issue_skill
+    assert "scripts/ensure_issue_discovery_labels.py" in issue_skill
     assert "Transaction lifecycle" in lens_catalog
     assert "Observability" in lens_catalog
     assert "Security and privacy" in lens_catalog
