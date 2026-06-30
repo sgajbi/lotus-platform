@@ -30,7 +30,7 @@
       "path": "codex/skills/lotus-app-issue-discovery",
       "category": "issue-discovery",
       "directly_lotus_owned": true,
-      "reason": "Evidence-backed Lotus app issue discovery across architecture, API, domain, lifecycle, mapping, security, observability, performance, testing, documentation, and bank-buyable readiness lenses, with shared ledger tracking and canonical lens labels."
+      "reason": "Evidence-backed Lotus app issue discovery across architecture, runtime composition, API, HTTP boundary, domain, lifecycle, mapping, database, security, observability, performance, testing, CI/release, documentation, and bank-buyable readiness lenses, with shared GitHub ledger tracking, canonical lens labels, duplicate checks, docs-backed standards, and skill-learning feedback."
     },
     {
       "name": "lotus-ci-enforcement-governance",

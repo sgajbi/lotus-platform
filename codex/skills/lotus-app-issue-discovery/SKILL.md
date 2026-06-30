@@ -1,6 +1,6 @@
 ---
 name: lotus-app-issue-discovery
-description: Use when reviewing Lotus applications lens by lens to find high-value, evidence-backed GitHub issues without editing code. Applies when the user asks to inspect a Lotus repo for architecture, API, domain, lifecycle, mapping, data model, calculations, security, observability, performance, resilience, testing, documentation, operational supportability, or bank-buyable readiness issues; when they want defects raised for another implementation agent; or when a reusable issue-discovery campaign should avoid duplicates and cite concrete code evidence.
+description: Use when reviewing Lotus applications lens by lens to find high-value, evidence-backed GitHub issues without editing code. Applies when the user asks to inspect a Lotus repo for architecture, runtime composition, API, HTTP boundary controls, domain, lifecycle, mapping, data model, database operations, calculations, security, observability, performance, resilience, testing, CI/release evidence, documentation, operational supportability, or bank-buyable readiness issues; when they want defects raised for another implementation agent; or when a reusable issue-discovery campaign should avoid duplicates, maintain a GitHub ledger, apply canonical lens labels, cite code evidence, and use docs repo knowledge plus Lotus platform standards as the review baseline.
 ---
 
 # Lotus App Issue Discovery
@@ -20,6 +20,21 @@ Use this skill with the relevant app delivery governance skill:
 
 Do not edit code unless the user explicitly asks for fixes. This skill is for review and issue
 creation.
+
+## Operating Posture
+
+Act like a senior Lotus review lead, not a bug-title generator.
+
+For every issue, prove four things before filing:
+
+1. the repository evidence exists,
+2. the expected behavior is grounded in Lotus standards, the docs knowledge base, repo context, or
+   accepted industry/domain practice,
+3. the finding is not already covered by an open, closed, or actively fixed issue,
+4. the issue is fixable as a coherent implementation slice with clear acceptance criteria.
+
+Prefer fewer, stronger issues. If a finding is speculative, stale, duplicate, or below the
+bank-buyable bar, record it in the ledger as residual risk instead of filing noise.
 
 ## Required Context
 
@@ -46,8 +61,8 @@ docs repo is absent from the workspace, record that context gap in the ledger an
 docs-backed review for that lens.
 
 For the lens catalog, read `references/review-lenses.md`. Also use that file for canonical GitHub
-label names. For a reusable campaign ledger shape, read
-`references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
+label names, the baseline lens queue, and search starters. For a reusable campaign ledger shape,
+read `references/lens-coverage-ledger-template.md` when starting or resuming a multi-lens defect
 discovery campaign.
 
 ## Docs Knowledge Routing
@@ -101,6 +116,8 @@ Confirm:
 - existing local worktree changes that must not be touched.
 
 If the user asks for "next N issues", keep the scope to one coherent lens or a named lens group.
+If the user asks broadly to "find issues", choose the next highest-value lens from the ledger and
+the baseline lens queue in `references/review-lenses.md`.
 
 For a multi-turn or multi-lens campaign, create or update a lens coverage ledger before filing more
 issues. Prefer one GitHub issue per Lotus app named `<app> Issue Discovery Ledger` when multiple
@@ -122,6 +139,14 @@ Do not mark a lens `Covered For Now` just because issues were filed. Use that st
 duplicate checks, representative code inspection, and residual-risk notes are complete for the
 current campaign depth.
 
+Ledger issue rules:
+
+1. use a durable GitHub issue when the user wants ongoing app review,
+2. update the ledger after every issue-discovery batch,
+3. include the lens, inspected paths, duplicate searches, issues raised/reused, active-fix blockers,
+   and next suggested lens,
+4. keep the ledger factual and compact; it is an operating index, not a second issue body.
+
 For each lens pass, use this loop:
 
 1. read the target repo context and the relevant docs KB/technical standard,
@@ -131,6 +156,23 @@ For each lens pass, use this loop:
 5. create or update labels with `scripts/ensure_issue_discovery_labels.py`,
 6. file only evidence-backed issues with canonical labels,
 7. update the ledger with inspected areas, duplicate searches, issue numbers, and residual risk.
+
+### 1A. Lens Pass Standard
+
+For each lens, complete this minimum pass before filing:
+
+1. read at least one target repo source path and one matching test/doc/contract path when present,
+2. read the relevant docs KB or platform standard when the finding depends on domain or technical
+   correctness,
+3. search GitHub issues using both broad lens keywords and concrete file/symbol names,
+4. classify each candidate as `new issue`, `existing issue`, `active-fix feedback`, `ledger-only
+   residual risk`, or `no issue`,
+5. ensure canonical labels exist,
+6. write one issue per root cause unless separate symptoms require different owners or fix paths.
+
+For implementation-review of another agent's active branch, prefer feedback on the existing issue or
+PR when the problem is an unfinished acceptance criterion. File a new issue only for a distinct
+root cause.
 
 ### 2. Check Existing Issues First
 
@@ -149,6 +191,13 @@ gh issue list --repo <owner>/<repo> --state all --limit 200 --search "<specific 
 Do not file a new issue when an existing issue already covers the same root cause, same acceptance
 criteria, and same likely implementation slice. Add a new issue only when it is a distinct root
 cause, distinct boundary, or more actionable child of a broad parent issue.
+
+Use multiple duplicate searches:
+
+1. lens words, such as `idempotency`, `pagination`, `security headers`, `outbox`,
+2. concrete symbols, such as route names, classes, tables, migrations, event types, or Make targets,
+3. expected fix terms, such as `lease`, `problem details`, `retry`, `index`, `operation_id`,
+4. closed issue searches when the repository has recent fix activity.
 
 If another agent is actively fixing defects in the target worktree or branch:
 
@@ -184,6 +233,21 @@ Prefer concrete evidence:
 
 Do not raise issues from intuition alone.
 
+Use the target app's role to avoid wrong-owner issues. For example:
+
+- `lotus-core` owns portfolio, account, transaction, position, holding, booking, and portfolio
+  management source data.
+- `lotus-performance` owns performance analytics and methodology outputs, not source booking.
+- `lotus-risk` owns risk analytics, drawdown, concentration, stress, and exposure outputs.
+- `lotus-advise` owns advisory workflow and proposal lifecycle.
+- `lotus-manage` owns discretionary portfolio-management execution and action-register workflows.
+- `lotus-report`, `lotus-render`, and `lotus-archive` own report generation, rendering, archive,
+  retrieval, retention, and evidence flows.
+- `lotus-idea` owns opportunity intelligence and idea lifecycle, not source-owned portfolio,
+  performance, risk, reporting, archive, render, gateway, or AI infrastructure truth.
+- `lotus-gateway` owns experience composition and publication, not domain authority.
+- `lotus-workbench` owns the product UI and must consume supported backend/Gateway capability.
+
 ### 4. Calibrate Value
 
 File only issues that materially improve at least one bank-buyable control:
@@ -201,6 +265,24 @@ File only issues that materially improve at least one bank-buyable control:
 
 Avoid low-value issues for cosmetic naming, speculative rewrites, broad "clean up" requests, or
 future-state preferences without current evidence.
+
+Raise the issue when at least one of these is true:
+
+- it can produce wrong domain, calculation, lifecycle, security, or API behavior,
+- it can hide operational failure or make support unable to diagnose production behavior,
+- it erodes source ownership, layer boundaries, or testability in a way likely to recur,
+- it leaves unsupported claims in README, wiki, API docs, supported-feature material, or runtime
+  evidence,
+- it makes the app harder to make bank-buyable because CI, release evidence, observability,
+  security, or documentation truth is missing.
+
+Do not raise the issue when:
+
+- the code is simply not aesthetically ideal,
+- the finding requires a product decision with no current standard or accepted target,
+- the same root cause is already being fixed,
+- the only evidence is an isolated search hit with no behavior or contract consequence,
+- the issue would be too broad for another agent to start fixing.
 
 ### 5. Write Actionable Issues
 
@@ -241,6 +323,16 @@ gh issue create --repo <owner>/<repo> --title "<title>" --body-file <body.md> --
 When updating existing issues discovered earlier, add the canonical labels if the issue clearly maps
 to one lens. Do not relabel unrelated or ambiguous issues in bulk.
 
+Issue quality bar:
+
+1. title names the failing behavior or missing control,
+2. body cites concrete files, symbols, routes, contracts, migrations, tests, or docs,
+3. expected direction is implementation-oriented but does not over-prescribe a fragile design,
+4. acceptance criteria include tests and docs/context updates when truth changes,
+5. related issues are listed to prevent duplicate work,
+6. labels include `issue-discovery`, exactly one `lens/*`, and at most one primary `impact/*`
+   unless the repository already uses a stricter triage convention.
+
 ### 6. Verify And Summarize
 
 After filing:
@@ -252,6 +344,18 @@ After filing:
 5. update the app's GitHub issue-discovery ledger issue or state why no durable ledger update was
    made,
 6. summarize the lens covered and remaining logical next lens.
+
+If the review exposes a repeatable review weakness, update the skill source, routing map, or Lotus
+context in `lotus-platform` rather than relying on memory. Examples:
+
+- a new lens or label is repeatedly needed,
+- the ledger needs a stronger status or field,
+- duplicate checking failed because the skill lacked a symbol-search step,
+- agents repeatedly file broad issues without acceptance criteria,
+- a docs KB source should become a required anchor for a lens.
+
+For skill updates, edit the platform-owned source under `lotus-platform/codex/skills`, validate it,
+commit, raise a PR, sync the local skill after merge, and return the repo to clean `main`.
 
 ## Issue Body Template
 
@@ -291,6 +395,10 @@ Related but not duplicate of: #<issue>, #<issue>
 - Do not claim a lens is fully complete unless the current-state evidence proves it.
 - Do not let a broad architecture issue hide a concrete defect that needs its own fixable issue.
 - Do not create runtime service-split issues before in-process modularity has been evaluated.
+- Do not use the docs repo as a decoration; cite it only when it changes the standard or explains
+  why the code is materially risky.
+- Do not use local active fix diffs as stable evidence without noting that the finding may need
+  recheck after merge.
 
 ## Bundled Resources
 
