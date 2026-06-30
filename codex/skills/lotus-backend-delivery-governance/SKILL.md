@@ -70,6 +70,14 @@ Before changing code:
    - record the no-runtime-split decision when the slice intentionally improves design modularity
      inside one deployable application.
 
+When Docker/runtime behavior, package metadata, compose mounts, or service app imports are in
+scope, verify package import truth before relying on repo-root tests. Code inside a deployable
+service app package must not import its own app through a repo-root path such as
+`src.services.<same_service>.app...`; prefer relative imports for same-service modules, shared
+libraries or ports for durable cross-service contracts, and a focused runtime proof such as
+`PYTHONPATH=src/services/<service>;src/libs/portfolio-common python -c "import app.main"` for the
+affected service.
+
 Before editing backend code, produce a short quality intake from the actual repository:
 
 1. name the existing module, service, repository, model, router, and test patterns in the touched

@@ -751,6 +751,11 @@ Generated backend architecture gates should also protect `src/app/runtime` as
 the process-local composition layer: it may wire repositories, adapters,
 publishers, workers, and proof generators, but it must not import API routes,
 HTTP DTOs, FastAPI, or Starlette.
+Backend architecture gates should also protect service package import truth. Code inside a
+deployable service app package must not self-import through repo-root module paths that are absent
+from wheel, Docker, or compose runtime layouts; use relative imports for same-service code, shared
+contracts or ports for durable cross-service dependencies, and a focused `import app.main` runtime
+proof when service packaging or app imports change.
 Generated backend Makefiles also expose `UNIT_TESTS`, `INTEGRATION_TESTS`, and
 `E2E_TESTS` path overrides so focused fix-forward validation remains
 repo-native instead of becoming ad hoc pytest invocation; the generated CI
