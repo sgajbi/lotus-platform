@@ -247,3 +247,25 @@ pages, or stale publication quality.
    or `_Sidebar.md`.
 9. Record the wiki-quality evidence in PR notes: changed pages, reader audiences served, evidence
    anchors, limitations clarified, check-only result, and publish decision.
+
+## Deterministic Audit
+
+When a repo-local `wiki/` source changed, run:
+
+```bash
+python <lotus-platform>/codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki
+```
+
+Use the audit as a structural quality gate before publication. It checks for the failure modes that
+make a wiki look unfinished even when the prose is directionally correct:
+
+1. missing `Home.md` or `_Sidebar.md`,
+2. pages that are not reachable from `Home.md` or `_Sidebar.md`,
+3. broken local wiki links,
+4. duplicate or missing H1 page titles,
+5. bare URLs instead of named links,
+6. scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, `TBD`, and `FIXME`.
+
+If the audit fails on legacy pages outside the changed scope, either include the cleanup in the
+same polish slice or record the failure as an explicit follow-up with page names. Do not publish a
+known-unprofessional wiki without a visible exception decision.
