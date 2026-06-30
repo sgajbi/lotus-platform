@@ -120,6 +120,23 @@ Before filing, ask this final gate:
 
 If any answer is no, refine, split, or ledger the candidate instead of filing.
 
+For high-impact candidates, run this gold pass before opening the issue:
+
+1. **Current-truth proof**: inspect current source plus a counterpart artifact such as tests,
+   migrations, contracts, RFCs, wiki source, capability publication, OpenAPI output, runtime
+   evidence, or generated proof. Do not file from source or docs alone when the finding is about a
+   published capability.
+2. **Stateful-workflow proof**: for workflows with state, decisions, side effects, or evidence,
+   verify persistence owner, migration/table/collection posture, idempotency, replay, conflict,
+   audit, lineage, restart, scale-out, concurrency, and recovery behavior.
+3. **Owner-boundary proof**: state why this repository owns the fix, or why the issue is about this
+   repository's publication/consumer contract rather than another app's source-owned domain.
+4. **Runtime-support proof**: for production-risk issues, inspect runtime wiring, configuration,
+   health/readiness, observability, operator diagnostics, and failure behavior enough to make the
+   impact concrete.
+5. **Fixability proof**: define the smallest implementation slice and tests needed for acceptance.
+   If the fix is still a broad aspiration, ledger it as residual risk.
+
 Use this issue outcome decision:
 
 | Candidate State | Action |
