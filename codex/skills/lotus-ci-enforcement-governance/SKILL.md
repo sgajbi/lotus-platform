@@ -128,6 +128,13 @@ Prefer enforcement that blocks common agent failure modes:
 8. growth in uncategorized tests that makes future agents unable to tell which proof family a test
    protects.
 
+When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
+that registry instead of copying service lists into each workflow helper or assertion. If a runtime
+failure shows that a bootstrap, migration, topic, seed, or control-plane service was omitted from a
+gate, fix the shared service set first, then remove duplicated expected command lists from adjacent
+tests so the same drift cannot recur in latency, E2E, performance, failure-recovery, or
+institutional gates.
+
 For agent-generated code, prefer gates that enforce "improve or preserve" rather than "barely pass":
 quality scorecards, duplicate-code inventories, architecture boundary checks, OpenAPI/vocabulary
 checks, no-sensitive-observability checks, and documentation-current-state tests should make it hard
