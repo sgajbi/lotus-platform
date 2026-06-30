@@ -63,6 +63,25 @@ def test_ci_enforcement_governance_route_is_unambiguous() -> None:
     assert "lotus-platform/Continuous Integration, Validation, and Release Governance Standard.md" not in pr_skill
 
 
+def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    skill_manifest = _read(ROOT / "codex" / "skills" / "lotus-skill-manifest.json")
+    issue_skill = _read(ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "SKILL.md")
+    lens_catalog = _read(
+        ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "references" / "review-lenses.md"
+    )
+
+    assert "| Review a Lotus app lens by lens" in routing_map
+    assert "`lotus-app-issue-discovery`" in routing_map
+    assert '"lotus-app-issue-discovery"' in skill_manifest
+    assert "Do not edit code unless the user explicitly asks for fixes." in issue_skill
+    assert "Before raising issues, search GitHub for duplicates" in issue_skill
+    assert "For the lens catalog, read `references/review-lenses.md`." in issue_skill
+    assert "Transaction lifecycle" in lens_catalog
+    assert "Observability" in lens_catalog
+    assert "Security and privacy" in lens_catalog
+
+
 def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
