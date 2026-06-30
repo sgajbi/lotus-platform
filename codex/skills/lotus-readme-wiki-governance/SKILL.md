@@ -102,6 +102,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
      "production-ready" claims unless they are intentionally documented in a roadmap or gap
      section.
+   - run `python codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki`
+     when repo-local wiki source changed, then fix structural failures before publication or record
+     why a warning is intentionally outside the changed page set.
 15. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
@@ -316,12 +319,14 @@ After updating docs:
 11. run `lotus-platform/automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>` before
     merge when repo-local wiki source changed, and record the exact no-wiki-change decision when it
     did not,
-12. after wiki publication, run the same check-only command again or inspect the published Git tree
+12. run `scripts/audit_wiki_quality.py` against repo-local `wiki/` source when wiki pages changed,
+    especially after a user calls out weak formatting or professionalism,
+13. after wiki publication, run the same check-only command again or inspect the published Git tree
     when case-only page renames, deletions, or legacy page retirement were part of the slice,
-13. before closing a README/wiki slice, re-read the changed pages from the perspective of business,
+14. before closing a README/wiki slice, re-read the changed pages from the perspective of business,
     sales/demo, operations/support, and engineering readers; fix any page whose first screen does
     not expose current-state scope, evidence, and next action without relying on tribal knowledge,
-14. validate this skill with `quick_validate.py` after edits to the skill itself.
+15. validate this skill with `quick_validate.py` after edits to the skill itself.
 
 ## Durable Guidance
 

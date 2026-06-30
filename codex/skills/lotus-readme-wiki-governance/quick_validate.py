@@ -19,20 +19,25 @@ REQUIRED_SNIPPETS = [
     "Home",
     "_Sidebar",
     "changed pages",
+    "audit_wiki_quality.py",
+    "structural failures",
 ]
 
 REQUIRED_WIKI_REFERENCE_SNIPPETS = [
     "## Professional Publication Checklist",
     "## Rendered Quality Pass",
+    "## Deterministic Audit",
     "implementation-backed claim",
     "reader journey",
     "wiki-quality evidence",
+    "known-unprofessional wiki",
 ]
 
 REQUIRED_RELATIVE_PATHS = [
     "references/lotus-readme-wiki-standard.md",
     "references/lotus-wiki-pages.md",
     "references/github-wiki-publication.md",
+    "scripts/audit_wiki_quality.py",
 ]
 
 
