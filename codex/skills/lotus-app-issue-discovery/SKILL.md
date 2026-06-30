@@ -48,6 +48,21 @@ For every issue, prove four things before filing:
 3. the finding is not already covered by an open, closed, or actively fixed issue,
 4. the issue is fixable as a coherent implementation slice with clear acceptance criteria.
 
+Run the gold gate for high-impact findings before filing:
+
+1. **Truth gate**: prove the claim against current source plus one counterpart artifact such as a
+   test, migration, contract, RFC, wiki source, capability catalog, OpenAPI output, workflow, or
+   generated evidence file.
+2. **State gate**: for stateful workflows, prove whether state, idempotency, audit, lineage,
+   replay, and recovery are durable, transactional, and safe across restart and scale-out.
+3. **Ownership gate**: prove the target repository owns the failing behavior or the publication
+   contract that makes it actionable there.
+4. **Runtime gate**: when a finding affects production behavior, check startup/runtime wiring,
+   dependency injection, configuration, health/readiness, observability, and operator diagnostics.
+5. **Implementation gate**: make the expected direction specific enough that a fixing agent can
+   start without rediscovering the repo, but avoid prescribing a brittle design when multiple good
+   fixes exist.
+
 Prefer fewer, stronger issues. If a finding is speculative, stale, duplicate, or below the
 bank-buyable bar, record it in the ledger as residual risk instead of filing noise.
 
@@ -370,6 +385,22 @@ Do not file from a packet that is missing either `Evidence` or `Duplicate search
 Add `Owner boundary` whenever the issue touches cross-app behavior. State why the target repository
 owns the fix, or whether it is a publication, Gateway, Workbench, source-contract, or consumer
 integration issue. This prevents wrong-owner defects in a distributed Lotus review.
+
+For active capability, evidence, or supported-feature claims, add `Truth boundary`:
+
+1. what is claimed as supported,
+2. where the claim is published,
+3. which runtime/API/data/test evidence supports or contradicts it,
+4. what must be downgraded or implemented if the claim is not currently true.
+
+For stateful behavior, add `State boundary`:
+
+1. authoritative identity and lifecycle state,
+2. persistence owner and migration/table/collection evidence,
+3. idempotency, conflict, replay, and retry semantics,
+4. audit, lineage, correlation, and evidence references,
+5. restart, scale-out, concurrency, and recovery behavior,
+6. retention or archival posture where the state is regulated or client-relevant.
 
 ### 1C. Lens Completion Rules
 
