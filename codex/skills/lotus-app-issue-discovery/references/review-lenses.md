@@ -104,6 +104,74 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 
 For every lens, record whether the pass was code-backed, docs-backed, duplicate-checked, and ledgered.
 
+## User Prompt To Canonical Lens Map
+
+Use this map when the user describes a review angle in natural language. Pick one primary label for
+each issue, then mention secondary lenses in the issue body when helpful.
+
+| User wording or review intent | Primary labels to consider | Evidence to gather |
+| --- | --- | --- |
+| "architecture issues", "service boundaries", "dependency flow", "separation of concerns" | `lens/architecture-boundaries`, `lens/runtime-composition`, `lens/ports-adapters` | package imports, runtime wiring, dependency overrides, module ownership docs, tests that enforce boundaries |
+| "design modularity before runtime modularity" | `lens/architecture-boundaries`, `lens/runtime-composition` | in-process modules, ports, application services, runtime composition, evidence for or against process splits |
+| "business logic out of routers/controllers/middleware" | `lens/api-design-governance`, `lens/application-layer`, `lens/domain-layer` | route handlers, DTO mapping, use-case orchestration, domain policies/calculations, API tests |
+| "application layer responsibilities" | `lens/application-layer` | command/result types, orchestration services, idempotency/audit workflows, framework leakage |
+| "infrastructure responsibilities" | `lens/infrastructure`, `lens/ports-adapters` | repositories, clients, producers/consumers, persistence DTO mapping, adapter error mapping |
+| "ports" | `lens/ports-adapters` | repository/client/event/audit/idempotency/clock/UUID interfaces, concrete dependency usage in application logic |
+| "domain layer" | `lens/domain-layer`, `lens/domain-vocabulary`, `lens/calculations-methodology` | business models, value objects, policies, calculations, state transitions, private banking terms |
+| "logic testable without FastAPI, DB, Kafka, Redis, cloud, downstream APIs" | `lens/domain-layer`, `lens/application-layer`, `lens/ports-adapters`, `lens/testing-quality` | direct framework imports, repository/client dependencies, pure unit tests, fake ports, contract tests |
+| "API design, versioning, routing, pagination, filtering, sorting, errors" | `lens/api-design-governance` | routers, OpenAPI, DTOs, list APIs, problem details, examples, response models |
+| "HTTP boundary controls" | `lens/http-boundary-controls`, `lens/security-privacy` | CORS, trusted hosts, secure headers, request size limits, content-type checks, abuse protection |
+| "validation, idempotency, correlation IDs, auditability, lineage, traceability" | `lens/validation-idempotency`, `lens/auditability-lineage`, `lens/observability` | idempotency store, duplicate conflict semantics, correlation propagation, audit/evidence records |
+| "race conditions" | `lens/unit-of-work-transactions`, `lens/database-operations`, `lens/event-outbox-contracts` | claim/lease flows, uniqueness constraints, row locks, transaction scopes, outbox delivery tests |
+| "unnecessary data processing", "lack of correct logic", "batching/caching" | `lens/performance-scalability`, `lens/database-operations` | repeated full scans, N+1 reads, missing filters/indexes, pagination, cache invalidation, batch APIs |
+| "logging, tracing, monitoring" | `lens/observability`, `lens/operational-supportability` | structured logs, metrics, trace propagation, route templates, health/readiness, runbooks |
+| "security, vulnerabilities, auth, CORS, headers, secrets" | `lens/security-privacy`, `lens/configuration-secrets`, `lens/http-boundary-controls` | authn/authz, secret handling, config defaults, sensitive data exposure, abuse controls |
+| "database operations, indexes, performance" | `lens/database-operations`, `lens/performance-scalability`, `lens/data-model-quality` | migrations, query paths, indexes/constraints, hot filters/sorts, pooling/timeouts |
+| "domain modeling and private banking vocabulary" | `lens/domain-vocabulary`, `lens/domain-layer`, `lens/data-model-quality` | API/model/field names, status/state terms, docs vocabulary, product taxonomy alignment |
+| "transactions, lifecycle handling, positions" | `lens/transaction-lifecycle`, `lens/position-lifecycle`, `lens/data-model-quality` | linked legs, cash/security side, corrections/reversals, settlements, corporate actions, lots, availability |
+| "calculations" | `lens/calculations-methodology` | methodology docs, Decimal/rounding, FX, accrued interest, cost basis, income, cashflow, golden tests |
+| "CI, quality gates, release evidence" | `lens/ci-release-evidence`, `lens/testing-quality` | Make targets, workflows, continue-on-error, timeout-minutes, coverage, security scans, main release proof |
+| "README, wiki, architecture docs, API catalog, runbooks" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source |
+
+## Finding Decision Tree
+
+Use this decision tree before filing:
+
+1. Is the evidence in the target repository current source, tests, contracts, migrations, workflows,
+   docs, or runtime output? If not, do not file.
+2. Is the expected behavior grounded in docs KB, Lotus platform standards, repo context, a public
+   standard, or accepted private-banking/domain practice? If not, ledger-only.
+3. Does an open or closed GitHub issue already cover the same root cause and acceptance criteria?
+   If yes, reuse or comment instead of filing.
+4. Is the issue small enough for one implementation agent to start without re-discovering the whole
+   repo? If not, split it or turn it into ledger residual risk.
+5. Can acceptance criteria include tests, contract checks, docs/context updates, or validation
+   proof? If not, keep gathering evidence.
+
+## Evidence Strength Rubric
+
+| Strength | Meaning | Action |
+| --- | --- | --- |
+| Strong | Concrete code path plus matching missing/weak test or contract, with docs/platform standard support | File an issue |
+| Medium | Concrete code path and plausible risk, but standard or blast radius needs more proof | Inspect one more path or ledger as residual risk |
+| Weak | Search hit only, stale docs only, style preference, or future-state idea | Do not file |
+| Active fix | Same root cause is on an active branch or PR | Comment on existing issue/PR or mark ledger `Blocked By Active Fix` |
+
+## Required Issue Anchors By Lens Family
+
+Use these anchors to make issues practical:
+
+| Lens family | Minimum anchor |
+| --- | --- |
+| Layering and boundaries | import path or function showing cross-layer leakage, plus target direction |
+| API | route, DTO, OpenAPI behavior, error model, or missing pagination/filter contract |
+| Data/model/lifecycle | model/migration/DTO field, state transition, linked-leg behavior, or missing lineage |
+| Database/performance | query path, migration/index/constraint, hot access pattern, or batch/pagination gap |
+| Security/config | concrete auth/config/header/secret/sensitive-data path and expected safe behavior |
+| Observability/support | log/metric/trace/health/readiness/runbook path and missing diagnostic outcome |
+| Testing/CI | exact test family, Make target, workflow, gate, or release-evidence path |
+| Documentation | current-state claim, missing operator instruction, stale RFC/wiki/API catalog link |
+
 ## Lens-Specific Search Starters
 
 Use these as starting points, not as proof by themselves.
