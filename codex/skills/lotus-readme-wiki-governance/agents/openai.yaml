@@ -1,4 +1,4 @@
 interface:
   display_name: "Lotus Docs Governance"
-  short_description: "Standardize Lotus README and wiki."
-  default_prompt: "Use this skill to create or refresh a Lotus repository README and wiki with the governed structure, repo-type adjustments, code-surface discovery, and repo-local page set."
+  short_description: "Standardize and polish Lotus README/wiki."
+  default_prompt: "Use this skill to create, refresh, or professionally polish a Lotus repository README and wiki with governed structure, reader navigation, implementation-backed evidence, and repo-local publication discipline."

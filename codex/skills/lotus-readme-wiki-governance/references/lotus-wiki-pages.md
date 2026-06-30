@@ -223,3 +223,27 @@ Before treating a wiki source update as complete, verify:
 9. No page includes scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, or unqualified
    "production-ready" language unless the wording is intentionally part of a roadmap, gap register,
    or current limitation.
+
+## Rendered Quality Pass
+
+Run this pass whenever a user calls out poor formatting, weak professionalism, hard-to-scan wiki
+pages, or stale publication quality.
+
+1. Treat `Home.md`, `_Sidebar.md`, and every changed page as one reader journey, not isolated files.
+2. Rework the first screen of `Home.md` until it gives repository role, current maturity, evidence
+   posture, and audience paths without depending on a raw page list.
+3. Make `_Sidebar.md` a grouped navigation aid when the page set has more than a small handful of
+   pages. Use stable groups such as product, engineering, operations, and governance when they fit
+   the repo.
+4. Scan each changed page for first-screen purpose, current-state scope, clear next action, and
+   visible limitations.
+5. Replace wall-of-text explanations with narrow tables only when the table makes a decision faster.
+   Split any table that requires horizontal scanning to understand one row.
+6. Verify every implementation-backed claim has an evidence path: code, command, generated
+   artifact, test, RFC, runbook, scorecard, or supported-feature record.
+7. Move unsupported, target-state, aspirational, or commercial claims into roadmap or limitations
+   language before publication.
+8. Check every changed intra-wiki link and make sure each changed page is reachable from `Home.md`
+   or `_Sidebar.md`.
+9. Record the wiki-quality evidence in PR notes: changed pages, reader audiences served, evidence
+   anchors, limitations clarified, check-only result, and publish decision.
