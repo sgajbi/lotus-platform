@@ -654,6 +654,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
     expected_skills = {
         "gh-issue-fix-qa-loop",
         "lotus-backend-delivery-governance",
+        "lotus-app-issue-discovery",
         "lotus-codebase-review-ledger",
         "lotus-ci-enforcement-governance",
         "lotus-demo-readiness-certification",

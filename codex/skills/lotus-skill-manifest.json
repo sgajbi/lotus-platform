@@ -26,6 +26,13 @@
       "reason": "Pattern-based Lotus codebase review with durable review ledger."
     },
     {
+      "name": "lotus-app-issue-discovery",
+      "path": "codex/skills/lotus-app-issue-discovery",
+      "category": "issue-discovery",
+      "directly_lotus_owned": true,
+      "reason": "Evidence-backed Lotus app issue discovery across architecture, API, domain, lifecycle, mapping, security, observability, performance, testing, documentation, and bank-buyable readiness lenses."
+    },
+    {
       "name": "lotus-ci-enforcement-governance",
       "path": "codex/skills/lotus-ci-enforcement-governance",
       "category": "ci-enforcement-governance",
