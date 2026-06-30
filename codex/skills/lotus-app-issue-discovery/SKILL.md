@@ -73,6 +73,38 @@ If the user gives a time box, optimize for complete lens passes over issue count
 more proof than the time box allows, record it as residual risk and continue with the next most
 provable candidate.
 
+## Agent Execution Algorithm
+
+Use this algorithm when a future agent has only the skill and the user's latest request:
+
+1. **Resolve target**: identify the repository, GitHub owner/name, active branch, and whether the
+   request is issue-discovery only. If code edits were not requested, do not edit app code.
+2. **Protect local work**: run `git status --short --branch`; treat all dirty files as user or
+   active-agent work unless you created them in this turn.
+3. **Load standards**: read the mandatory context, the repo engineering context, the refactoring
+   playbook, the bank-buyable engineering contract, and the relevant docs KB pages for the lens.
+4. **Open the ledger**: find or create `<repo> Issue Discovery Ledger`; use it to determine covered,
+   blocked, remaining, and needs-recheck lenses.
+5. **Select one lens**: prefer the user's lens, then ledger gaps, then the baseline queue. Do not
+   jump across unrelated lenses to inflate issue count.
+6. **Inspect source**: use `rg` first, then read representative source, tests, docs/contracts,
+   migrations/workflows, and runtime wiring. Gather line-level or symbol-level evidence.
+7. **Compare to standard**: decide whether behavior violates repo responsibility, Lotus platform
+   standards, docs KB, domain practice, or public technical standards.
+8. **Search duplicates**: search open and closed GitHub issues with broad lens terms, concrete
+   symbols, route/table/event names, and likely fix terms.
+9. **Classify candidates**: `new issue`, `existing issue`, `active-fix feedback`, `ledger-only
+   residual risk`, or `no issue`.
+10. **File or decline**: create labels, file one issue per root cause only when evidence and
+    duplicate checks are complete, or record why nothing met the bar.
+11. **Update ledger**: add a compact comment with status, proof flags, inspected paths, duplicate
+    searches, issue numbers, active blockers, residual risk, and next lens.
+12. **Report**: tell the user which lens was covered, what was filed or declined, current worktree
+    state, and the recommended next lens or app handoff point.
+
+If any step cannot be completed, record the reason in the ledger and continue with the next
+defensible action. Do not silently skip duplicate searches, standards lookup, or ledger updates.
+
 ## Required Context
 
 Load the smallest correct context set:
@@ -115,7 +147,10 @@ Use `references/review-lenses.md` to translate user wording into canonical label
 FastAPI/database/Kafka/Redis/cloud" maps primarily to `lens/domain-layer`, `lens/application-layer`,
 `lens/ports-adapters`, and `lens/testing-quality`; "race conditions and unnecessary processing"
 maps to `lens/unit-of-work-transactions`, `lens/database-operations`,
-`lens/performance-scalability`, and `lens/resilience`.
+`lens/performance-scalability`, and `lens/resilience`; "supported feature truth", "Workbench
+publication", "Gateway capability", or "what the app claims it supports" maps to
+`lens/capability-publication`; "proof artifacts", "certification evidence", "scorecards", or
+"implementation proof" maps to `lens/evidence-proof-contracts`.
 
 ## Docs Knowledge Routing
 
@@ -153,6 +188,21 @@ High-signal technical anchors include:
 When filing an issue, cite docs or platform standards only when they materially explain why the code
 is wrong, incomplete, or risky. Do not turn the issue into a generic essay; keep it tied to the
 target repository evidence.
+
+Use this review-standard stack in order:
+
+1. target repo source, tests, contracts, migrations, workflows, README, wiki source, RFCs, and
+   generated OpenAPI or published capability artifacts;
+2. target repo `REPOSITORY-ENGINEERING-CONTEXT.md`, especially ownership and non-ownership
+   boundaries;
+3. Lotus platform context, bank-buyable engineering contract, refactoring playbook, skill routing
+   map, and current platform standards;
+4. docs repo knowledge base for product/domain/technical standards;
+5. public industry or framework standards only when repo and platform standards do not answer the
+   question.
+
+If these sources conflict, prefer implementation truth for what exists now and platform/repo/docs
+truth for what the behavior must become. Record the conflict explicitly in the issue or ledger.
 
 ## Workflow
 
@@ -212,6 +262,9 @@ For each lens pass, use this loop:
 If the user asks whether the campaign is done or whether to move to another app, answer from the
 ledger, not memory. Report lenses covered, lenses remaining, active-fix blockers, highest-value
 remaining risk, and whether the current repository has reached a sensible handoff point.
+
+When the user asks for "N issues", interpret `N` as an upper bound, not a quota. Stop early when the
+remaining candidates are weak, duplicate, blocked by active fixes, or too broad for one agent.
 
 ### 1A. Lens Pass Standard
 
@@ -507,6 +560,9 @@ is it sensible to move to another app?"
 
 Labels: `issue-discovery`, `lens/<canonical-lens-label>`, `impact/<optional-impact>`
 
+## Standard
+- `<doc/platform/repo source>`: <expected behavior this issue uses>
+
 ## Finding
 <specific finding in current implementation>
 
@@ -515,6 +571,9 @@ Concrete evidence:
 - `<path>:<line or function>` <what it does>
 
 Related but not duplicate of: #<issue>, #<issue>
+
+Duplicate searches:
+- `<query>`: <result summary>
 
 ## Why This Matters
 <business, engineering, operational, security, or domain consequence>
@@ -541,6 +600,10 @@ Related but not duplicate of: #<issue>, #<issue>
   why the code is materially risky.
 - Do not use local active fix diffs as stable evidence without noting that the finding may need
   recheck after merge.
+- Do not file issues to satisfy an issue-count target when the next candidate is weak or duplicate.
+- Do not mark a ledger lens complete from memory; inspect current code and GitHub issue state first.
+- Do not create capability-publication issues against the wrong owner; verify the app owns the
+  published feature or that the problem is the app's contract/publication surface.
 
 ## Bundled Resources
 
