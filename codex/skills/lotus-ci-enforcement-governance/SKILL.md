@@ -299,6 +299,20 @@ If a repeatable enforcement pattern emerges:
 5. run platform bootstrap/validation automation to sync local skills and `AGENTS.md`,
 6. preserve unknown local non-Lotus skills.
 
+Before editing skills, context, or agent guidance, produce a short maintenance intake:
+
+1. name the real failure pattern, PR, CI run, review finding, validation artifact, or user-reported
+   documentation defect that justifies durable guidance,
+2. identify whether the right durable control is a skill edit, routing-map edit, central context
+   update, repo-local context update, scaffold/validator change, deterministic gate, advisory eval
+   case, or explicit no-change decision,
+3. prefer tightening the existing skill route before creating a new skill,
+4. update `lotus-readme-wiki-governance` only when README/wiki professionalism, reader navigation,
+   publication hygiene, or documentation presentation quality is the surfaced failure,
+5. run skill alignment validation, focused routing/context tests, and bootstrap sync after source
+   changes so deployed local skills are consumers of platform truth,
+6. record whether repo-local wiki source changed or explicitly why no wiki update was needed.
+
 When a quality signal changes repo organization, gate posture, or future-agent workflow, update
 README, repo-local wiki source, `REPOSITORY-ENGINEERING-CONTEXT.md`, central context, and this skill
 source in the same slice so the next agent starts from current truth.

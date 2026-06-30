@@ -51,6 +51,20 @@ When a Lotus skill changes:
 5. keep merge strategy guidance aligned to Lotus repository policy,
 6. update tests that validate the governed skill inventory.
 
+When the task is explicitly to improve skills, agent context, or reusable guidance:
+
+1. start with the existing skill route in `context/LOTUS-SKILL-ROUTING-MAP.md`,
+2. use `lotus-ci-enforcement-governance` for repeated agent-quality, CI, closure, API, architecture,
+   or test-quality failures,
+3. use `lotus-readme-wiki-governance` when the surfaced failure is README/wiki professionalism,
+   reader navigation, publication hygiene, or documentation presentation quality,
+4. update an existing skill before creating a new one unless the routing map proves a durable
+   uncovered task family,
+5. sync deployed local skills through `automation/Bootstrap-LotusDeveloperEnvironment.ps1` after the
+   platform-owned source changes,
+6. record a short no-skill/no-context decision when the lesson is local to one slice and does not
+   justify durable guidance.
+
 When the task is documentation-system work rather than code delivery, prefer the dedicated Lotus
 documentation workflow:
 
