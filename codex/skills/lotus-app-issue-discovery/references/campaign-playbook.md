@@ -18,6 +18,25 @@ into an operating loop that a future agent can follow without prior chat context
    `references/lens-coverage-ledger-template.md`.
 7. Read the ledger comments or table before choosing a lens. Do not rely on chat memory.
 
+### No-Chat Recovery Packet
+
+When resuming after compaction, handoff, or a fresh prompt, rebuild this packet before inspecting a
+new finding:
+
+- Target: local path, GitHub `owner/repo`, branch, dirty worktree files, and open PRs.
+- Ledger: ledger issue number, latest ledger comments, covered lenses, blocked lenses, and
+  remaining high-value lenses.
+- Open defects: current open `issue-discovery` issues with labels, active assignee/PR if visible,
+  and whether each lens is waiting for implementation.
+- Standards: exact repo context, platform standard, docs KB page, RFC, or contract that governs the
+  next lens.
+- Evidence scope: source, tests, docs, contracts, workflows, migrations, or runtime artifacts that
+  must be read before filing.
+- Handoff decision: continue this app, wait for active fixes, or move to another app.
+
+If the packet cannot be reconstructed, write the gap into the ledger and continue with the safest
+bounded inspection. Do not infer coverage from old chat.
+
 Use this quick command set at the start of a resumed campaign:
 
 ```powershell
@@ -44,6 +63,10 @@ Choose the next lens using this order:
 Prefer a complete lens pass over a larger issue count. A complete pass includes source inspection,
 docs or standards comparison, duplicate checks, labels, issue creation or no-issue decision, and a
 ledger update.
+
+Avoid repeatedly mining the same area. If a lens already has one or more strong open issues and no
+new distinct root cause is visible, mark the lens `Issues Raised` or `Needs Recheck`, then move to
+the next ledger gap. The campaign goal is coverage of meaningful risk, not issue volume.
 
 ## 3. Build A Lens Evidence Packet
 
@@ -157,6 +180,14 @@ After every lens pass, add a compact ledger comment with:
 - next suggested lens.
 - recommendation: continue this app, wait for active fixes, or move to another app.
 
+Also keep the ledger useful for the user:
+
+- include approximate coverage such as `Covered/Issues Raised/Blocked/Needs Recheck/Not Started`;
+- name the most important remaining lenses, not every low-value possibility;
+- distinguish "issue filed" from "lens complete";
+- identify which issues should be rechecked after the implementation agent merges fixes;
+- record a no-issue pass when evidence was inspected and the current code met the bar.
+
 Use status consistently:
 
 - `Issues Raised`: findings exist, but the lens may still have residual review.
@@ -164,6 +195,14 @@ Use status consistently:
   notes are complete for current campaign depth.
 - `Blocked By Active Fix`: same area is changing now.
 - `Needs Recheck`: evidence may be stale after a merge or broad fix.
+
+### Move-App Decision
+
+Recommend moving to another app when most high-value lenses are `Covered For Now`, `Issues Raised`
+with implementation waiting, or `Blocked By Active Fix`, and the remaining lenses are low-value,
+duplicate-heavy, or need runtime evidence that is not currently available. Recommend continuing
+when unreviewed lenses still cover source-owned domain behavior, public API contracts, production
+supportability, security/privacy, data lifecycle, performance hot paths, or release evidence.
 
 ## 8. Work In Time Boxes
 
@@ -210,7 +249,21 @@ Promote learning into the platform-owned skill when any of these recur:
 - a Lotus-specific review area keeps being forced into a generic label, such as capability
   publication or evidence/proof contracts.
 - agents need the same GitHub issue searches, issue-body structure, or ledger fields repeatedly.
+- future agents need a new lens label to avoid forcing a distinct review class into a generic
+  category.
+- the user asks for a stronger reusable process and the current skill does not fully explain how to
+  recover state, select lenses, file labels, update ledgers, or decide app handoff.
 
 Update the source under `lotus-platform/codex/skills/lotus-app-issue-discovery`, validate it, commit
 it, raise a PR, merge it, sync local skills, and return `lotus-platform` to clean `main`.
+
+For skill-maintenance slices, include this proof pack in the PR or final note:
+
+- skill files changed and why;
+- confirmation that the manifest changed only if a skill was added, removed, renamed, or moved;
+- `python <skill-creator>/scripts/quick_validate.py codex/skills/lotus-app-issue-discovery`;
+- `python automation/validate_lotus_skill_alignment.py`;
+- `powershell -ExecutionPolicy Bypass -File automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast -ValidateAfterSync`;
+- source-to-local parity for `lotus-app-issue-discovery`;
+- explicit no-wiki-change decision unless wiki source changed.
 

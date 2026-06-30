@@ -109,6 +109,40 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 
 For every lens, record whether the pass was code-backed, docs-backed, duplicate-checked, and ledgered.
 
+## Lens Definition Of Done
+
+A lens pass is complete for the current campaign depth only when all of these are true:
+
+1. at least one representative source path and one representative test, docs, contract, workflow, or
+   migration path were inspected, or the absence of that path was verified;
+2. the expected behavior was compared against repo context, Lotus platform standards, the docs KB,
+   an RFC/contract, or accepted industry/domain practice;
+3. GitHub duplicate searches covered broad lens terms and concrete symbols from the evidence;
+4. labels were ensured or existing labels were confirmed;
+5. every candidate was classified as `new issue`, `existing issue`, `active-fix feedback`,
+   `ledger-only residual risk`, or `no issue`;
+6. the ledger records the status, proof flags, inspected paths, duplicate searches, issues
+   raised/reused, residual risk, and next lens.
+
+Do not mark `Covered For Now` when only a search was run, when the current active branch may change
+the evidence, or when a broad issue was filed but representative inspection is still incomplete.
+Use `Issues Raised` for open findings that need implementation, `Blocked By Active Fix` when the
+same files are changing, and `Needs Recheck` when the proof may be stale after a merge.
+
+## Campaign Coverage Model
+
+Use these groups when explaining progress or deciding whether to move to another app:
+
+- `Done enough for now`: lenses marked `Covered For Now`.
+- `Implementation waiting`: lenses marked `Issues Raised` with open implementation issues.
+- `Blocked`: lenses marked `Blocked By Active Fix` or tied to an open PR.
+- `Recheck later`: lenses marked `Needs Recheck`.
+- `Remaining`: lenses marked `Not Started` or with weak/no ledger evidence.
+
+The campaign is usually ready to pause or move apps when the first three groups cover the highest
+risk areas for that repository's source-owned responsibility and the remaining lenses are either
+lower value or depend on fixes/runtime evidence that has not landed.
+
 ## User Prompt To Canonical Lens Map
 
 Use this map when the user describes a review angle in natural language. Pick one primary label for
