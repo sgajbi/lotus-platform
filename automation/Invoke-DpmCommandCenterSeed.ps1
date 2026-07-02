@@ -234,6 +234,10 @@ $gatewayCommandCenterEmptyUri = (
   "&book_id=$($dpm.book_id)" +
   "&as_of_date=2099-01-01"
 )
+$gatewayOutcomeReviewsUri = (
+  "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" +
+  "?portfolio_id=$resolvedPortfolioId&limit=5"
+)
 
 $headers = @{
   "X-Actor-Id" = "platform-seed-automation"
@@ -349,6 +353,152 @@ function New-CampaignDefinitionBody {
     )
     created_by = [string]$campaignScenario.created_by
     correlation_id = "corr-canonical-dpm-campaign-$resolvedCampaignId-$timestamp"
+  }
+}
+
+function New-OutcomeSourceRef {
+  param(
+    [string]$SourceSystem,
+    [string]$SourceType,
+    [string]$SourceId,
+    [string]$SourceVersion,
+    [string]$ContentHash
+  )
+
+  return [ordered]@{
+    source_system = $SourceSystem
+    source_type = $SourceType
+    source_id = $SourceId
+    source_version = $SourceVersion
+    content_hash = $ContentHash
+  }
+}
+
+function New-OutcomeMetric {
+  param(
+    [string]$Value,
+    [string]$SourceSystem,
+    [string]$SourceType,
+    [string]$SourceId,
+    [string]$ReasonCode
+  )
+
+  $contentHash = "sha256:canonical-outcome-$SourceSystem-$SourceId"
+  return [ordered]@{
+    value = $Value
+    unit = "ratio"
+    source_refs = @(
+      New-OutcomeSourceRef `
+        -SourceSystem $SourceSystem `
+        -SourceType $SourceType `
+        -SourceId $SourceId `
+        -SourceVersion $contract.contract_version `
+        -ContentHash $contentHash
+    )
+    source_freshness = [ordered]@{
+      observed_at = "$resolvedAsOfDate`T01:10:00Z"
+      as_of_date = $resolvedAsOfDate
+      freshness_state = "CURRENT"
+    }
+    supportability = [ordered]@{
+      state = "READY"
+      reason_codes = @($ReasonCode)
+      required_source = $true
+    }
+  }
+}
+
+function New-CanonicalOutcomeReviewGatewayBody {
+  $expectedMetric = New-OutcomeMetric `
+    -Value "0.0350" `
+    -SourceSystem "lotus-manage" `
+    -SourceType "DpmExpectedOutcomeSnapshot:v1" `
+    -SourceId "$resolvedPortfolioId`:expected:$resolvedAsOfDate" `
+    -ReasonCode "EXPECTED_READY"
+  $realizedMetric = New-OutcomeMetric `
+    -Value "0.0340" `
+    -SourceSystem "lotus-performance" `
+    -SourceType "DpmRealizedOutcomeSnapshot:v1" `
+    -SourceId "$resolvedPortfolioId`:realized:$resolvedAsOfDate" `
+    -ReasonCode "REALIZED_READY"
+  $expectedSourceRef = New-OutcomeSourceRef `
+    -SourceSystem "lotus-platform" `
+    -SourceType "CanonicalDpmOutcomeExpectedEvidence" `
+    -SourceId "$resolvedPortfolioId`:expected:$resolvedAsOfDate" `
+    -SourceVersion $contract.contract_version `
+    -ContentHash "sha256:canonical-outcome-expected-$resolvedPortfolioId-$resolvedAsOfDate"
+  $realizedSourceRef = New-OutcomeSourceRef `
+    -SourceSystem "lotus-performance" `
+    -SourceType "CanonicalDpmOutcomeRealizedEvidence" `
+    -SourceId "$resolvedPortfolioId`:realized:$resolvedAsOfDate" `
+    -SourceVersion $contract.contract_version `
+    -ContentHash "sha256:canonical-outcome-realized-$resolvedPortfolioId-$resolvedAsOfDate"
+
+  return [ordered]@{
+    body = [ordered]@{
+      expected_snapshot = [ordered]@{
+        portfolio_id = $resolvedPortfolioId
+        mandate_id = $resolvedMandateId
+        rebalance_run_id = "rr_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        alternative_set_id = "cas_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        selected_alternative_id = "alt_min_turnover"
+        proof_pack_id = "dpp_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        wave_id = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        wave_item_id = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        operations_handoff_ref_id = "dwh_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        expected_values = [ordered]@{
+          DRIFT_REDUCTION = $expectedMetric
+        }
+        supportability = [ordered]@{
+          state = "READY"
+          reason_codes = @("EXPECTED_READY")
+          required_source = $true
+        }
+        source_lineage = @($expectedSourceRef)
+        source_hashes = [ordered]@{
+          expected = "sha256:canonical-outcome-expected-$resolvedPortfolioId-$resolvedAsOfDate"
+        }
+        section_hashes = [ordered]@{
+          selected_alternative = "sha256:canonical-outcome-selected-alternative-$resolvedPortfolioId-$resolvedAsOfDate"
+        }
+      }
+      realized_snapshot = [ordered]@{
+        portfolio_id = $resolvedPortfolioId
+        review_window = [ordered]@{
+          start_at = "$resolvedAsOfDate`T00:00:00Z"
+          end_at = "$resolvedAsOfDate`T23:59:59Z"
+          as_of_date = $resolvedAsOfDate
+          timezone = "Asia/Singapore"
+        }
+        realized_values = [ordered]@{
+          DRIFT_REDUCTION = $realizedMetric
+        }
+        supportability = [ordered]@{
+          state = "READY"
+          reason_codes = @("REALIZED_READY")
+          required_source = $true
+        }
+        source_lineage = @($realizedSourceRef)
+        source_hashes = [ordered]@{
+          realized = "sha256:canonical-outcome-realized-$resolvedPortfolioId-$resolvedAsOfDate"
+        }
+        quality_summary = [ordered]@{
+          COMPLETE = 1
+        }
+      }
+      dimension_configs = @(
+        [ordered]@{
+          dimension = "DRIFT_REDUCTION"
+          tolerance = [ordered]@{
+            soft = "0.0025"
+            hard = "0.0100"
+          }
+          materiality = "0.0050"
+          direction = "LOWER_IS_BETTER"
+        }
+      )
+      actor_id = "platform-seed-automation"
+    }
   }
 }
 
@@ -497,6 +647,22 @@ function Assert-CampaignPageContainsSeed {
   }
 }
 
+function Assert-OutcomeReviewPageContainsSeed {
+  param([object]$Response)
+
+  $items = @($Response.data.items)
+  $matched = @(
+    $items | Where-Object {
+      [string]$_.portfolio_id -eq $resolvedPortfolioId -and
+        [string]$_.mandate_id -eq $resolvedMandateId -and
+        [string]$_.state -eq "READY"
+    }
+  )
+  if ($matched.Count -lt 1) {
+    throw "Gateway outcome-review list did not include canonical READY review for $resolvedPortfolioId/$resolvedMandateId."
+  }
+}
+
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
   contract_id = $contract.contract_id
@@ -527,6 +693,7 @@ $summary = [ordered]@{
   gateway_command_center_uri = $gatewayCommandCenterUri
   gateway_command_center_partial_uri = $gatewayCommandCenterPartialUri
   gateway_command_center_empty_uri = $gatewayCommandCenterEmptyUri
+  gateway_outcome_reviews_uri = $gatewayOutcomeReviewsUri
   status = "ok"
   steps = @()
   posture_checks = @()
@@ -542,6 +709,8 @@ $summary = [ordered]@{
   gateway_command_center_response = $null
   gateway_command_center_partial_response = $null
   gateway_command_center_empty_response = $null
+  gateway_outcome_review_create_response = $null
+  gateway_outcome_reviews_response = $null
   error = $null
 }
 
@@ -633,6 +802,29 @@ try {
     Write-Host "[dpm-seed] verifying Gateway command-center summary"
     $summary.gateway_command_center_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterUri -Headers $headers
     $summary.steps += "gateway-command-center-summary"
+
+    Write-Host "[dpm-seed] creating canonical Gateway outcome-review evidence"
+    $outcomeReviewIdempotencyKey = "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}"
+    $summary.gateway_outcome_review_create_response = Invoke-JsonRequest `
+      -Method "Post" `
+      -Uri "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" `
+      -Headers @{
+        "Idempotency-Key" = $outcomeReviewIdempotencyKey
+        "X-Correlation-Id" = "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-$($resolvedAsOfDate -replace '-', '')"
+        "X-Actor-Id" = "platform-seed-automation"
+        "X-Tenant-Id" = $resolvedTenantId
+        "X-Region" = "APAC"
+      } `
+      -Body (New-CanonicalOutcomeReviewGatewayBody)
+    $summary.steps += "gateway-outcome-review-create"
+
+    Write-Host "[dpm-seed] verifying Gateway outcome-review list"
+    $summary.gateway_outcome_reviews_response = Invoke-JsonRequest `
+      -Method "Get" `
+      -Uri $gatewayOutcomeReviewsUri `
+      -Headers $headers
+    Assert-OutcomeReviewPageContainsSeed -Response $summary.gateway_outcome_reviews_response
+    $summary.steps += "gateway-outcome-review-list"
 
     $postureChecks = [System.Collections.ArrayList]::new()
     Add-CommandCenterPostureCheck `

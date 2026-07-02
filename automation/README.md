@@ -630,8 +630,9 @@ Workbench validation. That seed refreshes the canonical mandate from `lotus-core
 `lotus-manage`, runs one Manage monitoring pass for command-center evidence, persists or reuses
 the canonical source-backed DPM campaign definition for
 `lotus-core:DpmPortfolioUniverseCandidate:v1`, including source-owned selection-basis evidence
-from the governed contract, then verifies the manage lookup, Gateway campaign definition/discovery
-paths, and Gateway command-center read paths so
+from the governed contract, creates and verifies the canonical Manage-owned outcome review through
+Gateway, then verifies the manage lookup, Gateway campaign definition/discovery paths, and Gateway
+command-center read paths so
 `DPM_MANDATE_NOT_FOUND` is treated as a seed failure rather than a valid populated-panel state.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
@@ -681,7 +682,7 @@ Run full explicit Lotus cleanup, including matching local Lotus images, without 
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
 ```
 
-`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, DPM command-center seed status, ready/partial/empty posture checks, seed wait, and run status.
+`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, DPM command-center seed status, outcome-review seed evidence, ready/partial/empty posture checks, seed wait, and run status.
 
 For a clean demo rebuild from stale local state:
 
@@ -689,9 +690,28 @@ For a clean demo rebuild from stale local state:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning
 ```
 
+The clean demo rebuild is also the all-Lotus-app local rebuild: it keeps the governed front-office
+validation contract and adds `lotus-idea` runtime evidence by default.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning
+```
+
+The governed Workbench runtime starts `lotus-idea` from its app-local Docker compose by default,
+and the wrapper records both direct `127.0.0.1:8330` readiness and `idea.dev.lotus` ingress
+readiness under `lotus_idea` in the wrapper summary. This keeps `lotus-idea` visible for all-app
+validation without treating it as a Workbench populated-panel surface or changing the
+RFC-0076/RFC-0077 front-office screenshot evidence contract.
+
+If Windows blocks hosts-file updates, run the reusable elevated helper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Apply-DevIngressHosts-Elevated.ps1
+```
+
 Troubleshoot failures by category:
 
-1. hostname failures: run `automation/Sync-Dev-Ingress-Hosts.ps1 -Apply` from an elevated shell,
+1. hostname failures: run `automation/Apply-DevIngressHosts-Elevated.ps1`, or run `automation/Sync-Dev-Ingress-Hosts.ps1 -Apply` from an elevated shell,
 2. readiness failures: inspect the failing canonical service health endpoint in `latest.json`,
 3. seed failures: rerun the `lotus-core` front-office seed verifier for `PB_SG_GLOBAL_BAL_001`,
 4. calculation failures: inspect `calculationChecks` in `live-validation-summary.json`,
