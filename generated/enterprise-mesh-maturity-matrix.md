@@ -5,7 +5,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Generated at: `2026-06-24T00:00:00Z`
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `11`
-- Product count: `80`
+- Product count: `81`
 - Certified first-wave products: `8`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
@@ -15,7 +15,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | Repository | Classification | Mesh role | Produced | Consumed | Next step |
 | --- | --- | --- | ---: | ---: | --- |
 | `lotus-platform` | `not_mesh_participant` | `platform_governance` | `0` | `0` | Owns contracts, validators, generated evidence, CI, and certification enforcement rather than product truth. |
-| `lotus-core` | `certified_first_wave` | `producer` | `43` | `0` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-core` | `certified_first_wave` | `producer` | `44` | `0` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-performance` | `certified_first_wave` | `producer` | `8` | `8` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-risk` | `certified_first_wave` | `producer` | `8` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `8` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
@@ -71,6 +71,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:PortfolioCashflowProjection:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:PortfolioLiquidityLadder:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:PortfolioManagerBookMembership:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:PortfolioMaturitySummary:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:PortfolioRealizedTaxSummary:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:PortfolioStateSnapshot:v1` | `lotus-core` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
 | `lotus-core:PortfolioTaxLotWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |

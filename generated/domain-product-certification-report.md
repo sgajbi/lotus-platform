@@ -4,7 +4,7 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
-- Product count: `80`
+- Product count: `81`
 - Dependency count: `64`
 - Included repositories: `7`
 - Pending repositories: `0`
@@ -55,6 +55,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `PortfolioCashflowProjection` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioLiquidityLadder` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioManagerBookMembership` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioMaturitySummary` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioRealizedTaxSummary` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioStateSnapshot` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioTaxLotWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
