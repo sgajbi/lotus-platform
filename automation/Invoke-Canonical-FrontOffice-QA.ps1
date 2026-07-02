@@ -136,6 +136,20 @@ function Invoke-LotusIdeaDockerBringUp {
   }
 }
 
+function Invoke-LotusIdeaDockerDown {
+  param([string]$RepoPath)
+
+  Push-Location $RepoPath
+  try {
+    docker compose down --remove-orphans | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+      throw "lotus-idea Docker teardown failed with exit code $LASTEXITCODE."
+    }
+  } finally {
+    Pop-Location
+  }
+}
+
 function Test-HttpEndpoint {
   param(
     [string]$Name,
@@ -162,12 +176,35 @@ function Test-HttpEndpoint {
   }
 }
 
+function Wait-HttpEndpoint {
+  param(
+    [string]$Name,
+    [string]$Url,
+    [int]$Attempts = 12,
+    [int]$DelaySeconds = 5
+  )
+
+  $latest = $null
+  for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+    $latest = Test-HttpEndpoint -Name $Name -Url $Url
+    $latest["attempt"] = $attempt
+    $latest["max_attempts"] = $Attempts
+    if ($latest.ready) {
+      return $latest
+    }
+    if ($attempt -lt $Attempts) {
+      Start-Sleep -Seconds $DelaySeconds
+    }
+  }
+  return $latest
+}
+
 function Invoke-LotusIdeaValidation {
   param([string]$RepoPath)
 
   $checks = @(
-    Test-HttpEndpoint -Name "lotus-idea-direct-readiness" -Url "http://127.0.0.1:8330/health/ready"
-    Test-HttpEndpoint -Name "lotus-idea-ingress-readiness" -Url "http://idea.dev.lotus/health/ready"
+    Wait-HttpEndpoint -Name "lotus-idea-direct-readiness" -Url "http://127.0.0.1:8330/health/ready"
+    Wait-HttpEndpoint -Name "lotus-idea-ingress-readiness" -Url "http://idea.dev.lotus/health/ready"
   )
   $allReady = -not ($checks | Where-Object { -not $_.ready })
 
@@ -386,6 +423,12 @@ try {
   $summary.error = $_.Exception.Message
 } finally {
   if ($BringUp -and -not $KeepRunning) {
+    try {
+      Invoke-LotusIdeaDockerDown -RepoPath $lotusIdeaRepoPath
+      $summary.steps += "lotus-idea-teardown"
+    } catch {
+      $summary.warnings += "lotus-idea teardown failed: $($_.Exception.Message)"
+    }
     try {
       Invoke-CanonicalRuntimeStep -StepName "teardown" -ScriptPath $stopScript -Arguments @{ ProjectsRoot = $ProjectsRoot }
       $summary.steps += "teardown"
