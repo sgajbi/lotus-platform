@@ -25,6 +25,7 @@ if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) {
 if ([string]::IsNullOrWhiteSpace($WorkbenchRepoPath)) {
   $WorkbenchRepoPath = Join-Path $ProjectsRoot "lotus-workbench"
 }
+$lotusIdeaRepoPath = Join-Path $ProjectsRoot "lotus-idea"
 if (-not (Test-Path $WorkbenchRepoPath)) {
   throw "Workbench repository path not found: $WorkbenchRepoPath"
 }
@@ -82,6 +83,101 @@ function Get-LotusDockerArtifacts {
     containers = $containers
     volumes = $volumes
     images = $images
+  }
+}
+
+function Stop-HostProcessOnPort {
+  param(
+    [int]$Port,
+    [string]$Description
+  )
+
+  $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+  if (-not $connections) {
+    return
+  }
+
+  $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique
+  foreach ($processId in $processIds) {
+    if (-not $processId) {
+      continue
+    }
+
+    $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
+    if (-not $process) {
+      Write-Host "Skipping stale $Description listener on :$Port (PID $processId) because the process already exited."
+      continue
+    }
+    if ($process.ProcessName -match "^(com\.docker|docker|vpnkit)") {
+      Write-Host "Leaving Docker-owned $Description listener on :$Port (PID $processId) in place."
+      continue
+    }
+
+    Write-Host "Stopping stale $Description process on :$Port (PID $processId) ..."
+    Stop-Process -Id $processId -Force -ErrorAction Stop
+  }
+
+  Start-Sleep -Seconds 2
+}
+
+function Invoke-LotusIdeaDockerBringUp {
+  param([string]$RepoPath)
+
+  Stop-HostProcessOnPort -Port 8330 -Description "lotus-idea"
+  Push-Location $RepoPath
+  try {
+    $global:LASTEXITCODE = 0
+    docker compose up -d --build
+    if ($LASTEXITCODE -ne 0) {
+      throw "lotus-idea Docker bring-up failed with exit code $LASTEXITCODE."
+    }
+  } finally {
+    Pop-Location
+  }
+}
+
+function Test-HttpEndpoint {
+  param(
+    [string]$Name,
+    [string]$Url
+  )
+
+  try {
+    $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 15
+    [ordered]@{
+      name = $Name
+      url = $Url
+      status_code = $response.StatusCode
+      ready = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300)
+      error = $null
+    }
+  } catch {
+    [ordered]@{
+      name = $Name
+      url = $Url
+      status_code = $null
+      ready = $false
+      error = $_.Exception.Message
+    }
+  }
+}
+
+function Invoke-LotusIdeaValidation {
+  param([string]$RepoPath)
+
+  $checks = @(
+    Test-HttpEndpoint -Name "lotus-idea-direct-readiness" -Url "http://127.0.0.1:8330/health/ready"
+    Test-HttpEndpoint -Name "lotus-idea-ingress-readiness" -Url "http://idea.dev.lotus/health/ready"
+  )
+  $allReady = -not ($checks | Where-Object { -not $_.ready })
+
+  [ordered]@{
+    repo_path = $RepoPath
+    compose_file = (Join-Path $RepoPath "docker-compose.yml")
+    direct_host = "http://127.0.0.1:8330"
+    canonical_host = "http://idea.dev.lotus"
+    checks = $checks
+    ready = $allReady
   }
 }
 
@@ -164,6 +260,8 @@ $summary = [ordered]@{
   clean_core_state = [bool]$CleanCoreState
   build_images = [bool]$BuildImages
   remove_images = [bool]$RemoveImages
+  include_lotus_idea = $true
+  canonical_core_demo_pack_enabled = $false
   dpm_command_center_seed_enabled = -not [bool]$SkipDpmCommandCenterSeed
   keep_running = [bool]$KeepRunning
   lotus_ai_env_file = $LotusAiEnvFile
@@ -174,6 +272,7 @@ $summary = [ordered]@{
   governed_live_summary = $liveSummaryPath
   screenshot_directory = $resolvedScreenshotDirectory
   runtime_transcript = $runtimeTranscriptPath
+  lotus_idea = $null
   dpm_command_center_seed_summary = $null
   docker_before = Get-LotusDockerArtifacts
   docker_after_clean = $null
@@ -230,6 +329,23 @@ try {
     $bringUpArguments.Remove("ScreenshotDirectory")
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
+  }
+
+  if ($BringUp -or (-not $Clean)) {
+    if (-not (Test-Path $lotusIdeaRepoPath)) {
+      throw "lotus-idea repository path not found: $lotusIdeaRepoPath"
+    }
+    if ($BringUp) {
+      Write-Host "[lotus-idea] starting app-local Docker runtime"
+      Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath
+      $summary.steps += "lotus-idea-bring-up"
+    }
+
+    $summary.lotus_idea = Invoke-LotusIdeaValidation -RepoPath $lotusIdeaRepoPath
+    $summary.steps += "lotus-idea-validate"
+    if (-not $summary.lotus_idea.ready) {
+      throw "lotus-idea readiness validation failed. See lotus_idea checks in the QA summary."
+    }
   }
 
   if ($BringUp -or (-not $Clean)) {
@@ -297,6 +413,8 @@ $markdown += "- Clean: $($summary.clean)"
 $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Remove images: $($summary.remove_images)"
+$markdown += "- Include lotus-idea: $($summary.include_lotus_idea)"
+$markdown += "- Canonical core demo pack enabled: $($summary.canonical_core_demo_pack_enabled)"
 $markdown += "- DPM command-center seed enabled: $($summary.dpm_command_center_seed_enabled)"
 $markdown += "- Keep running: $($summary.keep_running)"
 $markdown += "- Lotus AI env file: $($summary.lotus_ai_env_file)"
@@ -313,6 +431,11 @@ $markdown += "- Runtime transcript: $runtimeTranscriptPath"
 if ($summary.dpm_command_center_seed_summary) {
   $markdown += "- DPM command-center seed status: $($summary.dpm_command_center_seed_summary.status)"
   $markdown += "- DPM command-center seed mandate: $($summary.dpm_command_center_seed_summary.mandate_id)"
+}
+if ($summary.lotus_idea) {
+  $markdown += "- lotus-idea ready: $($summary.lotus_idea.ready)"
+  $markdown += "- lotus-idea direct host: $($summary.lotus_idea.direct_host)"
+  $markdown += "- lotus-idea canonical host: $($summary.lotus_idea.canonical_host)"
 }
 $markdown += ""
 $markdown += "## Steps"
@@ -345,6 +468,18 @@ if ($summary.screenshots.Count -gt 0) {
       $markdown += "- $($screenshot.name) - $($screenshot.panel) - $($screenshot.path)"
     } else {
       $markdown += "- $screenshot"
+    }
+  }
+}
+if ($summary.lotus_idea) {
+  $markdown += ""
+  $markdown += "## lotus-idea"
+  $markdown += ""
+  foreach ($check in @($summary.lotus_idea.checks)) {
+    $status = if ($check.ready) { "ready" } else { "failed" }
+    $markdown += "- $($check.name): $status $($check.url)"
+    if ($check.error) {
+      $markdown += "  Error: $($check.error)"
     }
   }
 }

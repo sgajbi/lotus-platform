@@ -28,6 +28,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     profiles_doc = json.loads((ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8"))
     automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
     automation_guide = (ROOT / "automation" / "docs" / "Automation-Guide.md").read_text(encoding="utf-8")
+    hosts_helper = (ROOT / "automation" / "Apply-DevIngressHosts-Elevated.ps1").read_text(
+        encoding="utf-8"
+    )
     directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
     profile_reference = (ROOT / "automation" / "docs" / "Profile-Reference.md").read_text(encoding="utf-8")
 
@@ -51,13 +54,22 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$Clean" in wrapper
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RemoveImages" in wrapper
+    assert "[switch]$IncludeLotusIdea" not in wrapper
     assert "[switch]$SkipDpmCommandCenterSeed" in wrapper
     assert "Get-LotusDockerArtifacts" in wrapper
     assert "Remove-LotusDockerArtifacts" in wrapper
     assert "Assert-NoLotusDockerArtifacts" in wrapper
+    assert "Invoke-LotusIdeaDockerBringUp" in wrapper
+    assert "Invoke-LotusIdeaValidation" in wrapper
+    assert "http://127.0.0.1:8330/health/ready" in wrapper
+    assert "http://idea.dev.lotus/health/ready" in wrapper
+    assert "lotus_idea" in wrapper
     assert "docker_before" in wrapper
     assert "docker_after_clean" in wrapper
     assert "Docker Evidence" in wrapper
+    assert "include_lotus_idea = $true" in wrapper
+    assert "canonical_core_demo_pack_enabled = $false" in wrapper
+    assert "Canonical core demo pack enabled" in wrapper
     assert "dpm_command_center_seed_summary" in wrapper
     assert "DPM command-center seed status" in wrapper
     assert "Screenshot directory" in wrapper
@@ -67,6 +79,13 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '$summary.steps -contains "bring-up" -or $summary.steps -contains "validate"' in wrapper
     assert "validation did not produce a live summary" in wrapper
     assert "validation summary is stale" in wrapper
+    assert "Apply-DevIngressHosts-Elevated.ps1" in automation_readme
+    assert "Apply-DevIngressHosts-Elevated.ps1" in automation_guide
+    assert "Sync-Dev-Ingress-Hosts.ps1" in hosts_helper
+    assert "-Apply" in hosts_helper
+    assert "ipconfig /flushdns" in hosts_helper
+    assert "Start-Process" in hosts_helper
+    assert "-Verb RunAs" in hosts_helper
 
     dpm_seed = (ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1").read_text(
         encoding="utf-8"
@@ -100,6 +119,14 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "gateway-command-center-partial-posture" in dpm_seed
     assert "gateway-command-center-empty-posture" in dpm_seed
     assert "DPM command-center posture validation failed" in dpm_seed
+    assert "New-CanonicalOutcomeReviewGatewayBody" in dpm_seed
+    assert "gateway-outcome-review-create" in dpm_seed
+    assert "gateway-outcome-review-list" in dpm_seed
+    assert "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}" in dpm_seed
+    assert "/api/v1/dpm/command-center/outcome-reviews" in dpm_seed
+    assert "Assert-OutcomeReviewPageContainsSeed" in dpm_seed
+    assert "CanonicalDpmOutcomeExpectedEvidence" in dpm_seed
+    assert "DpmRealizedOutcomeSnapshot:v1" in dpm_seed
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}
@@ -135,6 +162,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "panelClassifications" in automation_readme
     assert "runtime transcript" in automation_readme
     assert "DPM command-center seed" in automation_readme
+    assert "-IncludeLotusIdea" not in automation_readme
     assert "source-backed DPM campaign definition" in automation_readme
     assert "source-owned selection-basis evidence" in automation_readme
     assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
@@ -143,6 +171,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
+    assert "-IncludeLotusIdea" not in automation_guide
+    assert "lotus-idea" in automation_guide
+    assert "DEMO_DATA_PACK_ENABLED=false" in automation_guide
     assert "Docker cleanup scope" in automation_guide
     assert "runtime transcript" in automation_guide
     assert "DPM command-center seed" in automation_guide
