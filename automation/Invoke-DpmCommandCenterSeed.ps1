@@ -435,70 +435,68 @@ function New-CanonicalOutcomeReviewGatewayBody {
     -ContentHash "sha256:canonical-outcome-realized-$resolvedPortfolioId-$resolvedAsOfDate"
 
   return [ordered]@{
-    body = [ordered]@{
-      expected_snapshot = [ordered]@{
-        portfolio_id = $resolvedPortfolioId
-        mandate_id = $resolvedMandateId
-        rebalance_run_id = "rr_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        alternative_set_id = "cas_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        selected_alternative_id = "alt_min_turnover"
-        proof_pack_id = "dpp_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        wave_id = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        wave_item_id = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        operations_handoff_ref_id = "dwh_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        expected_values = [ordered]@{
-          DRIFT_REDUCTION = $expectedMetric
-        }
-        supportability = [ordered]@{
-          state = "READY"
-          reason_codes = @("EXPECTED_READY")
-          required_source = $true
-        }
-        source_lineage = @($expectedSourceRef)
-        source_hashes = [ordered]@{
-          expected = "sha256:canonical-outcome-expected-$resolvedPortfolioId-$resolvedAsOfDate"
-        }
-        section_hashes = [ordered]@{
-          selected_alternative = "sha256:canonical-outcome-selected-alternative-$resolvedPortfolioId-$resolvedAsOfDate"
-        }
+    expected_snapshot = [ordered]@{
+      portfolio_id = $resolvedPortfolioId
+      mandate_id = $resolvedMandateId
+      rebalance_run_id = "rr_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      alternative_set_id = "cas_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      selected_alternative_id = "alt_min_turnover"
+      proof_pack_id = "dpp_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      wave_id = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      wave_item_id = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      operations_handoff_ref_id = "dwh_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+      expected_values = [ordered]@{
+        DRIFT_REDUCTION = $expectedMetric
       }
-      realized_snapshot = [ordered]@{
-        portfolio_id = $resolvedPortfolioId
-        review_window = [ordered]@{
-          start_at = "$resolvedAsOfDate`T00:00:00Z"
-          end_at = "$resolvedAsOfDate`T23:59:59Z"
-          as_of_date = $resolvedAsOfDate
-          timezone = "Asia/Singapore"
-        }
-        realized_values = [ordered]@{
-          DRIFT_REDUCTION = $realizedMetric
-        }
-        supportability = [ordered]@{
-          state = "READY"
-          reason_codes = @("REALIZED_READY")
-          required_source = $true
-        }
-        source_lineage = @($realizedSourceRef)
-        source_hashes = [ordered]@{
-          realized = "sha256:canonical-outcome-realized-$resolvedPortfolioId-$resolvedAsOfDate"
-        }
-        quality_summary = [ordered]@{
-          COMPLETE = 1
-        }
+      supportability = [ordered]@{
+        state = "READY"
+        reason_codes = @("EXPECTED_READY")
+        required_source = $true
       }
-      dimension_configs = @(
-        [ordered]@{
-          dimension = "DRIFT_REDUCTION"
-          tolerance = [ordered]@{
-            soft = "0.0025"
-            hard = "0.0100"
-          }
-          materiality = "0.0050"
-          direction = "LOWER_IS_BETTER"
-        }
-      )
-      actor_id = "platform-seed-automation"
+      source_lineage = @($expectedSourceRef)
+      source_hashes = [ordered]@{
+        expected = "sha256:canonical-outcome-expected-$resolvedPortfolioId-$resolvedAsOfDate"
+      }
+      section_hashes = [ordered]@{
+        selected_alternative = "sha256:canonical-outcome-selected-alternative-$resolvedPortfolioId-$resolvedAsOfDate"
+      }
     }
+    realized_snapshot = [ordered]@{
+      portfolio_id = $resolvedPortfolioId
+      review_window = [ordered]@{
+        start_at = "$resolvedAsOfDate`T00:00:00Z"
+        end_at = "$resolvedAsOfDate`T23:59:59Z"
+        as_of_date = $resolvedAsOfDate
+        timezone = "Asia/Singapore"
+      }
+      realized_values = [ordered]@{
+        DRIFT_REDUCTION = $realizedMetric
+      }
+      supportability = [ordered]@{
+        state = "READY"
+        reason_codes = @("REALIZED_READY")
+        required_source = $true
+      }
+      source_lineage = @($realizedSourceRef)
+      source_hashes = [ordered]@{
+        realized = "sha256:canonical-outcome-realized-$resolvedPortfolioId-$resolvedAsOfDate"
+      }
+      quality_summary = [ordered]@{
+        COMPLETE = 1
+      }
+    }
+    dimension_configs = @(
+      [ordered]@{
+        dimension = "DRIFT_REDUCTION"
+        tolerance = [ordered]@{
+          soft = "0.0025"
+          hard = "0.0100"
+        }
+        materiality = "0.0050"
+        direction = "LOWER_IS_BETTER"
+      }
+    )
+    actor_id = "platform-seed-automation"
   }
 }
 
