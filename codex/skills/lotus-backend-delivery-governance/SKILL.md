@@ -75,8 +75,10 @@ scope, verify package import truth before relying on repo-root tests. Code insid
 service app package must not import its own app through a repo-root path such as
 `src.services.<same_service>.app...`; prefer relative imports for same-service modules, shared
 libraries or ports for durable cross-service contracts, and a focused runtime proof such as
-`PYTHONPATH=src/services/<service>;src/libs/portfolio-common python -c "import app.main"` for the
-affected service.
+`PYTHONPATH="src/services/<service>:src/libs/portfolio-common" python -c "import app.main"` in a
+POSIX shell, or
+`$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
+in PowerShell, for the affected service.
 
 Before editing backend code, produce a short quality intake from the actual repository:
 
