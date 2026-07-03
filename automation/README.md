@@ -697,11 +697,12 @@ validation contract and adds `lotus-idea` runtime evidence by default.
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages -KeepRunning
 ```
 
-The governed Workbench runtime starts `lotus-idea` from its app-local Docker compose by default,
-and the wrapper records both direct `127.0.0.1:8330` readiness and `idea.dev.lotus` ingress
-readiness under `lotus_idea` in the wrapper summary. This keeps `lotus-idea` visible for all-app
-validation without treating it as a Workbench populated-panel surface or changing the
-RFC-0076/RFC-0077 front-office screenshot evidence contract.
+The governed Workbench runtime starts and seeds `lotus-idea` from its app-local Docker compose by
+default. The platform wrapper preserves that seeded runtime and records both direct
+`127.0.0.1:8330` readiness and `idea.dev.lotus` ingress readiness under `lotus_idea` in the
+wrapper summary. This keeps `lotus-idea` visible for all-app validation without wiping the advisor
+queue, treating it as a Workbench populated-panel surface, or changing the RFC-0076/RFC-0077
+front-office screenshot evidence contract.
 
 If Windows blocks hosts-file updates, run the reusable elevated helper:
 

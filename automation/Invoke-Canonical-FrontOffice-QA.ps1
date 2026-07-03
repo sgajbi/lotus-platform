@@ -86,63 +86,6 @@ function Get-LotusDockerArtifacts {
   }
 }
 
-function Assert-NoUnownedHostPortListener {
-  param(
-    [int]$Port,
-    [string]$Description
-  )
-
-  $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-  if (-not $connections) {
-    return
-  }
-
-  $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique
-  foreach ($processId in $processIds) {
-    if (-not $processId) {
-      continue
-    }
-
-    $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
-    if (-not $process) {
-      Write-Host "Skipping stale $Description listener on :$Port (PID $processId) because the process already exited."
-      continue
-    }
-    if ($process.ProcessName -match "^(com\.docker|docker|vpnkit)") {
-      Write-Host "Leaving Docker-owned $Description listener on :$Port (PID $processId) in place."
-      continue
-    }
-
-    throw (
-      "Port $Port is already owned by PID $processId ($($process.ProcessName)); " +
-      "not stopping an unowned process for $Description. Stop the conflicting process and rerun QA."
-    )
-  }
-}
-
-function Invoke-LotusIdeaDockerBringUp {
-  param(
-    [string]$RepoPath,
-    [bool]$BuildImages = $false
-  )
-
-  Assert-NoUnownedHostPortListener -Port 8330 -Description "lotus-idea"
-  Push-Location $RepoPath
-  try {
-    $global:LASTEXITCODE = 0
-    $composeArguments = @("compose", "up", "-d")
-    if ($BuildImages) {
-      $composeArguments += "--build"
-    }
-    & docker @composeArguments
-    if ($LASTEXITCODE -ne 0) {
-      throw "lotus-idea Docker bring-up failed with exit code $LASTEXITCODE."
-    }
-  } finally {
-    Pop-Location
-  }
-}
-
 function Invoke-LotusIdeaDockerDown {
   param([string]$RepoPath)
 
@@ -380,9 +323,7 @@ try {
       throw "lotus-idea repository path not found: $lotusIdeaRepoPath"
     }
     if ($BringUp) {
-      Write-Host "[lotus-idea] starting app-local Docker runtime"
-      Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath -BuildImages ([bool]$BuildImages)
-      $summary.steps += "lotus-idea-bring-up"
+      Write-Host "[lotus-idea] preserving governed runtime started and seeded by canonical Workbench startup"
     }
 
     $summary.lotus_idea = Invoke-LotusIdeaValidation -RepoPath $lotusIdeaRepoPath
