@@ -196,6 +196,9 @@ $latestEvidencePath = Join-Path $resolvedOutputDirectory "dpm-command-center-see
 
 $manageApiBaseUrl = $ManageBaseUrl.TrimEnd("/")
 $gatewayApiBaseUrl = $GatewayBaseUrl.TrimEnd("/")
+$outcomeReviewRebalanceRunId = "rr_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+$outcomeReviewWaveId = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+$outcomeReviewWaveItemId = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
 $refreshUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/refresh-from-core"
 $monitoringRunUri = "$manageApiBaseUrl/api/v1/dpm/monitoring/run-once"
 $actionRegisterSimulationUri = "$manageApiBaseUrl/api/v1/rebalance/simulate"
@@ -236,7 +239,7 @@ $gatewayCommandCenterEmptyUri = (
 )
 $gatewayOutcomeReviewsUri = (
   "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" +
-  "?portfolio_id=$resolvedPortfolioId&limit=5"
+  "?portfolio_id=$resolvedPortfolioId&limit=50"
 )
 
 $headers = @{
@@ -439,12 +442,12 @@ function New-CanonicalOutcomeReviewGatewayBody {
       expected_snapshot = [ordered]@{
         portfolio_id = $resolvedPortfolioId
         mandate_id = $resolvedMandateId
-        rebalance_run_id = "rr_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        rebalance_run_id = $outcomeReviewRebalanceRunId
         alternative_set_id = "cas_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
         selected_alternative_id = "alt_min_turnover"
         proof_pack_id = "dpp_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        wave_id = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
-        wave_item_id = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
+        wave_id = $outcomeReviewWaveId
+        wave_item_id = $outcomeReviewWaveItemId
         operations_handoff_ref_id = "dwh_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
         expected_values = [ordered]@{
           DRIFT_REDUCTION = $expectedMetric
@@ -653,14 +656,32 @@ function Assert-OutcomeReviewPageContainsSeed {
   $items = @($Response.data.items)
   $matched = @(
     $items | Where-Object {
+      $expectedSnapshot = $_.expected_snapshot
+      $observedRunId = [string]$_.rebalance_run_id
+      if ([string]::IsNullOrWhiteSpace($observedRunId) -and $expectedSnapshot) {
+        $observedRunId = [string]$expectedSnapshot.rebalance_run_id
+      }
+      $observedWaveId = [string]$_.wave_id
+      if ([string]::IsNullOrWhiteSpace($observedWaveId) -and $expectedSnapshot) {
+        $observedWaveId = [string]$expectedSnapshot.wave_id
+      }
+
       [string]$_.portfolio_id -eq $resolvedPortfolioId -and
         [string]$_.mandate_id -eq $resolvedMandateId -and
-        [string]$_.state -eq "READY"
+        [string]$_.state -eq "READY" -and
+        $observedRunId -eq $outcomeReviewRebalanceRunId -and
+        $observedWaveId -eq $outcomeReviewWaveId
     }
   )
   if ($matched.Count -lt 1) {
-    throw "Gateway outcome-review list did not include canonical READY review for $resolvedPortfolioId/$resolvedMandateId."
+    throw (
+      "Gateway outcome-review list did not include canonical READY review for " +
+      "$resolvedPortfolioId/$resolvedMandateId with rebalance_run_id $outcomeReviewRebalanceRunId " +
+      "and wave_id $outcomeReviewWaveId."
+    )
   }
+
+  return $matched[0]
 }
 
 $summary = [ordered]@{
@@ -823,7 +844,8 @@ try {
       -Method "Get" `
       -Uri $gatewayOutcomeReviewsUri `
       -Headers $headers
-    Assert-OutcomeReviewPageContainsSeed -Response $summary.gateway_outcome_reviews_response
+    $summary.gateway_outcome_review_verified_item = Assert-OutcomeReviewPageContainsSeed `
+      -Response $summary.gateway_outcome_reviews_response
     $summary.steps += "gateway-outcome-review-list"
 
     $postureChecks = [System.Collections.ArrayList]::new()

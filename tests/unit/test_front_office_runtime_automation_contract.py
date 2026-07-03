@@ -28,6 +28,12 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     profiles_doc = json.loads((ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8"))
     automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
     automation_guide = (ROOT / "automation" / "docs" / "Automation-Guide.md").read_text(encoding="utf-8")
+    root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    docs_readme = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
+    wiki_home = (ROOT / "wiki" / "Home.md").read_text(encoding="utf-8")
+    wiki_overview = (ROOT / "wiki" / "Overview.md").read_text(encoding="utf-8")
+    wiki_platform_surfaces = (ROOT / "wiki" / "Platform-Surfaces.md").read_text(encoding="utf-8")
+    wiki_sidebar = (ROOT / "wiki" / "_Sidebar.md").read_text(encoding="utf-8")
     hosts_helper = (ROOT / "automation" / "Apply-DevIngressHosts-Elevated.ps1").read_text(
         encoding="utf-8"
     )
@@ -61,6 +67,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Assert-NoLotusDockerArtifacts" in wrapper
     assert "Invoke-LotusIdeaDockerBringUp" in wrapper
     assert "Invoke-LotusIdeaValidation" in wrapper
+    assert "Assert-NoUnownedHostPortListener" in wrapper
+    assert "Stop-Process" not in wrapper
+    assert "not stopping an unowned process for $Description" in wrapper
+    assert '$summary.status = "failed"' in wrapper
     assert "http://127.0.0.1:8330/health/ready" in wrapper
     assert "http://idea.dev.lotus/health/ready" in wrapper
     assert "lotus_idea" in wrapper
@@ -124,6 +134,12 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "gateway-outcome-review-list" in dpm_seed
     assert "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}" in dpm_seed
     assert "/api/v1/dpm/command-center/outcome-reviews" in dpm_seed
+    assert "limit=50" in dpm_seed
+    assert "$outcomeReviewRebalanceRunId" in dpm_seed
+    assert "$outcomeReviewWaveId" in dpm_seed
+    assert "gateway_outcome_review_verified_item" in dpm_seed
+    assert "observedRunId -eq $outcomeReviewRebalanceRunId" in dpm_seed
+    assert "observedWaveId -eq $outcomeReviewWaveId" in dpm_seed
     assert "Assert-OutcomeReviewPageContainsSeed" in dpm_seed
     assert "CanonicalDpmOutcomeExpectedEvidence" in dpm_seed
     assert "DpmRealizedOutcomeSnapshot:v1" in dpm_seed
@@ -185,6 +201,20 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "`qa-platform-readiness-clean-core`" in profile_reference
     assert "`qa-platform-readiness-clean-core-build`" in profile_reference
     assert "Governed front-office runtime bring-up and populated UI proof" in profile_reference
+    assert "Reader Paths" in root_readme
+    assert "Human approval reviews are optional" in root_readme
+    assert "canonical private-banking seed data excludes the demo pack by default" in root_readme
+    assert "`lotus-idea` is included by default in canonical platform QA" in root_readme
+    assert "Canonical front-office proof and demo boundaries" in docs_readme
+    assert "Documentation in this directory must stay implementation-backed" in docs_readme
+    assert "Reader Paths" in wiki_home
+    assert "`lotus-idea` runtime" in wiki_home
+    assert "the demo pack is not part of canonical PB seed by default" in wiki_home
+    assert "Included by default in canonical platform QA" in wiki_overview
+    assert "Canonical front-office QA includes `lotus-idea` by default" in wiki_platform_surfaces
+    assert "## Product And Demo" in wiki_sidebar
+    assert "## Operations" in wiki_sidebar
+    assert "## Governance" in wiki_sidebar
 
 
 def test_front_office_docs_distinguish_governed_ui_qa_from_backend_runtime_qa() -> None:

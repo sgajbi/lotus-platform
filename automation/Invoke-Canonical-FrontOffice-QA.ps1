@@ -86,7 +86,7 @@ function Get-LotusDockerArtifacts {
   }
 }
 
-function Stop-HostProcessOnPort {
+function Assert-NoUnownedHostPortListener {
   param(
     [int]$Port,
     [string]$Description
@@ -113,17 +113,17 @@ function Stop-HostProcessOnPort {
       continue
     }
 
-    Write-Host "Stopping stale $Description process on :$Port (PID $processId) ..."
-    Stop-Process -Id $processId -Force -ErrorAction Stop
+    throw (
+      "Port $Port is already owned by PID $processId ($($process.ProcessName)); " +
+      "not stopping an unowned process for $Description. Stop the conflicting process and rerun QA."
+    )
   }
-
-  Start-Sleep -Seconds 2
 }
 
 function Invoke-LotusIdeaDockerBringUp {
   param([string]$RepoPath)
 
-  Stop-HostProcessOnPort -Port 8330 -Description "lotus-idea"
+  Assert-NoUnownedHostPortListener -Port 8330 -Description "lotus-idea"
   Push-Location $RepoPath
   try {
     $global:LASTEXITCODE = 0
@@ -427,7 +427,12 @@ try {
       Invoke-LotusIdeaDockerDown -RepoPath $lotusIdeaRepoPath
       $summary.steps += "lotus-idea-teardown"
     } catch {
-      $summary.warnings += "lotus-idea teardown failed: $($_.Exception.Message)"
+      $teardownError = "lotus-idea teardown failed: $($_.Exception.Message)"
+      $summary.warnings += $teardownError
+      $summary.status = "failed"
+      if (-not $summary.error) {
+        $summary.error = $teardownError
+      }
     }
     try {
       Invoke-CanonicalRuntimeStep -StepName "teardown" -ScriptPath $stopScript -Arguments @{ ProjectsRoot = $ProjectsRoot }
