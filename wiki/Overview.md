@@ -7,6 +7,9 @@
 It provides the engineering system that makes the wider Lotus ecosystem repeatable, supportable,
 and governed.
 
+It is not a product UI or a business-domain API. It is the control layer that keeps Lotus apps,
+runtime evidence, standards, and agent work aligned.
+
 ## What it owns
 
 - central context and registries
@@ -36,18 +39,25 @@ The platform layer exists to ensure:
 
 ## Current posture
 
-- RFC-0072 governs CI and validation lanes
-- RFC-0073 governs the context and agent-guidance system
-- RFC-0074 governs onboarding, bootstrap, and skill distribution posture
-- `lotus-workbench` is the canonical front-office runtime
-- `lotus-platform` wraps that runtime with ingress, QA, and governance support
+| Area | Current Implementation-Backed Posture |
+| --- | --- |
+| CI and validation | RFC-0072 governs feature, PR merge, main releasability, and platform validation lanes. |
+| Context and agents | RFC-0073 and RFC-0074 govern central context, agent ramp-up, operating-contract sync, and skill distribution posture. |
+| Canonical front-office proof | `lotus-workbench` owns the populated runtime; `lotus-platform` wraps ingress, QA summaries, screenshots, and governance evidence. |
+| Canonical data | `PB_SG_GLOBAL_BAL_001` is governed by platform contract files, and the demo pack is excluded from canonical PB seed by default. |
+| `lotus-idea` | Included by default in canonical platform QA with readiness and teardown evidence; mesh certification remains evidence-gated. |
+| Merge policy | CI and conversation resolution are required controls; human approval reviews are optional in the single-developer baseline. |
 
-## Cross-cutting commercial narrative
+## Cross-Cutting Commercial Narrative
 
 Lotus also needs a consistent ecosystem-level way to explain why the platform matters commercially.
 
 That narrative belongs here in `lotus-platform`, not as accidental residue inside one application
 repository.
+
+Commercial pages must stay implementation-backed. They may explain operating value, delivery
+leverage, and supportability posture, but they must not imply unsupported product readiness or
+unverified market claims.
 
 See:
 

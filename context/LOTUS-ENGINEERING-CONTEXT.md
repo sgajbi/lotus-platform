@@ -107,14 +107,13 @@ For cross-domain governed data products:
 6. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
 7. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
-   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and catalog-visible
-   future-wave `lotus-idea`,
+   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and `lotus-idea`,
 8. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
    `lotus-advise`; `lotus-report` and `lotus-manage` are current consumer-declaration
    participants,
-9. `lotus-idea` is catalog-visible as a future-wave opportunity-intelligence producer/consumer
-   with proposed products only; it is not first-wave mesh certified until runtime trust telemetry,
-   SLO, access, evidence, Gateway, Workbench, and supported-feature proof pass,
+9. `lotus-idea` is repo-native and included by default in canonical platform/runtime automation, but
+   its opportunity-intelligence products remain mesh-certification gated until runtime trust
+   telemetry, SLO, access, evidence, Gateway, Workbench, and supported-feature proof pass,
 10. `lotus-ai` is not a first-wave domain-product producer or consumer declaration participant until
    it owns a stable governed product or catalog-consuming capability,
 11. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
@@ -488,7 +487,10 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
 8. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance,
 9. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
 10. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
-11. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+11. treat `lotus-idea` as part of the default canonical QA runtime; do not reintroduce an opt-in flag
+    or skip its readiness/teardown evidence unless the task explicitly asks for a diagnostic partial
+    run,
+12. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

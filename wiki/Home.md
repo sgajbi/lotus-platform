@@ -1,73 +1,64 @@
 # Home
 
-`lotus-platform` is the governed engineering system for the Lotus ecosystem.
+`lotus-platform` is the governed engineering system for the Lotus ecosystem. It owns shared
+automation, ingress support, validation, standards, context, skills, and cross-repository operating
+guidance.
 
-Use it for:
+Current evidence posture: platform claims must point to an implemented command, validator, contract,
+RFC, generated artifact, runbook, or repository-owned proof. Planned or bounded-preview material must
+stay visibly labelled as such.
 
-- platform automation
-- ingress and local environment support
-- cross-repository validation
-- central context and playbooks
-- standards, templates, and governance RFCs
-- onboarding and agent-operating guidance
+## Reader Paths
 
-## Start here
+| Audience | Start Here | Use This For |
+| --- | --- | --- |
+| Business, product, and demo | [Overview](Overview), [Canonical DPM Demo Story](Canonical-DPM-Demo-Story), [Client Demo Certification](Client-Demo-Certification) | Understand implementation-backed platform value, demo boundaries, and claim evidence |
+| Operations and support | [Operations Runbook](Operations-Runbook), [Troubleshooting](Troubleshooting), [Platform Surfaces](Platform-Surfaces) | Diagnose runtime posture, ingress, QA evidence, and ownership boundaries |
+| Engineers and agents | [Getting Started](Getting-Started), [Development Workflow](Development-Workflow), [Validation and CI](Validation-and-CI) | Run local checks, choose the correct lane, and avoid stale stack paths |
+| Governance and release reviewers | [Security and Governance](Security-and-Governance), [RFC Index](RFC-Index), [Data Mesh Standard](Data-Mesh-Standard) | Review standards, RFC posture, context contracts, and release controls |
+| Commercial readers | [Business Benefits](Business-Benefits), [Market Landscape](Market-Landscape), [Technical Moat and Differentiation](Technical-Moat-and-Differentiation) | Read ecosystem positioning that is separated from implementation claims |
 
-- [Overview](Overview)
-- [Architecture](Architecture)
-- [Platform Surfaces](Platform-Surfaces)
-- [Getting Started](Getting-Started)
-- [Development Workflow](Development-Workflow)
-- [Validation and CI](Validation-and-CI)
-- [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality)
-- [Operations Runbook](Operations-Runbook)
-- [Analytics UI Observability](Analytics-UI-Observability)
-- [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
-- [Client Demo Certification](Client-Demo-Certification)
-- [Client Demo Operating Process](Client-Demo-Operating-Process)
-- [Client Demo Pack Template](Client-Demo-Pack-Template)
-- [Client Demo Brief Template](Client-Demo-Brief-Template)
-- [Data Mesh Standard](Data-Mesh-Standard)
-- [Troubleshooting](Troubleshooting)
-- [Business Benefits](Business-Benefits)
-- [Market Landscape](Market-Landscape)
-- [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)
+## Evidence And Quality Anchors
 
-## Important commands
+| Anchor | Use This For |
+| --- | --- |
+| [Analytics UI Observability](Analytics-UI-Observability) | Current Workbench/Gateway observability scope, residual boundaries, and live proof posture |
+| [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality) | `quality/baseline_report.md`, quality scorecard, and `generate_enterprise_backend_quality_baseline.py` evidence |
+| [Client Demo Pack Template](Client-Demo-Pack-Template) | Audience-ready claim table, evidence map, boundaries, rehearsal, and follow-up structure |
+| [Client Demo Brief Template](Client-Demo-Brief-Template) | One-page client brief structure tied to implementation-backed evidence |
+
+## Current Operating Truth
+
+| Area | Current Truth | Evidence |
+| --- | --- | --- |
+| Canonical front-office runtime | Governed product-surface proof routes through `lotus-workbench`; `lotus-platform` owns wrappers, ingress, and evidence governance. | [Canonical DPM Demo Story](Canonical-DPM-Demo-Story), [Platform Surfaces](Platform-Surfaces) |
+| Canonical QA data | `PB_SG_GLOBAL_BAL_001` is the governed private-banking reference portfolio; the demo pack is not part of canonical PB seed by default. | `context/contracts/canonical-front-office-demo-data-contract.json` |
+| `lotus-idea` runtime | `lotus-idea` is included by default in canonical platform QA; readiness and teardown evidence are part of the standard proof. | `automation/Invoke-Canonical-FrontOffice-QA.ps1` |
+| Merge posture | Required CI checks and conversation resolution are the controls; human approval reviews are optional in the single-developer baseline. | [Validation and CI](Validation-and-CI), `context/playbooks/PR-LOOP-PLAYBOOK.md` |
+| Wiki source | Repo-local `wiki/` is the authored source; the GitHub wiki is a publication target. | [Security and Governance](Security-and-Governance) |
+
+## Common Commands
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
-python automation/validate_engineering_context_system.py
-python automation/generate_enterprise_backend_quality_baseline.py --write --check
+powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+python automation\validate_engineering_context_system.py
 ```
 
-## Platform boundary
+## Platform Boundary
 
-- `lotus-platform` owns standards, automation, ingress support, validation, and central governance
-- `lotus-workbench` owns the canonical populated front-office runtime
-- domain truth stays in the domain-authoritative Lotus services
+- `lotus-platform` owns standards, automation, ingress support, validation, and central governance.
+- `lotus-workbench` owns the canonical populated front-office runtime.
+- Domain truth stays in domain-authoritative Lotus services.
+- `platform-stack` supports shared local infrastructure; it is not the canonical populated product
+  proof path.
 
-## Use this repository when
-
-- you need to validate or govern multiple Lotus repositories together
-- you need to debug ingress, environment posture, or cross-repo runtime support
-- you need standards, templates, or validator truth
-- you need onboarding, agent-guidance, or central context updates
-- you need a cross-cutting ecosystem document that does not belong to one application repo
-- you need the enterprise backend refactor baseline, before/after scorecard, or quality gate
-  promotion trail
-
-## Key references
+## Key References
 
 - [Repository Engineering Context](../REPOSITORY-ENGINEERING-CONTEXT.md)
 - [Lotus Context System](../context/README.md)
 - [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-- [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
-- [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
-- [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
-- [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
-- [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
 - [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
 - [RFC Index](RFC-Index)

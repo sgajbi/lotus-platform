@@ -196,6 +196,8 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "canonical-front-office-local-runtime.md" in agents_contract
     assert "npm run live:stack:up" in agents_contract
     assert "PB_SG_GLOBAL_BAL_001" in agents_contract
+    assert "Canonical platform QA includes `lotus-idea` by default" in agents_contract
+    assert "Do not reintroduce an opt-in flag" in agents_contract
     assert '[switch]$CheckOnly' in sync_script
     assert "Normalize-ContractContent" in sync_script
     assert "Resolve-DefaultTargetPath" in sync_script
@@ -348,6 +350,12 @@ def test_rfc_0073_slice_four_task_routing_and_registries_are_hardened() -> None:
     assert "## Task Routing Guidance" in engineering
     assert "./TASK-ROUTING-GUIDE.md" in engineering
     assert "./ECOSYSTEM-REGISTRIES.md" in engineering
+    assert (
+        "`lotus-idea` is repo-native and included by default in canonical platform/runtime automation"
+        in engineering
+    )
+    assert "do not reintroduce an opt-in flag" in engineering
+    assert "future-wave `lotus-idea`" not in engineering
     assert "./PROCEDURAL-MEMORY-INDEX.md" in engineering
 
     assert "./TASK-ROUTING-GUIDE.md" in reference_map
@@ -807,3 +815,6 @@ def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
     assert "RFC-0074 is implemented and governed" in checklist
     assert "[Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)" in platform_repo_context
     assert "[Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)" in platform_repo_context
+    assert "repo-native `lotus-idea` declarations" in platform_repo_context
+    assert "Canonical front-office QA also includes `lotus-idea` by default" in platform_repo_context
+    assert "catalog-visible future-wave `lotus-idea`" not in platform_repo_context

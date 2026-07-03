@@ -45,6 +45,11 @@ Do not route those tasks through generic platform QA by default.
 10. If a validated panel depends on a newly implemented business entity, seed or generate a real
     implementation-backed entity first and record the generation evidence path. Do not accept an
     empty panel as proof for a feature whose business outcome requires populated data.
+11. Treat `lotus-idea` as part of the default canonical platform QA runtime. Do not reintroduce an
+    opt-in flag, skip readiness checks, or leave its app-local compose stack running after QA unless
+    the user explicitly requested a diagnostic partial run.
+12. Keep the canonical private-banking seed separate from demo-pack content. The governed PB seed
+    should remain contract-backed and `DEMO_DATA_PACK_ENABLED=false` by default.
 
 ## Canonical Commands
 
@@ -72,6 +77,8 @@ From `lotus-platform`:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 ```
+
+This wrapper includes `lotus-idea` readiness and teardown evidence by default.
 
 To write a screenshot pack to a caller-provided directory:
 

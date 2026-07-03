@@ -14,6 +14,15 @@ Developer onboarding:
 Documentation index:
 [docs/README.md](docs/README.md)
 
+## Reader Paths
+
+| Audience | Start Here | What You Get |
+| --- | --- | --- |
+| Engineers and agents | [REPOSITORY-ENGINEERING-CONTEXT.md](REPOSITORY-ENGINEERING-CONTEXT.md) | Current repo truth, boundaries, commands, and validation expectations |
+| Operators | [wiki/Operations-Runbook.md](wiki/Operations-Runbook.md) | Runtime checks, ingress posture, QA wrappers, and troubleshooting paths |
+| Product, demo, and business readers | [wiki/Home.md](wiki/Home.md) | Implementation-backed platform role, demo evidence, and audience-specific navigation |
+| Governance reviewers | [context/README.md](context/README.md) | Context system, playbooks, standards, RFCs, and wiki/source-of-truth rules |
+
 ## Purpose And Scope
 
 `lotus-platform` is the platform-governance repository for Lotus.
@@ -134,6 +143,10 @@ Important runtime note:
 
 - use `lotus-workbench` for canonical populated front-office validation
 - use `lotus-platform` for ingress, governance, validation wrappers, and ecosystem-wide automation
+- `lotus-idea` is included by default in canonical platform QA; readiness and teardown evidence are
+  part of the default proof, not an optional flag
+- canonical private-banking seed data excludes the demo pack by default and uses the governed
+  contract files under `context/contracts/`
 - use [`wiki/Platform-Surfaces.md`](wiki/Platform-Surfaces.md) when you need to decide which
   platform-owned area is responsible for a task
 
@@ -177,6 +190,9 @@ For documentation and context slices:
 - keep automation and context validators green
 - let GitHub carry the heavier full matrix
 
+In the single-developer Lotus baseline, CI and conversation resolution are the merge controls.
+Human approval reviews are optional; unresolved review threads and red required checks are not.
+
 ## Platform Contract Notes
 
 Important current platform truths:
@@ -204,12 +220,15 @@ Important current platform truths:
     supported features, deterministic data, real APIs, validation evidence, and explicit boundaries
     while the demo pack template turns that evidence into a client-understandable brief, story,
     claim table, evidence map, boundary register, rehearsal plan, and follow-up register
-11. RFC-0084 domain-data-product producer and consumer schemas live under
-   `platform-contracts/domain-data-products/`, with current first-wave aligned declarations for
-   `lotus-core`, `lotus-performance`, and `lotus-risk`
-12. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
+11. canonical platform QA includes `lotus-idea` by default and records readiness/teardown evidence
+   alongside Workbench, Gateway, and domain-service validation
+12. RFC-0084 domain-data-product producer and consumer schemas live under
+   `platform-contracts/domain-data-products/`, with repo-native source declarations for
+   `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-report`,
+   `lotus-manage`, and `lotus-idea`
+13. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
    `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
-13. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
+14. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
    `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
 
 ## Documentation Map

@@ -294,8 +294,9 @@ Boundary rules:
     table, evidence map, boundary register, rehearsal plan, and follow-up register.
 41. Platform repo-contract workflows now checkout and sibling-link `lotus-idea` with the other
     governed source repositories because the domain-product source manifest includes
-    catalog-visible future-wave `lotus-idea` declarations. Do not remove that checkout unless the
-    manifest is changed at the same time.
+    repo-native `lotus-idea` declarations. Do not remove that checkout unless the manifest is
+    changed at the same time. Canonical front-office QA also includes `lotus-idea` by default; do
+    not restore an opt-in flag or skip readiness/teardown evidence as a shortcut.
 
 ## Repo-Native Commands
 
