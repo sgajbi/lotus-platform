@@ -65,15 +65,14 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Get-LotusDockerArtifacts" in wrapper
     assert "Remove-LotusDockerArtifacts" in wrapper
     assert "Assert-NoLotusDockerArtifacts" in wrapper
-    assert "Invoke-LotusIdeaDockerBringUp" in wrapper
+    assert "Invoke-LotusIdeaDockerBringUp" not in wrapper
     assert "Invoke-LotusIdeaValidation" in wrapper
-    assert "Assert-NoUnownedHostPortListener" in wrapper
+    assert "Assert-NoUnownedHostPortListener" not in wrapper
     assert "docker compose up -d --build" not in wrapper
-    assert '$composeArguments = @("compose", "up", "-d")' in wrapper
-    assert '$composeArguments += "--build"' in wrapper
-    assert "Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath -BuildImages ([bool]$BuildImages)" in wrapper
+    assert '$composeArguments = @("compose", "up", "-d")' not in wrapper
+    assert '$composeArguments += "--build"' not in wrapper
+    assert "preserving governed runtime started and seeded by canonical Workbench startup" in wrapper
     assert "Stop-Process" not in wrapper
-    assert "not stopping an unowned process for $Description" in wrapper
     assert '$summary.status = "failed"' in wrapper
     assert "http://127.0.0.1:8330/health/ready" in wrapper
     assert "http://idea.dev.lotus/health/ready" in wrapper
