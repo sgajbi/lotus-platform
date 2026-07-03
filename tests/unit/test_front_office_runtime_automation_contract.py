@@ -68,6 +68,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Invoke-LotusIdeaDockerBringUp" in wrapper
     assert "Invoke-LotusIdeaValidation" in wrapper
     assert "Assert-NoUnownedHostPortListener" in wrapper
+    assert "docker compose up -d --build" not in wrapper
+    assert '$composeArguments = @("compose", "up", "-d")' in wrapper
+    assert '$composeArguments += "--build"' in wrapper
+    assert "Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath -BuildImages ([bool]$BuildImages)" in wrapper
     assert "Stop-Process" not in wrapper
     assert "not stopping an unowned process for $Description" in wrapper
     assert '$summary.status = "failed"' in wrapper
