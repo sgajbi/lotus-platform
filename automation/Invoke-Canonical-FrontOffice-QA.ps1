@@ -121,13 +121,20 @@ function Assert-NoUnownedHostPortListener {
 }
 
 function Invoke-LotusIdeaDockerBringUp {
-  param([string]$RepoPath)
+  param(
+    [string]$RepoPath,
+    [bool]$BuildImages = $false
+  )
 
   Assert-NoUnownedHostPortListener -Port 8330 -Description "lotus-idea"
   Push-Location $RepoPath
   try {
     $global:LASTEXITCODE = 0
-    docker compose up -d --build
+    $composeArguments = @("compose", "up", "-d")
+    if ($BuildImages) {
+      $composeArguments += "--build"
+    }
+    & docker @composeArguments
     if ($LASTEXITCODE -ne 0) {
       throw "lotus-idea Docker bring-up failed with exit code $LASTEXITCODE."
     }
@@ -374,7 +381,7 @@ try {
     }
     if ($BringUp) {
       Write-Host "[lotus-idea] starting app-local Docker runtime"
-      Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath
+      Invoke-LotusIdeaDockerBringUp -RepoPath $lotusIdeaRepoPath -BuildImages ([bool]$BuildImages)
       $summary.steps += "lotus-idea-bring-up"
     }
 
