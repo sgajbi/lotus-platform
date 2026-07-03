@@ -3,6 +3,21 @@
 This directory owns durable platform documentation. The repository root is reserved for entrypoint
 documents: `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
 
+Use this index to choose the right depth:
+
+| Need | Start Here | Audience |
+| --- | --- | --- |
+| Current repo role, commands, and boundaries | [Repository Engineering Context](../REPOSITORY-ENGINEERING-CONTEXT.md) | Engineers and agents |
+| Fast developer setup | [Lotus Developer Onboarding](onboarding/LOTUS-DEVELOPER-ONBOARDING.md) | Developers and operators |
+| Agent execution posture | [Lotus Agent Ramp-Up](onboarding/LOTUS-AGENT-RAMP-UP.md) | Coding agents and reviewers |
+| Canonical front-office proof and demo boundaries | [Canonical DPM Demo Story](demo/canonical-dpm-demo-story.md) | Demo, product, operations, and engineering |
+| Client-facing claim discipline | [Lotus Client Demo Certification Standard](standards/Lotus%20Client%20Demo%20Certification%20Standard.md) | Product, demo, sales, and governance |
+| Platform validation and release posture | [Continuous Integration, Validation, and Release Governance Standard](standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md) | Engineering and release reviewers |
+
+Documentation in this directory must stay implementation-backed. Put aspirational or planned
+material in explicit roadmap/gap language, and link claims to commands, contracts, RFCs, runbooks,
+generated artifacts, or tests.
+
 ## Standards
 
 - [Backend Foundation Standardization](standards/Backend%20Foundation%20Standardization.md)

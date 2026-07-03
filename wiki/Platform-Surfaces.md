@@ -21,6 +21,9 @@ Use when the work is about:
 - canonical demo evidence wrappers and governed screenshot packs
 - data mesh certification evidence and generated operating artifacts
 
+Canonical front-office QA includes `lotus-idea` by default. Keep readiness and teardown evidence in
+the automation path unless a task explicitly asks for a diagnostic partial run.
+
 ### `context/`
 
 Use when the work is about:
@@ -32,6 +35,10 @@ Use when the work is about:
 - governed operating contract content
 - canonical front-office demo-data and panel-registry contracts
 - data mesh and client-demo certification standards
+
+Use `context/AGENTS-OPERATING-CONTRACT.md` and `context/LOTUS-ENGINEERING-CONTEXT.md` for durable
+agent guidance. Do not leave current operating truth only in chat, a PR description, or a local
+machine note.
 
 ### `platform-standards/`
 

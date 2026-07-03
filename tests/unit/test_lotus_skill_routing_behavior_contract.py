@@ -16,11 +16,13 @@ def test_front_office_runtime_route_is_unambiguous() -> None:
     qa_skill = _read(ROOT / "codex" / "skills" / "lotus-qa-platform-validator" / "SKILL.md")
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
 
-    assert "| Bring up canonical Workbench runtime, validate populated panels, generate governed demo screenshots | `lotus-front-office-runtime` |" in routing_map
+    assert "| Bring up canonical Workbench runtime, validate populated panels, generate governed demo screenshots, or prove default `lotus-idea` canonical QA readiness/teardown | `lotus-front-office-runtime` |" in routing_map
     assert "PB_SG_GLOBAL_BAL_001" in routing_map
     assert "choose `lotus-front-office-runtime` first" in agents_contract
     assert "Treat `lotus-front-office-runtime` as the primary skill route for these tasks." in ramp_up
     assert "Do not accept screenshot-only proof." in runtime_skill
+    assert "Treat `lotus-idea` as part of the default canonical platform QA runtime." in runtime_skill
+    assert "DEMO_DATA_PACK_ENABLED=false" in runtime_skill
     assert "Use `lotus-front-office-runtime` instead for:" in qa_skill
     assert "use `lotus-front-office-runtime` as the" in frontend_skill
 
