@@ -762,7 +762,12 @@ Backend architecture gates should also protect service package import truth. Cod
 deployable service app package must not self-import through repo-root module paths that are absent
 from wheel, Docker, or compose runtime layouts; use relative imports for same-service code, shared
 contracts or ports for durable cross-service dependencies, and a focused `import app.main` runtime
-proof when service packaging or app imports change.
+proof when service packaging or app imports change. Write the proof command in the active shell's
+syntax:
+
+- POSIX: `PYTHONPATH="src/services/<service>:src/libs/portfolio-common" python -c "import app.main"`
+- PowerShell: `$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
+
 Generated backend Makefiles also expose `UNIT_TESTS`, `INTEGRATION_TESTS`, and
 `E2E_TESTS` path overrides so focused fix-forward validation remains
 repo-native instead of becoming ad hoc pytest invocation; the generated CI
