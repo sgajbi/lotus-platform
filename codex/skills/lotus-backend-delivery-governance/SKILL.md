@@ -145,12 +145,16 @@ For RFC-driven business-application slices, extend that intake with:
     context pages with stale branch names, stale quality numbers, unprofessional navigation,
     unsupported readiness claims, or hard-to-scan tables that would mislead business, engineering,
     sales, marketing, operations, support, or future-agent readers.
-14. When a branch is driven by GitHub issues, build a current issue matrix from GitHub before PR
-    creation. For each issue, record the acceptance criteria, files/tests/docs/wiki/context surfaces
-    changed, same-pattern scan performed, local evidence, remaining gap, and close/keep-open
-    decision. Do not open the PR while any actionable issue in the agreed batch lacks code,
-    tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues open
-    unless the ledger itself was the target.
+14. When a branch is driven by GitHub issues, build and maintain a current issue matrix from
+    GitHub before PR creation. For each issue, record the acceptance criteria,
+    files/tests/docs/wiki/context surfaces changed, same-pattern scan performed, local evidence,
+    remaining gap, and close/keep-open decision. Count an issue as locally fixed only when the
+    branch contains the implementation change plus meaningful tests and any contract, OpenAPI,
+    docs, wiki, context, or supported-feature truth required by the issue. Do not count adjacent
+    modularity/refactor commits as issue closure unless they directly satisfy the issue's
+    acceptance criteria. Do not open the PR while any actionable issue in the agreed batch lacks
+    code, tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues
+    open unless the ledger itself was the target.
 15. When a GitHub issue exposes repeated concrete external-capability coupling in application code
     such as direct database sessions, Kafka/EventHub producers, HTTP clients, object storage,
     clocks, UUIDs, audit stores, idempotency stores, or unit-of-work commits, fix the pattern rather
