@@ -2,14 +2,21 @@ from __future__ import annotations
 
 import json
 import sys
+from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
 
 
-DEFAULT_SKILLS_ROOT = Path.home() / ".codex" / "skills"
 PLATFORM_ROOT = Path(__file__).resolve().parents[1]
+PLATFORM_SKILLS_ROOT = PLATFORM_ROOT / "codex" / "skills"
+DEFAULT_LOCAL_SKILLS_ROOT = Path.home() / ".codex" / "skills"
 SKILL_MANIFEST_PATH = PLATFORM_ROOT / "codex" / "skills" / "lotus-skill-manifest.json"
-UNIVERSAL_SKILL_REQUIREMENTS = ["Continuous Skill Improvement"]
+UNIVERSAL_SKILL_REQUIREMENTS = [
+    "Continuous Skill Improvement",
+    "At the end of any meaningful use of this skill",
+    "repeatable failure",
+    "platform-owned skill source",
+]
 REQUIRED_SKILL_REFERENCES = {
     "lotus-backend-delivery-governance": [
         "LOTUS-ENGINEERING-CONTEXT.md",
@@ -74,24 +81,44 @@ class SkillAlignmentResult:
     status: str
     missing_references: list[str]
     notes: list[str]
+    checked_path: str | None = None
 
 
-def _load_manifest_skill_names() -> list[str]:
+def _load_manifest_skills() -> list[dict[str, str]]:
     if not SKILL_MANIFEST_PATH.exists():
-        return sorted(REQUIRED_SKILL_REFERENCES)
+        return [
+            {"name": skill_name, "path": f"codex/skills/{skill_name}"}
+            for skill_name in sorted(REQUIRED_SKILL_REFERENCES)
+        ]
 
     manifest = json.loads(SKILL_MANIFEST_PATH.read_text(encoding="utf-8"))
-    return sorted(skill["name"] for skill in manifest.get("skills", []))
+    return sorted(
+        (
+            {
+                "name": skill["name"],
+                "path": skill.get("path", f"codex/skills/{skill['name']}"),
+            }
+            for skill in manifest.get("skills", [])
+        ),
+        key=lambda skill: skill["name"],
+    )
 
 
-def validate_lotus_skill_alignment(skills_root: Path = DEFAULT_SKILLS_ROOT) -> list[SkillAlignmentResult]:
+def _skill_path(skills_root: Path, manifest_skill: dict[str, str]) -> Path:
+    if skills_root.resolve() == PLATFORM_SKILLS_ROOT.resolve():
+        return PLATFORM_ROOT / manifest_skill["path"] / "SKILL.md"
+    return skills_root / manifest_skill["name"] / "SKILL.md"
+
+
+def validate_lotus_skill_alignment(skills_root: Path = PLATFORM_SKILLS_ROOT) -> list[SkillAlignmentResult]:
     results: list[SkillAlignmentResult] = []
-    for skill_name in _load_manifest_skill_names():
+    for manifest_skill in _load_manifest_skills():
+        skill_name = manifest_skill["name"]
         required_references = [
             *UNIVERSAL_SKILL_REQUIREMENTS,
             *REQUIRED_SKILL_REFERENCES.get(skill_name, []),
         ]
-        skill_path = skills_root / skill_name / "SKILL.md"
+        skill_path = _skill_path(skills_root, manifest_skill)
         if not skill_path.exists():
             results.append(
                 SkillAlignmentResult(
@@ -99,6 +126,7 @@ def validate_lotus_skill_alignment(skills_root: Path = DEFAULT_SKILLS_ROOT) -> l
                     status="skipped",
                     missing_references=[],
                     notes=[f"skill not present under {skills_root}"],
+                    checked_path=str(skill_path),
                 )
             )
             continue
@@ -111,6 +139,7 @@ def validate_lotus_skill_alignment(skills_root: Path = DEFAULT_SKILLS_ROOT) -> l
                 status="ok" if not missing_references else "gap",
                 missing_references=missing_references,
                 notes=[] if not missing_references else ["skill is missing required context-system references"],
+                checked_path=str(skill_path),
             )
         )
     return results
@@ -133,7 +162,21 @@ def build_markdown(results: list[SkillAlignmentResult], skills_root: Path) -> st
 
 
 def main() -> int:
-    skills_root = DEFAULT_SKILLS_ROOT
+    parser = ArgumentParser(description="Validate Lotus skill alignment requirements.")
+    parser.add_argument(
+        "--skills-root",
+        type=Path,
+        default=PLATFORM_SKILLS_ROOT,
+        help="Skill root to validate. Defaults to the platform-owned source under codex/skills.",
+    )
+    parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Validate the deployed local Codex skill consumer instead of the platform-owned source.",
+    )
+    args = parser.parse_args()
+
+    skills_root = DEFAULT_LOCAL_SKILLS_ROOT if args.local else args.skills_root
     results = validate_lotus_skill_alignment(skills_root)
     output_dir = Path(__file__).resolve().parents[1] / "output"
     output_dir.mkdir(exist_ok=True)
