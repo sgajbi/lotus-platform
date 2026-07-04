@@ -57,6 +57,8 @@ Prefer patterns such as:
 - OpenAPI/example consistency
 - stale code, dead code, or documentation drift
 - clean report-only quality inventories that should become CI regression blockers
+- GitHub issue batches where multiple findings share the same root pattern and need a closure
+  matrix before PR creation
 - measured function-size, complexity, maintainability, or architecture-boundary hotspots that can
   be reduced through design modularity without changing runtime deployment topology
 
@@ -89,6 +91,9 @@ For each material finding:
 3. add lower-level tests if the issue was previously only visible in E2E or heavy runtime checks
 4. update the ledger with evidence
 5. record whether the slice improved design modularity only or also changed runtime modularity
+6. if the fix comes from a GitHub issue, scan adjacent code/docs/tests for the same failure pattern
+   before marking the ledger entry `Hardened`; record either the extra fixes made or the exact
+   no-similar-pattern evidence.
 
 Prefer pushing invariants downward into:
 
