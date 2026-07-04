@@ -142,6 +142,9 @@ Use when the task is about:
     scaffold improvement, deterministic gate, report-only inventory, or advisory evaluator case.
 11. improving Lotus skills, agent context, operating guidance, or reusable guardrails after a
     repeated quality, documentation, wiki, closure, architecture, API, or test-quality failure.
+12. enforcing the universal `Continuous Skill Improvement` section across platform-owned skills so
+    future agents promote repeatable lessons into skills, routing, context, validators, scaffolds,
+    gates, or an explicit no-change decision.
 
 ### `lotus-rfc-review-loop`
 
