@@ -145,6 +145,12 @@ For RFC-driven business-application slices, extend that intake with:
     context pages with stale branch names, stale quality numbers, unprofessional navigation,
     unsupported readiness claims, or hard-to-scan tables that would mislead business, engineering,
     sales, marketing, operations, support, or future-agent readers.
+14. When a branch is driven by GitHub issues, build a current issue matrix from GitHub before PR
+    creation. For each issue, record the acceptance criteria, files/tests/docs/wiki/context surfaces
+    changed, same-pattern scan performed, local evidence, remaining gap, and close/keep-open
+    decision. Do not open the PR while any actionable issue in the agreed batch lacks code,
+    tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues open
+    unless the ledger itself was the target.
 
 ## Bank-Buyable Default Bar
 
