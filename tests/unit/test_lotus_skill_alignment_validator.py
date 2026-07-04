@@ -36,6 +36,10 @@ def test_skill_alignment_validator_reports_gaps_and_skips(tmp_path: Path) -> Non
                 "LOTUS-ENGINEERING-CONTEXT.md",
                 "PROCEDURAL-MEMORY-INDEX.md",
                 "CHANGE-PLAYBOOKS.md",
+                "Continuous Skill Improvement",
+                "At the end of any meaningful use of this skill",
+                "repeatable failure",
+                "platform-owned skill source",
             ]
         ),
         encoding="utf-8",
@@ -46,7 +50,6 @@ def test_skill_alignment_validator_reports_gaps_and_skips(tmp_path: Path) -> Non
 
     assert result_by_skill["lotus-backend-delivery-governance"].status == "gap"
     assert result_by_skill["lotus-backend-delivery-governance"].missing_references == [
-        "Continuous Skill Improvement",
         "VALIDATION-PLAYBOOK.md",
     ]
     assert result_by_skill["lotus-frontend-delivery-governance"].status == "skipped"
@@ -54,5 +57,17 @@ def test_skill_alignment_validator_reports_gaps_and_skips(tmp_path: Path) -> Non
     markdown = validator.build_markdown(results, skills_root)
     assert "Lotus Skill Alignment Validation" in markdown
     assert "lotus-backend-delivery-governance" in markdown
-    assert "Continuous Skill Improvement" in markdown
     assert "VALIDATION-PLAYBOOK.md" in markdown
+    assert "Continuous Skill Improvement" in validator.UNIVERSAL_SKILL_REQUIREMENTS
+
+
+def test_skill_alignment_validator_defaults_to_platform_owned_skill_source() -> None:
+    validator = _load_validator_module()
+
+    assert validator.PLATFORM_SKILLS_ROOT == ROOT / "codex" / "skills"
+
+    results = validator.validate_lotus_skill_alignment()
+
+    assert results
+    assert all(result.status == "ok" for result in results)
+    assert all("codex" in str(result.checked_path) for result in results)
