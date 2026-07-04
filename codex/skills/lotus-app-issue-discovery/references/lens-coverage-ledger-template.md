@@ -47,6 +47,7 @@ Use `Y/N` proof flags:
 | Architecture boundaries | `lens/architecture-boundaries` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Runtime composition | `lens/runtime-composition` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | API design and governance | `lens/api-design-governance` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| API documentation, standards, and duplicate endpoint posture | `lens/api-documentation-standards` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | HTTP boundary controls | `lens/http-boundary-controls` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Application layer | `lens/application-layer` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Domain layer | `lens/domain-layer` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
@@ -80,6 +81,7 @@ Use `Y/N` proof flags:
 | Dead code and duplicate logic | `lens/dead-code-duplication` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Dependency hygiene and supply chain | `lens/dependency-hygiene` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Repo organization | `lens/repo-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Remote repository hygiene | `lens/remote-repository-hygiene` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Agents/context organization | `lens/agents-context-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 
 ## Per-Lens Note Shape

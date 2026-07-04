@@ -13,6 +13,7 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Architecture boundaries | `lens/architecture-boundaries` |
 | Runtime composition | `lens/runtime-composition` |
 | API design and governance | `lens/api-design-governance` |
+| API documentation, standards, and duplicate endpoint posture | `lens/api-documentation-standards` |
 | HTTP boundary controls | `lens/http-boundary-controls` |
 | Application layer | `lens/application-layer` |
 | Domain layer | `lens/domain-layer` |
@@ -46,6 +47,7 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Dead code and duplicate logic | `lens/dead-code-duplication` |
 | Dependency hygiene and supply chain | `lens/dependency-hygiene` |
 | Repo organization | `lens/repo-organization` |
+| Remote repository hygiene | `lens/remote-repository-hygiene` |
 | Agents/context organization | `lens/agents-context-organization` |
 
 Use these cross-cutting labels when useful:
@@ -66,6 +68,7 @@ Use these cross-cutting labels when useful:
 | Architecture boundaries | package layout, dependency direction, router/service/repository imports, runtime composition | business logic in delivery layers, infrastructure leaking inward, unclear in-process module boundaries |
 | Runtime composition | app factory, dependency container, startup/shutdown hooks, runtime package, adapter wiring, worker wiring | app startup hides business policy, runtime imports API/domain in both directions, no deterministic dependency override for tests |
 | API design and governance | routes, DTOs, OpenAPI, versioning, pagination, filtering, sorting, errors | inconsistent route naming, missing problem details, weak examples, unbounded list APIs, missing deprecation posture |
+| API documentation, standards, and duplicate endpoint posture | generated OpenAPI, endpoint catalogs, route inventories, API certification ledgers, Swagger examples, API vocabulary/no-alias evidence, Gateway/Workbench API maps | endpoint docs missing operation purpose/examples/errors, duplicate or overlapping routes with no owning contract, unclear supported/deprecated APIs, OpenAPI diverging from implementation, route inventory not reconciled with tests or consumers |
 | HTTP boundary controls | app middleware, CORS, trusted hosts, secure headers, body-size limits, content-type checks, abuse protection | relying only on gateway controls, missing secure response headers, unbounded request bodies, unsafe CORS defaults |
 | Application layer | use cases, orchestration, commands/results, idempotency/audit workflows | API DTOs passed into use cases, framework objects in application services, missing application error taxonomy |
 | Domain layer | business models, value objects, policies, calculations, lifecycle state transitions | Pydantic/API/ORM leakage into domain logic, scattered status strings, weak private-banking vocabulary |
@@ -99,6 +102,7 @@ Use these cross-cutting labels when useful:
 | Dead code and duplicate logic | stale modules, duplicate builders, unused routes, abandoned tests, repeated policy logic, conflicting helper paths | unsupported behavior still reachable, duplicate rules drifting apart, obsolete code confusing ownership, tests exercising dead paths |
 | Dependency hygiene and supply chain | dependency manifests, lockfiles, scanner config, import usage, transitive risk, license posture | vulnerable or unpinned dependencies, unused heavy packages, scanner blind spots, dependency drift across runtime and CI |
 | Repo organization | repository layout, source tree, generated artifacts, cleanup scripts, local byproduct policy, repo hygiene gates, script and quality-artifact organization | generated/runtime artifacts not aligned with cleanup policy, source/generated truth mixed, stale or confusing top-level layout, repo hygiene gaps letting agent byproducts become source truth |
+| Remote repository hygiene | GitHub repo description, topics, default branch, branch protection posture, stale remote feature branches, merged branch pruning, archived/fork/visibility state, repo URL/readme alignment, remote wiki/source alignment | repo description misstates ownership or product scope, stale remote feature branches carry stranded durable truth, remote settings contradict Lotus standards, default branch or topics make agents choose the wrong repo, GitHub wiki/source publication drift is not discoverable |
 | Agents/context organization | `AGENTS.md`, repo context, platform context cross-links, skill routing, procedural memory, agent onboarding paths, local/deployed skill source alignment | mandatory reading order not discoverable, repo context bypasses skill routing, local skill drift, procedural memory missing for repeated work |
 
 ## Baseline Lens Queue
@@ -108,13 +112,16 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 
 1. Existing issues, active branches, repository context, and ledger posture.
 2. Architecture boundaries, runtime composition, API/application/domain/ports/infrastructure layers.
-3. API design, HTTP boundary controls, validation, idempotency, auditability, and lineage.
+3. API design, API documentation/standards/duplicate endpoint posture, HTTP boundary controls,
+   validation, idempotency, auditability, and lineage.
 4. Data model, database operations, source contracts, data mesh/data products, capability publication,
    evidence/proof contracts, downstream integration.
 5. Product/domain lenses: vocabulary, calculations, methodology, transaction lifecycle, position lifecycle.
 6. Reliability lenses: events/outbox, resilience, performance/scalability, monitoring/observability, operational supportability.
 7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/wiki/README/runbooks.
-8. Repo organization and agents/context organization where layout, generated-artifact policy, agent onboarding, or skill-routing discoverability affects future implementation quality.
+8. Repo organization, remote repository hygiene, and agents/context organization where layout,
+   generated-artifact policy, remote branch/repo metadata, agent onboarding, or skill-routing
+   discoverability affects future implementation quality.
 9. Dead-code/duplication and dependency-hygiene passes when prior lenses reveal stale paths,
    repeated logic, vulnerable dependencies, or cleanup work with real behavioral or supportability
    impact.
@@ -128,8 +135,8 @@ points, not exemptions from the baseline queue.
 
 | Repository Type | First High-Value Lens Group |
 | --- | --- |
-| Source-owned domain service such as `lotus-core` | data model, transaction/position lifecycle, validation/idempotency, auditability/lineage, database operations, API governance |
-| Analytics service such as `lotus-performance` or `lotus-risk` | calculations/methodology, source contract semantics, API governance, observability/supportability, testing quality, performance/scalability |
+| Source-owned domain service such as `lotus-core` | data model, transaction/position lifecycle, validation/idempotency, auditability/lineage, database operations, API governance and API documentation/standards |
+| Analytics service such as `lotus-performance` or `lotus-risk` | calculations/methodology, source contract semantics, API governance and API documentation/standards, observability/supportability, testing quality, performance/scalability |
 | Workflow service such as `lotus-advise`, `lotus-manage`, `lotus-report`, or `lotus-idea` | lifecycle state transitions, idempotency, event/outbox, proof/evidence, operational supportability, capability publication |
 | Experience/composition service such as `lotus-gateway` | API governance, downstream integration, mapping/anti-corruption, authorization, fan-out resilience, capability publication |
 | Product UI such as `lotus-workbench` | Gateway/BFF consumption, supported-feature truth, entitlement/error states, observability, accessibility/usability defects that hide backend truth |
@@ -189,6 +196,7 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "domain layer" | `lens/domain-layer`, `lens/domain-vocabulary`, `lens/calculations-methodology` | business models, value objects, policies, calculations, state transitions, private banking terms |
 | "logic testable without FastAPI, DB, Kafka, Redis, cloud, downstream APIs" | `lens/domain-layer`, `lens/application-layer`, `lens/ports-adapters`, `lens/testing-quality` | direct framework imports, repository/client dependencies, pure unit tests, fake ports, contract tests |
 | "API design, versioning, routing, pagination, filtering, sorting, errors" | `lens/api-design-governance` | routers, OpenAPI, DTOs, list APIs, problem details, examples, response models |
+| "API documentation", "API standard", "Swagger", "OpenAPI quality", "duplicate APIs", "unclear APIs", "API improvements" | `lens/api-documentation-standards`, `lens/api-design-governance`, `lens/documentation-runbooks` | generated OpenAPI, route inventory, endpoint catalog, operation IDs, examples, error responses, API certification ledger, duplicate route searches, consumer references |
 | "HTTP boundary controls" | `lens/http-boundary-controls`, `lens/security-privacy` | CORS, trusted hosts, secure headers, request size limits, content-type checks, abuse protection |
 | "validation, idempotency, correlation IDs, auditability, lineage, traceability" | `lens/validation-idempotency`, `lens/auditability-lineage`, `lens/observability` | idempotency store, duplicate conflict semantics, correlation propagation, audit/evidence records |
 | "supported features", "capability publication", "Gateway", "Workbench discovery", "UI backed by backend" | `lens/capability-publication`, `lens/api-design-governance`, `lens/documentation-runbooks` | supported-feature ledgers, capability registries, Gateway routes, Workbench consumers, README/wiki claims, endpoint certification |
@@ -205,6 +213,7 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "CI, quality gates, release evidence" | `lens/ci-release-evidence`, `lens/testing-quality` | Make targets, workflows, continue-on-error, timeout-minutes, coverage, security scans, main release proof |
 | "data mesh", "data product", "catalog", "producer/consumer declarations", "trust telemetry" | `lens/data-product-trust-telemetry`, `lens/source-contract-dependency-semantics` | data-product declarations, mesh catalog publication, producer/consumer policy, trust telemetry, freshness/lineage/SLO/access evidence |
 | "repo organization", "repository layout", "generated artifacts", "cleanup policy", "script organization", "repository hygiene" | `lens/repo-organization`, `lens/dead-code-duplication`, `lens/ci-release-evidence` | top-level layout, generated-artifact paths, `.gitignore`, `.dockerignore`, clean scripts, Make targets, hygiene gates, source-vs-output boundaries |
+| "stale remote feature branches", "repo description", "GitHub description", "remote repo quality", "remote repo hygiene", "repository settings" | `lens/remote-repository-hygiene`, `lens/repo-organization`, `lens/documentation-runbooks` | `gh repo view`, remote branch list, unmerged branch diff summaries for durable paths, branch protection/default branch settings, repo topics/description, open PRs, wiki publication posture |
 | "agents", "agent context", "AGENTS.md", "skill routing", "procedural memory", "future agents should know what to read" | `lens/agents-context-organization`, `lens/documentation-runbooks`, `lens/ci-release-evidence` | `AGENTS.md`, repo engineering context, platform context links, skill routing map, procedural memory, local/deployed skill alignment, onboarding docs |
 | "README, wiki, architecture docs, API catalog, runbooks", "documentation truth" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source, docs regression tests |
 | "dead code", "duplicate logic", "stale code", "obsolete paths", "cleanup with impact" | `lens/dead-code-duplication`, `lens/architecture-boundaries`, `lens/testing-quality` | unused routes/modules/tests, duplicate rules or builders, unreachable adapters, divergent helpers, stale docs or workflows still referencing removed behavior |
@@ -242,7 +251,7 @@ Use these anchors to make issues practical:
 | Lens family | Minimum anchor |
 | --- | --- |
 | Layering and boundaries | import path or function showing cross-layer leakage, plus target direction |
-| API | route, DTO, OpenAPI behavior, error model, or missing pagination/filter contract |
+| API | route, DTO, OpenAPI behavior, error model, missing pagination/filter contract, endpoint catalog, duplicate route evidence, or API certification ledger |
 | Data/model/lifecycle | model/migration/DTO field, state transition, linked-leg behavior, or missing lineage |
 | Capability/publication | supported-feature or capability declaration plus missing runtime/API/test proof or stale consumer publication |
 | Evidence/proof | generated proof, scorecard, certification artifact, or evidence contract that cannot be reproduced or traced |
@@ -252,6 +261,7 @@ Use these anchors to make issues practical:
 | Testing/CI | exact test family, Make target, workflow, gate, or release-evidence path |
 | Documentation | current-state claim, missing operator instruction, stale RFC/wiki/API catalog link |
 | Repo organization | layout, generated-artifact, cleanup script, ignore file, Make target, or hygiene-gate path |
+| Remote repository hygiene | GitHub repo metadata, branch protection/default branch setting, stale remote branch list, unmerged durable-truth diff, or repo description/topic evidence |
 | Agents/context organization | `AGENTS.md`, repo context, skill-routing, procedural-memory, onboarding, or local skill sync path |
 | Dead-code/duplication | stale or duplicate path plus evidence that it is still imported, tested, published, or confusing ownership |
 | Dependency hygiene | dependency declaration or scanner path plus import/runtime/CI evidence that the dependency posture matters |
@@ -270,6 +280,13 @@ rg -n "from fastapi|Request|Depends|Session|AsyncSession|Kafka|Redis|requests|ht
 
 ```powershell
 rg -n "APIRouter|@router\\.|response_model|HTTPException|status_code|operation_id|Query\\(|Path\\(" src --glob "*.py"
+```
+
+### API Documentation, Standards, And Duplicate Endpoints
+
+```powershell
+rg -n "openapi|swagger|operation_id|api catalog|endpoint catalog|endpoint-certification|API-CERTIFICATION|no-alias|vocabulary|duplicate endpoint|deprecated|supported API|unsupported API" README.md docs wiki contracts src tests output --glob "*.md" --glob "*.json" --glob "*.py" --glob "*.yml" --glob "*.yaml"
+rg -n "APIRouter\\(|@router\\.(get|post|put|patch|delete)|include_router|operation_id" src tests --glob "*.py"
 ```
 
 ### Runtime Composition And HTTP Boundary
@@ -345,6 +362,15 @@ rg -n "clean_generated_artifacts|repository-hygiene|output/|artifacts/|lineage_d
 rg --files | rg "^(artifacts|output|lineage_data|quality|scripts|automation|docs|wiki|src|tests)/|README.md|AGENTS.md|REPOSITORY-ENGINEERING-CONTEXT.md|Makefile|\\.gitignore|\\.dockerignore"
 ```
 
+### Remote Repository Hygiene
+
+```powershell
+gh repo view <owner>/<repo> --json name,description,homepageUrl,repositoryTopics,defaultBranchRef,isArchived,isFork,visibility,url
+git fetch origin --prune
+git branch -r --no-merged origin/main
+gh pr list --repo <owner>/<repo> --state open --limit 100 --json number,title,headRefName,baseRefName,updatedAt,url
+```
+
 ### Agents And Context Organization
 
 ```powershell
@@ -362,7 +388,8 @@ rg --files | rg "requirements|constraints|poetry.lock|uv.lock|package-lock|pnpm-
 
 Search GitHub with both broad and specific terms:
 
-- broad lens terms: `architecture`, `mapping`, `outbox`, `idempotency`, `pagination`
+- broad lens terms: `architecture`, `mapping`, `outbox`, `idempotency`, `pagination`,
+  `OpenAPI`, `Swagger`, `duplicate endpoint`, `stale branch`, `repo description`
 - concrete symbols: function/class/route/topic/table names
 - issue-family terms: `boundary`, `contract`, `lifecycle`, `supportability`, `lineage`
 
