@@ -3,6 +3,20 @@
 Use this playbook when starting or resuming a Lotus defect-discovery campaign. It turns the skill
 into an operating loop that a future agent can follow without prior chat context.
 
+## Contents
+
+1. [Start Or Resume](#1-start-or-resume)
+2. [Pick The Next Lens](#2-pick-the-next-lens)
+3. [Build A Lens Evidence Packet](#3-build-a-lens-evidence-packet)
+4. [Inspect Code Like A Review Lead](#4-inspect-code-like-a-review-lead)
+5. [Handle Active Fixes](#5-handle-active-fixes)
+6. [File GitHub Issues](#6-file-github-issues)
+7. [Update The Ledger Every Time](#7-update-the-ledger-every-time)
+8. [Work In Time Boxes](#8-work-in-time-boxes)
+9. [Report Progress To The User](#9-report-progress-to-the-user)
+10. [Improve The Skill When Learning Repeats](#10-improve-the-skill-when-learning-repeats)
+11. [Improve The Docs Knowledge Base When Standards Are Missing](#11-improve-the-docs-knowledge-base-when-standards-are-missing)
+
 ## 1. Start Or Resume
 
 1. Resolve the target repository from the user request, current working directory, or latest active
@@ -44,6 +58,7 @@ git status --short --branch
 gh issue list --repo <owner>/<repo> --state open --search "\"Issue Discovery Ledger\"" --json number,title,url
 gh issue list --repo <owner>/<repo> --state open --label issue-discovery --limit 100 --json number,title,labels,url
 gh pr list --repo <owner>/<repo> --state open --json number,title,headRefName,url
+python <skill-dir>\scripts\plan_issue_discovery_campaign.py --repository <owner>/<repo>
 ```
 
 If the worktree is dirty, identify whether the changed files overlap the next lens. If they do,
@@ -210,6 +225,7 @@ Before creating issues:
 
 ```powershell
 python <skill-dir>/scripts/ensure_issue_discovery_labels.py --repo <owner>/<repo>
+python <skill-dir>/scripts/validate_issue_discovery_skill.py
 ```
 
 Create one issue per root cause:
@@ -364,6 +380,10 @@ workflow, not just prose. Check whether the change belongs in:
 - `references/campaign-playbook.md` for start/resume, active-fix, issue-count, handoff, and
   self-improvement procedure;
 - `scripts/ensure_issue_discovery_labels.py` when labels change.
+- `scripts/validate_issue_discovery_skill.py` when catalog, label script, or ledger consistency
+  must be enforced.
+- `scripts/plan_issue_discovery_campaign.py` when broad campaigns need a repeatable repo/profile
+  lens queue and CI-hardening candidate hints.
 
 Then run validation and sync so a fresh future agent can use the deployed skill without reading the
 chat that caused the improvement.

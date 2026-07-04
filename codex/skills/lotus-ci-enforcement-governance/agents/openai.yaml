@@ -1,3 +1,4 @@
 interface:
   display_name: "Lotus CI Enforcement Governance"
   short_description: "Promote high-signal Lotus quality checks into governed CI gates"
+  default_prompt: "Use $lotus-ci-enforcement-governance to design, review, or promote deterministic Lotus quality gates, CI lane placement, scorecards, scaffold rules, agent-quality guardrails, and lens-derived hardening controls."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Targeted Service Refresh"
+  short_description: "Refresh only impacted Lotus services."
+  default_prompt: "Use $targeted-service-refresh to rebuild and restart only changed or explicitly selected Lotus services through governed Docker refresh automation while avoiding unnecessary full-stack restarts."

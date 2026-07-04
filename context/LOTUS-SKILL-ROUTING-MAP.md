@@ -23,9 +23,10 @@ When multiple Lotus skills appear relevant, choose in this order:
 3. no-code issue-discovery campaigns that should inspect and raise GitHub issues without editing implementation code,
 4. platform or backend validation,
 5. CI-enforcement and quality-gate design,
-6. repo-local frontend or backend delivery governance,
-7. PR merge and CI fix-forward workflows,
-8. RFC/governance/documentation-only workflows.
+6. skill/context inventory and reusable agent-governance maintenance,
+7. repo-local frontend or backend delivery governance,
+8. PR merge and CI fix-forward workflows,
+9. RFC/governance/documentation-only workflows.
 
 This prevents broad generic skills from intercepting more specific governed runtime tasks.
 
@@ -40,7 +41,8 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
 | Design or promote high-signal CI enforcement, convert report-only inventories into blocking gates, prevent agent-driven quality degradation, design agentic coding eval loops, decide whether repeated agent failures require skill/context/scaffold updates, enforce test-family or proof-breadth floors, cap uncategorized-test drift, or update quality scorecards and gate placement | `lotus-ci-enforcement-governance` | repo delivery governance skill, `lotus-pr-premerge-gate`, `lotus-codebase-review-ledger` | repo-native quality inventories, Make/NPM targets, GitHub Actions lanes, quality scorecards, review ledgers, platform-owned skill source under `codex/skills`, and `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md` |
-| Improve Lotus skills, agent context, operating guidance, or reusable guardrails after a repeated agent-quality, CI, documentation, wiki, closure, architecture, API, or test-quality failure | `lotus-ci-enforcement-governance` | `lotus-readme-wiki-governance` when README/wiki professionalism is the surfaced failure, repo delivery governance skill for app-specific lessons, `lotus-pr-premerge-gate` before merge | `codex/skills/`, `codex/skills/lotus-skill-manifest.json`, `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md`, `context/platform-engineering-ledger.md`, and `automation/Bootstrap-LotusDeveloperEnvironment.ps1` |
+| Maintain, audit, create, split, merge, or review Lotus skills, agent context, skill manifests, routing maps, deployed-skill sync, AGENTS guidance, procedural memory, or reusable agent guardrails across the Lotus skill inventory | `lotus-skill-context-governance` | `lotus-ci-enforcement-governance` when the lesson should become a CI gate, scaffold, validator, or quality scorecard; `lotus-readme-wiki-governance` when README/wiki source changes | `codex/skills/`, `codex/skills/README.md`, `codex/skills/lotus-skill-manifest.json`, `context/LOTUS-SKILL-ROUTING-MAP.md`, `automation/validate_lotus_skill_alignment.py`, `automation/Bootstrap-LotusDeveloperEnvironment.ps1`, and `codex/skills/lotus-skill-context-governance/scripts/audit_lotus_skills.py` |
+| Improve Lotus skills, agent context, operating guidance, or reusable guardrails after a repeated agent-quality, CI, documentation, wiki, closure, architecture, API, or test-quality failure | `lotus-skill-context-governance` | `lotus-ci-enforcement-governance` when the lesson should become a quality gate, scaffold, validator, or scorecard; `lotus-readme-wiki-governance` when README/wiki professionalism is the surfaced failure, repo delivery governance skill for app-specific lessons, `lotus-pr-premerge-gate` before merge | `codex/skills/`, `codex/skills/README.md`, `codex/skills/lotus-skill-manifest.json`, `context/LOTUS-SKILL-ROUTING-MAP.md`, `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md`, `context/platform-engineering-ledger.md`, and `automation/Bootstrap-LotusDeveloperEnvironment.ps1` |
 | Start or continue an enterprise backend refactor baseline, before/after scorecard, report-only quality measurement, or quality gate promotion in `lotus-platform` | `lotus-ci-enforcement-governance` | `lotus-backend-delivery-governance`, `lotus-readme-wiki-governance`, `lotus-codebase-review-ledger` | `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `automation/generate_enterprise_backend_quality_baseline.py`, `quality/baseline_report.md`, `quality/quality_scorecard.md`, `quality/refactor_health_report.md` |
 | Implement or review frontend code in Lotus product surfaces | `lotus-frontend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
 | Implement or review backend code in Lotus service repositories | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate` | repo-local engineering context and `RFC-0072` |
@@ -48,9 +50,10 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Standardize, refresh, or professionally polish repository README and wiki documentation across Lotus repos, including weak wiki formatting, reader navigation, business-application feature material, diagrams, implementation-backed demo readiness, current functional/non-functional posture, or restored durable documentation truth | `lotus-readme-wiki-governance` | repo delivery governance skill, `lotus-rfc-review-loop`, `lotus-pr-premerge-gate` for stranded-truth checks | repo-local engineering context, existing public-doc regression tests when present, `docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md`, `context/TASK-ROUTING-GUIDE.md`, and repo-local `wiki/` as the authored source when publishing |
 | Prepare, monitor, or merge a PR with Lotus CI discipline, including RFC/docs/wiki/context branch hygiene | `lotus-pr-premerge-gate` | `gh-fix-ci`, `async-task-runner`, `lotus-rfc-review-loop` when durable RFC truth may be stranded | `context/playbooks/PR-LOOP-PLAYBOOK.md` plus stranded-truth reconciliation for governance-bearing branches |
 | Launch or monitor detached platform automation profiles, local background runs, RFC-0095 heartbeat attention artifacts, or RFC-0096 governed delegation evidence | `platform-automation-ops` | `async-task-runner`, `lotus-pr-premerge-gate`, `platform-pulse-monitor` | `context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md`, `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`, `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`, `platform-contracts/heartbeat/heartbeat-status.schema.json`, `automation/Start-Background-Run.ps1`, `automation/Check-Background-Runs.ps1`, `automation/Run-Heartbeat.ps1` |
+| Refresh only changed or explicitly selected local Lotus Docker services, keep the platform running, avoid full-stack restarts, or run changed-files-based service refresh after implementation | `targeted-service-refresh` | `lotus-qa-platform-validator`, `lotus-front-office-runtime` when canonical Workbench proof is required after refresh | `lotus-platform/automation/Service-Refresh.ps1`, repo-local compose/Dockerfiles, changed-files evidence, and service mapping references |
 | Fix failing GitHub Actions checks | `gh-fix-ci` | `lotus-pr-premerge-gate` | GitHub run logs plus repository-native local gates |
 | Review, standardize, or create Lotus RFCs and governance docs, including pre-implementation gold-standard hardening, source maps, work-to-be-done ledgers, supported-feature ledgers, branch-graph reconciliation, mandatory slices, and enterprise/data-mesh baselines | `lotus-rfc-review-loop` | `lotus-readme-wiki-governance` when README/wiki product material changes, `lotus-pr-premerge-gate` before merge | RFC file, central platform context, and unmerged-branch stranded-truth evidence |
-| Review a Lotus app lens by lens to identify high-value evidence-backed GitHub issues without editing code, including architecture, runtime composition, API design, API documentation/standards, duplicate or unclear APIs, HTTP boundary controls, application/domain/ports/infrastructure layering, downstream integration, database operations, lifecycle, mapping, data model, calculations, security, monitoring/observability, performance, resilience, testing, CI/release evidence, data mesh, repo organization, remote repo hygiene, stale remote feature branches, repo description correctness, agents/context organization, docs/wiki/README, operational supportability, shared issue-discovery ledgers, and canonical lens labels | `lotus-app-issue-discovery` | repo delivery governance skill for app type, `lotus-codebase-review-ledger` when durable review ledgers are updated, `lotus-ci-enforcement-governance` when findings should become reusable gates or skills | target repo code/docs/tests, existing GitHub issues, `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`, `codex/skills/lotus-app-issue-discovery/references/review-lenses.md`, and `codex/skills/lotus-app-issue-discovery/references/campaign-playbook.md` |
+| Review a Lotus app lens by lens to identify high-value evidence-backed GitHub issues without editing code, including architecture, runtime composition, API design, API documentation/standards, duplicate or unclear APIs, HTTP boundary controls, application/domain/ports/infrastructure layering, downstream integration, database operations, lifecycle, mapping, data model, calculations, security, monitoring/observability, performance, resilience, testing, CI/release evidence, data mesh, repo organization, remote repo hygiene, stale remote feature branches, repo description correctness, agents/context organization, docs/wiki/README, operational supportability, enterprise readiness, tenant isolation, regulatory/records posture, deployment parity, disaster recovery, SLO/capacity/cost, rollout compatibility, operator controls, data privacy lifecycle, licensing/IP, localization, customer-impact failure modes, support escalation, vendor risk, accessibility/usability, client communication suitability, data quality/reconciliation, migration/backfill readiness, SBOM/provenance, API consumer experience, mobile responsiveness, AI model governance, AI data boundaries, AI evaluation quality, AI explainability/audit, AI safety/abuse controls, AI human oversight, AI cost/latency/reliability, AI agent tool governance, shared issue-discovery ledgers, and canonical lens labels | `lotus-app-issue-discovery` | repo delivery governance skill for app type, `lotus-codebase-review-ledger` when durable review ledgers are updated, `lotus-ci-enforcement-governance` when findings should become reusable gates or skills | target repo code/docs/tests, existing GitHub issues, `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`, `codex/skills/lotus-app-issue-discovery/references/review-lenses.md`, and `codex/skills/lotus-app-issue-discovery/references/campaign-playbook.md` |
 | Review codebase patterns, dead code, duplication, or modularity debt | `lotus-codebase-review-ledger` | repo delivery governance skill | review ledger plus repo-local code evidence |
 | Upgrade methodology documents to auditable standard | `lotus-methodology-doc-v3` | repo delivery governance skill | methodology docs plus domain source material |
 | Draft, review, publish-status update, or maintain Sandeep's private-banking LinkedIn thought-leadership content ledger and post pipeline | `lotus-linkedin-thought-leadership` | `lotus-readme-wiki-governance` only when platform documentation truth changes | `thought-leadership/linkedin/content-ledger.md`, `themes.md`, `voice-and-style-guide.md`, and existing `drafts/`, `reviewed/`, and `posted/` files |
@@ -89,7 +92,10 @@ Use when the task is about:
 4. applying functional or technical knowledge to inspect code before filing issues,
 5. reviewing repo organization, agent/context organization, data mesh, monitoring, documentation,
    wiki, or README truth as first-class issue-discovery lenses,
-6. avoiding duplicate GitHub issues while producing evidence-backed acceptance criteria.
+6. reviewing enterprise readiness, accessibility/usability, tenant isolation, compliance, DR,
+   rollout, support escalation, data privacy, vendor risk, mobile responsiveness, or AI governance,
+   evaluation, safety, oversight, cost, and tool-control posture as issue-discovery lenses,
+7. avoiding duplicate GitHub issues while producing evidence-backed acceptance criteria.
 
 ### `lotus-demo-readiness-certification`
 
@@ -157,6 +163,19 @@ Use when the task is about:
     future agents promote repeatable lessons into skills, routing, context, validators, scaffolds,
     gates, or an explicit no-change decision.
 
+### `lotus-skill-context-governance`
+
+Use when the task is about:
+
+1. reviewing all Lotus skills or the governed skill inventory,
+2. deciding whether a new skill is needed,
+3. creating, splitting, merging, or retiring a Lotus skill,
+4. maintaining `codex/skills/lotus-skill-manifest.json`,
+5. maintaining `context/LOTUS-SKILL-ROUTING-MAP.md`,
+6. auditing deployed-skill sync or source-to-local parity,
+7. updating AGENTS/context/procedural-memory guidance for future agents,
+8. running or improving cross-skill audit validators.
+
 ### `lotus-rfc-review-loop`
 
 Use alongside the repo delivery skill when the task is about:
@@ -167,12 +186,23 @@ Use alongside the repo delivery skill when the task is about:
 4. preserving supported-feature and client-publication boundaries,
 5. deciding whether design modularity is enough or a runtime service split is justified.
 
+### `targeted-service-refresh`
+
+Use when the task is about:
+
+1. rebuilding or restarting only impacted local services,
+2. keeping the broader Lotus platform running during a focused fix,
+3. changed-files-based Docker refresh,
+4. avoiding a full stack restart after a bounded implementation change,
+5. refreshing services before runtime or canonical evidence that would otherwise use stale containers.
+
 ## Keep, Tighten, Add, Remove Decisions
 
 ### Add
 
 1. `lotus-front-office-runtime`
 2. `lotus-ci-enforcement-governance`
+3. `lotus-skill-context-governance`
 
 Reason:
 
@@ -182,6 +212,11 @@ than being inferred from generic QA or frontend skills.
 CI-enforcement design now has enough repeated cross-repository behavior to need a focused routing
 surface. It should prevent broad backend, frontend, or PR workflow skills from adding noisy checks
 without first proving a measured, deterministic, high-signal gate.
+
+Skill and agent-context governance now has enough repeated platform behavior to need a focused
+stewardship surface. It should prevent broad CI or delivery skills from owning whole-inventory
+skill audits, manifest changes, deployed-skill sync posture, AGENTS/context routing, and
+cross-skill validation decisions.
 
 ### Tighten
 

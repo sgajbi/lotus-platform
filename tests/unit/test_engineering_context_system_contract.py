@@ -672,6 +672,7 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
         "lotus-ci-enforcement-governance",
         "lotus-demo-readiness-certification",
         "lotus-endpoint-certification-loop",
+        "lotus-skill-context-governance",
         "lotus-frontend-delivery-governance",
         "lotus-front-office-runtime",
         "lotus-linkedin-thought-leadership",

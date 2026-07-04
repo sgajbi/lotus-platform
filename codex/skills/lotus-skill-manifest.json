@@ -40,6 +40,13 @@
       "reason": "High-signal CI quality-gate promotion and agent-development enforcement governance."
     },
     {
+      "name": "lotus-skill-context-governance",
+      "path": "codex/skills/lotus-skill-context-governance",
+      "category": "skill-context-governance",
+      "directly_lotus_owned": true,
+      "reason": "Holistic governance for Lotus skill inventory, agent context, routing maps, manifests, validation scripts, deployed-skill sync posture, and cross-skill audit findings."
+    },
+    {
       "name": "lotus-demo-readiness-certification",
       "path": "codex/skills/lotus-demo-readiness-certification",
       "category": "demo-readiness-certification",
