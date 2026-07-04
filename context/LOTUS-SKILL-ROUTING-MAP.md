@@ -53,6 +53,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Review a Lotus app lens by lens to identify high-value evidence-backed GitHub issues without editing code, including architecture, runtime composition, API, HTTP boundary controls, application/domain/ports/infrastructure layering, downstream integration, database operations, lifecycle, mapping, data model, calculations, security, monitoring/observability, performance, resilience, testing, CI/release evidence, data mesh, repo organization, agents/context organization, docs/wiki/README, operational supportability, shared issue-discovery ledgers, and canonical lens labels | `lotus-app-issue-discovery` | repo delivery governance skill for app type, `lotus-codebase-review-ledger` when durable review ledgers are updated, `lotus-ci-enforcement-governance` when findings should become reusable gates or skills | target repo code/docs/tests, existing GitHub issues, `ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md`, `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`, `codex/skills/lotus-app-issue-discovery/references/review-lenses.md`, and `codex/skills/lotus-app-issue-discovery/references/campaign-playbook.md` |
 | Review codebase patterns, dead code, duplication, or modularity debt | `lotus-codebase-review-ledger` | repo delivery governance skill | review ledger plus repo-local code evidence |
 | Upgrade methodology documents to auditable standard | `lotus-methodology-doc-v3` | repo delivery governance skill | methodology docs plus domain source material |
+| Draft, review, publish-status update, or maintain Sandeep's private-banking LinkedIn thought-leadership content ledger and post pipeline | `lotus-linkedin-thought-leadership` | `lotus-readme-wiki-governance` only when platform documentation truth changes | `thought-leadership/linkedin/content-ledger.md`, `themes.md`, `voice-and-style-guide.md`, and existing `drafts/`, `reviewed/`, and `posted/` files |
 
 ## Task-Intent Triggers
 
@@ -120,6 +121,16 @@ Use when the task is about:
 4. upstream and downstream integration correctness,
 5. GitHub issue review for endpoint-specific defects,
 6. duplicate, stale, or dead endpoint migration decisions.
+
+### `lotus-linkedin-thought-leadership`
+
+Use when the task is about:
+
+1. drafting or reviewing Sandeep's LinkedIn posts,
+2. planning the thought-leadership posting cadence,
+3. updating the thought-leadership content ledger,
+4. moving drafts through reviewed or posted states,
+5. preserving employer-safe, non-confidential framing for public content.
 
 ### `lotus-ci-enforcement-governance`
 

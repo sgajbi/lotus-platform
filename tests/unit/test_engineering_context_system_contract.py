@@ -183,6 +183,7 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "AGENTS-OPERATING-CONTRACT.md" in context_index
 
     assert "Mandatory Reading Order" in agents_contract
+    assert "Target Repository Root Rule" in agents_contract
     assert "Mandatory Operating Rules" in agents_contract
     assert "Context Maintenance Rule" in agents_contract
     assert "Skills, Automation, And Async Execution" in agents_contract
@@ -191,6 +192,10 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "LOTUS-ENGINEERING-CONTEXT.md" in agents_contract
     assert "CONTEXT-REFERENCE-MAP.md" in agents_contract
     assert "REPOSITORY-ENGINEERING-CONTEXT.md" in agents_contract
+    assert "Do not assume the inherited shell working directory is the task repository" in agents_contract
+    assert "VS Code multi-root" in agents_contract
+    assert "switch command `workdir` to that target repo" in agents_contract
+    assert "child agents do not inherit the wrong cwd" in agents_contract
     assert "deployed `AGENTS.md`" in agents_contract
     assert "Sync-AgentOperatingContract.ps1" in agents_contract
     assert "canonical-front-office-local-runtime.md" in agents_contract
@@ -666,8 +671,10 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
         "lotus-codebase-review-ledger",
         "lotus-ci-enforcement-governance",
         "lotus-demo-readiness-certification",
+        "lotus-endpoint-certification-loop",
         "lotus-frontend-delivery-governance",
         "lotus-front-office-runtime",
+        "lotus-linkedin-thought-leadership",
         "lotus-methodology-doc-v3",
         "lotus-pr-premerge-gate",
         "lotus-qa-platform-validator",

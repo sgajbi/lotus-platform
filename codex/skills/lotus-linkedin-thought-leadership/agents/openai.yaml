@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus LinkedIn Thought Leadership"
+  short_description: "Draft private-banking LinkedIn posts."
+  default_prompt: "Draft LinkedIn posts using the Lotus thought-leadership ledger, themes, and voice guide."

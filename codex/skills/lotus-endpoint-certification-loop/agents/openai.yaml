@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Endpoint Certification"
+  short_description: "Certify Lotus API endpoints end to end."
+  default_prompt: "Certify this Lotus endpoint across docs, tests, upstream/downstream integration, GitHub issues, and live evidence."

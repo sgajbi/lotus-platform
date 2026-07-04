@@ -90,6 +90,24 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
     assert "Security and privacy" in lens_catalog
 
 
+def test_endpoint_and_linkedin_skills_are_governed_and_routed() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    skill_manifest = _read(ROOT / "codex" / "skills" / "lotus-skill-manifest.json")
+    endpoint_skill = _read(ROOT / "codex" / "skills" / "lotus-endpoint-certification-loop" / "SKILL.md")
+    linkedin_skill = _read(ROOT / "codex" / "skills" / "lotus-linkedin-thought-leadership" / "SKILL.md")
+
+    assert "`lotus-endpoint-certification-loop`" in routing_map
+    assert "`lotus-linkedin-thought-leadership`" in routing_map
+    assert '"lotus-endpoint-certification-loop"' in skill_manifest
+    assert '"lotus-linkedin-thought-leadership"' in skill_manifest
+    assert "Continuous Skill Improvement" in endpoint_skill
+    assert "At the end of any meaningful use of this skill" in endpoint_skill
+    assert "platform-owned skill source" in endpoint_skill
+    assert "Continuous Skill Improvement" in linkedin_skill
+    assert "At the end of any meaningful use of this skill" in linkedin_skill
+    assert "platform-owned skill source" in linkedin_skill
+
+
 def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")

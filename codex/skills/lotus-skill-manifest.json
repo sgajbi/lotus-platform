@@ -47,6 +47,13 @@
       "reason": "App-wide demo readiness and client-demo operating workflow for real APIs, features, seed data, calculations, evidence review, demo packs, and fix-forward validation."
     },
     {
+      "name": "lotus-endpoint-certification-loop",
+      "path": "codex/skills/lotus-endpoint-certification-loop",
+      "category": "endpoint-certification",
+      "directly_lotus_owned": true,
+      "reason": "Endpoint-by-endpoint Lotus API certification across behavior, output figures, OpenAPI documentation, integration posture, issue disposition, and live proof."
+    },
+    {
       "name": "lotus-frontend-delivery-governance",
       "path": "codex/skills/lotus-frontend-delivery-governance",
       "category": "frontend-delivery-governance",
@@ -66,6 +73,13 @@
       "category": "methodology-documentation",
       "directly_lotus_owned": true,
       "reason": "Auditable methodology documentation standard for analytics metrics."
+    },
+    {
+      "name": "lotus-linkedin-thought-leadership",
+      "path": "codex/skills/lotus-linkedin-thought-leadership",
+      "category": "thought-leadership",
+      "directly_lotus_owned": true,
+      "reason": "Personal thought-leadership drafting and ledger workflow for private banking, portfolio analytics, advisory, mandates, reporting, and Lotus-adjacent platform-building."
     },
     {
       "name": "lotus-pr-premerge-gate",

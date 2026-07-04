@@ -13,7 +13,9 @@ This directory contains:
 3. app-wide demo-readiness and validation certification skills,
 4. evidence-backed app issue-discovery skills,
 5. platform automation and pulse-monitoring skills,
-6. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+6. endpoint-certification skills,
+7. thought-leadership workflow skills for platform-owned personal-brand content,
+8. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
 
 It does not own:
 
