@@ -94,6 +94,10 @@ For each material finding:
 6. if the fix comes from a GitHub issue, scan adjacent code/docs/tests for the same failure pattern
    before marking the ledger entry `Hardened`; record either the extra fixes made or the exact
    no-similar-pattern evidence.
+7. if the repeated pattern is concrete infrastructure or runtime capability usage inside
+   application/domain orchestration, prefer a narrow port, concrete adapter, fake-port behavior
+   tests, and a repo-native guard over another local helper. Record the port contract, preserved
+   behavior, failure semantics, guard command, and no-runtime-split decision in the ledger.
 
 Prefer pushing invariants downward into:
 
