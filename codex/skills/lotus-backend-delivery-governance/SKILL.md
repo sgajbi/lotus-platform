@@ -151,6 +151,13 @@ For RFC-driven business-application slices, extend that intake with:
     decision. Do not open the PR while any actionable issue in the agreed batch lacks code,
     tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues open
     unless the ledger itself was the target.
+15. When a GitHub issue exposes repeated concrete external-capability coupling in application code
+    such as direct database sessions, Kafka/EventHub producers, HTTP clients, object storage,
+    clocks, UUIDs, audit stores, idempotency stores, or unit-of-work commits, fix the pattern rather
+    than only the named call site. Define the narrow port and concrete adapter, preserve the
+    existing runtime behavior behind the adapter, add fake-port tests for the business contract and
+    failure semantics, add a deterministic guard when the invariant is statically checkable, and
+    update repo context or standards so the same coupling does not return in the next issue slice.
 
 ## Bank-Buyable Default Bar
 
