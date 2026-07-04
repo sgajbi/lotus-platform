@@ -2,6 +2,14 @@
 
 Use this reference to draft or refresh a Lotus repository `README.md`.
 
+## Contents
+
+1. [Goals](#goals)
+2. [Required Structure](#required-structure)
+3. [Writing Rules](#writing-rules)
+4. [Source-of-Truth Hierarchy](#source-of-truth-hierarchy)
+5. [Common README Patterns](#common-readme-patterns)
+
 ## Goals
 
 The README is the shortest truthful entry point for a repo. A strong Lotus README should answer:

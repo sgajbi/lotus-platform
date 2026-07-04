@@ -1,0 +1,4 @@
+interface:
+  display_name: "Platform Automation Ops"
+  short_description: "Run governed Lotus platform automation."
+  default_prompt: "Use $platform-automation-ops to launch, monitor, and summarize governed Lotus platform automation, background runs, heartbeat evidence, and delegated task posture without blocking on long-running checks."

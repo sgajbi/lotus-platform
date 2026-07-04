@@ -15,7 +15,8 @@ This directory contains:
 5. platform automation and pulse-monitoring skills,
 6. endpoint-certification skills,
 7. thought-leadership workflow skills for platform-owned personal-brand content,
-8. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+8. skill/context governance for the Lotus agent operating system,
+9. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
 
 It does not own:
 
@@ -60,20 +61,28 @@ gaps, and context-routing gaps into the platform-owned skill source, routing map
 validators, scaffolds, gates, or an explicit no-change decision. This is enforced by
 `automation/validate_lotus_skill_alignment.py`.
 
+Skills, automation, and context should reduce token usage and improve reliability for every future
+agent, including lower-capability models. Prefer progressive disclosure, concise trigger-time
+instructions, reference files with contents sections, and deterministic scripts for repeatable
+operations. If a skill requires the same command sequence or consistency check repeatedly, put that
+automation inside the skill and reference it from `SKILL.md`.
+
 When the task is explicitly to improve skills, agent context, or reusable guidance:
 
 1. start with the existing skill route in `context/LOTUS-SKILL-ROUTING-MAP.md`,
-2. use `lotus-ci-enforcement-governance` for repeated agent-quality, CI, closure, API, architecture,
+2. use `lotus-skill-context-governance` for holistic skill inventory, routing-map, manifest,
+   deployed-skill sync, AGENTS/context, and cross-skill review work,
+3. use `lotus-ci-enforcement-governance` for repeated agent-quality, CI, closure, API, architecture,
    or test-quality failures,
-3. use `lotus-app-issue-discovery` when the task is to inspect a Lotus app lens by lens and raise
+4. use `lotus-app-issue-discovery` when the task is to inspect a Lotus app lens by lens and raise
    high-value evidence-backed issues without editing code,
-4. use `lotus-readme-wiki-governance` when the surfaced failure is README/wiki professionalism,
+5. use `lotus-readme-wiki-governance` when the surfaced failure is README/wiki professionalism,
    reader navigation, publication hygiene, or documentation presentation quality,
-5. update an existing skill before creating a new one unless the routing map proves a durable
+6. update an existing skill before creating a new one unless the routing map proves a durable
    uncovered task family,
-6. sync deployed local skills through `automation/Bootstrap-LotusDeveloperEnvironment.ps1` after the
+7. sync deployed local skills through `automation/Bootstrap-LotusDeveloperEnvironment.ps1` after the
    platform-owned source changes,
-7. record a short no-skill/no-context decision when the lesson is local to one slice and does not
+8. record a short no-skill/no-context decision when the lesson is local to one slice and does not
    justify durable guidance.
 
 When the task is documentation-system work rather than code delivery, prefer the dedicated Lotus
@@ -92,12 +101,14 @@ For a changed Lotus skill:
 
 1. validate that the manifest changes only when a skill is added, moved, renamed, removed, or its
    governed ownership changes,
-2. sync deployed local skills with:
+2. run the whole-inventory audit when routing, manifest, or cross-skill behavior changes:
+   `python codex\skills\lotus-skill-context-governance\scripts\audit_lotus_skills.py`,
+3. sync deployed local skills with:
    `powershell -ExecutionPolicy Bypass -File automation/Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast -ValidateAfterSync`,
-3. run `python automation/validate_lotus_skill_alignment.py`,
-4. confirm source-to-deployed parity for the touched skill when the same session depends on the new
+4. run `python automation/validate_lotus_skill_alignment.py`,
+5. confirm source-to-deployed parity for the touched skill when the same session depends on the new
    guidance,
-5. record the no-wiki-change decision unless repo-local wiki source changed.
+6. record the no-wiki-change decision unless repo-local wiki source changed.
 
 ## Runtime Boundary
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Demo Readiness Certification"
+  short_description: "Certify Lotus apps for demo-ready proof."
+  default_prompt: "Use $lotus-demo-readiness-certification to certify a Lotus app across supported APIs, calculations, product features, seed data, capability publication, observability/supportability, evidence review, and client-demo boundaries."

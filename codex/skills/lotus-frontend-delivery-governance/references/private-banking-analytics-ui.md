@@ -2,6 +2,17 @@
 
 Use this reference when building or reviewing Lotus Workbench product surfaces, especially portfolio overview, performance, risk, advisory, reporting, observability, and operational panels. It adapts the useful finance/dashboard guidance from UI UX Pro Max into Lotus-specific, gateway-backed private banking UI rules.
 
+## Contents
+
+1. [Design Posture](#design-posture)
+2. [Workbench Screen Anatomy](#workbench-screen-anatomy)
+3. [Layout Patterns](#layout-patterns)
+4. [Visual System](#visual-system)
+5. [Analytics And Chart Selection](#analytics-and-chart-selection)
+6. [Data Display Rules](#data-display-rules)
+7. [State And Evidence](#state-and-evidence)
+8. [Interaction Quality](#interaction-quality)
+
 ## Design Posture
 
 - Optimize for advisor trust, decision clarity, supportability, and auditability over visual novelty.

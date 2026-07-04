@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus RFC-0067 Rollout"
+  short_description: "Roll out Lotus OpenAPI vocabulary governance."
+  default_prompt: "Use $lotus-rfc0067-rollout to implement RFC-0067 OpenAPI quality, API vocabulary inventory, no-alias governance, platform inventory sync, and cross-app vocabulary validation for a Lotus app."

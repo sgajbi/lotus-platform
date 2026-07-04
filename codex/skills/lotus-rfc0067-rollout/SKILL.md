@@ -1,6 +1,6 @@
 ---
 name: lotus-rfc0067-rollout
-description: Roll out RFC-0067 (OpenAPI quality + API vocabulary inventory + no-alias governance) for a Lotus application, then sync inventory into lotus-platform and run cross-app vocabulary validation.
+description: Use when rolling out RFC-0067 OpenAPI quality, API vocabulary inventory, and no-alias governance for a Lotus application, then syncing inventory into lotus-platform and running cross-app vocabulary validation.
 ---
 
 # Lotus RFC-0067 Rollout

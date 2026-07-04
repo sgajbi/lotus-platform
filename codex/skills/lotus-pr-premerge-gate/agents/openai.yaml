@@ -1,3 +1,4 @@
 interface:
   display_name: "Lotus PR Premerge Gate"
   short_description: "Verify Lotus PRs through merge and mainline proof"
+  default_prompt: "Use $lotus-pr-premerge-gate to prepare, validate, monitor, merge, and clean up Lotus PRs with repo-native checks, GitHub CI evidence, stranded-truth reconciliation, and mainline proof."

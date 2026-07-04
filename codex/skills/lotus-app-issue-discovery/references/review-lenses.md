@@ -3,6 +3,23 @@
 Use this catalog to plan review batches. Pick one lens or a coherent group; inspect code before
 raising issues.
 
+## Contents
+
+1. [Canonical Lens Labels](#canonical-lens-labels)
+2. [Core Lens Groups](#core-lens-groups)
+3. [Enterprise Readiness Extension Lenses](#enterprise-readiness-extension-lenses)
+4. [Baseline Lens Queue](#baseline-lens-queue)
+5. [Repository Review Profiles](#repository-review-profiles)
+6. [Lens Definition Of Done](#lens-definition-of-done)
+7. [Campaign Coverage Model](#campaign-coverage-model)
+8. [User Prompt To Canonical Lens Map](#user-prompt-to-canonical-lens-map)
+9. [Finding Decision Tree](#finding-decision-tree)
+10. [Evidence Strength Rubric](#evidence-strength-rubric)
+11. [Required Issue Anchors By Lens Family](#required-issue-anchors-by-lens-family)
+12. [Lens-Specific Search Starters](#lens-specific-search-starters)
+13. [Duplicate Check Keywords](#duplicate-check-keywords)
+14. [Severity Calibration](#severity-calibration)
+
 ## Canonical Lens Labels
 
 Use these labels when filing or updating GitHub issues from this skill. Create missing labels in the
@@ -49,6 +66,36 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Repo organization | `lens/repo-organization` |
 | Remote repository hygiene | `lens/remote-repository-hygiene` |
 | Agents/context organization | `lens/agents-context-organization` |
+| Entitlements and tenant isolation | `lens/entitlements-tenant-isolation` |
+| Regulatory compliance and records | `lens/regulatory-compliance-records` |
+| Deployment and environment parity | `lens/deployment-environment-parity` |
+| Business continuity and disaster recovery | `lens/business-continuity-disaster-recovery` |
+| SLO, capacity, and cost management | `lens/slo-capacity-cost-management` |
+| Release rollout and compatibility | `lens/release-rollout-compatibility` |
+| Operator control plane | `lens/operator-control-plane` |
+| Data governance and privacy lifecycle | `lens/data-governance-privacy-lifecycle` |
+| License and IP compliance | `lens/license-ip-compliance` |
+| Localization and market conventions | `lens/localization-market-conventions` |
+| Customer-impact failure modes | `lens/customer-impact-failure-modes` |
+| Change-management audit | `lens/change-management-audit` |
+| Support escalation workflows | `lens/support-escalation-workflows` |
+| Third-party vendor risk | `lens/third-party-vendor-risk` |
+| Accessibility and inclusive design | `lens/accessibility-inclusive-design` |
+| Product workflow usability | `lens/product-workflow-usability` |
+| Client communication suitability | `lens/client-communication-suitability` |
+| Data quality and reconciliation | `lens/data-quality-reconciliation` |
+| Migration and backfill readiness | `lens/migration-backfill-readiness` |
+| Environment supply-chain provenance | `lens/environment-supply-chain-provenance` |
+| API consumer experience | `lens/api-consumer-experience` |
+| Mobile and responsive device readiness | `lens/mobile-responsive-device-readiness` |
+| AI model governance | `lens/ai-model-governance` |
+| AI data boundaries | `lens/ai-data-boundaries` |
+| AI evaluation quality | `lens/ai-evaluation-quality` |
+| AI explainability and audit | `lens/ai-explainability-audit` |
+| AI safety and abuse controls | `lens/ai-safety-abuse-controls` |
+| AI human oversight | `lens/ai-human-oversight` |
+| AI cost, latency, and reliability | `lens/ai-cost-latency-reliability` |
+| AI agent tool governance | `lens/ai-agent-tool-governance` |
 
 Use these cross-cutting labels when useful:
 
@@ -60,6 +107,8 @@ Use these cross-cutting labels when useful:
 | `impact/operability` | Observability, readiness, diagnostics, recovery, or supportability risk. |
 | `impact/performance` | Latency, scalability, batching, pagination, query, or resource-efficiency risk. |
 | `impact/architecture` | Boundary, dependency, modularity, contract, or ownership risk. |
+| `impact/compliance` | Regulatory, records, audit, legal, licensing, or policy-adherence risk. |
+| `impact/customer-experience` | User workflow, accessibility, client communication, or customer-impact risk. |
 
 ## Core Lens Groups
 
@@ -105,6 +154,53 @@ Use these cross-cutting labels when useful:
 | Remote repository hygiene | GitHub repo description, topics, default branch, branch protection posture, stale remote feature branches, merged branch pruning, archived/fork/visibility state, repo URL/readme alignment, remote wiki/source alignment | repo description misstates ownership or product scope, stale remote feature branches carry stranded durable truth, remote settings contradict Lotus standards, default branch or topics make agents choose the wrong repo, GitHub wiki/source publication drift is not discoverable |
 | Agents/context organization | `AGENTS.md`, repo context, platform context cross-links, skill routing, procedural memory, agent onboarding paths, local/deployed skill source alignment | mandatory reading order not discoverable, repo context bypasses skill routing, local skill drift, procedural memory missing for repeated work |
 
+## Enterprise Readiness Extension Lenses
+
+Use these lenses when the app is production-deployed, externally exposed, regulated, multi-tenant,
+client-demo/publication relevant, AI-backed, agentic, or otherwise expected to be enterprise-ready.
+Do not require every extension lens for every scaffold or internal prototype; record `not
+applicable` in the ledger when the repo context proves the lens is outside the app boundary.
+
+Each extension-lens issue should include:
+
+1. **Acceptance criteria**: the implementation evidence that must exist before the finding can be
+   closed.
+2. **Evaluation condition**: the concrete check, runtime proof, contract test, doc/runbook review,
+   or operator exercise that proves the acceptance criteria.
+
+| Lens | Applies when | What to inspect | Typical high-value findings | Acceptance criteria | Evaluation condition |
+| --- | --- | --- | --- | --- | --- |
+| Entitlements and tenant isolation | APIs, UIs, data products, or workers handle user, portfolio, client, mandate, tenant, advisor, or service-scoped access | auth policies, caller context, tenant filters, row/object guards, denial tests, audit logs, Gateway/BFF propagation | cross-tenant reads, missing object-level authorization, UI-only entitlements, service tokens with broad scope, missing denial audit | authorization is enforced at the owning backend boundary; tenant/portfolio/client scope is carried through APIs, queries, events, logs, and audit; allow and deny paths are tested | focused tests prove allowed, denied, wrong-tenant, missing-scope, and service-to-service cases; logs/audit show support-safe denial evidence |
+| Regulatory compliance and records | records, reports, legal hold, client communication, suitability, retention, audit, or regulated evidence is stored or published | retention rules, legal hold, audit trails, records classification, evidentiary snapshots, data residency, change history | missing retention/hold controls, mutable records without versioning, weak audit chain, unsupported client-record claims | regulated records have immutable identity/versioning, retention/hold policy, audit history, owner, and support-safe retrieval semantics | migration/contract tests, records lifecycle tests, and runbook checks prove create/read/update/correction/hold/purge behavior |
+| Deployment and environment parity | the app has Docker, compose, Kubernetes, environment-specific settings, CI runtime, or deployed service manifests | Dockerfiles, compose, Helm/K8s/IaC, env templates, config validation, readiness/liveness, startup imports | local works but container import fails, prod defaults differ from CI, probes are shallow, secrets/config missing validation | local, CI, and deployment manifests run the same service entrypoint and required settings; health/readiness reflect real dependencies | Docker/import smoke, config validation tests, and readiness checks run through repo-native commands or deployment pipeline |
+| Business continuity and disaster recovery | the app owns durable state, files, queues, evidence, or critical workflows | backups, restore docs, idempotency, replay/recovery, RTO/RPO docs, object-store/database recovery, migration rollback | no restore path, untested backup, no replay after partial failure, recovery docs missing exact commands | durable data has backup/restore, replay, and recovery procedures with declared RTO/RPO or explicit non-production boundary | restore/replay drill, migration rollback proof, or operator runbook exercise with recorded evidence |
+| SLO, capacity, and cost management | production readiness, high-volume traffic, latency-sensitive UI/API paths, or AI/token-heavy flows exist | SLOs, latency/error metrics, rate limits, load tests, capacity assumptions, resource budgets, token/cost budgets | no SLO, unbounded fan-out, missing saturation metrics, expensive AI calls without budget, no capacity evidence | SLOs or readiness targets are documented; capacity/cost risks have limits, metrics, alerts, and tests where practical | load/performance smoke, dashboard/alert contract, budget test, or capacity worksheet tied to repo truth |
+| Release rollout and compatibility | public/internal APIs, DB migrations, events, data products, UI contracts, or downstream consumers can break | versioning, migrations, feature flags, deprecation docs, rollback, blue/green/canary posture, compatibility tests | breaking change without versioning, irreversible migration, no rollback, silent event/schema incompatibility | changes are backward-compatible or explicitly versioned/deprecated; rollout and rollback paths are documented and tested | migration forward/backward proof, contract compatibility tests, deprecation docs, and release evidence |
+| Operator control plane | operators need support-safe status, retry, replay, drain, pause, unblock, or diagnostic actions | admin/support APIs, control commands, RBAC, audit, dry-run, safeguards, runbooks | unsafe retry/replay, no stuck-state controls, admin actions lack audit, break-glass path uncontrolled | operator actions are scoped, authorized, audited, idempotent or guarded, and documented with safe next steps | operator API tests, audit assertions, runbook exercise, and negative authorization tests |
+| Data governance and privacy lifecycle | the app stores or emits personal, client, portfolio, document, prompt, telemetry, or restricted data | classification, minimization, masking, retention, erasure/anonymization, approved consumers, lineage, logs/metrics | raw PII in logs/events, missing data classification, no retention/erasure boundary, broad data exports | data fields are classified; sensitive data is minimized, masked, retained, deleted, and shared according to policy | static sensitive-content scans, schema/contract checks, retention tests, and log/metric redaction tests |
+| License and IP compliance | dependencies, generated artifacts, third-party data, templates, market data, or AI-generated assets are used | license manifests, package metadata, attribution, generated content provenance, data-use terms, binary/image assets | incompatible license, missing attribution, unclear generated-content ownership, third-party data copied into repo | license/IP obligations are identified, approved, documented, and enforced for dependencies and artifacts | license scanner, dependency manifest review, artifact provenance checks, and docs/NOTICE validation |
+| Localization and market conventions | user-visible dates, currencies, markets, jurisdictions, calendars, statements, or reporting periods exist | time zones, business calendars, settlement calendars, currencies, formats, language, tax/jurisdiction flags | UTC/local confusion, wrong currency rounding, weekend business days, hard-coded SG/US assumptions, non-localized reports | market conventions are explicit, tested, and configurable or bounded to the documented jurisdiction | golden tests for dates/currency/business days/time zones plus docs naming supported markets |
+| Customer-impact failure modes | UI/API/workflow failures can affect advisor, PM, client, operations, or downstream consumers | degraded states, partial data, dependency failures, empty/stale states, user messages, retry behavior, status pages | blank UI, misleading success, partial data not marked, retries duplicate actions, client-facing error leaks internals | failure states are explicit, support-safe, actionable, and do not overstate success or completeness | dependency-failure tests, UI/API degraded-state proof, and runbook/customer-impact classification |
+| Change-management audit | production or governed changes affect data, APIs, workflows, model prompts, configuration, or supported-feature truth | release approvals, change records, migration plans, audit trail, PR evidence, feature flags, rollback owners | no trace from change to issue/PR/proof, unapproved config changes, unsupported docs updated without implementation | changes have owner, approval/evidence trail, rollout/rollback plan, and implementation-backed docs | PR/release evidence checklist, change log, migration proof, and post-release verification |
+| Support escalation workflows | support teams need L1/L2/L3 routing, diagnostics, incident response, or client-impact triage | runbooks, escalation owners, diagnostic bundles, support-safe identifiers, alert routing, incident templates | no escalation owner, support cannot correlate IDs, diagnostic steps expose sensitive data, L1 must inspect DB | support path names owners, severity, inputs, diagnostic commands, safe identifiers, and escalation criteria | runbook review plus dry-run incident exercise or diagnostic API evidence |
+| Third-party vendor risk | external APIs, SaaS, cloud providers, data vendors, model providers, or managed services are used | SLAs, timeouts, data sharing, vendor security posture, outage behavior, contract boundaries, fallback | hidden vendor dependency, no timeout/SLA, sensitive data sent without policy, vendor outage breaks core path | vendor dependency, data classes, timeout/retry/SLA, outage mode, and owner are documented and tested | adapter tests, vendor-failure simulation, data-sharing review, and runbook evidence |
+| Accessibility and inclusive design | user-facing UI, dashboards, PDFs, reports, email content, or generated documents exist | semantic HTML, keyboard nav, focus, contrast, ARIA, PDF tagging, captions, error messaging | inaccessible controls, missing keyboard path, poor contrast, untagged PDFs, charts without text alternatives | supported surfaces meet the declared accessibility baseline and do not block keyboard/screen-reader workflows | axe/Playwright checks, keyboard walkthrough, PDF accessibility proof, and manual residual-risk notes |
+| Product workflow usability | users perform repeated, high-value operational, advisory, PM, support, or client-service workflows | task flows, navigation, state persistence, error recovery, defaults, bulk actions, confirmation copy | workflows require excessive clicks, destructive action unclear, status hidden, users cannot recover from common errors | core workflows are efficient, clear, reversible or safely confirmed, and backed by real APIs | task-based walkthrough evidence, UX regression tests, screenshots/video where useful, and API support proof |
+| Client communication suitability | client-ready or advisor-use communications, reports, recommendations, AI text, disclaimers, or approvals exist | disclaimers, approval state, suitability gates, audience classification, publication controls, client/advisor split | advisor-only content exposed to clients, missing disclaimer, unsupported recommendation, no approval lineage | communications carry audience, approval/suitability status, disclaimer, source evidence, and publication boundary | content contract tests, approval workflow tests, generated-document proof, and supported-feature docs |
+| Data quality and reconciliation | source data, analytics, reports, data products, positions, transactions, or evidence packs depend on quality thresholds | freshness, completeness, reconciliation, trust scores, breaks, source corrections, restatements, exception handling | stale data marked ready, reconciliation breaks hidden, source corrections not propagated, no trust telemetry | quality dimensions are measured, surfaced, and block or degrade outputs according to policy | data-quality tests, reconciliation fixtures, trust telemetry/evidence checks, and degraded-state proof |
+| Migration and backfill readiness | schemas, historical data, event replay, new derived fields, or cutover flows change | migration scripts, backfill jobs, checkpointing, idempotency, validation totals, rollback/cutover plan | one-shot backfill cannot resume, no row-count/hash proof, migration ignores historical edge cases | migrations/backfills are resumable or explicitly bounded, validated, observable, and rollback-aware | dry-run/backfill tests, row-count/hash reconciliation, checkpoint proof, and rollback/cutover docs |
+| Environment supply-chain provenance | build artifacts, containers, deployment packages, SBOM, signing, or runtime images matter | SBOM, artifact signing, pinned base images, build provenance, vulnerability scan, reproducible builds | unpinned image, no SBOM, unsigned release artifact, build uses mutable dependency source | artifacts have provenance, dependency locks, vulnerability posture, and signing/SBOM policy where required | SBOM/scanner output, image digest checks, build provenance evidence, and release artifact validation |
+| API consumer experience | APIs are consumed by Gateway, Workbench, SDKs, external tools, support scripts, or partner services | examples, SDK/client helpers, error taxonomy, pagination, versioning, mock/server fixtures, changelog | API technically works but consumers cannot integrate safely, poor errors, no examples, unstable operation IDs | API has stable docs, examples, error model, compatibility posture, and consumer tests | generated OpenAPI/client checks, consumer contract tests, examples, and Gateway/Workbench integration proof |
+| Mobile and responsive device readiness | UI/product surfaces may be used on laptops, tablets, mobile, or constrained viewports | responsive layout, touch targets, table behavior, modal overflow, real device/browser viewport tests | desktop-only layout, clipped controls, tiny touch targets, horizontal scroll hiding critical action | supported viewport/device classes are named and tested; unsupported classes are documented truthfully | Playwright viewport screenshots, interaction tests, and visual review evidence |
+| AI model governance | an app uses LLMs, embeddings, classifiers, recommenders, model providers, or model-assisted workflows | model inventory, approved models, versioning, ownership, fallback, eval gate, model-change audit | unknown model, untracked version, no fallback, model change bypasses review, unsupported live-provider claim | model/provider/version/owner/purpose are declared; model changes are gated by eval and rollback posture | model registry or config contract, eval run, fallback test, and PR/release evidence |
+| AI data boundaries | prompts, retrieval, embeddings, model inputs/outputs, feedback, traces, or tool context include client/platform data | PII handling, prompt construction, retrieval corpus, embedding store, provider data-use policy, retention | client data sent to unapproved provider, prompt logs leak PII, retrieval corpus lacks access control | AI inputs/outputs/traces are classified, minimized, access-controlled, retained, and provider-governed | prompt/log redaction tests, retrieval entitlement tests, data-use docs, and no-training/retention evidence |
+| AI evaluation quality | AI outputs affect decisions, recommendations, summaries, classifications, or client/advisor workflows | golden datasets, domain assertions, hallucination checks, adversarial tests, regression thresholds, eval artifacts | demo-only prompts, no regression eval, hallucinated sources, weak domain correctness proof | eval suites cover normal, edge, adversarial, and domain-critical outputs with thresholds and owners | deterministic eval command, generated eval report, failing-case fixtures, and CI/report-only placement |
+| AI explainability and audit | AI output must be explainable, cited, reviewed, or used as evidence | citations, source trace, prompt/version audit, decision log, confidence, review status | no source attribution, output cannot be reproduced, no prompt/model trace, decision audit missing | AI decisions/outputs carry enough source, prompt/model, reviewer, and evidence metadata for support | trace/audit tests, citation verification, reviewer workflow proof, and support-safe evidence pack |
+| AI safety and abuse controls | AI can receive user text, external content, retrieved docs, tool results, or generate actions/content | prompt injection defenses, content filters, tool constraints, unsafe output handling, jailbreak/adversarial tests | prompt injection can override policy, unsafe content emitted, retrieved text controls tool calls | AI flows enforce input/output safety, policy hierarchy, injection resistance, and safe refusal/degradation | adversarial tests, prompt-injection fixtures, policy checks, and unsafe-output regression tests |
+| AI human oversight | AI supports advice, recommendations, publication, workflow actions, or material decisions | approval gates, confidence thresholds, escalation, reviewer role, client/advisor boundary, override audit | autonomous client-impact action, no review threshold, recommendations lack suitability approval | human review/approval is required where policy demands it; thresholds and escalation are explicit and audited | workflow tests for approve/reject/escalate/override plus audit evidence |
+| AI cost, latency, and reliability | AI calls are in user paths, batch workflows, or expensive/high-volume operations | token budgets, timeouts, retries, caching, batching, provider fallback, rate limits, circuit breakers | no timeout, runaway token use, provider outage blocks core app, no cost visibility | AI calls have budgets, limits, timeout/fallback/degraded behavior, and cost/latency telemetry | load/latency tests, budget guard tests, provider-failure simulation, and dashboard/metric evidence |
+| AI agent tool governance | AI agents can call tools, write data, trigger workflows, access files/APIs, or delegate work | tool registry, permissions, scoped credentials, approval, dry-run, action logs, rollback, sandbox | agent has broad write token, no approval for destructive action, tool calls unaudited | tools are explicitly registered, least-privilege, audited, bounded by read/write scope, and reversible or approval-gated | tool-permission tests, action-log proof, denial tests, dry-run/rollback evidence |
+
 ## Baseline Lens Queue
 
 Use this order when the user asks for broad defect discovery without naming a lens. Do not force the
@@ -125,8 +221,16 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 9. Dead-code/duplication and dependency-hygiene passes when prior lenses reveal stale paths,
    repeated logic, vulnerable dependencies, or cleanup work with real behavioral or supportability
    impact.
+10. Enterprise readiness extension lenses when the app is production-deployed, externally exposed,
+    regulated, multi-tenant, client-demo/publication relevant, AI-backed, agentic, or expected to be
+    bank-buyable from all angles. Do not force AI lenses on repos with no AI surface; record them as
+    not applicable when repo context proves they are outside scope.
 
 For every lens, record whether the pass was code-backed, docs-backed, duplicate-checked, and ledgered.
+
+Use `scripts/plan_issue_discovery_campaign.py --repository <owner>/<repo>` to generate a
+repo/profile-specific first-pass plan from this queue. The plan is a starting point only; ledger
+state, active PRs, and user priority still govern the actual next lens.
 
 ## Repository Review Profiles
 
@@ -140,6 +244,7 @@ points, not exemptions from the baseline queue.
 | Workflow service such as `lotus-advise`, `lotus-manage`, `lotus-report`, or `lotus-idea` | lifecycle state transitions, idempotency, event/outbox, proof/evidence, operational supportability, capability publication |
 | Experience/composition service such as `lotus-gateway` | API governance, downstream integration, mapping/anti-corruption, authorization, fan-out resilience, capability publication |
 | Product UI such as `lotus-workbench` | Gateway/BFF consumption, supported-feature truth, entitlement/error states, observability, accessibility/usability defects that hide backend truth |
+| AI capability service or AI-backed app surface such as `lotus-ai` or any app using LLMs, embeddings, retrieval, classification, recommendations, or agentic tools | AI model governance, AI data boundaries, AI evaluation quality, AI explainability/audit, AI safety/abuse controls, AI human oversight, AI cost/latency/reliability, AI agent tool governance, entitlements/tenant isolation, data governance/privacy lifecycle |
 | Platform/governance repository such as `lotus-platform` | CI/release evidence, standards/contracts, scaffold drift, repo organization, skill/context routing, agents/context organization, validation automation, docs/wiki truth |
 
 For any profile, verify the app's current `REPOSITORY-ENGINEERING-CONTEXT.md` before filing. If the
@@ -218,6 +323,29 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "README, wiki, architecture docs, API catalog, runbooks", "documentation truth" | `lens/documentation-runbooks`, `lens/operational-supportability` | current-state claims, commands, operator docs, API catalog, RFC closure, wiki source, docs regression tests |
 | "dead code", "duplicate logic", "stale code", "obsolete paths", "cleanup with impact" | `lens/dead-code-duplication`, `lens/architecture-boundaries`, `lens/testing-quality` | unused routes/modules/tests, duplicate rules or builders, unreachable adapters, divergent helpers, stale docs or workflows still referencing removed behavior |
 | "dependencies", "vulnerable packages", "supply chain", "lockfile", "dependency hygiene" | `lens/dependency-hygiene`, `lens/security-privacy`, `lens/ci-release-evidence` | manifests, lockfiles, scanner workflows, import usage, vulnerability output, dependency policy docs |
+| "entitlements", "tenant isolation", "RBAC", "ABAC", "row-level authorization", "multi-tenant" | `lens/entitlements-tenant-isolation`, `lens/security-privacy`, `lens/auditability-lineage` | caller context, policy modules, query filters, object guards, allow/deny tests, audit logs |
+| "regulatory", "records", "legal hold", "retention", "data residency", "compliance" | `lens/regulatory-compliance-records`, `lens/data-governance-privacy-lifecycle`, `lens/auditability-lineage` | retention/hold rules, record versioning, audit trails, classification, residency docs, lifecycle tests |
+| "deployment parity", "Kubernetes", "Docker", "environment parity", "runtime config", "readiness probes" | `lens/deployment-environment-parity`, `lens/configuration-secrets`, `lens/runtime-composition` | Docker/compose/K8s/IaC, env templates, startup imports, config validation, health/readiness |
+| "DR", "disaster recovery", "backup", "restore", "RTO", "RPO", "business continuity" | `lens/business-continuity-disaster-recovery`, `lens/operational-supportability`, `lens/resilience` | backup/restore docs, replay/recovery commands, durable state, restore drills, runbooks |
+| "SLO", "capacity", "cost", "load", "resource budget", "error budget" | `lens/slo-capacity-cost-management`, `lens/performance-scalability`, `lens/observability` | SLO docs, dashboards, alerts, load tests, rate limits, capacity assumptions, cost/token budgets |
+| "rollout", "backward compatibility", "deprecation", "feature flag", "rollback", "zero downtime" | `lens/release-rollout-compatibility`, `lens/api-design-governance`, `lens/database-operations` | versioning, migrations, compatibility tests, feature flags, rollback docs, consumer contracts |
+| "operator control", "admin actions", "replay controls", "retry controls", "pause", "drain", "break glass" | `lens/operator-control-plane`, `lens/operational-supportability`, `lens/auditability-lineage` | support/admin APIs, permissions, audit logs, dry-run, idempotency, safeguards, runbooks |
+| "data privacy lifecycle", "masking", "erasure", "anonymization", "data classification" | `lens/data-governance-privacy-lifecycle`, `lens/security-privacy`, `lens/regulatory-compliance-records` | schemas, logs, metrics, retention, deletion, masking, approved consumers, lineage |
+| "license", "IP", "third-party content", "attribution", "NOTICE", "generated assets" | `lens/license-ip-compliance`, `lens/dependency-hygiene` | package licenses, NOTICE/attribution, generated assets, data-use terms, dependency manifests |
+| "timezone", "currency", "calendar", "locale", "business day", "market convention", "jurisdiction" | `lens/localization-market-conventions`, `lens/calculations-methodology`, `lens/domain-vocabulary` | currency/date formatting, business calendars, rounding, market support docs, golden tests |
+| "customer impact", "degraded mode", "partial data", "empty state", "stale state", "failure mode UX" | `lens/customer-impact-failure-modes`, `lens/product-workflow-usability`, `lens/operational-supportability` | dependency failures, stale/empty/error states, user messages, retries, runbook/customer-impact classification |
+| "change management", "release approval", "change audit", "production change", "config change" | `lens/change-management-audit`, `lens/ci-release-evidence`, `lens/documentation-runbooks` | PR evidence, release notes, approvals, migration plans, config history, post-release verification |
+| "support escalation", "L1", "L2", "L3", "incident handoff", "diagnostic bundle" | `lens/support-escalation-workflows`, `lens/operational-supportability`, `lens/observability` | runbooks, owners, severity taxonomy, safe identifiers, diagnostic APIs, alert routing |
+| "vendor risk", "external API", "SaaS dependency", "model provider", "market data provider", "SLA" | `lens/third-party-vendor-risk`, `lens/downstream-integration`, `lens/security-privacy` | vendor clients, timeouts, SLAs, data-sharing docs, outage handling, adapter tests |
+| "accessibility", "a11y", "inclusive design", "keyboard", "screen reader", "PDF accessibility" | `lens/accessibility-inclusive-design`, `lens/product-workflow-usability` | UI components, semantic HTML, keyboard path, contrast, ARIA, PDF tagging, accessibility tests |
+| "usability", "workflow ergonomics", "user journey", "task flow", "bulk action", "confirmation" | `lens/product-workflow-usability`, `lens/api-consumer-experience`, `lens/customer-impact-failure-modes` | task flows, navigation, state persistence, confirmations, undo/recovery, API support |
+| "client communication", "advisor use", "client-ready", "suitability", "disclaimer", "approval gate" | `lens/client-communication-suitability`, `lens/regulatory-compliance-records`, `lens/capability-publication` | audience classification, approval state, disclaimers, suitability evidence, publication controls |
+| "data quality", "reconciliation", "freshness", "completeness", "trust score", "source correction" | `lens/data-quality-reconciliation`, `lens/data-product-trust-telemetry`, `lens/source-contract-dependency-semantics` | freshness/completeness checks, reconciliation breaks, trust telemetry, source correction handling |
+| "migration", "backfill", "historical replay", "cutover", "data migration" | `lens/migration-backfill-readiness`, `lens/database-operations`, `lens/validation-idempotency` | migration/backfill scripts, checkpoints, dry runs, row-count/hash proof, rollback/cutover docs |
+| "SBOM", "artifact signing", "build provenance", "image digest", "container hardening" | `lens/environment-supply-chain-provenance`, `lens/dependency-hygiene`, `lens/ci-release-evidence` | SBOM, image pins/digests, signing/provenance evidence, scanner output, release artifacts |
+| "developer experience", "API consumer experience", "SDK", "examples", "client ergonomics" | `lens/api-consumer-experience`, `lens/api-documentation-standards`, `lens/downstream-integration` | OpenAPI, examples, SDK/client helpers, error taxonomy, operation IDs, consumer tests |
+| "mobile", "responsive", "tablet", "device readiness", "viewport" | `lens/mobile-responsive-device-readiness`, `lens/accessibility-inclusive-design`, `lens/product-workflow-usability` | responsive layouts, viewport tests, touch targets, table/modals, screenshots |
+| "AI", "LLM", "model", "embedding", "retrieval", "RAG", "agent", "prompt", "eval" | AI extension lenses: `lens/ai-model-governance`, `lens/ai-data-boundaries`, `lens/ai-evaluation-quality`, `lens/ai-explainability-audit`, `lens/ai-safety-abuse-controls`, `lens/ai-human-oversight`, `lens/ai-cost-latency-reliability`, `lens/ai-agent-tool-governance` | model inventory, prompt/data boundaries, retrieval corpus, eval suites, traces, safety tests, oversight workflows, token/cost budgets, tool permissions |
 | "skill should work like you", "make issue discovery reusable", "future agents should know what to do" | `lens/agents-context-organization`, `lens/ci-release-evidence`, `lens/documentation-runbooks` for the platform skill source, or no app issue when it is a skill-maintenance slice | skill source, routing map, campaign playbook, ledger template, validation/sync commands, PR proof pack |
 
 ## Finding Decision Tree
@@ -265,6 +393,8 @@ Use these anchors to make issues practical:
 | Agents/context organization | `AGENTS.md`, repo context, skill-routing, procedural-memory, onboarding, or local skill sync path |
 | Dead-code/duplication | stale or duplicate path plus evidence that it is still imported, tested, published, or confusing ownership |
 | Dependency hygiene | dependency declaration or scanner path plus import/runtime/CI evidence that the dependency posture matters |
+| Enterprise readiness | entitlement policy, regulated-record control, deployment manifest, DR/runbook proof, SLO/capacity/cost evidence, rollout/rollback contract, operator control, privacy lifecycle, license/IP evidence, market-convention tests, support escalation, vendor-risk contract, accessibility/usability proof, data-quality/reconciliation proof, migration/backfill proof, SBOM/provenance evidence, or API/mobile consumer proof |
+| AI readiness | model registry/config, prompt/retrieval data path, eval artifact, source/citation trace, safety/adversarial test, human approval workflow, cost/latency budget, or tool permission/action-log proof |
 
 ## Lens-Specific Search Starters
 
@@ -384,12 +514,25 @@ rg -n "TODO|FIXME|deprecated|legacy|unused|duplicate|copy|fallback|compat|tempor
 rg --files | rg "requirements|constraints|poetry.lock|uv.lock|package-lock|pnpm-lock|yarn.lock|pyproject.toml|package.json|pip-audit|safety|trivy|bandit|npm audit"
 ```
 
+### Enterprise Readiness
+
+```powershell
+rg -n "tenant|entitlement|permission|role|RBAC|ABAC|legal hold|retention|record|regulatory|compliance|data residency|backup|restore|RTO|RPO|SLO|error budget|capacity|cost|rollback|deprecation|feature flag|operator|admin|break glass|data classification|mask|erasure|license|NOTICE|timezone|currency|calendar|business day|degraded|partial|stale|support escalation|vendor|SLA|accessibility|ARIA|keyboard|client-ready|advisor-use|suitability|reconciliation|freshness|backfill|migration|SBOM|provenance|signing|SDK|responsive|viewport" README.md docs wiki src tests contracts .github Makefile package.json pyproject.toml --glob "*.md" --glob "*.py" --glob "*.json" --glob "*.yml" --glob "*.yaml" --glob "Makefile" --glob "*.toml"
+```
+
+### AI Readiness
+
+```powershell
+rg -n "AI|LLM|model|embedding|retrieval|RAG|prompt|completion|provider|OpenAI|AzureOpenAI|eval|evaluation|golden dataset|hallucination|citation|source trace|confidence|human review|approval|jailbreak|prompt injection|tool call|agent|token budget|rate limit|fallback|no training|PII" README.md docs wiki src tests contracts prompts output .github --glob "*.md" --glob "*.py" --glob "*.json" --glob "*.yml" --glob "*.yaml" --glob "*.ts" --glob "*.tsx"
+```
+
 ## Duplicate Check Keywords
 
 Search GitHub with both broad and specific terms:
 
 - broad lens terms: `architecture`, `mapping`, `outbox`, `idempotency`, `pagination`,
-  `OpenAPI`, `Swagger`, `duplicate endpoint`, `stale branch`, `repo description`
+  `OpenAPI`, `Swagger`, `duplicate endpoint`, `stale branch`, `repo description`, `tenant`,
+  `DR`, `SLO`, `rollback`, `accessibility`, `AI evaluation`, `prompt injection`, `model governance`
 - concrete symbols: function/class/route/topic/table names
 - issue-family terms: `boundary`, `contract`, `lifecycle`, `supportability`, `lineage`
 

@@ -2,6 +2,15 @@
 
 Use this reference to seed a Lotus repo wiki or a local `wiki/` source set.
 
+## Contents
+
+1. [Purpose](#purpose)
+2. [Standard Page Set](#standard-page-set)
+3. [API Surface](#api-surface)
+4. [Page Intent](#page-intent)
+5. [Page Quality Rules](#page-quality-rules)
+6. [Publication Notes](#publication-notes)
+
 ## Purpose
 
 The Lotus wiki should be:

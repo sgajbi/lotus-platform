@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lotus Skill Context Governance"
+  short_description: "Govern Lotus skills and agent context."
+  default_prompt: "Use $lotus-skill-context-governance to audit or maintain Lotus skills, agent context, routing maps, manifests, validation scripts, and deployed-skill sync posture with evidence-backed findings and focused durable improvements."

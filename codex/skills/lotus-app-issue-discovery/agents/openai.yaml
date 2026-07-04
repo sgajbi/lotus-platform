@@ -1,4 +1,4 @@
 interface:
   display_name: "Lotus App Issue Discovery"
   short_description: "Ledger-first, evidence-backed issue discovery across Lotus app quality lenses."
-  default_prompt: "Use $lotus-app-issue-discovery to run a governed Lotus app issue-discovery pass with code-backed evidence, duplicate checks, ledger updates, and the requested lens, including API documentation/standards, duplicate endpoint posture, remote repo hygiene, stale feature branches, repo description correctness, CI, docs, and agent-context quality when relevant."
+  default_prompt: "Use $lotus-app-issue-discovery to run a governed Lotus app issue-discovery pass with code-backed evidence, duplicate checks, ledger updates, and the requested lens, including API documentation/standards, duplicate endpoint posture, remote repo hygiene, stale feature branches, repo description correctness, CI, docs, agent-context quality, enterprise readiness, accessibility/usability, compliance, DR, rollout, tenant isolation, data privacy, and AI governance/evaluation/safety/tool-control quality when relevant."

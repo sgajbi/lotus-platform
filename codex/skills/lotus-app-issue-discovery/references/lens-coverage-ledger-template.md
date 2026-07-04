@@ -5,6 +5,13 @@ The preferred durable location is one GitHub issue per Lotus app named `<app> Is
 Ledger`, especially when implementation branches are active or multiple agents need shared state.
 The ledger is a navigation aid, not a substitute for code inspection or duplicate checks.
 
+## Contents
+
+1. [Status Model](#status-model)
+2. [Campaign Summary](#campaign-summary)
+3. [Ledger Table](#ledger-table)
+4. [Per-Lens Note Shape](#per-lens-note-shape)
+
 ## Status Model
 
 - `Not Started`: no meaningful inspection yet.
@@ -13,6 +20,7 @@ The ledger is a navigation aid, not a substitute for code inspection or duplicat
 - `Blocked By Active Fix`: another agent has local or PR work that may change the finding; recheck after that work lands.
 - `Needs Recheck`: issue overlap, code changes, or stale evidence means the lens should be revisited.
 - `Covered For Now`: representative inspection and duplicate checks are complete for the current campaign depth; remaining risk is recorded.
+- `Not Applicable`: repo context or ownership boundaries prove the lens is outside the app's responsibility; record the evidence.
 
 ## Campaign Summary
 
@@ -83,6 +91,36 @@ Use `Y/N` proof flags:
 | Repo organization | `lens/repo-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Remote repository hygiene | `lens/remote-repository-hygiene` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Agents/context organization | `lens/agents-context-organization` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Entitlements and tenant isolation | `lens/entitlements-tenant-isolation` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Regulatory compliance and records | `lens/regulatory-compliance-records` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Deployment and environment parity | `lens/deployment-environment-parity` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Business continuity and disaster recovery | `lens/business-continuity-disaster-recovery` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| SLO, capacity, and cost management | `lens/slo-capacity-cost-management` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Release rollout and compatibility | `lens/release-rollout-compatibility` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Operator control plane | `lens/operator-control-plane` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Data governance and privacy lifecycle | `lens/data-governance-privacy-lifecycle` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| License and IP compliance | `lens/license-ip-compliance` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Localization and market conventions | `lens/localization-market-conventions` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Customer-impact failure modes | `lens/customer-impact-failure-modes` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Change-management audit | `lens/change-management-audit` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Support escalation workflows | `lens/support-escalation-workflows` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Third-party vendor risk | `lens/third-party-vendor-risk` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Accessibility and inclusive design | `lens/accessibility-inclusive-design` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Product workflow usability | `lens/product-workflow-usability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Client communication suitability | `lens/client-communication-suitability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Data quality and reconciliation | `lens/data-quality-reconciliation` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Migration and backfill readiness | `lens/migration-backfill-readiness` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Environment supply-chain provenance | `lens/environment-supply-chain-provenance` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| API consumer experience | `lens/api-consumer-experience` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Mobile and responsive device readiness | `lens/mobile-responsive-device-readiness` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI model governance | `lens/ai-model-governance` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI data boundaries | `lens/ai-data-boundaries` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI evaluation quality | `lens/ai-evaluation-quality` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI explainability and audit | `lens/ai-explainability-audit` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI safety and abuse controls | `lens/ai-safety-abuse-controls` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI human oversight | `lens/ai-human-oversight` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI cost, latency, and reliability | `lens/ai-cost-latency-reliability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| AI agent tool governance | `lens/ai-agent-tool-governance` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 
 ## Per-Lens Note Shape
 

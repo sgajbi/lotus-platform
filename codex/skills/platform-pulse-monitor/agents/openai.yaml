@@ -1,0 +1,4 @@
+interface:
+  display_name: "Platform Pulse Monitor"
+  short_description: "Monitor Lotus cross-repo platform pulse."
+  default_prompt: "Use $platform-pulse-monitor to run or review Lotus cross-repo pulse monitoring, repository sync posture, PR status, heartbeat artifacts, stranded governance branches, and platform-wide attention evidence."

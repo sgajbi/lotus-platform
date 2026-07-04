@@ -1,3 +1,4 @@
 interface:
   display_name: "Lotus Backend Delivery Governance"
   short_description: "Apply Lotus backend CI, validation, security, and PR standards"
+  default_prompt: "Use $lotus-backend-delivery-governance to implement or review Lotus backend service work with banking-grade architecture, domain ownership, security, observability, tests, docs, CI evidence, and PR discipline."
