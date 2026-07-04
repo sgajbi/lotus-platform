@@ -45,10 +45,14 @@ def test_skill_alignment_validator_reports_gaps_and_skips(tmp_path: Path) -> Non
     result_by_skill = {result.skill: result for result in results}
 
     assert result_by_skill["lotus-backend-delivery-governance"].status == "gap"
-    assert result_by_skill["lotus-backend-delivery-governance"].missing_references == ["VALIDATION-PLAYBOOK.md"]
+    assert result_by_skill["lotus-backend-delivery-governance"].missing_references == [
+        "Continuous Skill Improvement",
+        "VALIDATION-PLAYBOOK.md",
+    ]
     assert result_by_skill["lotus-frontend-delivery-governance"].status == "skipped"
 
     markdown = validator.build_markdown(results, skills_root)
     assert "Lotus Skill Alignment Validation" in markdown
     assert "lotus-backend-delivery-governance" in markdown
+    assert "Continuous Skill Improvement" in markdown
     assert "VALIDATION-PLAYBOOK.md" in markdown

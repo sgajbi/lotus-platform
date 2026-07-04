@@ -52,6 +52,12 @@ When a Lotus skill changes:
 5. keep merge strategy guidance aligned to Lotus repository policy,
 6. update tests that validate the governed skill inventory.
 
+Every platform-owned skill must include a `Continuous Skill Improvement` section. The section must
+tell future agents to promote repeatable failure modes, missing steps, weak triggers, validation
+gaps, and context-routing gaps into the platform-owned skill source, routing map, context,
+validators, scaffolds, gates, or an explicit no-change decision. This is enforced by
+`automation/validate_lotus_skill_alignment.py`.
+
 When the task is explicitly to improve skills, agent context, or reusable guidance:
 
 1. start with the existing skill route in `context/LOTUS-SKILL-ROUTING-MAP.md`,

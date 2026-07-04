@@ -7,6 +7,9 @@ from pathlib import Path
 
 
 DEFAULT_SKILLS_ROOT = Path.home() / ".codex" / "skills"
+PLATFORM_ROOT = Path(__file__).resolve().parents[1]
+SKILL_MANIFEST_PATH = PLATFORM_ROOT / "codex" / "skills" / "lotus-skill-manifest.json"
+UNIVERSAL_SKILL_REQUIREMENTS = ["Continuous Skill Improvement"]
 REQUIRED_SKILL_REFERENCES = {
     "lotus-backend-delivery-governance": [
         "LOTUS-ENGINEERING-CONTEXT.md",
@@ -73,9 +76,21 @@ class SkillAlignmentResult:
     notes: list[str]
 
 
+def _load_manifest_skill_names() -> list[str]:
+    if not SKILL_MANIFEST_PATH.exists():
+        return sorted(REQUIRED_SKILL_REFERENCES)
+
+    manifest = json.loads(SKILL_MANIFEST_PATH.read_text(encoding="utf-8"))
+    return sorted(skill["name"] for skill in manifest.get("skills", []))
+
+
 def validate_lotus_skill_alignment(skills_root: Path = DEFAULT_SKILLS_ROOT) -> list[SkillAlignmentResult]:
     results: list[SkillAlignmentResult] = []
-    for skill_name, required_references in REQUIRED_SKILL_REFERENCES.items():
+    for skill_name in _load_manifest_skill_names():
+        required_references = [
+            *UNIVERSAL_SKILL_REQUIREMENTS,
+            *REQUIRED_SKILL_REFERENCES.get(skill_name, []),
+        ]
         skill_path = skills_root / skill_name / "SKILL.md"
         if not skill_path.exists():
             results.append(
