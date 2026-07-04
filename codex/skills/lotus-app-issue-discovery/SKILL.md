@@ -1,6 +1,6 @@
 ---
 name: lotus-app-issue-discovery
-description: Use when reviewing Lotus applications lens by lens to find high-value, evidence-backed GitHub issues without editing code. Applies when the user asks to inspect a Lotus repo for architecture, runtime composition, API, HTTP boundary controls, domain, lifecycle, mapping, data model, database operations, calculations, security, observability/monitoring, performance, resilience, testing, CI/release evidence, data mesh, repo organization, agents/context organization, documentation/wiki/README, operational supportability, or bank-buyable readiness issues; when they want defects raised for another implementation agent; or when a reusable issue-discovery campaign should avoid duplicates, maintain a GitHub ledger, apply canonical lens labels, cite code evidence, and use docs repo knowledge plus Lotus platform standards as the review baseline.
+description: Use when reviewing Lotus applications lens by lens to find high-value, evidence-backed GitHub issues without editing code. Applies when the user asks to inspect a Lotus repo for architecture, runtime composition, API design, API documentation, API standards, duplicate or unclear APIs, HTTP boundary controls, domain, lifecycle, mapping, data model, database operations, calculations, security, observability/monitoring, performance, resilience, testing, CI/release evidence, data mesh, repo organization, remote repo hygiene, stale remote feature branches, repo description correctness, agents/context organization, documentation/wiki/README, operational supportability, or bank-buyable readiness issues; when they want defects raised for another implementation agent; or when a reusable issue-discovery campaign should avoid duplicates, maintain a GitHub ledger, apply canonical lens labels, cite code evidence, and use docs repo knowledge plus Lotus platform standards as the review baseline.
 ---
 
 # Lotus App Issue Discovery
@@ -266,10 +266,18 @@ use `lens/dead-code-duplication` only when the evidence has behavioral, supporta
 security, or ownership impact; do not file taste-only cleanup issues. For dependency, package,
 scanner, lockfile, vulnerable transitive dependency, or supply-chain posture, use
 `lens/dependency-hygiene` unless the concrete issue is primarily runtime security behavior.
-For "repo organization", "repository layout", "cleanup", "generated artifacts", "script
-organization", or "repository hygiene", use `lens/repo-organization`. For "agents", "agent
-context", `AGENTS.md`, "skill routing", "procedural memory", "context organization", or "future
-agents should know what to read", use `lens/agents-context-organization`. For "data mesh",
+For "API documentation", "API standards", "duplicate APIs", "unclear APIs", "OpenAPI quality",
+"Swagger", "endpoint catalog", "route inventory", or "API improvements", use
+`lens/api-documentation-standards` when the root cause is publication, clarity, standardization, or
+duplicate endpoint posture; use `lens/api-design-governance` when the root cause is route shape,
+request/response semantics, pagination/filtering/sorting, error behavior, or versioning. For
+"repo organization", "repository layout", "cleanup", "generated artifacts", "script
+organization", or "repository hygiene", use `lens/repo-organization`. For "stale remote branches",
+"remote feature branches", "repo description", "GitHub description", "remote repo quality",
+"remote repo hygiene", "repository settings", or "remote default branch hygiene", use
+`lens/remote-repository-hygiene`. For "agents", "agent context", `AGENTS.md`, "skill routing",
+"procedural memory", "context organization", or "future agents should know what to read", use
+`lens/agents-context-organization`. For "data mesh",
 "catalog", "data-product publication", "producer/consumer declaration", or "trust telemetry", use
 `lens/data-product-trust-telemetry`. For "monitoring", "alerts", "dashboards", "metrics", "SLO",
 or "runbook-backed operations", use `lens/observability` or `lens/operational-supportability`

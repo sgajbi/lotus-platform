@@ -15,6 +15,7 @@ LABELS = [
     ("lens/architecture-boundaries", "1f6feb", "Lens: architecture boundaries and dependency direction"),
     ("lens/runtime-composition", "1f6feb", "Lens: process-local runtime wiring, dependency injection, startup/shutdown"),
     ("lens/api-design-governance", "1f6feb", "Lens: API design, routing, OpenAPI, pagination, filtering, sorting, errors"),
+    ("lens/api-documentation-standards", "1f6feb", "Lens: API docs, standards, endpoint catalogs, duplicate endpoint posture"),
     ("lens/http-boundary-controls", "1f6feb", "Lens: HTTP boundary controls, CORS, trusted hosts, request limits, secure headers"),
     ("lens/application-layer", "1f6feb", "Lens: application services and use-case orchestration"),
     ("lens/domain-layer", "1f6feb", "Lens: domain models, policies, calculations, validation, state transitions"),
@@ -48,6 +49,7 @@ LABELS = [
     ("lens/dead-code-duplication", "1f6feb", "Lens: dead code, duplicate logic, stale paths, and maintainability-impact cleanup"),
     ("lens/dependency-hygiene", "1f6feb", "Lens: dependencies, lockfiles, scanners, vulnerable packages, and supply-chain posture"),
     ("lens/repo-organization", "1f6feb", "Lens: repo layout, generated artifacts, hygiene, scripts"),
+    ("lens/remote-repository-hygiene", "1f6feb", "Lens: GitHub repo metadata, stale remote branches, settings, and branch hygiene"),
     ("lens/agents-context-organization", "1f6feb", "Lens: AGENTS, repo context, skill routing, procedural memory"),
 ]
 
