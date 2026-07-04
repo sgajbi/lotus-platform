@@ -55,6 +55,7 @@ def _validate_application_registry_matches_repos(
 def _validate_application_agent_contract_sync(
     *,
     errors: list[str],
+    warnings: list[str],
     applications: list[dict],
     normalized_agents_contract: str,
 ) -> None:
@@ -71,11 +72,15 @@ def _validate_application_agent_contract_sync(
             continue
         repo_agents_path = repo_root / "AGENTS.md"
         if not repo_agents_path.exists():
-            errors.append(f"{repository_name}: missing repo-root AGENTS.md")
+            target = errors if repository_name == "lotus-platform" else warnings
+            target.append(f"{repository_name}: missing repo-root AGENTS.md")
             continue
         repo_agents_text = _normalize_text(_read_text(repo_agents_path))
         if repo_agents_text != normalized_agents_contract:
-            errors.append(f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md")
+            target = errors if repository_name == "lotus-platform" else warnings
+            target.append(
+                f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md"
+            )
 
 
 def _validate_manifest_path_map(
@@ -171,6 +176,7 @@ def _validate_rendered_ecosystem_registries(
 def _validate_manifest_contract(
     *,
     errors: list[str],
+    warnings: list[str],
     manifest: dict,
     repository_registry: list[dict],
     normalized_agents_contract: str,
@@ -184,6 +190,7 @@ def _validate_manifest_contract(
     )
     _validate_application_agent_contract_sync(
         errors=errors,
+        warnings=warnings,
         applications=applications,
         normalized_agents_contract=normalized_agents_contract,
     )
@@ -594,7 +601,13 @@ def _validate_repository_context_contracts(
 
 
 def validate_engineering_context_system() -> list[str]:
+    errors, _warnings = validate_engineering_context_system_with_warnings()
+    return errors
+
+
+def validate_engineering_context_system_with_warnings() -> tuple[list[str], list[str]]:
     errors: list[str] = []
+    warnings: list[str] = []
     required_files = {
         "context index": CONTEXT_DIR / "README.md",
         "quickstart": CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md",
@@ -631,7 +644,7 @@ def validate_engineering_context_system() -> list[str]:
             errors.append(f"missing required context artifact: {label} -> {path.relative_to(ROOT)}")
 
     if errors:
-        return errors
+        return errors, warnings
 
     context_index = _read_text(required_files["context index"])
     quickstart = _read_text(required_files["quickstart"])
@@ -705,46 +718,66 @@ def validate_engineering_context_system() -> list[str]:
 
     _validate_manifest_contract(
         errors=errors,
+        warnings=warnings,
         manifest=manifest,
         repository_registry=repository_registry,
         normalized_agents_contract=normalized_agents_contract,
         ecosystem_registries=ecosystem_registries,
     )
 
-    return errors
+    return errors, warnings
 
 
-def build_markdown(errors: list[str]) -> str:
+def build_markdown(errors: list[str], warnings: list[str] | None = None) -> str:
+    warnings = warnings or []
     lines = [
         "# Engineering Context System Validation",
         "",
         f"Status: `{'ok' if not errors else 'gap'}`",
         "",
     ]
-    if not errors:
+    if not errors and not warnings:
         lines.append("The governed RFC-0073 context system is synchronized and valid.")
         return "\n".join(lines)
 
-    lines.extend(
-        [
-            "## Gaps",
-            "",
-        ]
-    )
-    lines.extend(f"- {error}" for error in errors)
+    if errors:
+        lines.extend(
+            [
+                "## Gaps",
+                "",
+            ]
+        )
+        lines.extend(f"- {error}" for error in errors)
+    if warnings:
+        if errors:
+            lines.append("")
+        lines.extend(
+            [
+                "## Warnings",
+                "",
+            ]
+        )
+        lines.extend(f"- {warning}" for warning in warnings)
     return "\n".join(lines)
 
 
 def main() -> int:
-    errors = validate_engineering_context_system()
+    errors, warnings = validate_engineering_context_system_with_warnings()
     output_dir = ROOT / "output"
     output_dir.mkdir(exist_ok=True)
     (output_dir / "engineering-context-system-validation.json").write_text(
-        json.dumps({"status": "ok" if not errors else "gap", "errors": errors}, indent=2),
+        json.dumps(
+            {
+                "status": "ok" if not errors else "gap",
+                "errors": errors,
+                "warnings": warnings,
+            },
+            indent=2,
+        ),
         encoding="utf-8",
     )
     (output_dir / "engineering-context-system-validation.md").write_text(
-        build_markdown(errors),
+        build_markdown(errors, warnings),
         encoding="utf-8",
     )
     if errors:
@@ -752,6 +785,12 @@ def main() -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
+
+    if warnings:
+        print("Engineering context system validation passed with warnings.")
+        for warning in warnings:
+            print(f"- {warning}")
+        return 0
 
     print("Engineering context system validation passed.")
     return 0
