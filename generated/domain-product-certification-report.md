@@ -5,7 +5,7 @@ This file is generated from the governed domain-product catalog and dependency g
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
 - Product count: `81`
-- Dependency count: `64`
+- Dependency count: `66`
 - Included repositories: `7`
 - Pending repositories: `0`
 - Issue count: `0`
@@ -103,7 +103,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `lotus-advise` | `certified` | `2` | `0` |
 | `lotus-idea` | `certified` | `17` | `0` |
 | `lotus-manage` | `certified` | `29` | `0` |
-| `lotus-performance` | `certified` | `8` | `0` |
+| `lotus-performance` | `certified` | `10` | `0` |
 | `lotus-report` | `certified` | `2` | `0` |
 | `lotus-risk` | `certified` | `6` | `0` |
 

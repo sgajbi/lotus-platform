@@ -84,7 +84,7 @@
     ]
   },
   "product_count": 81,
-  "dependency_count": 64,
+  "dependency_count": 66,
   "repository_count": 7,
   "repositories": [
     {
@@ -110,7 +110,7 @@
     {
       "repository": "lotus-performance",
       "produced_product_count": 8,
-      "consumed_dependency_count": 8
+      "consumed_dependency_count": 10
     },
     {
       "repository": "lotus-report",
@@ -6621,7 +6621,7 @@
     },
     {
       "consumer_repository": "lotus-performance",
-      "dependency_count": 8,
+      "dependency_count": 10,
       "source_path": "lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json",
       "dependencies": [
         {
@@ -6639,6 +6639,56 @@
           },
           "consumption_mode": "api_read",
           "business_purpose": "Resolve the linked benchmark for stateful returns-series and benchmark-exposure workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:BenchmarkConstituentWindow:v1",
+          "product_name": "BenchmarkConstituentWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "latest_evidence_timestamp",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source benchmark constituent, effective-date, and weight windows for stateful calculated benchmark performance and benchmark-aware TWR workflows.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:IndexSeriesWindow:v1",
+          "product_name": "IndexSeriesWindow",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "latest_evidence_timestamp",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Source canonical index price-series windows for stateful calculated benchmark performance and component return derivation.",
           "validation_lanes": [
             "feature",
             "pr-merge"

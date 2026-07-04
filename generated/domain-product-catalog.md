@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `81`
-- Dependency count: `64`
+- Dependency count: `66`
 
 ## Products
 
@@ -146,6 +146,8 @@ This file is generated from governed domain-data-product declarations.
 | `lotus-manage` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_or_pending_review` |
 | `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
+| `lotus-performance` | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
+| `lotus-performance` | `IndexSeriesWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` |
 | `lotus-performance` | `PerformanceComponentEconomics` | `lotus-core` | `v1` | `chunked_api_read` | `degrade_to_partial` |

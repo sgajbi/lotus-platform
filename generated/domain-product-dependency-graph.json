@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 93,
-  "edge_count": 315,
+  "edge_count": 317,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -2282,6 +2282,28 @@
       "edge_type": "consumes",
       "from": "repo:lotus-performance",
       "to": "product:lotus-core:BenchmarkAssignment:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:BenchmarkConstituentWindow:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-performance",
+      "to": "product:lotus-core:IndexSeriesWindow:v1",
       "consumption_mode": "api_read",
       "failure_posture": "fail_closed",
       "validation_lanes": [
