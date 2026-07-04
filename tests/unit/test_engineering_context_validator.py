@@ -35,6 +35,27 @@ def test_engineering_context_validator_builds_success_markdown() -> None:
     assert "synchronized and valid" in markdown
 
 
+def test_application_agent_contract_sync_warns_for_external_repo_drift() -> None:
+    validator = _load_validator_module()
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    validator._validate_application_agent_contract_sync(
+        errors=errors,
+        warnings=warnings,
+        applications=[
+            {
+                "repository": "lotus-core",
+                "repo_context_path": "REPOSITORY-ENGINEERING-CONTEXT.md",
+            }
+        ],
+        normalized_agents_contract="new contract",
+    )
+
+    assert errors == []
+    assert any("lotus-core: repo-root AGENTS.md is not synchronized" in warning for warning in warnings)
+
+
 def test_agents_operating_contract_validator_reports_missing_required_guidance() -> None:
     validator = _load_validator_module()
     errors: list[str] = []
