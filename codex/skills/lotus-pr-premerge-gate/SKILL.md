@@ -100,6 +100,11 @@ purpose, expected merge path, and risk.
 2. Use one branch per RFC or implementation slice.
 3. Never commit directly to `main`, even in single-developer mode.
 4. Prefer small, auditable commits and frequent push cadence.
+5. Before the first commit or PR push, inspect branch protection for the target base branch:
+   - `gh api repos/<owner>/<repo>/branches/<base>/protection`
+   - if required signatures are enabled, configure commit signing and verify `git log --format='%h %G? %s' <base>..HEAD` shows `G` for every branch commit before pushing merge intent.
+6. For Lotus repositories with required linear history and signed commits, use signed commits from
+   the start. Do not rely on a later green CI run to make an unsigned branch mergeable.
 
 ### 2) Mandatory local gate pack
 
@@ -159,6 +164,14 @@ Map the repo to one of these profiles before deciding what "required" means:
    - Re-run affected local gates before pushing again.
 8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
    branch into the PR branch and rerun checks instead of bypassing branch protection.
+9. If `mergeStateStatus=BLOCKED` or `mergeable_state=blocked` while required checks are green,
+   inspect branch protection and commit verification before retrying merge:
+   - `gh api repos/<owner>/<repo>/branches/<base>/protection`
+   - `gh api repos/<owner>/<repo>/commits/<head-sha> --jq .commit.verification`
+   - `git log --format='%h %G? %s' <base>..HEAD`
+   If required signatures are enabled and any branch commit is unsigned, configure a registered
+   signing key, re-sign the branch commits, push with `--force-with-lease`, and rerun required
+   checks. Do not use admin bypass or weaken branch protection to merge unsigned commits.
 
 Rule: never enable merge (or auto-merge) while any required check is failing or pending with known
 instability. Pending heavy lanes with a stable history are acceptable for async monitoring once
@@ -190,6 +203,8 @@ Allow merge only when all conditions are true:
 2. No unresolved conversations, explicitly blocking review comments, or requested changes.
 3. Local repo state is clean and branch contains only intended commits.
 4. PR description accurately reflects shipped behavior.
+5. If the base branch requires signed commits, every branch commit is verified by GitHub as signed
+   before merge is attempted.
 
 If one condition is false, block merge.
 
