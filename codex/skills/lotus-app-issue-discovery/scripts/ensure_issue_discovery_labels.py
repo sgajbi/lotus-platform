@@ -72,7 +72,7 @@ LABELS = [
     ("lens/client-communication-suitability", "1f6feb", "Lens: client/advisor communication, suitability, disclaimers, approvals"),
     ("lens/data-quality-reconciliation", "1f6feb", "Lens: freshness, completeness, reconciliation, source corrections"),
     ("lens/migration-backfill-readiness", "1f6feb", "Lens: migrations, backfills, replay, cutover, rollback"),
-    ("lens/environment-supply-chain-provenance", "1f6feb", "Lens: SBOM, artifact signing, build provenance, image hardening"),
+    ("lens/environment-supply-chain-provenance", "1f6feb", "Lens: SBOM, artifact signing, build provenance, image labels/digests"),
     ("lens/api-consumer-experience", "1f6feb", "Lens: API consumer ergonomics, examples, SDKs, compatibility"),
     ("lens/mobile-responsive-device-readiness", "1f6feb", "Lens: mobile, tablet, responsive viewports, touch readiness"),
     ("lens/ai-model-governance", "1f6feb", "Lens: AI model inventory, versioning, ownership, approved providers"),
