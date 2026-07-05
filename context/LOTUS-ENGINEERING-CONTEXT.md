@@ -721,6 +721,11 @@ default modularity target; propose a new deployable microservice only when indep
 scaling, deployment, ownership, data, failure-isolation, or security-boundary needs are proven.
 If a repository disallows merge commits, use the repository-approved non-squash linear merge path
 such as rebase merge and stop retrying merge commits after that policy is known.
+If a repository requires signed commits, configure a registered signing key before the first PR
+commit and verify every branch commit is signed before pushing merge intent. A green PR with
+`mergeable=true` can still remain blocked when linear history plus signed-commit protection meets an
+unsigned branch. In that case, re-sign the branch commits and push with `--force-with-lease`; do not
+admin-bypass or weaken signed-commit protection.
 For proof-driven RFC slices, record a compact slice closure manifest before moving on: blockers
 cleared, blockers preserved, proof artifacts, commands, docs/wiki/supported-feature decisions,
 merge method, post-merge validation, and branch cleanup evidence. Before deleting branches, verify

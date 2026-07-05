@@ -69,6 +69,22 @@ automatic rebase merge, but missing-token behavior should warn and skip auto-mer
 creating a permanent red helper check. The PR Merge Gate remains the quality signal; the helper is
 only queueing automation.
 
+### 2026-07-05 | Green PRs can still be blocked by unsigned commits
+
+`lotus-core` PR #703 and sibling Lotus PRs showed the same branch-protection failure mode: all
+required checks were green and auto-merge was enabled, but `mergeStateStatus=BLOCKED` because the
+repositories require signed commits, linear history, and rebase merge while the feature branches
+contained unsigned commits.
+
+Implication:
+
+Future PR work must inspect branch protection before opening or pushing merge intent. If signed
+commits are required, agents must configure a registered signing key and verify every branch commit
+with `git log --format='%h %G? %s' <base>..HEAD` before relying on CI or auto-merge. A green PR that
+is still blocked should be diagnosed with `gh api .../branches/<base>/protection` and
+`gh api .../commits/<head-sha> --jq .commit.verification`; unsigned branches should be re-signed and
+force-with-lease pushed, not admin-merged or merged after weakening protection.
+
 ### 2026-04-11 | Canonical local runtime must be treated as a governed operator flow
 
 The local Lotus bring-up path only became repeatable once:

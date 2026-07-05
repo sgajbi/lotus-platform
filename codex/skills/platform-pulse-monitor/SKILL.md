@@ -40,6 +40,20 @@ Watch mode:
 powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -IntervalSeconds 30
 ```
 
+When a PR is green but remains blocked, include a signed-commit protection check before reporting it
+as waiting on GitHub:
+
+1. inspect base branch protection with
+   `gh api repos/<owner>/<repo>/branches/<base>/protection`,
+2. if required signatures are enabled, inspect the PR head verification with
+   `gh api repos/<owner>/<repo>/commits/<head-sha> --jq .commit.verification`,
+3. for local same-owner branches, verify all branch commits with
+   `git log --format='%h %G? %s' <base>..HEAD`,
+4. classify unsigned-commit blocks as `fix-signatures`, not `ci-pending` or `github-delay`.
+
+Do not recommend admin bypass or weakening signed-commit protection. Re-sign the branch commits with
+a registered signing key and push with `--force-with-lease` when the branch is safe to rewrite.
+
 ## Outputs to Review
 
 - `output/pr-monitor.json`
