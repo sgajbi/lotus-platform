@@ -327,7 +327,9 @@ High-signal lens families for gates are:
 12. `lens/ci-release-evidence`: workflow permissions, timeouts, no critical `continue-on-error`,
     repo-native target usage, Docker/runtime proof, and main releasability dispatch checks.
 13. `lens/dependency-hygiene` and `lens/environment-supply-chain-provenance`: lockfile, scanner,
-    SBOM, pinned image, artifact signing, and provenance checks.
+    SBOM, pinned image, artifact signing, OCI image labels for Git SHA/branch/source/build
+    timestamp, CI run ID capture, image digest capture, version/build metadata endpoint parity, and
+    provenance checks.
 14. AI lenses only when the app has an AI surface:
     `lens/ai-data-boundaries`, `lens/ai-evaluation-quality`, `lens/ai-safety-abuse-controls`,
     and `lens/ai-agent-tool-governance`.
