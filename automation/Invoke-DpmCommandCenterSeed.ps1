@@ -791,13 +791,6 @@ try {
   $summary.refresh_response = Invoke-JsonRequest -Method "Post" -Uri $refreshUri -Body $refreshBody
   $summary.steps += "manage-refresh-from-core"
 
-  Write-Host "[dpm-seed] preserving source-owned risk/performance mandate health contexts"
-  $summary.recalculated_health_response = Invoke-JsonRequest `
-    -Method "Post" `
-    -Uri $recalculateHealthUri `
-    -Body (New-CanonicalMandateHealthBody -Mandate $summary.refresh_response.mandate)
-  $summary.steps += "manage-mandate-health-source-contexts"
-
   Write-Host "[dpm-seed] running mandate monitoring for command-center evidence"
   $summary.monitoring_run_response = Invoke-JsonRequest -Method "Post" -Uri $monitoringRunUri -Body ([ordered]@{
     mandate_ids = @($resolvedMandateId)
@@ -809,6 +802,13 @@ try {
     requested_by = "platform-seed-automation"
   })
   $summary.steps += "manage-monitoring-run-once"
+
+  Write-Host "[dpm-seed] preserving source-owned risk/performance mandate health contexts"
+  $summary.recalculated_health_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri $recalculateHealthUri `
+    -Body (New-CanonicalMandateHealthBody -Mandate $summary.refresh_response.mandate)
+  $summary.steps += "manage-mandate-health-source-contexts"
 
   Write-Host "[dpm-seed] recording stateful action-register simulation evidence"
   $actionRegisterIdempotencyKey = (
