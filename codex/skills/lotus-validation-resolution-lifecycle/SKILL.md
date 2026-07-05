@@ -69,6 +69,9 @@ For each defect issue, include:
 - Do not merge if required checks fail.
 - After merge, re-run lifecycle validation.
 - Close issues only when QA evidence confirms fix.
+- For GitHub-visible lifecycle tracking, use the `gh-issue-fix-qa-loop` status label vocabulary:
+  `status/in-progress`, `status/fixed-local`, `status/pr-open`, `status/merged-main`, and `status/blocked`.
+  Move labels when state changes; do not rely on chat summaries for issue status visibility.
 
 Use [Lifecycle-Map](references/lifecycle-map.md) and [Defect-Quality-Bar](references/defect-quality-bar.md) for expected behavior.
 ## Continuous Skill Improvement
