@@ -162,6 +162,12 @@ For RFC-driven business-application slices, extend that intake with:
     existing runtime behavior behind the adapter, add fake-port tests for the business contract and
     failure semantics, add a deterministic guard when the invariant is statically checkable, and
     update repo context or standards so the same coupling does not return in the next issue slice.
+16. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
+    records, status history, or operator event history, do not encode identifiers or machine state
+    only in human-readable messages. Define a versioned, support-safe typed payload contract; add
+    schema/read compatibility for existing rows; ensure replay, regenerate, dedupe, and lineage
+    logic consume typed fields rather than parsing text; and test accepted, failed, render/archive,
+    retry/replay, batch-item, and legacy-read cases that match the touched event family.
 
 ## Bank-Buyable Default Bar
 
