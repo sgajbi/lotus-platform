@@ -50,6 +50,10 @@ Do not route those tasks through generic platform QA by default.
     the user explicitly requested a diagnostic partial run.
 12. Keep the canonical private-banking seed separate from demo-pack content. The governed PB seed
     should remain contract-backed and `DEMO_DATA_PACK_ENABLED=false` by default.
+13. When a canonical proof depends on source-owned health or supportability context, verify the
+    final persisted service read after all seed steps. Monitoring or batch jobs can overwrite a
+    deterministic snapshot created earlier in the seed flow; do not accept the immediate write
+    response as proof if a later step recalculates the same entity.
 
 ## Canonical Commands
 
