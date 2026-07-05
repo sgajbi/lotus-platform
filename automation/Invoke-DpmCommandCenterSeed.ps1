@@ -200,6 +200,7 @@ $outcomeReviewRebalanceRunId = "rr_canonical_$($resolvedPortfolioId)_$($resolved
 $outcomeReviewWaveId = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
 $outcomeReviewWaveItemId = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
 $refreshUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/refresh-from-core"
+$recalculateHealthUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/health/recalculate"
 $monitoringRunUri = "$manageApiBaseUrl/api/v1/dpm/monitoring/run-once"
 $actionRegisterSimulationUri = "$manageApiBaseUrl/api/v1/rebalance/simulate"
 $campaignDefinitionUri = (
@@ -505,6 +506,53 @@ function New-CanonicalOutcomeReviewGatewayBody {
   }
 }
 
+function New-CanonicalMandateHealthBody {
+  param([object]$Mandate)
+
+  return [ordered]@{
+    twin = $Mandate
+    cash_weight = "0.05"
+    source_readiness_state = "READY"
+    risk_health_context = [ordered]@{
+      source_system = "lotus-risk"
+      source_product_name = "MandateRiskHealthContext"
+      source_product_version = "v1"
+      health_state = "attention"
+      threshold_breached = $true
+      request_fingerprint = "sha256:canonical-mandate-risk-health-$resolvedPortfolioId-$resolvedAsOfDate"
+      source_metric = [ordered]@{
+        tracking_error = "0.0710"
+        threshold = "0.0650"
+      }
+      methodology_posture = [ordered]@{
+        owner = "lotus-risk"
+        local_calculation = $false
+      }
+      reason_codes = @("CANONICAL_RISK_DRIFT_ATTENTION")
+    }
+    performance_health_context = [ordered]@{
+      source_system = "lotus-performance"
+      source_product_name = "MandatePerformanceHealthContext"
+      source_product_version = "v1"
+      health_state = "ready"
+      threshold_breached = $false
+      request_fingerprint = "sha256:canonical-mandate-performance-health-$resolvedPortfolioId-$resolvedAsOfDate"
+      source_metric = [ordered]@{
+        active_return = "-0.0060"
+        threshold = "-0.0200"
+      }
+      methodology_posture = [ordered]@{
+        owner = "lotus-performance"
+        local_calculation = $false
+      }
+      benchmark_context = [ordered]@{
+        benchmark_id = $contract.benchmark.benchmark_code
+      }
+      reason_codes = @("CANONICAL_PERFORMANCE_HEALTH_READY")
+    }
+  }
+}
+
 function Assert-CampaignDefinitionMatchesSeed {
   param(
     [string]$Name,
@@ -703,6 +751,7 @@ $summary = [ordered]@{
   source_products = @($dpm.source_products)
   campaign_candidate_selection_basis = $campaignCandidateSelectionBasis
   manage_refresh_uri = $refreshUri
+  manage_recalculate_health_uri = $recalculateHealthUri
   manage_monitoring_run_uri = $monitoringRunUri
   manage_action_register_simulation_uri = $actionRegisterSimulationUri
   manage_campaign_definition_uri = $campaignDefinitionUri
@@ -719,8 +768,10 @@ $summary = [ordered]@{
   steps = @()
   posture_checks = @()
   refresh_response = $null
+  recalculated_health_response = $null
   monitoring_run_response = $null
   action_register_simulation_response = $null
+  action_register_workflow_action_response = $null
   campaign_definition_response = $null
   manage_lookup_response = $null
   gateway_mandate_response = $null
@@ -739,6 +790,13 @@ try {
   Write-Host "[dpm-seed] refreshing $resolvedMandateId from lotus-core through lotus-manage"
   $summary.refresh_response = Invoke-JsonRequest -Method "Post" -Uri $refreshUri -Body $refreshBody
   $summary.steps += "manage-refresh-from-core"
+
+  Write-Host "[dpm-seed] preserving source-owned risk/performance mandate health contexts"
+  $summary.recalculated_health_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri $recalculateHealthUri `
+    -Body (New-CanonicalMandateHealthBody -Mandate $summary.refresh_response.mandate)
+  $summary.steps += "manage-mandate-health-source-contexts"
 
   Write-Host "[dpm-seed] running mandate monitoring for command-center evidence"
   $summary.monitoring_run_response = Invoke-JsonRequest -Method "Post" -Uri $monitoringRunUri -Body ([ordered]@{
@@ -780,6 +838,26 @@ try {
       }
     })
   $summary.steps += "manage-action-register-stateful-simulation"
+
+  $actionRegisterRunId = [string]$summary.action_register_simulation_response.rebalance_run_id
+  if ([string]::IsNullOrWhiteSpace($actionRegisterRunId)) {
+    throw "Manage action-register simulation returned no rebalance_run_id for workflow evidence."
+  }
+  Write-Host "[dpm-seed] recording review workflow decision for action-register evidence"
+  $summary.action_register_workflow_action_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow/actions" `
+    -Headers @{
+      "X-Correlation-Id" = "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp"
+      "X-Tenant-Id" = $resolvedTenantId
+    } `
+    -Body ([ordered]@{
+      action = "APPROVE"
+      reason_code = "REVIEW_APPROVED"
+      comment = "Canonical DPM action-register evidence reviewed for front-office validation."
+      actor_id = "platform-seed-automation"
+    })
+  $summary.steps += "manage-action-register-workflow-decision"
 
   Write-Host "[dpm-seed] persisting source-backed campaign definition $resolvedCampaignId/$resolvedCampaignVersion"
   $summary.campaign_definition_response = Upsert-CampaignDefinition
