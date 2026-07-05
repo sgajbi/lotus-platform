@@ -20,7 +20,10 @@ REQUIRED_SNIPPETS = [
     "_Sidebar",
     "changed pages",
     "audit_wiki_quality.py",
+    "--changed-page",
     "structural failures",
+    "first screen",
+    "command inventories",
 ]
 
 REQUIRED_WIKI_REFERENCE_SNIPPETS = [
@@ -31,6 +34,9 @@ REQUIRED_WIKI_REFERENCE_SNIPPETS = [
     "reader journey",
     "wiki-quality evidence",
     "known-unprofessional wiki",
+    "--all-professional-pages",
+    "first-screen structure",
+    "oversized fenced command blocks",
 ]
 
 REQUIRED_RELATIVE_PATHS = [

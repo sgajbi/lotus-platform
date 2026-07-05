@@ -207,7 +207,13 @@ For a local source set intended for GitHub wiki publication:
    first-response operations, and troubleshooting escalation details.
 10. Keep supported-feature pages implementation-backed. Move planned capability, aspirational
     readiness, or unverified market language to roadmap or platform strategy material.
-11. Review the rendered shape mentally before finishing: a wiki that is technically accurate but
+11. Long pages are acceptable when they are intentionally structured. Open long pages with current
+    scope, evidence posture, and a reader map, decision matrix, evidence table, first-response
+    matrix, or equivalent structure before detailed background.
+12. Do not publish large raw command dumps. Group commands by purpose, name the gate or operating
+    scenario each command proves, and link to the authoritative Makefile, runbook, script, or CI
+    workflow for exhaustive command truth.
+13. Review the rendered shape mentally before finishing: a wiki that is technically accurate but
     looks like unstructured notes is not ready for business, operator, or client-adjacent use.
 
 ## Professional Publication Checklist
@@ -232,6 +238,10 @@ Before treating a wiki source update as complete, verify:
 9. No page includes scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, or unqualified
    "production-ready" language unless the wording is intentionally part of a roadmap, gap register,
    or current limitation.
+10. Long pages expose current-state scope and an early reader, decision, evidence, support, route,
+    governance, or quality-signal structure in the first screen.
+11. Command-heavy pages use grouped command tables or short examples plus authoritative links
+    instead of a single oversized fenced command block.
 
 ## Rendered Quality Pass
 
@@ -248,13 +258,18 @@ pages, or stale publication quality.
    visible limitations.
 5. Replace wall-of-text explanations with narrow tables only when the table makes a decision faster.
    Split any table that requires horizontal scanning to understand one row.
-6. Verify every implementation-backed claim has an evidence path: code, command, generated
+6. For pages over a first-screen length, make sure current-state scope and reader structure appear
+   before detailed background. If a reader cannot tell what decision the page supports from the
+   first screen, polish the page before adding more content.
+7. Replace long fenced command lists with a grouped command table and links to the authoritative
+   Makefile, runbook, script, or workflow. Keep only short copy-paste examples in the wiki.
+8. Verify every implementation-backed claim has an evidence path: code, command, generated
    artifact, test, RFC, runbook, scorecard, or supported-feature record.
-7. Move unsupported, target-state, aspirational, or commercial claims into roadmap or limitations
+9. Move unsupported, target-state, aspirational, or commercial claims into roadmap or limitations
    language before publication.
-8. Check every changed intra-wiki link and make sure each changed page is reachable from `Home.md`
+10. Check every changed intra-wiki link and make sure each changed page is reachable from `Home.md`
    or `_Sidebar.md`.
-9. Record the wiki-quality evidence in PR notes: changed pages, reader audiences served, evidence
+11. Record the wiki-quality evidence in PR notes: changed pages, reader audiences served, evidence
    anchors, limitations clarified, check-only result, and publish decision.
 
 ## Deterministic Audit
@@ -262,11 +277,15 @@ pages, or stale publication quality.
 When a repo-local `wiki/` source changed, run:
 
 ```bash
-python <lotus-platform>/codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki
+python <lotus-platform>/codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki --changed-page <Page.md>
 ```
 
-Use the audit as a structural quality gate before publication. It checks for the failure modes that
-make a wiki look unfinished even when the prose is directionally correct:
+Pass `--changed-page` once for each changed wiki page. Use `--all-professional-pages` only for an
+explicit full-wiki polish campaign after legacy pages have been brought up to the professional
+first-screen standard.
+
+Use the audit as a structural quality gate before publication. Repo-wide checks cover failure modes
+that make a wiki look unfinished even when the prose is directionally correct:
 
 1. missing `Home.md` or `_Sidebar.md`,
 2. pages that are not reachable from `Home.md` or `_Sidebar.md`,
@@ -274,6 +293,17 @@ make a wiki look unfinished even when the prose is directionally correct:
 4. duplicate or missing H1 page titles,
 5. bare URLs instead of named links,
 6. scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, `TBD`, and `FIXME`.
+
+Changed-page or all-page professional checks also cover:
+
+7. long pages that do not state current scope or evidence posture near the top,
+8. long pages that lack an early reader map, decision/evidence table, or equivalent first-screen
+   structure,
+9. oversized fenced command blocks that should be grouped by purpose and linked to authoritative
+   command truth.
+
+These checks are intentionally co-located with the skill as first-screen structure and command-dump
+automation so documentation guidance and deterministic enforcement evolve together.
 
 If the audit fails on legacy pages outside the changed scope, either include the cleanup in the
 same polish slice or record the failure as an explicit follow-up with page names. Do not publish a
