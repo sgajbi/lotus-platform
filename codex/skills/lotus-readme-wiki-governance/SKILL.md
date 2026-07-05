@@ -95,6 +95,12 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - add an explicit evidence standard for supported claims,
    - use concise tables for audience paths, first-response operations, feature matrices, and
      quality-signal maps,
+   - treat length as acceptable when it is structured; the defect is unframed length that hides
+     current scope, evidence posture, limitations, or reader decisions,
+   - for long pages, put current-state scope plus a reader map, decision matrix, evidence table, or
+     equivalent navigation structure in the first screen before deep detail,
+   - group command inventories by purpose and link to the authoritative Makefile, runbook, or
+     script instead of publishing large raw command dumps,
    - keep page titles, heading case, and section order consistent across the wiki,
    - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller
      audience, capability, operations, or evidence tables,
@@ -102,9 +108,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
      "production-ready" claims unless they are intentionally documented in a roadmap or gap
      section.
-   - run `python codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki`
-     when repo-local wiki source changed, then fix structural failures before publication or record
-     why a warning is intentionally outside the changed page set.
+   - run `python codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki --changed-page <Page.md>`
+     once for each changed wiki page when repo-local wiki source changed; use
+     `--all-professional-pages` only for an explicit full-wiki polish campaign. Fix structural
+     failures before publication or record why structural failures in a legacy page outside the
+     changed page set remain a follow-up.
 15. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
@@ -256,7 +264,10 @@ Use this professional acceptance bar before calling a wiki update complete:
 8. `Home` and `_Sidebar` remain useful after the change: a first-time business, operations, sales,
    or engineering reader can find the right page without scanning an ungrouped page dump, and no
    page is reachable only through tribal knowledge.
-9. PR evidence names the changed wiki pages, the reader audiences they serve, the supported claims
+9. long pages expose current-state scope and a reader, decision, or evidence structure near the top;
+   detailed background, exhaustive command references, and historical notes come after the decision
+   path.
+10. PR evidence names the changed wiki pages, the reader audiences they serve, the supported claims
    or evidence paths they rely on, and whether the wiki was intentionally unchanged, check-only
    clean, or published after merge.
 
