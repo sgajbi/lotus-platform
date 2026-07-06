@@ -12,6 +12,14 @@ ARCHIVE_REPO = ROOT.parent / "lotus-archive"
 DASHBOARD_PATH = (
     ROOT / "platform-stack" / "grafana" / "dashboards" / "reporting-observability-overview.json"
 )
+RENDER_METRICS_PATH = next(
+    path
+    for path in (
+        RENDER_REPO / "src" / "app" / "observability" / "render_metrics.py",
+        RENDER_REPO / "src" / "app" / "render_metrics.py",
+    )
+    if path.exists()
+)
 
 
 def _load_json(relative_path: str) -> dict:
@@ -74,9 +82,7 @@ def test_reporting_observability_contract_references_only_implemented_metrics() 
     report_metrics = _extract_metric_names(
         REPORT_REPO / "src" / "app" / "reporting_metrics.py"
     )
-    render_metrics = _extract_metric_names(
-        RENDER_REPO / "src" / "app" / "render_metrics.py"
-    )
+    render_metrics = _extract_metric_names(RENDER_METRICS_PATH)
     archive_metrics = _extract_metric_names(
         ARCHIVE_REPO / "src" / "app" / "archive" / "metrics.py"
     )
@@ -108,7 +114,7 @@ def test_reporting_observability_contract_labels_match_service_metric_contracts(
     contract = _load_json("context/contracts/reporting-observability-contract.json")
     expected_labels = {
         **_extract_metric_contract_labels(REPORT_REPO / "src" / "app" / "reporting_metrics.py"),
-        **_extract_metric_contract_labels(RENDER_REPO / "src" / "app" / "render_metrics.py"),
+        **_extract_metric_contract_labels(RENDER_METRICS_PATH),
         **_extract_metric_contract_labels(ARCHIVE_REPO / "src" / "app" / "archive" / "metrics.py"),
     }
 
@@ -126,7 +132,7 @@ def test_reporting_observability_metric_sources_reject_sensitive_labels() -> Non
     }
     for source in (
         REPORT_REPO / "src" / "app" / "reporting_metrics.py",
-        RENDER_REPO / "src" / "app" / "render_metrics.py",
+        RENDER_METRICS_PATH,
         ARCHIVE_REPO / "src" / "app" / "archive" / "metrics.py",
     ):
         text = source.read_text(encoding="utf-8")
