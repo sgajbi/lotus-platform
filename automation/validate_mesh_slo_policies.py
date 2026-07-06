@@ -117,6 +117,16 @@ def _validate_mesh_slo_status_sections(
             section.get(field_name), str
         ):
             issues.append(f"{path}: {section_name}.{field_name} must be a string")
+        allowed_statuses = section.get("allowed_statuses")
+        if allowed_statuses is not None and (
+            not isinstance(allowed_statuses, list)
+            or not all(isinstance(status, str) for status in allowed_statuses)
+            or section.get(field_name) not in allowed_statuses
+        ):
+            issues.append(
+                f"{path}: {section_name}.allowed_statuses must be a string list "
+                f"including {section_name}.{field_name}"
+            )
         if section.get("violation_severity") not in {"blocking", "advisory"}:
             issues.append(
                 f"{path}: {section_name}.violation_severity must be blocking or advisory"
@@ -130,9 +140,7 @@ def _validate_mesh_slo_lineage(
     if not isinstance(lineage, dict) or not isinstance(
         lineage.get("lineage_materialized_required"), bool
     ):
-        issues.append(
-            f"{path}: lineage.lineage_materialized_required must be boolean"
-        )
+        issues.append(f"{path}: lineage.lineage_materialized_required must be boolean")
     if lineage.get("violation_severity") not in {"blocking", "advisory"}:
         issues.append(
             f"{path}: lineage.violation_severity must be blocking or advisory"
@@ -257,9 +265,7 @@ def _append_freshness_violation(
 ) -> None:
     freshness = telemetry.get("freshness", {})
     freshness_policy = policy.get("freshness", {})
-    age_seconds = (
-        freshness.get("age_seconds") if isinstance(freshness, dict) else None
-    )
+    age_seconds = freshness.get("age_seconds") if isinstance(freshness, dict) else None
     max_allowed_age_seconds = freshness_policy.get("max_allowed_age_seconds")
     if not isinstance(age_seconds, int) or not isinstance(max_allowed_age_seconds, int):
         return
@@ -272,8 +278,7 @@ def _append_freshness_violation(
             producer_repository=producer_repository,
             severity=_severity(freshness_policy),
             detail=(
-                f"Telemetry age {age_seconds}s exceeds SLO "
-                f"{max_allowed_age_seconds}s."
+                f"Telemetry age {age_seconds}s exceeds SLO {max_allowed_age_seconds}s."
             ),
             telemetry_path=telemetry_path,
             policy_path=policy_path,
@@ -425,8 +430,16 @@ def _append_status_violation(
     required_status = (
         section.get("required_status") if isinstance(section, dict) else None
     )
+    allowed_statuses = (
+        section.get("allowed_statuses") if isinstance(section, dict) else None
+    )
     observed_status = telemetry.get(telemetry_field)
-    if isinstance(required_status, str) and observed_status != required_status:
+    accepted_statuses = (
+        {status for status in allowed_statuses if isinstance(status, str)}
+        if isinstance(allowed_statuses, list)
+        else ({required_status} if isinstance(required_status, str) else set())
+    )
+    if accepted_statuses and observed_status not in accepted_statuses:
         violations.append(
             _violation(
                 code=code,
@@ -434,8 +447,8 @@ def _append_status_violation(
                 producer_repository=producer_repository,
                 severity=_severity(section),
                 detail=(
-                    f"{telemetry_field} is {observed_status}; SLO requires "
-                    f"{required_status}."
+                    f"{telemetry_field} is {observed_status}; SLO accepts "
+                    f"{', '.join(sorted(accepted_statuses))}."
                 ),
                 telemetry_path=telemetry_path,
                 policy_path=policy_path,

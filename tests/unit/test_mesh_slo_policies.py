@@ -54,9 +54,9 @@ def test_mesh_slo_evaluator_reports_status_and_lineage_violations(
 ) -> None:
     validator = _load_validator_module()
     policy = json.loads(
-        (
-            POLICY_DIRECTORY / "lotus-risk-risk-metrics-report.slo.v1.json"
-        ).read_text(encoding="utf-8")
+        (POLICY_DIRECTORY / "lotus-risk-risk-metrics-report.slo.v1.json").read_text(
+            encoding="utf-8"
+        )
     )
     telemetry_path = tmp_path / "risk-telemetry.json"
     telemetry = {
@@ -88,6 +88,35 @@ def test_mesh_slo_evaluator_reports_status_and_lineage_violations(
         "mesh_slo_lineage_violation",
     }
     assert all(violation["severity"] == "blocking" for violation in violations)
+
+
+def test_mesh_slo_evaluator_accepts_policy_allowed_statuses(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    policy_path = (
+        POLICY_DIRECTORY / "lotus-report-client-report-evidence-pack.slo.v1.json"
+    )
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    telemetry_path = tmp_path / "report-telemetry.json"
+    telemetry = {
+        "product_id": "lotus-report:ClientReportEvidencePack:v1",
+        "freshness": {"age_seconds": 60},
+        "completeness_status": "partial",
+        "reconciliation_status": "reconciled",
+        "data_quality_status": "quality_warning",
+        "lineage": {"lineage_materialized": True},
+    }
+
+    violations = validator.evaluate_mesh_slo_violations(
+        telemetry_payloads={
+            "lotus-report:ClientReportEvidencePack:v1": (
+                telemetry_path,
+                telemetry,
+            )
+        },
+        policies={"lotus-report:ClientReportEvidencePack:v1": (policy_path, policy)},
+    )
+
+    assert violations == []
 
 
 def test_mesh_slo_evaluator_reports_freshness_violation(tmp_path: Path) -> None:

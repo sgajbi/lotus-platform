@@ -241,6 +241,56 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     ]
 
 
+def test_mesh_certification_gate_allows_scoped_report_analytics_block(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    report_path = next(
+        path
+        for path in telemetry_paths
+        if path.name == "lotus-report-ClientReportEvidencePack-v1.json"
+    )
+    report_payload = json.loads(report_path.read_text(encoding="utf-8"))
+    report_payload["completeness_status"] = "partial"
+    report_payload["data_quality_status"] = "quality_warning"
+    report_payload["blocking"] = {
+        "blocked": True,
+        "blocking_scope": "analytics_enriched_evidence_certification",
+        "blocked_reason": (
+            "upstream performance and risk producer declarations do not yet "
+            "approve lotus-report"
+        ),
+    }
+    report_path.write_text(json.dumps(report_payload), encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["certification_state"] == "certified_with_warnings"
+    assert status["summary"]["error_count"] == 0
+    assert status["summary"]["warning_count"] == 1
+    assert status["summary"]["certified_required_product_count"] == 7
+    assert status["summary"]["attention_required_product_count"] == 1
+    assert status["issues"] == [
+        {
+            "code": "product_blocked",
+            "severity": "warning",
+            "producer_repository": "lotus-report",
+            "product_id": "lotus-report:ClientReportEvidencePack:v1",
+            "remediation": (
+                "Product is blocked: upstream performance and risk producer "
+                "declarations do not yet approve lotus-report"
+            ),
+            "source_evidence_path": report_path.as_posix(),
+        }
+    ]
+
+
 def test_mesh_certification_gate_blocks_missing_and_stale_required_products(
     tmp_path: Path,
 ) -> None:

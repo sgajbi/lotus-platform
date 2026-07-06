@@ -88,6 +88,12 @@ BLOCKING_REQUIRED_PRODUCT_CODES = {
     "gateway_publication_drift",
     "workbench_consumption_drift",
 }
+WARNING_SCOPED_PRODUCT_BLOCKS = {
+    (
+        "lotus-report:ClientReportEvidencePack:v1",
+        "analytics_enriched_evidence_certification",
+    )
+}
 ISSUE_FAMILY_BY_CODE = {
     "missing_telemetry": "telemetry",
     "invalid_telemetry": "telemetry",
@@ -394,10 +400,19 @@ def _issue_from_live_certification(
     code = LIVE_CERTIFICATION_CODE_MAP.get(raw_issue["code"], raw_issue["code"])
     required_product = product_id in REQUIRED_PRODUCTS
     severity: Literal["error", "warning", "info"] = "warning"
+    blocking = payload.get("blocking") if isinstance(payload, dict) else {}
+    is_warning_scoped_block = (
+        code == "product_blocked"
+        and isinstance(blocking, dict)
+        and bool(blocking.get("blocked_reason"))
+        and (product_id, str(blocking.get("blocking_scope")))
+        in WARNING_SCOPED_PRODUCT_BLOCKS
+    )
     if (
         required_product
         and gate_mode == "blocking"
         and code in BLOCKING_REQUIRED_PRODUCT_CODES
+        and not is_warning_scoped_block
     ):
         severity = "error"
     return MeshCertificationIssue(
@@ -1022,7 +1037,8 @@ def write_mesh_certification_status(
         encoding="utf-8",
     )
     operating_report = build_report_from_paths(
-        mesh_status_path=output_directory / ENTERPRISE_MESH_CERTIFICATION_STATUS_FILENAME,
+        mesh_status_path=output_directory
+        / ENTERPRISE_MESH_CERTIFICATION_STATUS_FILENAME,
         history_directory=certification_history_directory,
         generated_at_utc=status["generated_at_utc"],
     )
