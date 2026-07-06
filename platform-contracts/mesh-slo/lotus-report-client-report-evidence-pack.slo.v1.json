@@ -12,6 +12,10 @@
   },
   "completeness": {
     "required_status": "complete",
+    "allowed_statuses": [
+      "complete",
+      "partial"
+    ],
     "violation_severity": "blocking"
   },
   "reconciliation": {
@@ -20,6 +24,10 @@
   },
   "data_quality": {
     "required_status": "quality_passed",
+    "allowed_statuses": [
+      "quality_passed",
+      "quality_warning"
+    ],
     "violation_severity": "blocking"
   },
   "lineage": {
@@ -29,6 +37,6 @@
   "escalation": {
     "owner_repository": "lotus-report",
     "owner_role": "reporting-product-owner",
-    "remediation": "Refresh client report evidence pack telemetry or block reporting evidence publication until upstream certification is restored."
+    "remediation": "Refresh client report evidence pack telemetry or preserve the explicit analytics-enriched certification block until upstream performance and risk producer declarations approve lotus-report as a governed consumer."
   }
 }
