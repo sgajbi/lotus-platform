@@ -217,6 +217,16 @@ For RFC-driven business-application slices, extend that intake with:
     merely to validate a constraint. Derive adapter predicates from the domain policy where possible,
     add a deterministic contract gate against enforcement drift, and keep this as internal design
     modularity unless scaling, isolation, ownership, or operability evidence justifies a runtime split.
+21. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
+    correlation, trace, and causation as distinct typed concepts across the full request-to-publish
+    path. Carry one validated context through request mapping, application use cases, ports,
+    adapters, durable rows, and publishers; require correlation and trace for attributable work,
+    populate causation only for a real parent event, and define deterministic system context for
+    background work. Keep lineage outside business idempotency fingerprints, preserve original
+    lineage on replay, constrain identifiers in migrations and storage, map transport headers
+    semantically, document consumer replay rules, and keep sensitive data out of lineage and event
+    payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
+    service only when workload, failure isolation, ownership, or operability evidence justifies it.
 
 ## Bank-Buyable Default Bar
 
