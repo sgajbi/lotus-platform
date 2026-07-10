@@ -207,6 +207,16 @@ For RFC-driven business-application slices, extend that intake with:
     payloads, aggregate/client/portfolio ids, and raw idempotency material out of responses and
     telemetry. Improve this as an internal bounded module first; add a separately deployed recovery
     service only when workload, failure-isolation, ownership, or operability evidence justifies it.
+20. When two or more domain fields jointly define one business state, do not validate or query them
+    as independent flags. Define one exhaustive, versioned compatibility policy and apply it at
+    construction, transitions, repository rehydration, writes, queue/readiness classification, API
+    conflict mapping, audit, and operation telemetry. Normalize terminal transitions to explicitly
+    non-actionable posture, fail every mutation closed outside its allowed state matrix, and test the
+    complete field-value cross product plus repeated actions. For legacy contradictions, preserve an
+    auditable quarantine/reconciliation path and prevent new invalid writes without deleting history
+    merely to validate a constraint. Derive adapter predicates from the domain policy where possible,
+    add a deterministic contract gate against enforcement drift, and keep this as internal design
+    modularity unless scaling, isolation, ownership, or operability evidence justifies a runtime split.
 
 ## Bank-Buyable Default Bar
 

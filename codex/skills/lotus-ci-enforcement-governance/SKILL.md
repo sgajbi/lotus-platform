@@ -137,6 +137,11 @@ Prefer enforcement that blocks common agent failure modes:
     blocking contract gate for source-safe inspection fields, dedicated authorization and trusted
     provenance, idempotent audit-plus-lease fencing, event/schema eligibility, preserved failure
     history, bounded poison recovery, non-mutating replay/conflict, and durable restart evidence.
+12. coupled lifecycle/posture, status/phase, or state/eligibility fields that can form contradictory
+    combinations; require a blocking contract gate that protects one versioned domain matrix across
+    construction, rehydration, transition/mutation guards, durable constraints, queue/readiness
+    quarantine, stable API errors, source-safe telemetry, legacy reconciliation, exhaustive pair
+    tests, and repeated-action behavior.
 
 When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
 that registry instead of copying service lists into each workflow helper or assertion. If a runtime
