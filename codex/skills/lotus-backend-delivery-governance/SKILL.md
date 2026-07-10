@@ -187,9 +187,17 @@ For RFC-driven business-application slices, extend that intake with:
 17. When a source adapter calls a tenant-aware downstream service, carry one resolved tenant from
     trusted caller context through the request DTO mapper, application command, port, and adapter.
     Reject missing, multiple, or inconsistent tenant context before runtime construction or network
-    I/O; never use a hard-coded production tenant fallback. Apply the same contract to scheduled or
-    batch workers through explicit governed configuration, and test tenant A/B isolation plus the
-    no-tenant, ambiguous-tenant, and untrusted-override paths.
+    I/O; reject unknown request fields so a body cannot silently pose as scope input, and never use a
+    hard-coded production tenant fallback. Propagate tenant only where the downstream route publishes
+    a tenant-aware contract; do not invent query/header fields on non-tenant-aware routes. Retain the
+    resolved tenant in local access scope, deterministic aggregate identity, persistence/idempotency
+    identity, and audit lineage wherever those artifacts can otherwise collide across tenants. Apply
+    the same contract to scheduled or batch workers through explicit governed configuration. Keep raw
+    tenant identifiers out of logs and metric labels; use a bounded scope-provenance posture when
+    operations need explanatory evidence. Test tenant A/B outbound payload, candidate identity,
+    persistence and ingestion isolation plus no-tenant, ambiguous-tenant, untrusted-header, body
+    override, and non-tenant-aware downstream paths. Add a cross-layer deterministic gate when the
+    contract is statically enforceable.
 18. When a shared dependency can reject a request before route code runs, preserve its approved
     product-safe error code, title, status, media type, and remediation detail through the global
     exception handler. Use a typed boundary exception for governed failures and retain a generic
