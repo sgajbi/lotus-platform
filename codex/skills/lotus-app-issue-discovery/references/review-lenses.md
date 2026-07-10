@@ -201,13 +201,35 @@ Each extension-lens issue should include:
 | AI cost, latency, and reliability | AI calls are in user paths, batch workflows, or expensive/high-volume operations | token budgets, timeouts, retries, caching, batching, provider fallback, rate limits, circuit breakers | no timeout, runaway token use, provider outage blocks core app, no cost visibility | AI calls have budgets, limits, timeout/fallback/degraded behavior, and cost/latency telemetry | load/latency tests, budget guard tests, provider-failure simulation, and dashboard/metric evidence |
 | AI agent tool governance | AI agents can call tools, write data, trigger workflows, access files/APIs, or delegate work | tool registry, permissions, scoped credentials, approval, dry-run, action logs, rollback, sandbox | agent has broad write token, no approval for destructive action, tool calls unaudited | tools are explicitly registered, least-privilege, audited, bounded by read/write scope, and reversible or approval-gated | tool-permission tests, action-log proof, denial tests, dry-run/rollback evidence |
 
+### Canonical Backend Layer Flow
+
+Use this flow as the default expected dependency direction when reviewing backend architecture,
+application, domain, port, adapter, API, and mapping lenses:
+
+1. External consumer.
+2. API, controller, or route.
+3. Request DTO mapper.
+4. Application use case.
+5. Domain model plus domain service.
+6. Port or interface.
+7. Infrastructure adapter.
+8. Database, cache, queue, or external API.
+
+Issue-discovery findings should flag inversions where DTOs, framework objects, ORM rows,
+infrastructure clients, queue payloads, cache concerns, or external API semantics leak upward into
+application/domain code, or where routes bypass request DTO mappers, use cases, ports, or adapters.
+The expected fix direction should normally move mapping to boundary mappers, orchestration to
+application use cases, business rules to domain models/services, and side effects behind ports and
+infrastructure adapters.
+
 ### Environment Supply-Chain Provenance Checklist
 
 When a Lotus repository builds or deploys a container image, review the image and deployment path
 against this checklist:
 
 1. The image is tagged with the Git commit SHA.
-2. OCI labels include commit, repository URL, version, build time, and CI pipeline/run ID.
+2. OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI
+   pipeline/run ID.
 3. Release images are built and pushed by CI only, not from developer workstations.
 4. The pushed image digest is captured in a release manifest or equivalent immutable evidence.
 5. An SBOM is generated for the image.
@@ -215,8 +237,8 @@ against this checklist:
 7. The image is signed.
 8. A provenance attestation is generated.
 9. Kubernetes, Helm, or deployment manifests deploy by digest, not mutable tags.
-10. The `/version` or version/build metadata endpoint exposes the same commit, repository, version,
-    build time, pipeline/run ID, and image digest metadata.
+10. The `/version` or version/build metadata endpoint exposes the same commit, Git branch/ref,
+    repository, version, build time, pipeline/run ID, and image digest metadata.
 11. The same immutable image is promoted across environments; later environments do not rebuild from
     source.
 12. Build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, logs, OCI

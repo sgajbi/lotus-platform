@@ -255,6 +255,12 @@ Progressive rollout baseline:
 4. artifact provenance and signing where platform maturity allows,
 5. policy checks for privileged workflow changes.
 
+For containerized Lotus services, the target production image chain is defined in
+`platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`: Git SHA image tags, OCI
+labels for commit/ref/source/version/build/run metadata, CI-only image push, digest-bearing release
+manifests, SBOM, vulnerability scanning, signing, provenance attestation, digest-based deployment,
+runtime `/version` metadata parity, same-image promotion, and build-secret leak checks.
+
 ## 5.1 Security Ownership Expectations
 
 Each repository must be able to answer:

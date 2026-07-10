@@ -271,7 +271,11 @@ The full default remains the complete unit, integration, or e2e suite for the se
 Remote scaffolded workflows use the same controls across Feature Lane, PR Merge Gate, and Main
 Releasability. Main releasability additionally retains coverage evidence plus the dependency SBOM
 and release metadata manifest required by
-`platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`.
+`platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`. That standard is also the
+convergence target for deployable-image provenance: Git SHA tagging, OCI build labels, CI-only
+push, digest-bearing release manifests, SBOM, vulnerability scan, signing, provenance attestation,
+digest-based deploys, `/version` metadata parity, same-image promotion, and build-secret leak
+checks.
 
 Blocking scaffold gates must not create or rewrite durable report artifacts in a clean checkout.
 For example, `make architecture-boundary-gate` runs in blocking mode and should leave the worktree

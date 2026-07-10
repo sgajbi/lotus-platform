@@ -1,4 +1,5 @@
 from pathlib import Path
+import importlib.util
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -6,6 +7,23 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _load_issue_campaign_planner():
+    planner_path = (
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-app-issue-discovery"
+        / "scripts"
+        / "plan_issue_discovery_campaign.py"
+    )
+    spec = importlib.util.spec_from_file_location("plan_issue_discovery_campaign", planner_path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_front_office_runtime_route_is_unambiguous() -> None:
@@ -92,6 +110,60 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
     assert "Security and privacy" in lens_catalog
     assert "duplicate or unclear APIs" in routing_map
     assert "stale remote feature branches" in routing_map
+
+
+def test_issue_discovery_plans_include_deployable_image_provenance_for_services() -> None:
+    planner = _load_issue_campaign_planner()
+
+    for profile in ("source-domain", "analytics", "workflow", "gateway", "workbench", "ai", "platform"):
+        assert "lens/environment-supply-chain-provenance" in planner.PROFILE_LENSES[profile]
+
+    plan = planner.render_plan("sgajbi/lotus-advise", "workflow", None)
+
+    assert "Deployable Image Provenance Checklist" in plan
+    assert "image tagged with the Git commit SHA" in plan
+    assert "OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI pipeline/run ID" in plan
+    assert "image digest captured in a release manifest" in plan
+    assert "SBOM generated" in plan
+    assert "image signed" in plan
+    assert "provenance attestation generated" in plan
+    assert "deploy by digest" in plan
+    assert "/version or version/build metadata endpoint exposes the same metadata" in plan
+    assert "same immutable image promoted across environments" in plan
+    assert "no build secrets leaked" in plan
+
+
+def test_docker_provenance_standard_and_lens_capture_full_image_chain() -> None:
+    lens_catalog = _read(
+        ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "references" / "review-lenses.md"
+    )
+    ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
+    release_standard = _read(
+        ROOT / "platform-standards" / "Release-Evidence-and-SBOM-Foundation-Standard.md"
+    )
+
+    for text in (lens_catalog, ci_skill, release_standard):
+        assert "Git branch/ref" in text
+        assert "repository URL" in text
+        assert "pipeline/run ID" in text
+        assert "image digest" in text
+        assert "SBOM" in text
+        assert "vulnerability scan" in text or "Vulnerability scanning" in text
+        assert "image is signed" in text
+        assert "provenance attestation" in text
+        assert "deploy by digest" in text or "deploy manifests deploy by digest" in text
+        assert "/version" in text
+        assert "same immutable image" in text
+        assert "Dockerfile `ARG`" in text
+        assert "Dockerfile `ENV`" in text
+
+    assert "External consumer" in lens_catalog
+    assert "API, controller, or route" in lens_catalog
+    assert "Request DTO mapper" in lens_catalog
+    assert "Application use case" in lens_catalog
+    assert "Domain model plus domain service" in lens_catalog
+    assert "Port or interface" in lens_catalog
+    assert "Infrastructure adapter" in lens_catalog
 
 
 def test_endpoint_and_linkedin_skills_are_governed_and_routed() -> None:

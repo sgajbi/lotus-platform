@@ -21,6 +21,7 @@ PROFILE_LENSES = {
         "lens/api-documentation-standards",
         "lens/entitlements-tenant-isolation",
         "lens/data-quality-reconciliation",
+        "lens/environment-supply-chain-provenance",
     ],
     "analytics": [
         "lens/calculations-methodology",
@@ -32,6 +33,7 @@ PROFILE_LENSES = {
         "lens/testing-quality",
         "lens/performance-scalability",
         "lens/data-quality-reconciliation",
+        "lens/environment-supply-chain-provenance",
     ],
     "workflow": [
         "lens/transaction-lifecycle",
@@ -42,6 +44,7 @@ PROFILE_LENSES = {
         "lens/capability-publication",
         "lens/operator-control-plane",
         "lens/customer-impact-failure-modes",
+        "lens/environment-supply-chain-provenance",
     ],
     "gateway": [
         "lens/api-design-governance",
@@ -52,6 +55,7 @@ PROFILE_LENSES = {
         "lens/resilience",
         "lens/capability-publication",
         "lens/api-consumer-experience",
+        "lens/environment-supply-chain-provenance",
     ],
     "workbench": [
         "lens/capability-publication",
@@ -61,6 +65,7 @@ PROFILE_LENSES = {
         "lens/mobile-responsive-device-readiness",
         "lens/observability",
         "lens/entitlements-tenant-isolation",
+        "lens/environment-supply-chain-provenance",
     ],
     "ai": [
         "lens/ai-model-governance",
@@ -73,6 +78,7 @@ PROFILE_LENSES = {
         "lens/ai-agent-tool-governance",
         "lens/entitlements-tenant-isolation",
         "lens/data-governance-privacy-lifecycle",
+        "lens/environment-supply-chain-provenance",
     ],
     "platform": [
         "lens/ci-release-evidence",
@@ -126,6 +132,22 @@ HIGH_SIGNAL_HARDENING_LENSES = [
 ]
 
 
+DEPLOYABLE_IMAGE_PROVENANCE_CHECKLIST = [
+    "image tagged with the Git commit SHA",
+    "OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI pipeline/run ID",
+    "release image built and pushed by CI only",
+    "image digest captured in a release manifest or equivalent immutable evidence",
+    "SBOM generated",
+    "vulnerability scan passed or records an approved time-bounded exception",
+    "image signed",
+    "provenance attestation generated",
+    "Kubernetes, Helm, or deployment manifests deploy by digest",
+    "/version or version/build metadata endpoint exposes the same metadata",
+    "same immutable image promoted across environments without rebuilding",
+    "no build secrets leaked through Dockerfile ARG/ENV, image history, logs, labels, or runtime metadata",
+]
+
+
 def catalog_labels() -> list[tuple[str, str]]:
     text = (SKILL_ROOT / "references" / "review-lenses.md").read_text(encoding="utf-8")
     rows = re.findall(r"^\| ([^|]+) \| `(lens/[a-z0-9-]+)` \|$", text, flags=re.MULTILINE)
@@ -173,6 +195,11 @@ def render_plan(repository: str, profile: str, limit: int | None) -> str:
         lines.extend(["", "## CI Hardening Candidates", ""])
         for label in hardening:
             lines.append(f"- `{label}`: consider deterministic gate only after a concrete issue pattern is measured and low-noise.")
+
+    if "lens/environment-supply-chain-provenance" in first_lenses:
+        lines.extend(["", "## Deployable Image Provenance Checklist", ""])
+        for index, item in enumerate(DEPLOYABLE_IMAGE_PROVENANCE_CHECKLIST, start=1):
+            lines.append(f"{index}. {item}.")
 
     lines.extend(
         [
