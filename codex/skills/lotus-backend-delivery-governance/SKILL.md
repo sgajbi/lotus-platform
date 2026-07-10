@@ -196,6 +196,17 @@ For RFC-driven business-application slices, extend that intake with:
     safe fallback for unrelated framework errors. Test representative routes, correlation headers,
     observability category, and absence of raw header/token/scope values; add a deterministic gate
     when direct generic exceptions can be detected statically.
+19. Do not treat a dead-letter status or queue as a complete recovery control. Provide a bounded,
+    operator-authorized, source-safe inspection projection and an explicit re-drive use case through
+    API/command DTO, application service, domain policy, repository port, and durable adapter. Bind
+    re-drive to trusted caller provenance, dedicated capability, idempotency key, bounded reason and
+    change reference, event-family/schema eligibility, a new fenced lease, and append-only audit
+    evidence that preserves the original retry count, failure reason, and timestamps. Fence
+    concurrent requests, prove replay/conflict after repository or process restart, cap poison-event
+    recovery, return rejected attempts to quarantine without automatic infinite retry, and keep
+    payloads, aggregate/client/portfolio ids, and raw idempotency material out of responses and
+    telemetry. Improve this as an internal bounded module first; add a separately deployed recovery
+    service only when workload, failure-isolation, ownership, or operability evidence justifies it.
 
 ## Bank-Buyable Default Bar
 
