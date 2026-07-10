@@ -127,6 +127,12 @@ Prefer enforcement that blocks common agent failure modes:
    counts.
 8. growth in uncategorized tests that makes future agents unable to tell which proof family a test
    protects.
+9. tenant-aware source adapters that drop trusted tenant context, accept ambiguous tenant scope, or
+   reintroduce hard-coded production fallback tenants; enforce the complete API-to-port-to-adapter
+   path and cover batch/worker entrypoints where they share the adapter.
+10. shared API dependencies whose governed `ProblemDetails` codes are collapsed by global exception
+    handlers into one generic response; keep a generic fallback for unknown framework failures but
+    statically guard typed product-safe boundary errors and verify runtime/OpenAPI parity.
 
 When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
 that registry instead of copying service lists into each workflow helper or assertion. If a runtime
