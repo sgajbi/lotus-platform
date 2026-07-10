@@ -80,6 +80,14 @@ POSIX shell, or
 `$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
 in PowerShell, for the affected service.
 
+When Compose declares a worker, manifest, migration, schema, or operator asset that the image
+must read, verify the complete image file closure: every Dockerfile `COPY`, every `.dockerignore`
+exception, and every imported helper script required by the entrypoint must be present in the
+build context and in the built image. Repository tests are not enough for this check. Build the
+affected image and run the real entrypoint's bounded `--check-only` or equivalent contract mode
+inside the image before accepting runtime evidence; add a deterministic repository gate for the
+closure when the asset is production or canonical-stack relevant.
+
 Before editing backend code, produce a short quality intake from the actual repository:
 
 1. name the existing module, service, repository, model, router, and test patterns in the touched

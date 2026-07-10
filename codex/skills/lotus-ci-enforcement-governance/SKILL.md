@@ -353,6 +353,13 @@ deployable-image chain before promoting the gate:
 12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, logs,
     labels, or runtime metadata.
 
+The image validator should also check runtime asset closure for Compose-declared workers and
+operator entrypoints. A manifest or helper script excluded by `.dockerignore`, omitted from a
+Dockerfile `COPY`, or absent from the built image is a packaging defect even when local Python
+tests pass. Require a built-image bounded entrypoint smoke (`--check-only` where supported) and a
+focused pass/fail contract test for the declared file closure; keep this separate from OCI
+provenance so packaging and provenance failures remain diagnosable.
+
 Keep these lens families review-only until they have enough stable signal for automation:
 
 1. `lens/product-workflow-usability`,
