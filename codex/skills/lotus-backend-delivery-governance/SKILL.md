@@ -176,6 +176,18 @@ For RFC-driven business-application slices, extend that intake with:
     schema/read compatibility for existing rows; ensure replay, regenerate, dedupe, and lineage
     logic consume typed fields rather than parsing text; and test accepted, failed, render/archive,
     retry/replay, batch-item, and legacy-read cases that match the touched event family.
+17. When a source adapter calls a tenant-aware downstream service, carry one resolved tenant from
+    trusted caller context through the request DTO mapper, application command, port, and adapter.
+    Reject missing, multiple, or inconsistent tenant context before runtime construction or network
+    I/O; never use a hard-coded production tenant fallback. Apply the same contract to scheduled or
+    batch workers through explicit governed configuration, and test tenant A/B isolation plus the
+    no-tenant, ambiguous-tenant, and untrusted-override paths.
+18. When a shared dependency can reject a request before route code runs, preserve its approved
+    product-safe error code, title, status, media type, and remediation detail through the global
+    exception handler. Use a typed boundary exception for governed failures and retain a generic
+    safe fallback for unrelated framework errors. Test representative routes, correlation headers,
+    observability category, and absence of raw header/token/scope values; add a deterministic gate
+    when direct generic exceptions can be detected statically.
 
 ## Bank-Buyable Default Bar
 
