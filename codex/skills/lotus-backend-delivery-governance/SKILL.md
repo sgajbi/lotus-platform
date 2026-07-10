@@ -232,6 +232,18 @@ For RFC-driven business-application slices, extend that intake with:
     pure internal policy plus typed port fields and a deterministic cross-layer gate. Add a separate
     pagination service only when workload, isolation, ownership, or operability evidence justifies
     the runtime complexity.
+22. When a use case consumes source-owned evidence, define a versioned temporal compatibility
+    contract for every domain family instead of relying only on timezone-aware fields. Validate
+    request business date, every included source business/effective date, source generation time,
+    evaluation time, and freshness as separate concepts before candidate/result persistence. Apply
+    the same domain policy to caller-supplied DTOs, infrastructure-adapter results, scheduled/batch
+    ingestion, and optional enrichment refs; do not validate only the required primary source and
+    then include unchecked cross-domain evidence. Define source correction/revision identity
+    explicitly: preserve producer hashes and lineage, and either create a new versioned aggregate
+    identity or apply a governed correction transition rather than silently rewriting evidence.
+    Test exact-boundary success, any allowed effective window, mismatched date, future generation,
+    stale/partial posture, multi-source conflict, correction identity, and no-persistence behavior.
+    Add a deterministic all-family gate when coverage can be checked statically.
 21. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
     correlation, trace, and causation as distinct typed concepts across the full request-to-publish
     path. Carry one validated context through request mapping, application use cases, ports,
