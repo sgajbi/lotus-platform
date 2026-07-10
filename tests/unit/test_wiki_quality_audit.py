@@ -94,6 +94,40 @@ def test_wiki_quality_audit_rejects_unprofessional_structure(tmp_path: Path) -> 
     assert "Orphan.md: page is not reachable from Home.md or _Sidebar.md" in failures
 
 
+def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    wiki_dir.mkdir(parents=True)
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Getting Started](Getting-Started.md)\n",
+        encoding="utf-8",
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Getting Started](Getting-Started.md)\n",
+        encoding="utf-8",
+    )
+    (wiki_dir / "Getting-Started.md").write_text(
+        "\n".join(
+            (
+                "# Getting Started",
+                "",
+                "Current-state local setup.",
+                "",
+                "```powershell",
+                "$env:SERVICE_URL = 'http://service.dev.lotus'",
+                "$env:TEMP_DIRECTORY = './output/temp'",
+                "```",
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    assert audit.audit_wiki(wiki_dir, repo_root) == []
+
+
 def test_wiki_quality_audit_accepts_professional_long_page_structure(
     tmp_path: Path,
 ) -> None:

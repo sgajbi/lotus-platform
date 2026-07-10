@@ -89,9 +89,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - keep each supported claim tied to an implementation, command, artifact, RFC, or runbook link,
    - make each changed page reachable from `Home` or `_Sidebar`,
    - review changed pages as rendered GitHub-flavored Markdown, not only as raw text,
-   - check changed pages for broken intra-wiki links, bare URLs, duplicate headings, malformed
+   - check changed pages for broken intra-wiki links, bare prose URLs, duplicate headings, malformed
      tables, unrendered Mermaid or diagram blocks, and orphaned pages that are not reachable from
      `Home` or `_Sidebar`,
+   - keep executable URLs literal inside fenced command examples; the wiki auditor excludes fenced
+     code from prose URL and scratch-note checks while still checking command-dump size,
    - add an explicit evidence standard for supported claims,
    - use concise tables for audience paths, first-response operations, feature matrices, and
      quality-signal maps,
