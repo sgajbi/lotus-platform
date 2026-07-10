@@ -227,6 +227,16 @@ For RFC-driven business-application slices, extend that intake with:
     semantically, document consumer replay rules, and keep sensitive data out of lineage and event
     payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
     service only when workload, failure isolation, ownership, or operability evidence justifies it.
+22. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
+    derive promotion through one typed evaluator shared by the repository gate, runtime readiness,
+    API projection, and generated artifact. Never count a status string independently. Validate the
+    complete schema, required evidence, referenced paths/tests/contracts, authority boundaries,
+    review freshness, and planned-versus-implemented separation before promotion. Fail missing,
+    malformed, unresolved, future-dated, or stale evidence closed with stable source-safe blocker
+    codes; do not expose validator details or filesystem paths through product APIs. Add a
+    deterministic gate that rejects parallel counters and hard-coded projections, and prove empty,
+    invalid, stale, and fully evidenced current fixtures. Keep the evaluator as internal design
+    modularity unless runtime-split evidence exists.
 
 ## Bank-Buyable Default Bar
 
