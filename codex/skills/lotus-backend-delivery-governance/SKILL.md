@@ -217,6 +217,21 @@ For RFC-driven business-application slices, extend that intake with:
     merely to validate a constraint. Derive adapter predicates from the domain policy where possible,
     add a deterministic contract gate against enforcement drift, and keep this as internal design
     modularity unless scaling, isolation, ownership, or operability evidence justifies a runtime split.
+21. When an API exposes `asOf`, `evaluatedAt`, effective-time, snapshot, cursor, page-token, or
+    continuation semantics, trace that contract through request DTO mapping, application command,
+    domain policy, repository port, every adapter, response metadata, OpenAPI, and operator docs.
+    Name the exact business field that governs visibility; do not silently substitute source
+    business date, evidence generation time, persistence time, or wall-clock time. For offset or
+    cursor traversal over mutable state, bind continuation identity to the effective time, entitled
+    scope, policy/version, and every state field that can affect ordering, inclusion, or counts.
+    Require the identity on later pages, fail stale identity with a stable product-safe conflict,
+    and ensure rows outside the as-of boundary neither appear nor invalidate the historical page.
+    Prove exact-boundary inclusion, future exclusion, backdated insert, lifecycle/score/suppression
+    mutation, malformed identity, and in-flight read races for process-local and durable adapters;
+    use a real database proof when SQL snapshot/fingerprint behavior is part of the claim. Prefer a
+    pure internal policy plus typed port fields and a deterministic cross-layer gate. Add a separate
+    pagination service only when workload, isolation, ownership, or operability evidence justifies
+    the runtime complexity.
 21. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
     correlation, trace, and causation as distinct typed concepts across the full request-to-publish
     path. Carry one validated context through request mapping, application use cases, ports,
