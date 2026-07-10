@@ -133,6 +133,10 @@ Prefer enforcement that blocks common agent failure modes:
 10. shared API dependencies whose governed `ProblemDetails` codes are collapsed by global exception
     handlers into one generic response; keep a generic fallback for unknown framework failures but
     statically guard typed product-safe boundary errors and verify runtime/OpenAPI parity.
+11. dead-letter implementations that provide terminal storage without governed recovery; require a
+    blocking contract gate for source-safe inspection fields, dedicated authorization and trusted
+    provenance, idempotent audit-plus-lease fencing, event/schema eligibility, preserved failure
+    history, bounded poison recovery, non-mutating replay/conflict, and durable restart evidence.
 
 When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
 that registry instead of copying service lists into each workflow helper or assertion. If a runtime
