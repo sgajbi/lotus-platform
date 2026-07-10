@@ -59,6 +59,32 @@ Run relevant gates before PR:
 7. `python scripts/api_vocabulary_inventory.py --validate-only` (if API touched)
 8. `python platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py` in `lotus-platform` (if synced)
 
+### Transaction economics integrity checklist
+
+For transaction types that combine product economics, cash settlement, cost basis, position
+movement, or realized P&L:
+
+1. Model each economic role explicitly; do not classify corporate-action proceeds, return of
+   capital, redemption proceeds, or transfer consideration as income merely because cash is
+   received.
+2. Keep the product/economic leg distinct from the actual cash-account settlement leg. Link them
+   through canonical event, group, and cash-transaction identifiers.
+3. Require source-owned basis allocation when realized P&L or basis transfer depends on it. Fail
+   closed when the RFC does not authorize a deterministic fallback.
+4. Reconcile local and base basis plus capital, FX, and total P&L components. Do not invent an FX
+   split for cross-currency economics without an approved policy and sufficient source evidence.
+5. Prove product-level synthetic flows balance at the governed scope and ensure the linked cash
+   settlement is not counted again as the same position or portfolio economic flow.
+6. Verify that position reducers apply quantity and basis exactly once across source, target,
+   product-marker, and cash-instrument legs.
+7. Scan sibling transaction types and serializers for the same pattern, including stale calculated
+   metadata, generic strategy reuse, generic income classification, and omitted reconciliation
+   components.
+8. Add pure domain-policy tests and a database-backed combined workflow test covering persistence,
+   linkage, idempotency/replay, reconciliation evidence, and atomic rollback.
+9. State unsupported sibling behavior explicitly. Do not broaden cash consideration semantics to
+   cash-in-lieu, fractional handling, or another corporate-action family without its own RFC proof.
+
 ### 5) PR loop
 
 1. Open PR with explicit slice summary and validation evidence.
@@ -83,6 +109,8 @@ Run relevant gates before PR:
 2. Never remove unrelated legacy behavior without explicit approval.
 3. If domain semantics are ambiguous, stop and record decision options in the RFC before implementation.
 4. Keep implementation and docs in same change cycle to avoid drift.
+5. Treat transaction classification, basis, cashflow level, P&L decomposition, and position effect
+   as one reconciled contract even when separate internal modules own their calculations.
 
 ## Evidence format
 
