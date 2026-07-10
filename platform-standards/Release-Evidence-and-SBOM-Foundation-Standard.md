@@ -1,11 +1,13 @@
-# Release Evidence and SBOM Foundation Standard
+# Release Evidence and Deployable Image Provenance Standard
 
 - Status: Active
 - Governing RFC: `rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
 
 ## Purpose
 
-Define the minimum releasability evidence that every newly scaffolded Lotus backend service must emit from the `Main Releasability Gate`.
+Define the minimum releasability evidence that every newly scaffolded Lotus backend service must
+emit from the `Main Releasability Gate`, and define the target deployable-image provenance posture
+that Lotus services should converge on before production promotion.
 
 This standard exists so newly created services inherit enterprise-grade release evidence by default, instead of adding SBOM and release-manifest behavior later as one-off repo fixes.
 
@@ -39,6 +41,9 @@ Minimum manifest fields:
 4. `workflow`
 5. `run_id`
 6. `dockerfile_path`
+7. `image_digest` when an image is pushed
+8. `image_tag` when an image is pushed
+9. `version` when a service version is declared
 
 ## Required Retained Artifacts
 
@@ -52,15 +57,49 @@ The `main-releasability-release-evidence` artifact must contain:
 1. `sbom.cdx.json`
 2. `release-evidence.json`
 
+## Deployable Image Provenance Target
+
+Every Lotus repository that builds or deploys a container image must converge on a deterministic
+image provenance chain. A repository may roll this out in stages, but gaps must be visible in its
+issue-discovery ledger, quality scorecard, release evidence, or follow-up backlog.
+
+The target control set is:
+
+1. the image is tagged with the Git commit SHA,
+2. OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI
+   pipeline/run ID,
+3. release images are built and pushed by CI only, not from developer workstations,
+4. the pushed image digest is captured in `release-evidence.json` or an equivalent release
+   manifest,
+5. an SBOM is generated for the image or runtime dependency set,
+6. vulnerability scanning passes or records an approved, time-bounded exception,
+7. the image is signed,
+8. a provenance attestation is generated,
+9. Kubernetes, Helm, or deployment manifests deploy by digest, not mutable tags,
+10. the `/version` or version/build metadata endpoint exposes the same commit, Git branch/ref,
+    repository, version, build time, pipeline/run ID, and image digest metadata,
+11. the same immutable image is promoted across environments; later environments do not rebuild
+    from source, and
+12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, build
+    logs, OCI labels, release manifests, or runtime version metadata.
+
+## Evaluation Conditions
+
+Use these checks when reviewing or promoting the control set:
+
+1. `docker image inspect`, registry metadata, or equivalent OCI proof shows the required labels.
+2. The CI run that pushed the image also retained the digest-bearing release manifest.
+3. SBOM, vulnerability scan, signature, and provenance attestation artifacts are linked to the same
+   commit SHA, CI run ID, and image digest.
+4. Deployment manifests reference the digest form, not a mutable tag.
+5. A `/version` or version/build metadata endpoint contract test compares runtime metadata with the
+   release manifest or image label source.
+6. Secret scanning covers Dockerfile `ARG`/`ENV`, image history, build logs, labels, release
+   manifests, and version metadata.
+
 ## Scope Boundary
 
-This is a foundation standard, not the final release-security posture.
-
-This slice does not yet require:
-
-1. signed provenance attestation,
-2. image signing,
-3. container vulnerability scanning,
-4. dependency-license policy enforcement.
-
-Those controls can layer on later, but newly scaffolded services must at minimum retain deterministic SBOM and release-manifest evidence.
+The dependency SBOM and release metadata manifest are the minimum retained evidence for newly
+scaffolded backend services. The deployable-image provenance target is the production hardening
+direction for all containerized Lotus services; existing repositories should adopt it through
+bounded issues and CI gates once the measured baseline is deterministic and low-noise.

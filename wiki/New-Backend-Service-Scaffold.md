@@ -71,7 +71,11 @@ together. Health/readiness/metadata endpoints remain `baseline_certified`.
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
 evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a
-release metadata manifest.
+release metadata manifest. The current deployable-image provenance target additionally covers Git
+SHA image tags, OCI labels for commit/ref/source/version/build/run metadata, CI-only image push,
+digest-bearing release manifests, SBOM, vulnerability scanning, signing, provenance attestation,
+digest-based deploys, `/version` metadata parity, same-image promotion, and build-secret leak
+checks.
 Generated repos also include a merged-PR dispatcher that starts Main Releasability on `main` after
 PR completion.
 The scaffolded auto-merge workflow requires `LOTUS_AUTOMERGE_TOKEN`; repositories without that

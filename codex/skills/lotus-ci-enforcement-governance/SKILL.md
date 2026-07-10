@@ -338,7 +338,8 @@ For Docker/image provenance gates, prefer a single deterministic validator that 
 deployable-image chain before promoting the gate:
 
 1. image tag includes the Git SHA,
-2. OCI labels include commit, repository URL, version, build time, and CI pipeline/run ID,
+2. OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI
+   pipeline/run ID,
 3. release images are built and pushed by CI only,
 4. image digest is captured in a release manifest,
 5. SBOM is generated,
@@ -346,10 +347,11 @@ deployable-image chain before promoting the gate:
 7. image is signed,
 8. provenance attestation is generated,
 9. Kubernetes, Helm, or deployment manifests deploy by digest,
-10. `/version` or version/build metadata endpoint exposes the same metadata,
+10. `/version` or version/build metadata endpoint exposes the same metadata, including the image
+    digest once the image is published,
 11. the same immutable image is promoted across environments, and
-12. build secrets do not leak through Dockerfile `ARG`/`ENV`, image history, logs, labels, or runtime
-    metadata.
+12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, logs,
+    labels, or runtime metadata.
 
 Keep these lens families review-only until they have enough stable signal for automation:
 
