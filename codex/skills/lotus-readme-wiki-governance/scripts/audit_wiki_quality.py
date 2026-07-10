@@ -80,6 +80,18 @@ def _first_nonblank_line(text: str) -> str:
     return ""
 
 
+def _prose_without_fenced_code(text: str) -> str:
+    prose_lines: list[str] = []
+    in_fence = False
+    for line in text.splitlines():
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            prose_lines.append(line)
+    return "\n".join(prose_lines)
+
+
 def _has_markdown_table(lines: list[str]) -> bool:
     for index, line in enumerate(lines[:-1]):
         if "|" not in line:
@@ -222,11 +234,12 @@ def audit_wiki(
         if h1_count != 1:
             failures.append(f"{page_name}: expected exactly one H1, found {h1_count}")
 
-        bare_urls = BARE_URL_PATTERN.findall(text)
+        prose = _prose_without_fenced_code(text)
+        bare_urls = BARE_URL_PATTERN.findall(prose)
         if bare_urls:
             failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
 
-        scratch_terms = sorted({match.group(0) for match in SCRATCH_PATTERN.finditer(text)})
+        scratch_terms = sorted({match.group(0) for match in SCRATCH_PATTERN.finditer(prose)})
         if scratch_terms:
             failures.append(
                 f"{page_name}: contains scratch-note terms: {', '.join(scratch_terms)}"
