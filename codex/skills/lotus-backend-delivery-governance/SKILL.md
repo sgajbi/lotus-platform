@@ -80,6 +80,14 @@ POSIX shell, or
 `$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
 in PowerShell, for the affected service.
 
+Before consolidating Python services into one deployable, inspect each distribution's wheel
+contents and declared top-level packages. Do not co-install distributions that expose overlapping
+namespaces such as `core`, `consumers`, or `repositories`: installation order can silently replace
+modules. Prefer one target distribution with durable shared libraries or a bounded transitional
+source closure; do not copy the repository's entire source tree to make imports pass. Prove the
+installed image imports the target entrypoint and expected modules, excludes unrelated services,
+and add a deterministic package/image contract test for the closure.
+
 When Compose declares a worker, manifest, migration, schema, or operator asset that the image
 must read, verify the complete image file closure: every Dockerfile `COPY`, every `.dockerignore`
 exception, and every imported helper script required by the entrypoint must be present in the
