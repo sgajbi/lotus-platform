@@ -213,8 +213,13 @@ For RFC-driven business-application slices, extend that intake with:
     concurrent requests, prove replay/conflict after repository or process restart, cap poison-event
     recovery, return rejected attempts to quarantine without automatic infinite retry, and keep
     payloads, aggregate/client/portfolio ids, and raw idempotency material out of responses and
-    telemetry. Improve this as an internal bounded module first; add a separately deployed recovery
-    service only when workload, failure-isolation, ownership, or operability evidence justifies it.
+    telemetry. Resolve opaque support references with an exact durable, indexed selector across the
+    states needed for truthful conflict reporting; never make older records unreachable through a
+    fixed-size recent-row scan or lock unrelated rows while searching. Execute the selector,
+    transition, migration/index, restart, and replay path against the real repository technology;
+    migration dry-runs and fake adapters are not sufficient database proof. Improve this as an
+    internal bounded module first; add a separately deployed recovery service only when workload,
+    failure-isolation, ownership, or operability evidence justifies it.
 20. When two or more domain fields jointly define one business state, do not validate or query them
     as independent flags. Define one exhaustive, versioned compatibility policy and apply it at
     construction, transitions, repository rehydration, writes, queue/readiness classification, API
