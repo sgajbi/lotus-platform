@@ -462,6 +462,20 @@ If the backend change affects governed front-office proof:
 
 ## Cross-App Rule
 
+During implementation or refactoring, do not leave an actionable defect, ownership gap, or deferred
+migration only in chat, a local note, or a commit message:
+
+1. duplicate-check open and closed GitHub issues using both the failure pattern and concrete
+   symbols, routes, tables, services, or contracts,
+2. update the existing issue when it owns the root cause; otherwise create one focused issue with
+   evidence, impact, owner boundary, acceptance criteria, evaluation conditions, and non-goals,
+3. when capability is misplaced across Lotus applications, create or reuse linked source- and
+   destination-repository issues that name the producer/consumer contract, compatibility window,
+   migration order, rollback, and cross-repo validation,
+4. keep speculative observations in the codebase review ledger until evidence makes them
+   actionable; do not create low-signal issues merely to increase issue count,
+5. record the duplicate-check result or issue links in the slice ledger or PR evidence.
+
 If the change affects a UI-facing workflow through `lotus-gateway`:
 
 1. validate the backend repo locally,
