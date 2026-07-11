@@ -328,6 +328,13 @@ For RFC-driven business-application slices, extend that intake with:
     successful probe with capacity certification, or observed resource utilization with an
     exercised saturation/load-shed threshold. Keep unsupported capacity, cost, scale, and runtime
     split claims blocked until representative measured evidence and operator-action proof exist.
+    Never accept caller-asserted `measured`, `production-like`, saturation, recovery, or
+    cost/resource booleans as certification evidence. Separate measured behavior from environment
+    qualification. For evidence that clears a production-like blocker, require cryptographic
+    artifact verification pinned to the governed repository, trusted producer workflow, protected
+    mainline ref, and exact source commit; keep local, branch-only, unsigned, or merely
+    schema-valid artifacts non-certifying. Gate the trusted workflow shape so schedule, runner,
+    protected environment, signer, source-ref, and secret-handling controls cannot silently drift.
 ## Bank-Buyable Default Bar
 
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
