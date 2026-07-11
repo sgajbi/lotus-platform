@@ -145,6 +145,26 @@ state plus `git log origin/main..<branch>` and `git diff origin/main..<branch>` 
 cherry-pick evidence. Do not delete a branch while unique code, proof, RFC, docs, wiki, context,
 contract, supported-feature, migration, or workflow truth remains only on that branch.
 
+## 2B. Defect And Ownership Tracking
+
+Do not leave actionable defects, architecture gaps, dead-code findings, or deferred migrations only
+in chat, local notes, or commit messages.
+
+For work not completed in the current slice:
+
+1. search open and closed GitHub issues by failure pattern and concrete code/API/data symbols;
+2. reuse the issue that owns the root cause, or file one focused evidence-backed issue;
+3. include impact, current evidence, expected owner, acceptance criteria, evaluation conditions,
+   non-goals, related work, and the trigger for rechecking the finding;
+4. for misplaced cross-application capability, link source- and destination-repository issues and
+   record the producer/consumer contract, compatibility window, migration order, rollback, and
+   cross-repo proof;
+5. keep speculative observations in the codebase review ledger until they are actionable.
+
+Issue creation is traceability, not progress by itself. Do not create duplicates or low-signal
+backlog volume, and do not count an issue as fixed until implementation, meaningful tests,
+contract/documentation truth, same-pattern review, and focused validation evidence are committed.
+
 ---
 
 # 3. Codex Safety Rules
