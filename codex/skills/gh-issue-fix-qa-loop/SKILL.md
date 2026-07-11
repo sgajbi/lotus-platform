@@ -43,6 +43,26 @@ QA is evidence layered over these lifecycle states, not another status-label fam
 reopens the issue and returns it to `status/in-progress`. A QA pass closes an issue only after
 `status/merged-main` exists and retains that terminal label.
 
+## Issue Intake Gate
+
+Before material implementation edits, every actionable defect, architecture gap, ownership move,
+or deferred migration must link to a canonical GitHub issue:
+
+1. Search open and closed issues using the failure pattern, root-cause terms, and concrete code,
+   API, event, table, or contract symbols.
+2. Reuse the issue that owns the root cause. Do not create one issue per commit or duplicate an
+   umbrella issue for cleanup already inside its acceptance criteria.
+3. If no issue owns the work, create one focused evidence-backed issue with impact, current
+   evidence, expected owner, acceptance criteria, evaluation conditions, non-goals, and related
+   work before starting material edits.
+4. Apply `status/in-progress` when implementation begins, and keep subsequent status changes and
+   validation evidence on that issue.
+5. Keep speculative observations in the repository review ledger until they are actionable.
+
+For urgent production containment, mitigate first only when waiting would increase harm. Capture
+or link the canonical issue before considering the implementation slice complete. Issue creation is
+traceability, not progress, and does not replace tests, documentation, or validation evidence.
+
 ## Workflow
 
 1. Start implementation:
