@@ -11,8 +11,8 @@ def test_cli_generates_atomic_source_safe_artifact(tmp_path: Path) -> None:
     source.write_text(
         json.dumps(
             {
-                "authority": "finops",
-                "exportType": "normalized",
+                "authority": "governed-finops-export",
+                "exportType": "normalized_service_billing_export",
                 "exportVersion": "v1",
                 "exportedAtUtc": "2026-07-11T01:00:00Z",
                 "billingPeriodStart": "2026-07-01",
