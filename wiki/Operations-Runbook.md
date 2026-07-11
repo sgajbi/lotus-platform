@@ -133,6 +133,18 @@ Operating states:
 - `attention_required`: warnings need review before customer evidence export or product promotion
 - `blocked`: errors or failed certification; owning repositories must fix forward
 
+## Service cost attribution
+
+Platform-owned service cost evidence uses a normalized aggregate billing export, deterministic
+decimal allocation, explicit residual handling, and exact artifact attestation. Application
+resource observations are supporting digests, not billing authority. Local generation remains
+uncertified; only the protected mainline workflow can produce evidence eligible for consumer
+qualification.
+
+Use [Service Cost Attribution Operations](../docs/operations/service-cost-attribution.md) for the
+evidence flow, protected environment, verification steps, and failure handling. The workflow must
+never upload raw billing rows, credentials, provider-account identifiers, or business identifiers.
+
 ## Key references
 
 - [automation/README.md](../automation/README.md)
