@@ -44,6 +44,7 @@ generated artifacts, or tests.
 
 - [Local Development Runbook](operations/Local%20Development%20Runbook.md)
 - [Lotus Repository Rename Runbook](operations/Lotus%20Repository%20Rename%20Runbook.md)
+- [Service Cost Attribution Operations](operations/service-cost-attribution.md)
 
 ## Demo
 

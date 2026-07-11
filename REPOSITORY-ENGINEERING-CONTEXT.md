@@ -102,6 +102,10 @@ Primary areas:
    declarations in `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
    `lotus-report`, and `lotus-manage`, plus the governed identifier and temporal semantics registry
    and trust metadata registry used by those declarations.
+   This area also owns the cross-service cost-attribution schema and decimal methodology.
+   Applications provide bounded resource-observation digests and consume verified evidence; they
+   do not own authoritative billing exports, shared-platform allocation, or official FinOps
+   reconciliation.
 4. `generated/`
    Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
    dependency graph derived from governed domain-data-product declarations.

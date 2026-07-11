@@ -79,7 +79,7 @@ Primary platform surfaces:
   templates and standards for backend repositories and workflow baselines
 - `platform-contracts/`
   machine-readable platform contract families such as API vocabulary and governed domain-data-product
-  declarations
+  declarations, plus platform-owned service cost-attribution and attestation contracts
 - `platform-stack/`
   shared local ingress and infrastructure orchestration
 - `codex/skills/`
