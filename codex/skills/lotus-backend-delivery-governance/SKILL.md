@@ -335,6 +335,15 @@ For RFC-driven business-application slices, extend that intake with:
     mainline ref, and exact source commit; keep local, branch-only, unsigned, or merely
     schema-valid artifacts non-certifying. Gate the trusted workflow shape so schedule, runner,
     protected environment, signer, source-ref, and secret-handling controls cannot silently drift.
+28. When a refactor moves contract, persistence, replay, migration, or proof ownership between
+    modules, update every machine-readable evidence reference and contract gate to the new stable
+    owner in the same commit. Treat proof references as executable dependency edges, not
+    documentation strings. Update complete test adapters and fake repository/database schemas for
+    every added, removed, or reordered persisted field; focused production-path tests are not proof
+    that fixture closures still match. Run the broadest repository-native typecheck and test lane
+    after the focused slice, and fix stale projections through explicit compatibility boundaries
+    rather than weakening production invariants or proof gates.
+
 ## Bank-Buyable Default Bar
 
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
