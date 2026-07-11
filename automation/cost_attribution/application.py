@@ -87,8 +87,7 @@ def build_service_cost_attribution(
         "sharedCostAllocation": {
             "method": "proportional_resource_weight",
             "methodologyVersion": METHODOLOGY_VERSION,
-            "numerator": str(request.shared_cost_numerator),
-            "denominator": str(request.shared_cost_denominator),
+            "weight": _decimal(weight),
             "rounding": "ROUND_HALF_EVEN",
             "residualHandling": "assign_to_shared_platform",
             "residualAmount": _money(residual),
@@ -127,3 +126,7 @@ def _reconciliation_blockers(export: BillingExport) -> list[str]:
 
 def _money(value: Decimal) -> str:
     return format(value.quantize(CENT, rounding=ROUND_HALF_EVEN), "f")
+
+
+def _decimal(value: Decimal) -> str:
+    return format(value, "f")

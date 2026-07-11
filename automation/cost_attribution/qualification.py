@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import hashlib
+import json
 from typing import Any
 
 from automation.cost_attribution.attestation import (
@@ -19,16 +21,22 @@ QUALIFICATION_SCHEMA_VERSION = (
 
 def qualify_service_cost_attribution(
     *,
-    artifact: dict[str, Any],
+    artifact_content: bytes,
     attestation: VerifiedCostAttributionAttestation,
     generated_at_utc: datetime,
     qualification_run_id: str,
 ) -> dict[str, Any]:
+    artifact = _load_artifact(artifact_content)
     _validate_artifact(artifact)
     if generated_at_utc.tzinfo is None or generated_at_utc.utcoffset() is None:
         raise ValueError("generated_at_utc must be timezone-aware")
     if not qualification_run_id.strip():
         raise ValueError("qualification_run_id must not be blank")
+    artifact_sha256 = hashlib.sha256(artifact_content).hexdigest()
+    if attestation.subject_sha256 != artifact_sha256:
+        raise ValueError(
+            "attestation subject digest does not match cost-attribution artifact"
+        )
     provenance = artifact["provenance"]
     if attestation.repository != TRUSTED_REPOSITORY:
         raise ValueError("cost-attribution attestation repository is not trusted")
@@ -66,6 +74,26 @@ def qualify_service_cost_attribution(
         "costAttributionCertified": True,
         "supportedFeaturePromoted": False,
     }
+
+
+def _load_artifact(content: bytes) -> dict[str, Any]:
+    def reject_duplicate_fields(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        payload: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in payload:
+                raise ValueError(f"duplicate cost-attribution artifact field: {key}")
+            payload[key] = value
+        return payload
+
+    try:
+        payload = json.loads(
+            content.decode("utf-8"), object_pairs_hook=reject_duplicate_fields
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("cost-attribution artifact must be valid UTF-8 JSON") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("cost-attribution artifact must be a JSON object")
+    return payload
 
 
 def _validate_artifact(artifact: dict[str, Any]) -> None:
