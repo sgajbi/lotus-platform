@@ -179,20 +179,11 @@ For RFC-driven business-application slices, extend that intake with:
     source-owned route metadata, response metadata, examples, or a governed deterministic example
     policy; add a recursive validation guard where practical; and update repo context/wiki when the
     gate behavior becomes part of the repository contract.
-16. When a GitHub issue exposes repeated concrete external-capability coupling in application code
-    such as direct database sessions, Kafka/EventHub producers, HTTP clients, object storage,
-    clocks, UUIDs, audit stores, idempotency stores, or unit-of-work commits, fix the pattern rather
-    than only the named call site. Define the narrow port and concrete adapter, preserve the
-    existing runtime behavior behind the adapter, add fake-port tests for the business contract and
-    failure semantics, add a deterministic guard when the invariant is statically checkable, and
-    update repo context or standards so the same coupling does not return in the next issue slice.
-    When the coupling is an external provider or peer-service adapter, add or refresh versioned
-    consumer-contract fixtures for every affected adapter rather than relying only on fake happy-path
-    tests. The fixture lane should cover valid provider response, malformed JSON or non-object
-    payloads, missing required fields, identity/as-of mismatch, partial data, auth failure, timeout,
-    retry or bounded non-retry posture, duplicate/idempotency behavior, provider error mapping, and
-    raw-payload/secret non-leakage. Wire the lane into the repo-native fast gate when deterministic,
-    and update repo context/wiki so future agents know the fixture source and command.
+16. When an issue exposes concrete external-capability coupling or uncertain processor/service
+    layer placement, load and apply
+    [Application And Adapter Classification](references/application-and-adapter-classification.md).
+    Fix the same pattern beyond the named call site, preserve runtime and transaction contracts,
+    and promote deterministic invariants into guards and repo context.
 17. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
     records, status history, or operator event history, do not encode identifiers or machine state
     only in human-readable messages. Define a versioned, support-safe typed payload contract; add
@@ -337,7 +328,6 @@ For RFC-driven business-application slices, extend that intake with:
     successful probe with capacity certification, or observed resource utilization with an
     exercised saturation/load-shed threshold. Keep unsupported capacity, cost, scale, and runtime
     split claims blocked until representative measured evidence and operator-action proof exist.
-
 ## Bank-Buyable Default Bar
 
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
