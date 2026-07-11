@@ -4,6 +4,7 @@ from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
+import re
 
 from automation.cost_attribution.domain import (
     BillingExport,
@@ -28,6 +29,11 @@ EXPORT_FIELDS = frozenset(
         "partialPeriod",
         "lateAdjustment",
     }
+)
+SOURCE_SAFE_AUTHORITY = "governed-finops-export"
+SOURCE_SAFE_EXPORT_TYPE = "normalized_service_billing_export"
+SOURCE_SAFE_EXPORT_VERSION = re.compile(
+    r"^(?:v[1-9][0-9]*|[0-9]{4}-(?:0[1-9]|1[0-2]))$"
 )
 
 
@@ -54,9 +60,9 @@ class JsonBillingExportAdapter:
                 "categoryCosts must contain every governed category exactly once"
             )
         return BillingExport(
-            authority=_required_text(payload, "authority"),
-            export_type=_required_text(payload, "exportType"),
-            export_version=_required_text(payload, "exportVersion"),
+            authority=_required_value(payload, "authority", SOURCE_SAFE_AUTHORITY),
+            export_type=_required_value(payload, "exportType", SOURCE_SAFE_EXPORT_TYPE),
+            export_version=_required_export_version(payload),
             export_digest_sha256=hashlib.sha256(raw).hexdigest(),
             exported_at_utc=datetime.fromisoformat(
                 _required_text(payload, "exportedAtUtc").replace("Z", "+00:00")
@@ -86,6 +92,20 @@ def _required_text(payload: dict[str, object], name: str) -> str:
     value = payload.get(name)
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{name} must be a non-blank string")
+    return value
+
+
+def _required_value(payload: dict[str, object], name: str, expected: str) -> str:
+    value = _required_text(payload, name)
+    if value != expected:
+        raise ValueError(f"{name} must use the governed source-safe value")
+    return value
+
+
+def _required_export_version(payload: dict[str, object]) -> str:
+    value = _required_text(payload, "exportVersion")
+    if not SOURCE_SAFE_EXPORT_VERSION.fullmatch(value):
+        raise ValueError("exportVersion must be a source-safe governed version")
     return value
 
 
