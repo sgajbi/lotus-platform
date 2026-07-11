@@ -15,6 +15,13 @@ WORKFLOW_GLOBS = (
 
 WRITE_SUFFIX = ": write"
 ALLOWLIST = {
+    ".github/workflows/service-cost-attribution-evidence.yml": {
+        "allow_pull_request_target": False,
+        "required_permissions": {
+            "attestations": "write",
+            "id-token": "write",
+        },
+    },
     "platform-standards/templates/workflows/merged-pr-main-releasability.template.yml": {
         "allow_pull_request_target": True,
         "required_permissions": {
@@ -24,7 +31,7 @@ ALLOWLIST = {
     "platform-standards/templates/workflows/pr-auto-merge.template.yml": {
         "allow_pull_request_target": True,
         "required_permissions": {},
-    }
+    },
 }
 
 
@@ -141,7 +148,10 @@ def _workflow_security_ok(
         not missing_permissions
         and not unexpected_pull_request_target
         and not unexpected_write_permissions
-        and (not allowlist_entry or write_permissions == allowlist_entry["required_permissions"])
+        and (
+            not allowlist_entry
+            or write_permissions == allowlist_entry["required_permissions"]
+        )
     )
 
 
