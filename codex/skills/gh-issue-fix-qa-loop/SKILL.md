@@ -36,6 +36,17 @@ or deferred migration must link to a canonical GitHub issue:
    validation evidence on that issue.
 5. Keep speculative observations in the repository review ledger until they are actionable.
 
+Before resuming a long-running or enumerated refactor plan, reconcile every planned outcome against
+the acceptance criteria of an open issue. A related title or umbrella issue is not sufficient when
+the planned implementation outcome is broader than its acceptance criteria. Record the resulting
+plan-to-issue map in the repository issue or review ledger, file any distinct uncovered outcome, and
+do not leave deferred actionable work only in chat or compacted context.
+
+When an active branch moves a capability between services, packages, routes, or persistence owners,
+refresh the owning issue with the current paths, owner, remaining acceptance gap, and recheck
+evidence. Reuse and update an issue that still owns the root cause; do not create a duplicate merely
+because the old evidence names a superseded path.
+
 For urgent production containment, mitigate first only when waiting would increase harm. Capture
 or link the canonical issue before considering the implementation slice complete. Issue creation is
 traceability, not progress, and does not replace tests, documentation, or validation evidence.
