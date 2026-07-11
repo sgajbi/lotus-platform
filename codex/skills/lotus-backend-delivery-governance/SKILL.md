@@ -186,6 +186,13 @@ For RFC-driven business-application slices, extend that intake with:
     existing runtime behavior behind the adapter, add fake-port tests for the business contract and
     failure semantics, add a deterministic guard when the invariant is statically checkable, and
     update repo context or standards so the same coupling does not return in the next issue slice.
+    When the coupling is an external provider or peer-service adapter, add or refresh versioned
+    consumer-contract fixtures for every affected adapter rather than relying only on fake happy-path
+    tests. The fixture lane should cover valid provider response, malformed JSON or non-object
+    payloads, missing required fields, identity/as-of mismatch, partial data, auth failure, timeout,
+    retry or bounded non-retry posture, duplicate/idempotency behavior, provider error mapping, and
+    raw-payload/secret non-leakage. Wire the lane into the repo-native fast gate when deterministic,
+    and update repo context/wiki so future agents know the fixture source and command.
 17. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
     records, status history, or operator event history, do not encode identifiers or machine state
     only in human-readable messages. Define a versioned, support-safe typed payload contract; add
