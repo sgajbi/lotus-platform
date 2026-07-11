@@ -15,6 +15,24 @@ Use this playbook for branch preparation, push cadence, GitHub monitoring, merge
 9. prove post-merge mainline releasability for the merge commit when the repo has that lane
 10. clean local and remote branch state after merge
 
+## Rebase Commit-Count Rule
+
+Before the first PR and during every long-running delivery program, run:
+
+```powershell
+git rev-list --count origin/main..HEAD
+```
+
+GitHub [limits server-side rebase merges to 100 commits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits#rebase-limits).
+For repositories that require linear history and use rebase merge, target 40-60 commits and split
+at a capability boundary by 90 commits at the latest so review and CI fix-forward work has
+headroom. Each tranche must be independently releasable and pass the repository's normal protected
+checks.
+
+If an existing PR is already over the limit, do not weaken branch protection, switch merge policy,
+or silently squash governed history. Split it into validated sub-100-commit tranches and retain
+issue closure on the final aggregate outcome.
+
 ## Stranded Governance Truth Rule
 
 For RFC, documentation, wiki, context, contract, API-governance, migration, CI, or
