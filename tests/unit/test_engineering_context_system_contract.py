@@ -706,13 +706,20 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
     assert any(entry["name"] == "gh-issue-fix-qa-loop" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
     assert "Unknown local skills must be preserved" in readme
 
-    for path in skills_root.rglob("*"):
-        if path.is_file():
-            text = path.read_text(encoding="utf-8")
-            assert "pbwm-platform-docs" not in text
-            assert "C:\\Users\\Sandeep" not in text
-            assert "C:/Users/Sandeep" not in text
-            assert "--squash --delete-branch" not in text
+    governed_text_suffixes = {".json", ".md", ".ps1", ".py", ".toml", ".yaml", ".yml"}
+    governed_text_paths = [
+        path
+        for path in skills_root.rglob("*")
+        if path.is_file() and path.suffix.lower() in governed_text_suffixes
+    ]
+    assert governed_text_paths
+    assert not any(path.suffix == ".pyc" for path in governed_text_paths)
+    for path in governed_text_paths:
+        text = path.read_text(encoding="utf-8")
+        assert "pbwm-platform-docs" not in text
+        assert "C:\\Users\\Sandeep" not in text
+        assert "C:/Users/Sandeep" not in text
+        assert "--squash --delete-branch" not in text
 
 
 def test_rfc_0074_slice_five_bootstrap_automation_is_governed_and_safe() -> None:
