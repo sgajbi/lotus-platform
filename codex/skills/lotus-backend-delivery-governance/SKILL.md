@@ -171,20 +171,25 @@ For RFC-driven business-application slices, extend that intake with:
     acceptance criteria. Do not open the PR while any actionable issue in the agreed batch lacks
     code, tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues
     open unless the ledger itself was the target.
-15. When a GitHub issue exposes repeated concrete external-capability coupling in application code
+15. When a backend slice touches OpenAPI or generated API vocabulary, scan generated contract
+    artifacts for placeholder-shaped examples such as `sample_text`, `sample_key`, `STANDARD_TEXT`,
+    `STANDARD_ITEM`, `ENTITY_001`, or `example_*`. Replace them with source-owned examples or a
+    governed deterministic example policy, add a recursive validation guard where practical, and
+    update repo context/wiki when the gate behavior becomes part of the repository contract.
+16. When a GitHub issue exposes repeated concrete external-capability coupling in application code
     such as direct database sessions, Kafka/EventHub producers, HTTP clients, object storage,
     clocks, UUIDs, audit stores, idempotency stores, or unit-of-work commits, fix the pattern rather
     than only the named call site. Define the narrow port and concrete adapter, preserve the
     existing runtime behavior behind the adapter, add fake-port tests for the business contract and
     failure semantics, add a deterministic guard when the invariant is statically checkable, and
     update repo context or standards so the same coupling does not return in the next issue slice.
-16. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
+17. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
     records, status history, or operator event history, do not encode identifiers or machine state
     only in human-readable messages. Define a versioned, support-safe typed payload contract; add
     schema/read compatibility for existing rows; ensure replay, regenerate, dedupe, and lineage
     logic consume typed fields rather than parsing text; and test accepted, failed, render/archive,
     retry/replay, batch-item, and legacy-read cases that match the touched event family.
-17. When a source adapter calls a tenant-aware downstream service, carry one resolved tenant from
+18. When a source adapter calls a tenant-aware downstream service, carry one resolved tenant from
     trusted caller context through the request DTO mapper, application command, port, and adapter.
     Reject missing, multiple, or inconsistent tenant context before runtime construction or network
     I/O; reject unknown request fields so a body cannot silently pose as scope input, and never use a
@@ -198,13 +203,13 @@ For RFC-driven business-application slices, extend that intake with:
     persistence and ingestion isolation plus no-tenant, ambiguous-tenant, untrusted-header, body
     override, and non-tenant-aware downstream paths. Add a cross-layer deterministic gate when the
     contract is statically enforceable.
-18. When a shared dependency can reject a request before route code runs, preserve its approved
+19. When a shared dependency can reject a request before route code runs, preserve its approved
     product-safe error code, title, status, media type, and remediation detail through the global
     exception handler. Use a typed boundary exception for governed failures and retain a generic
     safe fallback for unrelated framework errors. Test representative routes, correlation headers,
     observability category, and absence of raw header/token/scope values; add a deterministic gate
     when direct generic exceptions can be detected statically.
-19. Do not treat a dead-letter status or queue as a complete recovery control. Provide a bounded,
+20. Do not treat a dead-letter status or queue as a complete recovery control. Provide a bounded,
     operator-authorized, source-safe inspection projection and an explicit re-drive use case through
     API/command DTO, application service, domain policy, repository port, and durable adapter. Bind
     re-drive to trusted caller provenance, dedicated capability, idempotency key, bounded reason and
@@ -220,7 +225,7 @@ For RFC-driven business-application slices, extend that intake with:
     migration dry-runs and fake adapters are not sufficient database proof. Improve this as an
     internal bounded module first; add a separately deployed recovery service only when workload,
     failure-isolation, ownership, or operability evidence justifies it.
-20. When two or more domain fields jointly define one business state, do not validate or query them
+21. When two or more domain fields jointly define one business state, do not validate or query them
     as independent flags. Define one exhaustive, versioned compatibility policy and apply it at
     construction, transitions, repository rehydration, writes, queue/readiness classification, API
     conflict mapping, audit, and operation telemetry. Normalize terminal transitions to explicitly
@@ -230,7 +235,7 @@ For RFC-driven business-application slices, extend that intake with:
     merely to validate a constraint. Derive adapter predicates from the domain policy where possible,
     add a deterministic contract gate against enforcement drift, and keep this as internal design
     modularity unless scaling, isolation, ownership, or operability evidence justifies a runtime split.
-21. When an API exposes `asOf`, `evaluatedAt`, effective-time, snapshot, cursor, page-token, or
+22. When an API exposes `asOf`, `evaluatedAt`, effective-time, snapshot, cursor, page-token, or
     continuation semantics, trace that contract through request DTO mapping, application command,
     domain policy, repository port, every adapter, response metadata, OpenAPI, and operator docs.
     Name the exact business field that governs visibility; do not silently substitute source
@@ -245,7 +250,7 @@ For RFC-driven business-application slices, extend that intake with:
     pure internal policy plus typed port fields and a deterministic cross-layer gate. Add a separate
     pagination service only when workload, isolation, ownership, or operability evidence justifies
     the runtime complexity.
-22. When a use case consumes source-owned evidence, define a versioned temporal compatibility
+23. When a use case consumes source-owned evidence, define a versioned temporal compatibility
     contract for every domain family instead of relying only on timezone-aware fields. Validate
     request business date, every included source business/effective date, source generation time,
     evaluation time, and freshness as separate concepts before candidate/result persistence. Apply
@@ -257,7 +262,7 @@ For RFC-driven business-application slices, extend that intake with:
     Test exact-boundary success, any allowed effective window, mismatched date, future generation,
     stale/partial posture, multi-source conflict, correction identity, and no-persistence behavior.
     Add a deterministic all-family gate when coverage can be checked statically.
-23. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
+24. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
     correlation, trace, and causation as distinct typed concepts across the full request-to-publish
     path. Carry one validated context through request mapping, application use cases, ports,
     adapters, durable rows, and publishers; require correlation and trace for attributable work,
@@ -267,7 +272,7 @@ For RFC-driven business-application slices, extend that intake with:
     semantically, document consumer replay rules, and keep sensitive data out of lineage and event
     payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
     service only when workload, failure isolation, ownership, or operability evidence justifies it.
-24. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
+25. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
     derive promotion through one typed evaluator shared by the repository gate, runtime readiness,
     API projection, and generated artifact. Never count a status string independently. Validate the
     complete schema, required evidence, referenced paths/tests/contracts, authority boundaries,
