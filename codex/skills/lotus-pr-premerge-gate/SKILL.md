@@ -47,7 +47,17 @@ Before any PR, merge, or cleanup action:
    - `git fetch origin --prune`
 2. Confirm scope of change:
    - `git diff --name-only origin/main...HEAD`
-3. If scope is broad, split into smaller PRs before proceeding.
+3. Confirm commit count before the branch becomes expensive to split:
+   - `git rev-list --count origin/main..HEAD`
+4. Target 40-60 small, meaningful commits for a substantial governed program and split at a
+   capability boundary by 90 commits at the latest when the repository uses rebase merge. GitHub
+   [limits server-side rebase merges to 100 commits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits#rebase-limits).
+   The 90-commit threshold preserves room for review and CI fix-forward commits.
+5. If an existing rebase-only PR exceeds 100 commits, stop retrying the merge. Do not weaken branch
+   protection or silently squash the audit trail. Split it into independently releasable,
+   sub-100-commit tranches, validate each intermediate state, and keep issue closure on the final
+   aggregate outcome.
+6. If scope is broad, split into smaller PRs before proceeding.
 
 ### 1.0.1) Stranded truth check for governance-bearing PRs
 
