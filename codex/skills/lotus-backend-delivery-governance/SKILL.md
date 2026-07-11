@@ -325,6 +325,18 @@ For RFC-driven business-application slices, extend that intake with:
     jurisdiction policy, signed authority integration, cross-service retention conformance, and
     scheduled expiry/purge evidence are approved. Prefer an internal bounded module; add a runtime
     service only when workload, isolation, ownership, or operability evidence justifies it.
+27. When producing load, soak, capacity, saturation, or fault-injection evidence, use a versioned
+    aggregate evidence contract with closed scenario/outcome vocabulary and explicit environment,
+    commit, branch, run, duration, volume, and non-proof posture. Keep URLs, DSNs, credentials,
+    caller assertions, request/response bodies, and business identifiers transient inside narrow
+    probe adapters. Require explicit mutation confirmation and an additional production
+    confirmation for operator workflows. Count an expected fault as successful only when evidence
+    identifies the intended dependency/failure class; authorization, routing, malformed-request,
+    unrelated transport, and setup failures must remain failures. Record recovery as a separate
+    post-fault observation. Do not equate a synthetic/test run with production-like evidence, a
+    successful probe with capacity certification, or observed resource utilization with an
+    exercised saturation/load-shed threshold. Keep unsupported capacity, cost, scale, and runtime
+    split claims blocked until representative measured evidence and operator-action proof exist.
 
 ## Bank-Buyable Default Bar
 
