@@ -171,11 +171,14 @@ For RFC-driven business-application slices, extend that intake with:
     acceptance criteria. Do not open the PR while any actionable issue in the agreed batch lacks
     code, tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues
     open unless the ledger itself was the target.
-15. When a backend slice touches OpenAPI or generated API vocabulary, scan generated contract
-    artifacts for placeholder-shaped examples such as `sample_text`, `sample_key`, `STANDARD_TEXT`,
-    `STANDARD_ITEM`, `ENTITY_001`, or `example_*`. Replace them with source-owned examples or a
-    governed deterministic example policy, add a recursive validation guard where practical, and
-    update repo context/wiki when the gate behavior becomes part of the repository contract.
+15. When a backend slice touches OpenAPI or generated API vocabulary, do not let display
+    enrichment satisfy public contract-quality gates. Scan generated contract artifacts for
+    placeholder-shaped examples such as `sample_text`, `sample_key`, `STANDARD_TEXT`,
+    `STANDARD_ITEM`, `ENTITY_001`, or `example_*`, and for generated operation summaries,
+    generated descriptions, inferred tags, or generic default errors. Replace them with
+    source-owned route metadata, response metadata, examples, or a governed deterministic example
+    policy; add a recursive validation guard where practical; and update repo context/wiki when the
+    gate behavior becomes part of the repository contract.
 16. When a GitHub issue exposes repeated concrete external-capability coupling in application code
     such as direct database sessions, Kafka/EventHub producers, HTTP clients, object storage,
     clocks, UUIDs, audit stores, idempotency stores, or unit-of-work commits, fix the pattern rather
