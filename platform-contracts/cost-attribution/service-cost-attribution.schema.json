@@ -46,9 +46,9 @@
       "type": "object", "additionalProperties": false,
       "required": ["authority", "exportType", "exportVersion", "exportDigestSha256", "exportedAtUtc"],
       "properties": {
-        "authority": { "type": "string", "minLength": 1 },
-        "exportType": { "type": "string", "minLength": 1 },
-        "exportVersion": { "type": "string", "minLength": 1 },
+        "authority": { "const": "governed-finops-export" },
+        "exportType": { "const": "normalized_service_billing_export" },
+        "exportVersion": { "type": "string", "pattern": "^(?:v[1-9][0-9]*|[0-9]{4}-(?:0[1-9]|1[0-2]))$" },
         "exportDigestSha256": { "$ref": "#/$defs/sha256" },
         "exportedAtUtc": { "type": "string", "format": "date-time" }
       }
@@ -114,6 +114,46 @@
     "certificationBlockers": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "supportedFeaturePromoted": { "const": false }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "claimPosture": { "const": "reconciled_not_attested" } }, "required": ["claimPosture"] },
+      "then": {
+        "properties": {
+          "costAttributionReconciled": { "const": true },
+          "certificationBlockers": { "const": ["artifact_attestation_missing"] },
+          "reconciliation": {
+            "properties": {
+              "completenessStatus": { "const": "complete" },
+              "freshnessStatus": { "const": "current" },
+              "partialPeriod": { "const": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "claimPosture": { "const": "reconciliation_blocked" } }, "required": ["claimPosture"] },
+      "then": {
+        "properties": {
+          "costAttributionReconciled": { "const": false },
+          "certificationBlockers": {
+            "minItems": 2,
+            "contains": { "const": "artifact_attestation_missing" },
+            "allOf": [
+              { "contains": { "enum": ["billing_export_incomplete", "billing_export_stale", "partial_billing_period"] } }
+            ]
+          },
+          "reconciliation": {
+            "anyOf": [
+              { "properties": { "completenessStatus": { "enum": ["partial", "missing"] } } },
+              { "properties": { "freshnessStatus": { "const": "stale" } } },
+              { "properties": { "partialPeriod": { "const": true } } }
+            ]
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "money": { "type": "string", "pattern": "^-?(?:0|[1-9][0-9]*)\\.[0-9]{2}$" }

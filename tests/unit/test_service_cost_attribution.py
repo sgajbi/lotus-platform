@@ -163,6 +163,9 @@ def test_negative_credit_is_reconciled_with_decimal_arithmetic(tmp_path: Path) -
         ({"currency": "usd"}, "uppercase ISO 4217"),
         ({"partialPeriod": "false"}, "must be a boolean"),
         ({"accountId": "forbidden"}, "closed normalized envelope"),
+        ({"authority": "provider-account-123"}, "governed source-safe value"),
+        ({"exportType": "subscription-456"}, "governed source-safe value"),
+        ({"exportVersion": "account/2026-07"}, "source-safe governed version"),
     ],
 )
 def test_adapter_rejects_ambiguous_or_sensitive_export_shapes(
@@ -225,6 +228,18 @@ def test_schema_is_closed_and_preserves_uncertified_generation_posture() -> None
         "type": "string",
         "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$",
     }
+    assert schema["properties"]["billingSource"]["properties"]["authority"] == {
+        "const": "governed-finops-export"
+    }
+    assert len(schema["allOf"]) == 2
+    reconciled = schema["allOf"][0]["then"]["properties"]
+    assert reconciled["costAttributionReconciled"] == {"const": True}
+    assert reconciled["certificationBlockers"] == {
+        "const": ["artifact_attestation_missing"]
+    }
+    blocked = schema["allOf"][1]["then"]["properties"]
+    assert blocked["costAttributionReconciled"] == {"const": False}
+    assert blocked["certificationBlockers"]["minItems"] == 2
 
 
 def test_exponent_notation_inputs_emit_canonical_bounded_weight(tmp_path: Path) -> None:
