@@ -64,21 +64,22 @@ gh issue list --repo <owner/repo> --state open --limit 50
 - reproduce issue
 - implement fix
 - run unit/integration tests
-- after the fix is committed and focused validation passes, replace `status/in-progress` with `status/fixed-local`
+- after the fix is committed and focused validation passes, replace `status/in-progress` with `status/fixed-locally`
 
 3. Raise PR linked to issue:
 ```powershell
 gh pr create --repo <owner/repo> --fill
 ```
 - ensure PR body includes `Fixes #<issue>`
-- replace `status/fixed-local` with `status/pr-open`
+- replace `status/fixed-locally` with `status/pr-open`
 
 4. Merge PR after checks:
 ```powershell
 gh pr merge <number> --repo <owner/repo> --merge --delete-branch
 ```
 Use the repository's approved merge strategy. For Lotus work, do not squash unless the user or repository policy explicitly requests it.
-- after merge and main-branch validation, replace `status/pr-open` with `status/merged-main` before closing the issue
+- after merge and main-branch validation, replace `status/pr-open` with `status/merged-to-main` before closing the issue
+- if the PR has merged but main-branch validation is still running or has failed, keep the issue open and do not apply `status/merged-to-main`; use `status/in-progress` plus an issue comment with the main SHA and validation run link
 
 5. Update issue and request QA:
 ```powershell
@@ -107,7 +108,7 @@ powershell -ExecutionPolicy Bypass -File scripts\update-issue-loop.ps1 -Repo <ow
 - Keep loop state visible via labels and structured comments.
 - Treat labels as visibility, not closure proof. PR bodies still need `Fixes #<issue>` and issue comments still need validation evidence.
 - Move status labels as soon as the work state changes, especially during batch fixing. Do not wait for the final response.
-- Keep status labels mutually exclusive where possible. Remove stale `status/in-progress`, `status/fixed-local`, `status/pr-open`, `status/merged-main`, or `status/blocked` labels when applying the next state.
+- Keep status labels mutually exclusive where possible. Remove stale `status/in-progress`, `status/fixed-locally`, `status/pr-open`, `status/merged-to-main`, or `status/blocked` labels when applying the next state.
 
 ## GitHub Issue Status Labels
 
@@ -115,18 +116,18 @@ Ensure these repository labels exist before a batch issue-fix run. Create missin
 
 ```powershell
 gh label create status/in-progress --repo <owner/repo> --color fbca04 --description "Actively being worked in the current implementation slice"
-gh label create status/fixed-local --repo <owner/repo> --color 0e8a16 --description "Fix committed locally or on the working branch; not merged to main yet"
+gh label create status/fixed-locally --repo <owner/repo> --color 0e8a16 --description "Fix is committed locally or on a branch and awaiting PR merge"
 gh label create status/pr-open --repo <owner/repo> --color 1f6feb --description "Fix is included in an open pull request"
-gh label create status/merged-main --repo <owner/repo> --color 5319e7 --description "Fix has merged to main; issue may be closed after validation"
+gh label create status/merged-to-main --repo <owner/repo> --color 5319e7 --description "Fix has been merged to main; issue is ready to close or already closed"
 gh label create status/blocked --repo <owner/repo> --color d73a4a --description "Work is blocked by missing input, external dependency, or failed prerequisite"
 ```
 
 Use the labels this way:
 
 - `status/in-progress`: apply when active work starts on an issue or issue cluster.
-- `status/fixed-local`: apply only after the fix is committed to the working branch and focused validation has passed.
+- `status/fixed-locally`: apply only after the fix is committed to the working branch and focused validation has passed.
 - `status/pr-open`: apply when a PR containing the fix is open.
-- `status/merged-main`: apply after merge to `main` and post-merge validation evidence exists; then close the issue with PR, commit, and validation references.
+- `status/merged-to-main`: apply after merge to `main` and post-merge validation evidence exists; then close the issue with PR, commit, and validation references.
 - `status/blocked`: apply when the issue cannot progress because of missing input, failed prerequisite, unavailable dependency, or policy decision. Remove it when work resumes.
 
 Use [state-machine](references/state-machine.md) and [comment-templates](references/comment-templates.md) when updating issue status.
