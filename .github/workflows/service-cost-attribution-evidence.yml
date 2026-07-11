@@ -1,0 +1,113 @@
+name: Service Cost Attribution Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      service_repository:
+        description: "Consuming Lotus repository"
+        required: true
+        type: string
+      service_id:
+        description: "Stable service identifier"
+        required: true
+        type: string
+      environment_profile:
+        description: "Evidence environment"
+        required: true
+        type: choice
+        options: [production-like, production]
+      region:
+        description: "Deployment region"
+        required: true
+        type: string
+      resource_observation_schema_version:
+        description: "Resource observation schema"
+        required: true
+        type: string
+      resource_observation_sha256:
+        description: "Resource observation artifact SHA-256"
+        required: true
+        type: string
+      resource_observation_run_id:
+        description: "Resource observation run identifier"
+        required: true
+        type: string
+      shared_cost_numerator:
+        description: "Governed service resource weight numerator"
+        required: true
+        type: string
+      shared_cost_denominator:
+        description: "Governed shared resource weight denominator"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: service-cost-attribution-${{ github.ref }}-${{ inputs.service_id }}
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, lotus-finops-evidence]
+    environment: finops-production-evidence
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact platform source
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Generate source-safe attribution
+        shell: bash
+        env:
+          NORMALIZED_BILLING_EXPORT_PATH: ${{ secrets.LOTUS_FINOPS_NORMALIZED_EXPORT_PATH }}
+          SERVICE_REPOSITORY: ${{ inputs.service_repository }}
+          SERVICE_ID: ${{ inputs.service_id }}
+          ENVIRONMENT_PROFILE: ${{ inputs.environment_profile }}
+          SERVICE_REGION: ${{ inputs.region }}
+          RESOURCE_OBSERVATION_SCHEMA_VERSION: ${{ inputs.resource_observation_schema_version }}
+          RESOURCE_OBSERVATION_SHA256: ${{ inputs.resource_observation_sha256 }}
+          RESOURCE_OBSERVATION_RUN_ID: ${{ inputs.resource_observation_run_id }}
+          SHARED_COST_NUMERATOR: ${{ inputs.shared_cost_numerator }}
+          SHARED_COST_DENOMINATOR: ${{ inputs.shared_cost_denominator }}
+        run: |
+          test -n "${NORMALIZED_BILLING_EXPORT_PATH}"
+          test -f "${NORMALIZED_BILLING_EXPORT_PATH}"
+          mkdir -p output/cost-attribution
+          python -m automation.generate_service_cost_attribution \
+            --billing-export "${NORMALIZED_BILLING_EXPORT_PATH}" \
+            --output output/cost-attribution/service-cost-attribution.json \
+            --repository "${SERVICE_REPOSITORY}" \
+            --service-id "${SERVICE_ID}" \
+            --environment "${ENVIRONMENT_PROFILE}" \
+            --region "${SERVICE_REGION}" \
+            --source-commit-sha "${GITHUB_SHA}" \
+            --source-ref "${GITHUB_REF}" \
+            --pipeline-run-id "${GITHUB_RUN_ID}" \
+            --generated-at-utc "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            --resource-observation-schema-version "${RESOURCE_OBSERVATION_SCHEMA_VERSION}" \
+            --resource-observation-sha256 "${RESOURCE_OBSERVATION_SHA256}" \
+            --resource-observation-run-id "${RESOURCE_OBSERVATION_RUN_ID}" \
+            --shared-cost-numerator "${SHARED_COST_NUMERATOR}" \
+            --shared-cost-denominator "${SHARED_COST_DENOMINATOR}"
+
+      - name: Attest exact attribution artifact
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: output/cost-attribution/service-cost-attribution.json
+
+      - name: Upload source-safe evidence only
+        uses: actions/upload-artifact@v7
+        with:
+          name: service-cost-attribution-${{ github.run_id }}-${{ github.sha }}
+          path: output/cost-attribution/service-cost-attribution.json
+          if-no-files-found: error
+          retention-days: 90
