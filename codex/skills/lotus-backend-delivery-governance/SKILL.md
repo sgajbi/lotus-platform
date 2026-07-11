@@ -292,6 +292,24 @@ For RFC-driven business-application slices, extend that intake with:
     indexes, relationships, state invariants, and resume behavior against the real database. Use
     scheduled attested evidence where appropriate, but keep production certification blocked until
     approved provider topology and a real PITR/failover exercise exist.
+26. When a backend owns personal, advisory, audit, outbox, idempotency, AI-lineage, quarantine, or
+    downstream-reference records, treat retention, legal hold, erasure, and purge as one cross-path
+    lifecycle contract. Allow only versioned policy references mapped from named authorities;
+    caller-chosen non-blank policy text is not authority. Inventory every durable table with field
+    classification, purpose, residency, retention start/duration, hold behavior, redaction, and
+    purge posture. Keep legal/privacy approval, Report/Archive authority, and AI-provider deletion
+    outside the service while enforcing approved local decisions through API DTO, application use
+    case, domain policy, port, adapter, and database constraints. Fence ordinary writes and new
+    delivery claims with the same aggregate lock; exclude erased/purged records from every direct
+    lookup and product projection; pseudonymize prior audit identity and the terminal operation
+    itself; preserve enough immutable control authority to purge after payload scope is redacted.
+    Publish only bounded state/expiry/missing-control telemetry, with no tenant, client, portfolio,
+    case, or actor labels. Prove wrong-tenant, hold precedence, preview, dual approval,
+    replay/conflict, restart, atomic rollback, erasure/purge, orphan prevention, and concurrent
+    workflow/outbox races against the real repository technology. Keep certification blocked until
+    jurisdiction policy, signed authority integration, cross-service retention conformance, and
+    scheduled expiry/purge evidence are approved. Prefer an internal bounded module; add a runtime
+    service only when workload, isolation, ownership, or operability evidence justifies it.
 
 ## Bank-Buyable Default Bar
 
