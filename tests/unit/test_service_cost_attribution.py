@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from automation.cost_attribution.application import build_service_cost_attribution
-from automation.cost_attribution.domain import ServiceAllocationRequest
+from automation.cost_attribution.domain import COST_CATEGORIES, ServiceAllocationRequest
 from automation.cost_attribution.infrastructure import JsonBillingExportAdapter
 
 
@@ -88,6 +88,9 @@ def test_build_reconciles_rounding_residual_without_promoting_product_support(
     assert artifact["costAttributionReconciled"] is True
     assert artifact["costAttributionCertified"] is False
     assert artifact["certificationBlockers"] == ["artifact_attestation_missing"]
+    assert artifact["sharedCostAllocation"]["weight"] == (
+        "0.3333333333333333333333333333"
+    )
     assert artifact["supportedFeaturePromoted"] is False
     serialized = json.dumps(artifact)
     for forbidden in (
@@ -209,3 +212,29 @@ def test_schema_is_closed_and_preserves_uncertified_generation_posture() -> None
     assert schema["properties"]["supportedFeaturePromoted"] == {"const": False}
     assert schema["properties"]["allocations"]["minItems"] == 7
     assert schema["properties"]["allocations"]["maxItems"] == 7
+    category_constraints = schema["properties"]["allocations"]["allOf"]
+    assert {
+        constraint["contains"]["properties"]["category"]["const"]
+        for constraint in category_constraints
+    } == set(COST_CATEGORIES)
+    assert all(
+        constraint["minContains"] == constraint["maxContains"] == 1
+        for constraint in category_constraints
+    )
+    assert schema["properties"]["sharedCostAllocation"]["properties"]["weight"] == {
+        "type": "string",
+        "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$",
+    }
+
+
+def test_exponent_notation_inputs_emit_canonical_bounded_weight(tmp_path: Path) -> None:
+    artifact = build_service_cost_attribution(
+        billing_export_port=_adapter(tmp_path, _export_payload()),
+        request=_request(
+            shared_cost_numerator=Decimal("1E+3"),
+            shared_cost_denominator=Decimal("1E+4"),
+        ),
+        generated_at_utc=datetime(2026, 7, 11, 9, 0, tzinfo=UTC),
+    )
+
+    assert artifact["sharedCostAllocation"]["weight"] == "0.1"

@@ -64,6 +64,15 @@
     },
     "allocations": {
       "type": "array", "minItems": 7, "maxItems": 7,
+      "allOf": [
+        { "contains": { "properties": { "category": { "const": "compute" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "memory" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "database" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "network" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "storage" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "observability" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "category": { "const": "shared_platform" } }, "required": ["category"] }, "minContains": 1, "maxContains": 1 }
+      ],
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["category", "amount"],
@@ -75,12 +84,11 @@
     },
     "sharedCostAllocation": {
       "type": "object", "additionalProperties": false,
-      "required": ["method", "methodologyVersion", "numerator", "denominator", "rounding", "residualHandling", "residualAmount"],
+      "required": ["method", "methodologyVersion", "weight", "rounding", "residualHandling", "residualAmount"],
       "properties": {
         "method": { "const": "proportional_resource_weight" },
         "methodologyVersion": { "const": "lotus-platform.proportional-resource-cost-allocation.v1" },
-        "numerator": { "type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$" },
-        "denominator": { "type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$" },
+        "weight": { "type": "string", "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$" },
         "rounding": { "const": "ROUND_HALF_EVEN" },
         "residualHandling": { "const": "assign_to_shared_platform" },
         "residualAmount": { "$ref": "#/$defs/money" }

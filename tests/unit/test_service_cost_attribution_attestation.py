@@ -82,10 +82,17 @@ def _attestation(**overrides: str) -> VerifiedCostAttributionAttestation:
     return VerifiedCostAttributionAttestation(**values)
 
 
+def _artifact_content() -> bytes:
+    return (json.dumps(_artifact(), indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
 def test_qualification_binds_service_resource_and_exact_attestation() -> None:
+    artifact_content = _artifact_content()
     qualification = qualify_service_cost_attribution(
-        artifact=_artifact(),
-        attestation=_attestation(),
+        artifact_content=artifact_content,
+        attestation=_attestation(
+            subject_sha256=hashlib.sha256(artifact_content).hexdigest()
+        ),
         generated_at_utc=datetime(2026, 7, 11, 2, tzinfo=UTC),
         qualification_run_id="qual-1",
     )
@@ -107,10 +114,30 @@ def test_qualification_binds_service_resource_and_exact_attestation() -> None:
 def test_qualification_rejects_attestation_mismatch(
     overrides: dict[str, str], message: str
 ) -> None:
+    artifact_content = _artifact_content()
+    attestation = _attestation(
+        subject_sha256=hashlib.sha256(artifact_content).hexdigest(),
+        **overrides,
+    )
     with pytest.raises(ValueError, match=message):
         qualify_service_cost_attribution(
-            artifact=_artifact(),
-            attestation=_attestation(**overrides),
+            artifact_content=artifact_content,
+            attestation=attestation,
+            generated_at_utc=datetime(2026, 7, 11, 2, tzinfo=UTC),
+            qualification_run_id="qual-1",
+        )
+
+
+def test_qualification_rejects_artifact_other_than_attested_subject() -> None:
+    artifact_content = _artifact_content()
+    tampered = artifact_content.replace(b'"currency": "USD"', b'"currency": "EUR"')
+
+    with pytest.raises(ValueError, match="subject digest"):
+        qualify_service_cost_attribution(
+            artifact_content=tampered,
+            attestation=_attestation(
+                subject_sha256=hashlib.sha256(artifact_content).hexdigest()
+            ),
             generated_at_utc=datetime(2026, 7, 11, 2, tzinfo=UTC),
             qualification_run_id="qual-1",
         )
