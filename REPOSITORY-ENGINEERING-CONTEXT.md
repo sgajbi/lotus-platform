@@ -233,6 +233,11 @@ Boundary rules:
 30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and
     branch-hygiene readiness updates. The durable skills decision is to tighten
     `context/LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new dedicated mesh skill.
+31. `platform-contracts/lifecycle-authority/` owns the cross-repository signed-decision and key
+    discovery interface for bank lifecycle authority integrations. Platform governs schemas and
+    producer certification evidence but cannot issue legal, records, privacy, erasure, or purge
+    decisions. `automation/validate_lifecycle_authority_contracts.py` blocks semantic drift and
+    evidence-free production promotion.
 31. RFC-0092 is implemented. `automation/generate_enterprise_mesh_operating_report.py` builds the
     production mesh operating report from current enterprise certification status and optional
     certification-history records. `automation/mesh_certification_gate.py` writes

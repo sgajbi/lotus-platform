@@ -42,6 +42,20 @@ For the mesh platform, this now includes:
 - mesh SLO policies under `platform-contracts/mesh-slo/`
 - mesh access policies under `platform-contracts/mesh-access/`
 - mesh evidence-pack policies under `platform-contracts/mesh-evidence/`
+- signed lifecycle decision, key discovery, and producer certification contracts under
+  `platform-contracts/lifecycle-authority/`
+
+Lifecycle authority remains outside the Lotus product boundary:
+
+| Concern | Authority |
+| --- | --- |
+| Legal hold and release approval | Bank legal and records governance |
+| Erasure and purge approval | Bank privacy governance |
+| Contract schemas and certification criteria | `lotus-platform` |
+| Scope, signature, key, expiry, and replay enforcement | Consuming Lotus application |
+
+This is an internal contract boundary, not a platform runtime service. A separate authority adapter
+requires evidence for bank ownership, independent scaling, failure isolation, and operability.
 
 ### `generated/`
 
