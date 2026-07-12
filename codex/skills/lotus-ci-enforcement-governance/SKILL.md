@@ -142,6 +142,14 @@ Prefer enforcement that blocks common agent failure modes:
     construction, rehydration, transition/mutation guards, durable constraints, queue/readiness
     quarantine, stable API errors, source-safe telemetry, legacy reconciliation, exhaustive pair
     tests, and repeated-action behavior.
+13. executable files named after RFCs, slices, issues, PRs, or temporary delivery phases instead of
+    the capability or invariant they implement; exempt only true governance/tracking artifacts.
+14. feature-package migrations that leave both old flat modules and new package paths active,
+    strand tests in unrelated directories, or rely on fixed `Path.parents[n]` depth after moving
+    tests; protect proven canonical paths and reject obsolete paths.
+15. source-backed proof gates coupled to comments or incidental implementation literals; after a
+    refactor, require stable symbol/interface or behavioral evidence plus tamper and missing-source
+    tests rather than weakening the proof.
 
 When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
 that registry instead of copying service lists into each workflow helper or assertion. If a runtime
