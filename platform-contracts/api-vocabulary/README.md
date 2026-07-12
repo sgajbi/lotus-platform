@@ -19,7 +19,7 @@ For each application inventory:
 
 - File: `lotus-core-api-vocabulary.v1.json`
 - Source: `lotus-core` OpenAPI contracts (`query_service` and `ingestion_service`)
-- Generator: `lotus-core/scripts/api_vocabulary_inventory.py`
+- Generator: `lotus-core/scripts/quality/api_vocabulary_inventory.py`
 
 ## lotus-risk Inventory
 

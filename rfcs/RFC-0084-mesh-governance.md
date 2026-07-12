@@ -195,8 +195,8 @@ Evidence:
 
 1. `C:/Users/Sandeep/projects/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_products.py`
 2. `C:/Users/Sandeep/projects/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_security.py`
-3. `C:/Users/Sandeep/projects/lotus-core/scripts/source_data_product_contract_guard.py`
-4. `C:/Users/Sandeep/projects/lotus-core/scripts/analytics_input_consumer_contract_guard.py`
+3. `C:/Users/Sandeep/projects/lotus-core/scripts/quality/source_data_product_contract_guard.py`
+4. `C:/Users/Sandeep/projects/lotus-core/scripts/quality/analytics_input_consumer_contract_guard.py`
 5. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
 6. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-downstream-endpoint-consumer-and-test-coverage-audit.md`
 
@@ -634,8 +634,8 @@ Reviewed evidence includes:
 10. `lotus-platform/automation/validate_platform_validation_coverage.py`
 11. `lotus-core/src/libs/portfolio-common/portfolio_common/source_data_products.py`
 12. `lotus-core/src/libs/portfolio-common/portfolio_common/source_data_security.py`
-13. `lotus-core/scripts/source_data_product_contract_guard.py`
-14. `lotus-core/scripts/analytics_input_consumer_contract_guard.py`
+13. `lotus-core/scripts/quality/source_data_product_contract_guard.py`
+14. `lotus-core/scripts/quality/analytics_input_consumer_contract_guard.py`
 15. `lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
 16. `lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
 17. `lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
