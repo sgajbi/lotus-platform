@@ -119,6 +119,22 @@ For cross-domain governed data products:
 11. producer and consumer declarations should stay explicit, version-aware, registry-backed, and
    validator-backed.
 
+## Lifecycle Authority Interoperability
+
+For signed legal-hold and privacy lifecycle decisions:
+
+1. bank legal and records governance owns hold and release approval,
+2. bank privacy governance owns erasure and purge approval,
+3. a bank-controlled integration issues signed decisions and publishes managed trust keys,
+4. Lotus consumers verify signature, audience, tenant and subject scope, validity, key posture,
+   replay nonce, and durable single-use enforcement,
+5. `platform-contracts/lifecycle-authority/` governs interoperability schemas and producer
+   certification evidence without becoming a runtime decision authority,
+6. `automation/validate_lifecycle_authority_contracts.py` enforces semantic mappings, source-safe
+   evidence, key lifecycle posture, and fail-closed non-certification,
+7. create a separately deployable authority adapter only when bank ownership, workload,
+   failure-isolation, and operability evidence justify that runtime boundary.
+
 ## Domain Vocabulary Governance
 
 For analytics period naming:

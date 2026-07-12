@@ -50,6 +50,17 @@ Important machine-readable platform contract families now include:
 3. `../platform-contracts/domain-data-products/`
 4. `../generated/domain-product-catalog.json`
 5. `../generated/domain-product-dependency-graph.json`
+6. `../platform-contracts/lifecycle-authority/`
+
+For bank lifecycle-authority interoperability, use:
+
+1. [Lifecycle Authority Interoperability](../platform-contracts/lifecycle-authority/README.md)
+2. [Signed Decision Schema](../platform-contracts/lifecycle-authority/lifecycle-authority-decision.schema.json)
+3. [Key Discovery Schema](../platform-contracts/lifecycle-authority/lifecycle-authority-key-discovery.schema.json)
+4. [Producer Certification Posture](../platform-contracts/lifecycle-authority/producer-certification.v1.json)
+
+These artifacts govern interfaces and certification only. Bank legal, records, and privacy
+functions retain substantive decision authority.
 
 For governed analytics period naming, use:
 
