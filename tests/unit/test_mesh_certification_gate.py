@@ -198,6 +198,52 @@ def _write_required_snapshots(
     return telemetry_paths
 
 
+def test_default_telemetry_selection_prefers_runtime_per_product(
+    tmp_path: Path, monkeypatch
+) -> None:
+    gate = _load_gate_module()
+    runtime_dir = tmp_path / "runtime"
+    fixture_dir = tmp_path / "fixtures"
+    runtime_dir.mkdir()
+    fixture_dir.mkdir()
+    runtime = _snapshot("lotus-advise:AdvisoryProposalLifecycleRecord:v1")
+    runtime["evidence"]["source"] = "runtime"
+    fixture = _snapshot("lotus-advise:AdvisoryProposalLifecycleRecord:v1")
+    other_fixture = _snapshot("lotus-risk:RiskMetricsReport:v1")
+    (runtime_dir / "advise.json").write_text(json.dumps(runtime), encoding="utf-8")
+    (fixture_dir / "advise.json").write_text(json.dumps(fixture), encoding="utf-8")
+    (fixture_dir / "risk.json").write_text(json.dumps(other_fixture), encoding="utf-8")
+    monkeypatch.setattr(gate, "DEFAULT_RUNTIME_TELEMETRY_DIRECTORIES", [runtime_dir])
+    monkeypatch.setattr(gate, "DEFAULT_TELEMETRY_DIRECTORIES", [fixture_dir])
+
+    selected = gate._iter_default_telemetry_paths([])
+
+    assert set(selected) == {runtime_dir / "advise.json", fixture_dir / "risk.json"}
+    assert fixture_dir / "advise.json" not in selected
+
+
+def test_default_telemetry_selection_does_not_hide_invalid_runtime(
+    tmp_path: Path, monkeypatch
+) -> None:
+    gate = _load_gate_module()
+    runtime_dir = tmp_path / "runtime"
+    fixture_dir = tmp_path / "fixtures"
+    runtime_dir.mkdir()
+    fixture_dir.mkdir()
+    (runtime_dir / "invalid.json").write_text("{not-json", encoding="utf-8")
+    fixture = _snapshot("lotus-advise:AdvisoryProposalLifecycleRecord:v1")
+    (fixture_dir / "advise.json").write_text(json.dumps(fixture), encoding="utf-8")
+    monkeypatch.setattr(gate, "DEFAULT_RUNTIME_TELEMETRY_DIRECTORIES", [runtime_dir])
+    monkeypatch.setattr(gate, "DEFAULT_TELEMETRY_DIRECTORIES", [fixture_dir])
+
+    selected = gate._iter_default_telemetry_paths([])
+    _, _, issues = gate._load_telemetry_payloads(selected)
+
+    assert runtime_dir / "invalid.json" in selected
+    assert fixture_dir / "advise.json" in selected
+    assert [issue.code for issue in issues] == ["invalid_telemetry"]
+
+
 def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> None:
     gate = _load_gate_module()
     telemetry_paths = _write_required_snapshots(tmp_path)

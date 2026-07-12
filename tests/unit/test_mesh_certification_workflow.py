@@ -120,6 +120,13 @@ def test_mesh_certification_workflow_calls_existing_blocking_gate_only() -> None
     assert "python automation/mesh_certification_gate.py" in gate_step["run"]
     assert "--mode blocking" in gate_step["run"]
     assert "--require-sibling-repos" in gate_step["run"]
+    advise_certification = _step_by_name(
+        workflow, "Certify lotus-advise runtime trust telemetry"
+    )
+    assert advise_certification["working-directory"] == "lotus-advise"
+    assert "trust_telemetry_freshness.py certify" in advise_certification["run"]
+    assert "git rev-parse HEAD" in advise_certification["run"]
+    assert "github.run_id" in advise_certification["run"]
     assert "missing_telemetry" not in workflow_text
     assert "gateway_publication_drift" not in workflow_text
     assert "workbench_consumption_drift" not in workflow_text
