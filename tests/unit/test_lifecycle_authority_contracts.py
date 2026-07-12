@@ -64,6 +64,7 @@ def test_published_schema_rejects_invalid_audience_and_public_key(
     decision_path.write_text(json.dumps(decision), encoding="utf-8")
     keys = _load("lifecycle-authority-key-discovery.valid.json")
     keys["keys"][0]["public_key_base64url"] = "padded=value"
+    keys["keys"][0]["not_after_utc"] = "2026-07-12T14:05:00+08:00"
     key_path = tmp_path / "keys.json"
     key_path.write_text(json.dumps(keys), encoding="utf-8")
 
@@ -80,6 +81,9 @@ def test_published_schema_rejects_invalid_audience_and_public_key(
     assert any(
         "public_key_base64url" in error and "does not match" in error
         for error in errors
+    )
+    assert any(
+        "not_after_utc" in error and "does not match" in error for error in errors
     )
 
 

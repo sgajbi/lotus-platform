@@ -123,6 +123,8 @@ def test_mesh_certification_workflow_calls_existing_blocking_gate_only() -> None
     advise_certification = _step_by_name(
         workflow, "Certify lotus-advise runtime trust telemetry"
     )
+    assert advise_certification["id"] == "advise_certification"
+    assert advise_certification["continue-on-error"] is True
     assert advise_certification["working-directory"] == "lotus-advise"
     assert "trust_telemetry_freshness.py certify" in advise_certification["run"]
     assert "git rev-parse HEAD" in advise_certification["run"]
@@ -169,5 +171,8 @@ def test_mesh_certification_workflow_uploads_artifacts_and_fails_after_summary()
     assert "| lotus-report | $LOTUS_REPORT_REF |" in summary_step["run"]
     assert "| lotus-manage | $LOTUS_MANAGE_REF |" in summary_step["run"]
 
-    assert fail_step["if"] == "steps.mesh_gate.outcome == 'failure'"
+    assert fail_step["if"] == (
+        "steps.mesh_gate.outcome == 'failure' || "
+        "steps.advise_certification.outcome == 'failure'"
+    )
     assert fail_step["run"] == "exit 1"
