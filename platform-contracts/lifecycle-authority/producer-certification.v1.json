@@ -1,0 +1,29 @@
+{
+  "contract_id": "lotus-platform:lifecycle-authority-producer-certification:v1",
+  "owner": "lotus-platform",
+  "producer_owner": "bank-controlled-authority-integration",
+  "consumer": "lotus-idea",
+  "certification_status": "not_certified",
+  "supported_feature_promoted": false,
+  "production_authority_verified": false,
+  "required_controls": {
+    "bank_legal_and_records_approval": false,
+    "bank_privacy_approval": false,
+    "managed_key_generation_storage_and_rotation": false,
+    "revocation_and_rotated_key_overlap_proof": false,
+    "https_key_discovery_without_redirects": false,
+    "decision_signature_interoperability_proof": false,
+    "consumer_replay_and_restart_proof": false,
+    "production_observability_and_runbook_proof": false,
+    "mainline_ci_evidence": false
+  },
+  "authority_boundary": {
+    "platform_may_issue_substantive_decisions": false,
+    "consumer_may_self_authorize_decisions": false,
+    "fixtures_are_production_authority_evidence": false
+  },
+  "evidence_policy": {
+    "source_safe_aggregate_only": true,
+    "forbidden_fields": ["client_id", "portfolio_id", "legal_narrative", "raw_document", "prompt", "model_output"]
+  }
+}

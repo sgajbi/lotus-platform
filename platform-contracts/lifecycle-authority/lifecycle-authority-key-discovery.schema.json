@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.lotus.example/lifecycle-authority/lifecycle-authority-key-discovery.schema.json",
+  "title": "Lifecycle authority key discovery",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "issuer", "keys"],
+  "properties": {
+    "schema_version": {"const": "lotus.lifecycle-authority-keys.v1"},
+    "issuer": {"const": "bank-lifecycle-governance"},
+    "keys": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key_id", "algorithm", "curve", "public_key_base64url", "rotation_epoch", "status", "not_before_utc", "not_after_utc"],
+        "properties": {
+          "key_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{2,255}$"},
+          "algorithm": {"const": "EdDSA"},
+          "curve": {"const": "Ed25519"},
+          "public_key_base64url": {"type": "string", "pattern": "^[A-Za-z0-9_-]+$"},
+          "rotation_epoch": {"type": "integer", "minimum": 1},
+          "status": {"enum": ["active", "rotated", "revoked"]},
+          "not_before_utc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+          "not_after_utc": {"type": ["string", "null"], "format": "date-time"}
+        }
+      }
+    }
+  }
+}
