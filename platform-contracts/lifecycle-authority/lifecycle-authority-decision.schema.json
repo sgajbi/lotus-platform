@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.lotus.example/lifecycle-authority/lifecycle-authority-decision.schema.json",
+  "title": "Lifecycle authority decision envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["claims", "signature", "key_discovery_path"],
+  "properties": {
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "issuer", "audience", "decision_id", "replay_nonce", "tenant_id", "candidate_id", "action", "authority_domain", "authority_ref", "change_reference", "decision_status", "issued_at_utc", "effective_at_utc", "expires_at_utc"],
+      "properties": {
+        "schema_version": {"const": "lotus.lifecycle-authority-decision.v1"},
+        "issuer": {"const": "bank-lifecycle-governance"},
+        "audience": {"type": "string", "pattern": "^lotus-[a-z][a-z0-9-]+$"},
+        "decision_id": {"$ref": "#/$defs/reference"},
+        "replay_nonce": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "tenant_id": {"$ref": "#/$defs/reference"},
+        "candidate_id": {"$ref": "#/$defs/reference"},
+        "action": {"enum": ["apply_hold", "release_hold", "erase", "purge"]},
+        "authority_domain": {"enum": ["legal_and_records", "privacy"]},
+        "authority_ref": {"$ref": "#/$defs/reference"},
+        "change_reference": {"$ref": "#/$defs/reference"},
+        "decision_status": {"const": "approved"},
+        "issued_at_utc": {"$ref": "#/$defs/utcTimestamp"},
+        "effective_at_utc": {"$ref": "#/$defs/utcTimestamp"},
+        "expires_at_utc": {"$ref": "#/$defs/utcTimestamp"}
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "key_id", "rotation_epoch", "signature_base64url"],
+      "properties": {
+        "algorithm": {"const": "EdDSA"},
+        "key_id": {"$ref": "#/$defs/reference"},
+        "rotation_epoch": {"type": "integer", "minimum": 1},
+        "signature_base64url": {"type": "string", "pattern": "^[A-Za-z0-9_-]+$"}
+      }
+    },
+    "key_discovery_path": {"const": "/.well-known/lotus-lifecycle-authority-keys"}
+  },
+  "$defs": {
+    "reference": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{2,255}$"},
+    "utcTimestamp": {"type": "string", "format": "date-time", "pattern": "Z$"}
+  }
+}
