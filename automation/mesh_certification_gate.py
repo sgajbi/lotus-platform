@@ -36,6 +36,7 @@ from generate_enterprise_mesh_operating_report import (
 )
 from mesh_maturity_scope import (
     REQUIRED_PRODUCTS,
+    default_runtime_telemetry_directories,
     default_static_telemetry_directories,
 )
 
@@ -52,6 +53,7 @@ DEFAULT_OUTPUT_DIRECTORY = ROOT / "output" / "mesh-certification"
 DEFAULT_GATEWAY_ROOT = ROOT.parent / "lotus-gateway"
 DEFAULT_WORKBENCH_ROOT = ROOT.parent / "lotus-workbench"
 DEFAULT_TELEMETRY_DIRECTORIES = default_static_telemetry_directories()
+DEFAULT_RUNTIME_TELEMETRY_DIRECTORIES = default_runtime_telemetry_directories()
 MESH_CERTIFICATION_STATUS_FILENAME = "mesh-certification-status.json"
 MESH_CERTIFICATION_MARKDOWN_FILENAME = "mesh-certification-status.md"
 MESH_CERTIFICATION_ISSUES_FILENAME = "mesh-certification-issues.json"
@@ -172,11 +174,33 @@ def _iter_default_telemetry_paths(telemetry_paths: list[Path]) -> list[Path]:
             discovered.extend(_iter_telemetry_paths(path))
         return sorted(set(discovered))
 
-    discovered = []
+    runtime_paths: list[Path] = []
+    runtime_product_ids: set[str] = set()
+    for directory in DEFAULT_RUNTIME_TELEMETRY_DIRECTORIES:
+        if not directory.exists():
+            continue
+        for path in _iter_telemetry_paths(directory):
+            runtime_paths.append(path)
+            try:
+                product_id = _load_json(path).get("product_id")
+            except (json.JSONDecodeError, OSError):
+                continue
+            if isinstance(product_id, str) and product_id:
+                runtime_product_ids.add(product_id)
+
+    fixture_paths: list[Path] = []
     for directory in DEFAULT_TELEMETRY_DIRECTORIES:
-        if directory.exists():
-            discovered.extend(_iter_telemetry_paths(directory))
-    return sorted(set(discovered))
+        if not directory.exists():
+            continue
+        for path in _iter_telemetry_paths(directory):
+            try:
+                product_id = _load_json(path).get("product_id")
+            except (json.JSONDecodeError, OSError):
+                fixture_paths.append(path)
+                continue
+            if product_id not in runtime_product_ids:
+                fixture_paths.append(path)
+    return sorted(set([*runtime_paths, *fixture_paths]))
 
 
 def _load_telemetry_payloads(

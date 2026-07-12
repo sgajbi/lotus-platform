@@ -143,6 +143,15 @@ jobs:
         run: |
           echo "generated_at_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
+      - name: Certify lotus-advise runtime trust telemetry
+        shell: bash
+        working-directory: lotus-advise
+        run: |
+          python scripts/trust_telemetry_freshness.py certify \
+            --reference-time-utc "${{ steps.timestamp.outputs.generated_at_utc }}" \
+            --repository-commit-sha "$(git rev-parse HEAD)" \
+            --validation-run-id "github-${{ github.run_id }}-${{ github.run_attempt }}"
+
       - name: Run blocking mesh certification
         id: mesh_gate
         continue-on-error: true
