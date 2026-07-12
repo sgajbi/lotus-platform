@@ -69,6 +69,17 @@ Before changing code:
      the added distributed-systems cost,
    - record the no-runtime-split decision when the slice intentionally improves design modularity
      inside one deployable application.
+6. review repository organization before adding files:
+   - group cohesive capability modules inside their existing layers when a proven package pattern
+     reduces navigation and ownership ambiguity,
+   - name executable artifacts for enduring capabilities or invariants, never an RFC/slice/issue
+     unless the artifact truly exists only to track that governance item,
+   - pilot package migrations incrementally, migrate imports atomically, and guard retired flat
+     paths without permanent legacy aliases,
+   - mirror feature grouping in tests, keep CLI scripts thin, and avoid fixed-depth repository-root
+     assumptions in relocatable tests,
+   - keep runtime topology unchanged unless independent scaling, failure isolation, ownership,
+     security, or operability evidence justifies a deployable boundary.
 
 When Docker/runtime behavior, package metadata, compose mounts, or service app imports are in
 scope, verify package import truth before relying on repo-root tests. Code inside a deployable

@@ -732,6 +732,16 @@ merge method, post-merge validation, and branch cleanup evidence. Before deletin
 merged or superseded status with PR state plus `git log`, `git diff`, or cherry-pick evidence so
 no implementation code or durable truth is lost during hygiene.
 
+For repository organization, use capability-oriented packages inside the existing runtime layers.
+Name executable source, scripts, workflows, contracts, migrations, and tests for enduring business
+capabilities or engineering invariants, not RFC/slice/issue/PR identifiers; reserve those names for
+actual governance and tracking artifacts. Pilot one cohesive package, migrate imports atomically,
+mirror focused tests, prohibit obsolete flat paths, and verify package/runtime import truth before
+expanding the pattern. Do not retain indefinite compatibility aliases or infer repository roots from
+fragile fixed parent depth in moved tests. When refactoring source-backed proof, update validators
+to stable symbols/interfaces or behavior and retain tamper, overclaim, and missing-source tests.
+These are design-modularity controls; directory size alone never justifies a runtime service split.
+
 For newly scaffolded backend services, CI contract gates should also protect release-evidence
 semantics: rebase auto-merge must use a non-`GITHUB_TOKEN` merge actor such as
 `LOTUS_AUTOMERGE_TOKEN`, and merged PRs must dispatch or otherwise prove Main Releasability on the

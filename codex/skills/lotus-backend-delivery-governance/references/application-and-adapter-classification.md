@@ -6,9 +6,11 @@ Use this reference when backend code has concrete external dependencies or when 
 ## Contents
 
 1. [Classify Before Moving](#classify-before-moving)
-2. [External Capability Coupling](#external-capability-coupling)
-3. [Provider Contract Fixtures](#provider-contract-fixtures)
-4. [Required Proof](#required-proof)
+2. [Capability-Oriented Layout And Naming](#capability-oriented-layout-and-naming)
+3. [External Capability Coupling](#external-capability-coupling)
+4. [Provider Contract Fixtures](#provider-contract-fixtures)
+5. [Proof Validators During Refactors](#proof-validators-during-refactors)
+6. [Required Proof](#required-proof)
 
 ## Classify Before Moving
 
@@ -29,6 +31,35 @@ Choose one truthful outcome:
 3. retain the current location temporarily and record the exact dependency extraction plan.
 
 Do not move or rename code merely to make the tree appear layered.
+
+## Capability-Oriented Layout And Naming
+
+Organize cohesive feature families inside the existing runtime layers before adding deployables.
+For example, a lifecycle capability may use `domain/data_lifecycle/authority.py` and
+`domain/data_lifecycle/schedule.py` while its application, port, and adapter modules remain in
+their owning layers. Preserve the dependency direction; a feature package is not permission to
+collapse API, application, domain, port, and infrastructure code into one directory.
+
+Use enduring capability or invariant names for executable artifacts. Do not name source modules,
+scripts, workflows, contracts, migrations, or tests after an RFC number, slice number, issue, PR,
+or temporary project phase. RFC identifiers belong in RFC documents, RFC closure manifests, and
+explicit tracking artifacts whose purpose is that RFC. Rename an executable gate introduced by an
+RFC for what it enforces, such as `foundation_structure_gate.py`, not `slice2_structure_gate.py`.
+
+When introducing a bounded package:
+
+1. define its public package surface and avoid private cross-package imports;
+2. migrate imports atomically and prohibit obsolete flat paths rather than retaining indefinite
+   compatibility aliases;
+3. mirror the capability grouping in focused tests when test discovery supports it;
+4. keep reusable logic out of crowded CLI directories; scripts should be thin entrypoints;
+5. avoid tests that infer repository root from a fragile fixed parent depth after relocation;
+6. add a deterministic placement/naming guard only after the canonical layout is proven;
+7. verify wheel/container inclusion and the real runtime import path when packaging is affected.
+
+Do not impose arbitrary directory-size limits or create one-off subfolder conventions. Inventory
+large flat directories, select one cohesive pilot, prove the pattern, then migrate other families
+incrementally. Folder size alone never justifies a new service or process.
 
 ## External Capability Coupling
 
@@ -54,6 +85,22 @@ instead of relying only on fake happy paths. Cover:
 10. raw-payload and secret non-leakage.
 
 Wire deterministic fixtures into the repo-native fast gate and document their source and command.
+
+## Proof Validators During Refactors
+
+Source-backed proof checks must follow stable interfaces and governed behavior, not comments,
+incidental prose, or implementation literals that disappear during a valid refactor. When shared
+security, transport, policy, or adapter logic is extracted:
+
+1. identify every proof generator and contract gate that inspects the moved source;
+2. bind checks to stable exported symbols, calls, schemas, or runtime behavior;
+3. retain adversarial tests for missing producer evidence, tampering, overclaiming, and consumer
+   controls;
+4. run the live sibling-repository proof when a local checkout is available;
+5. preserve consumer-only fail-closed behavior when the producer checkout is unavailable.
+
+Do not weaken a proof gate merely to survive a rename. Replace brittle evidence with stronger
+interface or behavioral evidence and record which certification blockers remain.
 
 ## Required Proof
 
