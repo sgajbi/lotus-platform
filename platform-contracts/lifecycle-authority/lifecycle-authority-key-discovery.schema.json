@@ -23,7 +23,7 @@
           "rotation_epoch": {"type": "integer", "minimum": 1},
           "status": {"enum": ["active", "rotated", "revoked"]},
           "not_before_utc": {"type": "string", "format": "date-time", "pattern": "Z$"},
-          "not_after_utc": {"type": ["string", "null"], "format": "date-time"}
+          "not_after_utc": {"type": ["string", "null"], "format": "date-time", "pattern": "Z$"}
         }
       }
     }

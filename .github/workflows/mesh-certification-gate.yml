@@ -144,6 +144,8 @@ jobs:
           echo "generated_at_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
       - name: Certify lotus-advise runtime trust telemetry
+        id: advise_certification
+        continue-on-error: true
         shell: bash
         working-directory: lotus-advise
         run: |
@@ -273,6 +275,6 @@ jobs:
           fi
 
       - name: Fail when mesh certification fails
-        if: steps.mesh_gate.outcome == 'failure'
+        if: steps.mesh_gate.outcome == 'failure' || steps.advise_certification.outcome == 'failure'
         shell: bash
         run: exit 1
