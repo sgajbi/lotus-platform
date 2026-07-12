@@ -10,7 +10,7 @@ Service-level CI/local gates were tightened incrementally, but the centralized p
 Align centralized coverage commands with active service gates:
 1. Set lotus-manage coverage command fail-under to `99`.
 2. Set lotus-performance coverage command fail-under to `99`.
-3. Keep lotus-core command via `python scripts/coverage_gate.py` (already enforced at 99 in lotus-core).
+3. Keep lotus-core command via `python scripts/quality/coverage_gate.py` (already enforced at 99 in lotus-core).
 
 ## Architectural Impact
 No runtime behavior change. Improves governance and automation consistency for cross-platform quality measurement.

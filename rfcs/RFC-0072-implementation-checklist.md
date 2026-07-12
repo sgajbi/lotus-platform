@@ -435,8 +435,8 @@ Evidence:
 2. `lotus-core/.github/workflows/pr-merge-gate.yml`
 3. `lotus-core/.github/workflows/main-releasability.yml`
 4. `lotus-core/Makefile`
-5. `lotus-core/scripts/dependency_health_check.py`
-6. `lotus-core/scripts/performance_load_gate.py`
+5. `lotus-core/scripts/validation/dependency_health_check.py`
+6. `lotus-core/scripts/operations/performance_load_gate.py`
 7. `automation/repository-governance-policy.json`
 8. `platform-standards/Repository-CI-Lane-Mapping-Baseline.md`
 9. `platform-standards/Repository-CI-Convergence-Gap-Audit.md`
@@ -458,8 +458,8 @@ Evidence:
 Evidence:
 
 1. `lotus-core/Makefile`
-2. `lotus-core/scripts/dependency_health_check.py`
-3. `lotus-core/scripts/performance_load_gate.py`
+2. `lotus-core/scripts/validation/dependency_health_check.py`
+3. `lotus-core/scripts/operations/performance_load_gate.py`
 
 #### 3. Platform governance defaults reflect the new PR Merge Gate check names for `lotus-core`
 
