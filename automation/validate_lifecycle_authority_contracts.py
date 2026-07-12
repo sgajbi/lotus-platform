@@ -7,11 +7,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema.exceptions import SchemaError
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_DIR = ROOT / "platform-contracts" / "lifecycle-authority"
 EXAMPLES_DIR = CONTRACT_DIR / "examples"
 CERTIFICATION_PATH = CONTRACT_DIR / "producer-certification.v1.json"
+DECISION_SCHEMA_PATH = CONTRACT_DIR / "lifecycle-authority-decision.schema.json"
+KEY_SCHEMA_PATH = CONTRACT_DIR / "lifecycle-authority-key-discovery.schema.json"
 REFERENCE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{2,255}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 BASE64URL = re.compile(r"^[A-Za-z0-9_-]+$")
@@ -28,6 +33,17 @@ EXPECTED_DOMAINS = {
     "release_hold": "legal_and_records",
     "erase": "privacy",
     "purge": "privacy",
+}
+REQUIRED_CERTIFICATION_CONTROLS = {
+    "bank_legal_and_records_approval",
+    "bank_privacy_approval",
+    "managed_key_generation_storage_and_rotation",
+    "revocation_and_rotated_key_overlap_proof",
+    "https_key_discovery_without_redirects",
+    "decision_signature_interoperability_proof",
+    "consumer_replay_and_restart_proof",
+    "production_observability_and_runbook_proof",
+    "mainline_ci_evidence",
 }
 
 
@@ -55,6 +71,27 @@ def _find_forbidden(value: object, path: str = "payload") -> list[str]:
         for index, child in enumerate(value):
             errors.extend(_find_forbidden(child, f"{path}[{index}]"))
     return errors
+
+
+def validate_example_against_schema(
+    *, schema_path: Path, example_path: Path
+) -> list[str]:
+    schema = _load(schema_path)
+    try:
+        Draft202012Validator.check_schema(schema)
+    except SchemaError as exc:
+        return [
+            f"{schema_path.name} is not a valid Draft 2020-12 schema: {exc.message}"
+        ]
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    validation_errors = sorted(
+        validator.iter_errors(_load(example_path)), key=lambda item: list(item.path)
+    )
+    return [
+        f"{example_path.name}{'.' if error.path else ''}"
+        f"{'.'.join(str(part) for part in error.path)}: {error.message}"
+        for error in validation_errors
+    ]
 
 
 def validate_decision(decision: dict[str, Any]) -> list[str]:
@@ -193,11 +230,13 @@ def validate_certification(certification: dict[str, Any]) -> list[str]:
         if certification.get(field) is not False:
             errors.append(f"{field} must remain false before production certification")
     controls = certification.get("required_controls")
-    if (
-        not isinstance(controls, dict)
-        or not controls
-        or any(value is not False for value in controls.values())
-    ):
+    if not isinstance(controls, dict):
+        errors.append("required_controls must be an object")
+    elif set(controls) != REQUIRED_CERTIFICATION_CONTROLS:
+        errors.append(
+            "required_controls must contain exactly the governed control names"
+        )
+    elif any(value is not False for value in controls.values()):
         errors.append(
             "all producer certification controls must remain explicitly false"
         )
@@ -217,14 +256,18 @@ def validate_certification(certification: dict[str, Any]) -> list[str]:
 
 
 def validate_lifecycle_authority_contracts() -> list[str]:
-    errors = validate_decision(
-        _load(EXAMPLES_DIR / "lifecycle-authority-decision.valid.json")
+    decision_example = EXAMPLES_DIR / "lifecycle-authority-decision.valid.json"
+    key_example = EXAMPLES_DIR / "lifecycle-authority-key-discovery.valid.json"
+    errors = validate_example_against_schema(
+        schema_path=DECISION_SCHEMA_PATH, example_path=decision_example
     )
     errors.extend(
-        validate_key_discovery(
-            _load(EXAMPLES_DIR / "lifecycle-authority-key-discovery.valid.json")
+        validate_example_against_schema(
+            schema_path=KEY_SCHEMA_PATH, example_path=key_example
         )
     )
+    errors.extend(validate_decision(_load(decision_example)))
+    errors.extend(validate_key_discovery(_load(key_example)))
     errors.extend(validate_certification(_load(CERTIFICATION_PATH)))
     return errors
 
