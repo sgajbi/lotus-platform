@@ -95,9 +95,7 @@ def test_contract_drift_fails_with_stable_codes(
 def test_lotus_idea_ai_readiness_regression_detects_stale_blocker_and_field() -> None:
     documented = {
         "lotusAiRunAttestationAvailable": True,
-        "certificationBlockers": [
-            "lotus_ai_run_attestation_mainline_proof_missing"
-        ],
+        "certificationBlockers": ["lotus_ai_run_attestation_mainline_proof_missing"],
     }
     runtime = {
         "lotusAiRunAttestationAvailable": True,

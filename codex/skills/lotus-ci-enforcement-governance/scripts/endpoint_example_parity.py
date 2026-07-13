@@ -54,6 +54,13 @@ class ExampleParityViolation:
     detail: str
 
 
+@dataclass(frozen=True)
+class _NormalizationRule:
+    pointer: str
+    strategy: str
+    tokens: tuple[str, ...]
+
+
 def compare_endpoint_examples(
     documented: Any,
     runtime: Any,
@@ -84,117 +91,108 @@ def _apply_normalizations(
     errors: list[ExampleParityViolation] = []
     seen: set[str] = set()
     for index, rule in enumerate(normalizations):
-        if not isinstance(rule, Mapping):
-            errors.append(
-                ExampleParityViolation(
-                    "invalid_normalization_rule",
-                    f"<normalizations[{index}]>",
-                    "normalization rules must be objects",
-                )
-            )
+        parsed_rule, error = _parse_normalization_rule(rule, index=index, seen=seen)
+        if error is not None:
+            errors.append(error)
             continue
-        pointer = rule.get("pointer", "")
-        strategy = rule.get("strategy", "")
-        context = (
-            pointer
-            if isinstance(pointer, str) and pointer
-            else f"<normalizations[{index}]>"
-        )
-        if not isinstance(pointer, str) or not pointer.startswith("/"):
-            errors.append(
-                ExampleParityViolation(
-                    "invalid_normalization_pointer",
-                    context,
-                    "normalization pointers must be absolute RFC 6901 JSON pointers",
-                )
-            )
-            continue
-        if _INVALID_POINTER_ESCAPE.search(pointer):
-            errors.append(
-                ExampleParityViolation(
-                    "invalid_normalization_pointer",
-                    pointer,
-                    "normalization pointers must use valid RFC 6901 escaping",
-                )
-            )
-            continue
-        if pointer in seen:
-            errors.append(
-                ExampleParityViolation(
-                    "duplicate_normalization_pointer",
-                    pointer,
-                    "each normalized field must be declared exactly once",
-                )
-            )
-            continue
-        seen.add(pointer)
-        if (
-            not isinstance(strategy, str)
-            or strategy not in ALLOWED_NORMALIZATION_STRATEGIES
-        ):
-            errors.append(
-                ExampleParityViolation(
-                    "unsupported_normalization_strategy",
-                    pointer,
-                    "normalization strategy is not approved by the platform contract",
-                )
-            )
-            continue
-
-        tokens = _pointer_tokens(pointer)
-        forbidden = next(
-            (token for token in tokens if token in FORBIDDEN_NORMALIZATION_TOKENS),
-            None,
-        )
-        if forbidden is not None:
-            errors.append(
-                ExampleParityViolation(
-                    "forbidden_governance_normalization",
-                    pointer,
-                    f"governance field {forbidden!r} must use exact structural comparison",
-                )
-            )
-            continue
-
-        documented_location = _resolve_pointer(documented, tokens)
-        runtime_location = _resolve_pointer(runtime, tokens)
-        if documented_location is None or runtime_location is None:
-            errors.append(
-                ExampleParityViolation(
-                    "normalization_target_missing",
-                    pointer,
-                    "normalization target must exist in both examples",
-                )
-            )
-            continue
-
-        documented_parent, documented_key = documented_location
-        runtime_parent, runtime_key = runtime_location
-        documented_value = documented_parent[documented_key]
-        runtime_value = runtime_parent[runtime_key]
-        if not (
-            _normalization_value_valid(documented_value, strategy)
-            and _normalization_value_valid(runtime_value, strategy)
-        ):
-            errors.append(
-                ExampleParityViolation(
-                    "normalization_value_invalid",
-                    pointer,
-                    "both values must satisfy the declared normalization strategy",
-                )
-            )
-            continue
-
-        sentinel = {"$normalized": strategy, "$pointer": pointer}
-        documented_parent[documented_key] = sentinel
-        runtime_parent[runtime_key] = deepcopy(sentinel)
+        assert parsed_rule is not None
+        error = _normalize_target(documented, runtime, rule=parsed_rule)
+        if error is not None:
+            errors.append(error)
     return errors
+
+
+def _parse_normalization_rule(
+    rule: Any,
+    *,
+    index: int,
+    seen: set[str],
+) -> tuple[_NormalizationRule | None, ExampleParityViolation | None]:
+    context = f"<normalizations[{index}]>"
+    if not isinstance(rule, Mapping):
+        return None, ExampleParityViolation(
+            "invalid_normalization_rule",
+            context,
+            "normalization rules must be objects",
+        )
+    pointer = rule.get("pointer", "")
+    strategy = rule.get("strategy", "")
+    if not isinstance(pointer, str) or not pointer.startswith("/"):
+        return None, ExampleParityViolation(
+            "invalid_normalization_pointer",
+            pointer if isinstance(pointer, str) and pointer else context,
+            "normalization pointers must be absolute RFC 6901 JSON pointers",
+        )
+    if _INVALID_POINTER_ESCAPE.search(pointer):
+        return None, ExampleParityViolation(
+            "invalid_normalization_pointer",
+            pointer,
+            "normalization pointers must use valid RFC 6901 escaping",
+        )
+    if pointer in seen:
+        return None, ExampleParityViolation(
+            "duplicate_normalization_pointer",
+            pointer,
+            "each normalized field must be declared exactly once",
+        )
+    seen.add(pointer)
+    if (
+        not isinstance(strategy, str)
+        or strategy not in ALLOWED_NORMALIZATION_STRATEGIES
+    ):
+        return None, ExampleParityViolation(
+            "unsupported_normalization_strategy",
+            pointer,
+            "normalization strategy is not approved by the platform contract",
+        )
+    tokens = _pointer_tokens(pointer)
+    forbidden = next(
+        (token for token in tokens if token in FORBIDDEN_NORMALIZATION_TOKENS),
+        None,
+    )
+    if forbidden is not None:
+        return None, ExampleParityViolation(
+            "forbidden_governance_normalization",
+            pointer,
+            f"governance field {forbidden!r} must use exact structural comparison",
+        )
+    return _NormalizationRule(pointer, strategy, tokens), None
+
+
+def _normalize_target(
+    documented: Any,
+    runtime: Any,
+    *,
+    rule: _NormalizationRule,
+) -> ExampleParityViolation | None:
+    documented_location = _resolve_pointer(documented, rule.tokens)
+    runtime_location = _resolve_pointer(runtime, rule.tokens)
+    if documented_location is None or runtime_location is None:
+        return ExampleParityViolation(
+            "normalization_target_missing",
+            rule.pointer,
+            "normalization target must exist in both examples",
+        )
+    documented_parent, documented_key = documented_location
+    runtime_parent, runtime_key = runtime_location
+    if not (
+        _normalization_value_valid(documented_parent[documented_key], rule.strategy)
+        and _normalization_value_valid(runtime_parent[runtime_key], rule.strategy)
+    ):
+        return ExampleParityViolation(
+            "normalization_value_invalid",
+            rule.pointer,
+            "both values must satisfy the declared normalization strategy",
+        )
+    sentinel = {"$normalized": rule.strategy, "$pointer": rule.pointer}
+    documented_parent[documented_key] = sentinel
+    runtime_parent[runtime_key] = deepcopy(sentinel)
+    return None
 
 
 def _pointer_tokens(pointer: str) -> tuple[str, ...]:
     return tuple(
-        token.replace("~1", "/").replace("~0", "~")
-        for token in pointer[1:].split("/")
+        token.replace("~1", "/").replace("~0", "~") for token in pointer[1:].split("/")
     )
 
 
