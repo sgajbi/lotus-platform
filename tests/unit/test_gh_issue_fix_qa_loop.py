@@ -99,6 +99,7 @@ elif args[:2] == ["issue", "close"]:
 elif args[:2] == ["issue", "reopen"]:
     state["issues"][args[2]]["state"] = "OPEN"
     save()
+    print(f"reopened issue {args[2]}", file=sys.stderr)
 elif args[:2] == ["pr", "view"]:
     pr = state["prs"][args[2]]
     print(json.dumps({
@@ -324,8 +325,6 @@ def test_successful_main_proof_and_qa_close_retain_terminal_state(fake_github) -
 
 
 def test_batch_reconciliation_removes_every_prior_state_alias(fake_github) -> None:
-    if POWERSHELL is None:
-        pytest.skip("PowerShell is required for issue-loop automation tests")
     state_path, _, env = fake_github
     state = _state()
     state["issues"] = {
@@ -334,17 +333,13 @@ def test_batch_reconciliation_removes_every_prior_state_alias(fake_github) -> No
     }
     _write_state(state_path, state)
 
-    command = (
-        f"& '{UPDATE_SCRIPT}' -Repo owner/repo -IssueNumber @(1,2) -Status fixed_local "
-        "-CommitSha abc123 -LocalValidationRef 'pytest passed'"
-    )
-    result = subprocess.run(
-        [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
-        cwd=ROOT,
-        env=env,
-        text=True,
-        capture_output=True,
-        check=False,
+    result = _run_script(
+        UPDATE_SCRIPT,
+        [
+            "-Repo", "owner/repo", "-IssueNumber", "1,2", "-Status", "fixed_local",
+            "-CommitSha", "abc123", "-LocalValidationRef", "pytest passed",
+        ],
+        env,
     )
 
     assert result.returncode == 0, result.stderr + result.stdout

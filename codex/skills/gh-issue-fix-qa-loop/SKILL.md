@@ -90,8 +90,8 @@ reopens the issue and returns it to `status/in-progress`. A QA pass closes an is
   -Status qa_failed -QaRunRef "<artifact or run>" -Summary "<expected versus actual>"
 ```
 
-Pass multiple values to `-IssueNumber` only when one transition and one evidence set truthfully
-applies to every issue in the batch.
+Pass comma-delimited values such as `-IssueNumber 101,102` only when one transition and one evidence
+set truthfully applies to every issue in the batch.
 
 ## Audit
 

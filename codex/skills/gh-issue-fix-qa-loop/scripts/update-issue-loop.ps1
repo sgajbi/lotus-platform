@@ -1,6 +1,6 @@
 param(
   [Parameter(Mandatory=$true)][string]$Repo,
-  [Parameter(Mandatory=$true)][int[]]$IssueNumber,
+  [Parameter(Mandatory=$true)][string[]]$IssueNumber,
   [Parameter(Mandatory=$true)]
   [ValidateSet("dev_in_progress", "fixed_local", "pr_raised", "merged_pending_main_validation", "merged_main", "blocked", "qa_failed", "qa_passed_closed")]
   [string]$Status,
@@ -26,6 +26,25 @@ if ([string]::IsNullOrWhiteSpace($LabelContractPath)) {
 function Assert-RequiredText {
   param([string]$Value, [string]$Name)
   if ([string]::IsNullOrWhiteSpace($Value)) { throw "$Name is required for status '$Status'" }
+}
+
+function Resolve-IssueNumbers {
+  param([string[]]$Values)
+
+  $resolved = @()
+  foreach ($value in $Values) {
+    foreach ($token in $value.Split(',')) {
+      $number = 0
+      if (-not [int]::TryParse($token.Trim(), [ref]$number) -or $number -le 0) {
+        throw "IssueNumber values must be positive integers; received '$token'"
+      }
+      if ($resolved -contains $number) {
+        throw "IssueNumber contains duplicate issue #$number"
+      }
+      $resolved += $number
+    }
+  }
+  return $resolved
 }
 
 function Update-IssueLoopIssue {
@@ -153,8 +172,9 @@ Result: verified fixed on main. Closing the issue with merged-main retained.
 
 $contract = Get-IssueLoopContract -Path $LabelContractPath
 $null = Assert-IssueLoopRepositoryVocabulary -Repo $Repo -Contract $contract
-foreach ($number in $IssueNumber) {
+$resolvedIssueNumbers = @(Resolve-IssueNumbers -Values $IssueNumber)
+foreach ($number in $resolvedIssueNumbers) {
   Update-IssueLoopIssue -Number $number -Contract $contract
 }
 
-Write-Output "Updated issue(s) $($IssueNumber -join ', ') in $Repo with status '$Status'."
+Write-Output "Updated issue(s) $($resolvedIssueNumbers -join ', ') in $Repo with status '$Status'."
