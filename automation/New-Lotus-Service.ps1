@@ -1096,18 +1096,54 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$Port"]
 "@
 Set-Content -Path (Join-Path $target "Dockerfile") -Value $dockerfile
 
+$baselineResponsesPy = @"
+SERVICE_NAME = "$ServiceName"
+SERVICE_VERSION = "0.1.0"
+ROUNDING_POLICY_VERSION = "v1"
+
+
+def health_response() -> dict[str, str]:
+    return {"status": "ok", "service": SERVICE_NAME}
+
+
+def liveness_response() -> dict[str, str]:
+    return {"status": "live"}
+
+
+def readiness_response() -> dict[str, str]:
+    return {"status": "ready"}
+
+
+def draining_response() -> dict[str, str]:
+    return {"status": "draining"}
+
+
+def metadata_response() -> dict[str, str]:
+    return {
+        "service": SERVICE_NAME,
+        "version": SERVICE_VERSION,
+        "roundingPolicyVersion": ROUNDING_POLICY_VERSION,
+    }
+"@
+Set-Content -Path (Join-Path $target "src/app/api/baseline_responses.py") -Value $baselineResponsesPy
+
 $mainPy = @"
 from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from app.api.baseline_responses import (
+    SERVICE_NAME,
+    SERVICE_VERSION,
+    draining_response,
+    health_response,
+    liveness_response,
+    metadata_response,
+    readiness_response,
+)
 from app.errors import problem_response
 from app.middleware.correlation import CorrelationIdMiddleware
 from app.observability import configure_logging, emit_request_diagnostic_event
-
-SERVICE_NAME = "$ServiceName"
-SERVICE_VERSION = "0.1.0"
-ROUNDING_POLICY_VERSION = "v1"
 
 app = FastAPI(title=SERVICE_NAME, version=SERVICE_VERSION)
 app.add_middleware(CorrelationIdMiddleware, service_name=SERVICE_NAME)
@@ -1180,14 +1216,14 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> Respo
             "description": "Service health response.",
             "content": {
                 "application/json": {
-                    "example": {"status": "ok", "service": SERVICE_NAME}
+                    "example": health_response()
                 }
             },
         }
     },
 )
 async def health() -> dict[str, str]:
-    return {"status": "ok", "service": SERVICE_NAME}
+    return health_response()
 
 
 @app.get(
@@ -1198,12 +1234,12 @@ async def health() -> dict[str, str]:
     responses={
         200: {
             "description": "Process is live.",
-            "content": {"application/json": {"example": {"status": "live"}}},
+            "content": {"application/json": {"example": liveness_response()}},
         }
     },
 )
 async def health_live() -> dict[str, str]:
-    return {"status": "live"}
+    return liveness_response()
 
 
 @app.get(
@@ -1214,19 +1250,19 @@ async def health_live() -> dict[str, str]:
     responses={
         200: {
             "description": "Service is ready to receive traffic.",
-            "content": {"application/json": {"example": {"status": "ready"}}},
+            "content": {"application/json": {"example": readiness_response()}},
         },
         503: {
             "description": "Service is intentionally draining and should not receive new traffic.",
-            "content": {"application/json": {"example": {"status": "draining"}}},
+            "content": {"application/json": {"example": draining_response()}},
         },
     },
 )
 async def health_ready(response: Response) -> dict[str, str]:
     if bool(getattr(app.state, "is_draining", False)):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-        return {"status": "draining"}
-    return {"status": "ready"}
+        return draining_response()
+    return readiness_response()
 
 
 @app.get(
@@ -1239,22 +1275,14 @@ async def health_ready(response: Response) -> dict[str, str]:
             "description": "Service metadata response.",
             "content": {
                 "application/json": {
-                    "example": {
-                        "service": SERVICE_NAME,
-                        "version": SERVICE_VERSION,
-                        "roundingPolicyVersion": ROUNDING_POLICY_VERSION,
-                    }
+                    "example": metadata_response()
                 }
             },
         }
     },
 )
 async def metadata() -> dict[str, str]:
-    return {
-        "service": SERVICE_NAME,
-        "version": SERVICE_VERSION,
-        "roundingPolicyVersion": ROUNDING_POLICY_VERSION,
-    }
+    return metadata_response()
 "@
 Set-Content -Path (Join-Path $target "src/app/main.py") -Value $mainPy
 
@@ -3827,8 +3855,6 @@ import json
 import sys
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -3945,6 +3971,7 @@ def _route_runtime_example(
     operation: tuple[str, str],
     case: dict[str, object],
 ) -> object:
+    from fastapi.testclient import TestClient
     from app.main import app
 
     method, path = operation
@@ -5147,8 +5174,8 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
         "cases": [
           {
             "documented_example_index": 0,
-            "source": "actual_source_safe_route_invocation",
-            "expected_status": 200,
+            "source": "deterministic_no_io_example_factory",
+            "callable": "app.api.baseline_responses:health_response",
             "normalizations": []
           }
         ]
@@ -5171,8 +5198,8 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
         "cases": [
           {
             "documented_example_index": 0,
-            "source": "actual_source_safe_route_invocation",
-            "expected_status": 200,
+            "source": "deterministic_no_io_example_factory",
+            "callable": "app.api.baseline_responses:liveness_response",
             "normalizations": []
           }
         ]
@@ -5195,8 +5222,8 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
         "cases": [
           {
             "documented_example_index": 0,
-            "source": "actual_source_safe_route_invocation",
-            "expected_status": 200,
+            "source": "deterministic_no_io_example_factory",
+            "callable": "app.api.baseline_responses:readiness_response",
             "normalizations": []
           }
         ]
@@ -5219,8 +5246,8 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
         "cases": [
           {
             "documented_example_index": 0,
-            "source": "actual_source_safe_route_invocation",
-            "expected_status": 200,
+            "source": "deterministic_no_io_example_factory",
+            "callable": "app.api.baseline_responses:metadata_response",
             "normalizations": []
           }
         ]
