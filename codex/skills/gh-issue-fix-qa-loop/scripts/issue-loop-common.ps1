@@ -120,10 +120,14 @@ function Set-IssueLoopState {
   )
 
   $issue = Get-IssueLoopIssue -Repo $Repo -IssueNumber $IssueNumber
-  if ([string]$issue.state -eq "CLOSED") {
+  $currentNames = @($issue.labels | ForEach-Object { [string]$_.name })
+  $mergedMainLabel = Get-IssueLoopStateLabel -Contract $Contract -State "merged_main"
+  $isVerifiedTerminalReplay = (
+    $State -eq "merged_main" -and $currentNames -contains $mergedMainLabel
+  )
+  if ([string]$issue.state -eq "CLOSED" -and -not $isVerifiedTerminalReplay) {
     $null = Invoke-IssueLoopGh -GhArgs @("issue", "reopen", $IssueNumber.ToString(), "--repo", $Repo)
   }
-  $currentNames = @($issue.labels | ForEach-Object { [string]$_.name })
   $target = Get-IssueLoopStateLabel -Contract $Contract -State $State
   foreach ($label in (Get-IssueLoopAllStateLabels -Contract $Contract)) {
     if ($label -ne $target -and $currentNames -contains $label) {
