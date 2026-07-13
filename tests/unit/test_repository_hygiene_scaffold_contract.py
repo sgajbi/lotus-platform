@@ -359,6 +359,51 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
+    endpoint_ledger_path = (
+        repo_root / "docs/operations/endpoint-certification-ledger.json"
+    )
+    original_endpoint_ledger = endpoint_ledger_path.read_text(encoding="utf-8")
+    stale_endpoint_ledger = json.loads(original_endpoint_ledger)
+    (repo_root / "src/app/endpoint_example_factories.py").write_text(
+        "def health_example():\n"
+        "    return {'status': 'ok', 'service': 'lotus-hygiene-demo'}\n",
+        encoding="utf-8",
+    )
+    stale_endpoint_ledger["endpoints"][0]["response_example_parity"]["cases"][0] = {
+        "documented_example_index": 0,
+        "source": "deterministic_no_io_example_factory",
+        "callable": "app.endpoint_example_factories:health_example",
+        "normalizations": [],
+    }
+    endpoint_ledger_path.write_text(
+        json.dumps(stale_endpoint_ledger, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    callable_endpoint_gate = subprocess.run(
+        [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "Endpoint certification gate passed" in callable_endpoint_gate.stdout
+    stale_endpoint_ledger["endpoints"][0]["response_examples"] = [
+        '{"status":"legacy","service":"lotus-hygiene-demo"}'
+    ]
+    endpoint_ledger_path.write_text(
+        json.dumps(stale_endpoint_ledger, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    stale_endpoint_gate = subprocess.run(
+        [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    endpoint_ledger_path.write_text(original_endpoint_ledger, encoding="utf-8")
+    assert stale_endpoint_gate.returncode == 1
+    assert "value_mismatch" in stale_endpoint_gate.stdout
     ci_contract_gate_result = subprocess.run(
         [sys.executable, "scripts/ci_contract_gate.py"],
         cwd=repo_root,
@@ -623,6 +668,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     endpoint_certification_gate = (
         repo_root / "scripts/endpoint_certification_gate.py"
     ).read_text(encoding="utf-8")
+    endpoint_example_parity = (
+        repo_root / "scripts/endpoint_example_parity.py"
+    ).read_text(encoding="utf-8")
     ci_contract_gate = (repo_root / "scripts/ci_contract_gate.py").read_text(
         encoding="utf-8"
     )
@@ -861,6 +909,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Supported-features gate passed" in supported_features_gate
     assert "implemented feature missing promotion_evidence" in supported_features_gate
     assert "Endpoint certification gate passed" in endpoint_certification_gate
+    assert "compare_endpoint_examples" in endpoint_certification_gate
+    assert "PARITY_REQUIRED_STATUSES" in endpoint_certification_gate
+    assert "def compare_endpoint_examples" in endpoint_example_parity
     assert "missing endpoint certification ledger entry" in endpoint_certification_gate
     assert "stale endpoint certification ledger entry" in endpoint_certification_gate
     assert "OPERATION_EVENT_TEST_TERMS" in endpoint_certification_gate
@@ -869,6 +920,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         in endpoint_certification_gate
     )
     assert "Endpoint certification gate passed" in endpoint_gate.stdout
+    assert all(
+        endpoint["response_example_parity"]["cases"]
+        for endpoint in endpoint_certification["endpoints"]
+    )
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
     assert (

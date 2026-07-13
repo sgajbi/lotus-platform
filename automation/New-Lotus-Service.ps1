@@ -3821,12 +3821,19 @@ Set-Content -Path (Join-Path $target "scripts/supported_features_gate.py") -Valu
 
 $endpointCertificationGate = @"
 import ast
+import importlib
+import inspect
 import json
 import sys
 from pathlib import Path
 
+from fastapi.testclient import TestClient
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from endpoint_example_parity import compare_endpoint_examples
 
 LEDGER_PATH = Path("docs/operations/endpoint-certification-ledger.json")
 APP_MAIN_PATH = Path("src/app/main.py")
@@ -3845,6 +3852,12 @@ REQUIRED_FIELDS = (
     "openapi_evidence",
 )
 OPERATION_EVENT_TEST_TERMS = ("operation_event", "operation_events")
+PARITY_REQUIRED_STATUSES = {"baseline_certified", "certified"}
+ALLOWED_RUNTIME_SOURCES = {
+    "actual_source_safe_route_invocation",
+    "code_owned_response_dto_or_serializer",
+    "deterministic_no_io_example_factory",
+}
 
 
 def _openapi_operations_from_app() -> set[tuple[str, str]]:
@@ -3891,6 +3904,133 @@ def _openapi_operations() -> set[tuple[str, str]]:
         raise exc
 
 
+def _json_response_examples(
+    operation: tuple[str, str],
+    raw_examples: object,
+    errors: list[str],
+) -> list[object]:
+    if not isinstance(raw_examples, list) or not raw_examples:
+        return []
+    parsed: list[object] = []
+    for index, raw_example in enumerate(raw_examples):
+        if not isinstance(raw_example, str):
+            errors.append(f"{operation}: response_examples[{index}] must be a JSON string")
+            continue
+        try:
+            parsed.append(json.loads(raw_example))
+        except json.JSONDecodeError:
+            errors.append(f"{operation}: response_examples[{index}] must contain valid JSON")
+    return parsed
+
+
+def _callable_runtime_example(reference: object) -> object:
+    if not isinstance(reference, str) or ":" not in reference:
+        raise ValueError("callable must use module.path:attribute syntax")
+    module_name, attribute_path = reference.split(":", 1)
+    value: object = importlib.import_module(module_name)
+    for attribute in attribute_path.split("."):
+        value = getattr(value, attribute)
+    if not callable(value):
+        raise ValueError("runtime example reference must resolve to a callable")
+    runtime_example = value()
+    if inspect.isawaitable(runtime_example):
+        raise ValueError("runtime example callable must be synchronous and deterministic")
+    model_dump = getattr(runtime_example, "model_dump", None)
+    if callable(model_dump):
+        runtime_example = model_dump(mode="json", by_alias=True)
+    return json.loads(json.dumps(runtime_example))
+
+
+def _route_runtime_example(
+    operation: tuple[str, str],
+    case: dict[str, object],
+) -> object:
+    from app.main import app
+
+    method, path = operation
+    if method != "GET" or "{" in path:
+        raise ValueError("source-safe route parity supports only static GET operations")
+    expected_status = case.get("expected_status", 200)
+    if not isinstance(expected_status, int) or isinstance(expected_status, bool):
+        raise ValueError("expected_status must be an integer")
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.get(path)
+    if response.status_code != expected_status:
+        raise ValueError("runtime route returned an unexpected status")
+    try:
+        return response.json()
+    except ValueError as exc:
+        raise ValueError("runtime route did not return JSON") from exc
+
+
+def _validate_response_example_parity(
+    endpoint: dict[str, object],
+    operation: tuple[str, str],
+    documented_examples: list[object],
+) -> list[str]:
+    errors: list[str] = []
+    parity = endpoint.get("response_example_parity")
+    if not isinstance(parity, dict):
+        return [f"{operation}: certified endpoint requires response_example_parity"]
+    cases = parity.get("cases")
+    if not isinstance(cases, list) or not cases:
+        return [f"{operation}: response_example_parity.cases must be a non-empty list"]
+
+    covered_indexes: set[int] = set()
+    for case_index, raw_case in enumerate(cases):
+        context = f"{operation}: response_example_parity.cases[{case_index}]"
+        if not isinstance(raw_case, dict):
+            errors.append(f"{context} must be an object")
+            continue
+        documented_index = raw_case.get("documented_example_index")
+        if (
+            not isinstance(documented_index, int)
+            or isinstance(documented_index, bool)
+            or documented_index < 0
+            or documented_index >= len(documented_examples)
+        ):
+            errors.append(f"{context} has an invalid documented_example_index")
+            continue
+        if documented_index in covered_indexes:
+            errors.append(f"{context} duplicates documented_example_index {documented_index}")
+            continue
+        covered_indexes.add(documented_index)
+
+        source = raw_case.get("source")
+        if source not in ALLOWED_RUNTIME_SOURCES:
+            errors.append(f"{context} has an unsupported runtime source")
+            continue
+        normalizations = raw_case.get("normalizations", [])
+        if not isinstance(normalizations, list):
+            errors.append(f"{context}.normalizations must be a list")
+            continue
+        try:
+            if source == "actual_source_safe_route_invocation":
+                runtime_example = _route_runtime_example(operation, raw_case)
+            else:
+                runtime_example = _callable_runtime_example(raw_case.get("callable"))
+        except Exception:
+            errors.append(f"{context} runtime evidence could not be produced")
+            continue
+
+        violations = compare_endpoint_examples(
+            documented_examples[documented_index],
+            runtime_example,
+            normalizations=normalizations,
+        )
+        errors.extend(
+            f"{context} {violation.code} at {violation.pointer}: {violation.detail}"
+            for violation in violations
+        )
+
+    missing_indexes = sorted(set(range(len(documented_examples))) - covered_indexes)
+    if missing_indexes:
+        errors.append(
+            f"{operation}: response parity missing documented example indexes {missing_indexes}"
+        )
+    return errors
+
+
 def main() -> int:
     if not LEDGER_PATH.exists():
         print(f"Missing {LEDGER_PATH}")
@@ -3935,6 +4075,20 @@ def main() -> int:
             value = endpoint.get(field)
             if not isinstance(value, list) or not value:
                 errors.append(f"{operation}: {field} must be a non-empty list")
+        documented_examples = _json_response_examples(
+            operation,
+            endpoint.get("response_examples"),
+            errors,
+        )
+        if endpoint["certification_status"] in PARITY_REQUIRED_STATUSES:
+            if documented_examples:
+                errors.extend(
+                    _validate_response_example_parity(
+                        endpoint,
+                        operation,
+                        documented_examples,
+                    )
+                )
         if endpoint["certification_status"] == "certified":
             test_evidence = endpoint.get("test_evidence", [])
             if not any(
@@ -3966,6 +4120,8 @@ if __name__ == "__main__":
     sys.exit(main())
 "@
 Set-Content -Path (Join-Path $target "scripts/endpoint_certification_gate.py") -Value $endpointCertificationGate
+$endpointExampleParity = Get-Content -Raw (Join-Path $scriptRoot "endpoint_example_parity.py")
+Set-Content -Path (Join-Path $target "scripts/endpoint_example_parity.py") -Value $endpointExampleParity
 
 $profileDescriptionPrefix = (Get-ServiceProfileDescription -Profile $ServiceProfile).Split('.')[0]
 $unitTest = @"
@@ -4986,6 +5142,16 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
       "when_not_to_use": "Do not use as a readiness or dependency-quality signal.",
       "request_examples": ["No request body."],
       "response_examples": ["{\"status\":\"ok\",\"service\":\"$ServiceName\"}"],
+      "response_example_parity": {
+        "cases": [
+          {
+            "documented_example_index": 0,
+            "source": "actual_source_safe_route_invocation",
+            "expected_status": 200,
+            "normalizations": []
+          }
+        ]
+      },
       "error_examples": ["Unhandled service errors return product-safe Problem Details."],
       "test_evidence": ["tests/integration/test_health.py::test_health_endpoints"],
       "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
@@ -5000,6 +5166,16 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
       "when_not_to_use": "Do not use to decide whether the service is ready for traffic.",
       "request_examples": ["No request body."],
       "response_examples": ["{\"status\":\"live\"}"],
+      "response_example_parity": {
+        "cases": [
+          {
+            "documented_example_index": 0,
+            "source": "actual_source_safe_route_invocation",
+            "expected_status": 200,
+            "normalizations": []
+          }
+        ]
+      },
       "error_examples": ["Unhandled service errors return product-safe Problem Details."],
       "test_evidence": ["tests/integration/test_health.py::test_health_endpoints"],
       "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
@@ -5013,7 +5189,17 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
       "when_to_use": "Use for readiness probes and deployment routing decisions.",
       "when_not_to_use": "Do not use as a business capability or upstream data-quality signal.",
       "request_examples": ["No request body."],
-      "response_examples": ["{\"status\":\"ready\"}", "{\"status\":\"draining\"}"],
+      "response_examples": ["{\"status\":\"ready\"}"],
+      "response_example_parity": {
+        "cases": [
+          {
+            "documented_example_index": 0,
+            "source": "actual_source_safe_route_invocation",
+            "expected_status": 200,
+            "normalizations": []
+          }
+        ]
+      },
       "error_examples": ["503 readiness response returns {\"status\":\"draining\"} during intentional drain."],
       "test_evidence": ["tests/integration/test_health.py::test_health_endpoints", "tests/integration/test_health.py::test_readiness_reports_draining_state"],
       "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
@@ -5028,6 +5214,16 @@ Set-Content -Path (Join-Path $target "docs/operations/endpoint-certification-led
       "when_not_to_use": "Do not use as a business data or supportability endpoint.",
       "request_examples": ["No request body."],
       "response_examples": ["{\"service\":\"$ServiceName\",\"version\":\"0.1.0\",\"roundingPolicyVersion\":\"v1\"}"],
+      "response_example_parity": {
+        "cases": [
+          {
+            "documented_example_index": 0,
+            "source": "actual_source_safe_route_invocation",
+            "expected_status": 200,
+            "normalizations": []
+          }
+        ]
+      },
       "error_examples": ["Unhandled service errors return product-safe Problem Details."],
       "test_evidence": ["tests/e2e/test_smoke.py::test_metadata_endpoint"],
       "openapi_evidence": "scripts/openapi_quality_gate.py validates summary, description, tag, responses, and examples."
