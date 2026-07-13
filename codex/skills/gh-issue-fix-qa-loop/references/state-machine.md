@@ -50,6 +50,8 @@ truth instead of replacing it.
 - Validate repository labels before mutation; never create labels implicitly.
 - Remove every configured state label and alias when transitioning.
 - Never close directly from an active, fixed-local, PR-open, blocked, or pending-main state.
+- Reopen GitHub auto-closed issues before state normalization; only `qa_passed_closed` closes them
+  again.
 - Never describe merged code as merged-main until exact-main proof passes.
 - Closed issues cannot retain active labels; open issues cannot carry terminal merged-main labels.
 - Keep every retry and evidence update in the canonical issue thread.

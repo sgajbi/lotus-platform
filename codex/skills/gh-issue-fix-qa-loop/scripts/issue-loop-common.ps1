@@ -120,6 +120,9 @@ function Set-IssueLoopState {
   )
 
   $issue = Get-IssueLoopIssue -Repo $Repo -IssueNumber $IssueNumber
+  if ([string]$issue.state -eq "CLOSED") {
+    $null = Invoke-IssueLoopGh -GhArgs @("issue", "reopen", $IssueNumber.ToString(), "--repo", $Repo)
+  }
   $currentNames = @($issue.labels | ForEach-Object { [string]$_.name })
   $target = Get-IssueLoopStateLabel -Contract $Contract -State $State
   foreach ($label in (Get-IssueLoopAllStateLabels -Contract $Contract)) {
