@@ -25,5 +25,8 @@ DTO or serializer, or a deterministic no-I/O example factory. A second
 documentation literal is not runtime evidence.
 
 Reference Python comparison behavior lives in
-automation/endpoint_example_parity.py. Other languages must pass equivalent
-contract fixtures and application-owned runtime parity tests.
+`codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py`.
+Other languages must pass equivalent contract fixtures and application-owned runtime parity tests.
+
+Adoption and evidence requirements are defined in
+`docs/standards/Endpoint Example Parity Standard.md`.

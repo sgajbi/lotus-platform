@@ -215,6 +215,15 @@ Generated endpoint-certification gates should require certified business/operato
 bounded operation-event test evidence in the endpoint ledger. Baseline health/metadata endpoints can
 remain `baseline_certified` without operation-event evidence, but once an endpoint is marked
 `certified`, API contract evidence and supportability telemetry proof must move together.
+The same gate should parse and structurally compare every `baseline_certified` or `certified`
+success example with a source-safe route invocation or deterministic code-owned callable. Fail
+missing/stale fields, alias drift, blocker drift, scalar-type drift, and value drift. Dynamic values
+must use an explicit RFC 6901 pointer plus an approved narrow normalizer; governance fields remain
+exact. Keep the comparator with scaffold automation and add behavioral mutation tests so a stale
+but parseable example cannot pass.
+The canonical comparator source is `scripts/endpoint_example_parity.py`; keep changes to comparison
+semantics, the machine-readable platform contract, scaffold copying, and focused comparator tests
+in the same delivery slice.
 
 New backend scaffolds should also generate and run this seven-gate quality pack through
 `make lint`: `make maintainability-gate`, `make documentation-contract-gate`,

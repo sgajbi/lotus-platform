@@ -2,6 +2,8 @@
   "schemaVersion": "lotus.endpoint-example-parity-contract.v1",
   "contractId": "lotus-platform:endpoint-example-parity:v1",
   "lifecycleStatus": "active",
+  "standard": "docs/standards/Endpoint Example Parity Standard.md",
+  "referenceImplementation": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py",
   "comparison": {
     "mode": "exact_structural",
     "objectKeyOrderSignificant": false,

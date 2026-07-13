@@ -4120,7 +4120,8 @@ if __name__ == "__main__":
     sys.exit(main())
 "@
 Set-Content -Path (Join-Path $target "scripts/endpoint_certification_gate.py") -Value $endpointCertificationGate
-$endpointExampleParity = Get-Content -Raw (Join-Path $scriptRoot "endpoint_example_parity.py")
+$endpointExampleParitySource = Join-Path $repoRoot "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+$endpointExampleParity = Get-Content -Raw $endpointExampleParitySource
 Set-Content -Path (Join-Path $target "scripts/endpoint_example_parity.py") -Value $endpointExampleParity
 
 $profileDescriptionPrefix = (Get-ServiceProfileDescription -Profile $ServiceProfile).Split('.')[0]
