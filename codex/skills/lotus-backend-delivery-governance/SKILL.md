@@ -101,6 +101,18 @@ POSIX shell, or
 `$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
 in PowerShell, for the affected service.
 
+When an application owns an app-local Compose stack, keep it independently operable instead of
+requiring Workbench or platform orchestration to supply missing persistence or migration behavior.
+For a database-backed service, prove the app-owned stack starts the database, waits for health,
+runs one bounded migration job to successful completion, starts API and worker roles against the
+same explicit durable URL, and survives both a repeated Compose start and an API-container restart
+without data loss or migration replay. Keep in-memory adapters limited to explicit test or
+ephemeral developer paths. Validate the actual major-version image, not only YAML: official image
+volume layout, initialization, health commands, and upgrade posture can change across PostgreSQL
+majors. Local migration convenience must still be pending-only, transactionally fenced, and
+checksum-drift aware; it must not weaken or impersonate release-attested staging/production
+migration evidence.
+
 Before consolidating Python services into one deployable, inspect each distribution's wheel
 contents and declared top-level packages. Do not co-install distributions that expose overlapping
 namespaces such as `core`, `consumers`, or `repositories`: installation order can silently replace

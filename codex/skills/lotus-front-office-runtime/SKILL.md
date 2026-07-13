@@ -51,9 +51,14 @@ Do not route those tasks through generic platform QA by default.
 12. Keep the canonical private-banking seed separate from demo-pack content. The governed PB seed
     should remain contract-backed and `DEMO_DATA_PACK_ENABLED=false` by default.
 13. When a canonical proof depends on source-owned health or supportability context, verify the
-    final persisted service read after all seed steps. Monitoring or batch jobs can overwrite a
-    deterministic snapshot created earlier in the seed flow; do not accept the immediate write
-    response as proof if a later step recalculates the same entity.
+   final persisted service read after all seed steps. Monitoring or batch jobs can overwrite a
+   deterministic snapshot created earlier in the seed flow; do not accept the immediate write
+   response as proof if a later step recalculates the same entity.
+14. Treat each application repository's standalone runtime as the owned composition contract.
+   Workbench may orchestrate that contract but must not inject an application's missing database,
+   migration, or durability behavior. Before accepting a newly database-backed app in canonical
+   startup, prove standalone first start, repeated start, API restart, and persisted readback using
+   the app-owned Compose path; then run canonical validation against that same path.
 
 ## Canonical Commands
 
