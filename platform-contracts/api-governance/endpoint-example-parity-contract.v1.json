@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lotus.endpoint-example-parity-contract.v1",
+  "contractId": "lotus-platform:endpoint-example-parity:v1",
+  "lifecycleStatus": "active",
+  "comparison": {
+    "mode": "exact_structural",
+    "objectKeyOrderSignificant": false,
+    "arrayOrderSignificant": true,
+    "missingDistinctFromNull": true,
+    "booleanDistinctFromInteger": true,
+    "integerDistinctFromNumber": true
+  },
+  "normalization": {
+    "policy": "explicit_absolute_json_pointer_only",
+    "allowedStrategies": [
+      "rfc3339",
+      "uuid",
+      "non_empty_string",
+      "environment_string"
+    ],
+    "forbiddenFieldTokens": [
+      "blockers",
+      "certificationBlockers",
+      "certificationReady",
+      "certificationStatus",
+      "contractVersion",
+      "lifecycleStatus",
+      "readinessStatus",
+      "schemaVersion",
+      "supportabilityStatus",
+      "supportedFeaturePromoted",
+      "version"
+    ]
+  },
+  "requiredEndpointClasses": [
+    "readiness",
+    "supportability",
+    "version_metadata",
+    "certification",
+    "certified_business_or_operator"
+  ],
+  "runtimeExampleSources": [
+    "actual_source_safe_route_invocation",
+    "code_owned_response_dto_or_serializer",
+    "deterministic_no_io_example_factory"
+  ],
+  "prohibitedRuntimeExampleSources": [
+    "second_documentation_literal",
+    "untyped_copy_of_documented_example",
+    "live_production_dependency_call",
+    "branch_local_sibling_claim"
+  ],
+  "failureCodes": [
+    "array_length_mismatch",
+    "duplicate_normalization_pointer",
+    "forbidden_governance_normalization",
+    "invalid_normalization_pointer",
+    "missing_documented_field",
+    "normalization_target_missing",
+    "normalization_value_invalid",
+    "stale_documented_field",
+    "type_mismatch",
+    "unsupported_normalization_strategy",
+    "value_mismatch"
+  ]
+}
