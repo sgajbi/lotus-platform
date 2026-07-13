@@ -52,10 +52,16 @@ def test_quality_reports_render_before_after_scorecard_and_guidance_review() -> 
     assert "lotus-ci-enforcement-governance" in health_report
     assert "108. Analytics UI feature-milestone validator extraction" in health_report
     assert "109. Proof-artifact guardrail hardening" in health_report
+    assert (
+        "110. Certified endpoint response-example parity enforcement" in health_report
+    )
+    assert "Parseable examples could drift from runtime response truth" in scorecard
 
 
 def test_quality_surface_is_wired_into_repo_checks_and_artifacts() -> None:
-    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+    repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(
+        encoding="utf-8"
+    )
     assert "generate_enterprise_backend_quality_baseline.py --check" in repo_checks
 
     for file_name in {
@@ -69,7 +75,9 @@ def test_quality_surface_is_wired_into_repo_checks_and_artifacts() -> None:
         assert path.exists(), f"Missing quality artifact: {path}"
         assert path.read_text(encoding="utf-8").strip()
 
-    baseline = json.loads((ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8"))
+    baseline = json.loads(
+        (ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8")
+    )
     assert "code_size" in baseline
     assert "function_hotspots" in baseline
     assert "tests" in baseline
@@ -94,7 +102,9 @@ def test_quality_surface_reports_invalid_baseline_json(
 
     errors = baseline_generator.validate_quality_surface()
 
-    assert any(error.startswith("Invalid quality/baseline_report.json") for error in errors)
+    assert any(
+        error.startswith("Invalid quality/baseline_report.json") for error in errors
+    )
 
 
 def test_quality_surface_reports_missing_required_baseline_keys(
@@ -139,7 +149,10 @@ def test_quality_foundation_is_discoverable_from_docs_context_wiki_and_skill() -
 
     for path in expected_refs:
         text = path.read_text(encoding="utf-8")
-        assert "generate_enterprise_backend_quality_baseline.py" in text or "quality/baseline_report.md" in text
+        assert (
+            "generate_enterprise_backend_quality_baseline.py" in text
+            or "quality/baseline_report.md" in text
+        )
 
     sidebar = (ROOT / "wiki" / "_Sidebar.md").read_text(encoding="utf-8")
     assert "Enterprise-Backend-Refactor-Quality" in sidebar

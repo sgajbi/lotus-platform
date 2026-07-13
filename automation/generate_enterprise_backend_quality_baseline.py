@@ -236,7 +236,15 @@ def collect_python_function_metrics(files: Iterable[Path]) -> list[FunctionMetri
                     complexity=visitor.score,
                 )
             )
-    return sorted(metrics, key=lambda metric: (-metric.complexity, -metric.lines, metric.path, metric.name))
+    return sorted(
+        metrics,
+        key=lambda metric: (
+            -metric.complexity,
+            -metric.lines,
+            metric.path,
+            metric.name,
+        ),
+    )
 
 
 def _run_command(args: list[str]) -> dict[str, object]:
@@ -251,7 +259,12 @@ def _run_command(args: list[str]) -> dict[str, object]:
             check=False,
         )
     except FileNotFoundError:
-        return {"available": False, "command": args, "returncode": None, "summary": "tool not installed"}
+        return {
+            "available": False,
+            "command": args,
+            "returncode": None,
+            "summary": "tool not installed",
+        }
     except subprocess.TimeoutExpired as exc:
         return {
             "available": True,
@@ -270,7 +283,9 @@ def _run_command(args: list[str]) -> dict[str, object]:
 
 
 def _count_pytest_tests() -> dict[str, object]:
-    result = _run_command([sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/unit"])
+    result = _run_command(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/unit"]
+    )
     summary = str(result["summary"])
     collected = 0
     for token in summary.split():
@@ -282,10 +297,25 @@ def _count_pytest_tests() -> dict[str, object]:
 
 
 def _scan_secret_keyword_candidates(files: Iterable[Path]) -> list[dict[str, object]]:
-    sensitive_tokens = ("password", "secret", "token", "credential", "api_key", "private_key")
+    sensitive_tokens = (
+        "password",
+        "secret",
+        "token",
+        "credential",
+        "api_key",
+        "private_key",
+    )
     candidates: list[dict[str, object]] = []
     for path in files:
-        if path.suffix.lower() not in {".py", ".ps1", ".yml", ".yaml", ".json", ".md", ".txt"}:
+        if path.suffix.lower() not in {
+            ".py",
+            ".ps1",
+            ".yml",
+            ".yaml",
+            ".json",
+            ".md",
+            ".txt",
+        }:
             continue
         for line_number, line in enumerate(_read_text(path).splitlines(), start=1):
             normalized = line.lower()
@@ -314,7 +344,10 @@ def build_baseline() -> dict[str, object]:
     largest_function_lines = [metric.lines for metric in function_metrics]
 
     return {
-        "generated_at_utc": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "generated_at_utc": datetime.now(UTC)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z"),
         "repository": "lotus-platform",
         "scope": {
             "included_roots": list(SOURCE_ROOTS),
@@ -335,9 +368,14 @@ def build_baseline() -> dict[str, object]:
             "max_complexity": max(complexity_scores, default=0),
             "max_function_lines": max(largest_function_lines, default=0),
             "largest_functions": [
-                metric.__dict__ for metric in sorted(function_metrics, key=lambda item: (-item.lines, item.path))[:20]
+                metric.__dict__
+                for metric in sorted(
+                    function_metrics, key=lambda item: (-item.lines, item.path)
+                )[:20]
             ],
-            "highest_complexity_functions": [metric.__dict__ for metric in function_metrics[:20]],
+            "highest_complexity_functions": [
+                metric.__dict__ for metric in function_metrics[:20]
+            ],
         },
         "quality_tooling": {
             "ruff": _run_command(["ruff", "--version"]),
@@ -347,7 +385,9 @@ def build_baseline() -> dict[str, object]:
         },
         "tests": _count_pytest_tests(),
         "security": {
-            "secret_keyword_review_candidates_sample": _scan_secret_keyword_candidates(files),
+            "secret_keyword_review_candidates_sample": _scan_secret_keyword_candidates(
+                files
+            ),
             "candidate_sample_limit": 50,
             "note": "Keyword matches are planning signals and require human review before being treated as findings.",
         },
@@ -369,7 +409,10 @@ def build_baseline() -> dict[str, object]:
 
 
 def _markdown_table(headers: list[str], rows: list[list[object]]) -> str:
-    rendered = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"]
+    rendered = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
     for row in rows:
         rendered.append("| " + " | ".join(str(value) for value in row) + " |")
     return "\n".join(rendered)
@@ -381,13 +424,21 @@ def render_baseline_report(baseline: dict[str, object]) -> str:
     tests = baseline["tests"]
     security = baseline["security"]
 
-    largest_file_rows = [[item["path"], item["lines"], item["suffix"]] for item in baseline["largest_files"][:10]]
+    largest_file_rows = [
+        [item["path"], item["lines"], item["suffix"]]
+        for item in baseline["largest_files"][:10]
+    ]
     complexity_rows = [
         [item["path"], item["name"], item["line"], item["complexity"], item["lines"]]
         for item in function_hotspots["highest_complexity_functions"][:10]
     ]
     tooling_rows = [
-        [name, "yes" if details["available"] else "no", details["returncode"], details["summary"]]
+        [
+            name,
+            "yes" if details["available"] else "no",
+            details["returncode"],
+            details["summary"],
+        ]
         for name, details in baseline["quality_tooling"].items()
     ]
 
@@ -470,12 +521,20 @@ def render_scorecard(baseline: dict[str, object]) -> str:
                 "recorded in the baseline and health report."
             ),
         ],
-        ["Architecture", "Report-only", "Boundary rules enforced where practical", "Architecture rules documented."],
+        [
+            "Architecture",
+            "Report-only",
+            "Boundary rules enforced where practical",
+            "Architecture rules documented.",
+        ],
         [
             "OpenAPI quality",
-            "Platform governance only",
-            "Scaffold and validator improvements measured",
-            "No business API owned here.",
+            "Parseable examples could drift from runtime response truth",
+            "Generated services bind certified examples to deterministic response producers",
+            (
+                "A versioned parity contract, fail-closed comparator, scaffold gate, and mutation "
+                "tests cover stale fields, blockers, aliases, types, and governed normalization."
+            ),
         ],
         [
             "Tests",
@@ -483,9 +542,24 @@ def render_scorecard(baseline: dict[str, object]) -> str:
             "Focused coverage added per slice",
             "Collection result recorded.",
         ],
-        ["Security", "Keyword review sample measured", "Scanner-backed findings clean or governed", "No new dependency added yet."],
-        ["Observability", "Not yet assessed", "Operational diagnostics measured and improved", "Future slices should add concrete checks."],
-        ["Documentation", "Quality docs created", "Scorecard updated per slice", "Docs are implementation-backed."],
+        [
+            "Security",
+            "Keyword review sample measured",
+            "Scanner-backed findings clean or governed",
+            "No new dependency added yet.",
+        ],
+        [
+            "Observability",
+            "Not yet assessed",
+            "Operational diagnostics measured and improved",
+            "Future slices should add concrete checks.",
+        ],
+        [
+            "Documentation",
+            "Quality docs created",
+            "Scorecard updated per slice",
+            "Docs are implementation-backed.",
+        ],
     ]
     return f"""# Enterprise Refactor Quality Scorecard
 
@@ -913,6 +987,10 @@ Generated: `{baseline["generated_at_utc"]}`
 109. Proof-artifact guardrail hardening so enterprise refactor instructions, CI-enforcement skill
      guidance, and instruction-sync tests pin bounded proof artifacts, exact blocker semantics,
      source-safety checks, and anti-overclaim examples before app-local rollout.
+110. Certified endpoint response-example parity enforcement so generated services compare authored
+     examples structurally with deterministic code-owned producers, fail closed on stale fields,
+     blocker vocabulary, aliases, and types, and permit dynamic values only through explicit
+     field-level normalizers.
 
 ## Evidence
 
@@ -937,6 +1015,11 @@ Generated: `{baseline["generated_at_utc"]}`
 19. Standards path contract tests: `tests/unit/test_ci_governance_documentation_contract.py`
 20. Context validator refactor: `automation/validate_engineering_context_system.py`
 21. Context validator tests: `tests/unit/test_engineering_context_validator.py`
+22. Endpoint-example parity contract:
+    `platform-contracts/api-governance/endpoint-example-parity-contract.v1.json`
+23. Endpoint-example parity comparator:
+    `codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py`
+24. Endpoint-example parity tests: `tests/unit/test_endpoint_example_parity.py`
 
 ## Current Gate Posture
 
@@ -958,9 +1041,15 @@ def write_quality_artifacts(baseline: dict[str, object]) -> None:
         json.dumps(baseline, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    (QUALITY_DIR / "baseline_report.md").write_text(render_baseline_report(baseline), encoding="utf-8")
-    (QUALITY_DIR / "quality_scorecard.md").write_text(render_scorecard(baseline), encoding="utf-8")
-    (QUALITY_DIR / "refactor_health_report.md").write_text(render_health_report(baseline), encoding="utf-8")
+    (QUALITY_DIR / "baseline_report.md").write_text(
+        render_baseline_report(baseline), encoding="utf-8"
+    )
+    (QUALITY_DIR / "quality_scorecard.md").write_text(
+        render_scorecard(baseline), encoding="utf-8"
+    )
+    (QUALITY_DIR / "refactor_health_report.md").write_text(
+        render_health_report(baseline), encoding="utf-8"
+    )
     for name, content in QUALITY_DOCS.items():
         path = QUALITY_DIR / name
         if not path.exists():
@@ -1008,7 +1097,13 @@ def _validate_baseline_report_keys(
 ) -> None:
     if baseline is None:
         return
-    for key in ("code_size", "function_hotspots", "quality_tooling", "tests", "security"):
+    for key in (
+        "code_size",
+        "function_hotspots",
+        "quality_tooling",
+        "tests",
+        "security",
+    ):
         if key not in baseline:
             errors.append(f"quality/baseline_report.json missing `{key}`")
 
@@ -1019,7 +1114,9 @@ def _validate_repo_check_wiring(errors: list[str]) -> None:
         return
     text = repo_checks.read_text(encoding="utf-8")
     if "generate_enterprise_backend_quality_baseline.py --check" not in text:
-        errors.append("Platform repo checks do not validate the enterprise backend quality baseline.")
+        errors.append(
+            "Platform repo checks do not validate the enterprise backend quality baseline."
+        )
 
 
 def validate_quality_surface() -> list[str]:
@@ -1032,9 +1129,19 @@ def validate_quality_surface() -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate or validate the Lotus platform quality baseline.")
-    parser.add_argument("--write", action="store_true", help="Write quality baseline and scorecard artifacts.")
-    parser.add_argument("--check", action="store_true", help="Validate that quality baseline artifacts exist.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the Lotus platform quality baseline."
+    )
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="Write quality baseline and scorecard artifacts.",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate that quality baseline artifacts exist.",
+    )
     args = parser.parse_args()
 
     if args.write:
@@ -1045,7 +1152,10 @@ def main() -> int:
     if args.check:
         errors = validate_quality_surface()
         if errors:
-            print("Enterprise backend quality baseline validation failed:", file=sys.stderr)
+            print(
+                "Enterprise backend quality baseline validation failed:",
+                file=sys.stderr,
+            )
             for error in errors:
                 print(f"- {error}", file=sys.stderr)
             return 1

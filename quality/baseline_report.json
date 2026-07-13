@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 369,
-    "powershell_file_count": 63,
-    "python_file_count": 159,
-    "source_file_count": 732,
+    "markdown_file_count": 384,
+    "powershell_file_count": 66,
+    "python_file_count": 181,
+    "source_file_count": 789,
     "suffix_counts": {
-      ".json": 108,
-      ".md": 369,
-      ".ps1": 63,
-      ".py": 159,
+      ".json": 116,
+      ".md": 384,
+      ".ps1": 66,
+      ".py": 181,
       ".txt": 5,
-      ".yaml": 16,
+      ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 316864
+    "total_source_lines": 328554
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,12 +34,124 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
+        "complexity": 30,
+        "end_line": 156,
+        "line": 60,
+        "lines": 97,
+        "name": "audit",
+        "path": "codex/skills/lotus-skill-context-governance/scripts/audit_lotus_skills.py"
+      },
+      {
+        "complexity": 22,
+        "end_line": 185,
+        "line": 97,
+        "lines": 89,
+        "name": "validate_decision",
+        "path": "automation/validate_lifecycle_authority_contracts.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 262,
+        "line": 199,
+        "lines": 64,
+        "name": "audit_wiki",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 220,
+        "line": 188,
+        "lines": 33,
+        "name": "validate_key_discovery",
+        "path": "automation/validate_lifecycle_authority_contracts.py"
+      },
+      {
         "complexity": 15,
         "end_line": 125,
         "line": 52,
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
+      },
+      {
+        "complexity": 14,
+        "end_line": 203,
+        "line": 170,
+        "lines": 34,
+        "name": "_iter_default_telemetry_paths",
+        "path": "automation/mesh_certification_gate.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 215,
+        "line": 199,
+        "lines": 17,
+        "name": "_resolve_pointer",
+        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 315,
+        "line": 239,
+        "lines": 77,
+        "name": "_compare",
+        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 159,
+        "line": 105,
+        "lines": 55,
+        "name": "_parse_normalization_rule",
+        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 453,
+        "line": 416,
+        "lines": 38,
+        "name": "_issue_from_live_certification",
+        "path": "automation/mesh_certification_gate.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 70,
+        "line": 44,
+        "lines": 27,
+        "name": "__post_init__",
+        "path": "automation/cost_attribution/domain.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 122,
+        "line": 99,
+        "lines": 24,
+        "name": "_validate_artifact",
+        "path": "automation/cost_attribution/qualification.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 76,
+        "line": 22,
+        "lines": 55,
+        "name": "qualify_service_cost_attribution",
+        "path": "automation/cost_attribution/qualification.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 83,
+        "line": 55,
+        "lines": 29,
+        "name": "_validate_application_agent_contract_sync",
+        "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 236,
+        "line": 218,
+        "lines": 19,
+        "name": "_normalization_value_valid",
+        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
       },
       {
         "complexity": 9,
@@ -80,134 +192,22 @@
         "lines": 56,
         "name": "_wiki_publication_adapter",
         "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 109,
-        "line": 58,
-        "lines": 52,
-        "name": "classify_branch",
-        "path": "automation/prune_merged_remote_branches.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 626,
-        "line": 582,
-        "lines": 45,
-        "name": "_validate_telemetry_events",
-        "path": "automation/validate_analytics_ui_observability_contract.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 299,
-        "line": 258,
-        "lines": 42,
-        "name": "_validate_required_product_lifecycle",
-        "path": "automation/mesh_certification_gate.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 1024,
-        "line": 987,
-        "lines": 38,
-        "name": "_collect_delegated_task_ledger_item",
-        "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 140,
-        "line": 103,
-        "lines": 38,
-        "name": "_validate_repository_reviews",
-        "path": "automation/validate_analytics_ui_ecosystem_hardening.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 450,
-        "line": 414,
-        "lines": 37,
-        "name": "record_main_agent_review",
-        "path": "automation/delegation_task_ledger.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 63,
-        "line": 28,
-        "lines": 36,
-        "name": "_mesh_status",
-        "path": "tests/unit/test_enterprise_mesh_operating_report.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 458,
-        "line": 429,
-        "lines": 30,
-        "name": "_validate_engineering_context_entrypoints",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 226,
-        "line": 201,
-        "lines": 26,
-        "name": "_validate_read_paths",
-        "path": "automation/validate_analytics_ui_entitlement_certification.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 86,
-        "line": 64,
-        "lines": 23,
-        "name": "load_config",
-        "path": "automation/heartbeat_sources.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 115,
-        "line": 97,
-        "lines": 19,
-        "name": "_issue_family",
-        "path": "automation/generate_enterprise_mesh_operating_report.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 599,
-        "line": 581,
-        "lines": 19,
-        "name": "_validate_delegation_write_scope",
-        "path": "automation/validate_agent_engineering_contracts.py"
-      },
-      {
-        "complexity": 8,
-        "end_line": 483,
-        "line": 124,
-        "lines": 360,
-        "name": "validate_service_addressing",
-        "path": "automation/validate_service_addressing.py"
-      },
-      {
-        "complexity": 8,
-        "end_line": 625,
-        "line": 512,
-        "lines": 114,
-        "name": "run_validation",
-        "path": "automation/core_performance_cross_app_validation.py"
       }
     ],
     "largest_functions": [
       {
         "complexity": 1,
-        "end_line": 1209,
-        "line": 322,
-        "lines": 888,
+        "end_line": 1296,
+        "line": 413,
+        "lines": 884,
         "name": "test_scaffolded_repo_matches_repository_hygiene_baseline",
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
       {
         "complexity": 1,
-        "end_line": 952,
-        "line": 501,
-        "lines": 452,
+        "end_line": 1035,
+        "line": 575,
+        "lines": 461,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
       },
@@ -229,8 +229,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2108,
-        "line": 1839,
+        "end_line": 2123,
+        "line": 1854,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -245,9 +245,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 319,
-        "line": 72,
-        "lines": 248,
+        "end_line": 410,
+        "line": 159,
+        "lines": 252,
         "name": "test_repository_hygiene_standard_and_templates_exist",
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
@@ -266,6 +266,14 @@
         "lines": 206,
         "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 220,
+        "line": 26,
+        "lines": 195,
+        "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
+        "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
       {
         "complexity": 2,
@@ -300,6 +308,14 @@
         "path": "tests/unit/test_service_addressing_validator.py"
       },
       {
+        "complexity": 3,
+        "end_line": 1750,
+        "line": 1594,
+        "lines": 157,
+        "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
+      },
+      {
         "complexity": 5,
         "end_line": 479,
         "line": 323,
@@ -324,14 +340,6 @@
         "path": "automation/core_performance_mwr_validation.py"
       },
       {
-        "complexity": 3,
-        "end_line": 1735,
-        "line": 1594,
-        "lines": 142,
-        "name": "test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
         "complexity": 5,
         "end_line": 351,
         "line": 218,
@@ -346,21 +354,13 @@
         "lines": 133,
         "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 655,
-        "line": 523,
-        "lines": 133,
-        "name": "test_rfc_0084_validator_rejects_unknown_and_duplicate_dependencies",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 15,
-    "max_function_lines": 888,
-    "python_function_count": 1874
+    "max_complexity": 30,
+    "max_function_lines": 884,
+    "python_function_count": 2043
   },
-  "generated_at_utc": "2026-06-27T08:33:51Z",
+  "generated_at_utc": "2026-07-13T12:12:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -383,7 +383,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 5160,
+      "lines": 5393,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -393,12 +393,12 @@
       "suffix": ".json"
     },
     {
-      "lines": 2769,
+      "lines": 3072,
       "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
       "suffix": ".json"
     },
     {
-      "lines": 2212,
+      "lines": 2227,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -428,18 +428,28 @@
       "suffix": ".py"
     },
     {
-      "lines": 1337,
-      "path": "automation/README.md",
-      "suffix": ".md"
-    },
-    {
-      "lines": 1297,
+      "lines": 1384,
       "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
       "suffix": ".py"
     },
     {
+      "lines": 1358,
+      "path": "automation/README.md",
+      "suffix": ".md"
+    },
+    {
       "lines": 1172,
       "path": "automation/generate_domain_product_onboarding.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1171,
+      "path": "automation/generate_enterprise_backend_quality_baseline.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1165,
+      "path": "automation/mesh_certification_gate.py",
       "suffix": ".py"
     },
     {
@@ -448,19 +458,9 @@
       "suffix": ".md"
     },
     {
-      "lines": 1125,
-      "path": "automation/mesh_certification_gate.py",
-      "suffix": ".py"
-    },
-    {
       "lines": 1094,
       "path": "rfcs/RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1061,
-      "path": "automation/generate_enterprise_backend_quality_baseline.py",
-      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -602,27 +602,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 276,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 277,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 278,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 284,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 285,
+        "line": 291,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
@@ -632,57 +612,107 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 350,
+        "line": 293,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 442,
+        "line": 299,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1677,
+        "line": 300,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 301,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 302,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 303,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 304,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 305,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 306,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 322,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 388,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 493,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 1705,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1678,
+        "line": 1706,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2736,
+        "line": 2765,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2737,
+        "line": 2766,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2981,
+        "line": 3018,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3533,
+        "line": 3570,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3534,
+        "line": 3571,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3547,
+        "line": 3584,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3548,
+        "line": 3585,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -742,6 +772,11 @@
         "signal": "sensitive-keyword-review"
       },
       {
+        "line": 22,
+        "path": "automation/validate_workflow_security.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
         "line": 21,
         "path": "automation/Verify-Repo-Metadata.ps1",
         "signal": "sensitive-keyword-review"
@@ -750,49 +785,14 @@
         "line": 22,
         "path": "automation/Verify-Repo-Metadata.ps1",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 23,
-        "path": "automation/Verify-Repo-Metadata.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 24,
-        "path": "automation/Verify-Repo-Metadata.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 25,
-        "path": "automation/Verify-Repo-Metadata.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 30,
-        "path": "automation/Verify-Repo-Metadata.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 127,
-        "path": "codex/skills/lotus-ci-enforcement-governance/SKILL.md",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 129,
-        "path": "codex/skills/lotus-ci-enforcement-governance/SKILL.md",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 131,
-        "path": "codex/skills/lotus-ci-enforcement-governance/SKILL.md",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 564,
+    "collected_tests": 662,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "564 tests collected in 0.58s"
+    "summary": "662 tests collected in 0.88s"
   }
 }

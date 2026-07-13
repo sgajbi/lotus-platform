@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-06-27T08:33:51Z`
+Generated: `2026-07-13T12:12:10Z`
 
 ## Completed Slices
 
@@ -412,6 +412,10 @@ Generated: `2026-06-27T08:33:51Z`
 109. Proof-artifact guardrail hardening so enterprise refactor instructions, CI-enforcement skill
      guidance, and instruction-sync tests pin bounded proof artifacts, exact blocker semantics,
      source-safety checks, and anti-overclaim examples before app-local rollout.
+110. Certified endpoint response-example parity enforcement so generated services compare authored
+     examples structurally with deterministic code-owned producers, fail closed on stale fields,
+     blocker vocabulary, aliases, and types, and permit dynamic values only through explicit
+     field-level normalizers.
 
 ## Evidence
 
@@ -436,6 +440,11 @@ Generated: `2026-06-27T08:33:51Z`
 19. Standards path contract tests: `tests/unit/test_ci_governance_documentation_contract.py`
 20. Context validator refactor: `automation/validate_engineering_context_system.py`
 21. Context validator tests: `tests/unit/test_engineering_context_validator.py`
+22. Endpoint-example parity contract:
+    `platform-contracts/api-governance/endpoint-example-parity-contract.v1.json`
+23. Endpoint-example parity comparator:
+    `codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py`
+24. Endpoint-example parity tests: `tests/unit/test_endpoint_example_parity.py`
 
 ## Current Gate Posture
 

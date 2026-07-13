@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-06-27T08:33:51Z`
+Generated: `2026-07-13T12:12:10Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `732`
-- Total source lines: `316864`
-- Python files: `159`
-- PowerShell files: `63`
-- Markdown files: `369`
+- Source files: `789`
+- Total source lines: `328554`
+- Python files: `181`
+- PowerShell files: `66`
+- Markdown files: `384`
 
 ## Largest Files
 
@@ -30,31 +30,31 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
-| automation/New-Lotus-Service.ps1 | 5160 | .ps1 |
+| automation/New-Lotus-Service.ps1 | 5393 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
-| platform-contracts/domain-data-products/lotus-core-products.v1.json | 2769 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2212 | .py |
+| platform-contracts/domain-data-products/lotus-core-products.v1.json | 3072 | .json |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2227 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 | automation/heartbeat_sources.py | 1735 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `1874`
-- Highest measured cyclomatic complexity: `15`
-- Largest Python function length: `888`
+- Python functions: `2043`
+- Highest measured cyclomatic complexity: `30`
+- Largest Python function length: `884`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
+| codex/skills/lotus-skill-context-governance/scripts/audit_lotus_skills.py | audit | 60 | 30 | 97 |
+| automation/validate_lifecycle_authority_contracts.py | validate_decision | 97 | 22 | 89 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | audit_wiki | 199 | 19 | 64 |
+| automation/validate_lifecycle_authority_contracts.py | validate_key_discovery | 188 | 19 | 33 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | validate_contract_directory | 1439 | 9 | 102 |
-| automation/core_performance_cross_app_validation.py | _evaluate_performance_requests | 306 | 9 | 75 |
-| automation/validate_dev_ingress_smoke.py | validate_dev_ingress_smoke | 94 | 9 | 64 |
-| automation/domain_product_certification.py | _append_dependency_issues | 148 | 9 | 57 |
-| automation/heartbeat_sources.py | _wiki_publication_adapter | 1085 | 9 | 56 |
-| automation/prune_merged_remote_branches.py | classify_branch | 58 | 9 | 52 |
-| automation/validate_analytics_ui_observability_contract.py | _validate_telemetry_events | 582 | 9 | 45 |
-| automation/mesh_certification_gate.py | _validate_required_product_lifecycle | 258 | 9 | 42 |
-| automation/heartbeat_sources.py | _collect_delegated_task_ledger_item | 987 | 9 | 38 |
+| automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 170 | 14 | 34 |
+| codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _resolve_pointer | 199 | 12 | 17 |
+| codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _compare | 239 | 11 | 77 |
+| codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _parse_normalization_rule | 105 | 11 | 55 |
+| automation/mesh_certification_gate.py | _issue_from_live_certification | 416 | 11 | 38 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `564`
+- Unit tests collected: `662`
 - Collection command return code: `0`
-- Collection summary: `564 tests collected in 0.58s`
+- Collection summary: `662 tests collected in 0.88s`
 
 ## Security Baseline
 
