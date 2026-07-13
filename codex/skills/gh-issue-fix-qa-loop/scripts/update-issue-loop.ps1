@@ -141,6 +141,7 @@ Result: issue is open and returned to active implementation.
   if (-not ($currentNames -contains $mergedMainLabel)) {
     throw "Issue #$Number must have $mergedMainLabel before qa_passed_closed"
   }
+  Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "merged_main"
   Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
 Loop status: qa_passed_closed
 
