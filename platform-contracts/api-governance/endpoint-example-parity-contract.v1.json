@@ -54,6 +54,7 @@
     "array_length_mismatch",
     "duplicate_normalization_pointer",
     "forbidden_governance_normalization",
+    "invalid_normalization_rule",
     "invalid_normalization_pointer",
     "missing_documented_field",
     "normalization_target_missing",
