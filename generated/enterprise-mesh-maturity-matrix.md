@@ -5,7 +5,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Generated at: `2026-06-24T00:00:00Z`
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `11`
-- Product count: `81`
+- Product count: `84`
 - Certified first-wave products: `8`
 - Candidate products: `0`
 - Ambiguous repositories: `0`
@@ -15,7 +15,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | Repository | Classification | Mesh role | Produced | Consumed | Next step |
 | --- | --- | --- | ---: | ---: | --- |
 | `lotus-platform` | `not_mesh_participant` | `platform_governance` | `0` | `0` | Owns contracts, validators, generated evidence, CI, and certification enforcement rather than product truth. |
-| `lotus-core` | `certified_first_wave` | `producer` | `44` | `0` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-core` | `certified_first_wave` | `producer` | `47` | `0` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-performance` | `certified_first_wave` | `producer` | `8` | `10` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-risk` | `certified_first_wave` | `producer` | `8` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `8` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
@@ -40,6 +40,8 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-advise:TacticalHouseViewAffectedCohort:v1` | `lotus-advise` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:BenchmarkAssignment:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:BenchmarkConstituentWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:BenchmarkDefinition:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:BenchmarkReturnSeriesWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:CioModelChangeAffectedCohort:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ClientIncomeNeedsSchedule:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ClientRestrictionProfile:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
@@ -57,6 +59,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-core:ExternalHedgePolicy:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:ExternalOrderExecutionAcknowledgement:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:HoldingsAsOf:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
+| `lotus-core:IndexDefinition:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:IndexSeriesWindow:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:IngestionEvidenceBundle:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-core:InstrumentEligibilityProfile:v1` | `lotus-core` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |

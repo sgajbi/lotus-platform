@@ -4,7 +4,7 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
-- Product count: `81`
+- Product count: `84`
 - Dependency count: `66`
 - Included repositories: `7`
 - Pending repositories: `0`
@@ -24,6 +24,8 @@ This file is generated from the governed domain-product catalog and dependency g
 | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `certified` | `0` | `True` | `True` |
 | `BenchmarkAssignment` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `BenchmarkConstituentWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `BenchmarkDefinition` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `BenchmarkReturnSeriesWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `CioModelChangeAffectedCohort` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ClientIncomeNeedsSchedule` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ClientRestrictionProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |
@@ -41,6 +43,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | `ExternalHedgePolicy` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `HoldingsAsOf` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `IndexDefinition` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `IndexSeriesWindow` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `IngestionEvidenceBundle` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `InstrumentEligibilityProfile` | `lotus-core` | `certified` | `0` | `True` | `True` |

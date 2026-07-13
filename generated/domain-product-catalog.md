@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `81`
+- Product count: `84`
 - Dependency count: `66`
 
 ## Products
@@ -21,6 +21,8 @@ This file is generated from governed domain-data-product declarations.
 | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `cohort_membership` | `active` | lotus-manage | /advisory/tactical-house-view/cohorts/evaluate |
 | `BenchmarkAssignment` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-report, lotus-manage, lotus-idea | /integration/portfolios/{portfolio_id}/benchmark-assignment |
 | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/composition-window |
+| `BenchmarkDefinition` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/definition, /integration/benchmarks/catalog |
+| `BenchmarkReturnSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/benchmarks/{benchmark_id}/return-series |
 | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/model-portfolios/{model_portfolio_id}/affected-mandates |
 | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-income-needs-schedule |
 | `ClientRestrictionProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/client-restriction-profile |
@@ -38,6 +40,7 @@ This file is generated from governed domain-data-product declarations.
 | `ExternalHedgePolicy` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-hedge-policy |
 | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/external-order-execution-acknowledgement |
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise, lotus-idea | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
+| `IndexDefinition` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/catalog |
 | `IndexSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/{index_id}/price-series, /integration/indices/{index_id}/return-series |
 | `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
 | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/instruments/eligibility-bulk |

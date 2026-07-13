@@ -1688,6 +1688,21 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
     assert by_name["MarketDataWindow"]["request_scope"]["scope_level"] == "benchmark"
     assert by_name["MarketDataWindow"]["temporal_semantics_ref"] == "valuation_date"
     assert by_name["RiskFreeSeriesWindow"]["request_scope"]["scope_level"] == "global"
+    assert by_name["BenchmarkDefinition"]["identifier_refs"] == [
+        "benchmark_id",
+        "tenant_id",
+    ]
+    assert by_name["BenchmarkDefinition"]["temporal_semantics_ref"] == "as_of_date"
+    assert by_name["IndexDefinition"]["identifier_refs"] == ["index_id", "tenant_id"]
+    assert by_name["IndexDefinition"]["temporal_semantics_ref"] == "as_of_date"
+    assert by_name["BenchmarkReturnSeriesWindow"]["identifier_refs"] == [
+        "benchmark_id",
+        "tenant_id",
+    ]
+    assert (
+        by_name["BenchmarkReturnSeriesWindow"]["temporal_semantics_ref"]
+        == "valuation_date"
+    )
     assert (
         by_name["IngestionEvidenceBundle"]["temporal_scope"]["primary_time_field"]
         == "ingested_at"
