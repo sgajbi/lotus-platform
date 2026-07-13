@@ -118,6 +118,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
 15. When a repo exposes mixed request conventions, compatibility aliases, or easy-to-confuse query
    shapes, include copy-paste-ready request examples in the wiki so future agents and operators do
    not silently document the wrong contract.
+   When documentation contains readiness, supportability, version, certification, or certified
+   endpoint response examples, require repository-native evidence that each example matches an
+   actual source-safe route invocation or code-owned serializer/factory. Do not preserve a copied
+   response literal merely because it parses; bind dynamic values through explicit field-level
+   normalizers and keep blockers, aliases, supportability, schema, contract, and version truth exact.
 16. For product-UI repositories, distinguish active supported surfaces from compatibility routes,
    disabled navigation entries, and target future topology. Do not treat every historical route or
    shell label as an active product commitment.
