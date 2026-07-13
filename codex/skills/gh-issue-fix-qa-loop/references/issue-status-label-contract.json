@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lotus.issue-status-labels.v1",
+  "states": {
+    "in_progress": {
+      "label": "status/in-progress",
+      "aliases": ["status:dev-in-progress"]
+    },
+    "fixed_local": {
+      "label": "status/fixed-local",
+      "aliases": ["status/fixed-locally", "status:fixed-local", "status:fixed-locally"]
+    },
+    "pr_open": {
+      "label": "status/pr-open",
+      "aliases": ["status:pr-open"]
+    },
+    "merged_main": {
+      "label": "status/merged-main",
+      "aliases": ["status/merged-to-main", "status:merged-main", "status:merged-to-main"]
+    },
+    "blocked": {
+      "label": "status/blocked",
+      "aliases": ["status:blocked"]
+    }
+  },
+  "activeIssueStates": ["in_progress", "fixed_local", "pr_open", "blocked"],
+  "closedIssueStates": ["merged_main"]
+}
