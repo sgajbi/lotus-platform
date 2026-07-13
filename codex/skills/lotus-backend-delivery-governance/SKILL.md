@@ -190,6 +190,12 @@ For RFC-driven business-application slices, extend that intake with:
     source-owned route metadata, response metadata, examples, or a governed deterministic example
     policy; add a recursive validation guard where practical; and update repo context/wiki when the
     gate behavior becomes part of the repository contract.
+    For readiness, supportability, version, certification, and certified business/operator
+    endpoints, valid JSON is not enough: bind every documented success example to an actual
+    source-safe route invocation, code-owned response DTO/serializer, or deterministic no-I/O
+    factory and compare the complete serialized structure. Permit dynamic values only through
+    explicit RFC 6901 field pointers. Never normalize blocker, readiness, supportability,
+    certification, promotion, schema, contract-version, or version fields.
 16. When an issue exposes concrete external-capability coupling or uncertain processor/service
     layer placement, load and apply
     [Application And Adapter Classification](references/application-and-adapter-classification.md).
