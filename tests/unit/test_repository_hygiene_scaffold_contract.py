@@ -364,29 +364,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     original_endpoint_ledger = endpoint_ledger_path.read_text(encoding="utf-8")
     stale_endpoint_ledger = json.loads(original_endpoint_ledger)
-    (repo_root / "src/app/endpoint_example_factories.py").write_text(
-        "def health_example():\n"
-        "    return {'status': 'ok', 'service': 'lotus-hygiene-demo'}\n",
-        encoding="utf-8",
-    )
-    stale_endpoint_ledger["endpoints"][0]["response_example_parity"]["cases"][0] = {
-        "documented_example_index": 0,
-        "source": "deterministic_no_io_example_factory",
-        "callable": "app.endpoint_example_factories:health_example",
-        "normalizations": [],
-    }
-    endpoint_ledger_path.write_text(
-        json.dumps(stale_endpoint_ledger, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    callable_endpoint_gate = subprocess.run(
-        [sys.executable, "scripts/endpoint_certification_gate.py"],
-        cwd=repo_root,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    assert "Endpoint certification gate passed" in callable_endpoint_gate.stdout
     stale_endpoint_ledger["endpoints"][0]["response_examples"] = [
         '{"status":"legacy","service":"lotus-hygiene-demo"}'
     ]
@@ -589,6 +566,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     dockerfile = (repo_root / "Dockerfile").read_text(encoding="utf-8")
     main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
+    baseline_responses = (
+        repo_root / "src/app/api/baseline_responses.py"
+    ).read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
     app_readme = (repo_root / "src/app/README.md").read_text(encoding="utf-8")
     domain_profile = (repo_root / "src/app/domain/service_profile.py").read_text(
@@ -822,6 +802,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert 'summary="Get service health"' in main_py
     assert 'summary="Get readiness"' in main_py
     assert 'tags=["Metadata"]' in main_py
+    assert "from app.api.baseline_responses import" in main_py
+    assert "return health_response()" in main_py
+    assert "def health_response" in baseline_responses
+    assert "def metadata_response" in baseline_responses
     assert "validation_exception_handler" in main_py
     assert "unhandled_exception_handler" in main_py
     assert "emit_request_diagnostic_event" in main_py
@@ -923,6 +907,12 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert all(
         endpoint["response_example_parity"]["cases"]
         for endpoint in endpoint_certification["endpoints"]
+    )
+    assert all(
+        case["source"] == "deterministic_no_io_example_factory"
+        and case["callable"].startswith("app.api.baseline_responses:")
+        for endpoint in endpoint_certification["endpoints"]
+        for case in endpoint["response_example_parity"]["cases"]
     )
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
