@@ -4365,11 +4365,13 @@
       "temporal_semantics_ref": "as_of_date",
       "identifier_refs": [
         "portfolio_id",
+        "tenant_id",
         "correlation_id"
       ],
       "required_trust_metadata": [
         "product_name",
         "product_version",
+        "tenant_id",
         "generated_at",
         "as_of_date",
         "data_quality_status",
@@ -4378,7 +4380,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "daily",
-        "max_allowed_age_description": "Bulk review campaign membership is generated from the source-backed candidate set supplied inline or through an immutable BulkReviewCampaignDefinition:v1 definition plus optional governance evidence for the requested campaign as-of date. Preview-readiness evaluates persisted definition lifecycle, requested as-of date, source-backed candidate eligibility, governance approval, expiry, and optional actor entitlement before new preview/create use. Workflow overview composes discovery, preview-readiness, lifecycle-event, launch-history, approval decisions, assignment actions, assignment tasks, maker-checker controls, and optional launch-package posture without discovering the global portfolio universe or recalculating membership. The operating queue classifies persisted definitions into launch-ready, attention-required, and closed rows from existing discovery, preview-readiness, lifecycle, launch-history, and approval posture without adding order or OMS claims. The approval inbox classifies persisted definitions into approval-complete, approval-required, approval-incomplete, expiry-attention, entitlement-attention, and closed rows from existing governance evidence and readiness posture without adding trade-approval, order, or OMS claims. The workflow board composes the existing operating queue and approval inbox into actor-aware next-action rows for launch, approval-decision capture, approval evidence remediation, expiry refresh, entitlement review, or closed posture without mutating approval state. The assignment plan derives read-only actor routing, escalation tier, SLA posture, and reason codes from the workflow board without mutating assignment state or creating escalation tasks. The workflow automation projection composes assignment-plan and assignment-task state into read-only automation candidates for opening, monitoring, or escalating Manage-owned assignment tasks without automatic task mutation, external workflow orchestration, client contact, maker-checker workflow, order generation, or OMS claims. Assignment actions provide append-only assignment, reassignment, escalation, de-escalation, and resolution posture evidence on active definitions without approval-state mutation, trade approval, order, client-contact, maker-checker, or OMS claims. Assignment tasks provide controlled assignment and escalation task state with append-only transition evidence, idempotent task/transition refs, status counts, escalation counts, and SLA posture counts without approval-state mutation, trade approval, order generation or routing, client contact, external workflow orchestration, maker-checker, or OMS claims. Approval decisions provide append-only campaign approval posture evidence on active definitions without trade approval, order, client-contact, maker-checker, or OMS claims. Maker-checker controls provide append-only campaign control evidence on active definitions with actor separation required for completed reviews, without trade approval, order generation or routing, client contact, external workflow orchestration, or OMS claims. Launch packages provide a bounded preview/create request draft and required headers without recalculating campaign membership. Durable definition launch consumes the same readiness package, creates one wave only when ready, replays by deterministic launch idempotency, and records append-only launch history for wave lineage."
+        "max_allowed_age_description": "Bulk review campaign membership is generated from the tenant-scoped source-backed candidate set supplied inline or through an immutable BulkReviewCampaignDefinition:v1 definition plus optional governance evidence for the requested campaign as-of date. Inline and persisted candidates must use approved source contracts and carry source id, source version, READY supportability, and required content hash or approved batch or definition fingerprint coverage before membership can be published as READY. Persisted campaign definitions, workflow read models, lifecycle operations, launch evidence, and portfolio-memory campaign projections are keyed and queried by trusted tenant id. The product remains catalog-visible but mesh-deferred/future-wave until product-specific platform SLO, access, evidence-pack, and runtime certification evidence are promoted. Preview-readiness evaluates persisted definition lifecycle, requested as-of date, source-backed candidate eligibility, governance approval, expiry, and optional actor entitlement before new preview/create use. Workflow overview composes discovery, preview-readiness, lifecycle-event, launch-history, approval decisions, assignment actions, assignment tasks, maker-checker controls, and optional launch-package posture without discovering the global portfolio universe or recalculating membership. The operating queue classifies persisted definitions into launch-ready, attention-required, and closed rows from existing discovery, preview-readiness, lifecycle, launch-history, and approval posture without adding order or OMS claims. The approval inbox classifies persisted definitions into approval-complete, approval-required, approval-incomplete, expiry-attention, entitlement-attention, and closed rows from existing governance evidence and readiness posture without adding trade-approval, order, or OMS claims. The workflow board composes the existing operating queue and approval inbox into actor-aware next-action rows for launch, approval-decision capture, approval evidence remediation, expiry refresh, entitlement review, or closed posture without mutating approval state. The assignment plan derives read-only actor routing, escalation tier, SLA posture, and reason codes from the workflow board without mutating assignment state or creating escalation tasks. The workflow automation projection composes assignment-plan and assignment-task state into read-only automation candidates for opening, monitoring, or escalating Manage-owned assignment tasks without automatic task mutation, external workflow orchestration, client contact, maker-checker workflow, order generation, or OMS claims. Assignment actions provide append-only assignment, reassignment, escalation, de-escalation, and resolution posture evidence on active definitions without approval-state mutation, trade approval, order, client-contact, maker-checker, or OMS claims. Assignment tasks provide controlled assignment and escalation task state with append-only transition evidence, idempotent task/transition refs, status counts, escalation counts, and SLA posture counts without approval-state mutation, trade approval, order generation or routing, client contact, external workflow orchestration, maker-checker, or OMS claims. Approval decisions provide append-only campaign approval posture evidence on active definitions without trade approval, order, client-contact, maker-checker, or OMS claims. Maker-checker controls provide append-only campaign control evidence on active definitions with actor separation required for completed reviews, without trade approval, order generation or routing, client contact, external workflow orchestration, or OMS claims. Launch packages provide a bounded preview/create request draft and required headers without recalculating campaign membership. Durable definition launch consumes the same readiness package, creates one wave only when ready, replays by deterministic launch idempotency, and records append-only launch history for wave lineage."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -4440,12 +4442,14 @@
       },
       "temporal_semantics_ref": "as_of_date",
       "identifier_refs": [
+        "tenant_id",
         "portfolio_id",
         "correlation_id"
       ],
       "required_trust_metadata": [
         "product_name",
         "product_version",
+        "tenant_id",
         "generated_at",
         "as_of_date",
         "data_quality_status",
@@ -4454,7 +4458,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "intraday",
-        "max_allowed_age_description": "PM operating quality score runs are generated from explicit bank policy, bank approval and fairness-review evidence, current source-backed evidence supplied or referenced by the request, and optional lotus-core PortfolioManagerBookMembership:v1 scope materialization. Fairness analyses are generated from persisted score runs and source-defined operating segments. Review actions are immutable ledger rows over existing score-run or fairness-analysis evidence and preserve target content hashes without recalculating scores or recomputing fairness posture. Summary invocations are immutable history rows over existing score-run and review-action evidence and carry PM_QUALITY_SUMMARY_TEXT_BOUNDARY evidence proving Manage records workflow, run, artifact refs, and hashes only, without storing or exposing generated summary text or projecting downstream summary UX. Portfolio memory projects bounded score-run lineage only when persisted Core PM-book member evidence includes the requested portfolio."
+        "max_allowed_age_description": "PM operating quality score runs are generated from trusted Gateway tenant identity, explicit bank policy, bank approval and fairness-review evidence, current source-backed evidence supplied or referenced by the request, and optional lotus-core PortfolioManagerBookMembership:v1 scope materialization. Fairness analyses are generated from persisted tenant-scoped score runs and source-defined operating segments. Review actions are immutable tenant-scoped ledger rows over existing score-run or fairness-analysis evidence and preserve target content hashes without recalculating scores or recomputing fairness posture. Summary invocations are immutable tenant-scoped history rows over existing score-run and review-action evidence and carry PM_QUALITY_SUMMARY_TEXT_BOUNDARY evidence proving Manage records workflow, run, artifact refs, and hashes only, without storing or exposing generated summary text or projecting downstream summary UX. Portfolio memory projects bounded score-run lineage only when persisted Core PM-book member evidence includes the requested portfolio under the trusted tenant scope."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -4532,7 +4536,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "daily",
-        "max_allowed_age_description": "Portfolio action registers are refreshed from current management workflow state and governed portfolio-state inputs. The lotus-idea action-intake route is a not-certified route foundation for source-safe conversion-intent handoff only; it does not create action-register records, grant rebalance authority, create orders, authorize client publication, or promote a supported feature."
+        "max_allowed_age_description": "Portfolio action registers are refreshed from current management workflow state and governed portfolio-state inputs. Certified PortfolioActionRegister routes exclude the lotus-idea action-intake route foundation, which is tracked separately as a not-certified route foundation for source-safe conversion-intent handoff evidence only; it does not create action-register records, grant rebalance authority, create orders, authorize client publication, or promote a supported feature."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -4551,7 +4555,6 @@
       ],
       "current_routes": [
         "/api/v1/rebalance/supportability/summary",
-        "/api/v1/rebalance/idea-action-intake",
         "/api/v1/rebalance/runs/{rebalance_run_id}/artifact",
         "/api/v1/rebalance/runs/{rebalance_run_id}/workflow",
         "/api/v1/rebalance/workflow/decisions"
