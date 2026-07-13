@@ -303,6 +303,11 @@ def test_successful_main_proof_and_qa_close_retain_terminal_state(fake_github) -
         ],
         env,
     )
+    after_merge = _read_state(state_path)
+    after_merge["issues"]["1"]["labels"].extend(
+        ["status/pr-open", "status:pr-open"]
+    )
+    _write_state(state_path, after_merge)
     closed = _run_script(
         UPDATE_SCRIPT,
         [
@@ -319,6 +324,8 @@ def test_successful_main_proof_and_qa_close_retain_terminal_state(fake_github) -
 
 
 def test_batch_reconciliation_removes_every_prior_state_alias(fake_github) -> None:
+    if POWERSHELL is None:
+        pytest.skip("PowerShell is required for issue-loop automation tests")
     state_path, _, env = fake_github
     state = _state()
     state["issues"] = {
