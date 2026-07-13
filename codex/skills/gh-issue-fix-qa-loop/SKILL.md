@@ -117,6 +117,8 @@ implementation and invoke only the update or audit entrypoint directly.
 - Do not merge while required checks fail.
 - Keep lifecycle labels mutually exclusive; every transition removes all configured state labels
   and aliases before applying the target state.
+- Reopen an issue when GitHub auto-closure precedes lifecycle normalization. Only the
+  evidence-backed `qa_passed_closed` transition closes it again.
 - Use the same issue thread for retries; avoid duplicate QA issues and comments.
 - Treat labels as visibility, not proof. Preserve PR, SHA, run, wiki, and cleanup references.
 - Use `status/blocked` only with a concrete blocker comment and return to active implementation when
