@@ -1,118 +1,159 @@
 param(
   [Parameter(Mandatory=$true)][string]$Repo,
-  [Parameter(Mandatory=$true)][int]$IssueNumber,
-  [Parameter(Mandatory=$true)][ValidateSet("dev_in_progress","pr_raised","merged_pending_qa","qa_failed","qa_passed_closed")][string]$Status,
+  [Parameter(Mandatory=$true)][int[]]$IssueNumber,
+  [Parameter(Mandatory=$true)]
+  [ValidateSet("dev_in_progress", "fixed_local", "pr_raised", "merged_pending_main_validation", "merged_main", "blocked", "qa_failed", "qa_passed_closed")]
+  [string]$Status,
   [int]$PrNumber = 0,
-  [string]$QaCommand = "",
+  [string]$CommitSha = "",
+  [string]$LocalValidationRef = "",
+  [string]$MainSha = "",
+  [long]$PrimaryValidationRunId = 0,
+  [long]$SecurityValidationRunId = 0,
+  [string]$WikiEvidence = "",
+  [string]$BranchCleanupEvidence = "",
   [string]$QaRunRef = "",
-  [string]$Summary = ""
+  [string]$Summary = "",
+  [string]$LabelContractPath = ""
 )
 
 $ErrorActionPreference = "Stop"
-if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
-  $PSNativeCommandUseErrorActionPreference = $false
+. (Join-Path $PSScriptRoot "issue-loop-common.ps1")
+if ([string]::IsNullOrWhiteSpace($LabelContractPath)) {
+  $LabelContractPath = Join-Path $PSScriptRoot "..\references\issue-status-label-contract.json"
 }
 
-function Invoke-Gh {
-  param([string[]]$GhArgs)
-  $result = & gh @GhArgs 2>&1
-  if ($LASTEXITCODE -ne 0) {
-    $text = ($result | Out-String).Trim()
-    throw "gh command failed: gh $($GhArgs -join ' ') :: $text"
-  }
-  return $result
+function Assert-RequiredText {
+  param([string]$Value, [string]$Name)
+  if ([string]::IsNullOrWhiteSpace($Value)) { throw "$Name is required for status '$Status'" }
 }
 
-function Set-IssueLabels {
-  param(
-    [string[]]$Add = @(),
-    [string[]]$Remove = @()
-  )
+function Update-IssueLoopIssue {
+  param([int]$Number, $Contract)
 
-  $currentRaw = Invoke-Gh -GhArgs @("issue","view",$IssueNumber.ToString(),"--repo",$Repo,"--json","labels")
-  $current = $currentRaw | ConvertFrom-Json
-  $currentNames = @()
-  foreach ($l in $current.labels) { $currentNames += [string]$l.name }
-
-  foreach ($label in $Add) {
-    if (-not ($currentNames -contains $label)) {
-      try {
-        $null = Invoke-Gh -GhArgs @("issue","edit",$IssueNumber.ToString(),"--repo",$Repo,"--add-label",$label)
-      } catch {
-        if ($_.Exception.Message -match "label.+not found") {
-          $null = Invoke-Gh -GhArgs @("label","create",$label,"--repo",$Repo,"--color","B60205","--description","Issue loop state")
-          $null = Invoke-Gh -GhArgs @("issue","edit",$IssueNumber.ToString(),"--repo",$Repo,"--add-label",$label)
-        } else {
-          throw
-        }
-      }
-    }
-  }
-
-  foreach ($label in $Remove) {
-    if ($currentNames -contains $label) {
-      $null = Invoke-Gh -GhArgs @("issue","edit",$IssueNumber.ToString(),"--repo",$Repo,"--remove-label",$label)
-    }
-  }
-}
-
-function Add-IssueComment {
-  param([string]$Body)
-  $null = Invoke-Gh -GhArgs @("issue","comment",$IssueNumber.ToString(),"--repo",$Repo,"--body",$Body)
-}
-
-if ($Status -eq "dev_in_progress") {
-  Set-IssueLabels -Add @("status:dev-in-progress") -Remove @("status:qa-failed","status:qa-pending","status:qa-passed")
-  Add-IssueComment -Body @"
+  if ($Status -eq "dev_in_progress") {
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "in_progress"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
 Loop status: dev_in_progress
 
 Development is in progress for this issue.
-Next step: open PR with Fixes #$IssueNumber.
+Next: commit a focused fix with local validation evidence.
 "@
-} elseif ($Status -eq "pr_raised") {
-  $prText = if ($PrNumber -gt 0) { "#$PrNumber" } else { "(not provided)" }
-  Set-IssueLabels -Add @("status:pr-open") -Remove @("status:dev-in-progress")
-  Add-IssueComment -Body @"
+    return
+  }
+
+  if ($Status -eq "fixed_local") {
+    Assert-RequiredText -Value $CommitSha -Name "CommitSha"
+    Assert-RequiredText -Value $LocalValidationRef -Name "LocalValidationRef"
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "fixed_local"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
+Loop status: fixed_local
+
+Commit: $CommitSha
+Local validation: $LocalValidationRef
+Next: open a PR linked to this issue.
+"@
+    return
+  }
+
+  if ($Status -eq "pr_raised") {
+    $pr = Assert-IssueLoopPrState -Repo $Repo -PrNumber $PrNumber -ExpectedState "OPEN"
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "pr_open"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
 Loop status: pr_raised
 
-PR opened: $prText
-Waiting for CI/review, then merge and request QA retest.
+PR opened: #$PrNumber ($($pr.url))
+Next: merge only after required PR checks pass.
 "@
-} elseif ($Status -eq "merged_pending_qa") {
-  $prText = if ($PrNumber -gt 0) { "#$PrNumber" } else { "(not provided)" }
-  Set-IssueLabels -Add @("status:qa-pending") -Remove @("status:pr-open","status:qa-failed")
-  Add-IssueComment -Body @"
-Loop status: merged_pending_qa
+    return
+  }
 
-PR merged: $prText
-QA requested.
+  if ($Status -eq "merged_pending_main_validation") {
+    Assert-RequiredText -Value $MainSha -Name "MainSha"
+    $pr = Assert-IssueLoopPrState -Repo $Repo -PrNumber $PrNumber -ExpectedState "MERGED" -ExpectedMainSha $MainSha
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "in_progress"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
+Loop status: merged_pending_main_validation
 
-QA command:
-$QaCommand
+PR merged: #$PrNumber ($($pr.url))
+Main SHA: $MainSha
+Result: merge is complete, but exact-main validation is not yet proven. The issue remains open and active.
 "@
-} elseif ($Status -eq "qa_failed") {
-  Set-IssueLabels -Add @("status:qa-failed") -Remove @("status:qa-pending","status:qa-passed")
-  Add-IssueComment -Body @"
+    return
+  }
+
+  if ($Status -eq "merged_main") {
+    Assert-RequiredText -Value $MainSha -Name "MainSha"
+    Assert-RequiredText -Value $WikiEvidence -Name "WikiEvidence"
+    Assert-RequiredText -Value $BranchCleanupEvidence -Name "BranchCleanupEvidence"
+    $pr = Assert-IssueLoopPrState -Repo $Repo -PrNumber $PrNumber -ExpectedState "MERGED" -ExpectedMainSha $MainSha
+    $primaryRun = Assert-IssueLoopSuccessfulRun -Repo $Repo -RunId $PrimaryValidationRunId -MainSha $MainSha -EvidenceName "Primary mainline validation"
+    $securityRun = Assert-IssueLoopSuccessfulRun -Repo $Repo -RunId $SecurityValidationRunId -MainSha $MainSha -EvidenceName "Security or repository-equivalent validation"
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "merged_main"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
+Loop status: merged_main
+
+PR merged: #$PrNumber ($($pr.url))
+Exact main SHA: $MainSha
+Primary mainline validation: $($primaryRun.name) $($primaryRun.url)
+Security/repository-equivalent validation: $($securityRun.name) $($securityRun.url)
+Wiki decision/publication: $WikiEvidence
+Branch cleanup: $BranchCleanupEvidence
+Next: QA verification may close the issue while retaining the merged-main label.
+"@
+    return
+  }
+
+  if ($Status -eq "blocked") {
+    Assert-RequiredText -Value $Summary -Name "Summary"
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "blocked"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
+Loop status: blocked
+
+Blocker: $Summary
+Next: remove the blocker, then transition back to dev_in_progress.
+"@
+    return
+  }
+
+  if ($Status -eq "qa_failed") {
+    Assert-RequiredText -Value $QaRunRef -Name "QaRunRef"
+    Assert-RequiredText -Value $Summary -Name "Summary"
+    $issue = Get-IssueLoopIssue -Repo $Repo -IssueNumber $Number
+    if ([string]$issue.state -eq "CLOSED") {
+      $null = Invoke-IssueLoopGh -GhArgs @("issue", "reopen", $Number.ToString(), "--repo", $Repo)
+    }
+    Set-IssueLoopState -Repo $Repo -IssueNumber $Number -Contract $Contract -State "in_progress"
+    Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
 Loop status: qa_failed
 
-QA failed. New dev iteration required.
-
 QA run/evidence: $QaRunRef
-Failure summary: $Summary
-
-Next step: implement follow-up fix and reopen PR cycle.
+Failure: $Summary
+Result: issue is open and returned to active implementation.
 "@
-} elseif ($Status -eq "qa_passed_closed") {
-  Set-IssueLabels -Add @("status:qa-passed") -Remove @("status:qa-pending","status:qa-failed","status:pr-open","status:dev-in-progress")
-  Add-IssueComment -Body @"
+    return
+  }
+
+  Assert-RequiredText -Value $QaRunRef -Name "QaRunRef"
+  $issue = Get-IssueLoopIssue -Repo $Repo -IssueNumber $Number
+  $currentNames = @($issue.labels | ForEach-Object { [string]$_.name })
+  $mergedMainLabel = Get-IssueLoopStateLabel -Contract $Contract -State "merged_main"
+  if (-not ($currentNames -contains $mergedMainLabel)) {
+    throw "Issue #$Number must have $mergedMainLabel before qa_passed_closed"
+  }
+  Add-IssueLoopComment -Repo $Repo -IssueNumber $Number -Body @"
 Loop status: qa_passed_closed
 
-QA passed.
 QA run/evidence: $QaRunRef
-
-Closing issue as verified fixed.
+Result: verified fixed on main. Closing the issue with merged-main retained.
 "@
-  $null = Invoke-Gh -GhArgs @("issue","close",$IssueNumber.ToString(),"--repo",$Repo)
+  $null = Invoke-IssueLoopGh -GhArgs @("issue", "close", $Number.ToString(), "--repo", $Repo)
 }
 
-Write-Output "Updated issue #$IssueNumber in $Repo with status '$Status'."
+$contract = Get-IssueLoopContract -Path $LabelContractPath
+$null = Assert-IssueLoopRepositoryVocabulary -Repo $Repo -Contract $contract
+foreach ($number in $IssueNumber) {
+  Update-IssueLoopIssue -Number $number -Contract $contract
+}
+
+Write-Output "Updated issue(s) $($IssueNumber -join ', ') in $Repo with status '$Status'."
