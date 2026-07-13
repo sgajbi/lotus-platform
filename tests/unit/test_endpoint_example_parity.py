@@ -119,6 +119,10 @@ def test_dynamic_values_require_valid_explicit_normalization() -> None:
             "invalid_normalization_pointer",
         ),
         (
+            {"pointer": "/generated~2AtUtc", "strategy": "rfc3339"},
+            "invalid_normalization_pointer",
+        ),
+        (
             {"pointer": "/generatedAtUtc", "strategy": "anything"},
             "unsupported_normalization_strategy",
         ),
@@ -170,6 +174,35 @@ def test_duplicate_normalization_pointer_is_rejected() -> None:
         payload,
         normalizations=rules,
     )
+
+
+def test_non_object_normalization_rule_is_rejected_without_raising() -> None:
+    payload = {"requestId": "e6ef1f39-ecf0-47ec-a12f-c1b59ba14fa4"}
+
+    assert "invalid_normalization_rule" in _codes(
+        payload,
+        payload,
+        normalizations=("/requestId",),
+    )
+
+
+@pytest.mark.parametrize(
+    ("rule", "expected_code"),
+    [
+        ({"pointer": 7, "strategy": "uuid"}, "invalid_normalization_pointer"),
+        (
+            {"pointer": "/requestId", "strategy": ["uuid"]},
+            "unsupported_normalization_strategy",
+        ),
+    ],
+)
+def test_non_string_normalization_fields_are_rejected_without_raising(
+    rule: dict[str, object],
+    expected_code: str,
+) -> None:
+    payload = {"requestId": "e6ef1f39-ecf0-47ec-a12f-c1b59ba14fa4"}
+
+    assert expected_code in _codes(payload, payload, normalizations=(rule,))
 
 
 def test_violation_messages_do_not_echo_values() -> None:

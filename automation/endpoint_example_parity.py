@@ -32,6 +32,7 @@ FAILURE_CODES = frozenset(
         "array_length_mismatch",
         "duplicate_normalization_pointer",
         "forbidden_governance_normalization",
+        "invalid_normalization_rule",
         "invalid_normalization_pointer",
         "missing_documented_field",
         "normalization_target_missing",
@@ -43,6 +44,7 @@ FAILURE_CODES = frozenset(
     }
 )
 _ENVIRONMENT_VALUE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,255}$")
+_INVALID_POINTER_ESCAPE = re.compile(r"~(?![01])")
 
 
 @dataclass(frozen=True)
@@ -82,15 +84,37 @@ def _apply_normalizations(
     errors: list[ExampleParityViolation] = []
     seen: set[str] = set()
     for index, rule in enumerate(normalizations):
+        if not isinstance(rule, Mapping):
+            errors.append(
+                ExampleParityViolation(
+                    "invalid_normalization_rule",
+                    f"<normalizations[{index}]>",
+                    "normalization rules must be objects",
+                )
+            )
+            continue
         pointer = rule.get("pointer", "")
         strategy = rule.get("strategy", "")
-        context = pointer or f"<normalizations[{index}]>"
-        if not pointer.startswith("/"):
+        context = (
+            pointer
+            if isinstance(pointer, str) and pointer
+            else f"<normalizations[{index}]>"
+        )
+        if not isinstance(pointer, str) or not pointer.startswith("/"):
             errors.append(
                 ExampleParityViolation(
                     "invalid_normalization_pointer",
                     context,
                     "normalization pointers must be absolute RFC 6901 JSON pointers",
+                )
+            )
+            continue
+        if _INVALID_POINTER_ESCAPE.search(pointer):
+            errors.append(
+                ExampleParityViolation(
+                    "invalid_normalization_pointer",
+                    pointer,
+                    "normalization pointers must use valid RFC 6901 escaping",
                 )
             )
             continue
@@ -104,7 +128,10 @@ def _apply_normalizations(
             )
             continue
         seen.add(pointer)
-        if strategy not in ALLOWED_NORMALIZATION_STRATEGIES:
+        if (
+            not isinstance(strategy, str)
+            or strategy not in ALLOWED_NORMALIZATION_STRATEGIES
+        ):
             errors.append(
                 ExampleParityViolation(
                     "unsupported_normalization_strategy",
