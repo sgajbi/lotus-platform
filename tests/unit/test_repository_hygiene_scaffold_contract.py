@@ -69,6 +69,93 @@ def _load_generated_ci_contract_gate(repo_root: Path):
     return module
 
 
+def _assert_api_contract_governance(
+    repo_root: Path,
+    endpoint_certification: dict[str, object],
+    endpoint_gate_output: str,
+) -> None:
+    main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
+    baseline_responses = (repo_root / "src/app/api/baseline_responses.py").read_text(
+        encoding="utf-8"
+    )
+    endpoint_certification_gate = (
+        repo_root / "scripts/endpoint_certification_gate.py"
+    ).read_text(encoding="utf-8")
+    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(
+        encoding="utf-8"
+    )
+    supported_features_gate = (
+        repo_root / "scripts/supported_features_gate.py"
+    ).read_text(encoding="utf-8")
+    endpoint_example_parity = (
+        repo_root / "scripts/endpoint_example_parity.py"
+    ).read_text(encoding="utf-8")
+
+    assert "from app.api.baseline_responses import" in main_py
+    assert "return health_response()" in main_py
+    assert "def health_response" in baseline_responses
+    assert "def metadata_response" in baseline_responses
+    assert "include_in_schema=False" in main_py
+    assert 'tags=["Health"]' in main_py
+    assert 'summary="Get service health"' in main_py
+    assert 'summary="Get readiness"' in main_py
+    assert 'tags=["Metadata"]' in main_py
+    assert "validation_exception_handler" in main_py
+    assert "unhandled_exception_handler" in main_py
+    assert "emit_request_diagnostic_event" in main_py
+    assert "_route_template(request)" in main_py
+    assert "path=str(request.url.path)" not in main_py
+    assert "Request validation failed. Correct the request fields and retry." in main_py
+    assert "missing summary" in openapi_gate
+    assert "missing success response example" in openapi_gate
+    assert "Supported-features gate passed" in supported_features_gate
+    assert "implemented feature missing promotion_evidence" in supported_features_gate
+    assert "Endpoint certification gate passed" in endpoint_certification_gate
+    assert "missing endpoint certification ledger entry" in endpoint_certification_gate
+    assert "stale endpoint certification ledger entry" in endpoint_certification_gate
+    assert "OPERATION_EVENT_TEST_TERMS" in endpoint_certification_gate
+    assert (
+        "certified endpoint must reference bounded operation-event test evidence"
+        in endpoint_certification_gate
+    )
+    assert "compare_endpoint_examples" in endpoint_certification_gate
+    assert "PARITY_REQUIRED_STATUSES" in endpoint_certification_gate
+    assert "def compare_endpoint_examples" in endpoint_example_parity
+    assert "Endpoint certification gate passed" in endpoint_gate_output
+    endpoints = endpoint_certification["endpoints"]
+    assert isinstance(endpoints, list)
+    assert all(endpoint["response_example_parity"]["cases"] for endpoint in endpoints)
+    assert all(
+        case["source"] == "deterministic_no_io_example_factory"
+        and case["callable"].startswith("app.api.baseline_responses:")
+        for endpoint in endpoints
+        for case in endpoint["response_example_parity"]["cases"]
+    )
+
+    endpoint_ledger_path = (
+        repo_root / "docs/operations/endpoint-certification-ledger.json"
+    )
+    original_endpoint_ledger = endpoint_ledger_path.read_text(encoding="utf-8")
+    stale_endpoint_ledger = json.loads(original_endpoint_ledger)
+    stale_endpoint_ledger["endpoints"][0]["response_examples"] = [
+        '{"status":"legacy","service":"lotus-hygiene-demo"}'
+    ]
+    endpoint_ledger_path.write_text(
+        json.dumps(stale_endpoint_ledger, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    stale_endpoint_gate = subprocess.run(
+        [sys.executable, "scripts/endpoint_certification_gate.py"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    endpoint_ledger_path.write_text(original_endpoint_ledger, encoding="utf-8")
+    assert stale_endpoint_gate.returncode == 1
+    assert "value_mismatch" in stale_endpoint_gate.stdout
+
+
 def test_repository_hygiene_standard_and_templates_exist() -> None:
     standards_readme = (ROOT / "platform-standards" / "README.md").read_text(
         encoding="utf-8"
@@ -317,10 +404,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
     assert "timeout-minutes: 10" in merged_pr_dispatch_template
     assert "suite: [unit, integration, e2e]" in pr_merge_template
-    assert (
-        "run: make test-${{ matrix.suite }}-coverage"
-        in pr_merge_template
-    )
+    assert "run: make test-${{ matrix.suite }}-coverage" in pr_merge_template
     assert "matrix.path" not in pr_merge_template
     assert "./.venv/bin/python -m coverage combine coverage-data" in pr_merge_template
     assert 'Set-Content -Path (Join-Path $target ".gitignore")' not in scaffold_script
@@ -359,28 +443,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         capture_output=True,
         text=True,
     )
-    endpoint_ledger_path = (
-        repo_root / "docs/operations/endpoint-certification-ledger.json"
-    )
-    original_endpoint_ledger = endpoint_ledger_path.read_text(encoding="utf-8")
-    stale_endpoint_ledger = json.loads(original_endpoint_ledger)
-    stale_endpoint_ledger["endpoints"][0]["response_examples"] = [
-        '{"status":"legacy","service":"lotus-hygiene-demo"}'
-    ]
-    endpoint_ledger_path.write_text(
-        json.dumps(stale_endpoint_ledger, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    stale_endpoint_gate = subprocess.run(
-        [sys.executable, "scripts/endpoint_certification_gate.py"],
-        cwd=repo_root,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    endpoint_ledger_path.write_text(original_endpoint_ledger, encoding="utf-8")
-    assert stale_endpoint_gate.returncode == 1
-    assert "value_mismatch" in stale_endpoint_gate.stdout
     ci_contract_gate_result = subprocess.run(
         [sys.executable, "scripts/ci_contract_gate.py"],
         cwd=repo_root,
@@ -565,10 +627,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     result = json.loads(output_json.read_text(encoding="utf-8"))
     makefile = (repo_root / "Makefile").read_text(encoding="utf-8")
     dockerfile = (repo_root / "Dockerfile").read_text(encoding="utf-8")
-    main_py = (repo_root / "src/app/main.py").read_text(encoding="utf-8")
-    baseline_responses = (
-        repo_root / "src/app/api/baseline_responses.py"
-    ).read_text(encoding="utf-8")
     errors_py = (repo_root / "src/app/errors.py").read_text(encoding="utf-8")
     app_readme = (repo_root / "src/app/README.md").read_text(encoding="utf-8")
     domain_profile = (repo_root / "src/app/domain/service_profile.py").read_text(
@@ -615,9 +673,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     durability_standard = (
         repo_root / "docs/standards/durability-consistency.md"
     ).read_text(encoding="utf-8")
-    openapi_gate = (repo_root / "scripts/openapi_quality_gate.py").read_text(
-        encoding="utf-8"
-    )
     sensitive_content_guard = (
         repo_root / "scripts/no_sensitive_content_guard.py"
     ).read_text(encoding="utf-8")
@@ -633,9 +688,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     clean_generated_artifacts = (
         repo_root / "scripts/clean_generated_artifacts.py"
     ).read_text(encoding="utf-8")
-    supported_features_gate = (
-        repo_root / "scripts/supported_features_gate.py"
-    ).read_text(encoding="utf-8")
     implementation_truth_gate = (
         repo_root / "scripts/implementation_truth_gate.py"
     ).read_text(encoding="utf-8")
@@ -644,12 +696,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     ).read_text(encoding="utf-8")
     quality_scorecard_gate = (
         repo_root / "scripts/quality_scorecard_gate.py"
-    ).read_text(encoding="utf-8")
-    endpoint_certification_gate = (
-        repo_root / "scripts/endpoint_certification_gate.py"
-    ).read_text(encoding="utf-8")
-    endpoint_example_parity = (
-        repo_root / "scripts/endpoint_example_parity.py"
     ).read_text(encoding="utf-8")
     ci_contract_gate = (repo_root / "scripts/ci_contract_gate.py").read_text(
         encoding="utf-8"
@@ -797,21 +843,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "configure_logging" in observability_init
     assert "emit_request_diagnostic_event" in observability_init
     assert "emit_operation_event" in observability_init
-    assert "include_in_schema=False" in main_py
-    assert 'tags=["Health"]' in main_py
-    assert 'summary="Get service health"' in main_py
-    assert 'summary="Get readiness"' in main_py
-    assert 'tags=["Metadata"]' in main_py
-    assert "from app.api.baseline_responses import" in main_py
-    assert "return health_response()" in main_py
-    assert "def health_response" in baseline_responses
-    assert "def metadata_response" in baseline_responses
-    assert "validation_exception_handler" in main_py
-    assert "unhandled_exception_handler" in main_py
-    assert "emit_request_diagnostic_event" in main_py
-    assert "_route_template(request)" in main_py
-    assert "path=str(request.url.path)" not in main_py
-    assert "Request validation failed. Correct the request fields and retry." in main_py
     assert "ProblemDetails" in errors_py
     assert "Product-safe remediation guidance" in errors_py
     assert "json.dumps(payload, sort_keys=True, default=str)" in observability_py
@@ -872,8 +903,6 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "stale scaffold current-state" in implementation_truth_gate
     assert "Status: Planned" in durability_standard
     assert "not implemented by the scaffold" in durability_standard
-    assert "missing summary" in openapi_gate
-    assert "missing success response example" in openapi_gate
     assert "FORBIDDEN_PATTERNS" in sensitive_content_guard
     assert "request_body" in sensitive_content_guard
     assert "response_body" in sensitive_content_guard
@@ -890,29 +919,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "def clean_generated_artifacts" in clean_generated_artifacts
     assert "PRUNED_DIR_NAMES" in clean_generated_artifacts
     assert '"node_modules"' in clean_generated_artifacts
-    assert "Supported-features gate passed" in supported_features_gate
-    assert "implemented feature missing promotion_evidence" in supported_features_gate
-    assert "Endpoint certification gate passed" in endpoint_certification_gate
-    assert "compare_endpoint_examples" in endpoint_certification_gate
-    assert "PARITY_REQUIRED_STATUSES" in endpoint_certification_gate
-    assert "def compare_endpoint_examples" in endpoint_example_parity
-    assert "missing endpoint certification ledger entry" in endpoint_certification_gate
-    assert "stale endpoint certification ledger entry" in endpoint_certification_gate
-    assert "OPERATION_EVENT_TEST_TERMS" in endpoint_certification_gate
-    assert (
-        "certified endpoint must reference bounded operation-event test evidence"
-        in endpoint_certification_gate
-    )
-    assert "Endpoint certification gate passed" in endpoint_gate.stdout
-    assert all(
-        endpoint["response_example_parity"]["cases"]
-        for endpoint in endpoint_certification["endpoints"]
-    )
-    assert all(
-        case["source"] == "deterministic_no_io_example_factory"
-        and case["callable"].startswith("app.api.baseline_responses:")
-        for endpoint in endpoint_certification["endpoints"]
-        for case in endpoint["response_example_parity"]["cases"]
+    _assert_api_contract_governance(
+        repo_root,
+        endpoint_certification,
+        endpoint_gate.stdout,
     )
     assert "CI contract gate passed" in ci_contract_gate_result.stdout
     assert "Maintainability gate passed" in maintainability_gate_result.stdout
@@ -926,7 +936,9 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         "Source observability contract gate passed"
         in source_observability_gate_result.stdout
     )
-    assert "Operation metric contract gate passed" in operation_metric_gate_result.stdout
+    assert (
+        "Operation metric contract gate passed" in operation_metric_gate_result.stdout
+    )
     assert "Removed " in cleanup_result.stdout
     assert "generated directories" in cleanup_result.stdout
     assert not generated_cache.exists()
@@ -1050,7 +1062,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     assert "Domain must stay framework-free" in architecture_boundary_gate
     assert '"runtime": {' in architecture_boundary_gate
-    assert '"forbidden_prefixes": ("fastapi", "starlette", "app.api")' in architecture_boundary_gate
+    assert (
+        '"forbidden_prefixes": ("fastapi", "starlette", "app.api")'
+        in architecture_boundary_gate
+    )
     assert runtime_architecture_failure.returncode == 1
     assert "Architecture boundary gate found 1 violation(s)." in (
         runtime_architecture_failure.stdout
@@ -1190,7 +1205,10 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
         in repo_context
     )
     assert "`make source-observability-contract-gate` blocks raw print" in repo_context
-    assert "`make operation-metric-contract-gate` keeps operation metric vocabulary" in repo_context
+    assert (
+        "`make operation-metric-contract-gate` keeps operation metric vocabulary"
+        in repo_context
+    )
     assert "`make implementation-truth-gate` keeps current-state README" in repo_context
     assert {
         "_Sidebar.md",
