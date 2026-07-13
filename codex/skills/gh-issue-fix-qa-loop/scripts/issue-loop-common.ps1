@@ -6,8 +6,16 @@ if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction Sile
 function Invoke-IssueLoopGh {
   param([Parameter(Mandatory=$true)][string[]]$GhArgs)
 
-  $result = & gh @GhArgs 2>&1
-  if ($LASTEXITCODE -ne 0) {
+  $previousErrorActionPreference = $ErrorActionPreference
+  try {
+    # Windows PowerShell converts successful native stderr progress into ErrorRecord objects.
+    $ErrorActionPreference = "Continue"
+    $result = & gh @GhArgs 2>&1
+    $exitCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $previousErrorActionPreference
+  }
+  if ($exitCode -ne 0) {
     $text = ($result | Out-String).Trim()
     throw "gh command failed: gh $($GhArgs -join ' ') :: $text"
   }
