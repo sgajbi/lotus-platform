@@ -71,6 +71,8 @@ Use concrete classes:
 - stale code
 - duplication
 - modularity problem
+- dump-folder growth, misplaced files, or unclear package ownership
+- vague, temporary, RFC/slice/issue-based, or misleading implementation filenames
 - unclear design-vs-runtime boundary
 - query/performance risk
 - race-condition or correctness risk
@@ -98,6 +100,10 @@ For each material finding:
    application/domain orchestration, prefer a narrow port, concrete adapter, fake-port behavior
    tests, and a repo-native guard over another local helper. Record the port contract, preserved
    behavior, failure semantics, guard command, and no-runtime-split decision in the ledger.
+8. if the finding involves repository organization or naming, record the exact files/directories,
+   the intended owning layer or bounded concern, the permanent names chosen, and whether any
+   existing flat path remains as a temporary compatibility boundary. If cleanup is too broad for
+   the slice, create or update a GitHub issue before marking the review entry deferred.
 
 Prefer pushing invariants downward into:
 
@@ -123,6 +129,8 @@ evidence to stop future churn:
 3. the aggregate repo-native gate result when it has completed,
 4. the README, docs, wiki, context, and skill update decision,
 5. the remaining next slice if the reviewed scope is improved but not fully signed off.
+6. for organization/naming entries, the paths moved or intentionally left in place, the import or
+   runtime proof used, and the GitHub issue that tracks any remaining folder or naming debt.
 
 ### 5. Require evidence before sign-off
 

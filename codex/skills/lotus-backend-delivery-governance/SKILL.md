@@ -72,14 +72,24 @@ Before changing code:
 6. review repository organization before adding files:
    - group cohesive capability modules inside their existing layers when a proven package pattern
      reduces navigation and ownership ambiguity,
+   - choose the owning layer and bounded concern before creating a new file; if the only obvious
+     destination is a broad bucket such as `services`, `utils`, `helpers`, or `scripts`, introduce
+     a self-explanatory subpackage or move the slice into the existing domain-owned package instead
+     of growing a dumping ground,
    - name executable artifacts for enduring capabilities or invariants, never an RFC/slice/issue
      unless the artifact truly exists only to track that governance item,
+   - prefer names that explain the permanent responsibility, such as `authenticated_caller`,
+     `queue_recovery`, `supportability_summary`, or `lineage_retention`, over names tied to a
+     temporary defect, branch, RFC rollout, or PR,
    - pilot package migrations incrementally, migrate imports atomically, and guard retired flat
      paths without permanent legacy aliases,
    - mirror feature grouping in tests, keep CLI scripts thin, and avoid fixed-depth repository-root
      assumptions in relocatable tests,
    - keep runtime topology unchanged unless independent scaling, failure isolation, ownership,
-     security, or operability evidence justifies a deployable boundary.
+     security, or operability evidence justifies a deployable boundary,
+   - when touched scope exposes an existing dump folder, vague filename, stale alias path, or
+     misplaced test/doc/script, either improve it in the current slice or open/update a GitHub issue
+     with exact paths, consequence, and the intended owning package before moving on.
 
 When Docker/runtime behavior, package metadata, compose mounts, or service app imports are in
 scope, verify package import truth before relying on repo-root tests. Code inside a deployable
