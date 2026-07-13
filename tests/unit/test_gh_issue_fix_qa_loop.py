@@ -290,6 +290,31 @@ def test_merged_pending_main_reopens_github_auto_closed_issue(fake_github) -> No
     }
 
 
+def test_merged_main_replay_does_not_reopen_verified_closed_issue(fake_github) -> None:
+    state_path, _, env = fake_github
+    state = _state()
+    state["issues"]["1"] = {"state": "CLOSED", "labels": ["status/merged-main"]}
+    _write_state(state_path, state)
+
+    result = _run_script(
+        UPDATE_SCRIPT,
+        [
+            "-Repo", "owner/repo", "-IssueNumber", "1", "-Status", "merged_main",
+            "-PrNumber", "11", "-MainSha", "a" * 40,
+            "-PrimaryValidationRunId", "101", "-SecurityValidationRunId", "102",
+            "-WikiEvidence", "explicit no-wiki-change",
+            "-BranchCleanupEvidence", "verified clean",
+        ],
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    assert _read_state(state_path)["issues"]["1"] == {
+        "state": "CLOSED",
+        "labels": ["status/merged-main"],
+    }
+
+
 def test_qa_failure_reopens_and_returns_to_active_state(fake_github) -> None:
     state_path, _, env = fake_github
     state = _state()
