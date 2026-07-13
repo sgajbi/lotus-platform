@@ -77,12 +77,19 @@ movement, or realized P&L:
    settlement is not counted again as the same position or portfolio economic flow.
 6. Verify that position reducers apply quantity and basis exactly once across source, target,
    product-marker, and cash-instrument legs.
-7. Scan sibling transaction types and serializers for the same pattern, including stale calculated
-   metadata, generic strategy reuse, generic income classification, and omitted reconciliation
-   components.
-8. Add pure domain-policy tests and a database-backed combined workflow test covering persistence,
+7. Define whether every supplied amount is gross, net of tax/deductions, net of fees, or final
+   settlement cash. Optional explicit amounts must not bypass components applied by the derived
+   path; prove economically equivalent explicit and derived source shapes produce the same result.
+8. Model unsigned economic magnitude separately from ledger direction. Test the direction-by-fee
+   matrix, including zero fees and fees equal to or greater than proceeds; never use absolute-value
+   signing to hide an invalid negative intermediate amount.
+9. Scan sibling transaction types and serializers for the same pattern, including stale calculated
+   metadata, generic strategy reuse, generic income classification, omitted reconciliation
+   components, and inconsistent component-fee precedence.
+10. Add pure domain-policy tests, independently reviewed golden vectors that do not import the
+   production calculator, and a database-backed combined workflow test covering persistence,
    linkage, idempotency/replay, reconciliation evidence, and atomic rollback.
-9. State unsupported sibling behavior explicitly. Do not broaden cash consideration semantics to
+11. State unsupported sibling behavior explicitly. Do not broaden cash consideration semantics to
    cash-in-lieu, fractional handling, or another corporate-action family without its own RFC proof.
 
 ### 5) PR loop
