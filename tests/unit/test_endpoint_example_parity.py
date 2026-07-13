@@ -9,7 +9,10 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "automation"))
+sys.path.insert(
+    0,
+    str(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "scripts"),
+)
 
 from endpoint_example_parity import (  # noqa: E402
     ALLOWED_NORMALIZATION_STRATEGIES,
@@ -39,6 +42,8 @@ def test_machine_readable_contract_matches_comparator_vocabulary() -> None:
     contract = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
 
     assert contract["schemaVersion"] == CONTRACT_VERSION
+    assert (ROOT / contract["standard"]).is_file()
+    assert (ROOT / contract["referenceImplementation"]).is_file()
     assert set(contract["normalization"]["allowedStrategies"]) == set(
         ALLOWED_NORMALIZATION_STRATEGIES
     )
@@ -85,6 +90,31 @@ def test_contract_drift_fails_with_stable_codes(
     expected_code: str,
 ) -> None:
     assert expected_code in _codes(documented, runtime)
+
+
+def test_lotus_idea_ai_readiness_regression_detects_stale_blocker_and_field() -> None:
+    documented = {
+        "lotusAiRunAttestationAvailable": True,
+        "certificationBlockers": [
+            "lotus_ai_run_attestation_mainline_proof_missing"
+        ],
+    }
+    runtime = {
+        "lotusAiRunAttestationAvailable": True,
+        "metadataEnvelopeVersion": "v1",
+        "certificationBlockers": [],
+    }
+
+    violations = compare_endpoint_examples(documented, runtime)
+
+    assert (
+        "missing_documented_field",
+        "/metadataEnvelopeVersion",
+    ) in {(violation.code, violation.pointer) for violation in violations}
+    assert (
+        "array_length_mismatch",
+        "/certificationBlockers",
+    ) in {(violation.code, violation.pointer) for violation in violations}
 
 
 def test_dynamic_values_require_valid_explicit_normalization() -> None:
