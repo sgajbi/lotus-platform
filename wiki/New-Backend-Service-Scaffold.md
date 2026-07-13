@@ -1,7 +1,17 @@
 # New Backend Service Scaffold
 
+## Current Scope
+
 `automation/New-Lotus-Service.ps1` is the platform-owned generator for new Lotus backend
-repositories.
+repositories. It provides a governed engineering baseline, not a supported business capability or
+production certification.
+
+| Reader | Start Here | Decision |
+| --- | --- | --- |
+| Service owner | [Usage](#usage) | Choose the service profile and generate the repository. |
+| API reviewer | [Response Example Parity](#response-example-parity) | Verify documented responses remain bound to code-owned serialization. |
+| CI or platform owner | [Generated Controls](#generated-controls) | Review blocking gates and release evidence. |
+| Product or governance reviewer | [Promotion Boundaries](#promotion-boundaries) | Confirm the scaffold is not being presented as feature support. |
 
 Use it when a new backend service should start from the governed Lotus baseline: service profile,
 layered package skeleton, repo-native Makefile, explicit CI lanes, starter health/readiness/API
@@ -10,11 +20,14 @@ supported-feature governance, caller-context and capability-policy primitives, d
 resilience templates, write-capable idempotency/audit models, demo-claims documentation, and
 report-only architecture/quality evidence.
 
+## Generated Controls
+
 Blocking scaffold gates such as `make architecture-boundary-gate`, `make ci-contract-gate`,
 `make maintainability-gate`, `make documentation-contract-gate`,
 `make quality-scorecard-gate`, `make monetary-float-guard`,
-`make source-observability-contract-gate`, and
-`make operation-metric-contract-gate`, and `make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands such as `make architecture-boundary-report` and
+`make source-observability-contract-gate`, `make operation-metric-contract-gate`, and
+`make implementation-truth-gate` are designed to be worktree-clean. Use explicit report commands
+such as `make architecture-boundary-report` and
 `make quality-baseline` when an RFC, PR, scorecard, or review needs durable quality artifacts.
 
 `make ci-contract-gate` is the day-one anti-drift check for generated backend services. It prevents
@@ -68,6 +81,24 @@ ledger. Once a business/operator endpoint is marked `certified`, the ledger must
 operation-event test evidence so API contract certification and supportability telemetry proof move
 together. Health/readiness/metadata endpoints remain `baseline_certified`.
 
+### Response Example Parity
+
+Every `baseline_certified` or `certified` success example must also match code-owned runtime
+serialization. The generated gate invokes safe static `GET` routes directly or loads an explicit
+deterministic callable for endpoints that cannot be invoked safely during a contract check. It then
+compares the complete JSON structure, including aliases, scalar types, blockers, statuses, and
+version fields.
+
+Dynamic timestamps, request IDs, or environment values require an explicit RFC 6901 field pointer
+and an approved narrow normalizer. Readiness, supportability, certification, promotion, blocker,
+schema, contract-version, and version fields cannot be normalized. A second copied documentation
+literal is not runtime evidence.
+
+The authoritative behavior is defined by
+`platform-contracts/api-governance/endpoint-example-parity-contract.v1.json` and
+`docs/standards/Endpoint Example Parity Standard.md`. This gate proves deterministic example
+parity; it does not replace authorization, dependency, live-runtime, or supported-feature proof.
+
 The scaffolded CI templates use the platform-approved workflow action runtime baseline and must not
 ship with GitHub runner Node-runtime deprecation warnings. Main releasability also emits release
 evidence: coverage artifacts, a CycloneDX dependency SBOM generated with `cyclonedx-py`, and a
@@ -81,6 +112,8 @@ PR completion.
 The scaffolded auto-merge workflow requires `LOTUS_AUTOMERGE_TOKEN`; repositories without that
 secret warn and skip auto-merge instead of failing the PR helper check. Those repositories should
 use a human or release actor to rebase merge.
+
+## Usage
 
 Detailed guide:
 
@@ -96,6 +129,8 @@ powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceProfile domain-service `
   -DestinationRoot C:\Users\<user>\projects
 ```
+
+## Promotion Boundaries
 
 Do not treat a generated repository as bank-buyable by default. The scaffold is a governed starting
 point; the owning team must add real domain behavior, tests, endpoint certification,

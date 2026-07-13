@@ -60,6 +60,9 @@ Cross-application bank-buyable engineering posture:
    slice intake, exact proof boundary, live-API higher-lane evidence, and design-before-runtime
    modularity rules. Slice closure must also record merge method, post-merge validation, wiki or
    no-wiki decision, and branch cleanup evidence before the next slice starts.
+2. `../docs/standards/Endpoint Example Parity Standard.md`
+   Requires certified response examples to match code-owned runtime serialization exactly, with
+   narrowly declared normalizers for genuinely dynamic values.
 
 ## One-Command Lotus Service Scaffold
 
@@ -105,7 +108,7 @@ This generates a production-grade backend baseline with:
 - worktree-clean `make quality-scorecard-gate` command wired through `make lint`
 - worktree-clean `make implementation-truth-gate` command wired through `make lint`
 - safe `make clean` command backed by a tested generated cleanup utility
-- endpoint certification ledger and gate script
+- endpoint certification ledger, runtime example-parity comparator, and gate script
 - Unit/integration/e2e tests
 - standards docs (`docs/standards/*`)
 - operations docs for observability and API certification

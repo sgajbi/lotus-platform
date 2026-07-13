@@ -396,6 +396,8 @@ Every endpoint should have:
 - response model
 - useful request examples
 - useful response examples
+- runtime-parity evidence for certified examples, using a safe route invocation, code-owned
+  serializer, or deterministic no-I/O factory
 - standard error responses
 - documented validation behavior
 - documented correlation ID behavior

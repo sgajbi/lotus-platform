@@ -251,6 +251,8 @@ Important current platform truths:
   [platform-standards/README.md](platform-standards/README.md)
 - Lotus data mesh standard:
   [docs/standards/Lotus Data Mesh Standard.md](docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+- endpoint example parity standard:
+  [docs/standards/Endpoint Example Parity Standard.md](docs/standards/Endpoint%20Example%20Parity%20Standard.md)
 - client demo certification standard:
   [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - client demo operating process:

@@ -641,6 +641,10 @@ Lotus APIs and product surfaces are expected to be:
 3. do not ship UI flows that are not supported by backend capability,
 4. do not mask backend gaps with decorative UI or fabricated content,
 5. keep empty, partial, loading, ready, and error states explicit for data modules.
+6. for readiness, supportability, version, certification, and certified business/operator APIs,
+   compare documented success examples with code-owned runtime serialization; valid JSON syntax is
+   insufficient evidence. Use only explicit field-level normalizers for genuinely dynamic values,
+   and compare blocker, supportability, promotion, schema, contract, and version fields exactly.
 
 ## Performance, Reliability, And Production Readiness
 
@@ -814,6 +818,10 @@ cache, build, and coverage artifacts.
 Generated endpoint-certification gates require certified business/operator
 endpoints to cite bounded operation-event test evidence so API contract
 certification and supportability telemetry proof cannot drift apart.
+Generated backend services also bind every `baseline_certified` or `certified` success example to
+a source-safe route invocation or deterministic code-owned callable. The exact structural
+comparator fails missing/stale fields, aliases, types, blockers, and values; dynamic values require
+approved RFC 6901 pointer normalizers, and governance fields cannot be normalized.
 Do not treat a green PR Merge Gate as release evidence by itself.
 
 For enterprise backend refactors in `lotus-platform`, start from

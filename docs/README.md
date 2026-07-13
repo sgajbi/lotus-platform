@@ -13,6 +13,7 @@ Use this index to choose the right depth:
 | Canonical front-office proof and demo boundaries | [Canonical DPM Demo Story](demo/canonical-dpm-demo-story.md) | Demo, product, operations, and engineering |
 | Client-facing claim discipline | [Lotus Client Demo Certification Standard](standards/Lotus%20Client%20Demo%20Certification%20Standard.md) | Product, demo, sales, and governance |
 | Platform validation and release posture | [Continuous Integration, Validation, and Release Governance Standard](standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md) | Engineering and release reviewers |
+| Certified API example truth | [Endpoint Example Parity Standard](standards/Endpoint%20Example%20Parity%20Standard.md) | API owners, reviewers, and operators |
 
 Documentation in this directory must stay implementation-backed. Put aspirational or planned
 material in explicit roadmap/gap language, and link claims to commands, contracts, RFCs, runbooks,
@@ -26,6 +27,7 @@ generated artifacts, or tests.
 - [Dependency Hygiene and Security Standard](standards/Dependency%20Hygiene%20and%20Security%20Standard.md)
 - [Domain Vocabulary Glossary](standards/Domain%20Vocabulary%20Glossary.md)
 - [Durability and Consistency Standard](standards/Durability%20and%20Consistency%20Standard.md)
+- [Endpoint Example Parity Standard](standards/Endpoint%20Example%20Parity%20Standard.md)
 - [Enterprise Readiness Standard](standards/Enterprise%20Readiness%20Standard.md)
 - [Financial Rounding and Precision Standard](standards/Financial%20Rounding%20and%20Precision%20Standard.md)
 - [Lotus Client Demo Certification Standard](standards/Lotus%20Client%20Demo%20Certification%20Standard.md)

@@ -54,9 +54,13 @@ Current repository posture:
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the
    existing OpenAPI, supported-features, AST-backed monetary-float,
-   no-sensitive-content, endpoint-certification, coverage,
+   no-sensitive-content, endpoint-certification with code-owned response-example parity, coverage,
    quality-scorecard truth, observability, health/readiness, and workflow baseline gates. The
-   generated PR auto-merge helper now warns and skips auto-merge when `LOTUS_AUTOMERGE_TOKEN` is
+   parity control compares every baseline-certified or certified success example with a safe route
+   invocation or deterministic callable and permits dynamic values only through explicit
+   field-level normalizers. Parseable but stale aliases, blockers, fields, types, or values fail.
+   The generated PR auto-merge helper now warns and skips auto-merge when
+   `LOTUS_AUTOMERGE_TOKEN` is
    absent, preserving non-`GITHUB_TOKEN` merge semantics without creating a permanent red helper
    check for repositories that require manual/release-actor rebase merge. Generated services also
    include `make monetary-float-guard`, which blocks money-like `float` annotations, literals,
@@ -425,6 +429,8 @@ Most relevant current governance:
    report-only to a blocking gate or the baseline measurement scope changes.
 8. New-service scaffold changes should keep the bank-buyable defaults current so new Lotus apps do
    not start below the enterprise quality bar.
+9. Certified endpoint examples require code-owned runtime parity evidence. A second documentation
+   literal or schema-only assertion does not prove current response truth.
 
 ## Context Maintenance Rule
 
