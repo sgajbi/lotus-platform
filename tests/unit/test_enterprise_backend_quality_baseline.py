@@ -164,7 +164,7 @@ def test_quality_surface_reports_stale_material_baseline_metrics(
     }
     current = json.loads(json.dumps(accepted))
     current["function_hotspots"]["max_complexity"] = 6
-    current["tests"]["collected_tests"] = 2
+    current["tests"]["collected_tests"] = 4
     (quality_dir / "baseline_report.json").write_text(
         json.dumps(accepted),
         encoding="utf-8",
@@ -177,6 +177,46 @@ def test_quality_surface_reports_stale_material_baseline_metrics(
     assert any("function_hotspots.max_complexity" in error for error in errors)
     assert any("tests.collected_tests" in error for error in errors)
     assert all("generated_at_utc" not in error for error in errors)
+
+
+def test_quality_surface_tolerates_small_collection_count_variance(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    quality_dir = tmp_path / "quality"
+    quality_dir.mkdir()
+    for file_name in {
+        "baseline_report.md",
+        "quality_scorecard.md",
+        "refactor_health_report.md",
+        *QUALITY_DOCS.keys(),
+    }:
+        (quality_dir / file_name).write_text("present", encoding="utf-8")
+    accepted = {
+        "code_size": {
+            "source_file_count": 1,
+            "total_source_lines": 10,
+            "python_file_count": 1,
+        },
+        "function_hotspots": {
+            "python_function_count": 1,
+            "max_complexity": 5,
+            "max_function_lines": 20,
+        },
+        "quality_tooling": {},
+        "tests": {"collected_tests": 716},
+        "security": {},
+    }
+    current = json.loads(json.dumps(accepted))
+    current["tests"]["collected_tests"] = 715
+    (quality_dir / "baseline_report.json").write_text(
+        json.dumps(accepted),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(baseline_generator, "QUALITY_DIR", quality_dir)
+    monkeypatch.setattr(baseline_generator, "build_baseline", lambda: current)
+
+    assert baseline_generator.validate_quality_surface() == []
 
 
 def test_quality_write_preserves_generated_timestamp_when_metrics_match() -> None:

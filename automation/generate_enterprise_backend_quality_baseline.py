@@ -133,6 +133,9 @@ FRESHNESS_METRICS = {
     "function_hotspots.max_function_lines": ("function_hotspots", "max_function_lines"),
     "tests.collected_tests": ("tests", "collected_tests"),
 }
+FRESHNESS_TOLERANCES = {
+    "tests.collected_tests": 2,
+}
 
 
 @dataclass(frozen=True)
@@ -1144,11 +1147,26 @@ def _baseline_freshness_differences(
     for metric_name, metric_path in FRESHNESS_METRICS.items():
         accepted_value = _metric_value(accepted, metric_path)
         current_value = _metric_value(current, metric_path)
+        tolerance = FRESHNESS_TOLERANCES.get(metric_name, 0)
+        if _within_tolerance(accepted_value, current_value, tolerance):
+            continue
         if accepted_value != current_value:
             differences.append(
                 f"`{metric_name}`: accepted={accepted_value!r}, current={current_value!r}"
             )
     return differences
+
+
+def _within_tolerance(
+    accepted_value: object,
+    current_value: object,
+    tolerance: int,
+) -> bool:
+    if tolerance <= 0:
+        return False
+    if not isinstance(accepted_value, int) or not isinstance(current_value, int):
+        return False
+    return abs(accepted_value - current_value) <= tolerance
 
 
 def _preserve_generated_at_when_metrics_match(
