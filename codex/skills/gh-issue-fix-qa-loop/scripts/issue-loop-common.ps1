@@ -173,6 +173,10 @@ function Set-IssueLoopState {
     [Parameter(Mandatory=$true)][string]$State
   )
 
+  $target = Get-IssueLoopStateLabel -Contract $Contract -State $State
+  if (-not (@($Contract.repositoryLabels) -contains $target)) {
+    throw "Repository $Repo does not have a configured label for issue-loop state '$State' (expected '$target'). Configure the repository or provide -LabelContractPath; labels are never created automatically."
+  }
   $issue = Get-IssueLoopIssue -Repo $Repo -IssueNumber $IssueNumber
   $currentNames = @($issue.labels | ForEach-Object { [string]$_.name })
   $mergedMainLabel = Get-IssueLoopStateLabel -Contract $Contract -State "merged_main"
@@ -181,10 +185,6 @@ function Set-IssueLoopState {
   )
   if ([string]$issue.state -eq "CLOSED" -and -not $isVerifiedTerminalReplay) {
     $null = Invoke-IssueLoopGh -GhArgs @("issue", "reopen", $IssueNumber.ToString(), "--repo", $Repo)
-  }
-  $target = Get-IssueLoopStateLabel -Contract $Contract -State $State
-  if (-not (@($Contract.repositoryLabels) -contains $target)) {
-    throw "Repository $Repo does not have a configured label for issue-loop state '$State' (expected '$target'). Configure the repository or provide -LabelContractPath; labels are never created automatically."
   }
   foreach ($label in (Get-IssueLoopAllStateLabels -Contract $Contract)) {
     if ($label -ne $target -and $currentNames -contains $label) {

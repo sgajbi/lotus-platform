@@ -248,6 +248,27 @@ def test_unsupported_blocked_transition_fails_before_mutating_labels(fake_github
     assert not any(call[:2] == ["label", "create"] for call in after["calls"])
 
 
+def test_unsupported_blocked_transition_does_not_reopen_closed_issue(fake_github) -> None:
+    state_path, _, env = fake_github
+    state = _state(labels=CANONICAL_LABELS[:-1])
+    state["issues"]["1"] = {"state": "CLOSED", "labels": ["status/pr-open"]}
+    _write_state(state_path, state)
+
+    result = _run_script(
+        UPDATE_SCRIPT,
+        [
+            "-Repo", "owner/repo", "-IssueNumber", "1", "-Status", "blocked",
+            "-Summary", "external approval pending",
+        ],
+        env,
+    )
+
+    assert result.returncode != 0
+    after = _read_state(state_path)
+    assert after["issues"]["1"] == {"state": "CLOSED", "labels": ["status/pr-open"]}
+    assert not any(call[:2] == ["issue", "reopen"] for call in after["calls"])
+
+
 def test_configured_alternate_vocabulary_removes_aliases(tmp_path: Path, fake_github) -> None:
     state_path, _, env = fake_github
     contract = json.loads(DEFAULT_CONTRACT.read_text(encoding="utf-8"))
