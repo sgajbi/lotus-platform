@@ -88,10 +88,13 @@ def test_workflow_is_manual_main_only_protected_and_attests_exact_artifact() -> 
     workflow = (
         root / ".github/workflows/service-cost-attribution-evidence.yml"
     ).read_text(encoding="utf-8")
+    actionlint_config = (root / ".github/actionlint.yaml").read_text(encoding="utf-8")
     assert "workflow_dispatch:" in workflow
     assert "schedule:" not in workflow
     assert "github.ref == 'refs/heads/main'" in workflow
     assert "runs-on: [self-hosted, lotus-finops-evidence]" in workflow
+    assert "self-hosted-runner:" in actionlint_config
+    assert "lotus-finops-evidence" in actionlint_config
     assert "environment: finops-production-evidence" in workflow
     assert "id-token: write" in workflow
     assert "attestations: write" in workflow
