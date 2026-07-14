@@ -200,7 +200,14 @@ def test_default_contract_and_skill_use_one_canonical_vocabulary() -> None:
 
 def test_missing_repository_labels_fail_closed_without_creating_labels(fake_github) -> None:
     state_path, _, env = fake_github
-    state = _state(labels=CANONICAL_LABELS[:-1])
+    state = _state(
+        labels=[
+            "status/in-progress",
+            "status/pr-open",
+            "status/merged-main",
+            "status/blocked",
+        ]
+    )
     _write_state(state_path, state)
 
     result = _run_script(
@@ -213,6 +220,30 @@ def test_missing_repository_labels_fail_closed_without_creating_labels(fake_gith
     assert "missing configured issue status labels" in (result.stderr + result.stdout)
     after = _read_state(state_path)
     assert after["issues"]["1"]["labels"] == ["bug"]
+    assert not any(call[:2] == ["label", "create"] for call in after["calls"])
+
+
+def test_unsupported_blocked_transition_fails_before_mutating_labels(fake_github) -> None:
+    state_path, _, env = fake_github
+    state = _state(labels=CANONICAL_LABELS[:-1])
+    state["issues"]["1"]["labels"] = ["status/pr-open"]
+    _write_state(state_path, state)
+
+    result = _run_script(
+        UPDATE_SCRIPT,
+        [
+            "-Repo", "owner/repo", "-IssueNumber", "1", "-Status", "blocked",
+            "-Summary", "external approval pending",
+        ],
+        env,
+    )
+
+    assert result.returncode != 0
+    assert "does not have a configured label for issue-loop state 'blocked'" in (
+        result.stderr + result.stdout
+    )
+    after = _read_state(state_path)
+    assert after["issues"]["1"]["labels"] == ["status/pr-open"]
     assert not any(call[:2] == ["label", "create"] for call in after["calls"])
 
 
@@ -242,6 +273,56 @@ def test_configured_alternate_vocabulary_removes_aliases(tmp_path: Path, fake_gi
 
     assert result.returncode == 0, result.stderr + result.stdout
     assert _read_state(state_path)["issues"]["1"]["labels"] == ["status:blocked"]
+
+
+def test_default_contract_accepts_repository_alias_vocabulary(fake_github) -> None:
+    state_path, _, env = fake_github
+    labels = [
+        "status/in-progress",
+        "status/fixed-locally",
+        "status/pr-open",
+        "status/merged-to-main",
+        "status/blocked",
+    ]
+    state = _state(labels=labels)
+    state["issues"]["1"]["labels"] = ["status/pr-open"]
+    _write_state(state_path, state)
+
+    result = _run_script(
+        UPDATE_SCRIPT,
+        [
+            "-Repo", "owner/repo", "-IssueNumber", "1", "-Status", "fixed_local",
+            "-CommitSha", "abc123", "-LocalValidationRef", "pytest passed",
+        ],
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    issue = _read_state(state_path)["issues"]["1"]
+    assert issue["labels"] == ["status/fixed-locally"]
+
+
+def test_audit_accepts_repository_alias_vocabulary_as_configured_state(fake_github) -> None:
+    state_path, _, env = fake_github
+    labels = [
+        "status/in-progress",
+        "status/fixed-locally",
+        "status/pr-open",
+        "status/merged-to-main",
+    ]
+    state = _state(labels=labels)
+    state["issues"] = {
+        "1": {"state": "CLOSED", "labels": ["status/merged-to-main"]},
+        "2": {"state": "OPEN", "labels": ["status/pr-open"]},
+    }
+    _write_state(state_path, state)
+
+    result = _run_script(AUDIT_SCRIPT, ["-Repo", "owner/repo"], env)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    payload = json.loads(result.stdout)
+    assert payload["issueCount"] == 2
+    assert payload["violationCount"] == 0
 
 
 def test_failed_exact_main_validation_does_not_promote_issue(fake_github) -> None:

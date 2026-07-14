@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 334755
+    "total_source_lines": 334904
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 15,
     "max_function_lines": 884,
-    "python_function_count": 2261
+    "python_function_count": 2264
   },
-  "generated_at_utc": "2026-07-14T06:58:49Z",
+  "generated_at_utc": "2026-07-14T08:20:56Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 728,
+    "collected_tests": 731,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "728 tests collected in 2.11s"
+    "summary": "731 tests collected in 5.54s"
   }
 }

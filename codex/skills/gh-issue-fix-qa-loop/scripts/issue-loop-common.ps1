@@ -81,24 +81,78 @@ function Get-IssueLoopAliasLabels {
   return @($labels | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -Unique)
 }
 
+function Resolve-IssueLoopRepositoryStateLabel {
+  param(
+    [Parameter(Mandatory=$true)]$Definition,
+    [Parameter(Mandatory=$true)][string[]]$AvailableLabels
+  )
+
+  $primary = [string]$Definition.label
+  if ($AvailableLabels -contains $primary) {
+    return $primary
+  }
+  foreach ($alias in @($Definition.aliases)) {
+    $candidate = [string]$alias
+    if (-not [string]::IsNullOrWhiteSpace($candidate) -and $AvailableLabels -contains $candidate) {
+      return $candidate
+    }
+  }
+  return ""
+}
+
+function Set-IssueLoopResolvedStateLabels {
+  param(
+    [Parameter(Mandatory=$true)]$Contract,
+    [Parameter(Mandatory=$true)][string[]]$AvailableLabels
+  )
+
+  $missing = @()
+  foreach ($property in $Contract.states.PSObject.Properties) {
+    $definition = $property.Value
+    $resolved = Resolve-IssueLoopRepositoryStateLabel -Definition $definition -AvailableLabels $AvailableLabels
+    if ([string]::IsNullOrWhiteSpace($resolved)) {
+      $missing += [pscustomobject]@{
+        state = [string]$property.Name
+        label = [string]$definition.label
+      }
+      continue
+    }
+
+    $allConfiguredLabels = @([string]$definition.label)
+    foreach ($alias in @($definition.aliases)) {
+      if (-not [string]::IsNullOrWhiteSpace([string]$alias)) {
+        $allConfiguredLabels += [string]$alias
+      }
+    }
+    $definition.label = $resolved
+    $definition.aliases = @(
+      $allConfiguredLabels |
+        Where-Object { $_ -ne $resolved } |
+        Select-Object -Unique
+    )
+  }
+  return $missing
+}
+
 function Assert-IssueLoopRepositoryVocabulary {
   param(
     [Parameter(Mandatory=$true)][string]$Repo,
-    [Parameter(Mandatory=$true)]$Contract
+    [Parameter(Mandatory=$true)]$Contract,
+    [string[]]$RequiredStates = @("in_progress", "fixed_local", "pr_open", "merged_main")
   )
 
   $raw = Invoke-IssueLoopGh -GhArgs @("label", "list", "--repo", $Repo, "--limit", "1000", "--json", "name")
   $available = @(($raw | ConvertFrom-Json) | ForEach-Object { [string]$_.name })
-  $missing = @()
-  foreach ($property in $Contract.states.PSObject.Properties) {
-    $label = [string]$property.Value.label
-    if (-not ($available -contains $label)) {
-      $missing += $label
-    }
+  $missing = @(Set-IssueLoopResolvedStateLabels -Contract $Contract -AvailableLabels $available)
+  $missingRequired = @(
+    $missing |
+      Where-Object { $RequiredStates -contains [string]$_.state } |
+      ForEach-Object { [string]$_.label }
+  )
+  if ($missingRequired.Count -gt 0) {
+    throw "Repository $Repo is missing configured issue status labels for states whose primary labels are: $($missingRequired -join ', '). Configure the repository or provide -LabelContractPath; labels are never created automatically."
   }
-  if ($missing.Count -gt 0) {
-    throw "Repository $Repo is missing configured issue status labels: $($missing -join ', '). Configure the repository or provide -LabelContractPath; labels are never created automatically."
-  }
+  $Contract | Add-Member -NotePropertyName repositoryLabels -NotePropertyValue $available -Force
   return $available
 }
 
@@ -129,6 +183,9 @@ function Set-IssueLoopState {
     $null = Invoke-IssueLoopGh -GhArgs @("issue", "reopen", $IssueNumber.ToString(), "--repo", $Repo)
   }
   $target = Get-IssueLoopStateLabel -Contract $Contract -State $State
+  if (-not (@($Contract.repositoryLabels) -contains $target)) {
+    throw "Repository $Repo does not have a configured label for issue-loop state '$State' (expected '$target'). Configure the repository or provide -LabelContractPath; labels are never created automatically."
+  }
   foreach ($label in (Get-IssueLoopAllStateLabels -Contract $Contract)) {
     if ($label -ne $target -and $currentNames -contains $label) {
       $null = Invoke-IssueLoopGh -GhArgs @("issue", "edit", $IssueNumber.ToString(), "--repo", $Repo, "--remove-label", $label)

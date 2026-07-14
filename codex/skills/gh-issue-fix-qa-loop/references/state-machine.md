@@ -47,8 +47,14 @@ truth instead of replacing it.
 
 ## Invariants
 
-- Validate repository labels before mutation; never create labels implicitly.
-- Remove every configured state label and alias when transitioning.
+- Validate repository labels before mutation; never create labels implicitly. A repository may use
+  the default label or one configured alias for each lifecycle state; scripts resolve the effective
+  repository label before mutation.
+- `status/blocked` is optional for repositories that do not use blocked-state automation. A
+  blocked transition must fail before removing prior state labels when no blocked label is
+  configured.
+- Remove every configured state label and alias when transitioning, then apply the
+  repository-resolved target label.
 - Never close directly from an active, fixed-local, PR-open, blocked, or pending-main state.
 - Reopen GitHub auto-closed issues before state normalization; only `qa_passed_closed` closes them
   again. A closed issue already carrying merged-main remains closed during an idempotent
