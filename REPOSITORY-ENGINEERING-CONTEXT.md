@@ -402,6 +402,13 @@ complexity, max function length, or unit test collection count, regenerate the a
 with `--write --check` instead of leaving stale report-only evidence checked in. Exact total
 source-line count is context-only because it proved too noisy for deterministic freshness gating.
 
+`automation/validate_auto_merge_releasability.py` validates the registered Lotus repositories'
+auto-merge and exact-main releasability workflow posture. It requires `LOTUS_AUTOMERGE_TOKEN`
+auto-merge, rebase merge intent, a merged-PR `main-releasability.yml` dispatcher, and
+`workflow_dispatch` on Main Releasability. Temporary rollout gaps must be explicit in
+`platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json` with owner, reason,
+issue URL, exact violations, and expiry.
+
 Important documentation expectations:
 
 1. platform README and wiki work is partially governed by unit-level documentation contract tests,

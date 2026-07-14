@@ -50,6 +50,8 @@ deployment, client demo readiness, or supported feature promotion.
   `python automation\generate_domain_product_onboarding.py --repository lotus-core --product-name ExampleSourceProduct --product-version v1 --output-directory output\domain-product-onboarding\example --check`
 - enterprise backend refactor quality baseline:
   `python automation\generate_enterprise_backend_quality_baseline.py --write --check`
+- auto-merge and exact-main releasability convergence:
+  `python automation\validate_auto_merge_releasability.py`
 - digest-based deployment promotion manifest validation:
   `python automation\validate_deployment_promotion_manifest.py`
 
@@ -59,6 +61,8 @@ deployment, client demo readiness, or supported feature promotion.
 - workflow and standards drift detection
 - automation and validator correctness
 - cross-repository governance posture
+- auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
+  `main-releasability.yml` dispatch, workflow-dispatch support, and expiring rollout exceptions
 - reusable platform validation entrypoints
 - RFC-0089 first-wave mesh certification posture for governed domain products
 - RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate

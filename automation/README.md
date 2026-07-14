@@ -1095,6 +1095,17 @@ Validate workflow security and permissions posture across platform workflows and
 python automation/validate_workflow_security.py
 ```
 
+Validate auto-merge and exact-main releasability convergence across registered Lotus repositories:
+
+```powershell
+python automation/validate_auto_merge_releasability.py
+```
+
+The validator checks local sibling repositories when they are present, records temporary rollout
+exceptions from `platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json`,
+and fails on undeclared or expired drift in `pr-auto-merge.yml`,
+`merged-pr-main-releasability.yml`, or `main-releasability.yml`.
+
 Validate GitHub Actions version/runtime posture across platform workflows and templates:
 
 ```powershell
