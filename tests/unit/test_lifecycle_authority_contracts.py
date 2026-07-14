@@ -54,6 +54,22 @@ def test_decision_rejects_sensitive_evidence_and_weak_replay_nonce() -> None:
     assert "claims.replay_nonce must be a lowercase SHA-256 digest" in errors
 
 
+def test_decision_rejects_missing_fields_and_invalid_signature_shape() -> None:
+    validator = _validator()
+    decision = _load("lifecycle-authority-decision.valid.json")
+    del decision["claims"]["audience"]
+    decision["signature"]["algorithm"] = "none"
+    decision["signature"]["rotation_epoch"] = 0
+    decision["signature"]["signature_base64url"] = "padded=value"
+
+    errors = validator.validate_decision(decision)
+
+    assert "decision claims must contain exactly the governed fields" in errors
+    assert "signature.algorithm must equal EdDSA" in errors
+    assert "signature.rotation_epoch must be positive" in errors
+    assert "signature.signature_base64url must be unpadded base64url" in errors
+
+
 def test_published_schema_rejects_invalid_audience_and_public_key(
     tmp_path: Path,
 ) -> None:
@@ -97,6 +113,20 @@ def test_key_discovery_rejects_unbounded_revocation_and_duplicate_rotation() -> 
 
     assert "keys[0] revoked key must have not_after_utc" in errors
     assert "keys[1] duplicates key identity and rotation epoch" in errors
+
+
+def test_key_discovery_rejects_invalid_algorithm_status_and_window() -> None:
+    validator = _validator()
+    discovery = _load("lifecycle-authority-key-discovery.valid.json")
+    discovery["keys"][0]["algorithm"] = "RS256"
+    discovery["keys"][0]["status"] = "unknown"
+    discovery["keys"][0]["not_after_utc"] = discovery["keys"][0]["not_before_utc"]
+
+    errors = validator.validate_key_discovery(discovery)
+
+    assert "keys[0] must use EdDSA with Ed25519" in errors
+    assert "keys[0].status must be governed" in errors
+    assert "keys[0] validity window must increase" in errors
 
 
 def test_certification_rejects_evidence_free_promotion() -> None:

@@ -7,6 +7,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from automation.json_contract_validation import validate_json_schema_subset
+except ModuleNotFoundError:
+    from json_contract_validation import validate_json_schema_subset
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_DIR = ROOT / "platform-contracts" / "deployment-promotion"
@@ -21,87 +26,7 @@ def _load(path: Path) -> dict[str, Any]:
 
 
 def _schema_errors(schema_path: Path, manifest_path: Path) -> list[str]:
-    schema = _load(schema_path)
-    errors: list[str] = []
-    _validate_schema_node(_load(manifest_path), schema, [manifest_path.name], errors)
-    return errors
-
-
-def _validate_schema_node(
-    value: Any,
-    schema: dict[str, Any],
-    path: list[str],
-    errors: list[str],
-) -> None:
-    if "const" in schema and value != schema["const"]:
-        errors.append(f"{'.'.join(path)}: must be {schema['const']!r}")
-        return
-
-    expected_type = schema.get("type")
-    if expected_type is not None and not _matches_schema_type(value, expected_type):
-        errors.append(f"{'.'.join(path)}: invalid type")
-        return
-
-    enum = schema.get("enum")
-    if enum is not None and value not in enum:
-        errors.append(f"{'.'.join(path)}: must be one of {', '.join(enum)}")
-
-    if isinstance(value, str):
-        pattern = schema.get("pattern")
-        if isinstance(pattern, str) and not re.search(pattern, value):
-            errors.append(f"{'.'.join(path)}: does not match pattern {pattern}")
-        min_length = schema.get("minLength")
-        if isinstance(min_length, int) and len(value) < min_length:
-            errors.append(f"{'.'.join(path)}: is shorter than {min_length} characters")
-        max_length = schema.get("maxLength")
-        if isinstance(max_length, int) and len(value) > max_length:
-            errors.append(f"{'.'.join(path)}: is longer than {max_length} characters")
-
-    if isinstance(value, dict):
-        properties = schema.get("properties", {})
-        required = schema.get("required", [])
-        for field in required:
-            if field not in value:
-                errors.append(f"{'.'.join(path)}: '{field}' is a required property")
-        if schema.get("additionalProperties") is False:
-            unexpected = sorted(set(value) - set(properties))
-            if unexpected:
-                quoted = ", ".join(repr(field) for field in unexpected)
-                errors.append(
-                    f"{'.'.join(path)}: Additional properties are not allowed ({quoted})"
-                )
-        for field, field_schema in properties.items():
-            if field in value and isinstance(field_schema, dict):
-                _validate_schema_node(value[field], field_schema, [*path, field], errors)
-
-    if isinstance(value, list):
-        min_items = schema.get("minItems")
-        if isinstance(min_items, int) and len(value) < min_items:
-            errors.append(f"{'.'.join(path)}: must contain at least {min_items} items")
-        if schema.get("uniqueItems") is True:
-            canonical_items = [json.dumps(item, sort_keys=True) for item in value]
-            if len(set(canonical_items)) != len(canonical_items):
-                errors.append(f"{'.'.join(path)}: items must be unique")
-        item_schema = schema.get("items")
-        if isinstance(item_schema, dict):
-            for index, item in enumerate(value):
-                _validate_schema_node(item, item_schema, [*path, str(index)], errors)
-
-
-def _matches_schema_type(value: Any, expected_type: str | list[str]) -> bool:
-    if isinstance(expected_type, list):
-        return any(_matches_schema_type(value, item) for item in expected_type)
-    if expected_type == "object":
-        return isinstance(value, dict)
-    if expected_type == "array":
-        return isinstance(value, list)
-    if expected_type == "string":
-        return isinstance(value, str)
-    if expected_type == "boolean":
-        return isinstance(value, bool)
-    if expected_type == "null":
-        return value is None
-    return False
+    return validate_json_schema_subset(schema_path, manifest_path)
 
 
 def _image_ref_digest(image_ref: object) -> str | None:
@@ -129,6 +54,19 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
     if not isinstance(release, dict):
         return ["release_evidence must be an object"]
 
+    release_digest = _validate_release_evidence(errors, release)
+    _validate_promotion_policy(errors, manifest.get("promotion_policy"))
+    _validate_manifest_scope(errors, manifest)
+    environments = manifest.get("environments")
+    if not isinstance(environments, list):
+        return errors + ["environments must be a list"]
+    _validate_environments(errors, environments, release_digest)
+    return errors
+
+
+def _validate_release_evidence(
+    errors: list[str], release: dict[str, Any]
+) -> object:
     release_digest = release.get("image_digest")
     if not isinstance(release_digest, str) or not SHA256.fullmatch(release_digest):
         errors.append("release_evidence.image_digest must be a lowercase SHA-256 digest")
@@ -138,20 +76,22 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         errors.append("release_evidence.image_ref must use image@sha256:<digest> without a tag")
     elif release_ref_digest != release_digest:
         errors.append("release_evidence.image_ref digest must match image_digest")
+    return release_digest
 
-    policy = manifest.get("promotion_policy")
+
+def _validate_promotion_policy(errors: list[str], policy: object) -> None:
     if not isinstance(policy, dict):
         errors.append("promotion_policy must be an object")
-    else:
-        if policy.get("same_digest_required") is not True:
-            errors.append("promotion_policy.same_digest_required must be true")
-        if policy.get("mutable_tags_allowed") is not False:
-            errors.append("promotion_policy.mutable_tags_allowed must be false")
-        if policy.get("rebuild_between_environments_allowed") is not False:
-            errors.append(
-                "promotion_policy.rebuild_between_environments_allowed must be false"
-            )
+        return
+    if policy.get("same_digest_required") is not True:
+        errors.append("promotion_policy.same_digest_required must be true")
+    if policy.get("mutable_tags_allowed") is not False:
+        errors.append("promotion_policy.mutable_tags_allowed must be false")
+    if policy.get("rebuild_between_environments_allowed") is not False:
+        errors.append("promotion_policy.rebuild_between_environments_allowed must be false")
 
+
+def _validate_manifest_scope(errors: list[str], manifest: dict[str, Any]) -> None:
     if manifest.get("production_certification_claimed") is not False:
         errors.append(
             "production_certification_claimed must remain false until live deployment proof exists"
@@ -165,10 +105,12 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
     if not isinstance(migration_order, list) or repository not in migration_order:
         errors.append("repository must appear in migration_order")
 
-    environments = manifest.get("environments")
-    if not isinstance(environments, list):
-        return errors + ["environments must be a list"]
 
+def _validate_environments(
+    errors: list[str],
+    environments: list[object],
+    release_digest: object,
+) -> None:
     names = {
         env.get("name")
         for env in environments
@@ -195,7 +137,6 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
 
     if len(set(included_digests.values())) > 1:
         errors.append("included environments must all deploy the same release digest")
-    return errors
 
 
 def _validate_included_environment(
