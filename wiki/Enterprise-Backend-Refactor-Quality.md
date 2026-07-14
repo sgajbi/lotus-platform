@@ -31,6 +31,12 @@ The baseline is report-only. It records source size, largest files, Python funct
 complexity hotspots, quality-tool availability, unit test collection count, security keyword review
 signals, and the current OpenAPI ownership boundary.
 
+The baseline is also freshness-checked. `generate_enterprise_backend_quality_baseline.py --check`
+compares stable material metrics in `quality/baseline_report.json` with the current repository:
+source/Python file counts, Python function count, maximum complexity, maximum function length, and
+collected unit tests. It intentionally does not gate exact total source-line count because that
+proved noisy during write/check sequencing.
+
 Promote a quality signal to a blocking gate only after it is measured, deterministic, low-noise,
 locally runnable, covered by focused tests, and reflected in README, wiki source, repo context,
 central context, the scorecard, and relevant skill guidance.

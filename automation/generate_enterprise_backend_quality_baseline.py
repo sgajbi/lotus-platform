@@ -122,6 +122,17 @@ expanding the dependency surface before scanner policy, false positives, and lan
 understood.
 """,
 }
+FRESHNESS_METRICS = {
+    "code_size.source_file_count": ("code_size", "source_file_count"),
+    "code_size.python_file_count": ("code_size", "python_file_count"),
+    "function_hotspots.python_function_count": (
+        "function_hotspots",
+        "python_function_count",
+    ),
+    "function_hotspots.max_complexity": ("function_hotspots", "max_complexity"),
+    "function_hotspots.max_function_lines": ("function_hotspots", "max_function_lines"),
+    "tests.collected_tests": ("tests", "collected_tests"),
+}
 
 
 @dataclass(frozen=True)
@@ -991,6 +1002,10 @@ Generated: `{baseline["generated_at_utc"]}`
      examples structurally with deterministic code-owned producers, fail closed on stale fields,
      blocker vocabulary, aliases, and types, and permit dynamic values only through explicit
      field-level normalizers.
+111. Governance complexity and baseline freshness hardening so skill-context audit, lifecycle
+     authority validation, and deployment-promotion validation responsibilities are isolated behind
+     focused helpers, while `--check` compares material current metrics against the accepted
+     quality baseline and fails stale report-only evidence without timestamp-only rewrites.
 
 ## Evidence
 
@@ -1036,6 +1051,12 @@ health report before any quality signal is promoted from report-only to blocking
 
 
 def write_quality_artifacts(baseline: dict[str, object]) -> None:
+    accepted_errors: list[str] = []
+    accepted = _load_baseline_report(accepted_errors)
+    baseline = _preserve_generated_at_when_metrics_match(
+        baseline,
+        accepted if not accepted_errors else None,
+    )
     QUALITY_DIR.mkdir(exist_ok=True)
     (QUALITY_DIR / "baseline_report.json").write_text(
         json.dumps(baseline, indent=2, sort_keys=True) + "\n",
@@ -1108,6 +1129,57 @@ def _validate_baseline_report_keys(
             errors.append(f"quality/baseline_report.json missing `{key}`")
 
 
+def _metric_value(baseline: dict[str, object], path: tuple[str, str]) -> object:
+    parent = baseline.get(path[0])
+    if not isinstance(parent, dict):
+        return None
+    return parent.get(path[1])
+
+
+def _baseline_freshness_differences(
+    accepted: dict[str, object],
+    current: dict[str, object],
+) -> list[str]:
+    differences: list[str] = []
+    for metric_name, metric_path in FRESHNESS_METRICS.items():
+        accepted_value = _metric_value(accepted, metric_path)
+        current_value = _metric_value(current, metric_path)
+        if accepted_value != current_value:
+            differences.append(
+                f"`{metric_name}`: accepted={accepted_value!r}, current={current_value!r}"
+            )
+    return differences
+
+
+def _preserve_generated_at_when_metrics_match(
+    baseline: dict[str, object],
+    accepted: dict[str, object] | None,
+) -> dict[str, object]:
+    if accepted is None or _baseline_freshness_differences(accepted, baseline):
+        return baseline
+    preserved = dict(baseline)
+    preserved["generated_at_utc"] = accepted.get(
+        "generated_at_utc", baseline.get("generated_at_utc")
+    )
+    return preserved
+
+
+def _validate_baseline_freshness(
+    errors: list[str],
+    accepted: dict[str, object] | None,
+) -> None:
+    if accepted is None:
+        return
+    current = build_baseline()
+    for difference in _baseline_freshness_differences(accepted, current):
+        errors.append(
+            "quality/baseline_report.json stale "
+            f"{difference}. "
+            "Run generate_enterprise_backend_quality_baseline.py --write after "
+            "material quality metric changes."
+        )
+
+
 def _validate_repo_check_wiring(errors: list[str]) -> None:
     repo_checks = ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1"
     if not repo_checks.exists():
@@ -1124,6 +1196,8 @@ def validate_quality_surface() -> list[str]:
     _validate_required_quality_files(errors)
     baseline = _load_baseline_report(errors)
     _validate_baseline_report_keys(errors, baseline)
+    if not errors:
+        _validate_baseline_freshness(errors, baseline)
     _validate_repo_check_wiring(errors)
     return errors
 

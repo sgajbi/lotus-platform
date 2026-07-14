@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-07-13T12:12:10Z`
+Generated: `2026-07-14T03:27:16Z`
 
 ## Completed Slices
 
@@ -416,6 +416,10 @@ Generated: `2026-07-13T12:12:10Z`
      examples structurally with deterministic code-owned producers, fail closed on stale fields,
      blocker vocabulary, aliases, and types, and permit dynamic values only through explicit
      field-level normalizers.
+111. Governance complexity and baseline freshness hardening so skill-context audit, lifecycle
+     authority validation, and deployment-promotion validation responsibilities are isolated behind
+     focused helpers, while `--check` compares material current metrics against the accepted
+     quality baseline and fails stale report-only evidence without timestamp-only rewrites.
 
 ## Evidence
 
