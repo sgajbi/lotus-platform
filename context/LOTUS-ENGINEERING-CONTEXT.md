@@ -747,6 +747,10 @@ default modularity target; propose a new deployable microservice only when indep
 scaling, deployment, ownership, data, failure-isolation, or security-boundary needs are proven.
 If a repository disallows merge commits, use the repository-approved non-squash linear merge path
 such as rebase merge and stop retrying merge commits after that policy is known.
+Before pushing merge intent for long-running refactors, run
+`python automation/validate_branch_commit_budget.py --repo-root . --base-ref origin/main --head-ref HEAD`
+or the shared preflight wrapper so branches warn at 40 commits, require a tranche decision at
+60 commits, and block above the governed rebase-safe limit by default.
 If a repository requires signed commits, configure a registered signing key before the first PR
 commit and verify every branch commit is signed before pushing merge intent. A green PR with
 `mergeable=true` can still remain blocked when linear history plus signed-commit protection meets an

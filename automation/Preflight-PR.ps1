@@ -98,11 +98,16 @@ try {
     if ($branchBudgetOutput) {
       try {
         $branchBudget = $branchBudgetOutput | ConvertFrom-Json
-        if ($branchBudget.severity -eq "warning") {
+        if ($branchBudget.severity -eq "fail") {
+          $branchBudgetExitCode = 1
+        } elseif ($branchBudget.severity -eq "warning") {
           $warnings += "branch_commit_budget:$($branchBudget.status)"
         }
       }
       catch {
+        if ($branchBudgetExitCode -eq 0) {
+          $branchBudgetExitCode = 1
+        }
         $branchBudget = [pscustomobject]@{
           status = "invalid_branch_budget_output"
           severity = "fail"
@@ -158,6 +163,13 @@ try {
   $lines += "- Default Branch (Origin): $($result.origin_default_branch)"
   if ($warnings.Count -gt 0) {
     $lines += "- Warnings: $($warnings -join ', ')"
+  }
+  if ($null -ne $result.branch_commit_budget) {
+    $lines += "- Branch Commit Budget: $($result.branch_commit_budget.status) ($($result.branch_commit_budget.severity))"
+    $lines += "- Branch Commit Count: $($result.branch_commit_budget.commit_count)"
+    if ($result.branch_commit_budget.tranche_decision) {
+      $lines += "- Tranche Decision: $($result.branch_commit_budget.tranche_decision)"
+    }
   }
   $lines += ""
   $lines += "Command:"
