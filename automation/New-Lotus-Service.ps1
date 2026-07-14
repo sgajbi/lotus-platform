@@ -4967,7 +4967,7 @@ def _validate_trust_telemetry(
         if not product_id:
             errors.append(f"{path}: telemetry_declarations[{index}] is missing product_id")
             continue
-        if declared_products and product_id not in declared_products:
+        if product_id not in declared_products:
             errors.append(f"{path}: {product_id} is not declared as a producer or consumer product")
         telemetry_status = _normalized(
             declaration.get("telemetry_status")
@@ -5004,7 +5004,7 @@ def _validate_policy_file(
         if not product_id:
             errors.append(f"{path}: {collection_key}[{index}] is missing product_id")
             continue
-        if declared_products and product_id not in declared_products:
+        if product_id not in declared_products:
             errors.append(f"{path}: {product_id} has no matching producer or consumer declaration")
         if _normalized(policy.get("certification_status")) in CERTIFYING_STATUSES:
             errors.append(f"{path}: {product_id} policy cannot be certified by scaffold")
@@ -5101,7 +5101,7 @@ import shutil
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 GATE_PATH = ROOT / "scripts/data_mesh_contract_gate.py"
 
 
@@ -5185,6 +5185,36 @@ def test_data_mesh_contract_gate_requires_policy_product_declarations(
     errors = gate.validate_repo(root)
 
     assert any("no matching producer or consumer declaration" in error for error in errors)
+
+
+def test_data_mesh_contract_gate_reconciles_optional_platform_catalog(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    root = _copy_mesh_contracts(tmp_path)
+    domain_path = root / "contracts/domain-data-products/producer-consumer-placeholder.json"
+    payload = _read_json(domain_path)
+    payload["consumer_declarations"] = [
+        {
+            "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",
+            "producer_repository": "lotus-core",
+            "source_authority": "platform-domain-product-catalog",
+        }
+    ]
+    _write_json(domain_path, payload)
+    platform_root = tmp_path / "lotus-platform"
+    (platform_root / "generated").mkdir(parents=True)
+    (platform_root / "platform-contracts/domain-data-products").mkdir(parents=True)
+    _write_json(platform_root / "generated/domain-product-catalog.json", {"products": []})
+    _write_json(
+        platform_root
+        / "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
+        {"repositories": [{"repository": root.name}]},
+    )
+
+    errors = gate.validate_repo(root, platform_root)
+
+    assert any("missing from platform domain-product catalog" in error for error in errors)
 '@
   Set-Content -Path (Join-Path $target "tests/unit/test_data_mesh_contract_gate.py") -Value $dataMeshContractGateTest
 }

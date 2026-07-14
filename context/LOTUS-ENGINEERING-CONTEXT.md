@@ -255,7 +255,8 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
     scaffold now defaults future FastAPI services to correlation-id plus trace-id propagation,
     caller-context and capability-policy primitives, downstream-client resilience templates,
     write-capable idempotency/audit models, demo-claims documentation with governed status
-    vocabulary, and opt-in planned/not-certified mesh placeholders,
+    vocabulary, and opt-in planned/not-certified mesh placeholders with a generated
+    `data-mesh-contract-gate` for mesh-capable scaffolds,
     `lotus-report` now owns runtime correlation, request, trace, structured-log, and safe operator
     lookup vocabulary in `src/app/observability.py`, gateway/report/render/archive now preserve
     caller correlation and trace identifiers through live batch-to-archive proof while suppressing
