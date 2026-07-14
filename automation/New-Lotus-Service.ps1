@@ -1147,7 +1147,6 @@ from app.observability import configure_logging, emit_request_diagnostic_event
 
 app = FastAPI(title=SERVICE_NAME, version=SERVICE_VERSION)
 app.add_middleware(CorrelationIdMiddleware, service_name=SERVICE_NAME)
-Instrumentator().instrument(app).expose(app, include_in_schema=False)
 configure_logging()
 
 
@@ -1283,6 +1282,12 @@ async def health_ready(response: Response) -> dict[str, str]:
 )
 async def metadata() -> dict[str, str]:
     return metadata_response()
+
+
+# Register all baseline and service-specific business routes before Prometheus
+# instrumentation. Instrumentator walks app.routes and expects concrete Route
+# entries with path metadata; do not append APIRouter objects directly.
+Instrumentator().instrument(app).expose(app, include_in_schema=False)
 "@
 Set-Content -Path (Join-Path $target "src/app/main.py") -Value $mainPy
 
@@ -4509,6 +4514,30 @@ def test_audit_event_allows_bounded_non_sensitive_attributes() -> None:
 "@
   Set-Content -Path (Join-Path $target "tests/unit/test_idempotency_audit.py") -Value $idempotencyAuditTest
 }
+
+$routeInstrumentationTest = @"
+from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+
+
+def register_example_business_routes(app: FastAPI) -> None:
+    @app.get("/business/example", include_in_schema=False)
+    async def _example_business_route() -> dict[str, str]:
+        return {"status": "ok"}
+
+
+def test_business_routes_register_before_prometheus_instrumentation() -> None:
+    app = FastAPI()
+    register_example_business_routes(app)
+
+    Instrumentator().instrument(app).expose(app, include_in_schema=False)
+
+    route_paths = {getattr(route, "path", None) for route in app.routes}
+    assert "/business/example" in route_paths
+    assert all(isinstance(getattr(route, "path", None), str) for route in app.routes)
+    assert all(route.__class__.__name__ != "APIRouter" for route in app.routes)
+"@
+Set-Content -Path (Join-Path $target "tests/unit/test_route_instrumentation_contract.py") -Value $routeInstrumentationTest
 
 $integrationTest = @"
 from fastapi import HTTPException
