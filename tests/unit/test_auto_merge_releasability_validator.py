@@ -1,0 +1,224 @@
+from __future__ import annotations
+
+import json
+from datetime import UTC, datetime
+from pathlib import Path
+
+from automation.validate_auto_merge_releasability import validate_repositories
+
+
+def _write_policy(path: Path, repositories: list[str]) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "repos": [
+                    {
+                        "name": repository,
+                        "default_branch": "main",
+                        "required_checks": [],
+                    }
+                    for repository in repositories
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_exceptions(path: Path, exceptions: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
+                "exceptions": exceptions,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_aligned_workflows(repo_root: Path) -> None:
+    workflow_dir = repo_root / ".github" / "workflows"
+    workflow_dir.mkdir(parents=True)
+    (workflow_dir / "pr-auto-merge.yml").write_text(
+        """
+name: PR Auto Merge
+on:
+  pull_request_target:
+    types: [opened, ready_for_review]
+permissions:
+  contents: read
+jobs:
+  queue:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.LOTUS_AUTOMERGE_TOKEN }}
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --rebase --delete-branch
+""",
+        encoding="utf-8",
+    )
+    (workflow_dir / "merged-pr-main-releasability.yml").write_text(
+        """
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main
+""",
+        encoding="utf-8",
+    )
+    (workflow_dir / "main-releasability.yml").write_text(
+        """
+name: Main Releasability Gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+""",
+        encoding="utf-8",
+    )
+
+
+def test_auto_merge_releasability_accepts_aligned_repository(tmp_path: Path) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "aligned"
+    assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_fails_undeclared_drift(tmp_path: Path) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml").unlink()
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == ("merged-pr-dispatch.missing",)
+
+
+def test_auto_merge_releasability_accepts_exact_unexpired_exception(tmp_path: Path) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_aligned_workflows(repo_root)
+    (repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml").unlink()
+    _write_exceptions(
+        exceptions,
+        [
+            {
+                "repository": "lotus-example",
+                "owner": "platform-ci-governance",
+                "expires_on_utc": "2026-08-14T00:00:00Z",
+                "reason": "Temporary rollout gap.",
+                "violations": ["merged-pr-dispatch.missing"],
+            }
+        ],
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "excepted"
+    assert results[0].exception_owner == "platform-ci-governance"
+
+
+def test_auto_merge_releasability_rejects_expired_exception(tmp_path: Path) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_aligned_workflows(repo_root)
+    (repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml").unlink()
+    _write_exceptions(
+        exceptions,
+        [
+            {
+                "repository": "lotus-example",
+                "owner": "platform-ci-governance",
+                "expires_on_utc": "2026-07-01T00:00:00Z",
+                "reason": "Expired rollout gap.",
+                "violations": ["merged-pr-dispatch.missing"],
+            }
+        ],
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].exception_owner is None
+
+
+def test_auto_merge_releasability_can_skip_or_require_missing_local_repos(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+
+    skipped = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=tmp_path / "missing",
+        require_local_repos=False,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+    required = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=tmp_path / "missing",
+        require_local_repos=True,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert skipped[0].status == "missing-local-repo"
+    assert skipped[0].violations == ()
+    assert required[0].status == "drift"
+    assert required[0].violations == ("repository-root.missing",)

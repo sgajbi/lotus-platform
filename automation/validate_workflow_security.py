@@ -15,6 +15,16 @@ WORKFLOW_GLOBS = (
 
 WRITE_SUFFIX = ": write"
 ALLOWLIST = {
+    ".github/workflows/merged-pr-main-releasability.yml": {
+        "allow_pull_request_target": True,
+        "required_permissions": {
+            "actions": "write",
+        },
+    },
+    ".github/workflows/pr-auto-merge.yml": {
+        "allow_pull_request_target": True,
+        "required_permissions": {},
+    },
     ".github/workflows/service-cost-attribution-evidence.yml": {
         "allow_pull_request_target": False,
         "required_permissions": {

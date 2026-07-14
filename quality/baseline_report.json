@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 389,
+    "markdown_file_count": 390,
     "powershell_file_count": 66,
-    "python_file_count": 189,
-    "source_file_count": 806,
+    "python_file_count": 193,
+    "source_file_count": 812,
     "suffix_counts": {
-      ".json": 120,
-      ".md": 389,
+      ".json": 121,
+      ".md": 390,
       ".ps1": 66,
-      ".py": 189,
+      ".py": 193,
       ".txt": 5,
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 332524
+    "total_source_lines": 333574
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 15,
     "max_function_lines": 884,
-    "python_function_count": 2171
+    "python_function_count": 2218
   },
-  "generated_at_utc": "2026-07-14T03:27:16Z",
+  "generated_at_utc": "2026-07-14T03:44:42Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,7 +433,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1381,
+      "lines": 1402,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -767,32 +767,32 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 165,
-        "path": "automation/validate_supported_claim_register.py",
+        "line": 25,
+        "path": "automation/validate_auto_merge_releasability.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 22,
-        "path": "automation/validate_workflow_security.py",
+        "line": 26,
+        "path": "automation/validate_auto_merge_releasability.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 21,
-        "path": "automation/Verify-Repo-Metadata.ps1",
+        "line": 28,
+        "path": "automation/validate_auto_merge_releasability.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 22,
-        "path": "automation/Verify-Repo-Metadata.ps1",
+        "line": 29,
+        "path": "automation/validate_auto_merge_releasability.py",
         "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 700,
+    "collected_tests": 710,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "700 tests collected in 1.08s"
+    "summary": "710 tests collected in 0.86s"
   }
 }
