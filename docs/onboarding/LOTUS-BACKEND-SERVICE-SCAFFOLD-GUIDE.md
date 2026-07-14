@@ -380,6 +380,12 @@ expected to become a mesh producer or consumer and needs starting placeholders f
 Those generated mesh files are explicitly `Planned` and `not_certified`. They are not readiness
 claims and must be replaced with repo-owned implementation truth before certification.
 
+When mesh placeholders are included, the scaffold also generates
+`make data-mesh-contract-gate` and wires it through `make check` and `make ci`. The gate validates
+that placeholder producer/consumer declarations, trust telemetry, SLO policy, access policy, and
+evidence policy files remain `Planned`, `not_certified`, and empty until the repository replaces
+them with implementation-backed mesh truth.
+
 ## First Commands In The Generated Repo
 
 After generation:
