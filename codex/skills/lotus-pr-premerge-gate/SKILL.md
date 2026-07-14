@@ -110,10 +110,15 @@ purpose, expected merge path, and risk.
 2. Use one branch per RFC or implementation slice.
 3. Never commit directly to `main`, even in single-developer mode.
 4. Prefer small, auditable commits and frequent push cadence.
-5. Before the first commit or PR push, inspect branch protection for the target base branch:
+5. Use durable, capability-oriented branch names that are safe to persist in CI evidence,
+   release manifests, provenance attestations, and issue comments. Avoid secret-shaped substrings
+   such as `token`, `secret`, `password`, `credential`, `private-key`, `apikey`, or `bearer` in
+   branch names even when the change is about authentication; prefer names such as
+   `auth-env`, `attestation-auth`, `release-provenance`, or `runtime-identity`.
+6. Before the first commit or PR push, inspect branch protection for the target base branch:
    - `gh api repos/<owner>/<repo>/branches/<base>/protection`
    - if required signatures are enabled, configure commit signing and verify `git log --format='%h %G? %s' <base>..HEAD` shows `G` for every branch commit before pushing merge intent.
-6. For Lotus repositories with required linear history and signed commits, use signed commits from
+7. For Lotus repositories with required linear history and signed commits, use signed commits from
    the start. Do not rely on a later green CI run to make an unsigned branch mergeable.
 
 ### 2) Mandatory local gate pack
