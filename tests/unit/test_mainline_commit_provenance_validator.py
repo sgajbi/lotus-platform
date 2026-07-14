@@ -57,6 +57,64 @@ def test_mainline_commit_provenance_rejects_unsigned_without_exception(tmp_path:
     )
 
 
+def test_mainline_commit_provenance_accepts_unsigned_when_branch_signatures_not_required(
+    tmp_path: Path,
+) -> None:
+    exceptions = tmp_path / "exceptions.json"
+    _write_exceptions(exceptions, [])
+
+    result = validate_commit_provenance(
+        repository="sgajbi/lotus-platform",
+        commit_sha="1" * 40,
+        verification={"verified": False, "reason": "unsigned"},
+        verification_source="github",
+        branch_signatures_required=False,
+        exception_path=exceptions,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert result.status == "unsigned_allowed_by_branch_policy"
+    assert result.findings == ()
+
+
+def test_branch_signature_policy_prefers_github_branch_protection(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("LOTUS_BRANCH_SIGNATURES_REQUIRED", "false")
+    monkeypatch.setattr(
+        validator,
+        "_github_required_signatures_enabled",
+        lambda repository, branch: True,
+    )
+
+    required, source = validator.resolve_branch_signature_policy(
+        "sgajbi/lotus-platform",
+        "main",
+    )
+
+    assert required is True
+    assert source == "github-branch-protection"
+
+
+def test_branch_signature_policy_uses_declared_environment_when_github_unavailable(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("LOTUS_BRANCH_SIGNATURES_REQUIRED", "false")
+    monkeypatch.setattr(
+        validator,
+        "_github_required_signatures_enabled",
+        lambda repository, branch: None,
+    )
+
+    required, source = validator.resolve_branch_signature_policy(
+        "sgajbi/lotus-platform",
+        "main",
+    )
+
+    assert required is False
+    assert source == "declared-environment"
+
+
 def test_mainline_commit_provenance_accepts_exact_unexpired_exception(tmp_path: Path) -> None:
     exceptions = tmp_path / "exceptions.json"
     _write_exceptions(

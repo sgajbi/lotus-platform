@@ -69,7 +69,10 @@ deployment, client demo readiness, or supported feature promotion.
   unpushed work, and exact expiring exceptions for unsigned mainline output. The shared platform
   repo check entrypoint runs this as a blocking gate only for `main-releasability`, and platform CI
   exposes `GH_TOKEN: ${{ github.token }}` for GitHub verification instead of relying on local-git
-  fallback.
+  fallback. For GitHub rebase-merge commits on branches without required signatures, the validator
+  records `unsigned_allowed_by_branch_policy`; when required signatures are enabled, unsigned main
+  commits remain blocking. The mainline workflow declares `LOTUS_BRANCH_SIGNATURES_REQUIRED` for
+  low-privilege CI tokens, while live GitHub branch-protection truth takes precedence when readable.
 - reusable platform validation entrypoints
 - RFC-0089 first-wave mesh certification posture for governed domain products
 - RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate

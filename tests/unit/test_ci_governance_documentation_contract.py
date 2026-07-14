@@ -373,6 +373,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "timeout-minutes: 10" in main_releasability
     assert "timeout-minutes: 45" in main_releasability
     assert "GH_TOKEN: ${{ github.token }}" in main_releasability
+    assert 'LOTUS_BRANCH_SIGNATURES_REQUIRED: "false"' in main_releasability
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
