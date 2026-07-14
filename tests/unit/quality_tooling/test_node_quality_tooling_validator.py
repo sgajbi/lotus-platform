@@ -9,6 +9,8 @@ from automation.quality_tooling.validate_node_quality_tooling import (
     validate_repository,
 )
 
+ROOT = Path(__file__).resolve().parents[3]
+
 
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -99,3 +101,24 @@ def test_report_only_inventory_is_not_treated_as_release_evidence(
     )
 
     assert validate_repository(tmp_path) == []
+
+
+def test_platform_guidance_owns_lock_backed_node_tooling_contract() -> None:
+    skill = (
+        ROOT / "codex/skills/lotus-ci-enforcement-governance/SKILL.md"
+    ).read_text(encoding="utf-8")
+    standard = (
+        ROOT
+        / "platform-standards/Repository-Hygiene-and-Dependency-Model-Standard.md"
+    ).read_text(encoding="utf-8")
+
+    for content in (skill, standard):
+        assert "tools/api_governance/" in content
+        assert "package-lock.json" in content
+        assert "npm ci" in content
+        assert "Unversioned `npx`" in content or "unversioned `npx`" in content
+        assert "node_modules/.bin" in content
+        assert "validate_node_quality_tooling.py" in content
+
+    assert "Do not add Node to a Python-only service scaffold" in skill
+    assert "platform backend scaffold remains Python-only" in standard

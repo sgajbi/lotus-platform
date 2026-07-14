@@ -132,6 +132,33 @@ For new backend services, the baseline metadata contract is:
 
 This keeps automation aligned to the repository source of truth and reduces stale command drift.
 
+## Node Quality-Tooling Dependency Policy
+
+A backend repository that uses Node tooling for a blocking quality, API-governance, security, or
+release-evidence gate must:
+
+1. keep the tooling package under a capability-owned directory such as `tools/api_governance/`,
+2. declare exact direct tool versions in `package.json`,
+3. commit the adjacent `package-lock.json`,
+4. declare an exact or lower-and-upper-bounded `engines.node` contract,
+5. restore the package with `npm ci`,
+6. invoke only its `node_modules/.bin` executable or an owned package script, and
+7. include dependency-vulnerability evidence in the applicable CI lane.
+
+Unversioned `npx`, global npm installs, implicit latest tags, and mutable `npm install` resolution
+are not acceptable blocking or release evidence. Report-only tooling is not promoted to blocking
+evidence until it satisfies this contract.
+
+Validate the repository with:
+
+```powershell
+python <lotus-platform>/automation/quality_tooling/validate_node_quality_tooling.py --repository .
+```
+
+The platform backend scaffold remains Python-only because it does not generate a Node-based gate.
+Do not add unused Node dependencies to satisfy this policy; a generated repository with no Node
+quality tooling satisfies the validator without an empty package manifest.
+
 ## False-Positive and Convergence Handling
 
 For existing repositories, temporary deviation is allowed only when:
@@ -154,4 +181,5 @@ This standard is satisfied for scaffolded backend repos when:
 6. the scaffold emits `requirements/shared-runtime.lock.txt`,
 7. the scaffold emits `requirements/ci-tooling.lock.txt`,
 8. automation metadata points to `make check` and `make ci`,
-9. an automated contract test proves the generated repository matches this baseline.
+9. any blocking Node quality tooling satisfies the lock-backed dependency policy, and
+10. an automated contract test proves the generated repository matches this baseline.
