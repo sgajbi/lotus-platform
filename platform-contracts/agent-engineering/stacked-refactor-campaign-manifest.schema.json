@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus-platform.local/contracts/agent-engineering/stacked-refactor-campaign-manifest.schema.json",
+  "title": "Lotus Stacked Refactor Campaign Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "campaign_id",
+    "repository",
+    "base_branch",
+    "issue_closure_policy",
+    "commit_budget",
+    "campaign_issues",
+    "tranches",
+    "final_aggregate_closure"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "lotus.stacked-refactor-campaign.v1"
+    },
+    "campaign_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "base_branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issue_closure_policy": {
+      "const": "final_validated_main_only"
+    },
+    "commit_budget": {
+      "type": "object",
+      "required": ["warning_at", "split_required_at", "fail_above"],
+      "properties": {
+        "warning_at": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "split_required_at": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fail_above": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "campaign_issues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["repo", "number", "final_close_required"],
+        "properties": {
+          "repo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "final_close_required": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tranches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "tranche_id",
+          "branch",
+          "base_sha",
+          "head_sha",
+          "post_merge_main_sha",
+          "capability_boundary",
+          "commit_count",
+          "issue_closure_decision",
+          "local_evidence",
+          "remote_evidence"
+        ],
+        "properties": {
+          "tranche_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "branch": {
+            "type": "string",
+            "minLength": 1
+          },
+          "base_sha": {
+            "type": "string",
+            "minLength": 7
+          },
+          "head_sha": {
+            "type": "string",
+            "minLength": 7
+          },
+          "post_merge_main_sha": {
+            "type": "string",
+            "minLength": 7
+          },
+          "required_predecessor_main_sha": {
+            "type": "string",
+            "minLength": 7
+          },
+          "capability_boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commit_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tranche_decision": {
+            "type": "string"
+          },
+          "issue_closure_decision": {
+            "enum": [
+              "keep_campaign_issues_open",
+              "close_after_final_validated_main"
+            ]
+          },
+          "local_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "remote_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "final_aggregate_closure": {
+      "type": "object",
+      "required": [
+        "status",
+        "final_tranche_id",
+        "exact_main_sha",
+        "main_validation_refs",
+        "campaign_issues_closed",
+        "branch_cleanup_evidence"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["open", "closed"]
+        },
+        "final_tranche_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exact_main_sha": {
+          "type": "string",
+          "minLength": 7
+        },
+        "main_validation_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "campaign_issues_closed": {
+          "type": "boolean"
+        },
+        "branch_cleanup_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
