@@ -75,6 +75,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/heartbeat_sources.py`
 - `automation/heartbeat_state.py`
 - `automation/validate_heartbeat_contracts.py`
+- `automation/validate_deployment_promotion_manifest.py`
 - `automation/heartbeat-config.json`
 - `automation/service-map.json`
 - `automation/task-profiles.json`
@@ -1094,6 +1095,13 @@ Validate container build and image baseline posture across backend scaffold temp
 
 ```powershell
 python automation/validate_container_build_baseline.py
+```
+
+Validate digest-based deployment promotion manifests:
+
+```powershell
+python automation/validate_deployment_promotion_manifest.py
+python automation/validate_deployment_promotion_manifest.py --manifest platform-contracts/deployment-promotion/examples/lotus-archive-deployment-promotion.valid.json
 ```
 
 Validate a supported-claim register before promoting demo, RFP, security-pack, or screenshot claims:

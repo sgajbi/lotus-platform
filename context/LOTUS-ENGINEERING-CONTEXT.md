@@ -783,6 +783,13 @@ merged `main` commit. When that token is absent, the generated helper should war
 auto-merge so an authorized human or release actor can perform the rebase merge without leaving a
 permanent red helper check. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
+Release evidence and deployment promotion proof are separate contracts. Service repositories own
+Dockerfile hygiene, SBOM, vulnerability scan, signing, provenance attestation, and digest-bearing
+`release-evidence.json`; `lotus-platform` owns the digest-based deployment promotion manifest under
+`platform-contracts/deployment-promotion/`. The platform validator
+`python automation/validate_deployment_promotion_manifest.py` rejects mutable tags, missing digest
+refs, release/deployed digest mismatches, rebuild-per-environment promotion, and production
+certification claims before live deployment proof exists.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`,
 `make monetary-float-guard`, `make source-observability-contract-gate`,

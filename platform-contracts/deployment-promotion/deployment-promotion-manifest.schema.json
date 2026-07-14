@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus-platform.local/platform-contracts/deployment-promotion/deployment-promotion-manifest.schema.json",
+  "title": "Lotus Deployment Promotion Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "generated_at_utc",
+    "repository",
+    "service",
+    "first_proof_set",
+    "production_certification_claimed",
+    "release_evidence",
+    "promotion_policy",
+    "environments",
+    "migration_order",
+    "non_proof_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "lotus.deployment-promotion-manifest.v1"
+    },
+    "manifest_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._:/-]{7,160}$"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "service": {
+      "type": "string",
+      "pattern": "^lotus-[a-z0-9-]+$"
+    },
+    "first_proof_set": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^lotus-[a-z0-9-]+$"
+      }
+    },
+    "production_certification_claimed": {
+      "type": "boolean"
+    },
+    "release_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_ref",
+        "commit_sha",
+        "workflow_run_id",
+        "image_ref",
+        "image_digest",
+        "sbom_ref",
+        "signature_ref",
+        "attestation_ref"
+      ],
+      "properties": {
+        "artifact_ref": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 240
+        },
+        "commit_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "workflow_run_id": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "image_ref": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 320
+        },
+        "image_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "sbom_ref": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 240
+        },
+        "signature_ref": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 240
+        },
+        "attestation_ref": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 240
+        }
+      }
+    },
+    "promotion_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "same_digest_required",
+        "mutable_tags_allowed",
+        "rebuild_between_environments_allowed",
+        "certification_boundary"
+      ],
+      "properties": {
+        "same_digest_required": {
+          "type": "boolean"
+        },
+        "mutable_tags_allowed": {
+          "type": "boolean"
+        },
+        "rebuild_between_environments_allowed": {
+          "type": "boolean"
+        },
+        "certification_boundary": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 500
+        }
+      }
+    },
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "scope",
+          "promotion_mode",
+          "source_environment",
+          "rebuilt_in_environment",
+          "evidence_refs"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{2,40}$"
+          },
+          "scope": {
+            "enum": [
+              "included",
+              "out_of_scope"
+            ]
+          },
+          "promotion_mode": {
+            "enum": [
+              "initial_deploy_from_release_evidence",
+              "same_digest_promotion",
+              "out_of_scope"
+            ]
+          },
+          "source_environment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z][a-z0-9-]{2,40}$"
+          },
+          "deployed_image_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 320
+          },
+          "deployed_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "release_evidence_image_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "rebuilt_in_environment": {
+            "type": "boolean"
+          },
+          "live_deployment_proof_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 8,
+            "maxLength": 240
+          },
+          "out_of_scope_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 40,
+            "maxLength": 500
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "ref"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "RELEASE_EVIDENCE",
+                    "DEPLOYMENT_MANIFEST",
+                    "OPERATOR_RUNBOOK",
+                    "FOLLOW_UP_ISSUE"
+                  ]
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 4,
+                  "maxLength": 240
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "migration_order": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^lotus-[a-z0-9-]+$"
+      }
+    },
+    "non_proof_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 24,
+        "maxLength": 400
+      }
+    }
+  }
+}
