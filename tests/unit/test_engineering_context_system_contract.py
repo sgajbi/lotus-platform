@@ -477,7 +477,13 @@ def test_rfc_0073_slice_six_procedural_memory_is_governed_and_linked() -> None:
     assert "Wiki Publication Rule" in agents_contract
     assert "Sync-RepoWikis.ps1" in agents_contract
     assert "Repo-local `wiki/` is the authored source of truth" in agents_contract
-    assert "Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform" in engineering
+    assert "-AllowUnpublishedSourceChanges" in agents_contract
+    assert "strict parity verification" in agents_contract
+    assert (
+        "Sync-RepoWikis.ps1 -CheckOnly -Repository lotus-platform -AllowUnpublishedSourceChanges"
+        in engineering
+    )
+    assert "strict parity" in engineering
     assert "python automation/validate_lotus_skill_alignment.py" in automation_readme
     assert "output/lotus-skill-alignment-validation.json" in automation_readme
     assert "validate_lotus_skill_alignment.py" in directory_map
