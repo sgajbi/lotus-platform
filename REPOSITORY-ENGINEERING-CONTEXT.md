@@ -339,45 +339,47 @@ Use these commands as the primary local contract:
    `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
 12. mesh certification gate, platform-only advisory smoke
    `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
-13. mesh certification gate, local blocking proof with sibling repos
+13. mesh certification gate, branch-current repo-native declaration preview
+   `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --catalog-source current-repo-native --skip-publication-checks`
+14. mesh certification gate, local blocking proof with sibling repos
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
-14. GitHub cross-repo mesh certification gate
+15. GitHub cross-repo mesh certification gate
    `.github/workflows/mesh-certification-gate.yml`
-15. enterprise mesh maturity matrix generation
+16. enterprise mesh maturity matrix generation
    `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
-16. enterprise mesh maturity matrix freshness check
+17. enterprise mesh maturity matrix freshness check
    `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
-17. domain-product onboarding bundle scaffold
+18. domain-product onboarding bundle scaffold
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
-18. domain-product onboarding bundle check
+19. domain-product onboarding bundle check
    `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
-19. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
+20. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
    `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
-20. mesh SLO policy validation
+21. mesh SLO policy validation
    `python automation/validate_mesh_slo_policies.py`
-21. mesh access policy validation
+22. mesh access policy validation
    `python automation/validate_mesh_access_policies.py`
-22. mesh evidence pack generation
+23. mesh evidence pack generation
    `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
-23. enterprise mesh operating report generation
+24. enterprise mesh operating report generation
    `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
-24. agent engineering contract validation
+25. agent engineering contract validation
    `python automation/validate_agent_engineering_contracts.py`
-25. delegated task ledger create/update/review helper
+26. delegated task ledger create/update/review helper
    `python automation/delegation_task_ledger.py --help`
-26. heartbeat contract validation
+27. heartbeat contract validation
    `python automation/validate_heartbeat_contracts.py`
-27. enterprise backend quality baseline generation and surface validation
+28. enterprise backend quality baseline generation and surface validation
    `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
-28. enterprise backend refactoring instruction copy drift check
+29. enterprise backend refactoring instruction copy drift check
    `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
-29. automation discoverability inventory generation and surface validation
+30. automation discoverability inventory generation and surface validation
    `python automation/generate_automation_inventory.py --write --check`
-30. supported-claim register validation
+31. supported-claim register validation
    `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
-31. rounding governance compliance matrix generation
+32. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-32. platform mesh and demo standard documentation contract tests
+33. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
 
 ## Validation And CI Expectations

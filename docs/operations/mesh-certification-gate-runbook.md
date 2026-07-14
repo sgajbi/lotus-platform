@@ -32,11 +32,41 @@ Platform-only advisory smoke:
 python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
 ```
 
+Branch-current advisory proof for repo-native declaration or telemetry changes:
+
+```powershell
+python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --catalog-source current-repo-native --skip-publication-checks
+```
+
 Blocking local proof with sibling repositories:
 
 ```powershell
 python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 ```
+
+Blocking local proof against current repo-native product declarations:
+
+```powershell
+python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos --catalog-source current-repo-native
+```
+
+Use the default checked-in catalog mode when validating `lotus-platform/main` or a platform PR that
+updates `generated/domain-product-catalog.json` and
+`generated/domain-product-dependency-graph.json` in the same change. Use
+`--catalog-source current-repo-native` when a sibling producer or consumer repository has a
+branch-local domain-product declaration change and the platform generated artifacts have not yet
+been refreshed. The gate writes temporary discovery artifacts under the selected output directory
+at `current-domain-product-discovery/` and does not mutate checked-in `generated/` files.
+
+When a separate workflow already generated a candidate catalog and dependency graph, pass the
+candidate catalog explicitly:
+
+```powershell
+python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --catalog-path output/domain-product-discovery/domain-product-catalog.json
+```
+
+If `--dependency-graph-path` is omitted, the gate reads
+`domain-product-dependency-graph.json` from the same directory as `--catalog-path`.
 
 The blocking command expects these sibling checkouts next to `lotus-platform`:
 
@@ -185,11 +215,13 @@ python automation/generate_enterprise_mesh_operating_report.py --generated-at-ut
 Blocking mode applies to:
 
 1. `lotus-core:PortfolioStateSnapshot:v1`
-2. `lotus-performance:ReturnsSeriesBundle:v1`
-3. `lotus-risk:RiskMetricsReport:v1`
-4. `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
-5. `lotus-report:ClientReportEvidencePack:v1`
-6. `lotus-manage:PortfolioActionRegister:v1`
+2. `lotus-core:DpmSourceReadiness:v1`
+3. `lotus-performance:ReturnsSeriesBundle:v1`
+4. `lotus-risk:RiskMetricsReport:v1`
+5. `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
+6. `lotus-advise:AdvisoryProposalMemoEvidencePack:v1`
+7. `lotus-report:ClientReportEvidencePack:v1`
+8. `lotus-manage:PortfolioActionRegister:v1`
 
 Other catalog products may be reported as advisory posture until they are deliberately promoted into
 the blocking certification set.
@@ -230,7 +262,7 @@ The status object and Markdown summary classify issues into these operator-facin
 | `mesh_access_policy_drift` | Required access policy is missing or invalid. | Restore the platform access policy for the required product. |
 | `mesh_evidence_policy_drift` | Required evidence-pack policy is missing or invalid. | Restore evidence-pack policy before producing customer/operator evidence. |
 | `mesh_lifecycle_drift` | Required maturity-wave product is not active/not-deprecated. | Restore active posture or add governed successor and consumer-impact migration evidence. |
-| `catalog_drift` | Required product identity, source-manifest posture, or dependency-graph posture drifted. | Regenerate discovery artifacts or restore the repo-native declaration/source manifest. |
+| `catalog_drift` | Required product identity, source-manifest posture, or dependency-graph posture drifted. | For mainline evidence, regenerate discovery artifacts or restore the repo-native declaration/source manifest. For branch-local sibling declaration changes, rerun the gate with `--catalog-source current-repo-native` or an explicit `--catalog-path` so validation uses current repo-native contract truth without mutating checked-in generated artifacts. |
 | `gateway_publication_drift` | Gateway no longer exposes the required discovery/trust route family. | Restore the gateway route/contract evidence and run gateway repo-native tests. |
 | `workbench_consumption_drift` | Workbench discovery is missing or bypasses gateway/BFF. | Restore `/data-products` and gateway/BFF-only consumption. |
 

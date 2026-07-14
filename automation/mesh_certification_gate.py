@@ -7,7 +7,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from domain_product_discovery import DEFAULT_CATALOG_PATH, load_catalog
+from domain_product_discovery import (
+    CATALOG_FILENAME,
+    DEFAULT_CATALOG_PATH,
+    GRAPH_FILENAME,
+    load_catalog,
+    write_discovery_artifacts,
+)
 from generate_live_trust_certification import (
     build_live_trust_certification_report_from_paths,
     render_live_trust_certification_markdown,
@@ -129,6 +135,7 @@ MATURITY_CHECK_FAMILIES = [
     "workbench",
 ]
 GateMode = Literal["advisory", "blocking"]
+CatalogSource = Literal["checked-in", "current-repo-native", "explicit"]
 
 
 @dataclass(frozen=True)
@@ -249,6 +256,48 @@ def _load_telemetry_payloads(
 def _catalog_products_by_id(catalog_path: Path) -> dict[str, dict[str, Any]]:
     catalog = load_catalog(catalog_path)
     return {product["product_id"]: product for product in catalog.get("products", [])}
+
+
+def _resolve_catalog_inputs(
+    *,
+    catalog_source: CatalogSource,
+    explicit_catalog_path: Path | None,
+    explicit_dependency_graph_path: Path | None,
+    source_manifest_path: Path,
+    output_directory: Path,
+    generated_at_utc: str,
+) -> tuple[Path, Path, CatalogSource]:
+    if catalog_source == "current-repo-native":
+        if explicit_catalog_path is not None or explicit_dependency_graph_path is not None:
+            raise ValueError(
+                "--catalog-source current-repo-native cannot be combined with "
+                "--catalog-path or --dependency-graph-path"
+            )
+        discovery_directory = output_directory / "current-domain-product-discovery"
+        write_discovery_artifacts(
+            discovery_directory,
+            generated_at_utc=generated_at_utc,
+            source_manifest_path=source_manifest_path,
+        )
+        return (
+            discovery_directory / CATALOG_FILENAME,
+            discovery_directory / GRAPH_FILENAME,
+            "current-repo-native",
+        )
+
+    if explicit_catalog_path is not None:
+        return (
+            explicit_catalog_path,
+            explicit_dependency_graph_path
+            or explicit_catalog_path.parent
+            / GRAPH_FILENAME,
+            "explicit",
+        )
+
+    if explicit_dependency_graph_path is not None:
+        raise ValueError("--dependency-graph-path requires --catalog-path")
+
+    return DEFAULT_CATALOG_PATH, DEFAULT_GRAPH_PATH, "checked-in"
 
 
 def _validate_required_products_in_catalog(
@@ -481,11 +530,15 @@ def _validate_required_telemetry(
 def _validate_mesh_slo_policy_and_telemetry(
     *,
     telemetry_payloads: dict[str, tuple[Path, dict[str, Any]]],
+    catalog_path: Path,
     slo_policy_path: Path,
     issues: list[MeshCertificationIssue],
     gate_mode: GateMode,
 ) -> None:
-    policy_issues = validate_mesh_slo_policies(slo_policy_path)
+    policy_issues = validate_mesh_slo_policies(
+        slo_policy_path,
+        catalog_path=catalog_path,
+    )
     for policy_issue in policy_issues:
         _issue(
             issues,
@@ -518,10 +571,14 @@ def _validate_mesh_slo_policy_and_telemetry(
 def _validate_mesh_access_policy(
     *,
     access_policy_path: Path,
+    catalog_path: Path,
     issues: list[MeshCertificationIssue],
     gate_mode: GateMode,
 ) -> None:
-    access_issues = validate_mesh_access_policies(access_policy_path)
+    access_issues = validate_mesh_access_policies(
+        access_policy_path,
+        catalog_path=catalog_path,
+    )
     for access_issue in access_issues:
         _issue(
             issues,
@@ -814,6 +871,7 @@ def build_mesh_certification_status(
     *,
     telemetry_paths: list[Path] | None = None,
     catalog_path: Path = DEFAULT_CATALOG_PATH,
+    catalog_source: CatalogSource = "checked-in",
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
     dependency_graph_path: Path = DEFAULT_GRAPH_PATH,
     slo_policy_path: Path = DEFAULT_SLO_POLICY_DIRECTORY,
@@ -864,12 +922,14 @@ def build_mesh_certification_status(
     )
     _validate_mesh_slo_policy_and_telemetry(
         telemetry_payloads=telemetry_payloads,
+        catalog_path=catalog_path,
         slo_policy_path=slo_policy_path,
         issues=issues,
         gate_mode=gate_mode,
     )
     _validate_mesh_access_policy(
         access_policy_path=access_policy_path,
+        catalog_path=catalog_path,
         issues=issues,
         gate_mode=gate_mode,
     )
@@ -900,6 +960,9 @@ def build_mesh_certification_status(
         )
 
     required_products = _required_product_status(live_report=live_report, issues=issues)
+    resolved_catalog_source: CatalogSource = catalog_source
+    if catalog_source == "checked-in" and catalog_path != DEFAULT_CATALOG_PATH:
+        resolved_catalog_source = "explicit"
     sorted_issues = sorted(
         issues,
         key=lambda issue: (
@@ -921,6 +984,7 @@ def build_mesh_certification_status(
         "summary": _summary(sorted_issues, required_products),
         "issues": [asdict(issue) for issue in sorted_issues],
         "source_artifacts": {
+            "catalog_source": resolved_catalog_source,
             "source_manifest": source_manifest_path.as_posix(),
             "catalog": catalog_path.as_posix(),
             "dependency_graph": dependency_graph_path.as_posix(),
@@ -1110,6 +1174,38 @@ def main(argv: list[str] | None = None) -> int:
         help="Directory where mesh certification status artifacts should be written.",
     )
     parser.add_argument(
+        "--catalog-source",
+        choices=["checked-in", "current-repo-native"],
+        default="checked-in",
+        help=(
+            "Catalog input mode. checked-in uses generated/domain-product-catalog.json; "
+            "current-repo-native derives a temporary current catalog and graph from the "
+            "source manifest without mutating checked-in generated artifacts."
+        ),
+    )
+    parser.add_argument(
+        "--catalog-path",
+        type=Path,
+        default=None,
+        help=(
+            "Explicit domain-product-catalog.json path. When provided without "
+            "--dependency-graph-path, the sibling domain-product-dependency-graph.json "
+            "in the same directory is used."
+        ),
+    )
+    parser.add_argument(
+        "--dependency-graph-path",
+        type=Path,
+        default=None,
+        help="Explicit domain-product dependency graph path used with --catalog-path.",
+    )
+    parser.add_argument(
+        "--source-manifest-path",
+        type=Path,
+        default=DEFAULT_SOURCE_MANIFEST_PATH,
+        help="Domain-product source manifest used for manifest checks and current catalog generation.",
+    )
+    parser.add_argument(
         "--slo-policy-path",
         type=Path,
         default=DEFAULT_SLO_POLICY_DIRECTORY,
@@ -1138,9 +1234,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Skip gateway and Workbench publication/consumption drift checks.",
     )
     args = parser.parse_args(argv)
+    try:
+        catalog_path, dependency_graph_path, catalog_source = _resolve_catalog_inputs(
+            catalog_source=args.catalog_source,
+            explicit_catalog_path=args.catalog_path,
+            explicit_dependency_graph_path=args.dependency_graph_path,
+            source_manifest_path=args.source_manifest_path,
+            output_directory=args.output_directory,
+            generated_at_utc=args.generated_at_utc,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
 
     status = build_mesh_certification_status(
         telemetry_paths=args.telemetry_path,
+        catalog_path=catalog_path,
+        catalog_source=catalog_source,
+        source_manifest_path=args.source_manifest_path,
+        dependency_graph_path=dependency_graph_path,
         gate_mode=args.mode,
         generated_at_utc=args.generated_at_utc,
         slo_policy_path=args.slo_policy_path,
@@ -1153,6 +1264,7 @@ def main(argv: list[str] | None = None) -> int:
     print(
         "Mesh certification "
         f"{status['certification_state']} in {args.mode} mode; "
+        f"catalog source {catalog_source}; "
         f"{status['summary']['error_count']} error(s), "
         f"{status['summary']['warning_count']} warning(s), "
         f"{status['summary']['info_count']} info issue(s)."

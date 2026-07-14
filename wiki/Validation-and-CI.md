@@ -23,6 +23,8 @@
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
 - mesh certification advisory smoke:
   `python automation\mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
+- mesh certification branch-current repo-native declaration preview:
+  `python automation\mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --catalog-source current-repo-native --skip-publication-checks`
 - mesh certification blocking proof with sibling repos:
   `python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
 - GitHub cross-repo mesh certification gate:
