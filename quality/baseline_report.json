@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 391,
+    "markdown_file_count": 392,
     "powershell_file_count": 66,
     "python_file_count": 195,
-    "source_file_count": 816,
+    "source_file_count": 817,
     "suffix_counts": {
       ".json": 122,
-      ".md": 391,
+      ".md": 392,
       ".ps1": 66,
       ".py": 195,
       ".txt": 5,
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 334947
+    "total_source_lines": 334980
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -360,7 +360,7 @@
     "max_function_lines": 884,
     "python_function_count": 2265
   },
-  "generated_at_utc": "2026-07-14T08:42:48Z",
+  "generated_at_utc": "2026-07-14T09:19:19Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "732 tests collected in 1.43s"
+    "summary": "732 tests collected in 1.56s"
   }
 }
