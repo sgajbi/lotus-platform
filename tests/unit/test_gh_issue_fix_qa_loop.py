@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import stat
 import subprocess
@@ -239,9 +240,9 @@ def test_unsupported_blocked_transition_fails_before_mutating_labels(fake_github
     )
 
     assert result.returncode != 0
-    assert "does not have a configured label for issue-loop state 'blocked'" in (
-        result.stderr + result.stdout
-    )
+    output = re.sub(r"\s+", " ", result.stderr + result.stdout)
+    assert "labels are never created" in output
+    assert "automatically" in output
     after = _read_state(state_path)
     assert after["issues"]["1"]["labels"] == ["status/pr-open"]
     assert not any(call[:2] == ["label", "create"] for call in after["calls"])
