@@ -196,68 +196,148 @@ def _normalize_page_scope(raw_pages: list[str] | None) -> set[str]:
     return normalized
 
 
+def _wiki_directory_failures(wiki_dir: Path) -> list[str]:
+    if not wiki_dir.exists():
+        return [f"wiki directory does not exist: {wiki_dir}"]
+    if not wiki_dir.is_dir():
+        return [f"wiki path is not a directory: {wiki_dir}"]
+    return []
+
+
+def _required_page_failures(pages: dict[str, str]) -> list[str]:
+    return [
+        f"missing required wiki page: {required_page}"
+        for required_page in REQUIRED_PAGES
+        if required_page not in pages
+    ]
+
+
+def _navigation_links(pages: dict[str, str]) -> set[str]:
+    linked_from_navigation: set[str] = set(REQUIRED_PAGES)
+    for navigation_page in REQUIRED_PAGES:
+        text = pages.get(navigation_page)
+        if text:
+            linked_from_navigation.update(_page_links(text))
+    return linked_from_navigation
+
+
+def _page_heading_failures(page_name: str, text: str) -> list[str]:
+    failures: list[str] = []
+    first_line = _first_nonblank_line(text)
+    if not first_line.startswith("# "):
+        failures.append(f"{page_name}: first nonblank line should be an H1 page title")
+
+    h1_count = sum(1 for line in text.splitlines() if line.startswith("# "))
+    if h1_count != 1:
+        failures.append(f"{page_name}: expected exactly one H1, found {h1_count}")
+    return failures
+
+
+def _page_prose_failures(page_name: str, text: str) -> list[str]:
+    failures: list[str] = []
+    prose = _prose_without_fenced_code(text)
+    if BARE_URL_PATTERN.findall(prose):
+        failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
+
+    scratch_terms = sorted(
+        {match.group(0) for match in SCRATCH_PATTERN.finditer(prose)}
+    )
+    if scratch_terms:
+        failures.append(
+            f"{page_name}: contains scratch-note terms: {', '.join(scratch_terms)}"
+        )
+    return failures
+
+
+def _page_link_failures(
+    page_name: str,
+    text: str,
+    *,
+    wiki_dir: Path,
+    repo_root: Path,
+    known_pages: set[str],
+) -> list[str]:
+    failures: list[str] = []
+    for target in _page_links(text):
+        if not _target_exists(
+            target,
+            wiki_dir=wiki_dir,
+            repo_root=repo_root,
+            known_pages=known_pages,
+        ):
+            failures.append(f"{page_name}: broken local or repo-relative link: {target}")
+    return failures
+
+
+def _page_quality_failures(
+    page_name: str,
+    text: str,
+    *,
+    wiki_dir: Path,
+    repo_root: Path,
+    known_pages: set[str],
+    professional_scope: set[str],
+) -> list[str]:
+    failures = _page_heading_failures(page_name, text)
+    failures.extend(_page_prose_failures(page_name, text))
+    if page_name in professional_scope:
+        failures.extend(_first_screen_failures(page_name, text))
+        failures.extend(_command_dump_failures(page_name, text))
+    failures.extend(
+        _page_link_failures(
+            page_name,
+            text,
+            wiki_dir=wiki_dir,
+            repo_root=repo_root,
+            known_pages=known_pages,
+        )
+    )
+    return failures
+
+
+def _navigation_reachability_failures(
+    known_pages: set[str],
+    linked_from_navigation: set[str],
+) -> list[str]:
+    reachable_pages = {Path(link).name for link in linked_from_navigation}
+    return [
+        f"{page_name}: page is not reachable from Home.md or _Sidebar.md"
+        for page_name in sorted(known_pages - set(REQUIRED_PAGES))
+        if page_name not in reachable_pages
+    ]
+
+
 def audit_wiki(
     wiki_dir: Path,
     repo_root: Path,
     *,
     professional_pages: set[str] | None = None,
 ) -> list[str]:
-    failures: list[str] = []
-    if not wiki_dir.exists():
-        return [f"wiki directory does not exist: {wiki_dir}"]
-    if not wiki_dir.is_dir():
-        return [f"wiki path is not a directory: {wiki_dir}"]
+    directory_failures = _wiki_directory_failures(wiki_dir)
+    if directory_failures:
+        return directory_failures
 
     pages = _read_pages(wiki_dir)
     if not pages:
         return [f"wiki directory has no Markdown pages: {wiki_dir}"]
 
-    for required_page in REQUIRED_PAGES:
-        if required_page not in pages:
-            failures.append(f"missing required wiki page: {required_page}")
-
     known_pages = set(pages)
-    linked_from_navigation: set[str] = set(REQUIRED_PAGES)
-    for navigation_page in REQUIRED_PAGES:
-        text = pages.get(navigation_page)
-        if text:
-            linked_from_navigation.update(_page_links(text))
-
     professional_scope = professional_pages or set()
+    failures = _required_page_failures(pages)
+    linked_from_navigation = _navigation_links(pages)
 
     for page_name, text in pages.items():
-        first_line = _first_nonblank_line(text)
-        if not first_line.startswith("# "):
-            failures.append(f"{page_name}: first nonblank line should be an H1 page title")
-
-        h1_count = sum(1 for line in text.splitlines() if line.startswith("# "))
-        if h1_count != 1:
-            failures.append(f"{page_name}: expected exactly one H1, found {h1_count}")
-
-        prose = _prose_without_fenced_code(text)
-        bare_urls = BARE_URL_PATTERN.findall(prose)
-        if bare_urls:
-            failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
-
-        scratch_terms = sorted({match.group(0) for match in SCRATCH_PATTERN.finditer(prose)})
-        if scratch_terms:
-            failures.append(
-                f"{page_name}: contains scratch-note terms: {', '.join(scratch_terms)}"
+        failures.extend(
+            _page_quality_failures(
+                page_name,
+                text,
+                wiki_dir=wiki_dir,
+                repo_root=repo_root,
+                known_pages=known_pages,
+                professional_scope=professional_scope,
             )
-
-        if page_name in professional_scope:
-            failures.extend(_first_screen_failures(page_name, text))
-            failures.extend(_command_dump_failures(page_name, text))
-
-        for target in _page_links(text):
-            if not _target_exists(target, wiki_dir=wiki_dir, repo_root=repo_root, known_pages=known_pages):
-                failures.append(f"{page_name}: broken local or repo-relative link: {target}")
-
-    for page_name in sorted(known_pages - set(REQUIRED_PAGES)):
-        if page_name not in {Path(link).name for link in linked_from_navigation}:
-            failures.append(
-                f"{page_name}: page is not reachable from Home.md or _Sidebar.md"
-            )
+        )
+    failures.extend(_navigation_reachability_failures(known_pages, linked_from_navigation))
 
     return failures
 
