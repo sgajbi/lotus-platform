@@ -396,6 +396,12 @@ Use these commands as the primary local contract:
 
 The platform repo checks entrypoint is the local truth for most repository validation. Keep it aligned with workflow reality.
 
+`automation/generate_enterprise_backend_quality_baseline.py --check` is a freshness gate for stable
+material quality metrics. After a slice changes source files, Python function count, max
+complexity, max function length, or unit test collection count, regenerate the accepted baseline
+with `--write --check` instead of leaving stale report-only evidence checked in. Exact total
+source-line count is context-only because it proved too noisy for deterministic freshness gating.
+
 Important documentation expectations:
 
 1. platform README and wiki work is partially governed by unit-level documentation contract tests,

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-13T12:12:10Z`
+Generated: `2026-07-14T03:27:16Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `789`
-- Total source lines: `328554`
-- Python files: `181`
+- Source files: `806`
+- Total source lines: `332524`
+- Python files: `189`
 - PowerShell files: `66`
-- Markdown files: `384`
+- Markdown files: `389`
 
 ## Largest Files
 
@@ -30,31 +30,31 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
-| automation/New-Lotus-Service.ps1 | 5393 | .ps1 |
+| automation/New-Lotus-Service.ps1 | 5846 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3072 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2227 | .py |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2294 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 | automation/heartbeat_sources.py | 1735 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2043`
-- Highest measured cyclomatic complexity: `30`
+- Python functions: `2171`
+- Highest measured cyclomatic complexity: `15`
 - Largest Python function length: `884`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| codex/skills/lotus-skill-context-governance/scripts/audit_lotus_skills.py | audit | 60 | 30 | 97 |
-| automation/validate_lifecycle_authority_contracts.py | validate_decision | 97 | 22 | 89 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | audit_wiki | 199 | 19 | 64 |
-| automation/validate_lifecycle_authority_contracts.py | validate_key_discovery | 188 | 19 | 33 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
-| automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 170 | 14 | 34 |
+| automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 142 | 14 | 43 |
+| automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
+| automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 162 | 13 | 49 |
+| automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 213 | 12 | 39 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _resolve_pointer | 199 | 12 | 17 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _compare | 239 | 11 | 77 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _parse_normalization_rule | 105 | 11 | 55 |
-| automation/mesh_certification_gate.py | _issue_from_live_certification | 416 | 11 | 38 |
+| automation/mesh_certification_gate.py | _issue_from_live_certification | 465 | 11 | 38 |
+| automation/cost_attribution/domain.py | __post_init__ | 44 | 11 | 27 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `662`
+- Unit tests collected: `700`
 - Collection command return code: `0`
-- Collection summary: `662 tests collected in 0.88s`
+- Collection summary: `700 tests collected in 1.08s`
 
 ## Security Baseline
 
