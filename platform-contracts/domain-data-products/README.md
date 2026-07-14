@@ -65,6 +65,12 @@ Discovery drift-check command:
 python .\automation\generate_domain_product_discovery.py --check --generated-at-utc 2026-04-19T00:00:00Z
 ```
 
+Default platform RFC-0084 tests use checked-in platform declarations and generated catalog artifacts
+so PR gates do not import mutable sibling feature-branch code. Use
+`LOTUS_RFC0084_LIVE_CORE_PREVIEW=1` only for diagnostic live-source preview against a sibling
+`lotus-core` checkout; preview output must not be used to promote platform truth until the producer
+change is merged and generated artifacts are intentionally refreshed.
+
 Onboarding scaffold command:
 
 ```powershell
