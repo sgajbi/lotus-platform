@@ -307,6 +307,43 @@ def test_platform_standards_and_runbook_point_to_rfc_0072_sources() -> None:
     assert "RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md" in local_runbook
 
 
+def test_pr_evidence_requires_final_head_quantitative_remeasurement() -> None:
+    premerge_skill = (
+        ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    ci_governance_skill = (
+        ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    pr_loop_playbook = (
+        ROOT / "context" / "playbooks" / "PR-LOOP-PLAYBOOK.md"
+    ).read_text(encoding="utf-8")
+    backend_refactor_instructions = (
+        ROOT / "context" / "playbooks" / "ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md"
+    ).read_text(encoding="utf-8")
+
+    for governed_surface in (
+        premerge_skill,
+        ci_governance_skill,
+        pr_loop_playbook,
+        backend_refactor_instructions,
+    ):
+        assert "final PR head" in governed_surface
+        assert "current base" in governed_surface
+        assert "last rebase" in governed_surface
+        assert "force-push" in governed_surface
+        assert "scope correction" in governed_surface
+        assert "reproducible command" in governed_surface
+
+    assert "Final-head quantitative evidence" in premerge_skill
+    assert "base/head refs" in premerge_skill
+    assert "Final-Head Quantitative Evidence" in ci_governance_skill
+    assert "quantitative PR claims" in ci_governance_skill
+    assert "free-form text" in ci_governance_skill
+    assert "report-only" in ci_governance_skill
+    assert "arbitrary prose parsing report-only" in pr_loop_playbook
+    assert "Earlier branch measurements" in backend_refactor_instructions
+
+
 def test_backend_lane_templates_exist_and_define_explicit_lane_names() -> None:
     workflows_dir = ROOT / "platform-standards" / "templates" / "workflows"
     feature_lane = (workflows_dir / "feature-lane.backend.template.yml").read_text(encoding="utf-8")

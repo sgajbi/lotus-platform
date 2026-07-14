@@ -205,7 +205,10 @@ Definition of green:
 4. PR evidence matches what actually ran,
 5. PR evidence names any measured quality movement or explicitly states why the slice preserves
    duplicate-code, complexity, architecture-boundary, security, API-contract, accessibility, and
-   supportability posture.
+   supportability posture,
+6. before/after scorecards, diff-stat claims, line-count claims, and other quantitative PR claims
+   were remeasured against the final PR head and current base after the last rebase, force-push, or
+   scope correction, with the reproducible command or evidence artifact named where practical.
 
 Definition of done:
 
@@ -225,6 +228,8 @@ Allow merge only when all conditions are true:
 4. PR description accurately reflects shipped behavior.
 5. If the base branch requires signed commits, every branch commit is verified by GitHub as signed
    before merge is attempted.
+6. Quantitative scorecard and diff-stat evidence is final-head evidence, not an earlier branch
+   measurement carried forward after a rebase, force-push, prerequisite merge, or scope correction.
 
 If one condition is false, block merge.
 
@@ -286,6 +291,10 @@ Target end-state: local = remote = main.
 9. `Non-degradation:` measured quality movement, or a precise preservation statement for
    duplicate-code, complexity, architecture boundaries, security, API contracts, accessibility, and
    supportability as applicable
+10. `Final-head quantitative evidence:` before/after scorecards, diff-stat, line-count, or other
+    numeric PR claims remeasured against the final PR head and current base after the last rebase,
+    force-push, prerequisite merge, or scope correction; include base/head refs, the reproducible
+    command, and evidence artifact where practical
 
 ## Additional Lotus Rules
 

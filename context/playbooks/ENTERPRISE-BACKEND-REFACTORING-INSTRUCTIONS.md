@@ -686,6 +686,14 @@ Before major refactoring, create a baseline report covering:
 
 Create a before/after scorecard and update it during the refactor.
 
+Before using a scorecard, diff-stat, line-count delta, coverage change, or other quantitative PR
+claim as final closure truth, remeasure it against the final PR head and current base after the
+last rebase, force-push, prerequisite merge, or scope correction. Record the reproducible command,
+base/head refs, and evidence artifact where practical. Earlier branch measurements may remain as
+historical notes, but they must not be carried forward as final PR evidence after branch scope or
+base state changes. Keep arbitrary prose parsing report-only unless a structured low-noise contract
+exists.
+
 Recommended files:
 
 - `pyproject.toml`
@@ -862,6 +870,9 @@ Evidence:
 - pyright: passed
 - radon: CreateProposalUseCase.execute improved from C (13) to B (7)
 - architecture boundary check: passed
+- final-head quantitative evidence: `git diff --stat origin/main...HEAD` and
+  `python automation/generate_enterprise_backend_quality_baseline.py --check` re-run after final
+  rebase against `origin/main` and `HEAD`
 ```
 
 Evidence must be specific, not generic.
