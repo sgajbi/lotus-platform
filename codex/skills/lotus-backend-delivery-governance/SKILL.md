@@ -327,15 +327,7 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     malformed trusted context, every mismatched scope dimension, multi-value membership, body
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
     commands free of placeholder or nullable scope that exists only for later replacement.
-28. Manage in-process API integration clients deterministically. FastAPI/Starlette `TestClient`
-    instances must be entered through a context manager or a fixture/factory that owns application
-    lifespan and closes every client after each test, including failures. When unmanaged clients
-    are found, scan and migrate the full affected integration suite, preserve tests that exercise
-    startup/shutdown explicitly, and add a blocking source or AST gate where direct construction
-    can recur. For cumulative resource failures such as Windows event-loop socket exhaustion, run
-    the full suite at least twice and then run the repository aggregate lane after its preceding
-    checks; an isolated retry is diagnostic evidence, not closure proof.
-
+28. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
 ## Bank-Buyable Default Bar
 
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
