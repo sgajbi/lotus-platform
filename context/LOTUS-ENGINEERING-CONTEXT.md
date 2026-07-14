@@ -766,6 +766,15 @@ merge method, post-merge validation, and branch cleanup evidence. Before deletin
 merged or superseded status with PR state plus `git log`, `git diff`, or cherry-pick evidence so
 no implementation code or durable truth is lost during hygiene.
 
+For blocker-clearing proof, classify evidence before promoting the claim. Use the closed evidence
+classes `source_design_contract`, `local_test_execution`, `ci_execution`, `runtime_execution`,
+`deployment`, and `production_certification`. Every blocker should declare the minimum evidence
+class it needs, every proof should declare the evidence class it actually supplies, and lower-class
+proof such as source files or static contracts must not clear runtime, deployment, or production
+certification blockers by implication. CI evidence must bind repository, workflow, job, run id, run
+attempt, exact commit SHA, ref, successful conclusion, and relevant artifact digest when it clears
+a blocker.
+
 For repository organization, use capability-oriented packages inside the existing runtime layers.
 Name executable source, scripts, workflows, contracts, migrations, and tests for enduring business
 capabilities or engineering invariants, not RFC/slice/issue/PR identifiers; reserve those names for

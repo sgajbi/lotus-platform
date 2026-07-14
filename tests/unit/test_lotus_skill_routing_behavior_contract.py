@@ -196,6 +196,15 @@ def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     pr_loop = _read(ROOT / "context" / "playbooks" / "PR-LOOP-PLAYBOOK.md")
     rfc_skill = _read(ROOT / "codex" / "skills" / "lotus-rfc-review-loop" / "SKILL.md")
     ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
+    backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
+    evidence_reference = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-backend-delivery-governance"
+        / "references"
+        / "evidence-classification.md"
+    )
 
     assert "| Implement a business-application RFC slice" in routing_map
     assert "preventing many partial slices from accumulating" in routing_map
@@ -212,6 +221,34 @@ def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     assert "Slice Execution Ledger" in rfc_skill
     assert "single-slice readiness statement" in ci_skill
     assert "many half-finished slices" in ci_skill
+    assert "evidence-classification.md" in backend_skill
+    assert "evidence-classification.md" in rfc_skill
+    assert "blocker-clearing evidence classification" in routing_map
+    assert "source_design_contract" in engineering_context
+    assert "production_certification" in engineering_context
+    for evidence_class in (
+        "source_design_contract",
+        "local_test_execution",
+        "ci_execution",
+        "runtime_execution",
+        "deployment",
+        "production_certification",
+    ):
+        assert evidence_class in evidence_reference
+    for ci_binding in (
+        "repository",
+        "trusted workflow name or file",
+        "trusted job name",
+        "run id",
+        "run attempt",
+        "exact commit SHA",
+        "ref",
+        "successful conclusion",
+        "artifact digest",
+    ):
+        assert ci_binding in evidence_reference
+    assert "static-to-runtime promotion" in evidence_reference
+    assert "source_design_contract` evidence cannot clear `runtime_execution" in evidence_reference
 
 
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:
