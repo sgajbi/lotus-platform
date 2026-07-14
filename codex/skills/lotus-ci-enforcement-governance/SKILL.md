@@ -150,6 +150,10 @@ Prefer enforcement that blocks common agent failure modes:
 15. source-backed proof gates coupled to comments or incidental implementation literals; after a
     refactor, require stable symbol/interface or behavioral evidence plus tamper and missing-source
     tests rather than weakening the proof.
+16. changed-code or critical-path coverage gates that hard-code one source root even though the
+    governed contract includes migrations, generated schemas, or other Python trees; derive
+    eligibility from contract globs, map each eligible path to a measurable coverage source, and
+    narrow report evidence back to the exact changed path with non-default-root regression tests.
 
 When a repository has a canonical CI/runtime service-set registry, scripts and tests must consume
 that registry instead of copying service lists into each workflow helper or assertion. If a runtime
