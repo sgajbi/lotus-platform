@@ -61,6 +61,9 @@ def _default_repository() -> str:
 
 
 def _default_commit_sha() -> str:
+    explicit_sha = os.environ.get("LOTUS_PROVENANCE_COMMIT_SHA", "").strip()
+    if explicit_sha:
+        return explicit_sha
     commit_sha = os.environ.get("GITHUB_SHA", "").strip()
     if commit_sha:
         return commit_sha
