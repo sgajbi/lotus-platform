@@ -346,6 +346,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "repository: sgajbi/lotus-archive" in feature_lane
     assert "timeout-minutes: 10" in feature_lane
     assert "timeout-minutes: 45" in feature_lane
+    assert "GH_TOKEN: ${{ github.token }}" in feature_lane
 
     assert "name: Pull Request Merge Gate" in pr_merge_gate
     assert "PR Merge Gate / Platform Repo Contracts" in pr_merge_gate
@@ -353,6 +354,11 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "repository: sgajbi/lotus-archive" in pr_merge_gate
     assert "timeout-minutes: 10" in pr_merge_gate
     assert "timeout-minutes: 45" in pr_merge_gate
+    assert "GH_TOKEN: ${{ github.token }}" in pr_merge_gate
+    assert (
+        "LOTUS_PROVENANCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}"
+        in pr_merge_gate
+    )
 
     assert "name: Main Releasability Gate" in main_releasability
     assert "Main Releasability / Platform Repo Contracts" in main_releasability
@@ -360,6 +366,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "repository: sgajbi/lotus-archive" in main_releasability
     assert "timeout-minutes: 10" in main_releasability
     assert "timeout-minutes: 45" in main_releasability
+    assert "GH_TOKEN: ${{ github.token }}" in main_releasability
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks

@@ -1117,6 +1117,10 @@ available, falls back to local `git verify-commit` for unpushed local work, and 
 or otherwise unverified commits unless
 `platform-contracts/ci-governance/mainline-commit-provenance-exceptions.v1.json` contains an exact,
 unexpired, issue-backed exception.
+GitHub Actions steps that run `automation/Invoke-PlatformRepoChecks.ps1` must expose
+`GH_TOKEN: ${{ github.token }}` so provenance validation uses GitHub verification instead of a
+local-git fallback. Pull request workflows must also set `LOTUS_PROVENANCE_COMMIT_SHA` to the PR
+head SHA so the validator checks the reviewed branch commit rather than a synthetic merge ref.
 
 Validate GitHub Actions version/runtime posture across platform workflows and templates:
 
