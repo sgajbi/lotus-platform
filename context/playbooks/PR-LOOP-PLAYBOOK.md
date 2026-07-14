@@ -20,7 +20,7 @@ Use this playbook for branch preparation, push cadence, GitHub monitoring, merge
 Before the first PR and during every long-running delivery program, run:
 
 ```powershell
-git rev-list --count origin/main..HEAD
+python automation/validate_branch_commit_budget.py --repo-root . --base-ref origin/main --head-ref HEAD
 ```
 
 GitHub [limits server-side rebase merges to 100 commits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits#rebase-limits).
@@ -28,6 +28,11 @@ For repositories that require linear history and use rebase merge, target 40-60 
 at a capability boundary by 90 commits at the latest so review and CI fix-forward work has
 headroom. Each tranche must be independently releasable and pass the repository's normal protected
 checks.
+
+The branch-budget validator warns at 40 commits, requires an explicit tranche decision at or above
+60 commits, and fails above 90 commits by default. For a branch that intentionally continues beyond
+60 commits, record the split decision in PR evidence and pass it to shared preflight through
+`-TrancheDecision` or to the Python validator through `--tranche-decision`.
 
 If an existing PR is already over the limit, do not weaken branch protection, switch merge policy,
 or silently squash governed history. Split it into validated sub-100-commit tranches and retain
