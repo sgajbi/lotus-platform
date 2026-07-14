@@ -646,6 +646,16 @@ blocked command-center fixtures remain source-owner follow-up rather than demo-r
 Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
 empty/error posture.
 
+Validate the governed DPM command-center seed contract without bringing up the runtime:
+
+```powershell
+python automation/validate_canonical_front_office_demo_data_contract.py
+```
+
+This focused check verifies that the canonical mandate, PM book, source-product lineage,
+ready/partial/empty posture expectations, and seed-script evidence hooks remain aligned before
+the heavier Workbench runtime proof runs.
+
 Use `-LotusAiEnvFile .env.example` when the proof should exercise deterministic
 provider-disabled Advisor Brief execution. Use the repo-local `lotus-ai/.env` only when its live
 provider dependency, such as the `local-llm` Ollama compose profile and model, is intentionally

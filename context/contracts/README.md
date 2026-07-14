@@ -13,6 +13,8 @@ Current contracts:
    front-office portfolio and benchmark.
 2. `canonical-front-office-demo-data-invariants.json`
    The governed minimum thresholds and supportability invariants for the canonical dataset.
+   Validate the canonical DPM command-center subset and its seed-script hooks with
+   `python automation/validate_canonical_front_office_demo_data_contract.py`.
 3. `workbench-panel-registry.schema.json`
    The governed schema for the RFC-0077 machine-readable Workbench panel registry.
 4. `workbench-panel-registry.json`
