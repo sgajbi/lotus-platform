@@ -328,6 +328,12 @@ agent-authored application source from adding raw `print()`, direct Python loggi
 `log_event` bypasses outside the central observability module. Generated request diagnostics use
 route templates rather than raw URL paths.
 
+Generated FastAPI apps register baseline and service-specific business routes before calling
+`Instrumentator().instrument(app).expose(...)`. Prometheus instrumentation walks `app.routes` and
+expects concrete route entries with path metadata, so agents should register routes through
+supported FastAPI decorators or thin registration functions and must not append `APIRouter` objects
+directly to `app.routes`.
+
 `make operation-metric-contract-gate` is blocking from day one. It protects the generated
 `*_operation_events_total` vocabulary, bounded label set, and forbidden sensitive operation
 attribute keys. This is operation telemetry hygiene only; it does not certify dashboards, alerts,

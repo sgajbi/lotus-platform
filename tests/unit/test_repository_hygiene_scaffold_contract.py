@@ -90,12 +90,29 @@ def _assert_api_contract_governance(
     endpoint_example_parity = (
         repo_root / "scripts/endpoint_example_parity.py"
     ).read_text(encoding="utf-8")
+    route_instrumentation_contract = (
+        repo_root / "tests/unit/test_route_instrumentation_contract.py"
+    ).read_text(encoding="utf-8")
 
     assert "from app.api.baseline_responses import" in main_py
     assert "return health_response()" in main_py
     assert "def health_response" in baseline_responses
     assert "def metadata_response" in baseline_responses
     assert "include_in_schema=False" in main_py
+    assert main_py.index('@app.get(\n    "/metadata"') < main_py.index(
+        "Instrumentator().instrument(app).expose(app, include_in_schema=False)"
+    )
+    assert (
+        "Register all baseline and service-specific business routes before Prometheus"
+        in main_py
+    )
+    assert "do not append APIRouter objects directly" in main_py
+    assert "register_example_business_routes(app)" in route_instrumentation_contract
+    assert "Instrumentator().instrument(app).expose(app, include_in_schema=False)" in (
+        route_instrumentation_contract
+    )
+    assert '"/business/example" in route_paths' in route_instrumentation_contract
+    assert "APIRouter" in route_instrumentation_contract
     assert 'tags=["Health"]' in main_py
     assert 'summary="Get service health"' in main_py
     assert 'summary="Get readiness"' in main_py
