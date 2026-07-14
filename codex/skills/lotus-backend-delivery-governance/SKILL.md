@@ -185,6 +185,12 @@ For RFC-driven business-application slices, extend that intake with:
     wiki, or runbook. Update durable guidance in the same slice when truth changed; otherwise
     record an explicit no-skill/no-context/no-doc/no-wiki decision in PR evidence, the review
     ledger, or the scorecard.
+Release evidence branch naming rule: for release, provenance, runtime-identity, or CI-evidence
+slices, treat the branch name as persisted evidence input. Keep it capability-oriented and avoid
+secret-shaped terms such as `token`, `secret`, `password`, `credential`, `private-key`, `apikey`,
+or `bearer`; evidence gates may correctly reject those substrings when they appear in `git_ref` or
+release metadata.
+
 12. When refactoring orchestration, analytics, inspection, batch, or operator-support code, make
     domain ownership explicit before adding deployment boundaries. Prefer smaller cohesive
     application services and reusable policy/helper modules unless runtime evidence shows that a
