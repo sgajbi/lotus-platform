@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
+LOTUS_CORE_PREVIEW_ENV = "LOTUS_RFC0084_LIVE_CORE_PREVIEW"
 PRODUCER_SCHEMA_PATH = ROOT / "platform-contracts" / "domain-data-products.schema.json"
 CONSUMER_SCHEMA_PATH = (
     ROOT / "platform-contracts" / "domain-data-product-consumers.schema.json"
@@ -57,6 +61,7 @@ LOTUS_RISK_CONSUMERS_PATH = (
     / "domain-data-products"
     / "lotus-risk-consumers.v1.json"
 )
+DOMAIN_PRODUCT_CATALOG_PATH = ROOT / "generated" / "domain-product-catalog.json"
 
 
 def _load_json(path: Path) -> dict:
@@ -305,6 +310,11 @@ def _load_lotus_core_modules():
     import sys
 
     lotus_core_root = ROOT.parent / "lotus-core"
+    if not lotus_core_root.exists():
+        pytest.skip(
+            "lotus-core sibling checkout is missing; live source preview is "
+            f"diagnostic-only and requires {LOTUS_CORE_PREVIEW_ENV}=1"
+        )
     sys.path.insert(0, str(lotus_core_root))
     sys.path.insert(0, str(lotus_core_root / "src" / "libs" / "portfolio-common"))
     from portfolio_common.source_data_products import (  # type: ignore
@@ -334,6 +344,95 @@ def _load_lotus_core_modules():
         "SOURCE_DATA_SECURITY_PROFILES": SOURCE_DATA_SECURITY_PROFILES,
         "DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES": DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES,
     }
+
+
+def _live_lotus_core_preview_enabled() -> bool:
+    return os.getenv(LOTUS_CORE_PREVIEW_ENV, "").lower() in {"1", "true", "yes"}
+
+
+def _skip_unless_live_lotus_core_preview_enabled() -> None:
+    if _live_lotus_core_preview_enabled():
+        return
+    pytest.skip(
+        "Default RFC-0084 gates use checked-in platform declaration/catalog truth. "
+        f"Set {LOTUS_CORE_PREVIEW_ENV}=1 for diagnostic sibling lotus-core preview."
+    )
+
+
+def _assert_lotus_core_declaration_matches_source_catalog(
+    declaration: dict,
+    core_modules: dict,
+) -> None:
+    family_map = {
+        core_modules["OPERATIONAL_READ"]: "operational_source_data",
+        core_modules["SNAPSHOT_AND_SIMULATION"]: "simulation_and_projected_state",
+        core_modules["ANALYTICS_INPUT"]: "analytics_input",
+        core_modules["CONTROL_PLANE_AND_POLICY"]: "supportability_and_control_plane",
+    }
+
+    catalog = (
+        *core_modules["SOURCE_DATA_PRODUCT_CATALOG"],
+        *core_modules["DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG"],
+    )
+    security_profiles = {
+        profile.product_name: profile
+        for profile in (
+            *core_modules["SOURCE_DATA_SECURITY_PROFILES"],
+            *core_modules["DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES"],
+        )
+    }
+    by_name = {product["product_name"]: product for product in declaration["products"]}
+
+    assert declaration["producer_repository"] == "lotus-core"
+    assert len(declaration["products"]) == len(catalog)
+
+    for source_product in catalog:
+        declared = by_name[source_product.product_name]
+        profile = security_profiles[source_product.product_name]
+
+        assert declared["product_version"] == source_product.product_version
+        assert declared["owner_repository"] == source_product.owner
+        expected_family = (
+            "dpm_source_data"
+            if source_product.product_name
+            in {
+                "DpmModelPortfolioTarget",
+                "DiscretionaryMandateBinding",
+                "InstrumentEligibilityProfile",
+                "PortfolioTaxLotWindow",
+                "TransactionCostCurve",
+                "MarketDataCoverageWindow",
+                "DpmSourceReadiness",
+                "PortfolioManagerBookMembership",
+                "CioModelChangeAffectedCohort",
+                "DpmPortfolioUniverseCandidate",
+                "ClientRestrictionProfile",
+                "SustainabilityPreferenceProfile",
+                "ClientTaxProfile",
+                "ClientTaxRuleSet",
+                "ClientIncomeNeedsSchedule",
+                "LiquidityReserveRequirement",
+                "PlannedWithdrawalSchedule",
+                "ExternalCurrencyExposure",
+                "ExternalHedgePolicy",
+                "ExternalFXForwardCurve",
+                "ExternalEligibleHedgeInstrument",
+                "ExternalHedgeExecutionReadiness",
+                "ExternalOrderExecutionAcknowledgement",
+            }
+            else family_map[source_product.route_family]
+        )
+        assert declared["product_family"] == expected_family
+        assert declared["approved_consumers"] == list(source_product.consumers)
+        assert declared["required_trust_metadata"] == list(
+            source_product.required_metadata_fields
+        )
+        assert declared["serving_plane"] == source_product.serving_plane
+        assert declared["current_routes"] == list(source_product.current_routes)
+        assert declared["security_profile_ref"] == (
+            f"{profile.access_classification}:{profile.sensitivity_classification}:"
+            f"{profile.retention_requirement}:{profile.audit_requirement}"
+        )
 
 
 def test_rfc_0084_semantics_registry_rejects_malformed_registry_entries(
@@ -1591,7 +1690,44 @@ def test_rfc_0084_validator_requires_semantics_registry_for_producer_validation(
     assert any("semantics registry is required" in issue for issue in issues)
 
 
-def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() -> None:
+def test_rfc_0084_lotus_core_declaration_aligns_to_checked_in_catalog() -> None:
+    validator = _load_validator_module()
+    declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+    catalog = _load_json(DOMAIN_PRODUCT_CATALOG_PATH)
+
+    assert (
+        validator.validate_producer_contract(LOTUS_CORE_PRODUCTS_PATH, declaration)
+        == []
+    )
+
+    generated_core_products = {
+        product["product_name"]: product
+        for product in catalog["products"]
+        if product["producer_repository"] == "lotus-core"
+    }
+    assert declaration["producer_repository"] == "lotus-core"
+    assert len(declaration["products"]) == len(generated_core_products)
+
+    for declared in declaration["products"]:
+        generated = generated_core_products[declared["product_name"]]
+        assert generated["product_id"] == (
+            f"lotus-core:{declared['product_name']}:{declared['product_version']}"
+        )
+        assert generated["producer_repository"] == "lotus-core"
+        assert generated["product_name"] == declared["product_name"]
+        assert generated["product_version"] == declared["product_version"]
+
+
+def test_rfc_0084_lotus_core_live_source_preview_is_opt_in(monkeypatch) -> None:
+    monkeypatch.delenv(LOTUS_CORE_PREVIEW_ENV, raising=False)
+    assert not _live_lotus_core_preview_enabled()
+
+    monkeypatch.setenv(LOTUS_CORE_PREVIEW_ENV, "1")
+    assert _live_lotus_core_preview_enabled()
+
+
+def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog_preview() -> None:
+    _skip_unless_live_lotus_core_preview_enabled()
     validator = _load_validator_module()
     core_modules = _load_lotus_core_modules()
     declaration = _load_json(LOTUS_CORE_PRODUCTS_PATH)
@@ -1600,77 +1736,8 @@ def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog() ->
         validator.validate_producer_contract(LOTUS_CORE_PRODUCTS_PATH, declaration)
         == []
     )
-
-    family_map = {
-        core_modules["OPERATIONAL_READ"]: "operational_source_data",
-        core_modules["SNAPSHOT_AND_SIMULATION"]: "simulation_and_projected_state",
-        core_modules["ANALYTICS_INPUT"]: "analytics_input",
-        core_modules["CONTROL_PLANE_AND_POLICY"]: "supportability_and_control_plane",
-    }
-
-    catalog = (
-        *core_modules["SOURCE_DATA_PRODUCT_CATALOG"],
-        *core_modules["DPM_PLANNED_SOURCE_DATA_PRODUCT_CATALOG"],
-    )
-    security_profiles = {
-        profile.product_name: profile
-        for profile in (
-            *core_modules["SOURCE_DATA_SECURITY_PROFILES"],
-            *core_modules["DPM_PLANNED_SOURCE_DATA_SECURITY_PROFILES"],
-        )
-    }
+    _assert_lotus_core_declaration_matches_source_catalog(declaration, core_modules)
     by_name = {product["product_name"]: product for product in declaration["products"]}
-
-    assert declaration["producer_repository"] == "lotus-core"
-    assert len(declaration["products"]) == len(catalog)
-
-    for source_product in catalog:
-        declared = by_name[source_product.product_name]
-        profile = security_profiles[source_product.product_name]
-
-        assert declared["product_version"] == source_product.product_version
-        assert declared["owner_repository"] == source_product.owner
-        expected_family = (
-            "dpm_source_data"
-            if source_product.product_name
-            in {
-                "DpmModelPortfolioTarget",
-                "DiscretionaryMandateBinding",
-                "InstrumentEligibilityProfile",
-                "PortfolioTaxLotWindow",
-                "TransactionCostCurve",
-                "MarketDataCoverageWindow",
-                "DpmSourceReadiness",
-                "PortfolioManagerBookMembership",
-                "CioModelChangeAffectedCohort",
-                "DpmPortfolioUniverseCandidate",
-                "ClientRestrictionProfile",
-                "SustainabilityPreferenceProfile",
-                "ClientTaxProfile",
-                "ClientTaxRuleSet",
-                "ClientIncomeNeedsSchedule",
-                "LiquidityReserveRequirement",
-                "PlannedWithdrawalSchedule",
-                "ExternalCurrencyExposure",
-                "ExternalHedgePolicy",
-                "ExternalFXForwardCurve",
-                "ExternalEligibleHedgeInstrument",
-                "ExternalHedgeExecutionReadiness",
-                "ExternalOrderExecutionAcknowledgement",
-            }
-            else family_map[source_product.route_family]
-        )
-        assert declared["product_family"] == expected_family
-        assert declared["approved_consumers"] == list(source_product.consumers)
-        assert declared["required_trust_metadata"] == list(
-            source_product.required_metadata_fields
-        )
-        assert declared["serving_plane"] == source_product.serving_plane
-        assert declared["current_routes"] == list(source_product.current_routes)
-        assert declared["security_profile_ref"] == (
-            f"{profile.access_classification}:{profile.sensitivity_classification}:"
-            f"{profile.retention_requirement}:{profile.audit_requirement}"
-        )
 
     assert (
         by_name["MarketDataWindow"]["temporal_scope"]["primary_time_field"]
