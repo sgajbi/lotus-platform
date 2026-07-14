@@ -382,9 +382,14 @@ claims and must be replaced with repo-owned implementation truth before certific
 
 When mesh placeholders are included, the scaffold also generates
 `make data-mesh-contract-gate` and wires it through `make check` and `make ci`. The gate validates
-that placeholder producer/consumer declarations, trust telemetry, SLO policy, access policy, and
-evidence policy files remain `Planned`, `not_certified`, and empty until the repository replaces
-them with implementation-backed mesh truth.
+that producer/consumer declarations, trust telemetry, SLO policy, access policy, and evidence
+policy files stay pre-certification truth. Empty placeholders pass; proposed declarations can be
+introduced only when they stay `Planned`/`Proposed`, remain `not_certified`, name governed
+platform source authority for consumed products, and keep SLO/access/evidence policy rows tied to
+declared products. The gate rejects premature mesh certification, unblocked static trust telemetry,
+and local-comment source authority. Use the optional `--platform-root` flag only when a sibling
+`lotus-platform` checkout should reconcile consumed products against the platform catalog and source
+manifest.
 
 ## First Commands In The Generated Repo
 

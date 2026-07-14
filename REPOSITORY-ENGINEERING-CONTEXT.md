@@ -50,7 +50,8 @@ Current repository posture:
    skeleton, runtime composition boundary protection, caller-context and capability-policy
    primitives, a downstream JSON client resilience template, profile-gated idempotency/audit
    models for write-capable services, demo-claims
-   documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders,
+   documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders plus
+   an optional `data-mesh-contract-gate` for mesh-capable scaffolds,
    report-only `architecture-boundary-report` and `quality-baseline` commands where
    `quality-baseline` depends on architecture evidence, and the
    existing OpenAPI, supported-features, AST-backed monetary-float,

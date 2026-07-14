@@ -323,6 +323,9 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "[switch]$IncludeMeshPlaceholders" in scaffold_script
     assert "contracts/domain-data-products" in scaffold_script
     assert "not_certified" in scaffold_script
+    assert "scripts/data_mesh_contract_gate.py" in scaffold_script
+    assert "SOURCE_AUTHORITY = \"platform-domain-product-catalog\"" in scaffold_script
+    assert "--platform-root" in scaffold_script
     assert "scripts/architecture_boundary_gate.py" in scaffold_script
     assert "scripts/generate_quality_baseline.py" in scaffold_script
     assert "architecture-boundary-report:" in scaffold_script
@@ -1379,6 +1382,9 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
     assert not (default_repo / "contracts/trust-telemetry").exists()
     assert not (default_repo / "contracts/mesh-slo").exists()
     assert not (default_repo / "docs/operations/mesh-placeholder.md").exists()
+    assert not (default_repo / "scripts/data_mesh_contract_gate.py").exists()
+    default_makefile = (default_repo / "Makefile").read_text(encoding="utf-8")
+    assert "data-mesh-contract-gate" not in default_makefile
 
     _run_scaffold(
         destination_root=destination_root,
@@ -1410,7 +1416,28 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
     assert "$(VENV_PYTHON) scripts/data_mesh_contract_gate.py" in mesh_makefile
     assert "check: lint data-mesh-contract-gate typecheck" in mesh_makefile
     assert "ci: lint data-mesh-contract-gate typecheck" in mesh_makefile
-    assert "validate_repository" in mesh_gate
+    assert "validate_repo" in mesh_gate
+    assert "source_authority must be" in mesh_gate
+    assert "telemetry must not be unblocked pre-certification" in mesh_gate
+    assert "missing from platform domain-product catalog" in mesh_gate
     assert "certification_status must remain not_certified" in mesh_gate
-    assert "test_generated_mesh_placeholders_pass_contract_gate" in mesh_gate_test
-    assert "test_data_mesh_contract_gate_rejects_promoted_placeholder" in mesh_gate_test
+    assert "test_data_mesh_contract_gate_accepts_scaffold_placeholders" in mesh_gate_test
+    assert "test_data_mesh_contract_gate_requires_consumer_source_authority" in mesh_gate_test
+    assert "test_data_mesh_contract_gate_requires_policy_product_declarations" in mesh_gate_test
+    assert "test_data_mesh_contract_gate_reconciles_optional_platform_catalog" in (
+        mesh_gate_test
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests/unit/test_data_mesh_contract_gate.py",
+            "-q",
+        ],
+        cwd=mesh_repo,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
