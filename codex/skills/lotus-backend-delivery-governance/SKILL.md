@@ -91,43 +91,11 @@ Before changing code:
      misplaced test/doc/script, either improve it in the current slice or open/update a GitHub issue
      with exact paths, consequence, and the intended owning package before moving on.
 
-When Docker/runtime behavior, package metadata, compose mounts, or service app imports are in
-scope, verify package import truth before relying on repo-root tests. Code inside a deployable
-service app package must not import its own app through a repo-root path such as
-`src.services.<same_service>.app...`; prefer relative imports for same-service modules, shared
-libraries or ports for durable cross-service contracts, and a focused runtime proof such as
-`PYTHONPATH="src/services/<service>:src/libs/portfolio-common" python -c "import app.main"` in a
-POSIX shell, or
-`$env:PYTHONPATH = "src/services/<service>;src/libs/portfolio-common"; python -c "import app.main"`
-in PowerShell, for the affected service.
-
-When an application owns an app-local Compose stack, keep it independently operable instead of
-requiring Workbench or platform orchestration to supply missing persistence or migration behavior.
-For a database-backed service, prove the app-owned stack starts the database, waits for health,
-runs one bounded migration job to successful completion, starts API and worker roles against the
-same explicit durable URL, and survives both a repeated Compose start and an API-container restart
-without data loss or migration replay. Keep in-memory adapters limited to explicit test or
-ephemeral developer paths. Validate the actual major-version image, not only YAML: official image
-volume layout, initialization, health commands, and upgrade posture can change across PostgreSQL
-majors. Local migration convenience must still be pending-only, transactionally fenced, and
-checksum-drift aware; it must not weaken or impersonate release-attested staging/production
-migration evidence.
-
-Before consolidating Python services into one deployable, inspect each distribution's wheel
-contents and declared top-level packages. Do not co-install distributions that expose overlapping
-namespaces such as `core`, `consumers`, or `repositories`: installation order can silently replace
-modules. Prefer one target distribution with durable shared libraries or a bounded transitional
-source closure; do not copy the repository's entire source tree to make imports pass. Prove the
-installed image imports the target entrypoint and expected modules, excludes unrelated services,
-and add a deterministic package/image contract test for the closure.
-
-When Compose declares a worker, manifest, migration, schema, or operator asset that the image
-must read, verify the complete image file closure: every Dockerfile `COPY`, every `.dockerignore`
-exception, and every imported helper script required by the entrypoint must be present in the
-build context and in the built image. Repository tests are not enough for this check. Build the
-affected image and run the real entrypoint's bounded `--check-only` or equivalent contract mode
-inside the image before accepting runtime evidence; add a deterministic repository gate for the
-closure when the asset is production or canonical-stack relevant.
+When Docker/runtime behavior, package metadata, Compose mounts, service app imports, worker
+entrypoints, migration assets, or image file closure are in scope, load
+`references/runtime-packaging-patterns.md` before implementation. It owns the detailed rules for
+service package import truth, app-owned Compose stacks, distribution consolidation, and runtime
+asset closure.
 
 Before editing backend code, produce a short quality intake from the actual repository:
 
@@ -185,11 +153,8 @@ For RFC-driven business-application slices, extend that intake with:
     wiki, or runbook. Update durable guidance in the same slice when truth changed; otherwise
     record an explicit no-skill/no-context/no-doc/no-wiki decision in PR evidence, the review
     ledger, or the scorecard.
-Release evidence branch naming rule: for release, provenance, runtime-identity, or CI-evidence
-slices, treat the branch name as persisted evidence input. Keep it capability-oriented and avoid
-secret-shaped terms such as `token`, `secret`, `password`, `credential`, `private-key`, `apikey`,
-or `bearer`; evidence gates may correctly reject those substrings when they appear in `git_ref` or
-release metadata.
+For release, provenance, runtime-identity, or CI-evidence slices, keep branch names
+capability-oriented and avoid secret-shaped terms because persisted evidence gates may reject them.
 
 12. When refactoring orchestration, analytics, inspection, batch, or operator-support code, make
     domain ownership explicit before adding deployment boundaries. Prefer smaller cohesive
@@ -229,49 +194,11 @@ release metadata.
     [Application And Adapter Classification](references/application-and-adapter-classification.md).
     Fix the same pattern beyond the named call site, preserve runtime and transaction contracts,
     and promote deterministic invariants into guards and repo context.
-17. When a backend slice touches lifecycle events, audit logs, replay lineage, recovery, outbox
-    records, status history, or operator event history, do not encode identifiers or machine state
-    only in human-readable messages. Define a versioned, support-safe typed payload contract; add
-    schema/read compatibility for existing rows; ensure replay, regenerate, dedupe, and lineage
-    logic consume typed fields rather than parsing text; and test accepted, failed, render/archive,
-    retry/replay, batch-item, and legacy-read cases that match the touched event family.
-18. When a source adapter calls a tenant-aware downstream service, carry one resolved tenant from
-    trusted caller context through the request DTO mapper, application command, port, and adapter.
-    Reject missing, multiple, or inconsistent tenant context before runtime construction or network
-    I/O; reject unknown request fields so a body cannot silently pose as scope input, and never use a
-    hard-coded production tenant fallback. Propagate tenant only where the downstream route publishes
-    a tenant-aware contract; do not invent query/header fields on non-tenant-aware routes. Retain the
-    resolved tenant in local access scope, deterministic aggregate identity, persistence/idempotency
-    identity, and audit lineage wherever those artifacts can otherwise collide across tenants. Apply
-    the same contract to scheduled or batch workers through explicit governed configuration. Keep raw
-    tenant identifiers out of logs and metric labels; use a bounded scope-provenance posture when
-    operations need explanatory evidence. Test tenant A/B outbound payload, candidate identity,
-    persistence and ingestion isolation plus no-tenant, ambiguous-tenant, untrusted-header, body
-    override, and non-tenant-aware downstream paths. Add a cross-layer deterministic gate when the
-    contract is statically enforceable.
-19. When a shared dependency can reject a request before route code runs, preserve its approved
-    product-safe error code, title, status, media type, and remediation detail through the global
-    exception handler. Use a typed boundary exception for governed failures and retain a generic
-    safe fallback for unrelated framework errors. Test representative routes, correlation headers,
-    observability category, and absence of raw header/token/scope values; add a deterministic gate
-    when direct generic exceptions can be detected statically.
-20. Do not treat a dead-letter status or queue as a complete recovery control. Provide a bounded,
-    operator-authorized, source-safe inspection projection and an explicit re-drive use case through
-    API/command DTO, application service, domain policy, repository port, and durable adapter. Bind
-    re-drive to trusted caller provenance, dedicated capability, idempotency key, bounded reason and
-    change reference, event-family/schema eligibility, a new fenced lease, and append-only audit
-    evidence that preserves the original retry count, failure reason, and timestamps. Fence
-    concurrent requests, prove replay/conflict after repository or process restart, cap poison-event
-    recovery, return rejected attempts to quarantine without automatic infinite retry, and keep
-    payloads, aggregate/client/portfolio ids, and raw idempotency material out of responses and
-    telemetry. Resolve opaque support references with an exact durable, indexed selector across the
-    states needed for truthful conflict reporting; never make older records unreachable through a
-    fixed-size recent-row scan or lock unrelated rows while searching. Execute the selector,
-    transition, migration/index, restart, and replay path against the real repository technology;
-    migration dry-runs and fake adapters are not sufficient database proof. Improve this as an
-    internal bounded module first; add a separately deployed recovery service only when workload,
-    failure-isolation, ownership, or operability evidence justifies it.
-21. When two or more domain fields jointly define one business state, do not validate or query them
+17. When a backend slice touches lifecycle events, tenant-aware source adapters, shared API
+    dependency errors, dead-letter queues, replay, or recovery controls, load
+    `references/source-boundary-and-recovery-patterns.md` before implementation and apply the
+    typed-payload, tenant propagation, problem-details, and redrive contracts there.
+18. When two or more domain fields jointly define one business state, do not validate or query them
     as independent flags. Define one exhaustive, versioned compatibility policy and apply it at
     construction, transitions, repository rehydration, writes, queue/readiness classification, API
     conflict mapping, audit, and operation telemetry. Normalize terminal transitions to explicitly
@@ -281,7 +208,7 @@ release metadata.
     merely to validate a constraint. Derive adapter predicates from the domain policy where possible,
     add a deterministic contract gate against enforcement drift, and keep this as internal design
     modularity unless scaling, isolation, ownership, or operability evidence justifies a runtime split.
-22. When an API exposes `asOf`, `evaluatedAt`, effective-time, snapshot, cursor, page-token, or
+19. When an API exposes `asOf`, `evaluatedAt`, effective-time, snapshot, cursor, page-token, or
     continuation semantics, trace that contract through request DTO mapping, application command,
     domain policy, repository port, every adapter, response metadata, OpenAPI, and operator docs.
     Name the exact business field that governs visibility; do not silently substitute source
@@ -296,7 +223,7 @@ release metadata.
     pure internal policy plus typed port fields and a deterministic cross-layer gate. Add a separate
     pagination service only when workload, isolation, ownership, or operability evidence justifies
     the runtime complexity.
-23. When a use case consumes source-owned evidence, define a versioned temporal compatibility
+20. When a use case consumes source-owned evidence, define a versioned temporal compatibility
     contract for every domain family instead of relying only on timezone-aware fields. Validate
     request business date, every included source business/effective date, source generation time,
     evaluation time, and freshness as separate concepts before candidate/result persistence. Apply
@@ -308,7 +235,7 @@ release metadata.
     Test exact-boundary success, any allowed effective window, mismatched date, future generation,
     stale/partial posture, multi-source conflict, correction identity, and no-persistence behavior.
     Add a deterministic all-family gate when coverage can be checked statically.
-24. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
+21. When lifecycle, audit, replay, recovery, or outbox events carry diagnostic lineage, model
     correlation, trace, and causation as distinct typed concepts across the full request-to-publish
     path. Carry one validated context through request mapping, application use cases, ports,
     adapters, durable rows, and publishers; require correlation and trace for attributable work,
@@ -318,7 +245,7 @@ release metadata.
     semantically, document consumer replay rules, and keep sensitive data out of lineage and event
     payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
     service only when workload, failure isolation, ownership, or operability evidence justifies it.
-25. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
+22. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
     derive promotion through one typed evaluator shared by the repository gate, runtime readiness,
     API projection, and generated artifact. Never count a status string independently. Validate the
     complete schema, required evidence, referenced paths/tests/contracts, authority boundaries,
@@ -328,7 +255,7 @@ release metadata.
     deterministic gate that rejects parallel counters and hard-coded projections, and prove empty,
     invalid, stale, and fully evidenced current fixtures. Keep the evaluator as internal design
     modularity unless runtime-split evidence exists.
-25. Do not treat migration rollback, repository replay, queue re-drive, synthetic smoke, or a
+23. Do not treat migration rollback, repository replay, queue re-drive, synthetic smoke, or a
     logical dump as production database disaster-recovery certification. Define a versioned
     service-owned recovery contract that names RPO/RTO, protected tables, backup/PITR strategy,
     retention and legal-hold boundary, residency, encryption/access controls, ownership,
@@ -343,7 +270,7 @@ release metadata.
     indexes, relationships, state invariants, and resume behavior against the real database. Use
     scheduled attested evidence where appropriate, but keep production certification blocked until
     approved provider topology and a real PITR/failover exercise exist.
-26. When a backend owns personal, advisory, audit, outbox, idempotency, AI-lineage, quarantine, or
+24. When a backend owns personal, advisory, audit, outbox, idempotency, AI-lineage, quarantine, or
     downstream-reference records, treat retention, legal hold, erasure, and purge as one cross-path
     lifecycle contract. Allow only versioned policy references mapped from named authorities;
     caller-chosen non-blank policy text is not authority. Inventory every durable table with field
@@ -361,7 +288,7 @@ release metadata.
     jurisdiction policy, signed authority integration, cross-service retention conformance, and
     scheduled expiry/purge evidence are approved. Prefer an internal bounded module; add a runtime
     service only when workload, isolation, ownership, or operability evidence justifies it.
-27. When producing load, soak, capacity, saturation, or fault-injection evidence, use a versioned
+25. When producing load, soak, capacity, saturation, or fault-injection evidence, use a versioned
     aggregate evidence contract with closed scenario/outcome vocabulary and explicit environment,
     commit, branch, run, duration, volume, and non-proof posture. Keep URLs, DSNs, credentials,
     caller assertions, request/response bodies, and business identifiers transient inside narrow
@@ -380,7 +307,7 @@ release metadata.
     mainline ref, and exact source commit; keep local, branch-only, unsigned, or merely
     schema-valid artifacts non-certifying. Gate the trusted workflow shape so schedule, runner,
     protected environment, signer, source-ref, and secret-handling controls cannot silently drift.
-28. When a refactor moves contract, persistence, replay, migration, or proof ownership between
+26. When a refactor moves contract, persistence, replay, migration, or proof ownership between
     modules, update every machine-readable evidence reference and contract gate to the new stable
     owner in the same commit. Treat proof references as executable dependency edges, not
     documentation strings. Update complete test adapters and fake repository/database schemas for
@@ -388,7 +315,7 @@ release metadata.
     that fixture closures still match. Run the broadest repository-native typecheck and test lane
     after the focused slice, and fix stale projections through explicit compatibility boundaries
     rather than weakening production invariants or proof gates.
-29. When a resource-scoped mutation can load tenant, book, portfolio, client, account, or aggregate
+27. When a resource-scoped mutation can load tenant, book, portfolio, client, account, or aggregate
     scope from persisted server-owned truth, do not require callers to restate that scope or an
     `authorizedScope` claim in the request body. Build actor entitlements from trusted caller
     context, load the resource through the application port, and authorize its persisted scope
@@ -547,14 +474,9 @@ If the change affects a UI-facing workflow through `lotus-gateway`:
 
 ## Final Response Rule
 
-When closing backend work, report:
-
-1. what changed,
-2. which repository-native commands were run,
-3. which lane(s) were satisfied,
-4. any remaining gap or governed deviation,
-5. for RFC/proof-driven slices, where the slice closure manifest was recorded and how branch
-   cleanup was proven.
+When closing backend work, report what changed, repository-native commands run, lanes satisfied,
+remaining gaps or governed deviations, and for RFC/proof-driven slices where the closure manifest
+and branch-cleanup evidence were recorded.
 ## Continuous Skill Improvement
 
 At the end of any meaningful use of this skill, decide whether the work exposed a repeatable failure

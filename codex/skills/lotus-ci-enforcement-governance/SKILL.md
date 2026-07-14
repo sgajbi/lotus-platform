@@ -188,85 +188,12 @@ Do not describe this as production reinforcement learning unless there is an imp
 system. The Lotus control is a governed feedback loop: evidence becomes better gates, evaluator
 cases, scorecards, scaffolds, skills, and context.
 
-For newly scaffolded backend services, treat `make ci-contract-gate` as the default anti-drift gate.
-It should remain blocking through `make lint` when it is worktree-clean and validates only concrete
-lane wiring: required Makefile targets, approved workflow action majors, least-privilege workflow
-permissions, 99% merge/releasability coverage, Docker validation, release evidence,
-endpoint-certification, supported-feature, implementation-truth, security-audit,
-architecture/OpenAPI gates, safe generated-artifact cleanup wiring, bounded job-level timeouts, and
-no `continue-on-error: true` in critical lanes. Rebase auto-merge must use a non-`GITHUB_TOKEN`
-merge actor such as
-`LOTUS_AUTOMERGE_TOKEN`; otherwise GitHub suppresses the `pull_request_target.closed` event that
-dispatches post-merge main releasability proof. The generated CI contract gate should enforce the
-token reference, explicit missing-token warning-and-skip behavior, bounded workflow timeouts,
-no-soft-fail critical workflow posture, implementation-truth guard presence, safe `make clean`
-delegation to `scripts/clean_generated_artifacts.py`, scoped test-target variables
-(`UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS`) for repo-native focused validation, and the
-merged-PR main-releasability dispatcher together. Missing `LOTUS_AUTOMERGE_TOKEN` must not create a
-permanent red helper check; it should skip automatic rebase merge and require an authorized human or
-release actor to merge.
-GitHub workflows should call the repo-native targets that developers and agents run locally. For
-generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
-use `make test-${{ matrix.suite }}-coverage`, and `make ci-contract-gate` should fail if an agent
-reintroduces raw workflow-level `./.venv/bin/python -m pytest` commands or bypasses suite coverage
-targets.
-
-Generated endpoint-certification gates should require certified business/operator endpoints to cite
-bounded operation-event test evidence in the endpoint ledger. Baseline health/metadata endpoints can
-remain `baseline_certified` without operation-event evidence, but once an endpoint is marked
-`certified`, API contract evidence and supportability telemetry proof must move together.
-The same gate should parse and structurally compare every `baseline_certified` or `certified`
-success example with a source-safe route invocation or deterministic code-owned callable. Fail
-missing/stale fields, alias drift, blocker drift, scalar-type drift, and value drift. Dynamic values
-must use an explicit RFC 6901 pointer plus an approved narrow normalizer; governance fields remain
-exact. Keep the comparator with scaffold automation and add behavioral mutation tests so a stale
-but parseable example cannot pass.
-The canonical comparator source is `scripts/endpoint_example_parity.py`; keep changes to comparison
-semantics, the machine-readable platform contract, scaffold copying, and focused comparator tests
-in the same delivery slice.
-
-New backend scaffolds should also generate and run this seven-gate quality pack through
-`make lint`: `make maintainability-gate`, `make documentation-contract-gate`,
-`make quality-scorecard-gate`, `make monetary-float-guard`,
-`make source-observability-contract-gate`, `make operation-metric-contract-gate`, and
-`make implementation-truth-gate`.
-The maintainability gate should block
-oversized source, test, and script files/functions against conservative
-thresholds calibrated above the initial scaffold baseline. The documentation
-contract gate should scan required README, repository context, standards,
-runbooks, quality, evidence, and wiki surfaces for presence, minimum substance,
-required operating anchors, and placeholder erosion. The quality-scorecard gate
-should scan the bank-buyable control matrix for required rows, approved readiness
-statuses, non-empty evidence/gap/next-slice cells, implementation-backed evidence
-anchors, and stale scaffold-era scorecard underclaims once certified business
-endpoints exist. The monetary-float guard should be AST-backed and block
-money-like `float` annotations, literals, return annotations, and conversions
-while allowing non-monetary operational floats such as timeout seconds. The
-source-observability contract gate should block raw
-`print()`, direct Python logging, and low-level `log_event` bypasses in
-`src/app` so generated and agent-authored feature code uses central
-observability helpers and route-template request diagnostics. The operation metric contract gate
-should block sensitive or unbounded operation metric names, labels, and attributes so future
-business-operation telemetry starts source-safe before dashboards, alerts, or supported-feature
-claims exist. The implementation-truth gate should scan current-state README, repository context, operations/demo docs,
-quality docs, and wiki source for unqualified claims of demo readiness, production support,
-certification, live source ingestion, Gateway/Workbench support, or client-ready publication before
-supported-feature evidence exists. It should also block stale scaffold-era demo underclaims after
-implementation and CI evidence prove a stronger current posture. Keep RFC target-state planning text
-out of this blocking scan.
-The generated architecture boundary gate should also protect `src/app/runtime`
-as the process-local composition layer for repositories, adapters, publishers,
-workers, and proof generators; runtime composition must not import API routes,
-HTTP DTOs, FastAPI, or Starlette.
-The generated cleanup utility should be tested and dependency-light: `make clean` should call
-`python scripts/clean_generated_artifacts.py`, prune `.git`, `.venv`, and `node_modules`, and
-remove only known local cache, build, and coverage artifacts. The generated CI contract gate should
-fail if an agent replaces the utility with an inline Makefile command or deletes the script.
-Generated test targets should be efficient without bypassing governance: `make test-unit`,
-`make test-integration`, and `make test-e2e` should default to full suites while accepting
-`UNIT_TESTS=<path>`, `INTEGRATION_TESTS=<path>`, and `E2E_TESTS=<path>` overrides. The CI contract
-gate should fail if those scoped target variables, suite coverage targets, workflow Make calls, or
-target commands are removed.
+When changing generated backend service scaffolds, generated Makefiles, generated GitHub workflows,
+generated endpoint-certification gates, generated cleanup utilities, or scaffold quality packs,
+load `references/generated-service-quality-gates.md`. It owns the detailed generated-service
+contracts for `make ci-contract-gate`, endpoint example parity, the seven-gate quality pack,
+runtime composition boundaries, safe cleanup, and suite target overrides. Endpoint example parity
+automation stays with this skill at `scripts/endpoint_example_parity.py`.
 
 ## Proof Artifact Enforcement
 
