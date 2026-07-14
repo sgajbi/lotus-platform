@@ -82,16 +82,21 @@ def test_branch_commit_count_reports_invalid_base(monkeypatch: pytest.MonkeyPatc
 def test_branch_commit_budget_is_wired_into_pr_guidance_and_preflight() -> None:
     preflight = (ROOT / "automation/Preflight-PR.ps1").read_text(encoding="utf-8")
     playbook = (ROOT / "context/playbooks/PR-LOOP-PLAYBOOK.md").read_text(encoding="utf-8")
+    engineering_context = (ROOT / "context/LOTUS-ENGINEERING-CONTEXT.md").read_text(
+        encoding="utf-8"
+    )
     skill = (ROOT / "codex/skills/lotus-pr-premerge-gate/SKILL.md").read_text(
         encoding="utf-8"
     )
     automation_readme = (ROOT / "automation/README.md").read_text(encoding="utf-8")
 
-    for content in (preflight, playbook, skill, automation_readme):
+    for content in (preflight, playbook, engineering_context, skill, automation_readme):
         assert "validate_branch_commit_budget.py" in content
 
     assert "[string]$TrancheDecision" in preflight
     assert "branch_commit_budget" in preflight
+    assert "Branch Commit Budget:" in preflight
+    assert "Branch Commit Count:" in preflight
     assert "--tranche-decision" in playbook
     assert "warns at 40 commits" in skill
     assert "blocks\nabove 90 commits" in automation_readme
