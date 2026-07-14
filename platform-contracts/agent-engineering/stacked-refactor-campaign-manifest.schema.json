@@ -157,11 +157,7 @@
       "type": "object",
       "required": [
         "status",
-        "final_tranche_id",
-        "exact_main_sha",
-        "main_validation_refs",
-        "campaign_issues_closed",
-        "branch_cleanup_evidence"
+        "campaign_issues_closed"
       ],
       "properties": {
         "status": {

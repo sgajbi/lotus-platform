@@ -178,3 +178,25 @@ def test_rejects_same_digest_promotion_from_out_of_scope_source() -> None:
         "environments[1] production: same_digest_promotion requires a valid "
         "included source_environment"
     ) in errors
+
+
+def test_rejects_manifest_without_included_deployment_proof() -> None:
+    manifest = _manifest()
+    for env in manifest["environments"]:
+        env.update(
+            {
+                "scope": "out_of_scope",
+                "promotion_mode": "out_of_scope",
+                "source_environment": None,
+                "deployed_image_ref": None,
+                "deployed_digest": None,
+                "release_evidence_image_digest": None,
+                "out_of_scope_reason": (
+                    "Environment intentionally out of scope for no-proof negative test."
+                ),
+            }
+        )
+
+    errors = _validator().validate_manifest(manifest)
+
+    assert "at least one included environment must declare deployed digest proof" in errors

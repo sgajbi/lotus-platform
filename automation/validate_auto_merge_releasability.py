@@ -62,6 +62,8 @@ def _has_trigger(payload: dict[str, Any], trigger: str) -> bool:
 
 def _permissions(payload: dict[str, Any]) -> dict[str, str]:
     permissions = payload.get("permissions")
+    if isinstance(permissions, str):
+        return {"*": permissions}
     if not isinstance(permissions, dict):
         return {}
     return {str(key): str(value) for key, value in permissions.items()}
