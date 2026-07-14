@@ -378,9 +378,11 @@ Use these commands as the primary local contract:
    `python automation/generate_automation_inventory.py --write --check`
 31. supported-claim register validation
    `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
-32. rounding governance compliance matrix generation
+32. digest-based deployment promotion manifest validation
+   `python automation/validate_deployment_promotion_manifest.py`
+33. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-33. platform mesh and demo standard documentation contract tests
+34. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
 
 ## Validation And CI Expectations

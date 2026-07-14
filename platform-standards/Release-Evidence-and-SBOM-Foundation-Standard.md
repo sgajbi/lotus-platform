@@ -83,6 +83,28 @@ The target control set is:
 12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, build
     logs, OCI labels, release manifests, or runtime version metadata.
 
+## Deployment Promotion Manifest Baseline
+
+Service-owned release evidence proves that CI produced an immutable image digest and retained the
+required SBOM, scan, signature, and attestation artifacts. Platform-owned deployment promotion
+evidence proves that an environment consumes that exact digest.
+
+Lotus deployment promotion manifests live under
+`platform-contracts/deployment-promotion/` and are validated by:
+
+```text
+python automation/validate_deployment_promotion_manifest.py
+```
+
+Required behavior:
+
+1. all included deployment environments reference images as `image@sha256:<digest>`, without
+   mutable tags,
+2. every included environment's deployed digest matches the service release-evidence digest,
+3. later environments promote the same immutable digest instead of rebuilding from source,
+4. out-of-scope environments record a concrete reason and follow-up evidence, and
+5. production certification remains false until approved live deployment proof exists.
+
 ## Evaluation Conditions
 
 Use these checks when reviewing or promoting the control set:
@@ -94,7 +116,9 @@ Use these checks when reviewing or promoting the control set:
 4. Deployment manifests reference the digest form, not a mutable tag.
 5. A `/version` or version/build metadata endpoint contract test compares runtime metadata with the
    release manifest or image label source.
-6. Secret scanning covers Dockerfile `ARG`/`ENV`, image history, build logs, labels, release
+6. The deployment promotion manifest reconciles release-evidence digest, deployed digest, and
+   same-digest environment promotion without claiming production certification ahead of live proof.
+7. Secret scanning covers Dockerfile `ARG`/`ENV`, image history, build logs, labels, release
    manifests, and version metadata.
 
 ## Scope Boundary

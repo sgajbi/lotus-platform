@@ -51,6 +51,7 @@ try {
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_security.py
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_action_runtime.py
     Invoke-CheckedCommand $toolingPython automation/validate_container_build_baseline.py
+    Invoke-CheckedCommand $toolingPython automation/validate_deployment_promotion_manifest.py
     Invoke-CheckedCommand $toolingPython automation/validate_platform_validation_coverage.py
     Invoke-CheckedCommand $toolingPython automation/generate_enterprise_backend_quality_baseline.py --check
     Invoke-CheckedCommand $toolingPython automation/generate_automation_inventory.py --check

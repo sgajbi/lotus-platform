@@ -1,0 +1,82 @@
+{
+  "schema_version": "lotus.deployment-promotion-manifest.v1",
+  "manifest_id": "lotus-archive:deployment-promotion:2026-07-14",
+  "generated_at_utc": "2026-07-14T00:00:00Z",
+  "repository": "lotus-archive",
+  "service": "lotus-archive",
+  "first_proof_set": [
+    "lotus-archive"
+  ],
+  "production_certification_claimed": false,
+  "release_evidence": {
+    "artifact_ref": "sgajbi/lotus-archive/actions/runs/1234567890/main-releasability-release-evidence",
+    "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "workflow_run_id": "1234567890",
+    "image_ref": "ghcr.io/sgajbi/lotus-archive@sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "image_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "sbom_ref": "sgajbi/lotus-archive/actions/runs/1234567890/sbom.cdx.json",
+    "signature_ref": "ghcr.io/sgajbi/lotus-archive:sha256-1111111111111111111111111111111111111111111111111111111111111111.sig",
+    "attestation_ref": "sgajbi/lotus-archive/attestations/1234567890"
+  },
+  "promotion_policy": {
+    "same_digest_required": true,
+    "mutable_tags_allowed": false,
+    "rebuild_between_environments_allowed": false,
+    "certification_boundary": "This manifest proves only deployment-promotion contract shape and digest reconciliation. It is not production certification without live deployment evidence."
+  },
+  "environments": [
+    {
+      "name": "staging",
+      "scope": "included",
+      "promotion_mode": "initial_deploy_from_release_evidence",
+      "source_environment": null,
+      "deployed_image_ref": "ghcr.io/sgajbi/lotus-archive@sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "deployed_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "release_evidence_image_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "rebuilt_in_environment": false,
+      "live_deployment_proof_ref": null,
+      "out_of_scope_reason": null,
+      "evidence_refs": [
+        {
+          "type": "RELEASE_EVIDENCE",
+          "ref": "sgajbi/lotus-archive/actions/runs/1234567890/main-releasability-release-evidence"
+        },
+        {
+          "type": "DEPLOYMENT_MANIFEST",
+          "ref": "platform-contracts/deployment-promotion/examples/lotus-archive-deployment-promotion.valid.json"
+        }
+      ]
+    },
+    {
+      "name": "production",
+      "scope": "out_of_scope",
+      "promotion_mode": "out_of_scope",
+      "source_environment": null,
+      "rebuilt_in_environment": false,
+      "live_deployment_proof_ref": null,
+      "out_of_scope_reason": "No production Kubernetes, Helm, or approved environment-promotion manifest exists yet for lotus-archive.",
+      "evidence_refs": [
+        {
+          "type": "FOLLOW_UP_ISSUE",
+          "ref": "https://github.com/sgajbi/lotus-platform/issues/522"
+        },
+        {
+          "type": "OPERATOR_RUNBOOK",
+          "ref": "docs/operations/deployment-promotion-proof.md"
+        }
+      ]
+    }
+  ],
+  "migration_order": [
+    "lotus-archive",
+    "lotus-report",
+    "lotus-ai",
+    "lotus-risk",
+    "lotus-advise",
+    "lotus-manage"
+  ],
+  "non_proof_boundaries": [
+    "This manifest does not replace service-owned Dockerfile, SBOM, vulnerability scan, signature, attestation, or release-evidence controls.",
+    "This manifest does not certify production deployment until an approved live environment manifest and deployed-digest observation are attached."
+  ]
+}

@@ -1,5 +1,18 @@
 # Validation and CI
 
+## Current Scope
+
+This page maps `lotus-platform` validation lanes to the repo-native commands and evidence surfaces
+that engineers, operators, and agents should use before PR merge or production-facing claims. It
+summarizes current platform governance checks; it does not by itself certify live production
+deployment, client demo readiness, or supported feature promotion.
+
+| Reader | Use This Page To | Evidence Boundary |
+| --- | --- | --- |
+| Engineers and agents | Pick the correct local lane and focused checks. | Local proof must match the PR diff and issue scope. |
+| CI and release owners | Confirm platform gates cover release, mesh, docs, and deployment-promotion contracts. | Main releasability and live deployment proof remain separate. |
+| Operators and support | Find the runbooks and output paths behind platform validation claims. | Output artifacts are evidence, not unsupported readiness claims. |
+
 ## Lane model
 
 `lotus-platform` uses:
@@ -37,6 +50,8 @@
   `python automation\generate_domain_product_onboarding.py --repository lotus-core --product-name ExampleSourceProduct --product-version v1 --output-directory output\domain-product-onboarding\example --check`
 - enterprise backend refactor quality baseline:
   `python automation\generate_enterprise_backend_quality_baseline.py --write --check`
+- digest-based deployment promotion manifest validation:
+  `python automation\validate_deployment_promotion_manifest.py`
 
 ## What the gates protect
 
@@ -56,6 +71,9 @@
   declaration readiness
 - enterprise backend refactor quality surface: report-only baseline, scorecard, quality gate rules,
   security review notes, and refactor decisions under `quality/`
+- deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
+  no rebuild-per-environment promotion, out-of-scope environment reasons, and no production
+  certification claim before live deployment proof
 - platform demo-readiness certification: report-only `core-performance-green-lanes` evidence that
   seeds deterministic synthetic scenarios, calls real core/performance APIs, asserts domain figures,
   and uploads `output/demo-readiness/platform/platform-demo-readiness-certification.json`
