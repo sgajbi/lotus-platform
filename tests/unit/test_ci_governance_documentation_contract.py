@@ -355,10 +355,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "timeout-minutes: 10" in pr_merge_gate
     assert "timeout-minutes: 45" in pr_merge_gate
     assert "GH_TOKEN: ${{ github.token }}" in pr_merge_gate
-    assert (
-        "LOTUS_PROVENANCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}"
-        in pr_merge_gate
-    )
+    assert "LOTUS_PROVENANCE_COMMIT_SHA" not in pr_merge_gate
 
     assert "name: Main Releasability Gate" in main_releasability
     assert "Main Releasability / Platform Repo Contracts" in main_releasability
@@ -385,6 +382,11 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     )
     assert (
         "Invoke-CheckedCommand $toolingPython automation/validate_platform_validation_coverage.py"
+        in repo_checks
+    )
+    assert "$Lane -eq \"main-releasability\"" in repo_checks
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py"
         in repo_checks
     )
     assert "Validate-Backend-Standards.ps1" in repo_checks

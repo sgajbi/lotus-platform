@@ -66,9 +66,10 @@ deployment, client demo readiness, or supported feature promotion.
 - auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
   `main-releasability.yml` dispatch, workflow-dispatch support, and expiring rollout exceptions
 - mainline commit provenance: GitHub-verified exact commits, local signed-commit fallback for
-  unpushed work, and exact expiring exceptions for unsigned mainline output. Platform CI steps
-  expose `GH_TOKEN: ${{ github.token }}` for GitHub verification, and pull request checks set
-  `LOTUS_PROVENANCE_COMMIT_SHA` to the PR head SHA instead of relying on synthetic merge refs.
+  unpushed work, and exact expiring exceptions for unsigned mainline output. The shared platform
+  repo check entrypoint runs this as a blocking gate only for `main-releasability`, and platform CI
+  exposes `GH_TOKEN: ${{ github.token }}` for GitHub verification instead of relying on local-git
+  fallback.
 - reusable platform validation entrypoints
 - RFC-0089 first-wave mesh certification posture for governed domain products
 - RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate
@@ -81,6 +82,9 @@ deployment, client demo readiness, or supported feature promotion.
   declaration readiness
 - enterprise backend refactor quality surface: report-only baseline, scorecard, quality gate rules,
   security review notes, and refactor decisions under `quality/`
+  Baseline regeneration must use the interpreter returned by
+  `automation\Resolve-PlatformAutomationPython.ps1` so collected-test metrics match the repo check
+  lane.
 - deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
   no rebuild-per-environment promotion, out-of-scope environment reasons, and no production
   certification claim before live deployment proof

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-14T04:08:57Z`
+Generated: `2026-07-14T04:20:20Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `815`
-- Total source lines: `334108`
+- Total source lines: `334171`
 - Python files: `195`
 - PowerShell files: `66`
 - Markdown files: `390`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2242`
+- Python functions: `2245`
 - Highest measured cyclomatic complexity: `15`
 - Largest Python function length: `884`
 
@@ -48,8 +48,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 142 | 14 | 43 |
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
-| automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 162 | 13 | 49 |
-| automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 213 | 12 | 39 |
+| automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 173 | 13 | 49 |
+| automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 224 | 12 | 39 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _resolve_pointer | 199 | 12 | 17 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _compare | 239 | 11 | 77 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _parse_normalization_rule | 105 | 11 | 55 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `718`
+- Unit tests collected: `719`
 - Collection command return code: `0`
-- Collection summary: `718 tests collected in 3.12s`
+- Collection summary: `719 tests collected in 0.66s`
 
 ## Security Baseline
 

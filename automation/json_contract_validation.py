@@ -14,10 +14,23 @@ def load_json_object(path: Path) -> dict[str, Any]:
 
 
 def validate_json_schema_subset(schema_path: Path, document_path: Path) -> list[str]:
-    schema = load_json_object(schema_path)
     document = load_json_object(document_path)
+    return validate_json_schema_subset_document(
+        schema_path,
+        document,
+        document_name=document_path.name,
+    )
+
+
+def validate_json_schema_subset_document(
+    schema_path: Path,
+    document: dict[str, Any],
+    *,
+    document_name: str = "$",
+) -> list[str]:
+    schema = load_json_object(schema_path)
     errors: list[str] = []
-    _validate_node(document, schema, [document_path.name], errors, root_schema=schema)
+    _validate_node(document, schema, [document_name], errors, root_schema=schema)
     return errors
 
 
