@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 334369
+    "total_source_lines": 334446
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -43,8 +43,8 @@
       },
       {
         "complexity": 14,
-        "end_line": 194,
-        "line": 148,
+        "end_line": 196,
+        "line": 150,
         "lines": 47,
         "name": "_validate_included_environment",
         "path": "automation/validate_deployment_promotion_manifest.py"
@@ -67,11 +67,19 @@
       },
       {
         "complexity": 12,
-        "end_line": 262,
+        "end_line": 266,
         "line": 224,
-        "lines": 39,
+        "lines": 43,
         "name": "_validate_final_closure",
         "path": "automation/validate_stacked_refactor_campaign_manifest.py"
+      },
+      {
+        "complexity": 12,
+        "end_line": 147,
+        "line": 109,
+        "lines": 39,
+        "name": "_validate_environments",
+        "path": "automation/validate_deployment_promotion_manifest.py"
       },
       {
         "complexity": 12,
@@ -104,14 +112,6 @@
         "lines": 38,
         "name": "_issue_from_live_certification",
         "path": "automation/mesh_certification_gate.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 145,
-        "line": 109,
-        "lines": 37,
-        "name": "_validate_environments",
-        "path": "automation/validate_deployment_promotion_manifest.py"
       },
       {
         "complexity": 11,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 15,
     "max_function_lines": 884,
-    "python_function_count": 2248
+    "python_function_count": 2251
   },
-  "generated_at_utc": "2026-07-14T04:30:20Z",
+  "generated_at_utc": "2026-07-14T04:37:05Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 721,
+    "collected_tests": 724,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "721 tests collected in 0.73s"
+    "summary": "724 tests collected in 1.55s"
   }
 }

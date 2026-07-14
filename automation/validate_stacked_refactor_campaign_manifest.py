@@ -230,14 +230,7 @@ def _validate_final_closure(manifest: dict[str, Any], errors: list[str]) -> None
     _validate_required_fields(
         errors,
         closure,
-        (
-            "status",
-            "final_tranche_id",
-            "exact_main_sha",
-            "main_validation_refs",
-            "campaign_issues_closed",
-            "branch_cleanup_evidence",
-        ),
+        ("status", "campaign_issues_closed"),
         "final_aggregate_closure",
     )
     if not tranches or not isinstance(tranches[-1], dict):
@@ -245,6 +238,17 @@ def _validate_final_closure(manifest: dict[str, Any], errors: list[str]) -> None
 
     final_tranche = tranches[-1]
     if closure.get("status") == "closed":
+        _validate_required_fields(
+            errors,
+            closure,
+            (
+                "final_tranche_id",
+                "exact_main_sha",
+                "main_validation_refs",
+                "branch_cleanup_evidence",
+            ),
+            "final_aggregate_closure",
+        )
         if closure.get("final_tranche_id") != final_tranche.get("tranche_id"):
             errors.append("final_aggregate_closure.final_tranche_id must name the last tranche")
         if closure.get("exact_main_sha") != final_tranche.get("post_merge_main_sha"):

@@ -222,3 +222,44 @@ def test_auto_merge_releasability_can_skip_or_require_missing_local_repos(
     assert skipped[0].violations == ()
     assert required[0].status == "drift"
     assert required[0].violations == ("repository-root.missing",)
+
+
+def test_auto_merge_releasability_rejects_scalar_write_all_permissions(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (
+        repo_root / ".github" / "workflows" / "pr-auto-merge.yml"
+    ).write_text(
+        """
+name: PR Auto Merge
+on:
+  pull_request_target:
+    types: [opened, ready_for_review]
+permissions: write-all
+jobs:
+  queue:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.LOTUS_AUTOMERGE_TOKEN }}
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --rebase --delete-branch
+""",
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert "pr-auto-merge.write-permissions" in results[0].violations

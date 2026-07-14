@@ -141,6 +141,8 @@ def _validate_environments(
         else:
             errors.append(f"environments[{index}] {name}: scope must be included or out_of_scope")
 
+    if not included_digests:
+        errors.append("at least one included environment must declare deployed digest proof")
     if len(set(included_digests.values())) > 1:
         errors.append("included environments must all deploy the same release digest")
 

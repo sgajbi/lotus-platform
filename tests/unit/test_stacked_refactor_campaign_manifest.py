@@ -107,6 +107,16 @@ def test_stacked_refactor_campaign_manifest_rejects_open_campaign_with_closed_is
     assert any("open campaign must not mark campaign_issues_closed true" in error for error in errors)
 
 
+def test_stacked_refactor_campaign_manifest_accepts_open_campaign_without_final_proof() -> None:
+    manifest = _manifest()
+    manifest["final_aggregate_closure"] = {
+        "status": "open",
+        "campaign_issues_closed": False,
+    }
+
+    assert validate_stacked_refactor_campaign_manifest(manifest) == []
+
+
 def test_stacked_refactor_campaign_manifest_rejects_missing_tranche_decision() -> None:
     manifest = _manifest()
     manifest["tranches"][1].pop("tranche_decision")
