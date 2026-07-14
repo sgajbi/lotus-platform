@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-14T04:20:20Z`
+Generated: `2026-07-14T04:30:20Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `815`
-- Total source lines: `334171`
+- Source files: `816`
+- Total source lines: `334369`
 - Python files: `195`
 - PowerShell files: `66`
-- Markdown files: `390`
+- Markdown files: `391`
 
 ## Largest Files
 
@@ -39,14 +39,14 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2245`
+- Python functions: `2248`
 - Highest measured cyclomatic complexity: `15`
 - Largest Python function length: `884`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
-| automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 142 | 14 | 43 |
+| automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 148 | 14 | 47 |
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 173 | 13 | 49 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 224 | 12 | 39 |
@@ -54,7 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _compare | 239 | 11 | 77 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _parse_normalization_rule | 105 | 11 | 55 |
 | automation/mesh_certification_gate.py | _issue_from_live_certification | 465 | 11 | 38 |
-| automation/cost_attribution/domain.py | __post_init__ | 44 | 11 | 27 |
+| automation/validate_deployment_promotion_manifest.py | _validate_environments | 109 | 11 | 37 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `719`
+- Unit tests collected: `721`
 - Collection command return code: `0`
-- Collection summary: `719 tests collected in 0.66s`
+- Collection summary: `721 tests collected in 0.73s`
 
 ## Security Baseline
 

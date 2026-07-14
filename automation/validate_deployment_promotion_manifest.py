@@ -111,10 +111,14 @@ def _validate_environments(
     environments: list[object],
     release_digest: object,
 ) -> None:
-    names = {
+    included_names = {
         env.get("name")
         for env in environments
-        if isinstance(env, dict) and isinstance(env.get("name"), str)
+        if (
+            isinstance(env, dict)
+            and env.get("scope") == "included"
+            and isinstance(env.get("name"), str)
+        )
     }
     included_digests: dict[str, str] = {}
     for index, env in enumerate(environments):
@@ -126,7 +130,9 @@ def _validate_environments(
         if env.get("rebuilt_in_environment") is not False:
             errors.append(f"environments[{index}] {name}: rebuilt_in_environment must be false")
         if scope == "included":
-            errors.extend(_validate_included_environment(index, env, names, release_digest))
+            errors.extend(
+                _validate_included_environment(index, env, included_names, release_digest)
+            )
             digest = env.get("deployed_digest")
             if isinstance(name, str) and isinstance(digest, str):
                 included_digests[name] = digest
@@ -142,7 +148,7 @@ def _validate_environments(
 def _validate_included_environment(
     index: int,
     env: dict[str, Any],
-    environment_names: set[str],
+    included_environment_names: set[str],
     release_digest: object,
 ) -> list[str]:
     errors: list[str] = []
@@ -174,10 +180,14 @@ def _validate_included_environment(
         )
     source = env.get("source_environment")
     if env.get("promotion_mode") == "same_digest_promotion":
-        if not isinstance(source, str) or source not in environment_names or source == name:
+        if (
+            not isinstance(source, str)
+            or source not in included_environment_names
+            or source == name
+        ):
             errors.append(
                 f"environments[{index}] {name}: same_digest_promotion requires a valid "
-                "source_environment"
+                "included source_environment"
             )
     if env.get("out_of_scope_reason") is not None:
         errors.append(f"environments[{index}] {name}: included environment cannot be out_of_scope")

@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 390,
+    "markdown_file_count": 391,
     "powershell_file_count": 66,
     "python_file_count": 195,
-    "source_file_count": 815,
+    "source_file_count": 816,
     "suffix_counts": {
       ".json": 122,
-      ".md": 390,
+      ".md": 391,
       ".ps1": 66,
       ".py": 195,
       ".txt": 5,
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 334171
+    "total_source_lines": 334369
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -43,9 +43,9 @@
       },
       {
         "complexity": 14,
-        "end_line": 184,
-        "line": 142,
-        "lines": 43,
+        "end_line": 194,
+        "line": 148,
+        "lines": 47,
         "name": "_validate_included_environment",
         "path": "automation/validate_deployment_promotion_manifest.py"
       },
@@ -107,6 +107,14 @@
       },
       {
         "complexity": 11,
+        "end_line": 145,
+        "line": 109,
+        "lines": 37,
+        "name": "_validate_environments",
+        "path": "automation/validate_deployment_promotion_manifest.py"
+      },
+      {
+        "complexity": 11,
         "end_line": 70,
         "line": 44,
         "lines": 27,
@@ -131,16 +139,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 139,
-        "line": 109,
-        "lines": 31,
-        "name": "_validate_environments",
-        "path": "automation/validate_deployment_promotion_manifest.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 65,
-        "line": 37,
+        "end_line": 66,
+        "line": 38,
         "lines": 29,
         "name": "_validate_node",
         "path": "automation/json_contract_validation.py"
@@ -152,6 +152,14 @@
         "lines": 29,
         "name": "_validate_application_agent_contract_sync",
         "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 10,
+        "end_line": 98,
+        "line": 80,
+        "lines": 19,
+        "name": "_validate_string_constraints",
+        "path": "automation/json_contract_validation.py"
       },
       {
         "complexity": 10,
@@ -184,14 +192,6 @@
         "lines": 75,
         "name": "_evaluate_performance_requests",
         "path": "automation/core_performance_cross_app_validation.py"
-      },
-      {
-        "complexity": 9,
-        "end_line": 157,
-        "line": 94,
-        "lines": 64,
-        "name": "validate_dev_ingress_smoke",
-        "path": "automation/validate_dev_ingress_smoke.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 15,
     "max_function_lines": 884,
-    "python_function_count": 2245
+    "python_function_count": 2248
   },
-  "generated_at_utc": "2026-07-14T04:20:20Z",
+  "generated_at_utc": "2026-07-14T04:30:20Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 719,
+    "collected_tests": 721,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "719 tests collected in 0.66s"
+    "summary": "721 tests collected in 0.73s"
   }
 }

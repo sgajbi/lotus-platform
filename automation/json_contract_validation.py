@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +94,16 @@ def _validate_string_constraints(
     max_length = schema.get("maxLength")
     if isinstance(max_length, int) and len(value) > max_length:
         errors.append(f"{'.'.join(path)}: is longer than {max_length} characters")
+    if schema.get("format") == "date-time" and not _is_date_time(value):
+        errors.append(f"{'.'.join(path)}: must be a valid date-time")
+
+
+def _is_date_time(value: str) -> bool:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None
 
 
 def _validate_object_constraints(
