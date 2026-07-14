@@ -382,6 +382,15 @@ For RFC-driven business-application slices, extend that intake with:
     that fixture closures still match. Run the broadest repository-native typecheck and test lane
     after the focused slice, and fix stale projections through explicit compatibility boundaries
     rather than weakening production invariants or proof gates.
+29. When a resource-scoped mutation can load tenant, book, portfolio, client, account, or aggregate
+    scope from persisted server-owned truth, do not require callers to restate that scope or an
+    `authorizedScope` claim in the request body. Build actor entitlements from trusted caller
+    context, load the resource through the application port, and authorize its persisted scope
+    before mutation. Reject unknown legacy scope fields, keep authorization failures product-safe,
+    and preserve not-found, replay, conflict, audit, and transaction semantics. Test missing and
+    malformed trusted context, every mismatched scope dimension, multi-value membership, body
+    override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
+    commands free of placeholder or nullable scope that exists only for later replacement.
 
 ## Bank-Buyable Default Bar
 
