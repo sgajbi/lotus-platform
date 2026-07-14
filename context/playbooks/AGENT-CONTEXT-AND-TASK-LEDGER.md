@@ -10,8 +10,9 @@ Governed sources:
 3. `rfcs/RFC-0096-governed-multi-agent-delegation-model.md`
 4. `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`
 5. `platform-contracts/agent-engineering/delegation-policy-contract.v1.json`
-6. `automation/Start-Background-Run.ps1`
-7. `automation/Check-Background-Runs.ps1`
+6. `platform-contracts/agent-engineering/stacked-refactor-campaign-manifest.schema.json`
+7. `automation/Start-Background-Run.ps1`
+8. `automation/Check-Background-Runs.ps1`
 
 ## Context Assembly
 
@@ -69,6 +70,23 @@ Use the lifecycle vocabulary from the contract:
 
 `LOST` is an operational problem, not success. Treat it as a finding that needs cleanup or
 rerun evidence.
+
+## Stacked Refactor Campaigns
+
+For long-running governed refactors split across dependent PRs, preserve a
+`stacked-refactor-campaign` manifest alongside the normal task ledger evidence. The manifest records
+the campaign issues, tranche ids, branch/base/head SHAs, required predecessor main SHA, capability
+boundary, commit budget posture, local and remote evidence, issue closure decision, rebase posture,
+and final aggregate closure.
+
+Create the manifest before tranche 1, update it after every tranche merge, and validate it with:
+
+```powershell
+python automation/validate_stacked_refactor_campaign_manifest.py --manifest <path>
+```
+
+Do not close campaign issues from an intermediate tranche. Keep them open until the final tranche is
+merged, exact-main validation has passed, and branch cleanup evidence is recorded.
 
 ## Delegated Work
 

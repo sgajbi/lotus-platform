@@ -751,6 +751,10 @@ Before pushing merge intent for long-running refactors, run
 `python automation/validate_branch_commit_budget.py --repo-root . --base-ref origin/main --head-ref HEAD`
 or the shared preflight wrapper so branches warn at 40 commits, require a tranche decision at
 60 commits, and block above the governed rebase-safe limit by default.
+For dependent multi-PR refactor campaigns, maintain a versioned `stacked-refactor-campaign`
+manifest under the agent-engineering contract family so tranche ids, predecessor main SHAs, local
+and remote evidence, issue closure posture, and final aggregate closure are not reconstructed from
+chat memory or branch history.
 If a repository requires signed commits, configure a registered signing key before the first PR
 commit and verify every branch commit is signed before pushing merge intent. A green PR with
 `mergeable=true` can still remain blocked when linear history plus signed-commit protection meets an

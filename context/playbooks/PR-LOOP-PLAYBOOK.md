@@ -38,6 +38,29 @@ If an existing PR is already over the limit, do not weaken branch protection, sw
 or silently squash governed history. Split it into validated sub-100-commit tranches and retain
 issue closure on the final aggregate outcome.
 
+For a governed refactor that needs multiple tranches, create a
+`stacked-refactor-campaign` manifest before tranche 1 and update it after every tranche merge. Use
+`platform-contracts/agent-engineering/stacked-refactor-campaign-manifest.schema.json` and validate
+with:
+
+```powershell
+python automation/validate_stacked_refactor_campaign_manifest.py --manifest <path-to-campaign-manifest.json>
+```
+
+The manifest records campaign issues, branch/base/head SHAs, predecessor main SHA, capability
+boundary, commit budget, tranche decision, local and remote evidence, issue-closure posture, and
+final aggregate closure. Campaign issues stay open until the final tranche is merged to validated
+main and branch cleanup evidence is recorded.
+
+For a governed refactor campaign that will span multiple dependent PRs, create or update a
+`stacked-refactor-campaign` manifest before tranche 1 and after every merge. Use the contract under
+`platform-contracts/agent-engineering/stacked-refactor-campaign-manifest.schema.json` and validate
+it with `python automation/validate_stacked_refactor_campaign_manifest.py --manifest <path>`. The
+manifest must preserve tranche ids, branch/base/head SHAs, predecessor main SHA, capability
+boundary, commit budget posture, local and remote evidence, issue closure decision, and final
+aggregate closure evidence. Campaign issues stay open until the final tranche is merged and
+validated on exact `main`.
+
 ## Stranded Governance Truth Rule
 
 For RFC, documentation, wiki, context, contract, API-governance, migration, CI, or

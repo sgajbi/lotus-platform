@@ -55,11 +55,14 @@ Before any PR, merge, or cleanup action:
    The 90-commit threshold preserves room for review and CI fix-forward commits. The canonical
    validator warns at 40 commits, requires a recorded tranche decision at or above 60 commits, and
    fails above 90 commits unless a repository sets a stricter limit.
-5. If an existing rebase-only PR exceeds 100 commits, stop retrying the merge. Do not weaken branch
+5. For dependent multi-PR refactor campaigns, create or update the
+   `stacked-refactor-campaign` manifest before tranche 1 and after every merge, then validate it
+   with `python automation/validate_stacked_refactor_campaign_manifest.py --manifest <path>`.
+6. If an existing rebase-only PR exceeds 100 commits, stop retrying the merge. Do not weaken branch
    protection or silently squash the audit trail. Split it into independently releasable,
    sub-100-commit tranches, validate each intermediate state, and keep issue closure on the final
    aggregate outcome.
-6. If scope is broad, split into smaller PRs before proceeding.
+7. If scope is broad, split into smaller PRs before proceeding.
 
 ### 1.0.1) Stranded truth check for governance-bearing PRs
 

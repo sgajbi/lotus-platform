@@ -1,0 +1,90 @@
+{
+  "schema_version": "lotus.stacked-refactor-campaign.v1",
+  "campaign_id": "lotus-core-transaction-refactor-2026q3",
+  "repository": "lotus-core",
+  "base_branch": "main",
+  "issue_closure_policy": "final_validated_main_only",
+  "commit_budget": {
+    "warning_at": 40,
+    "split_required_at": 60,
+    "fail_above": 90
+  },
+  "campaign_issues": [
+    {
+      "repo": "sgajbi/lotus-core",
+      "number": 460,
+      "final_close_required": true
+    },
+    {
+      "repo": "sgajbi/lotus-core",
+      "number": 465,
+      "final_close_required": true
+    }
+  ],
+  "tranches": [
+    {
+      "tranche_id": "tranche-1-domain-boundaries",
+      "branch": "refactor/transactions-tranche-1-domain-boundaries",
+      "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "post_merge_main_sha": "1111111111111111111111111111111111111111",
+      "capability_boundary": "Transaction domain value objects and repository ports",
+      "commit_count": 58,
+      "tranche_decision": "Tranche 2 starts after domain boundary merge and exact-main validation.",
+      "issue_closure_decision": "keep_campaign_issues_open",
+      "local_evidence": [
+        "python -m pytest tests/unit/transactions -q"
+      ],
+      "remote_evidence": [
+        "PR #721 Feature Lane passed"
+      ]
+    },
+    {
+      "tranche_id": "tranche-2-application-services",
+      "branch": "refactor/transactions-tranche-2-application-services",
+      "base_sha": "1111111111111111111111111111111111111111",
+      "head_sha": "cccccccccccccccccccccccccccccccccccccccc",
+      "post_merge_main_sha": "2222222222222222222222222222222222222222",
+      "required_predecessor_main_sha": "1111111111111111111111111111111111111111",
+      "capability_boundary": "Transaction application services and idempotency orchestration",
+      "commit_count": 72,
+      "tranche_decision": "Tranche 3 owns API and docs closure after application-service proof.",
+      "issue_closure_decision": "keep_campaign_issues_open",
+      "local_evidence": [
+        "python -m pytest tests/unit/transactions tests/integration/transactions -q"
+      ],
+      "remote_evidence": [
+        "PR #722 PR Merge Gate passed"
+      ]
+    },
+    {
+      "tranche_id": "tranche-3-api-docs-closure",
+      "branch": "refactor/transactions-tranche-3-api-docs-closure",
+      "base_sha": "2222222222222222222222222222222222222222",
+      "head_sha": "dddddddddddddddddddddddddddddddddddddddd",
+      "post_merge_main_sha": "3333333333333333333333333333333333333333",
+      "required_predecessor_main_sha": "2222222222222222222222222222222222222222",
+      "capability_boundary": "Transaction API contract, documentation, and aggregate closure",
+      "commit_count": 43,
+      "issue_closure_decision": "close_after_final_validated_main",
+      "local_evidence": [
+        "python -m pytest tests/unit/transactions tests/api/test_transactions.py -q"
+      ],
+      "remote_evidence": [
+        "PR #723 Main Releasability Gate passed for 3333333333333333333333333333333333333333"
+      ]
+    }
+  ],
+  "final_aggregate_closure": {
+    "status": "closed",
+    "final_tranche_id": "tranche-3-api-docs-closure",
+    "exact_main_sha": "3333333333333333333333333333333333333333",
+    "main_validation_refs": [
+      "Main Releasability Gate run 123456789 for 3333333333333333333333333333333333333333"
+    ],
+    "campaign_issues_closed": true,
+    "branch_cleanup_evidence": [
+      "git branch -r confirms tranche branches deleted after merge"
+    ]
+  }
+}

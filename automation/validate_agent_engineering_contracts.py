@@ -7,6 +7,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+AUTOMATION_DIR = Path(__file__).resolve().parent
+if str(AUTOMATION_DIR) not in sys.path:
+    sys.path.insert(0, str(AUTOMATION_DIR))
 CONTRACT_PATH = (
     ROOT
     / "platform-contracts"
@@ -21,6 +24,15 @@ DELEGATION_POLICY_PATH = (
 )
 DELEGATION_EXAMPLES_DIR = (
     ROOT / "platform-contracts" / "agent-engineering" / "examples"
+)
+STACKED_REFACTOR_CAMPAIGN_SCHEMA_PATH = (
+    ROOT
+    / "platform-contracts"
+    / "agent-engineering"
+    / "stacked-refactor-campaign-manifest.schema.json"
+)
+STACKED_REFACTOR_CAMPAIGN_EXAMPLE_PATH = (
+    DELEGATION_EXAMPLES_DIR / "stacked-refactor-campaign-valid.json"
 )
 
 REQUIRED_TASK_STATES = {
@@ -681,10 +693,34 @@ def validate_delegation_examples(
     return errors
 
 
+def validate_stacked_refactor_campaign_contract() -> list[str]:
+    errors: list[str] = []
+    if not STACKED_REFACTOR_CAMPAIGN_SCHEMA_PATH.exists():
+        errors.append(
+            "missing stacked refactor campaign schema: "
+            f"{STACKED_REFACTOR_CAMPAIGN_SCHEMA_PATH.relative_to(ROOT)}"
+        )
+    if not STACKED_REFACTOR_CAMPAIGN_EXAMPLE_PATH.exists():
+        errors.append(
+            "missing stacked refactor campaign example: "
+            f"{STACKED_REFACTOR_CAMPAIGN_EXAMPLE_PATH.relative_to(ROOT)}"
+        )
+        return errors
+
+    from validate_stacked_refactor_campaign_manifest import (  # noqa: PLC0415
+        validate_stacked_refactor_campaign_manifest,
+    )
+
+    example = _load_contract(STACKED_REFACTOR_CAMPAIGN_EXAMPLE_PATH)
+    errors.extend(validate_stacked_refactor_campaign_manifest(example))
+    return errors
+
+
 def validate_all_agent_engineering_contracts() -> list[str]:
     errors = validate_agent_engineering_contracts(CONTRACT_PATH)
     errors.extend(validate_delegation_policy_contract(DELEGATION_POLICY_PATH))
     errors.extend(validate_delegation_examples(DELEGATION_EXAMPLES_DIR))
+    errors.extend(validate_stacked_refactor_campaign_contract())
     return errors
 
 
