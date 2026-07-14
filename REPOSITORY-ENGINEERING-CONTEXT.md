@@ -398,9 +398,12 @@ The platform repo checks entrypoint is the local truth for most repository valid
 
 `automation/generate_enterprise_backend_quality_baseline.py --check` is a freshness gate for stable
 material quality metrics. After a slice changes source files, Python function count, max
-complexity, max function length, or unit test collection count, regenerate the accepted baseline
-with `--write --check` instead of leaving stale report-only evidence checked in. Exact total
-source-line count is context-only because it proved too noisy for deterministic freshness gating.
+complexity, max function length, or materially changes unit test collection count, regenerate the
+accepted baseline with `--write --check` instead of leaving stale report-only evidence checked in.
+Exact total source-line count is context-only because it proved too noisy for deterministic
+freshness gating. Unit test collection count is checked with a small tolerance because GitHub and
+local environments can differ by one or two collected tests due environment-specific collection
+behavior.
 
 `automation/validate_auto_merge_releasability.py` validates the registered Lotus repositories'
 auto-merge and exact-main releasability workflow posture. It requires `LOTUS_AUTOMERGE_TOKEN`
