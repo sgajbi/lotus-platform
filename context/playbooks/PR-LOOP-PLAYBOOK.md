@@ -133,6 +133,15 @@ A PR must state:
 
 Do not claim commands or coverage that were not actually run.
 
+Before merge, remeasure scorecards, diff-stat movement, line-count deltas, coverage changes, or
+other quantitative PR claims against the final PR head and current base after the last rebase,
+force-push, prerequisite merge, or scope correction. Record the reproducible command, final
+base/head refs, and evidence artifact where practical. Earlier branch measurements may be retained
+as historical context, but they are not final closure truth.
+
+Keep arbitrary prose parsing report-only unless a structured evidence contract can be made
+deterministic and low-noise.
+
 ## Merge And Cleanup Rule
 
 Before merge:
@@ -141,7 +150,9 @@ Before merge:
 2. unresolved conversations, explicitly blocking review comments, or governance issues must be closed,
 3. the PR description must still match the shipped behavior,
 4. governance-bearing work must not leave unclassified unique RFC/docs/wiki/context/contract truth
-   on unmerged remote branches.
+   on unmerged remote branches,
+5. quantitative evidence in the PR description or scorecard must be final-head/current-base
+   evidence, not a stale measurement from an earlier branch state.
 
 In the single-developer Lotus operating model, approving human reviews are not required. PRs, protected `main`, required checks, conversation resolution, and audit evidence are the approval control.
 

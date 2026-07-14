@@ -29,7 +29,9 @@ Before making a quality signal blocking, confirm:
 6. focused unit tests cover pass and fail behavior,
 7. quality artifacts and scorecards will reflect the new truth,
 8. the PR evidence will show the command that developers and agents should run,
-9. the blocking command does not create or rewrite durable report artifacts in a clean checkout.
+9. the blocking command does not create or rewrite durable report artifacts in a clean checkout,
+10. quantitative PR claims can be reproduced from named commands, base/head refs, or committed
+    evidence artifacts where practical.
 
 When the same scanner has both blocking and evidence-producing modes, keep those entrypoints
 separate. Wire the clean blocking target into `make check`, `make ci`, and GitHub lanes; reserve
@@ -101,6 +103,22 @@ surfaces for before/after movement and slice-by-slice health notes.
 Do not promote a gate from intuition alone. If the signal cannot meet this intake, keep it
 report-only. Use it for planning until baseline, false-positive, lane-placement, and exception
 policy are settled.
+
+## Final-Head Quantitative Evidence
+
+Before treating scorecards, diff-stat movement, line-count reductions, coverage deltas, or other
+quantitative PR claims as closure truth, remeasure them against the final PR head and current base
+after the last rebase, force-push, prerequisite merge, or scope correction.
+
+PR evidence should name the reproducible command, base/head refs, and generated artifact or exact
+output used for the final measurement where practical. Earlier branch measurements may remain as
+historical notes, but they must not be presented as final closure truth after branch scope or base
+state changes.
+
+Keep arbitrary prose parsing report-only unless the repository has a structured contract that makes
+the check deterministic and low-noise. Prefer contract tests, scorecard validators, or template
+assertions for governed evidence surfaces instead of attempting to block merges by parsing every
+human-authored number in free-form text.
 
 ## Deterministic Node Quality Tooling
 
@@ -455,7 +473,10 @@ For CI-enforcement PRs, include:
 5. GitHub lane placement,
 6. scorecard or ledger movement,
 7. explicit no-wiki-change or wiki-publication decision,
-8. stranded-truth reconciliation for workflow, context, or skill changes.
+8. stranded-truth reconciliation for workflow, context, or skill changes,
+9. final-head quantitative evidence for scorecard, diff-stat, line-count, coverage, or other
+   numeric claims, including the command, final PR head/current base refs, and artifact where
+   practical.
 ## Continuous Skill Improvement
 
 At the end of any meaningful use of this skill, decide whether the work exposed a repeatable failure
