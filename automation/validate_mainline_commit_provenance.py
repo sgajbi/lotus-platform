@@ -30,6 +30,8 @@ class CommitProvenanceResult:
     verification_source: str
     verified: bool
     verification_reason: str
+    branch_signatures_required: bool | None
+    branch_signature_policy_source: str
     exception_owner: str | None
     exception_expires_on: str | None
     findings: tuple[str, ...]
@@ -73,6 +75,11 @@ def _default_commit_sha() -> str:
     return result.stdout.strip()
 
 
+def _default_branch_name() -> str:
+    ref_name = os.environ.get("GITHUB_REF_NAME", "").strip()
+    return ref_name or "main"
+
+
 def _github_verification(repository: str, commit_sha: str) -> tuple[str, dict[str, Any]] | None:
     result = _run(
         [
@@ -114,6 +121,42 @@ def resolve_verification(
     if github_result is not None:
         return github_result
     return _local_git_verification(commit_sha)
+
+
+def _github_required_signatures_enabled(repository: str, branch: str) -> bool | None:
+    result = _run(
+        [
+            "gh",
+            "api",
+            f"repos/{repository}/branches/{branch}/protection/required_signatures",
+            "--jq",
+            ".enabled",
+        ]
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return result.stdout.strip().lower() == "true"
+
+
+def _declared_required_signatures_enabled() -> bool | None:
+    value = os.environ.get("LOTUS_BRANCH_SIGNATURES_REQUIRED", "").strip().lower()
+    if value in {"true", "1", "yes"}:
+        return True
+    if value in {"false", "0", "no"}:
+        return False
+    return None
+
+
+def resolve_branch_signature_policy(repository: str, branch: str) -> tuple[bool | None, str]:
+    github_policy = _github_required_signatures_enabled(repository, branch)
+    if github_policy is not None:
+        return github_policy, "github-branch-protection"
+
+    declared_policy = _declared_required_signatures_enabled()
+    if declared_policy is not None:
+        return declared_policy, "declared-environment"
+
+    return None, "unavailable"
 
 
 def _exception_entries(exception_path: Path) -> list[dict[str, Any]]:
@@ -170,6 +213,8 @@ def validate_commit_provenance(
     commit_sha: str,
     verification: dict[str, Any],
     verification_source: str,
+    branch_signatures_required: bool | None = True,
+    branch_signature_policy_source: str = "input",
     exception_path: Path = DEFAULT_EXCEPTION_PATH,
     today: datetime | None = None,
 ) -> CommitProvenanceResult:
@@ -178,7 +223,12 @@ def validate_commit_provenance(
     effective_today = today or datetime.now(UTC)
     findings: list[str] = []
     exception = None
-    if not verified:
+    unsigned_allowed_by_branch_policy = (
+        verification_source == "github"
+        and reason == "unsigned"
+        and branch_signatures_required is False
+    )
+    if not verified and not unsigned_allowed_by_branch_policy:
         exception = _matching_exception(
             repository=repository,
             commit_sha=commit_sha,
@@ -192,7 +242,15 @@ def validate_commit_provenance(
                 f"(reason={reason}, source={verification_source})"
             )
 
-    status = "verified" if verified else "excepted" if exception else "failed"
+    status = (
+        "verified"
+        if verified
+        else "unsigned_allowed_by_branch_policy"
+        if unsigned_allowed_by_branch_policy
+        else "excepted"
+        if exception
+        else "failed"
+    )
     return CommitProvenanceResult(
         repository=repository,
         commit_sha=commit_sha,
@@ -200,6 +258,8 @@ def validate_commit_provenance(
         verification_source=verification_source,
         verified=verified,
         verification_reason=reason,
+        branch_signatures_required=branch_signatures_required,
+        branch_signature_policy_source=branch_signature_policy_source,
         exception_owner=str(exception.get("owner")) if exception else None,
         exception_expires_on=str(exception.get("expires_on_utc")) if exception else None,
         findings=tuple(findings),
@@ -217,6 +277,8 @@ def _write_outputs(result: CommitProvenanceResult) -> None:
         f"- Status: `{result.status}`",
         f"- Verification source: `{result.verification_source}`",
         f"- Verification reason: `{result.verification_reason}`",
+        f"- Branch signatures required: `{result.branch_signatures_required}`",
+        f"- Branch signature policy source: `{result.branch_signature_policy_source}`",
         f"- Exception owner: `{result.exception_owner or '-'}`",
         f"- Exception expires: `{result.exception_expires_on or '-'}`",
         f"- Findings: `{'; '.join(result.findings) or '-'}`",
@@ -230,6 +292,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--repository", default=None)
     parser.add_argument("--commit-sha", default=None)
+    parser.add_argument("--branch", default=None)
     parser.add_argument("--exception-path", type=Path, default=DEFAULT_EXCEPTION_PATH)
     parser.add_argument(
         "--verification-json",
@@ -240,16 +303,20 @@ def main(argv: list[str] | None = None) -> int:
 
     repository = args.repository or _default_repository()
     commit_sha = args.commit_sha or _default_commit_sha()
+    branch = args.branch or _default_branch_name()
     source, verification = resolve_verification(
         repository=repository,
         commit_sha=commit_sha,
         verification_path=args.verification_json,
     )
+    branch_signatures_required, policy_source = resolve_branch_signature_policy(repository, branch)
     result = validate_commit_provenance(
         repository=repository,
         commit_sha=commit_sha,
         verification=verification,
         verification_source=source,
+        branch_signatures_required=branch_signatures_required,
+        branch_signature_policy_source=policy_source,
         exception_path=args.exception_path,
     )
     _write_outputs(result)

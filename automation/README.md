@@ -1117,6 +1117,13 @@ available, falls back to local `git verify-commit` for unpushed local work, and 
 or otherwise unverified commits unless
 `platform-contracts/ci-governance/mainline-commit-provenance-exceptions.v1.json` contains an exact,
 unexpired, issue-backed exception.
+For protected linear-history repositories that use GitHub rebase merge without required signed
+commits, GitHub may rewrite the merged `main` commit as unsigned. In that case the validator records
+`unsigned_allowed_by_branch_policy` only when GitHub branch protection reports required signatures
+disabled. If the workflow token cannot read the branch-protection endpoint, the mainline workflow
+must declare `LOTUS_BRANCH_SIGNATURES_REQUIRED`; live GitHub branch-protection truth takes
+precedence whenever it is available. Enabling required signatures turns the same unsigned condition
+into a failure.
 The shared platform repo check entrypoint runs this validator as a blocking gate only for the
 `main-releasability` lane. GitHub Actions steps that run that lane must expose
 `GH_TOKEN: ${{ github.token }}` so provenance validation uses GitHub verification instead of a

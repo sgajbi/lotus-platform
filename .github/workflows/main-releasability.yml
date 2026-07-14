@@ -90,5 +90,6 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          LOTUS_BRANCH_SIGNATURES_REQUIRED: "false"
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability
