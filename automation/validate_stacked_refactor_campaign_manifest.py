@@ -11,6 +11,7 @@ AUTOMATION_DIR = Path(__file__).resolve().parent
 if str(AUTOMATION_DIR) not in sys.path:
     sys.path.insert(0, str(AUTOMATION_DIR))
 
+from json_contract_validation import validate_json_schema_subset_document  # noqa: E402
 from validate_branch_commit_budget import (  # noqa: E402
     BranchCommitBudgetError,
     classify_commit_budget,
@@ -43,6 +44,16 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"{path} must contain a JSON object")
     return payload
+
+
+def _schema_validation_errors(
+    manifest: dict[str, Any],
+    schema_path: Path = SCHEMA_PATH,
+) -> list[str]:
+    return [
+        f"schema {error}"
+        for error in validate_json_schema_subset_document(schema_path, manifest)
+    ]
 
 
 def _as_list(value: object) -> list[Any]:
@@ -255,6 +266,7 @@ def validate_stacked_refactor_campaign_manifest(
     manifest: dict[str, Any],
 ) -> list[str]:
     errors: list[str] = []
+    errors.extend(_schema_validation_errors(manifest))
     _validate_manifest_identity(manifest, errors)
     _validate_campaign_issues(manifest, errors)
     _validate_tranches(manifest, errors)

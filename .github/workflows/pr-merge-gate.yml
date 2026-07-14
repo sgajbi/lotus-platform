@@ -82,6 +82,5 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          LOTUS_PROVENANCE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge

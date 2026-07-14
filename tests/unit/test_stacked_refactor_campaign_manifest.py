@@ -116,6 +116,17 @@ def test_stacked_refactor_campaign_manifest_rejects_missing_tranche_decision() -
     assert any("Record an explicit tranche/split decision" in error for error in errors)
 
 
+def test_stacked_refactor_campaign_manifest_rejects_schema_drift() -> None:
+    manifest = _manifest()
+    manifest["unsupported_field"] = "must not pass"
+    manifest["tranches"][0]["local_evidence"] = [{"not": "a string"}]
+
+    errors = validate_stacked_refactor_campaign_manifest(manifest)
+
+    assert any("schema $: Additional properties are not allowed" in error for error in errors)
+    assert any("schema $.tranches.0.local_evidence.0" in error for error in errors)
+
+
 def test_stacked_refactor_campaign_cli_and_agent_contract_validator_pass() -> None:
     manifest_result = subprocess.run(
         [
