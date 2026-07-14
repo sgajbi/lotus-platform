@@ -36,8 +36,15 @@ The default semantic mapping is defined by
 | Externally or operationally blocked | `status/blocked` |
 
 The scripts discover and validate the repository vocabulary before mutation. They never create
-labels. A repository with a different established vocabulary must pass its own compatible
-`-LabelContractPath`; do not create a second slash, colon, or spelling family.
+labels. A repository may use either the default label or one configured alias for a lifecycle
+state; the scripts resolve the effective per-repository label before mutating issues. Use a
+compatible `-LabelContractPath` only when the repository uses labels outside the default
+primary-or-alias set. Do not create a second slash, colon, or spelling family.
+
+`status/blocked` is required only when a repository needs blocked-state automation. Repositories
+without a blocked label can still use active, fixed-local, PR-open, merged-main, QA, and audit
+flows. A blocked transition fails closed before removing any prior state label if the repository
+does not define a blocked label.
 
 QA is evidence layered over these lifecycle states, not another status-label family. A QA failure
 reopens the issue and returns it to `status/in-progress`. A QA pass closes an issue only after
@@ -136,7 +143,7 @@ implementation and invoke only the update or audit entrypoint directly.
   cleanup evidence.
 - Do not merge while required checks fail.
 - Keep lifecycle labels mutually exclusive; every transition removes all configured state labels
-  and aliases before applying the target state.
+  and aliases before applying the repository-resolved target state.
 - Reopen an issue when GitHub auto-closure precedes lifecycle normalization. Only the
   evidence-backed `qa_passed_closed` transition closes it again. Do not reopen an already closed
   issue that retains the terminal merged-main label when replaying merged-main evidence.
