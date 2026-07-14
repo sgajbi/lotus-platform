@@ -97,6 +97,8 @@ entrypoints, migration assets, or image file closure are in scope, load
 service package import truth, app-owned Compose stacks, distribution consolidation, and runtime
 asset closure.
 
+When a slice uses blocker-clearing proof, load `references/evidence-classification.md`; each
+blocker needs a minimum evidence class, and source/static proof must not clear runtime claims.
 Before editing backend code, produce a short quality intake from the actual repository:
 
 1. name the existing module, service, repository, model, router, and test patterns in the touched
@@ -115,14 +117,15 @@ For RFC-driven business-application slices, extend that intake with:
 1. the RFC slice or blocker family being targeted,
 2. the exact blocker codes this slice will clear,
 3. the exact blocker codes this slice will intentionally preserve,
-4. the source-authority owner for each consumed portfolio, performance, risk, advisory, suitability,
+4. the required versus actual evidence class for blocker-clearing proof,
+5. the source-authority owner for each consumed portfolio, performance, risk, advisory, suitability,
    compliance, reporting, archive, render, AI, Gateway, or Workbench fact,
-5. the API/OpenAPI/error-model, persistence, data-mesh, proof-artifact, docs/wiki, and
+6. the API/OpenAPI/error-model, persistence, data-mesh, proof-artifact, docs/wiki, and
    supported-feature surfaces affected,
-6. the local gate commands and remote GitHub lanes that must pass before merge,
-7. the no-claim boundary that prevents a narrow proof from becoming a demo-ready, production-ready,
+7. the local gate commands and remote GitHub lanes that must pass before merge,
+8. the no-claim boundary that prevents a narrow proof from becoming a demo-ready, production-ready,
    client-publication, supported-feature, data-mesh-certified, or live-provider claim,
-8. where the slice closure manifest will be recorded before PR merge.
+9. where the slice closure manifest will be recorded before PR merge.
 
 ## Delivery Rules
 

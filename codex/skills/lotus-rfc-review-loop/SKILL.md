@@ -42,6 +42,10 @@ Run a disciplined, repeatable RFC quality loop in small batches to preserve dept
 12. **Bounded proof semantics**: Proof artifacts clear exact blocker codes only. A proof for source
     product typing, live route reachability, report materialization, data-mesh onboarding, Workbench
     discovery, or AI workflow registration must not be promoted into unsupported readiness claims.
+    When an RFC or proof ledger uses blocker-clearing evidence, apply
+    `lotus-backend-delivery-governance/references/evidence-classification.md`: every blocker needs
+    a minimum evidence class, every proof declares its actual evidence class, and static/source
+    evidence cannot clear runtime, deployment, or production certification blockers by implication.
 13. **Design modularity before runtime modularity**: RFCs should require clean internal domain,
     application, port, adapter, and proof-module boundaries before proposing additional deployable
     microservices. Runtime splits require independent scaling, deployment, ownership, data, failure,
@@ -276,13 +280,14 @@ task ledger:
 2. current mainline baseline,
 3. blockers targeted in this slice,
 4. blockers intentionally preserved,
-5. code, API, contract, documentation, and test evidence paths,
-6. local commands and GitHub checks,
-7. merge method and branch cleanup status,
-8. post-merge validation and wiki publication status,
-9. branch/code-loss audit evidence such as PR merge state, `git log origin/main..<branch>`,
+5. required evidence class and actual evidence class for each blocker-clearing proof,
+6. code, API, contract, documentation, and test evidence paths,
+7. local commands and GitHub checks,
+8. merge method and branch cleanup status,
+9. post-merge validation and wiki publication status,
+10. branch/code-loss audit evidence such as PR merge state, `git log origin/main..<branch>`,
    `git diff origin/main..<branch>`, or cherry-pick evidence before branch deletion,
-10. next slice chosen from updated `main`.
+11. next slice chosen from updated `main`.
 
 Use the ledger as the slice closure manifest. It should be compact enough for a PR reviewer to read
 but exact enough that a future agent can prove which code, docs, wiki, contracts, and proof truth
