@@ -7,8 +7,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator, FormatChecker
-from jsonschema.exceptions import SchemaError
+try:
+    from automation.json_contract_validation import validate_json_schema_subset
+except ModuleNotFoundError:
+    from json_contract_validation import validate_json_schema_subset
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +47,41 @@ REQUIRED_CERTIFICATION_CONTROLS = {
     "production_observability_and_runbook_proof",
     "mainline_ci_evidence",
 }
+EXPECTED_DECISION_CLAIMS = {
+    "schema_version",
+    "issuer",
+    "audience",
+    "decision_id",
+    "replay_nonce",
+    "tenant_id",
+    "candidate_id",
+    "action",
+    "authority_domain",
+    "authority_ref",
+    "change_reference",
+    "decision_status",
+    "issued_at_utc",
+    "effective_at_utc",
+    "expires_at_utc",
+}
+DECISION_CONSTANT_CLAIMS = {
+    "schema_version": "lotus.lifecycle-authority-decision.v1",
+    "issuer": "bank-lifecycle-governance",
+    "decision_status": "approved",
+}
+DECISION_REFERENCE_CLAIMS = (
+    "decision_id",
+    "tenant_id",
+    "candidate_id",
+    "authority_ref",
+    "change_reference",
+)
+SIGNATURE_FIELDS = {
+    "algorithm",
+    "key_id",
+    "rotation_epoch",
+    "signature_base64url",
+}
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -76,22 +113,7 @@ def _find_forbidden(value: object, path: str = "payload") -> list[str]:
 def validate_example_against_schema(
     *, schema_path: Path, example_path: Path
 ) -> list[str]:
-    schema = _load(schema_path)
-    try:
-        Draft202012Validator.check_schema(schema)
-    except SchemaError as exc:
-        return [
-            f"{schema_path.name} is not a valid Draft 2020-12 schema: {exc.message}"
-        ]
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    validation_errors = sorted(
-        validator.iter_errors(_load(example_path)), key=lambda item: list(item.path)
-    )
-    return [
-        f"{example_path.name}{'.' if error.path else ''}"
-        f"{'.'.join(str(part) for part in error.path)}: {error.message}"
-        for error in validation_errors
-    ]
+    return validate_json_schema_subset(schema_path, example_path)
 
 
 def validate_decision(decision: dict[str, Any]) -> list[str]:
@@ -100,124 +122,163 @@ def validate_decision(decision: dict[str, Any]) -> list[str]:
     signature = decision.get("signature")
     if not isinstance(claims, dict) or not isinstance(signature, dict):
         return errors + ["decision claims and signature must be objects"]
-    expected_claims = {
-        "schema_version",
-        "issuer",
-        "audience",
-        "decision_id",
-        "replay_nonce",
-        "tenant_id",
-        "candidate_id",
-        "action",
-        "authority_domain",
-        "authority_ref",
-        "change_reference",
-        "decision_status",
-        "issued_at_utc",
-        "effective_at_utc",
-        "expires_at_utc",
-    }
-    if set(claims) != expected_claims:
+    _validate_decision_claims(errors, claims)
+    _validate_key_discovery_path(errors, decision)
+    _validate_signature(errors, signature)
+    return errors
+
+
+def _validate_decision_claims(errors: list[str], claims: dict[str, Any]) -> None:
+    if set(claims) != EXPECTED_DECISION_CLAIMS:
         errors.append("decision claims must contain exactly the governed fields")
-    constants = {
-        "schema_version": "lotus.lifecycle-authority-decision.v1",
-        "issuer": "bank-lifecycle-governance",
-        "decision_status": "approved",
-    }
-    for field, expected in constants.items():
+    _validate_decision_claim_constants(errors, claims)
+    _validate_decision_claim_references(errors, claims)
+    _validate_replay_nonce(errors, claims)
+    _validate_action_domain(errors, claims)
+    _validate_decision_window(errors, claims)
+
+
+def _validate_decision_claim_constants(
+    errors: list[str], claims: dict[str, Any]
+) -> None:
+    for field, expected in DECISION_CONSTANT_CLAIMS.items():
         if claims.get(field) != expected:
             errors.append(f"claims.{field} must equal {expected}")
-    for field in (
-        "decision_id",
-        "tenant_id",
-        "candidate_id",
-        "authority_ref",
-        "change_reference",
-    ):
-        if not isinstance(claims.get(field), str) or not REFERENCE.fullmatch(
-            claims[field]
-        ):
+
+
+def _validate_decision_claim_references(
+    errors: list[str], claims: dict[str, Any]
+) -> None:
+    for field in DECISION_REFERENCE_CLAIMS:
+        value = claims.get(field)
+        if not isinstance(value, str) or not REFERENCE.fullmatch(value):
             errors.append(f"claims.{field} must be a source-safe reference")
-    if not isinstance(claims.get("replay_nonce"), str) or not SHA256.fullmatch(
-        claims["replay_nonce"]
-    ):
+
+
+def _validate_replay_nonce(errors: list[str], claims: dict[str, Any]) -> None:
+    value = claims.get("replay_nonce")
+    if not isinstance(value, str) or not SHA256.fullmatch(value):
         errors.append("claims.replay_nonce must be a lowercase SHA-256 digest")
+
+
+def _validate_action_domain(errors: list[str], claims: dict[str, Any]) -> None:
     action = claims.get("action")
     if action not in EXPECTED_DOMAINS:
         errors.append("claims.action must be governed")
-    elif claims.get("authority_domain") != EXPECTED_DOMAINS[action]:
+        return
+    if claims.get("authority_domain") != EXPECTED_DOMAINS[action]:
         errors.append(
             f"claims.authority_domain must equal {EXPECTED_DOMAINS[action]} for {action}"
         )
+
+
+def _validate_decision_window(errors: list[str], claims: dict[str, Any]) -> None:
     timestamps = [
         _utc(claims.get(name))
         for name in ("issued_at_utc", "effective_at_utc", "expires_at_utc")
     ]
     if any(value is None for value in timestamps):
         errors.append("decision timestamps must be RFC-3339 UTC values ending with Z")
-    elif not timestamps[0] <= timestamps[1] < timestamps[2]:
+        return
+    issued, effective, expires = timestamps
+    if issued is None or effective is None or expires is None:
+        errors.append("decision timestamps must be RFC-3339 UTC values ending with Z")
+    elif not issued <= effective < expires:
         errors.append(
             "decision validity window must satisfy issued <= effective < expires"
         )
+
+
+def _validate_key_discovery_path(
+    errors: list[str], decision: dict[str, Any]
+) -> None:
     if (
         decision.get("key_discovery_path")
         != "/.well-known/lotus-lifecycle-authority-keys"
     ):
         errors.append("key_discovery_path must be governed")
-    if set(signature) != {
-        "algorithm",
-        "key_id",
-        "rotation_epoch",
-        "signature_base64url",
-    }:
+
+
+def _validate_signature(errors: list[str], signature: dict[str, Any]) -> None:
+    if set(signature) != SIGNATURE_FIELDS:
         errors.append("signature must contain exactly the governed fields")
     if signature.get("algorithm") != "EdDSA":
         errors.append("signature.algorithm must equal EdDSA")
-    if (
-        not isinstance(signature.get("rotation_epoch"), int)
-        or signature["rotation_epoch"] < 1
-    ):
+    rotation_epoch = signature.get("rotation_epoch")
+    if not isinstance(rotation_epoch, int) or rotation_epoch < 1:
         errors.append("signature.rotation_epoch must be positive")
-    if not isinstance(
-        signature.get("signature_base64url"), str
-    ) or not BASE64URL.fullmatch(signature["signature_base64url"]):
+    signature_value = signature.get("signature_base64url")
+    if not isinstance(signature_value, str) or not BASE64URL.fullmatch(signature_value):
         errors.append("signature.signature_base64url must be unpadded base64url")
-    return errors
 
 
 def validate_key_discovery(document: dict[str, Any]) -> list[str]:
     errors = _find_forbidden(document, "key_discovery")
-    if document.get("schema_version") != "lotus.lifecycle-authority-keys.v1":
-        errors.append("key discovery schema_version must be governed")
-    if document.get("issuer") != "bank-lifecycle-governance":
-        errors.append("key discovery issuer must be governed")
+    _validate_key_discovery_header(errors, document)
     keys = document.get("keys")
     if not isinstance(keys, list) or not keys:
         return errors + ["key discovery keys must be a non-empty list"]
     identities: set[tuple[object, object]] = set()
     for index, key in enumerate(keys):
-        if not isinstance(key, dict):
-            errors.append(f"keys[{index}] must be an object")
-            continue
-        identity = (key.get("key_id"), key.get("rotation_epoch"))
-        if identity in identities:
-            errors.append(f"keys[{index}] duplicates key identity and rotation epoch")
-        identities.add(identity)
-        if key.get("algorithm") != "EdDSA" or key.get("curve") != "Ed25519":
-            errors.append(f"keys[{index}] must use EdDSA with Ed25519")
-        if key.get("status") not in {"active", "rotated", "revoked"}:
-            errors.append(f"keys[{index}].status must be governed")
-        if key.get("status") == "revoked" and key.get("not_after_utc") is None:
-            errors.append(f"keys[{index}] revoked key must have not_after_utc")
-        start, end = (
-            _utc(key.get("not_before_utc")),
-            _utc(key.get("not_after_utc")) if key.get("not_after_utc") else None,
-        )
-        if start is None or (key.get("not_after_utc") is not None and end is None):
-            errors.append(f"keys[{index}] validity timestamps must be RFC-3339 UTC")
-        elif end is not None and start >= end:
-            errors.append(f"keys[{index}] validity window must increase")
+        _validate_key_entry(errors, index, key, identities)
     return errors
+
+
+def _validate_key_discovery_header(
+    errors: list[str], document: dict[str, Any]
+) -> None:
+    if document.get("schema_version") != "lotus.lifecycle-authority-keys.v1":
+        errors.append("key discovery schema_version must be governed")
+    if document.get("issuer") != "bank-lifecycle-governance":
+        errors.append("key discovery issuer must be governed")
+
+
+def _validate_key_entry(
+    errors: list[str],
+    index: int,
+    key: object,
+    identities: set[tuple[object, object]],
+) -> None:
+    if not isinstance(key, dict):
+        errors.append(f"keys[{index}] must be an object")
+        return
+    _validate_key_identity(errors, index, key, identities)
+    _validate_key_algorithm_and_status(errors, index, key)
+    _validate_key_validity_window(errors, index, key)
+
+
+def _validate_key_identity(
+    errors: list[str],
+    index: int,
+    key: dict[str, Any],
+    identities: set[tuple[object, object]],
+) -> None:
+    identity = (key.get("key_id"), key.get("rotation_epoch"))
+    if identity in identities:
+        errors.append(f"keys[{index}] duplicates key identity and rotation epoch")
+    identities.add(identity)
+
+
+def _validate_key_algorithm_and_status(
+    errors: list[str], index: int, key: dict[str, Any]
+) -> None:
+    if key.get("algorithm") != "EdDSA" or key.get("curve") != "Ed25519":
+        errors.append(f"keys[{index}] must use EdDSA with Ed25519")
+    if key.get("status") not in {"active", "rotated", "revoked"}:
+        errors.append(f"keys[{index}].status must be governed")
+    if key.get("status") == "revoked" and key.get("not_after_utc") is None:
+        errors.append(f"keys[{index}] revoked key must have not_after_utc")
+
+
+def _validate_key_validity_window(
+    errors: list[str], index: int, key: dict[str, Any]
+) -> None:
+    start = _utc(key.get("not_before_utc"))
+    end = _utc(key.get("not_after_utc")) if key.get("not_after_utc") else None
+    if start is None or (key.get("not_after_utc") is not None and end is None):
+        errors.append(f"keys[{index}] validity timestamps must be RFC-3339 UTC")
+    elif end is not None and start >= end:
+        errors.append(f"keys[{index}] validity window must increase")
 
 
 def validate_certification(certification: dict[str, Any]) -> list[str]:
