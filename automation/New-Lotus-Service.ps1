@@ -1006,6 +1006,20 @@ $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck openapi-gate 
 if ($makefile -notmatch "scripts/clean_generated_artifacts.py") {
   $makefile = $makefile -replace [regex]::Escape("clean:`n`tpython -c ""import shutil, pathlib; [shutil.rmtree(p, ignore_errors=True) for p in ['.pytest_cache', '.ruff_cache', '.mypy_cache']]; [pathlib.Path(p).unlink(missing_ok=True) for p in ['.coverage', '.coverage.unit', '.coverage.integration', '.coverage.e2e']]"""), "clean:`n`tpython scripts/clean_generated_artifacts.py"
 }
+if ($IncludeMeshPlaceholders) {
+  if ($makefile -notmatch "(?m)^\.PHONY:.*data-mesh-contract-gate") {
+    $makefile = $makefile -replace "(?m)^(\.PHONY:.*endpoint-certification-gate)", "`$1 data-mesh-contract-gate"
+  }
+  if ($makefile -notmatch "(?m)^data-mesh-contract-gate:") {
+    $makefile = $makefile -replace [regex]::Escape("typecheck:"), "data-mesh-contract-gate:`n`t`$(VENV_PYTHON) scripts/data_mesh_contract_gate.py`n`ntypecheck:"
+  }
+  if ($makefile -notmatch "(?m)^check:.*data-mesh-contract-gate") {
+    $makefile = $makefile -replace [regex]::Escape("check: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test"), "check: lint data-mesh-contract-gate typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test"
+  }
+  if ($makefile -notmatch "(?m)^ci:.*data-mesh-contract-gate") {
+    $makefile = $makefile -replace [regex]::Escape("ci: lint typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"), "ci: lint data-mesh-contract-gate typecheck architecture-boundary-gate openapi-gate supported-features-gate endpoint-certification-gate test-integration test-e2e test-coverage security-audit"
+  }
+}
 Set-Content $makefilePath $makefile
 
 $runtimeDependencies = [ordered]@{
@@ -4793,6 +4807,386 @@ Mesh declarations are scaffold placeholders only because ``-IncludeMeshPlacehold
 Do not claim producer, consumer, trust telemetry, SLO, access, or evidence-policy readiness until
 repo-owned implementation and certification evidence exist.
 "@
+  $dataMeshContractGate = @'
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DOMAIN_CONTRACT_PATH = Path("contracts/domain-data-products/producer-consumer-placeholder.json")
+TRUST_TELEMETRY_PATH = Path("contracts/trust-telemetry/trust-telemetry-placeholder.json")
+MESH_SLO_PATH = Path("contracts/mesh-slo/slo-policy-placeholder.json")
+MESH_ACCESS_PATH = Path("contracts/mesh-access/access-policy-placeholder.json")
+MESH_EVIDENCE_PATH = Path("contracts/mesh-evidence/evidence-policy-placeholder.json")
+SOURCE_AUTHORITY = "platform-domain-product-catalog"
+PRE_CERTIFICATION_STATUSES = {"planned", "proposed", "draft"}
+NOT_CERTIFIED_STATUSES = {"not_certified", "not certified", "pending_certification"}
+CERTIFYING_STATUSES = {"active", "certified", "mesh_certified", "supported", "implemented"}
+
+
+def _load_json(root: Path, relative_path: Path) -> tuple[dict[str, Any] | None, list[str]]:
+    path = root / relative_path
+    if not path.exists():
+        return None, [f"{relative_path.as_posix()}: missing required mesh contract file"]
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return None, [f"{relative_path.as_posix()}: invalid JSON: {exc.msg}"]
+    if not isinstance(payload, dict):
+        return None, [f"{relative_path.as_posix()}: root payload must be an object"]
+    return payload, []
+
+
+def _normalized(value: object) -> str:
+    return str(value or "").strip().lower().replace("-", "_")
+
+
+def _product_id(item: dict[str, Any]) -> str:
+    return str(
+        item.get("product_id")
+        or item.get("dependency_id")
+        or item.get("source_product_id")
+        or ""
+    ).strip()
+
+
+def _validate_pre_certified_payload(
+    payload: dict[str, Any],
+    relative_path: Path,
+    repository: str,
+) -> list[str]:
+    errors: list[str] = []
+    path = relative_path.as_posix()
+    if payload.get("repository") != repository:
+        errors.append(f"{path}: repository must be {repository!r}")
+    if _normalized(payload.get("status")) not in PRE_CERTIFICATION_STATUSES:
+        errors.append(f"{path}: status must remain Planned/Proposed before certification")
+    if _normalized(payload.get("certification_status")) not in NOT_CERTIFIED_STATUSES:
+        errors.append(f"{path}: certification_status must remain not_certified")
+    return errors
+
+
+def _validate_product_row(
+    item: dict[str, Any],
+    path: str,
+    row_name: str,
+    repository: str,
+) -> tuple[str, list[str]]:
+    errors: list[str] = []
+    product_id = _product_id(item)
+    if not product_id:
+        errors.append(f"{path}: {row_name} is missing product_id/dependency_id")
+    row_status = _normalized(item.get("status") or item.get("lifecycle_status"))
+    if row_status and row_status not in PRE_CERTIFICATION_STATUSES:
+        errors.append(f"{path}: {product_id or row_name} status must remain proposed/planned")
+    certification_status = _normalized(item.get("certification_status"))
+    if certification_status and certification_status not in NOT_CERTIFIED_STATUSES:
+        errors.append(
+            f"{path}: {product_id or row_name} certification_status must remain not_certified"
+        )
+    for owner_key in ("producer_repository", "owner_repository"):
+        if item.get(owner_key) and item[owner_key] != repository:
+            errors.append(f"{path}: {product_id or row_name} {owner_key} must be {repository!r}")
+    return product_id, errors
+
+
+def _validate_domain_contract(
+    root: Path,
+    repository: str,
+) -> tuple[set[str], list[dict[str, Any]], list[str]]:
+    payload, errors = _load_json(root, DOMAIN_CONTRACT_PATH)
+    if payload is None:
+        return set(), [], errors
+    errors.extend(_validate_pre_certified_payload(payload, DOMAIN_CONTRACT_PATH, repository))
+    declared_products: set[str] = set()
+    consumer_declarations: list[dict[str, Any]] = []
+    path = DOMAIN_CONTRACT_PATH.as_posix()
+
+    producer_declarations = payload.get("producer_declarations", [])
+    if not isinstance(producer_declarations, list):
+        errors.append(f"{path}: producer_declarations must be a list")
+        producer_declarations = []
+    for index, producer in enumerate(producer_declarations):
+        if not isinstance(producer, dict):
+            errors.append(f"{path}: producer_declarations[{index}] must be an object")
+            continue
+        product_id, row_errors = _validate_product_row(
+            producer, path, f"producer_declarations[{index}]", repository
+        )
+        errors.extend(row_errors)
+        if product_id:
+            declared_products.add(product_id)
+
+    raw_consumers = payload.get("consumer_declarations", [])
+    if not isinstance(raw_consumers, list):
+        errors.append(f"{path}: consumer_declarations must be a list")
+        raw_consumers = []
+    for index, consumer in enumerate(raw_consumers):
+        if not isinstance(consumer, dict):
+            errors.append(f"{path}: consumer_declarations[{index}] must be an object")
+            continue
+        dependency_id = _product_id(consumer)
+        if not dependency_id:
+            errors.append(f"{path}: consumer_declarations[{index}] is missing dependency_id")
+        else:
+            declared_products.add(dependency_id)
+        if consumer.get("source_authority") != SOURCE_AUTHORITY:
+            errors.append(
+                f"{path}: {dependency_id or index} source_authority must be {SOURCE_AUTHORITY!r}"
+            )
+        if not consumer.get("producer_repository"):
+            errors.append(f"{path}: {dependency_id or index} must name producer_repository")
+        consumer_declarations.append(consumer)
+
+    return declared_products, consumer_declarations, errors
+
+
+def _validate_trust_telemetry(
+    root: Path,
+    repository: str,
+    declared_products: set[str],
+) -> list[str]:
+    payload, errors = _load_json(root, TRUST_TELEMETRY_PATH)
+    if payload is None:
+        return errors
+    errors.extend(_validate_pre_certified_payload(payload, TRUST_TELEMETRY_PATH, repository))
+    path = TRUST_TELEMETRY_PATH.as_posix()
+    declarations = payload.get("telemetry_declarations", [])
+    if not isinstance(declarations, list):
+        return errors + [f"{path}: telemetry_declarations must be a list"]
+    for index, declaration in enumerate(declarations):
+        if not isinstance(declaration, dict):
+            errors.append(f"{path}: telemetry_declarations[{index}] must be an object")
+            continue
+        product_id = _product_id(declaration)
+        if not product_id:
+            errors.append(f"{path}: telemetry_declarations[{index}] is missing product_id")
+            continue
+        if declared_products and product_id not in declared_products:
+            errors.append(f"{path}: {product_id} is not declared as a producer or consumer product")
+        telemetry_status = _normalized(
+            declaration.get("telemetry_status")
+            or declaration.get("status")
+            or declaration.get("certification_status")
+        )
+        if telemetry_status in CERTIFYING_STATUSES:
+            errors.append(f"{path}: {product_id} telemetry must not be unblocked pre-certification")
+    if payload.get("static_trust_telemetry_unblocked") is True:
+        errors.append(f"{path}: static_trust_telemetry_unblocked must not be true in scaffold")
+    return errors
+
+
+def _validate_policy_file(
+    root: Path,
+    relative_path: Path,
+    collection_key: str,
+    repository: str,
+    declared_products: set[str],
+) -> list[str]:
+    payload, errors = _load_json(root, relative_path)
+    if payload is None:
+        return errors
+    errors.extend(_validate_pre_certified_payload(payload, relative_path, repository))
+    path = relative_path.as_posix()
+    policies = payload.get(collection_key, [])
+    if not isinstance(policies, list):
+        return errors + [f"{path}: {collection_key} must be a list"]
+    for index, policy in enumerate(policies):
+        if not isinstance(policy, dict):
+            errors.append(f"{path}: {collection_key}[{index}] must be an object")
+            continue
+        product_id = _product_id(policy)
+        if not product_id:
+            errors.append(f"{path}: {collection_key}[{index}] is missing product_id")
+            continue
+        if declared_products and product_id not in declared_products:
+            errors.append(f"{path}: {product_id} has no matching producer or consumer declaration")
+        if _normalized(policy.get("certification_status")) in CERTIFYING_STATUSES:
+            errors.append(f"{path}: {product_id} policy cannot be certified by scaffold")
+    return errors
+
+
+def _validate_platform_reconciliation(
+    platform_root: Path,
+    repository: str,
+    consumer_declarations: list[dict[str, Any]],
+) -> list[str]:
+    catalog_path = platform_root / "generated/domain-product-catalog.json"
+    manifest_path = (
+        platform_root
+        / "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json"
+    )
+    if not catalog_path.exists():
+        return [f"{catalog_path}: missing platform catalog for optional reconciliation"]
+    if not manifest_path.exists():
+        return [f"{manifest_path}: missing platform source manifest for optional reconciliation"]
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    product_ids = {
+        str(product.get("product_id"))
+        for product in catalog.get("products", [])
+        if isinstance(product, dict) and product.get("product_id")
+    }
+    manifest_repositories = {
+        str(entry.get("repository"))
+        for entry in manifest.get("repositories", [])
+        if isinstance(entry, dict) and entry.get("repository")
+    }
+    errors: list[str] = []
+    if consumer_declarations and repository not in manifest_repositories:
+        errors.append(f"{repository}: missing from platform source manifest")
+    for consumer in consumer_declarations:
+        dependency_id = _product_id(consumer)
+        if dependency_id and dependency_id not in product_ids:
+            errors.append(f"{dependency_id}: missing from platform domain-product catalog")
+    return errors
+
+
+def validate_repo(root: Path = ROOT, platform_root: Path | None = None) -> list[str]:
+    repository = root.name
+    declared_products, consumer_declarations, errors = _validate_domain_contract(root, repository)
+    errors.extend(_validate_trust_telemetry(root, repository, declared_products))
+    errors.extend(
+        _validate_policy_file(root, MESH_SLO_PATH, "slo_policies", repository, declared_products)
+    )
+    errors.extend(
+        _validate_policy_file(
+            root, MESH_ACCESS_PATH, "access_policies", repository, declared_products
+        )
+    )
+    errors.extend(
+        _validate_policy_file(
+            root, MESH_EVIDENCE_PATH, "evidence_policies", repository, declared_products
+        )
+    )
+    if platform_root is not None:
+        errors.extend(
+            _validate_platform_reconciliation(platform_root, repository, consumer_declarations)
+        )
+    return errors
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate pre-certification data-mesh contracts.")
+    parser.add_argument(
+        "--platform-root",
+        type=Path,
+        help="Optional lotus-platform checkout for catalog/source-manifest reconciliation.",
+    )
+    args = parser.parse_args(argv)
+    errors = validate_repo(ROOT, args.platform_root)
+    if errors:
+        print("\n".join(errors))
+        return 1
+    print("Data mesh contract gate passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+'@
+  Set-Content -Path (Join-Path $target "scripts/data_mesh_contract_gate.py") -Value $dataMeshContractGate
+
+  $dataMeshContractGateTest = @'
+from __future__ import annotations
+
+import importlib.util
+import json
+import shutil
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+GATE_PATH = ROOT / "scripts/data_mesh_contract_gate.py"
+
+
+def _load_gate_module():
+    spec = importlib.util.spec_from_file_location("data_mesh_contract_gate", GATE_PATH)
+    assert spec is not None
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def _copy_mesh_contracts(tmp_path: Path) -> Path:
+    target_root = tmp_path / ROOT.name
+    shutil.copytree(ROOT / "contracts", target_root / "contracts")
+    return target_root
+
+
+def _read_json(path: Path) -> dict[str, object]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_json(path: Path, payload: dict[str, object]) -> None:
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def test_data_mesh_contract_gate_accepts_scaffold_placeholders(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    root = _copy_mesh_contracts(tmp_path)
+
+    assert gate.validate_repo(root) == []
+
+
+def test_data_mesh_contract_gate_blocks_certified_placeholder(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    root = _copy_mesh_contracts(tmp_path)
+    domain_path = root / "contracts/domain-data-products/producer-consumer-placeholder.json"
+    payload = _read_json(domain_path)
+    payload["certification_status"] = "certified"
+    _write_json(domain_path, payload)
+
+    errors = gate.validate_repo(root)
+
+    assert any("certification_status must remain not_certified" in error for error in errors)
+
+
+def test_data_mesh_contract_gate_requires_consumer_source_authority(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    root = _copy_mesh_contracts(tmp_path)
+    domain_path = root / "contracts/domain-data-products/producer-consumer-placeholder.json"
+    payload = _read_json(domain_path)
+    payload["consumer_declarations"] = [
+        {
+            "dependency_id": "lotus-core:PortfolioStateSnapshot:v1",
+            "producer_repository": "lotus-core",
+            "source_authority": "local-comment",
+        }
+    ]
+    _write_json(domain_path, payload)
+
+    errors = gate.validate_repo(root)
+
+    assert any("source_authority must be" in error for error in errors)
+
+
+def test_data_mesh_contract_gate_requires_policy_product_declarations(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    root = _copy_mesh_contracts(tmp_path)
+    policy_path = root / "contracts/mesh-slo/slo-policy-placeholder.json"
+    payload = _read_json(policy_path)
+    payload["slo_policies"] = [
+        {
+            "product_id": "lotus-unknown:MissingProduct:v1",
+            "certification_status": "not_certified",
+        }
+    ]
+    _write_json(policy_path, payload)
+
+    errors = gate.validate_repo(root)
+
+    assert any("no matching producer or consumer declaration" in error for error in errors)
+'@
+  Set-Content -Path (Join-Path $target "tests/unit/test_data_mesh_contract_gate.py") -Value $dataMeshContractGateTest
 }
 
 $readme = @(

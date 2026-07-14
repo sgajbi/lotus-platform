@@ -1386,6 +1386,13 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
         include_mesh_placeholders=True,
     )
     mesh_repo = destination_root / mesh_service
+    mesh_makefile = (mesh_repo / "Makefile").read_text(encoding="utf-8")
+    mesh_gate = (mesh_repo / "scripts/data_mesh_contract_gate.py").read_text(
+        encoding="utf-8"
+    )
+    mesh_gate_test = (mesh_repo / "tests/unit/test_data_mesh_contract_gate.py").read_text(
+        encoding="utf-8"
+    )
     placeholder_paths = [
         mesh_repo / "contracts/domain-data-products/producer-consumer-placeholder.json",
         mesh_repo / "contracts/trust-telemetry/trust-telemetry-placeholder.json",
@@ -1399,3 +1406,11 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
         content = placeholder_path.read_text(encoding="utf-8")
         assert "Planned" in content
         assert "not_certified" in content or "not certified" in content
+    assert "data-mesh-contract-gate:" in mesh_makefile
+    assert "$(VENV_PYTHON) scripts/data_mesh_contract_gate.py" in mesh_makefile
+    assert "check: lint data-mesh-contract-gate typecheck" in mesh_makefile
+    assert "ci: lint data-mesh-contract-gate typecheck" in mesh_makefile
+    assert "validate_repository" in mesh_gate
+    assert "certification_status must remain not_certified" in mesh_gate
+    assert "test_generated_mesh_placeholders_pass_contract_gate" in mesh_gate_test
+    assert "test_data_mesh_contract_gate_rejects_promoted_placeholder" in mesh_gate_test
