@@ -36,13 +36,13 @@ The agent should not load every Lotus document by default.
 Use this path-agnostic prompt on a new machine:
 
 ```text
-Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md, then <lotus-platform>/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md, then <lotus-platform>/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, validation lane, existing owner/package pattern, and file-naming decision before making changes. Keep context lean, avoid flat dump folders, use durable capability names instead of RFC/issue/PR names for implementation files, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
 ```
 
 Use this workspace-root prompt when the Lotus workspace path is known:
 
 ```text
-Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, then <workspace-root>/lotus-platform/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, then <workspace-root>/lotus-platform/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, validation lane, existing owner/package pattern, and file-naming decision before making changes. Keep context lean, avoid flat dump folders, use durable capability names instead of RFC/issue/PR names for implementation files, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
 ```
 
 ## First-Turn Checklist
@@ -59,6 +59,9 @@ Before editing files, the agent should identify:
 8. whether durable context or repository-local documentation may need an update.
 9. whether the task is actually a front-office runtime or UI-proof task that must use the governed `lotus-workbench` live runtime path.
 10. whether the task should be routed through `LOTUS-SKILL-ROUTING-MAP.md` before loading broader skills.
+11. whether new or moved files belong in an existing domain-owned package, a new cohesive
+    subpackage, or an explicitly tracked cleanup issue instead of a broad bucket such as `services`,
+    `utils`, `helpers`, or `scripts`.
 
 If any of these are unclear, inspect the repository and context map before implementing.
 
@@ -309,6 +312,8 @@ Avoid:
     validation command, and measurable quality signal for the slice.
 13. deleting branches because they look stale without proving their unique commits and durable
     truth are already merged, cherry-picked, or explicitly superseded.
+14. adding source, tests, scripts, workflows, contracts, or docs to a broad folder without first
+    naming the owning layer, bounded concern, permanent filename, and any deferred cleanup issue.
 
 ## Current RFC-0074 Boundary
 
