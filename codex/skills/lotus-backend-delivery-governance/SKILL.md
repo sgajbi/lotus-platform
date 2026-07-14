@@ -21,7 +21,6 @@ Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing a
 
 Use `lotus-front-office-runtime` as the primary route when the backend change is being validated
 through the governed canonical front-office runtime and populated Workbench product surfaces.
-
 Use `lotus-ci-enforcement-governance` as the primary route when the backend task is mainly about
 designing, promoting, or hardening CI quality gates, repository-native enforcement targets,
 scorecard-backed regression blockers, or agent-development guardrails.
@@ -90,7 +89,8 @@ Before changing code:
    - when touched scope exposes an existing dump folder, vague filename, stale alias path, or
      misplaced test/doc/script, either improve it in the current slice or open/update a GitHub issue
      with exact paths, consequence, and the intended owning package before moving on.
-
+   - record the organization/naming decision in slice evidence or PR body: paths, owner package,
+     durable-name rationale, same-pattern scan, and any deferred-cleanup issue link.
 When Docker/runtime behavior, package metadata, Compose mounts, service app imports, worker
 entrypoints, migration assets, or image file closure are in scope, load
 `references/runtime-packaging-patterns.md` before implementation. It owns the detailed rules for

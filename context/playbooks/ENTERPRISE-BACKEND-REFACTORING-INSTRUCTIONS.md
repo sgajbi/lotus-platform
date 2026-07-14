@@ -2,7 +2,11 @@
 
 Use this file as the detailed refactoring instruction pack for any Lotus backend application.
 
-The Codex Goal prompt must name the target application and instruct the agent to follow this file fully.
+The Codex Goal prompt must name the target application and instruct the agent to follow this file
+fully. For long refactor programs, include an explicit repository-organization instruction: every
+slice must identify the existing owner package, bounded concern, and file-naming convention before
+adding or moving files; avoid flat dump folders; and use RFC, issue, or PR identifiers only for
+true governance/tracking artifacts.
 
 This instruction pack is application-independent. Apply it to the named target app only.
 
@@ -116,6 +120,12 @@ For RFC-driven application work, write a short slice intake before editing:
 - exact blocker codes this slice intends to clear,
 - exact blocker codes that must intentionally remain,
 - source-authority owner for every consumed fact,
+- existing package/layer owner pattern for the touched area,
+- files or directories this slice will add, move, rename, or intentionally leave in place,
+- naming decision for new source, tests, scripts, workflows, contracts, migrations, and docs,
+  including why each name describes a durable responsibility rather than a temporary RFC/slice/issue,
+- same-pattern repository-organization scan result for flat folders, vague names, stale aliases, or
+  misplaced tests/docs/scripts in the touched scope,
 - API, OpenAPI, error-model, persistence, data-mesh, Gateway, Workbench, wiki, and
   supported-feature surfaces affected,
 - local commands that prove the slice before PR,
@@ -137,6 +147,8 @@ RFC implementation ledger, task ledger, or repo-local proof document. It should 
 - merge method used,
 - post-merge validation result,
 - wiki publication or explicit no-wiki-change decision,
+- repository-organization decision: paths improved, paths deliberately unchanged, and the GitHub
+  issue link for any organization or naming cleanup deferred beyond the current slice,
 - local and remote branch cleanup evidence,
 - next slice selected from updated `main`.
 
