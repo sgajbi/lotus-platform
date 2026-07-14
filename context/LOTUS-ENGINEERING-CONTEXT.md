@@ -183,6 +183,9 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Workbench gateway/BFF-only consumption checks. Platform CI runs an advisory gate smoke through
    `automation/Invoke-PlatformRepoChecks.ps1`; local blocking proof with sibling repositories uses
    `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`.
+   Branch-local repo-native declaration previews can use
+   `--catalog-source current-repo-native` to derive temporary catalog artifacts under the gate
+   output directory without mutating checked-in generated catalog truth.
 8. RFC-0090 is implemented for GitHub cross-repo mesh certification enforcement:
    `.github/workflows/mesh-certification-gate.yml` checks out first-wave producer repositories,
    `lotus-gateway`, and `lotus-workbench` next to `lotus-platform`, runs the RFC-0089 gate in

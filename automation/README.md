@@ -411,6 +411,11 @@ Run the RFC-0089 mesh certification gate:
 # Platform-only CI smoke; does not require sibling gateway/workbench checkouts.
 python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks
 
+# Branch-current advisory proof for active repo-native declaration or telemetry changes. This
+# writes derived catalog artifacts under the output directory and does not mutate checked-in
+# generated files.
+python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --catalog-source current-repo-native --skip-publication-checks
+
 # Local blocking proof with sibling lotus-core, lotus-performance, lotus-risk, lotus-advise,
 # lotus-report, lotus-manage, lotus-gateway, and lotus-workbench checkouts next to lotus-platform.
 python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos

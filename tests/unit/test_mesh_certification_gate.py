@@ -244,6 +244,208 @@ def test_default_telemetry_selection_does_not_hide_invalid_runtime(
     assert [issue.code for issue in issues] == ["invalid_telemetry"]
 
 
+def test_catalog_input_resolver_generates_current_repo_native_artifacts(
+    tmp_path: Path, monkeypatch
+) -> None:
+    gate = _load_gate_module()
+    generated_directories: list[Path] = []
+
+    def fake_write_discovery_artifacts(output_directory: Path, **kwargs) -> None:
+        generated_directories.append(output_directory)
+        output_directory.mkdir(parents=True)
+        (output_directory / "domain-product-catalog.json").write_text(
+            json.dumps({"contract_id": "lotus-domain-product-catalog"}),
+            encoding="utf-8",
+        )
+        (output_directory / "domain-product-dependency-graph.json").write_text(
+            json.dumps({"contract_id": "lotus-domain-product-dependency-graph"}),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(gate, "write_discovery_artifacts", fake_write_discovery_artifacts)
+    output_directory = tmp_path / "mesh-certification"
+
+    catalog_path, graph_path, source = gate._resolve_catalog_inputs(
+        catalog_source="current-repo-native",
+        explicit_catalog_path=None,
+        explicit_dependency_graph_path=None,
+        source_manifest_path=tmp_path / "source-manifest.json",
+        output_directory=output_directory,
+        generated_at_utc="2026-07-14T00:00:00Z",
+    )
+
+    assert source == "current-repo-native"
+    assert generated_directories == [
+        output_directory / "current-domain-product-discovery"
+    ]
+    assert catalog_path == (
+        output_directory
+        / "current-domain-product-discovery"
+        / "domain-product-catalog.json"
+    )
+    assert graph_path == (
+        output_directory
+        / "current-domain-product-discovery"
+        / "domain-product-dependency-graph.json"
+    )
+
+
+def test_catalog_input_resolver_infers_explicit_graph_path(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    catalog_path = tmp_path / "branch-current" / "domain-product-catalog.json"
+
+    resolved_catalog, resolved_graph, source = gate._resolve_catalog_inputs(
+        catalog_source="checked-in",
+        explicit_catalog_path=catalog_path,
+        explicit_dependency_graph_path=None,
+        source_manifest_path=tmp_path / "source-manifest.json",
+        output_directory=tmp_path / "mesh-certification",
+        generated_at_utc="2026-07-14T00:00:00Z",
+    )
+
+    assert source == "explicit"
+    assert resolved_catalog == catalog_path
+    assert resolved_graph == catalog_path.parent / "domain-product-dependency-graph.json"
+
+
+def test_mesh_policy_validators_receive_selected_catalog(
+    tmp_path: Path, monkeypatch
+) -> None:
+    gate = _load_gate_module()
+    selected_catalog = tmp_path / "domain-product-catalog.json"
+    selected_catalog.write_text(
+        (ROOT / "generated" / "domain-product-catalog.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    selected_graph = tmp_path / "domain-product-dependency-graph.json"
+    selected_graph.write_text(
+        (ROOT / "generated" / "domain-product-dependency-graph.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    received_catalog_paths: list[Path] = []
+
+    def fake_validate_mesh_slo_policies(policy_path: Path, *, catalog_path: Path):
+        received_catalog_paths.append(catalog_path)
+        return []
+
+    def fake_validate_mesh_access_policies(policy_path: Path, *, catalog_path: Path):
+        received_catalog_paths.append(catalog_path)
+        return []
+
+    monkeypatch.setattr(
+        gate, "validate_mesh_slo_policies", fake_validate_mesh_slo_policies
+    )
+    monkeypatch.setattr(
+        gate, "validate_mesh_access_policies", fake_validate_mesh_access_policies
+    )
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=_write_required_snapshots(tmp_path),
+        catalog_path=selected_catalog,
+        dependency_graph_path=selected_graph,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert status["summary"]["error_count"] == 0
+    assert status["source_artifacts"]["catalog_source"] == "explicit"
+    assert received_catalog_paths == [selected_catalog, selected_catalog]
+
+
+def test_mesh_certification_gate_current_repo_native_catalog_replaces_stale_catalog(
+    tmp_path: Path, monkeypatch
+) -> None:
+    gate = _load_gate_module()
+    telemetry_dir = tmp_path / "telemetry"
+    telemetry_dir.mkdir()
+    telemetry_paths = _write_required_snapshots(telemetry_dir)
+    checked_in_catalog = json.loads(
+        (ROOT / "generated" / "domain-product-catalog.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    checked_in_graph = json.loads(
+        (ROOT / "generated" / "domain-product-dependency-graph.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    stale_catalog = {
+        **checked_in_catalog,
+        "products": [
+            product
+            for product in checked_in_catalog["products"]
+            if product["product_id"] != "lotus-manage:PortfolioActionRegister:v1"
+        ],
+    }
+    stale_catalog_path = tmp_path / "stale-domain-product-catalog.json"
+    stale_graph_path = tmp_path / "stale-domain-product-dependency-graph.json"
+    stale_catalog_path.write_text(json.dumps(stale_catalog), encoding="utf-8")
+    stale_graph_path.write_text(json.dumps(checked_in_graph), encoding="utf-8")
+
+    stale_status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        catalog_path=stale_catalog_path,
+        dependency_graph_path=stale_graph_path,
+        gate_mode="blocking",
+        generated_at_utc="2026-07-14T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    assert stale_status["certification_state"] == "failed"
+    assert any(
+        issue["code"] == "catalog_drift"
+        and issue["product_id"] == "lotus-manage:PortfolioActionRegister:v1"
+        for issue in stale_status["issues"]
+    )
+
+    def fake_write_discovery_artifacts(output_directory: Path, **kwargs) -> None:
+        output_directory.mkdir(parents=True)
+        (output_directory / "domain-product-catalog.json").write_text(
+            json.dumps(checked_in_catalog),
+            encoding="utf-8",
+        )
+        (output_directory / "domain-product-dependency-graph.json").write_text(
+            json.dumps(checked_in_graph),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(gate, "write_discovery_artifacts", fake_write_discovery_artifacts)
+    output_directory = tmp_path / "mesh-certification"
+
+    exit_code = gate.main(
+        [
+            "--mode",
+            "blocking",
+            "--generated-at-utc",
+            "2026-07-14T00:00:00Z",
+            "--skip-publication-checks",
+            "--catalog-source",
+            "current-repo-native",
+            "--telemetry-path",
+            str(telemetry_dir),
+            "--output-directory",
+            str(output_directory),
+        ]
+    )
+
+    status = json.loads(
+        (output_directory / "mesh-certification-status.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert exit_code == 0
+    assert status["certification_state"] == "certified"
+    assert status["source_artifacts"]["catalog_source"] == "current-repo-native"
+    assert status["source_artifacts"]["catalog"].endswith(
+        "current-domain-product-discovery/domain-product-catalog.json"
+    )
+
+
 def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> None:
     gate = _load_gate_module()
     telemetry_paths = _write_required_snapshots(tmp_path)
