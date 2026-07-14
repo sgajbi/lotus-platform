@@ -48,6 +48,7 @@ try {
     Invoke-CheckedCommand $toolingPython automation/validate_analytics_ui_ecosystem_hardening.py
     Invoke-CheckedCommand $toolingPython automation/validate_analytics_ui_ecosystem_final_closure.py
     Invoke-CheckedCommand $toolingPython automation/validate_analytics_ui_scaffold_ci_enforcement.py
+    Invoke-CheckedCommand $toolingPython automation/validate_canonical_front_office_demo_data_contract.py
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_security.py
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_action_runtime.py
     Invoke-CheckedCommand $toolingPython automation/validate_container_build_baseline.py
