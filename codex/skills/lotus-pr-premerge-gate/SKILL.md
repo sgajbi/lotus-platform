@@ -48,11 +48,13 @@ Before any PR, merge, or cleanup action:
 2. Confirm scope of change:
    - `git diff --name-only origin/main...HEAD`
 3. Confirm commit count before the branch becomes expensive to split:
-   - `git rev-list --count origin/main..HEAD`
+   - `python automation/validate_branch_commit_budget.py --repo-root . --base-ref origin/main --head-ref HEAD`
 4. Target 40-60 small, meaningful commits for a substantial governed program and split at a
    capability boundary by 90 commits at the latest when the repository uses rebase merge. GitHub
    [limits server-side rebase merges to 100 commits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits#rebase-limits).
-   The 90-commit threshold preserves room for review and CI fix-forward commits.
+   The 90-commit threshold preserves room for review and CI fix-forward commits. The canonical
+   validator warns at 40 commits, requires a recorded tranche decision at or above 60 commits, and
+   fails above 90 commits unless a repository sets a stricter limit.
 5. If an existing rebase-only PR exceeds 100 commits, stop retrying the merge. Do not weaken branch
    protection or silently squash the audit trail. Split it into independently releasable,
    sub-100-commit tranches, validate each intermediate state, and keep issue closure on the final

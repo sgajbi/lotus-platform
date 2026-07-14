@@ -3,6 +3,10 @@ param(
   [ValidateSet("fast", "full")][string]$Mode = "full",
   [string]$ConfigPath = "automation/repos.json",
   [string]$OutputDir = "output/preflight",
+  [int]$BranchWarningAt = 40,
+  [int]$BranchSplitRequiredAt = 60,
+  [int]$BranchFailAbove = 90,
+  [string]$TrancheDecision = "",
   [switch]$NoGitChecks
 )
 
@@ -61,6 +65,9 @@ try {
   }
 
   $warnings = @()
+  $branchBudget = $null
+  $branchBudgetOutput = ""
+  $branchBudgetExitCode = 0
   if (-not $NoGitChecks) {
     if ($repoConfig.default_branch -and $currentBranch -eq $repoConfig.default_branch) {
       $warnings += "current_branch_is_default_branch"
@@ -71,11 +78,49 @@ try {
     if ($statusShort) {
       $warnings += "worktree_not_clean"
     }
+    $budgetScript = Join-Path $scriptRoot "validate_branch_commit_budget.py"
+    $baseRef = if ($repoConfig.default_branch) { "origin/$($repoConfig.default_branch)" } else { "origin/main" }
+    $budgetArgs = @(
+      $budgetScript,
+      "--repo-root", $repoPath,
+      "--base-ref", $baseRef,
+      "--head-ref", "HEAD",
+      "--warning-at", "$BranchWarningAt",
+      "--split-required-at", "$BranchSplitRequiredAt",
+      "--fail-above", "$BranchFailAbove",
+      "--json"
+    )
+    if ($TrancheDecision) {
+      $budgetArgs += @("--tranche-decision", $TrancheDecision)
+    }
+    $branchBudgetOutput = (& python @budgetArgs 2>&1 | Out-String).TrimEnd()
+    $branchBudgetExitCode = if ($LASTEXITCODE -eq $null) { 0 } else { $LASTEXITCODE }
+    if ($branchBudgetOutput) {
+      try {
+        $branchBudget = $branchBudgetOutput | ConvertFrom-Json
+        if ($branchBudget.severity -eq "warning") {
+          $warnings += "branch_commit_budget:$($branchBudget.status)"
+        }
+      }
+      catch {
+        $branchBudget = [pscustomobject]@{
+          status = "invalid_branch_budget_output"
+          severity = "fail"
+          message = $branchBudgetOutput
+          exit_code = $branchBudgetExitCode
+        }
+      }
+    }
   }
 
   $started = Get-Date
-  $output = cmd /c $command 2>&1 | Out-String
-  $exitCode = if ($LASTEXITCODE -eq $null) { 0 } else { $LASTEXITCODE }
+  if ($branchBudgetExitCode -ne 0) {
+    $output = $branchBudgetOutput
+    $exitCode = $branchBudgetExitCode
+  } else {
+    $output = cmd /c $command 2>&1 | Out-String
+    $exitCode = if ($LASTEXITCODE -eq $null) { 0 } else { $LASTEXITCODE }
+  }
   $finished = Get-Date
 
   $result = [pscustomobject]@{
@@ -88,6 +133,7 @@ try {
     current_branch = $currentBranch
     origin_default_branch = $originHead
     warnings = $warnings
+    branch_commit_budget = $branchBudget
     git_status_short = $statusShort
     started_at = $started.ToString("s")
     finished_at = $finished.ToString("s")

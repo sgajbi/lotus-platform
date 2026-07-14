@@ -1018,6 +1018,16 @@ Run fast PR preflight while iterating:
 powershell -ExecutionPolicy Bypass -File automation/Preflight-PR.ps1 -Repo lotus-report -Mode fast
 ```
 
+Validate rebase-safe branch size before PR merge intent:
+
+```powershell
+python automation/validate_branch_commit_budget.py --repo-root C:/Users/Sandeep/projects/lotus-report --base-ref origin/main --head-ref HEAD
+```
+
+`Preflight-PR.ps1` runs the same branch-budget validator unless `-NoGitChecks` is supplied. The
+default budget warns at 40 commits, requires a recorded tranche decision at 60 commits, and blocks
+above 90 commits so long-running refactors split before GitHub's rebase-merge limit.
+
 Generate test-pyramid and coverage baseline across backend services:
 
 ```powershell
