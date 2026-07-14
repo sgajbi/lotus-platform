@@ -92,6 +92,7 @@ This map organizes the automation directory by responsibility without changing s
 - `validate_lotus_skill_alignment.py`
 - `validate_workflow_security.py`
 - `validate_auto_merge_releasability.py`
+- `validate_mainline_commit_provenance.py`
 - `validate_workflow_action_runtime.py`
 - `validate_container_build_baseline.py`
 - `validate_platform_validation_coverage.py`

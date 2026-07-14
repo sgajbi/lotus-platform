@@ -409,6 +409,12 @@ auto-merge, rebase merge intent, a merged-PR `main-releasability.yml` dispatcher
 `platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json` with owner, reason,
 issue URL, exact violations, and expiry.
 
+`automation/validate_mainline_commit_provenance.py` validates GitHub or local Git verification for
+the exact commit under validation. Mainline releasability must fail on unsigned or otherwise
+unverified commits unless
+`platform-contracts/ci-governance/mainline-commit-provenance-exceptions.v1.json` contains an exact
+repository, commit SHA, verification reason, owner, issue URL, and unexpired exception.
+
 Important documentation expectations:
 
 1. platform README and wiki work is partially governed by unit-level documentation contract tests,
