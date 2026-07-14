@@ -1,0 +1,6 @@
+{
+  "schema_version": "lotus.mainline-commit-provenance-exceptions.v1",
+  "generated_at_utc": "2026-07-14T00:00:00Z",
+  "policy": "Mainline releasability must fail closed when the exact commit under validation is not GitHub-verified. Exceptions must be exact commit-scoped, time-bounded, owner-approved, and issue-backed.",
+  "exceptions": []
+}

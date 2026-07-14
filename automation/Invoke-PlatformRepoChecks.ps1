@@ -51,6 +51,7 @@ try {
     Invoke-CheckedCommand $toolingPython automation/validate_canonical_front_office_demo_data_contract.py
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_security.py
     Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py
+    Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_action_runtime.py
     Invoke-CheckedCommand $toolingPython automation/validate_container_build_baseline.py
     Invoke-CheckedCommand $toolingPython automation/validate_deployment_promotion_manifest.py

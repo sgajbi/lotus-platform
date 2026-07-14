@@ -1106,6 +1106,18 @@ exceptions from `platform-contracts/ci-governance/auto-merge-releasability-excep
 and fails on undeclared or expired drift in `pr-auto-merge.yml`,
 `merged-pr-main-releasability.yml`, or `main-releasability.yml`.
 
+Validate exact-commit GitHub verification before accepting mainline provenance:
+
+```powershell
+python automation/validate_mainline_commit_provenance.py
+```
+
+The validator checks GitHub commit verification for the current repository and commit when
+available, falls back to local `git verify-commit` for unpushed local work, and fails on unsigned
+or otherwise unverified commits unless
+`platform-contracts/ci-governance/mainline-commit-provenance-exceptions.v1.json` contains an exact,
+unexpired, issue-backed exception.
+
 Validate GitHub Actions version/runtime posture across platform workflows and templates:
 
 ```powershell
