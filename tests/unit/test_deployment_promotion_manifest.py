@@ -130,3 +130,51 @@ def test_schema_rejects_unknown_fields(tmp_path: Path) -> None:
     errors = validator.validate_manifest_path(path)
 
     assert any("Additional properties are not allowed" in error for error in errors)
+
+
+def test_schema_rejects_invalid_generated_timestamp(tmp_path: Path) -> None:
+    validator = _validator()
+    manifest = _manifest()
+    manifest["generated_at_utc"] = "not-a-dateZ"
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    errors = validator.validate_manifest_path(path)
+
+    assert any("generated_at_utc: must be a valid date-time" in error for error in errors)
+
+
+def test_rejects_same_digest_promotion_from_out_of_scope_source() -> None:
+    manifest = _manifest()
+    staging = manifest["environments"][0]
+    production = manifest["environments"][1]
+    staging.update(
+        {
+            "scope": "out_of_scope",
+            "promotion_mode": "out_of_scope",
+            "deployed_image_ref": None,
+            "deployed_digest": None,
+            "release_evidence_image_digest": None,
+            "out_of_scope_reason": (
+                "Staging is intentionally out of scope for this negative source test."
+            ),
+        }
+    )
+    production.update(
+        {
+            "scope": "included",
+            "promotion_mode": "same_digest_promotion",
+            "source_environment": "staging",
+            "deployed_image_ref": manifest["release_evidence"]["image_ref"],
+            "deployed_digest": manifest["release_evidence"]["image_digest"],
+            "release_evidence_image_digest": manifest["release_evidence"]["image_digest"],
+            "out_of_scope_reason": None,
+        }
+    )
+
+    errors = _validator().validate_manifest(manifest)
+
+    assert (
+        "environments[1] production: same_digest_promotion requires a valid "
+        "included source_environment"
+    ) in errors

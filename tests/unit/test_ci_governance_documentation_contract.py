@@ -344,6 +344,9 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "Feature Lane / Platform Repo Contracts" in feature_lane
     assert "repository: sgajbi/lotus-render" in feature_lane
     assert "repository: sgajbi/lotus-archive" in feature_lane
+    assert "repository: sgajbi/lotus-ai" in feature_lane
+    assert "repository: sgajbi/lotus-gateway" in feature_lane
+    assert "repository: sgajbi/lotus-workbench" in feature_lane
     assert "timeout-minutes: 10" in feature_lane
     assert "timeout-minutes: 45" in feature_lane
     assert "GH_TOKEN: ${{ github.token }}" in feature_lane
@@ -352,6 +355,9 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "PR Merge Gate / Platform Repo Contracts" in pr_merge_gate
     assert "repository: sgajbi/lotus-render" in pr_merge_gate
     assert "repository: sgajbi/lotus-archive" in pr_merge_gate
+    assert "repository: sgajbi/lotus-ai" in pr_merge_gate
+    assert "repository: sgajbi/lotus-gateway" in pr_merge_gate
+    assert "repository: sgajbi/lotus-workbench" in pr_merge_gate
     assert "timeout-minutes: 10" in pr_merge_gate
     assert "timeout-minutes: 45" in pr_merge_gate
     assert "GH_TOKEN: ${{ github.token }}" in pr_merge_gate
@@ -361,6 +367,9 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "Main Releasability / Platform Repo Contracts" in main_releasability
     assert "repository: sgajbi/lotus-render" in main_releasability
     assert "repository: sgajbi/lotus-archive" in main_releasability
+    assert "repository: sgajbi/lotus-ai" in main_releasability
+    assert "repository: sgajbi/lotus-gateway" in main_releasability
+    assert "repository: sgajbi/lotus-workbench" in main_releasability
     assert "timeout-minutes: 10" in main_releasability
     assert "timeout-minutes: 45" in main_releasability
     assert "GH_TOKEN: ${{ github.token }}" in main_releasability
@@ -368,6 +377,7 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
     assert "Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q" in repo_checks
+    assert "validate_auto_merge_releasability.py --require-local-repos" in repo_checks
     assert (
         "Invoke-CheckedCommand $toolingPython automation/validate_workflow_security.py"
         in repo_checks
