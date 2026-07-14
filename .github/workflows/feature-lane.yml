@@ -76,6 +76,8 @@ jobs:
           python-version: "3.12"
       - name: Run platform feature-lane checks
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
       - name: Run platform demo-readiness certification (report-only)

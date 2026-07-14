@@ -4,6 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+from automation import validate_mainline_commit_provenance as validator
 from automation.validate_mainline_commit_provenance import validate_commit_provenance
 
 
@@ -171,3 +172,10 @@ def test_mainline_commit_provenance_rejects_exception_without_issue_evidence(
 
     assert result.status == "failed"
     assert result.exception_owner is None
+
+
+def test_mainline_commit_provenance_prefers_explicit_sha_override(monkeypatch) -> None:
+    monkeypatch.setenv("LOTUS_PROVENANCE_COMMIT_SHA", "1" * 40)
+    monkeypatch.setenv("GITHUB_SHA", "2" * 40)
+
+    assert validator._default_commit_sha() == "1" * 40

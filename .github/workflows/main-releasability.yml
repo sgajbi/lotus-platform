@@ -76,5 +76,7 @@ jobs:
           python-version: "3.12"
       - name: Run platform main-releasability checks
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability
