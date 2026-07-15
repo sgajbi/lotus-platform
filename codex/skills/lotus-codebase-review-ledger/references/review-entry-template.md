@@ -39,3 +39,11 @@ Use this shape for each ledger row or expanded note.
 - PRs
 - Test commands and results
 - Reports or gate artifacts
+
+### Cross-Repository Source Evidence
+
+- Are all required sources represented by exact repository/ref/SHA-256 records?
+- Does a canonical ordered collection digest fail closed on omission, substitution, or reordering?
+- Is full producer-and-consumer validation distinct from consumer-only validation?
+- Which evidence class applies, and which runtime, certification, publication, or promotion claims
+  remain explicitly prohibited?
