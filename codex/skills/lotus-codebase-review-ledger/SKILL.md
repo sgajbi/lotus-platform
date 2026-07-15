@@ -111,6 +111,14 @@ For each material finding:
    reject unknown fields and stale provenance, scan API/CLI/environment/output vocabulary for the
    same semantic drift, and record which blockers the evidence may and may not clear.
 
+For cross-repository source-contract evidence, require an exact closed field set and one
+repository/ref/SHA-256 record for every required source. Bind the canonical ordered record
+collection to its own digest so omission, substitution, and reordering fail closed. Distinguish
+`full_cross_repository` validation from `consumer_only` validation explicitly; consumer-only
+evidence must never validate as full producer-and-consumer proof. Source declarations may confirm
+contract presence, but they must not assert runtime execution, deployment, model-risk approval,
+production certification, client publication, or supported-feature promotion.
+
 Prefer pushing invariants downward into:
 
 - unit tests
