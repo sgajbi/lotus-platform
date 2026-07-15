@@ -328,19 +328,11 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
     commands free of placeholder or nullable scope that exists only for later replacement.
 28. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
-29. When a refactor renames or removes repository, port, lease, transaction, session, worker, or
-    runtime APIs, do not accept successful test collection as behavioral migration proof. Search
-    every moved integration/E2E test for retired symbols, update fixtures to the active domain
-    contract, and execute the focused suite against the real adapter technology. Concurrency
-    claimants and unit-of-work operations must use independent sessions/connections; retain
-    immutable identity before rollback rather than reading expired ORM state outside its async
-    context. Add a cheap no-return guard when obsolete calls remain syntactically collectable, then
-    run the broad repository-native lane before closure.
+29. Govern integration and E2E test migrations after backend API changes with
+    `references/integration-api-migration-proof.md`.
 ## Bank-Buyable Default Bar
-
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
 even when the user does not explicitly ask for a refactor.
-
 Every meaningful backend slice should improve or preserve at least one bank-buyable control:
 
 1. architecture and module boundaries,
