@@ -104,6 +104,12 @@ For each material finding:
    the intended owning layer or bounded concern, the permanent names chosen, and whether any
    existing flat path remains as a temporary compatibility boundary. If cleanup is too broad for
    the slice, create or update a GitHub issue before marking the review entry deferred.
+9. if the finding involves runtime proof or readiness evidence, classify authority from the
+   underlying source, decision, and persistence receipts rather than artifact names, booleans, or
+   caller-supplied claims. Preserve authoritative application-use-case results through the adapter
+   boundary, bind accepted items to durable persistence receipts, reconcile counts and digests,
+   reject unknown fields and stale provenance, scan API/CLI/environment/output vocabulary for the
+   same semantic drift, and record which blockers the evidence may and may not clear.
 
 Prefer pushing invariants downward into:
 
@@ -171,6 +177,7 @@ For a normal review batch, produce:
 - Do not claim "100% confidence." Use evidence-based language.
 - Do not close a review scope just because one E2E run passed.
 - Do not let duplicate implementations drift without direct tests on both sides.
+- Do not treat a proof label or self-asserted success field as runtime evidence.
 - Do not mix unrelated cleanup into one ledger entry.
 ## Continuous Skill Improvement
 
