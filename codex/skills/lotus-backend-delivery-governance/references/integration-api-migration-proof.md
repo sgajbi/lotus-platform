@@ -7,7 +7,8 @@ session, worker, or runtime APIs used by integration or end-to-end tests.
 
 Successful test collection is not behavioral migration proof. Before closure:
 
-1. search every moved integration and end-to-end test for retired symbols;
+1. search the complete affected integration and end-to-end test roots, including shared fixtures,
+   factories, fakes, and test-support helpers, for retired symbols;
 2. update fixtures and assertions to the active domain contract;
 3. execute the focused suite against the real adapter technology; and
 4. run the broad repository-native lane required by the change classification.
