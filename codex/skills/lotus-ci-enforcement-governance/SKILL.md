@@ -270,6 +270,9 @@ runtime posture, require:
    only to the implementation-backed current truth.
 8. a single-slice readiness statement that identifies whether this proof is enough to close the
    current slice or only clears one blocker for a later slice.
+9. executable reconciliation between any proof registry classification/effect and each application
+   consumer, with unknown, duplicate, pending, and wrong-effect wiring rejected before blocker
+   mutation.
 
 The anti-overclaim examples are deliberate and reusable:
 

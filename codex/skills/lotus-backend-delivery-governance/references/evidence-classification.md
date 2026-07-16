@@ -3,6 +3,15 @@
 Use this reference when a Lotus backend or RFC slice claims that a proof artifact, test run,
 workflow, runtime exercise, deployment receipt, or production attestation clears a blocker.
 
+## Contents
+
+1. [Closed Evidence Taxonomy](#closed-evidence-taxonomy)
+2. [Blocker Clearance Rule](#blocker-clearance-rule)
+3. [Executable Classification And Effect](#executable-classification-and-effect)
+4. [CI Evidence Binding](#ci-evidence-binding)
+5. [Receipt-Bound Runtime Execution](#receipt-bound-runtime-execution)
+6. [Migration Guidance](#migration-guidance)
+
 ## Closed Evidence Taxonomy
 
 | Evidence Class | What It Can Prove | Minimum Evidence |
@@ -32,6 +41,30 @@ Do not promote across classes by implication:
    deployed artifacts and environment promotion evidence.
 5. `deployment` evidence cannot clear `production_certification` blockers without the required
    cryptographic attestation and approval posture.
+
+## Executable Classification And Effect
+
+A registry, manifest, or inventory that labels evidence is not enforcement by
+itself. When application behavior consumes registered proof:
+
+1. resolve exactly one classified registry entry by the stable payload or
+   reference argument;
+2. require the consumer to state its intended effect, such as
+   `blocker_clearing` or `supporting_evidence`;
+3. reject unknown, duplicate, pending, or wrong-effect wiring before artifact
+   validation or blocker mutation;
+4. keep reference-only special paths, nested readiness projections, and
+   dynamically assembled proof tables under the same rule;
+5. add adversarial tests that mutate registry classification/effect and prove
+   the consumer fails closed;
+6. add deterministic gates for duplicate registry keys and parser, application
+   signature, inventory, or consumer drift.
+
+Do not let a nested component projection admit evidence before the aggregate
+provenance boundary and then rely on a later validator to correct it. Aggregate
+evidence should be consumed once through the authority- and freshness-aware
+boundary. Reuse one computed qualification result across projections when the
+same artifact affects multiple capabilities.
 
 ## CI Evidence Binding
 
