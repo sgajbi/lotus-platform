@@ -328,8 +328,8 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
     commands free of placeholder or nullable scope that exists only for later replacement.
 28. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
-29. Govern integration and E2E test migrations after backend API changes with
-    `references/integration-api-migration-proof.md`.
+29. Govern API test migrations with `references/integration-api-migration-proof.md` and stateful
+    database migrations with `references/stateful-database-migration-proof.md`.
 ## Bank-Buyable Default Bar
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
 even when the user does not explicitly ask for a refactor.

@@ -66,3 +66,17 @@ Each migration change must demonstrate:
 3. updated tests across pyramid layers.
 4. documentation updated in both local repo and PPD when cross-cutting.
 5. reproducible automation path for verification.
+
+## 6. Stateful Database Upgrade Proof
+
+When a migration changes durable worker status, leases, claim ownership, recovery eligibility,
+idempotency uniqueness, or partial indexes over mutable states, the PR must include a pre-upgrade
+state matrix and executable seeded-state upgrade proof. Every legacy row must remain intentionally
+claimable, recoverable, preserved, quarantined, or terminalized after cutover; a row the new runtime
+can neither claim nor recover is a release blocker.
+
+Resolve pending/in-flight uniqueness conflicts before constraints are enforced. Prove null/default
+semantics, restart recovery, real-database index behavior, and downgrade or forward-fix posture.
+Generated SQL and empty-database migration smoke are guards, not sufficient compatibility evidence.
+Use the backend delivery skill's `references/stateful-database-migration-proof.md` checklist for the
+complete proof contract.
