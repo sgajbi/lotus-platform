@@ -97,8 +97,8 @@ entrypoints, migration assets, or image file closure are in scope, load
 service package import truth, app-owned Compose stacks, distribution consolidation, and runtime
 asset closure.
 
-When a slice uses blocker-clearing proof, load `references/evidence-classification.md`; each
-blocker needs a minimum evidence class, and source/static proof must not clear runtime claims.
+For blocker-clearing proof, load `references/evidence-classification.md`: source/static evidence
+cannot clear runtime claims, and registered classes/effects must be executable at each consumer.
 Before editing backend code, produce a short quality intake from the actual repository:
 
 1. name the existing module, service, repository, model, router, and test patterns in the touched
