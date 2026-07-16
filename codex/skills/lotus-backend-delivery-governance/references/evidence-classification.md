@@ -49,6 +49,39 @@ When a blocker accepts `ci_execution`, the evidence must bind:
 
 Status text, a workflow URL, or a copied artifact path is not enough by itself.
 
+## Receipt-Bound Runtime Execution
+
+When a `runtime_execution` artifact can clear a source or workflow blocker, a
+success flag, caller-composed summary, candidate count, or copied response field
+is not sufficient. Require a closed, versioned contract with:
+
+1. a request receipt that binds pseudonymous entitled scope, business as-of,
+   evaluation time, correlation identity, and consumer policy version;
+2. a producer receipt that preserves source-owned product/version, stable route
+   identity, authoritative scope and time, freshness, quality, content hashes,
+   and the workflow facts used by the consumer;
+3. an evaluation receipt emitted from one named application use case, binding
+   policy inputs, reason codes, outcome, source-receipt digest, and candidate
+   identity only when a candidate exists;
+4. canonical digests and cross-receipt reconciliation that reject unknown
+   fields, source substitution, scope/time drift, malformed counts or hashes,
+   contradictory outcomes, and raw sensitive identifiers;
+5. explicit blocker lists and non-proof claims that prevent a narrow source
+   observation from becoming suitability, compliance, execution, publication,
+   deployment, production, data-mesh, Workbench, or supported-feature proof.
+
+The generator must perform one source operation and one named use-case
+evaluation. A completed no-opportunity result can be valid runtime evidence when
+the domain policy supports it; candidate creation is not a generic proof of
+successful execution. A blocked diagnostic artifact may be retained for
+operations but must clear no blocker.
+
+Never substitute request as-of, caller tenant, consumer clock, proof generation
+time, or local defaults for missing producer-owned identity. Preserve partial
+producer evidence for diagnosis and fail qualification closed. Keep this as an
+internal capability module unless workload, failure isolation, ownership, or
+operability evidence justifies a separately deployable service.
+
 ## Migration Guidance
 
 For existing proof inventories:
