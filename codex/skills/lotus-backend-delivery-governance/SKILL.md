@@ -24,7 +24,6 @@ through the governed canonical front-office runtime and populated Workbench prod
 Use `lotus-ci-enforcement-governance` as the primary route when the backend task is mainly about
 designing, promoting, or hardening CI quality gates, repository-native enforcement targets,
 scorecard-backed regression blockers, or agent-development guardrails.
-
 ## Context-First Rule
 
 Before substantive backend work:
@@ -327,8 +326,9 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     malformed trusted context, every mismatched scope dimension, multi-value membership, body
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
     commands free of placeholder or nullable scope that exists only for later replacement.
-28. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
-29. Govern API test migrations with `references/integration-api-migration-proof.md` and stateful
+28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
+29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
+30. Govern API test migrations with `references/integration-api-migration-proof.md` and stateful
     database migrations with `references/stateful-database-migration-proof.md`.
 ## Bank-Buyable Default Bar
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
