@@ -51,9 +51,11 @@ Status text, a workflow URL, or a copied artifact path is not enough by itself.
 
 ## Receipt-Bound Runtime Execution
 
-When a `runtime_execution` artifact can clear a source or workflow blocker, a
-success flag, caller-composed summary, candidate count, or copied response field
-is not sufficient. Require a closed, versioned contract with:
+Every `runtime_execution` artifact used to clear any blocker, including a
+source, workflow, live-route, or composed-runtime blocker, must be
+receipt-bound. A success flag, caller-composed summary, candidate count, or
+copied response field is not sufficient. Require a closed, versioned contract
+with:
 
 1. a request receipt that binds pseudonymous entitled scope, business as-of,
    evaluation time, correlation identity, and consumer policy version;
