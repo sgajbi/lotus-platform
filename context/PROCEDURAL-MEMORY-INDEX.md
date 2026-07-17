@@ -26,6 +26,10 @@ These playbooks turn recurring delivery practice into durable operating guidance
 8. [Agentic Coding Quality Evaluation Loop](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md)
    How to turn repeated agent-authored code, test, documentation, and CI failures into
    deterministic gates, scorecards, evaluator cases, skills, and context improvements.
+9. [Named-Success Endpoint-Family Closure](../codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md)
+   How to close multi-shape caller/source endpoint families through application-backed examples,
+   exact OpenAPI/ledger parity, meaningful no-write proof, durable issue/context evidence, and
+   PR-to-main release hygiene.
 
 ## When To Use This Layer
 
@@ -45,3 +49,6 @@ Use these playbooks when:
    pack.
 9. you are converting repeated agent-quality failures into measured gates or advisory evaluator
    cases without relying on subjective self-assessment.
+10. you are certifying a multi-shape successful endpoint family and need to preserve goal
+    alignment, source authority, executable examples, exact contract parity, and durable closure
+    evidence across handovers or context compaction.

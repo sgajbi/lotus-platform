@@ -651,6 +651,11 @@ Lotus APIs and product surfaces are expected to be:
    compare documented success examples with code-owned runtime serialization; valid JSON syntax is
    insufficient evidence. Use only explicit field-level normalizers for genuinely dynamic values,
    and compare blocker, supportability, promotion, schema, contract, and version fields exactly.
+7. for multi-shape successful endpoint families, use the named-success family closure workflow in
+   `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`.
+   Require issue-first scope, deterministic pre/post inventory, production request/application/DTO
+   execution, separate caller/source contracts, non-candidate no-write proof, exact OpenAPI/ledger
+   parity, and exact-main closure evidence.
 
 ## Performance, Reliability, And Production Readiness
 
@@ -710,6 +715,11 @@ Agents working in Lotus are expected to operate like disciplined banking-grade e
 6. reject backend or frontend changes that pass tests but degrade measured quality through
    copy-paste, architecture-boundary drift, security suppressions, weak tests, unsupported UI,
    unsupported documentation claims, or missing runtime/browser proof.
+7. re-read the active goal and focused issue at material checkpoints: before editing, after handover
+   or context compaction, before PR/merge, and before selecting the next slice or endpoint family.
+8. keep progress, decisions, residual blockers, and operational identifiers durable in GitHub
+   issues, repository context, RFCs, ledgers, or governed task artifacts rather than relying on
+   conversational memory.
 
 ### Skills and working methods
 
