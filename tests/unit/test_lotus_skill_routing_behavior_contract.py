@@ -115,12 +115,18 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
 def test_issue_backed_discovery_handoff_precedes_source_mutation() -> None:
     routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
     issue_skill = _read(ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "SKILL.md")
+    issue_skill_agent = _read(
+        ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "agents" / "openai.yaml"
+    )
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
     backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
 
+    assert "combined request asks to discover issues and then implement fixes" in issue_skill
     assert "## Discovery-To-Delivery Handoff" in issue_skill
     assert "Before the first source mutation" in issue_skill
     assert "Do not create the implementation issue retroactively" in issue_skill
+    assert "For combined discovery-and-fix work" in issue_skill_agent
+    assert "before handing off to the applicable delivery skill or mutating source" in issue_skill_agent
     assert "## Traceability Before Mutation" in frontend_skill
     assert "Do not create the owning issue retroactively" in frontend_skill
     assert "before the first source mutation" in backend_skill
