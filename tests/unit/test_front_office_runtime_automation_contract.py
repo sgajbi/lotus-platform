@@ -58,13 +58,25 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "canonical_contract" in wrapper
     assert "canonicalContract" in wrapper
     assert "[switch]$Clean" in wrapper
+    assert "[switch]$CleanPlanOnly" in wrapper
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RemoveImages" in wrapper
     assert "[switch]$IncludeLotusIdea" not in wrapper
     assert "[switch]$SkipDpmCommandCenterSeed" in wrapper
-    assert "Get-LotusDockerArtifacts" in wrapper
-    assert "Remove-LotusDockerArtifacts" in wrapper
-    assert "Assert-NoLotusDockerArtifacts" in wrapper
+    assert "canonical_docker_ownership.py" in wrapper
+    assert "Get-CanonicalDockerCleanupPlan" in wrapper
+    assert "Assert-NoOwnedDockerArtifacts" in wrapper
+    assert "docker_ownership_policy" in wrapper
+    assert "docker_cleanup_plan_path" in wrapper
+    assert "ownership_provenance" in wrapper
+    assert "ownership_conflicts" in wrapper
+    assert "Canonical clean blocked by Compose ownership conflicts" in wrapper
+    assert "Get-LotusDockerArtifacts" not in wrapper
+    assert "Remove-LotusDockerArtifacts" not in wrapper
+    assert '$_ -match "^(lotus|pbwm|performance)"' not in wrapper
+    assert "docker rm -f" not in wrapper
+    assert "docker volume rm" not in wrapper
+    assert "docker image rm -f" not in wrapper
     assert "Invoke-LotusIdeaDockerBringUp" not in wrapper
     assert "Invoke-LotusIdeaValidation" in wrapper
     assert "Assert-NoUnownedHostPortListener" not in wrapper
@@ -187,9 +199,15 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
+    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_readme
+    assert "cleanup-plan-latest.json" in automation_readme
+    assert "name is never sufficient" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
+    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_guide
+    assert "Broad daemon-wide" in automation_guide
+    assert "repository-scoped Workbench Compose teardown" in automation_guide
     assert "-IncludeLotusIdea" not in automation_guide
     assert "lotus-idea" in automation_guide
     assert "DEMO_DATA_PACK_ENABLED=false" in automation_guide

@@ -511,6 +511,12 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     or skip its readiness/teardown evidence unless the task explicitly asks for a diagnostic partial
     run,
 12. treat `lotus-platform/platform-stack` as shared ingress and infrastructure support, not as the canonical front-office product bring-up path.
+13. scope canonical Docker cleanup by the exact Compose project identities and repository working
+    directories owned by the invocation. Emit `cleanup-plan-latest.json` before mutation, use
+    `-CleanPlanOnly` for read-only review, and never infer ownership from broad Lotus-shaped names.
+    Concurrent certification projects are independent runtime owners even when they use the same
+    repository checkout. Reused Compose project names with a different working directory are
+    ownership conflicts that must block cleanup before mutation.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

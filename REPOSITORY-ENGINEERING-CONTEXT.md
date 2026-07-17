@@ -318,6 +318,14 @@ Boundary rules:
     OpenAPI/ledger parity, durable context evidence, and PR-to-main release/wiki/branch hygiene.
     Central engineering context, procedural memory, and skill routing link to this source; the
     skill manifest is unchanged because no skill was added, moved, renamed, or reclassified.
+43. `automation/Invoke-Canonical-FrontOffice-QA.ps1` uses
+    `automation/canonical_docker_ownership.py` to produce a read-only, provenance-bearing cleanup
+    plan before mutation. A resource is in scope only when its exact canonical Compose project and
+    working-directory labels match the declared runtime roots (or it is the exact direct-ingress
+    singleton). Cleanup delegates to repository-scoped Workbench Compose teardown; daemon-wide
+    Lotus/PBWM/performance prefix deletion is prohibited. A reused project name from a different
+    working directory is a blocking ownership conflict. Use `-CleanPlanOnly` to review
+    `output/front-office-qa/cleanup-plan-latest.json` without mutation.
 
 ## Repo-Native Commands
 

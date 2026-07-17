@@ -71,6 +71,26 @@ Use the lifecycle vocabulary from the contract:
 `LOST` is an operational problem, not success. Treat it as a finding that needs cleanup or
 rerun evidence.
 
+## Docker Runtime Ownership And Interference
+
+Every long-running Docker-backed validation must preserve its Compose project identity, repository
+working directory, owning command, start time, and evidence path in the task ledger or run artifact.
+Before any canonical cleanup:
+
+1. use `Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly` to emit the exact target plan,
+2. require matching Compose-project and working-directory provenance for every selected resource,
+3. treat another project from the same checkout as a separate owner,
+4. block cleanup when a project name is reused from a different working directory,
+5. prohibit daemon-wide name-prefix cleanup, prune, or force-removal while concurrent governed work
+   is active,
+6. when interference occurs, preserve Docker events, container exit codes, service logs, the
+   cleanup plan, and both task identifiers; classify the interrupted result as invalid diagnostic
+   evidence rather than an application capacity verdict.
+
+Cleanup fences are temporary containment, not the durable ownership boundary. Remove a fence only
+after the unsafe automation is fixed, concurrent ownership is reconciled, and the protected task is
+complete or explicitly superseded.
+
 ## Stacked Refactor Campaigns
 
 For long-running governed refactors split across dependent PRs, preserve a

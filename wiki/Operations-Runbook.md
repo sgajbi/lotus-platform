@@ -20,6 +20,7 @@ powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1
 powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.ps1
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
+powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly
 powershell -ExecutionPolicy Bypass -File automation\Invoke-DpmCommandCenterSeed.ps1
 python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
@@ -43,6 +44,10 @@ python automation\validate_analytics_ui_entitlement_certification.py
    workflow-pack runtime APIs
 7. treat delegated-agent output as evidence for the accountable main agent, not as review, PR
    approval, wiki publication, or merge authority
+8. review `output/front-office-qa/cleanup-plan-latest.json` before canonical cleanup; require exact
+   Compose-project and working-directory provenance, and never remove Docker resources by broad
+   Lotus/PBWM/performance name prefix. Concurrent certification projects are separate owners; a
+   reused project name from another working directory must block cleanup before mutation.
 
 ## Canonical DPM command-center seed
 

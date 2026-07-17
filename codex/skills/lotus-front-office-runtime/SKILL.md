@@ -59,6 +59,12 @@ Do not route those tasks through generic platform QA by default.
    migration, or durability behavior. Before accepting a newly database-backed app in canonical
    startup, prove standalone first start, repeated start, API restart, and persisted readback using
    the app-owned Compose path; then run canonical validation against that same path.
+15. Before canonical cleanup, run the platform wrapper with `-CleanPlanOnly` and review
+    `output/front-office-qa/cleanup-plan-latest.json`. Cleanup ownership requires the exact
+    canonical Compose project plus repository working-directory provenance; never use broad
+    Lotus/PBWM/performance name prefixes, daemon-wide prune, or another project's resources. A
+    concurrent certification project remains independently owned even when it uses the same repo.
+    Treat a reused project name with a different working directory as a blocking ownership conflict.
 
 ## Canonical Commands
 
