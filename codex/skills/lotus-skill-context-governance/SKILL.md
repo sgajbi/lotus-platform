@@ -126,13 +126,14 @@ For skill/context governance work, run the checks that match the slice:
 ```powershell
 python codex\skills\lotus-skill-context-governance\scripts\audit_lotus_skills.py
 python -m py_compile codex\skills\lotus-skill-context-governance\scripts\audit_lotus_skills.py
-python <skill-creator>\scripts\quick_validate.py codex\skills\<changed-skill>
 python automation\validate_lotus_skill_alignment.py
 powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast -ValidateAfterSync
 ```
 
-Also run any changed skill's local validation scripts, such as issue-discovery label/catalog
-validators.
+Also run the changed skill's checked-in validator when it has one, such as issue-discovery
+label/catalog validators. Do not assume a shared `quick_validate.py` exists: locate and invoke the
+validator owned by the changed skill, then record an explicit no-skill-specific-validator decision
+when the alignment validator is the only applicable structural proof.
 
 When a new skill is added, validate:
 

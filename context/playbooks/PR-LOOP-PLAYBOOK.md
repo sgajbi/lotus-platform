@@ -120,6 +120,66 @@ While GitHub is running:
 2. poll check status asynchronously,
 3. fix only the failures that the logs actually show.
 
+## Recoverable Worktree And Branch Lifecycle Rule
+
+Treat a worktree or branch as a potentially unique delivery artifact until Git and GitHub evidence
+proves otherwise. A closed PR, an old directory name, or apparent staleness is never deletion
+evidence. Do not use force removal to make an inventory look clean.
+
+Before removing any alternate worktree or feature branch:
+
+1. inventory registered worktrees and their checked-out refs:
+
+   ```powershell
+   git worktree list --porcelain
+   ```
+
+2. in every candidate worktree, capture `git status --short --branch`; a dirty worktree is a
+   preservation task, not a cleanup candidate;
+3. inspect the candidate branch for unmerged patch-equivalent commits:
+
+   ```powershell
+   git fetch origin --prune
+   git cherry -v origin/main <candidate-branch>
+   ```
+
+   A `+` entry means the branch still has a patch not represented on `origin/main`; classify it
+   before any deletion;
+4. for a PR-backed branch, verify GitHub state and merge identity rather than trusting local
+   ancestry alone, especially after rebase merge:
+
+   ```powershell
+   gh pr view <pr-number> --json state,mergedAt,mergeCommit,headRefName,headRefOid,url
+   git ls-remote --heads origin <candidate-branch>
+   ```
+
+5. confirm the branch is not checked out by another registered worktree before deleting its local
+   ref.
+
+For a dirty worktree, first preserve the payload using a named stash with its object SHA recorded
+in the task ledger or issue, or commit it to a clearly named recovery branch. Record the repository,
+worktree path, original branch or detached HEAD, preservation SHA, reason, and intended disposition.
+Do not use `git worktree remove --force`, `git branch -D`, or a broad filesystem deletion as a
+substitute for preservation evidence.
+
+For a closed-but-unmerged PR or branch with unique commits, classify it as `must-merge`,
+`cherry-pick`, `superseded`, `delete`, or `active`. Record the classification, owner, and proof in
+the issue, PR, or task ledger. Preserve `active` and unclassified branches. Delete only after the
+classification proves that no unique implementation or durable governance truth will be lost.
+
+For a clean merged candidate, remove it in this order:
+
+1. fast-forward a primary worktree to `main` and capture the merge SHA;
+2. remove the clean alternate worktree with `git worktree remove <path>`;
+3. delete the local ref with `git branch -d <branch>` only after it is no longer checked out;
+4. delete the corresponding remote branch only after GitHub confirms the intended PR merged;
+5. run `git worktree prune`, then repeat `git worktree list --porcelain`, `git branch -vv`, and
+   `git ls-remote --heads origin` to prove the intended end state.
+
+This policy deliberately preserves intentional worktrees for open PRs, active investigations, and
+declared recovery branches. Hygiene means controlled lifecycle ownership, not deleting every
+non-`main` ref.
+
 ## Truthful PR Evidence Rule
 
 A PR must state:
