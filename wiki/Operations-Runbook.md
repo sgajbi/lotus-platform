@@ -47,7 +47,7 @@ python automation\validate_analytics_ui_entitlement_certification.py
 8. review `output/front-office-qa/cleanup-plan-latest.json` before canonical cleanup; require exact
    Compose-project and working-directory provenance, and never remove Docker resources by broad
    Lotus/PBWM/performance name prefix. Concurrent certification projects are separate owners; a
-   reused project name from another working directory, or residual project volumes/images without
+   reused project name from another or nested working directory, or residual project volumes/images without
    live working-directory provenance, must block cleanup before mutation.
 
 ## Canonical DPM command-center seed

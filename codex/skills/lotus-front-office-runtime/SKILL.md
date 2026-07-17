@@ -64,7 +64,8 @@ Do not route those tasks through generic platform QA by default.
     canonical Compose project plus repository working-directory provenance; never use broad
     Lotus/PBWM/performance name prefixes, daemon-wide prune, or another project's resources. A
     concurrent certification project remains independently owned even when it uses the same repo.
-    Treat a reused project name with a different working directory, or residual volumes/images with
+    Require exact normalized checkout-path equality: a reused project name from a different or
+    nested working directory, or residual volumes/images with
     no live container proving the expected checkout, as a blocking ownership conflict.
 
 ## Canonical Commands

@@ -3,7 +3,7 @@ from __future__ import annotations
 from automation.canonical_docker_ownership import (
     build_cleanup_plan,
     normalize_docker_path,
-    path_is_within,
+    paths_match_exactly,
 )
 
 
@@ -29,13 +29,16 @@ def _resource(name: str, project: str) -> dict[str, object]:
     }
 
 
-def test_path_boundary_is_normalized_without_accepting_sibling_prefixes() -> None:
+def test_checkout_path_match_is_normalized_and_exact() -> None:
     root = r"C:\Users\Sandeep\projects\lotus-core"
 
     assert normalize_docker_path(root) == "c:/users/sandeep/projects/lotus-core"
-    assert path_is_within(r"c:\users\sandeep\projects\lotus-core", root)
-    assert path_is_within(r"C:\Users\Sandeep\projects\lotus-core\docker", root)
-    assert not path_is_within(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
+    assert paths_match_exactly(r"c:\users\sandeep\projects\lotus-core", root)
+    assert not paths_match_exactly(
+        r"C:\Users\Sandeep\projects\lotus-core\.worktrees\feature",
+        root,
+    )
+    assert not paths_match_exactly(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
 
 
 def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots() -> None:
@@ -119,6 +122,28 @@ def test_cleanup_plan_blocks_reused_project_name_from_another_worktree() -> None
             "conflict_reason": "compose_project_owned_by_different_working_directory",
         }
     ]
+
+
+def test_cleanup_plan_blocks_nested_worktree_reusing_canonical_project() -> None:
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "lotus-core-nested-worktree-api",
+                "lotus-core",
+                r"C:\Users\Sandeep\projects\lotus-core\.worktrees\feature",
+            )
+        ],
+        volumes=[],
+        images=[],
+    )
+
+    assert plan["containers"] == []
+    assert "lotus-core" not in plan["compose_projects"]
+    assert plan["ownership_conflicts"][0]["conflict_reason"] == (
+        "compose_project_owned_by_different_working_directory"
+    )
 
 
 def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance() -> (
