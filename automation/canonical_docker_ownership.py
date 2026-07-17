@@ -43,12 +43,10 @@ def normalize_docker_path(value: str) -> str:
     return normalized.rstrip("/").casefold()
 
 
-def path_is_within(path: str, root: str) -> bool:
-    normalized_path = normalize_docker_path(path)
-    normalized_root = normalize_docker_path(root)
-    return normalized_path == normalized_root or normalized_path.startswith(
-        f"{normalized_root}/"
-    )
+def paths_match_exactly(path: str, expected_path: str) -> bool:
+    """Compare checkout paths without accepting nested worktrees or sibling prefixes."""
+
+    return normalize_docker_path(path) == normalize_docker_path(expected_path)
 
 
 def canonical_project_roots(
@@ -88,7 +86,9 @@ def _owned_container_record(
     expected_root = allowed_project_roots.get(project.casefold(), "")
     matched_root = (
         expected_root
-        if expected_root and working_dir and path_is_within(working_dir, expected_root)
+        if expected_root
+        and working_dir
+        and paths_match_exactly(working_dir, expected_root)
         else ""
     )
     if not matched_root and name not in EXACT_OWNED_CONTAINER_NAMES:
@@ -130,7 +130,7 @@ def select_ownership_conflicts(
         if not expected_root:
             continue
         working_dir = str(labels.get(COMPOSE_WORKING_DIR_LABEL, ""))
-        if working_dir and path_is_within(working_dir, expected_root):
+        if working_dir and paths_match_exactly(working_dir, expected_root):
             continue
         conflicts.append(
             {
