@@ -30,6 +30,10 @@ When multiple Lotus skills appear relevant, choose in this order:
 
 This prevents broad generic skills from intercepting more specific governed runtime tasks.
 
+For combined issue-backed discovery and implementation requests, this precedence is sequential,
+not exclusive: finish the no-code evidence, duplicate-check, issue create/reuse, and ledger
+checkpoint first; then switch to the repo delivery skill before the first source mutation.
+
 ## Skill Routing Table
 
 | Task Intent | Primary Skill | Secondary Skills | Governed Source of Truth |
@@ -40,6 +44,7 @@ This prevents broad generic skills from intercepting more specific governed runt
 | Run or fix RFC-0089/RFC-0090/RFC-0091/RFC-0092 mesh certification, enterprise maturity, and production operating-report failures across telemetry, SLO, access, lifecycle, evidence, drift trend, escalation ownership, GitHub cross-repo checkout, gateway publication, and Workbench discovery consumption | `lotus-backend-delivery-governance` | `lotus-pr-premerge-gate`, `github:gh-fix-ci`, `lotus-rfc-review-loop`, `lotus-qa-platform-validator` | `lotus-platform/automation/mesh_certification_gate.py`, `lotus-platform/automation/mesh_maturity_scope.py`, `lotus-platform/automation/generate_enterprise_mesh_operating_report.py`, `lotus-platform/.github/workflows/mesh-certification-gate.yml`, `lotus-platform/docs/operations/mesh-certification-gate-runbook.md` |
 | Certify Lotus API endpoints one by one across every option, output figure, OpenAPI docs, upstream/downstream consumers, GitHub issues, duplicate endpoint posture, and live canonical evidence | `lotus-endpoint-certification-loop` | repo delivery governance skill, `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | endpoint code/tests/docs plus repo-local engineering context |
 | Bring up app, raise defects, implement fixes, revalidate until stable | `lotus-validation-resolution-lifecycle` | `lotus-qa-platform-validator`, `lotus-pr-premerge-gate` | `context/playbooks/VALIDATION-PLAYBOOK.md`, `context/playbooks/PR-LOOP-PLAYBOOK.md` |
+| Discover evidence-backed issues and then implement the selected fixes with issue-first traceability | `lotus-app-issue-discovery` for the no-code evidence, duplicate check, issue create/reuse, and ledger checkpoint; then the repo frontend or backend delivery governance skill before mutation | `lotus-codebase-review-ledger` for durable review findings, `lotus-pr-premerge-gate` for PR/merge closure | target repo issue and discovery ledger, repo-local engineering context, `codex/skills/lotus-app-issue-discovery/SKILL.md`, and the applicable repo delivery skill |
 | Design or promote high-signal CI enforcement, convert report-only inventories into blocking gates, prevent agent-driven quality degradation, design agentic coding eval loops, decide whether repeated agent failures require skill/context/scaffold updates, enforce test-family or proof-breadth floors, cap uncategorized-test drift, or update quality scorecards and gate placement | `lotus-ci-enforcement-governance` | repo delivery governance skill, `lotus-pr-premerge-gate`, `lotus-codebase-review-ledger` | repo-native quality inventories, Make/NPM targets, GitHub Actions lanes, quality scorecards, review ledgers, platform-owned skill source under `codex/skills`, and `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md` |
 | Maintain, audit, create, split, merge, or review Lotus skills, agent context, skill manifests, routing maps, deployed-skill sync, AGENTS guidance, procedural memory, or reusable agent guardrails across the Lotus skill inventory | `lotus-skill-context-governance` | `lotus-ci-enforcement-governance` when the lesson should become a CI gate, scaffold, validator, or quality scorecard; `lotus-readme-wiki-governance` when README/wiki source changes | `codex/skills/`, `codex/skills/README.md`, `codex/skills/lotus-skill-manifest.json`, `context/LOTUS-SKILL-ROUTING-MAP.md`, `automation/validate_lotus_skill_alignment.py`, `automation/Bootstrap-LotusDeveloperEnvironment.ps1`, and `codex/skills/lotus-skill-context-governance/scripts/audit_lotus_skills.py` |
 | Improve Lotus skills, agent context, operating guidance, or reusable guardrails after a repeated agent-quality, CI, documentation, wiki, closure, architecture, API, or test-quality failure | `lotus-skill-context-governance` | `lotus-ci-enforcement-governance` when the lesson should become a quality gate, scaffold, validator, or scorecard; `lotus-readme-wiki-governance` when README/wiki professionalism is the surfaced failure, repo delivery governance skill for app-specific lessons, `lotus-pr-premerge-gate` before merge | `codex/skills/`, `codex/skills/README.md`, `codex/skills/lotus-skill-manifest.json`, `context/LOTUS-SKILL-ROUTING-MAP.md`, `context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md`, `context/platform-engineering-ledger.md`, and `automation/Bootstrap-LotusDeveloperEnvironment.ps1` |
@@ -96,7 +101,9 @@ Use when the task is about:
 6. reviewing enterprise readiness, accessibility/usability, tenant isolation, compliance, DR,
    rollout, support escalation, data privacy, vendor risk, mobile responsiveness, or AI governance,
    evaluation, safety, oversight, cost, and tool-control posture as issue-discovery lenses,
-7. avoiding duplicate GitHub issues while producing evidence-backed acceptance criteria.
+7. avoiding duplicate GitHub issues while producing evidence-backed acceptance criteria,
+8. completing the no-code issue and ledger checkpoint before handing a selected fix to frontend or
+   backend delivery.
 
 ### `lotus-demo-readiness-certification`
 

@@ -112,6 +112,24 @@ def test_lotus_app_issue_discovery_route_is_unambiguous() -> None:
     assert "stale remote feature branches" in routing_map
 
 
+def test_issue_backed_discovery_handoff_precedes_source_mutation() -> None:
+    routing_map = _read(ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md")
+    issue_skill = _read(ROOT / "codex" / "skills" / "lotus-app-issue-discovery" / "SKILL.md")
+    frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
+    backend_skill = _read(ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md")
+
+    assert "## Discovery-To-Delivery Handoff" in issue_skill
+    assert "Before the first source mutation" in issue_skill
+    assert "Do not create the implementation issue retroactively" in issue_skill
+    assert "## Traceability Before Mutation" in frontend_skill
+    assert "Do not create the owning issue retroactively" in frontend_skill
+    assert "before the first source mutation" in backend_skill
+    assert "instead of creating it retroactively" in backend_skill
+    assert "this precedence is sequential" in routing_map
+    assert "before the first source mutation" in routing_map
+    assert "Discover evidence-backed issues and then implement the selected fixes" in routing_map
+
+
 def test_issue_discovery_plans_include_deployable_image_provenance_for_services() -> None:
     planner = _load_issue_campaign_planner()
 

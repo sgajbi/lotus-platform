@@ -167,8 +167,10 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     context pages with stale branch names, stale quality numbers, unprofessional navigation,
     unsupported readiness claims, or hard-to-scan tables that would mislead business, engineering,
     sales, marketing, operations, support, or future-agent readers.
-14. When a branch is driven by GitHub issues, build and maintain a current issue matrix from
-    GitHub before PR creation. For each issue, record the acceptance criteria,
+14. When issue-backed delivery is required, duplicate-check and create or reuse the owning issue
+    before the first source mutation; update any campaign ledger and carry the issue through plan,
+    branch, commits, PR, merge, and recheck evidence instead of creating it retroactively. Then
+    build and maintain a current issue matrix before PR creation. For each issue, record the acceptance criteria,
     files/tests/docs/wiki/context surfaces changed, same-pattern scan performed, local evidence,
     remaining gap, and close/keep-open decision. Count an issue as locally fixed only when the
     branch contains the implementation change plus meaningful tests and any contract, OpenAPI,
@@ -495,5 +497,3 @@ Use this decision order:
 3. update central or repo-local context when source-of-truth changed;
 4. add or adjust validators, scaffolds, or gates when deterministic enforcement is better than prose;
 5. record an explicit no-change decision in PR evidence, the review ledger, or the task ledger when no durable update is justified.
-
-

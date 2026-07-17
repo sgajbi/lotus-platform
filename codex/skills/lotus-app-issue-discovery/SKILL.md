@@ -63,6 +63,20 @@ Use `scripts/ensure_issue_discovery_labels.py` before filing or relabeling issue
 template. Use `scripts/plan_issue_discovery_campaign.py` to generate a repeatable repo/profile
 campaign plan before broad reviews or app handoffs.
 
+## Discovery-To-Delivery Handoff
+
+When the user asks to discover issues and then implement fixes, treat discovery and delivery as two
+sequential phases. Before the first source mutation:
+
+1. complete the evidence packet and duplicate search,
+2. create or reuse the focused implementation issue,
+3. update the campaign ledger when one exists,
+4. record the issue number in the working plan, branch, commit, and PR evidence,
+5. then load the repo delivery skill and begin implementation.
+
+Do not create the implementation issue retroactively after code editing has started. Keep a shared
+campaign ledger open unless the ledger itself is the implementation target.
+
 ## Operating Contract
 
 Act like a senior Lotus review lead, not a bug-title generator.
