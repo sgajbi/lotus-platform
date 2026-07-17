@@ -36,6 +36,21 @@ Before substantive frontend work:
 2. load the repo-local context,
 3. load only the platform RFCs and standards the task actually needs.
 
+## Traceability Before Mutation
+
+When the user, an issue-discovery campaign, or a governing workflow requires issue-backed delivery,
+complete this checkpoint before the first source mutation:
+
+1. duplicate-check open and closed issues using the failure pattern and concrete symbols,
+2. create or reuse one focused issue with evidence, acceptance criteria, and an evaluation
+   condition,
+3. update the campaign ledger when one exists,
+4. carry the issue number through the working plan, branch, commits, PR, merge, and recheck evidence.
+
+Then implement under this delivery skill. Do not create the owning issue retroactively after code
+editing has started. This checkpoint does not require an issue for every routine edit when neither
+the user nor the governing workflow requires issue-backed delivery.
+
 ## Working Model
 
 Before changing UI:
