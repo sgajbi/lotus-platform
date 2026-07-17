@@ -324,7 +324,9 @@ Boundary rules:
     working-directory labels match the declared runtime roots (or it is the exact direct-ingress
     singleton). Cleanup delegates to repository-scoped Workbench Compose teardown; daemon-wide
     Lotus/PBWM/performance prefix deletion is prohibited. A reused project name from a different
-    working directory is a blocking ownership conflict. Use `-CleanPlanOnly` to review
+    working directory is a blocking ownership conflict. Residual Compose volumes or images without
+    a live container that proves the expected working directory are also ambiguous and must block
+    mutation. Use `-CleanPlanOnly` to review
     `output/front-office-qa/cleanup-plan-latest.json` without mutation.
 
 ## Repo-Native Commands

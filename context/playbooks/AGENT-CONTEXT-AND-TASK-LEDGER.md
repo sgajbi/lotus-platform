@@ -80,7 +80,8 @@ Before any canonical cleanup:
 1. use `Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly` to emit the exact target plan,
 2. require matching Compose-project and working-directory provenance for every selected resource,
 3. treat another project from the same checkout as a separate owner,
-4. block cleanup when a project name is reused from a different working directory,
+4. block cleanup when a project name is reused from a different working directory or only residual
+   volumes/images remain without live working-directory provenance,
 5. prohibit daemon-wide name-prefix cleanup, prune, or force-removal while concurrent governed work
    is active,
 6. when interference occurs, preserve Docker events, container exit codes, service logs, the

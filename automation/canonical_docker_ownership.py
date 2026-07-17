@@ -145,6 +145,50 @@ def select_ownership_conflicts(
     return sorted(conflicts, key=lambda item: item["name"])
 
 
+def select_resource_only_ownership_conflicts(
+    *,
+    containers: Iterable[Mapping[str, Any]],
+    volumes: Iterable[Mapping[str, Any]],
+    images: Iterable[Mapping[str, Any]],
+    allowed_project_roots: Mapping[str, str],
+    explicitly_included_projects: set[str],
+) -> list[dict[str, str]]:
+    """Reject residual Compose resources whose checkout ownership cannot be proven."""
+
+    projects_with_container_evidence = {
+        str(_labels(item).get(COMPOSE_PROJECT_LABEL, "")).casefold()
+        for item in containers
+        if str(_labels(item).get(COMPOSE_PROJECT_LABEL, "")).casefold()
+        in allowed_project_roots
+    }
+    conflicts: list[dict[str, str]] = []
+    for resource_type, items in (("volume", volumes), ("image", images)):
+        for item in items:
+            project = str(_labels(item).get(COMPOSE_PROJECT_LABEL, ""))
+            expected_root = allowed_project_roots.get(project.casefold(), "")
+            if (
+                not expected_root
+                or project.casefold() in projects_with_container_evidence
+                or project.casefold() in explicitly_included_projects
+            ):
+                continue
+            identifier = _resource_identifier(item, resource_type)
+            conflicts.append(
+                {
+                    "id": str(item.get("Id") or item.get("ID") or identifier),
+                    "name": identifier,
+                    "resource_type": resource_type,
+                    "compose_project": project,
+                    "compose_working_dir": "",
+                    "expected_working_dir": expected_root,
+                    "conflict_reason": (
+                        "compose_project_resource_without_working_directory_provenance"
+                    ),
+                }
+            )
+    return sorted(conflicts, key=lambda item: (item["compose_project"], item["name"]))
+
+
 def _resource_identifier(item: Mapping[str, Any], resource_type: str) -> str:
     if resource_type == "volume":
         return str(item.get("Name") or "")
@@ -193,12 +237,32 @@ def build_cleanup_plan(
     images: Iterable[Mapping[str, Any]],
     include_projects: Iterable[str] = (),
 ) -> dict[str, Any]:
+    container_items = list(containers)
+    volume_items = list(volumes)
+    image_items = list(images)
+    included_projects = {project for project in include_projects if project}
+    explicitly_included_projects = {project.casefold() for project in included_projects}
     allowed_project_roots = canonical_project_roots(projects_root, workbench_repo_path)
-    owned_containers = select_owned_containers(containers, allowed_project_roots)
-    conflicts = select_ownership_conflicts(containers, allowed_project_roots)
+    owned_containers = select_owned_containers(container_items, allowed_project_roots)
+    conflicts = select_ownership_conflicts(container_items, allowed_project_roots)
+    conflicts.extend(
+        select_resource_only_ownership_conflicts(
+            containers=container_items,
+            volumes=volume_items,
+            images=image_items,
+            allowed_project_roots=allowed_project_roots,
+            explicitly_included_projects=explicitly_included_projects,
+        )
+    )
+    conflicts.sort(key=lambda item: (item["compose_project"], item["name"]))
     conflicting_projects = {item["compose_project"] for item in conflicts}
-    projects = set(allowed_project_roots).difference(conflicting_projects)
-    projects.update(project for project in include_projects if project)
+    projects = {
+        item["compose_project"]
+        for item in owned_containers
+        if item["compose_project"]
+        and item["compose_project"] not in conflicting_projects
+    }
+    projects.update(included_projects)
     return {
         "schema_version": "1.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -208,8 +272,12 @@ def build_cleanup_plan(
         "compose_projects": sorted(projects),
         "ownership_conflicts": conflicts,
         "containers": owned_containers,
-        "volumes": select_project_resources(volumes, projects, resource_type="volume"),
-        "images": select_project_resources(images, projects, resource_type="image"),
+        "volumes": select_project_resources(
+            volume_items, projects, resource_type="volume"
+        ),
+        "images": select_project_resources(
+            image_items, projects, resource_type="image"
+        ),
     }
 
 
