@@ -1,6 +1,6 @@
 ---
 name: lotus-endpoint-certification-loop
-description: Certify Lotus API endpoints end to end across behavior, every returned figure, OpenAPI/Swagger documentation, GitHub issues, upstream and downstream integrations, duplicate/dead endpoint detection, live canonical evidence, and test-pyramid adequacy. Use when a user asks to test, certify, harden, production-grade review, or move endpoint-by-endpoint through Lotus APIs in lotus-performance, lotus-risk, lotus-core, lotus-gateway, lotus-advise, lotus-manage, lotus-report, or related Lotus services.
+description: Certify Lotus API endpoints end to end across behavior, every returned figure, named multi-shape success contracts, OpenAPI/Swagger documentation, GitHub issues, upstream and downstream integrations, duplicate/dead endpoint detection, live canonical evidence, and test-pyramid adequacy. Use when a user asks to test, certify, harden, production-grade review, close a caller/source success family, or move endpoint-by-endpoint through Lotus APIs in lotus-performance, lotus-risk, lotus-core, lotus-gateway, lotus-advise, lotus-manage, lotus-report, or related Lotus services.
 ---
 
 # Lotus Endpoint Certification Loop
@@ -17,6 +17,18 @@ endpoint-scoped and finish one endpoint before moving to the next.
    editing.
 4. Search open GitHub issues in the owning repo and known downstream repos for the endpoint path,
    model names, and domain vocabulary.
+5. Re-read the active goal and focused issue acceptance criteria before editing, after any handover
+   or context compaction, before opening or merging the PR, and before moving to the next endpoint
+   family. Keep exact identifiers and decisions in issues, repository context, or the governed task
+   ledger rather than relying on chat memory.
+
+## Multi-Shape Success Families
+
+When an endpoint or related caller/source family has multiple successful response shapes, read
+[Named-Success Endpoint-Family Closure](./references/named-success-family-closure.md) completely
+before editing. Use it to inventory the family, preserve source authority, build application-backed
+examples, prove every named mode, enforce exact OpenAPI/ledger parity, reconcile supported-feature
+truth, and close PR/main/wiki/issue hygiene without treating a green schema as behavioral proof.
 
 ## Certification Checks
 
@@ -85,6 +97,10 @@ Do not remove a public endpoint until downstream migration and deprecation are g
 Record endpoint certification in a repo-local technical document when the work is substantial. The
 document should include supported options, figure tie-outs, upstream/downstream posture, issue
 disposition, test-pyramid assessment, live proof, and any residual risks.
+
+Keep durable progress in the focused GitHub issue, parent issue, RFC/context, endpoint ledger, or
+governed task ledger. Chat summaries and pasted handovers may help resume work, but they are not
+closure evidence or source of truth.
 
 Run focused validation first. For API contract changes, also run OpenAPI and vocabulary gates. For
 service/model changes, run type checks according to the repo-native pattern.

@@ -127,7 +127,8 @@ Use when the task is about:
 3. OpenAPI/Swagger completeness,
 4. upstream and downstream integration correctness,
 5. GitHub issue review for endpoint-specific defects,
-6. duplicate, stale, or dead endpoint migration decisions.
+6. duplicate, stale, or dead endpoint migration decisions,
+7. named-success contract closure for multi-shape caller/source endpoint families.
 
 ### `lotus-linkedin-thought-leadership`
 

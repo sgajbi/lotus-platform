@@ -311,6 +311,13 @@ Boundary rules:
     repo-native `lotus-idea` declarations. Do not remove that checkout unless the manifest is
     changed at the same time. Canonical front-office QA also includes `lotus-idea` by default; do
     not restore an opt-in flag or skip readiness/teardown evidence as a shortcut.
+42. `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`
+    is the governed workflow for multi-shape caller/source endpoint-family closure. It requires
+    goal re-read checkpoints, issue-first ownership, deterministic inventory, application-backed
+    and DTO-serialized named examples, source-port-only fakes, non-candidate no-write proof, exact
+    OpenAPI/ledger parity, durable context evidence, and PR-to-main release/wiki/branch hygiene.
+    Central engineering context, procedural memory, and skill routing link to this source; the
+    skill manifest is unchanged because no skill was added, moved, renamed, or reclassified.
 
 ## Repo-Native Commands
 
