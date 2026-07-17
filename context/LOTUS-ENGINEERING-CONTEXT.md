@@ -516,7 +516,9 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     `-CleanPlanOnly` for read-only review, and never infer ownership from broad Lotus-shaped names.
     Concurrent certification projects are independent runtime owners even when they use the same
     repository checkout. Reused Compose project names with a different working directory are
-    ownership conflicts that must block cleanup before mutation.
+    ownership conflicts that must block cleanup before mutation. A residual Compose volume or image
+    without live container evidence for the expected checkout is equally ambiguous and must fail
+    closed rather than being selected from its project label alone.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

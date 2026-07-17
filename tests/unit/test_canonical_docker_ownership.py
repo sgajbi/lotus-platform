@@ -121,6 +121,37 @@ def test_cleanup_plan_blocks_reused_project_name_from_another_worktree() -> None
     ]
 
 
+def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance() -> (
+    None
+):
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[],
+        volumes=[_resource("lotus-core-residual-data", "lotus-core")],
+        images=[_resource("lotus-core-residual-api:local", "lotus-core")],
+    )
+
+    assert "lotus-core" not in plan["compose_projects"]
+    assert plan["volumes"] == []
+    assert plan["images"] == []
+    assert {
+        (item["resource_type"], item["name"], item["conflict_reason"])
+        for item in plan["ownership_conflicts"]
+    } == {
+        (
+            "volume",
+            "lotus-core-residual-data",
+            "compose_project_resource_without_working_directory_provenance",
+        ),
+        (
+            "image",
+            "lotus-core-residual-api:local",
+            "compose_project_resource_without_working_directory_provenance",
+        ),
+    }
+
+
 def test_cleanup_plan_keeps_exact_ingress_but_rejects_similarly_named_container() -> (
     None
 ):
