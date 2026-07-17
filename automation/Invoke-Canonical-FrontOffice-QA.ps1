@@ -9,6 +9,7 @@ param(
   [int]$SeedWaitSeconds = 900,
   [switch]$BringUp,
   [switch]$Clean,
+  [switch]$CleanPlanOnly,
   [switch]$CleanCoreState,
   [switch]$BuildImages,
   [switch]$RemoveImages,
@@ -25,6 +26,9 @@ if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) {
 if ([string]::IsNullOrWhiteSpace($WorkbenchRepoPath)) {
   $WorkbenchRepoPath = Join-Path $ProjectsRoot "lotus-workbench"
 }
+if ($CleanPlanOnly -and ($Clean -or $BringUp -or $CleanCoreState -or $BuildImages -or $RemoveImages -or $KeepRunning)) {
+  throw "-CleanPlanOnly is read-only and cannot be combined with cleanup, startup, build, or keep-running switches."
+}
 $lotusIdeaRepoPath = Join-Path $ProjectsRoot "lotus-idea"
 if (-not (Test-Path $WorkbenchRepoPath)) {
   throw "Workbench repository path not found: $WorkbenchRepoPath"
@@ -34,6 +38,7 @@ $startScript = Join-Path $WorkbenchRepoPath "scripts\live\Start-LotusFrontOffice
 $validateScript = Join-Path $WorkbenchRepoPath "scripts\live\Validate-LotusFrontOfficeCanonical.ps1"
 $stopScript = Join-Path $WorkbenchRepoPath "scripts\live\Stop-LotusFrontOfficeCanonical.ps1"
 $dpmSeedScript = Join-Path $PSScriptRoot "Invoke-DpmCommandCenterSeed.ps1"
+$dockerOwnershipScript = Join-Path $PSScriptRoot "canonical_docker_ownership.py"
 $defaultScreenshotDirectory = Join-Path $WorkbenchRepoPath "output\playwright\live-canonical"
 if ([string]::IsNullOrWhiteSpace($ScreenshotDirectory)) {
   $resolvedScreenshotDirectory = $defaultScreenshotDirectory
@@ -44,7 +49,7 @@ if ([string]::IsNullOrWhiteSpace($ScreenshotDirectory)) {
 }
 $liveSummaryPath = Join-Path $resolvedScreenshotDirectory "live-validation-summary.json"
 
-foreach ($requiredPath in @($startScript, $validateScript, $stopScript, $dpmSeedScript)) {
+foreach ($requiredPath in @($startScript, $validateScript, $stopScript, $dpmSeedScript, $dockerOwnershipScript)) {
   if (-not (Test-Path $requiredPath)) {
     throw "Required canonical front-office runtime artifact not found: $requiredPath"
   }
@@ -65,25 +70,26 @@ function Invoke-CanonicalRuntimeStep {
   }
 }
 
-function Get-LotusDockerArtifacts {
-  $containers = @(
-    docker ps -a --format "{{.Names}}" |
-      Where-Object { $_ -match "^(lotus|pbwm|performance)" -or $_ -eq "lotus-direct-dev-ingress" }
-  )
-  $volumes = @(
-    docker volume ls -q |
-      Where-Object { $_ -match "^(lotus|pbwm|performance)" }
-  )
-  $images = @(
-    docker images --format "{{.Repository}}:{{.Tag}}" |
-      Where-Object { $_ -match "^(lotus|pbwm|performance)" }
-  )
+function Get-CanonicalDockerCleanupPlan {
+  param([string[]]$IncludeProjects = @())
 
-  [ordered]@{
-    containers = $containers
-    volumes = $volumes
-    images = $images
+  $arguments = @(
+    $dockerOwnershipScript,
+    "--projects-root", $ProjectsRoot,
+    "--workbench-repo-path", $WorkbenchRepoPath
+  )
+  foreach ($project in $IncludeProjects) {
+    if (-not [string]::IsNullOrWhiteSpace($project)) {
+      $arguments += @("--include-project", $project)
+    }
   }
+
+  $global:LASTEXITCODE = 0
+  $json = & python @arguments
+  if ($LASTEXITCODE -ne 0) {
+    throw "Canonical Docker ownership inventory failed with exit code $LASTEXITCODE."
+  }
+  return ($json -join "`n") | ConvertFrom-Json
 }
 
 function Invoke-LotusIdeaDockerDown {
@@ -168,39 +174,9 @@ function Invoke-LotusIdeaValidation {
   }
 }
 
-function Remove-LotusDockerArtifacts {
+function Assert-NoOwnedDockerArtifacts {
   param(
-    [hashtable]$Artifacts,
-    [switch]$IncludeImages
-  )
-
-  foreach ($container in @($Artifacts["containers"])) {
-    if (-not [string]::IsNullOrWhiteSpace($container)) {
-      Write-Host "[clean] removing container $container"
-      docker rm -f $container | Out-Null
-    }
-  }
-
-  foreach ($volume in @($Artifacts["volumes"])) {
-    if (-not [string]::IsNullOrWhiteSpace($volume)) {
-      Write-Host "[clean] removing volume $volume"
-      docker volume rm $volume | Out-Null
-    }
-  }
-
-  if ($IncludeImages) {
-    foreach ($image in @($Artifacts["images"])) {
-      if (-not [string]::IsNullOrWhiteSpace($image)) {
-        Write-Host "[clean] removing image $image"
-        docker image rm -f $image | Out-Null
-      }
-    }
-  }
-}
-
-function Assert-NoLotusDockerArtifacts {
-  param(
-    [hashtable]$Artifacts,
+    [pscustomobject]$Artifacts,
     [switch]$IncludeImages
   )
 
@@ -211,12 +187,12 @@ function Assert-NoLotusDockerArtifacts {
   }
 
   foreach ($key in $requiredEmptyKeys) {
-    foreach ($value in @($Artifacts[$key])) {
-      $remaining += "$key`: $value"
+    foreach ($value in @($Artifacts.$key)) {
+      $remaining += "$key`: $($value.name) [$($value.ownership_provenance)]"
     }
   }
   if ($remaining.Count -gt 0) {
-    throw ("Full clean left stale Lotus Docker artifacts: {0}" -f ($remaining -join "; "))
+    throw ("Canonical clean left run-owned Docker artifacts: {0}" -f ($remaining -join "; "))
   }
 }
 
@@ -231,11 +207,14 @@ $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $summaryJsonPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.json"
 $summaryMarkdownPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.md"
 $runtimeTranscriptPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.log"
+$cleanupPlanPath = Join-Path $resolvedOutputDirectory "canonical-front-office-cleanup-plan-$timestamp.json"
+$latestCleanupPlanPath = Join-Path $resolvedOutputDirectory "cleanup-plan-latest.json"
 $latestJsonPath = Join-Path $resolvedOutputDirectory "latest.json"
 $latestMarkdownPath = Join-Path $resolvedOutputDirectory "latest.md"
 $latestTranscriptPath = Join-Path $resolvedOutputDirectory "latest.log"
 $runStartedAt = Get-Date
 $transcriptStarted = $false
+$dockerBefore = Get-CanonicalDockerCleanupPlan
 
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
@@ -244,6 +223,7 @@ $summary = [ordered]@{
   workbench_repo_path = $WorkbenchRepoPath
   bring_up = [bool]$BringUp
   clean = [bool]$Clean
+  clean_plan_only = [bool]$CleanPlanOnly
   clean_core_state = [bool]$CleanCoreState
   build_images = [bool]$BuildImages
   remove_images = [bool]$RemoveImages
@@ -261,7 +241,9 @@ $summary = [ordered]@{
   runtime_transcript = $runtimeTranscriptPath
   lotus_idea = $null
   dpm_command_center_seed_summary = $null
-  docker_before = Get-LotusDockerArtifacts
+  docker_ownership_policy = $dockerBefore.selection_policy
+  docker_cleanup_plan_path = if ($Clean -or $CleanPlanOnly) { $cleanupPlanPath } else { $null }
+  docker_before = $dockerBefore
   docker_after_clean = $null
   docker_after = $null
   status = "ok"
@@ -286,7 +268,28 @@ try {
   Start-Transcript -Path $runtimeTranscriptPath -Force | Out-Null
   $transcriptStarted = $true
 
-  if ($Clean) {
+  if ($Clean -or $CleanPlanOnly) {
+    $summary.docker_before | ConvertTo-Json -Depth 10 | Set-Content -Path $cleanupPlanPath
+    $summary.docker_before | ConvertTo-Json -Depth 10 | Set-Content -Path $latestCleanupPlanPath
+    Write-Host "[clean-plan] ownership policy: $($summary.docker_ownership_policy)"
+    Write-Host "[clean-plan] compose projects: $(@($summary.docker_before.compose_projects) -join ', ')"
+    foreach ($resourceType in @("containers", "volumes", "images")) {
+      foreach ($resource in @($summary.docker_before.$resourceType)) {
+        Write-Host "[clean-plan] $resourceType $($resource.name) [$($resource.ownership_provenance)]"
+      }
+    }
+    $summary.steps += "clean-plan"
+  }
+
+  if ($CleanPlanOnly) {
+    $summary.steps += "clean-plan-only"
+  } elseif ($Clean) {
+    if (@($summary.docker_before.ownership_conflicts).Count -gt 0) {
+      $conflicts = @($summary.docker_before.ownership_conflicts | ForEach-Object {
+        "$($_.name) project=$($_.compose_project) working_dir=$($_.compose_working_dir)"
+      })
+      throw ("Canonical clean blocked by Compose ownership conflicts: {0}" -f ($conflicts -join "; "))
+    }
     $cleanArguments = @{
       ProjectsRoot = $ProjectsRoot
       RemoveVolumes = $true
@@ -296,9 +299,11 @@ try {
     }
     Invoke-CanonicalRuntimeStep -StepName "clean" -ScriptPath $stopScript -Arguments $cleanArguments
     $summary.steps += "clean"
-    Remove-LotusDockerArtifacts -Artifacts (Get-LotusDockerArtifacts) -IncludeImages:$RemoveImages
-    $summary.docker_after_clean = Get-LotusDockerArtifacts
-    Assert-NoLotusDockerArtifacts -Artifacts $summary.docker_after_clean -IncludeImages:$RemoveImages
+    $summary.docker_after_clean = Get-CanonicalDockerCleanupPlan `
+      -IncludeProjects @($summary.docker_before.compose_projects)
+    Assert-NoOwnedDockerArtifacts `
+      -Artifacts $summary.docker_after_clean `
+      -IncludeImages:$RemoveImages
   }
 
   if ($BringUp) {
@@ -318,7 +323,7 @@ try {
     $summary.steps += "bring-up"
   }
 
-  if ($BringUp -or (-not $Clean)) {
+  if (-not $CleanPlanOnly -and ($BringUp -or (-not $Clean))) {
     if (-not (Test-Path $lotusIdeaRepoPath)) {
       throw "lotus-idea repository path not found: $lotusIdeaRepoPath"
     }
@@ -333,7 +338,7 @@ try {
     }
   }
 
-  if ($BringUp -or (-not $Clean)) {
+  if (-not $CleanPlanOnly -and ($BringUp -or (-not $Clean))) {
     if (-not $SkipDpmCommandCenterSeed) {
       $dpmSeedArguments = @{
         OutputDirectory = $resolvedOutputDirectory
@@ -392,7 +397,8 @@ try {
       }
     }
   }
-  $summary.docker_after = Get-LotusDockerArtifacts
+  $summary.docker_after = Get-CanonicalDockerCleanupPlan `
+    -IncludeProjects @($summary.docker_before.compose_projects)
 }
 
 $summaryObject = [pscustomobject]$summary
@@ -406,6 +412,7 @@ $markdown += "- Generated: $($summary.generated_at)"
 $markdown += "- Status: $($summary.status)"
 $markdown += "- Bring up: $($summary.bring_up)"
 $markdown += "- Clean: $($summary.clean)"
+$markdown += "- Clean plan only: $($summary.clean_plan_only)"
 $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Remove images: $($summary.remove_images)"
@@ -442,6 +449,10 @@ foreach ($step in @($summary.steps)) {
 $markdown += ""
 $markdown += "## Docker Evidence"
 $markdown += ""
+$markdown += "- Ownership policy: $($summary.docker_ownership_policy)"
+$markdown += "- Cleanup plan: $($summary.docker_cleanup_plan_path)"
+$markdown += "- Compose projects: $(@($summary.docker_before.compose_projects) -join ', ')"
+$markdown += "- Ownership conflicts: $(@($summary.docker_before.ownership_conflicts).Count)"
 $markdown += "- Containers before: $(@($summary.docker_before.containers).Count)"
 $markdown += "- Volumes before: $(@($summary.docker_before.volumes).Count)"
 $markdown += "- Images before: $(@($summary.docker_before.images).Count)"

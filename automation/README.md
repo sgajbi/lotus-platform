@@ -674,7 +674,19 @@ passes.
 The live summary now also carries the governed canonical contract identity and version from
 `RFC-0076`, so downstream evidence consumers can prove which demo-data contract backed the run.
 
-Clean stale Lotus Docker containers and volumes before the governed bring-up:
+Preview the exact run-owned Docker cleanup scope without mutating the daemon:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly
+```
+
+The plan is written to `output/front-office-qa/cleanup-plan-latest.json`. Every selected resource
+includes Compose-project and working-directory provenance. A Lotus-shaped name is never sufficient
+ownership evidence. If another worktree reuses a canonical Compose project name, the plan records an
+ownership conflict and `-Clean` fails before mutation.
+
+Clean only the canonical Compose projects owned by the declared repository roots before governed
+bring-up:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages
@@ -692,13 +704,22 @@ Rebuild local service images as part of the clean-core reseed when a live proof 
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -CleanCoreState -BuildImages -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
-Run full explicit Lotus cleanup, including matching local Lotus images, without starting the stack:
+Remove local images owned by those same canonical Compose projects, without starting the stack:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages
 ```
 
-`-Clean` removes stale Lotus containers and Lotus/PBWM/performance volumes after delegating to the governed `lotus-workbench` teardown. `-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding, which is narrower than full cleanup and useful after load/performance data has left core readiness stale. Add `-BuildImages` when proof depends on local branch changes that have not yet been published into existing Docker images. `-LotusAiEnvFile` pins the `lotus-ai` env file used by Docker Compose so provider posture is explicit. `-RemoveImages` is opt-in because it makes the next startup slower. The evidence summary records Docker artifact counts, clean-core posture, Lotus AI env file, DPM command-center seed status, outcome-review seed evidence, ready/partial/empty posture checks, seed wait, and run status.
+`-Clean` delegates deletion to the governed `lotus-workbench` teardown, which executes repository-
+scoped Compose shutdowns. The platform wrapper does not enumerate or remove resources by broad
+`lotus`, `pbwm`, or `performance` name prefixes. It builds and publishes an ownership plan first,
+then fails if the planned Compose projects retain containers or volumes after teardown. This keeps
+concurrent Core certification and unrelated Lotus Compose projects outside the cleanup boundary.
+`-CleanCoreState` delegates to the Workbench runtime's targeted `lotus-core` reset before reseeding,
+which is narrower than a canonical-runtime clean and useful after load/performance data has left core
+readiness stale. Add `-BuildImages` when proof depends on local branch changes not yet present in
+existing Docker images. `-LotusAiEnvFile` pins provider posture. `-RemoveImages` remains opt-in
+because it makes the next startup slower.
 
 For a clean demo rebuild from stale local state:
 
