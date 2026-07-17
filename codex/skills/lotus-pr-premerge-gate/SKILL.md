@@ -241,40 +241,62 @@ If the change affects canonical UI behavior, cross-app integration, or platform 
 
 After merge completes:
 
-1. Delete remote branch.
-2. Delete local feature branch.
-3. Switch to main and sync:
+1. Inventory every registered worktree before deleting anything:
+   - `git worktree list --porcelain`
+   - `git status --short --branch` from each candidate worktree
+2. Treat a dirty worktree as a preservation task. Before cleanup, create a named stash and record
+   its object SHA, or commit the content to a recovery branch; record the repository, worktree
+   path, detached HEAD or branch, preservation SHA, reason, and disposition in the issue, PR, or
+   task ledger. Never use `git worktree remove --force` to discard it.
+3. Verify every candidate branch has no unmerged patch-equivalent commits and that any PR was
+   actually merged:
+   - `git fetch origin --prune`
+   - `git cherry -v origin/main <candidate-branch>`
+   - `gh pr view <pr-number> --json state,mergedAt,mergeCommit,headRefName,headRefOid,url`
+   A `+` entry, a closed-but-unmerged PR, or an unknown PR state requires an explicit
+   `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active` classification; preserve it
+   until that evidence is recorded.
+4. Confirm the local branch is not checked out by another worktree. Only then remove a clean,
+   merged alternate worktree with `git worktree remove <path>` and delete its local branch with
+   `git branch -d <branch>`; do not use `-D` as normal cleanup.
+5. Delete the remote branch only after GitHub confirms the intended PR merge.
+6. Switch a primary worktree to main and sync:
    - `git checkout main`
    - `git pull --ff-only origin main`
-4. Capture the merge commit SHA from local `main`:
+7. Capture the merge commit SHA from local `main`:
    - `git rev-parse HEAD`
-5. Confirm clean and aligned state:
+8. Confirm clean and aligned state:
    - `git status --short --branch`
    - `git branch -vv`
-6. Confirm authoritative remote branch state (server truth):
+9. Confirm authoritative remote branch state (server truth):
    - `git ls-remote --heads origin`
-7. Confirm GitHub PR state:
+10. Confirm GitHub PR state:
    - `gh pr list --state open --limit 100`
-8. Prove mainline releasability for the exact merge commit when the repository has a Main
+11. Prove mainline releasability for the exact merge commit when the repository has a Main
    Releasability Gate:
    - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
    - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
-9. If no Main Releasability Gate run exists for the merge SHA and the workflow has
+12. If no Main Releasability Gate run exists for the merge SHA and the workflow has
    `workflow_dispatch`, dispatch it from `main` and monitor it to completion:
    - `gh workflow run main-releasability.yml --ref main`
    - `gh run watch <run-id> --interval 10`
-10. Treat a missing, failed, or wrong-SHA main releasability run as an open release-evidence gap;
+13. Treat a missing, failed, or wrong-SHA main releasability run as an open release-evidence gap;
    fix forward or record the explicit non-applicability reason before claiming closure.
-11. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
+14. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
    is now superseded.
+15. Run `git worktree prune` only after the explicit removal/disposition checks, then repeat
+    `git worktree list --porcelain` to verify no stale registrations remain.
 
 Target end-state: local = remote = main.
 
 ### 5.1) Branch cleanup policy
 
-1. Delete merged remote feature branch.
-2. Delete corresponding local branch.
-3. Ensure no stale working files remain.
+1. Delete a merged remote feature branch only after GitHub merge evidence and `git ls-remote`
+   verification; never delete a closed-but-unmerged branch without explicit disposition evidence.
+2. Delete the corresponding local branch only after a worktree inventory proves it is not checked
+   out and `git cherry -v origin/main <branch>` shows no unique patches.
+3. Preserve dirty worktree changes as a recorded stash SHA or recovery branch before removal.
+4. Ensure no stale worktree registrations or unclassified working files remain.
 
 ## Evidence template (use in PR body)
 
