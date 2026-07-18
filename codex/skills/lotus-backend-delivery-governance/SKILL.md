@@ -269,21 +269,8 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     deterministic gate that rejects parallel counters and hard-coded projections, and prove empty,
     invalid, stale, and fully evidenced current fixtures. Keep the evaluator as internal design
     modularity unless runtime-split evidence exists.
-23. Do not treat migration rollback, repository replay, queue re-drive, synthetic smoke, or a
-    logical dump as production database disaster-recovery certification. Define a versioned
-    service-owned recovery contract that names RPO/RTO, protected tables, backup/PITR strategy,
-    retention and legal-hold boundary, residency, encryption/access controls, ownership,
-    escalation, cadence, and remaining approval blockers. Keep provider backup infrastructure
-    outside the service while implementing a read-only restored-database validator behind a port,
-    a real clean-target restore drill, source-safe counts/hashes and invariant evidence, and a
-    post-restore resume proof for idempotency, leases, outbox/downstream non-duplication, and
-    lineage. Measure readiness after validation rather than accepting a caller-declared ready time;
-    distinguish logical restore evidence from physical base-backup plus WAL/PITR evidence. Block
-    readiness and every durable write while posture is draining, restoring, degraded, or invalid,
-    and require an authorized cutover/rollback runbook. Exercise catalog queries, constraints,
-    indexes, relationships, state invariants, and resume behavior against the real database. Use
-    scheduled attested evidence where appropriate, but keep production certification blocked until
-    approved provider topology and a real PITR/failover exercise exist.
+23. Apply `Database Disaster-Recovery Certification` in
+    `references/source-boundary-and-recovery-patterns.md` for backup, restore, PITR, and failover work.
 24. When a backend owns personal, advisory, audit, outbox, idempotency, AI-lineage, quarantine, or
     downstream-reference records, treat retention, legal hold, erasure, and purge as one cross-path
     lifecycle contract. Allow only versioned policy references mapped from named authorities;
