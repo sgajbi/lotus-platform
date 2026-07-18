@@ -23,5 +23,5 @@
     }
   },
   "activeIssueStates": ["in_progress", "fixed_local", "pr_open", "blocked"],
-  "closedIssueStates": ["merged_main"]
+  "completionIssueStates": ["merged_main"]
 }

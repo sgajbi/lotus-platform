@@ -12,7 +12,7 @@ if ([string]::IsNullOrWhiteSpace($LabelContractPath)) {
 $contract = Get-IssueLoopContract -Path $LabelContractPath
 $repositoryLabels = Assert-IssueLoopRepositoryVocabulary -Repo $Repo -Contract $contract
 $activeLabels = @($contract.activeIssueStates | ForEach-Object { Get-IssueLoopStateLabel -Contract $contract -State $_ })
-$terminalLabels = @($contract.closedIssueStates | ForEach-Object { Get-IssueLoopStateLabel -Contract $contract -State $_ })
+$lifecycleLabels = @($contract.states.PSObject.Properties | ForEach-Object { [string]$_.Value.label })
 $aliases = @(Get-IssueLoopAliasLabels -Contract $contract)
 $violations = @()
 
@@ -32,6 +32,15 @@ $parsedIssues = $raw | ConvertFrom-Json
 $issues = @($parsedIssues | ForEach-Object { $_ })
 foreach ($issue in $issues) {
   $names = @($issue.labels | ForEach-Object { [string]$_.name })
+  $presentLifecycleLabels = @($names | Where-Object { $lifecycleLabels -contains $_ })
+  if ($presentLifecycleLabels.Count -gt 1) {
+    $violations += [pscustomobject]@{
+      kind = "issue_has_multiple_lifecycle_labels"
+      issueNumber = [int]$issue.number
+      state = [string]$issue.state
+      label = ($presentLifecycleLabels -join ",")
+    }
+  }
   foreach ($label in $names) {
     if ($aliases -contains $label) {
       $violations += [pscustomobject]@{
@@ -44,14 +53,6 @@ foreach ($issue in $issues) {
     if ([string]$issue.state -eq "CLOSED" -and $activeLabels -contains $label) {
       $violations += [pscustomobject]@{
         kind = "closed_issue_has_active_label"
-        issueNumber = [int]$issue.number
-        state = [string]$issue.state
-        label = $label
-      }
-    }
-    if ([string]$issue.state -eq "OPEN" -and $terminalLabels -contains $label) {
-      $violations += [pscustomobject]@{
-        kind = "open_issue_has_terminal_label"
         issueNumber = [int]$issue.number
         state = [string]$issue.state
         label = $label
