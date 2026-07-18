@@ -609,6 +609,14 @@ powershell -ExecutionPolicy Bypass -File automation\Run-Parallel-Tasks.ps1 -Prof
 # detached/background execution
 powershell -ExecutionPolicy Bypass -File automation\Start-Background-Run.ps1 -Profile docker-build -MaxParallel 2
 
+# detached exact-repository target (no task-profile edit or shell command string)
+$repositoryRoot = "C:\path\to\lotus-core"
+$head = git -C $repositoryRoot rev-parse HEAD
+powershell -ExecutionPolicy Bypass -File automation\Start-Background-Run.ps1 `
+  -Repository lotus-core -TargetType make -Target profile-derived-state-daily `
+  -ExpectedHead $head -RequireClean `
+  -RequiredArtifact "output/task-runs/*-bank-day-load.json"
+
 # check background status on demand
 powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1
 

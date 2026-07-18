@@ -57,6 +57,16 @@ For background automation launched through platform scripts:
 3. GitHub remains the source of truth for GitHub Actions checks,
 4. local automation artifacts remain the source of truth for local background runs.
 
+Use named `-Profile` mode for shared cross-repository task packs. Use validated repository mode for
+one long repository-native Make, NPM, Python, or PowerShell target that should not require a central
+profile edit. Repository mode must resolve the repository through `automation/repos.json`, pass
+arguments as serialized argv values, and use `-ExpectedHead`, `-RequireClean`, and
+`-RequiredArtifact` when exact-source certification requires them. Never replace this contract with
+a caller-provided shell command string. The checker treats PID plus process-start identity as task
+ownership; PID reuse without the recorded start time is `LOST`, not `RUNNING`.
+After completion, reconciliation persists the terminal exit code and exact runner/target process
+identities from the repository-mode result artifact.
+
 Use the lifecycle vocabulary from the contract:
 
 1. `QUEUED`,

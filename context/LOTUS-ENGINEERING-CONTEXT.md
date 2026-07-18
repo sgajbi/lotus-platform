@@ -472,19 +472,23 @@ For RFC-0093/RFC-0094 agent engineering governance:
    context-preservation fields,
 4. treat `output/background-runs.json` as local automation evidence for background runs and GitHub
    Actions as the source of truth for GitHub check status,
-5. use `automation/Run-Heartbeat.ps1` when a governed advisory attention snapshot is needed across
+5. use `automation/Start-Background-Run.ps1 -Repository ... -TargetType ... -Target ...` for a
+   validated repository-native detached target that does not belong in the shared profile catalog;
+   preserve argv serialization and add exact-HEAD, clean-tree, and required-artifact fences for
+   certifying runs instead of passing a shell command string,
+6. use `automation/Run-Heartbeat.ps1` when a governed advisory attention snapshot is needed across
    background-run, mesh, context, workflow-pack, wiki, or PR-monitor evidence,
-6. treat heartbeat output under `output/heartbeat/` as derived advisory evidence only; it does not
+7. treat heartbeat output under `output/heartbeat/` as derived advisory evidence only; it does not
    replace GitHub, local background-run ledgers, mesh certification, wiki source, context
    validators, or `lotus-ai` runtime APIs as source truth,
-7. use `platform-contracts/agent-engineering/delegation-policy-contract.v1.json` for governed
+8. use `platform-contracts/agent-engineering/delegation-policy-contract.v1.json` for governed
    RFC-0096 delegation profiles, input envelopes, output envelopes, write-scope rules, and
    heartbeat attention identifiers,
-8. keep delegated implementation work accountable to the main agent: returned patches are evidence,
+9. keep delegated implementation work accountable to the main agent: returned patches are evidence,
    not review, and require main-agent diff review plus focused tests before integration,
-9. do not delegate immediate critical-path blockers, broad repo cleanup, overlapping write scopes,
+10. do not delegate immediate critical-path blockers, broad repo cleanup, overlapping write scopes,
    PR merge, or wiki publication without explicit main-agent ownership and review,
-10. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
+11. promote durable lessons into governed docs, context, wiki source, skills, validators, or RFC
    follow-ups instead of relying on chat history.
 
 ## Front-Office Runtime Governance

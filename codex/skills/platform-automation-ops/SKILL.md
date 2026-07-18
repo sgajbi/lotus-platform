@@ -36,6 +36,24 @@ cd <lotus-platform>
 powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1 -Watch -IntervalSeconds 20
 ```
 
+## Execute A Repository-Native Target
+
+Use repository mode when one governed Make, NPM, Python, or PowerShell target is long-running but
+does not belong in the shared cross-repository profile catalog:
+
+```powershell
+$head = git -C <repository-root> rev-parse HEAD
+powershell -ExecutionPolicy Bypass -File automation\Start-Background-Run.ps1 `
+  -Repository <repo-name> -TargetType make -Target <make-target> `
+  -ExpectedHead $head -RequireClean -RequiredArtifact <repo-relative-pattern>
+```
+
+The repository name must exist exactly once in `automation/repos.json`. Do not pass a shell command
+string. The typed launcher serializes target arguments, rechecks repository identity and source
+fences in the detached process, and writes exact job/result artifacts. From PowerShell, pass
+multiple arguments with `-TargetArgument @("one", "two")`; from a native caller, use
+`-TargetArgumentsJson '["one","two"]'`.
+
 ## Run Foreground Parallel Profiles
 
 Use this for immediate feedback in current terminal:
@@ -139,6 +157,8 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
 ## Safety and Operating Rules
 
 - Keep stack stable; do not restart entire platform unless explicitly requested.
+- Prefer repository mode over a terminal-session fallback for long repo-native checks that are not
+  shared profiles; include exact-HEAD, clean-tree, and required-artifact fences for certification.
 - Prefer `-ChangedOnly` or specific services for refresh.
 - Check logs first when failures occur.
 - Keep documentation updates in `lotus-platform` synchronized with script behavior.
