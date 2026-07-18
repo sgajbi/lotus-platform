@@ -169,7 +169,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["reporting.report_centre"]["owning_service"] == "lotus-report"
     assert panel_by_id["reporting.report_centre"]["required_support_state"] == "partial"
     assert panel_by_id["reporting.report_centre"]["route"] == (
-        "/reports?portfolioId={portfolioId}"
+        "/reports?portfolioId={portfolio_id}"
     )
     assert panel_by_id["reporting.report_centre"]["allowed_states"] == [
         "ready",
@@ -186,6 +186,7 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert "client delivery" in panel_by_id["reporting.report_centre"][
         "known_limitations"
     ][1]
+    assert all("{portfolioId}" not in panel["route"] for panel in panels)
     assert panel_by_id["dpm.command_center"]["owning_service"] == "lotus-manage"
     assert panel_by_id["dpm.command_center"]["required_support_state"] == "ready"
     assert panel_by_id["dpm.command_center"]["allowed_states"] == [
