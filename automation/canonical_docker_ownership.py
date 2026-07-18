@@ -33,6 +33,12 @@ CANONICAL_REPOSITORIES = (
     "lotus-gateway",
     "lotus-workbench",
 )
+CANONICAL_COMPOSE_PROJECT_ALIASES = {
+    "lotus-core": (
+        "lotus-core-app-local",
+        "lotus-core-canonical-ui",
+    ),
+}
 EXACT_OWNED_CONTAINER_NAMES = frozenset({"lotus-direct-dev-ingress"})
 
 
@@ -57,6 +63,9 @@ def canonical_project_roots(
         repository: normalize_docker_path(str(base / repository))
         for repository in CANONICAL_REPOSITORIES
     }
+    for repository, aliases in CANONICAL_COMPOSE_PROJECT_ALIASES.items():
+        repository_root = project_roots[repository]
+        project_roots.update({alias: repository_root for alias in aliases})
     workbench_project = Path(workbench_repo_path).name.casefold()
     project_roots[workbench_project] = normalize_docker_path(workbench_repo_path)
     return project_roots
