@@ -710,9 +710,11 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 
 The plan is written to `output/front-office-qa/cleanup-plan-latest.json`. Every selected resource
 includes Compose-project and working-directory provenance. A Lotus-shaped name is never sufficient
-ownership evidence. If another worktree reuses a canonical Compose project name, the plan records an
-ownership conflict (including a nested Git worktree) and `-Clean` fails before mutation. Residual project-labeled volumes or images
-without a live container proving the expected checkout also fail closed.
+ownership evidence. The inventory explicitly maps `lotus-core`, repository-declared
+`lotus-core-app-local`, and isolated `lotus-core-canonical-ui` to the canonical `lotus-core`
+checkout boundary. If another, temporary, or nested checkout reuses one of those project names, the
+plan records an ownership conflict and `-Clean` fails before mutation. Residual project-labeled
+volumes or images without a live container proving the expected checkout also fail closed.
 
 Clean only the canonical Compose projects owned by the declared repository roots before governed
 bring-up:
