@@ -15,6 +15,21 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-07-18 | Stateful cleanup and readiness must prove complete exact identity
+
+Core #805 and PR #806 showed one defect family across seed cleanup, idempotency cleanup, and smoke
+readiness: a hand-maintained child-table list omitted relationships, a logical event prefix differed
+from the physical topic identity, and an existence wait could accept a different transaction.
+
+Implication:
+
+Future cleanup/reseed operations should derive or verify their dependency inventory against schema
+metadata, run atomically, and fail closed. Readiness/replay must assert the exact governed resource
+or work identity and durable outcome. Event cleanup must test logical-to-physical routing identity.
+The versioned bank-readiness catalog owns the cross-app requirements; the fix-forward playbook owns
+the repair sequence; backend delivery and discovery skills route to them. Concrete Core tables,
+topics, and evidence remain in Core issue/review history rather than being copied centrally.
+
 ### 2026-07-18 | Agent guidance should route to one control authority, not copy it
 
 Bank-readiness review exposed overlapping prose across the standing bank-buyable contract,

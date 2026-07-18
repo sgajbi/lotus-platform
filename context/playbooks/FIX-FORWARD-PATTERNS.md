@@ -54,3 +54,24 @@ When code, commands, or operating behavior change:
 2. update the repo-local context if local truth changed,
 3. update both if both changed,
 4. add or extend validators when the pattern is durable enough to enforce.
+
+## Stateful Cleanup And Readiness Integrity Pattern
+
+When cleanup, reseed, replay, or readiness succeeds superficially but leaves or observes the wrong
+durable state:
+
+1. identify the authoritative resource, schema relationship, event routing, and idempotency
+   identities before changing code;
+2. derive destructive cleanup scope from schema or model metadata where possible, compare it with
+   the implemented dependency inventory, and make the mutation atomic and fail closed;
+3. require readiness and replay probes to match the exact governed resource/work identity and
+   expected durable outcome; unrelated rows, page contents, or aggregate counts cannot satisfy the
+   wait;
+4. distinguish logical event names from physical topic/file identities and test the mapping used by
+   cleanup, idempotency, replay, and production configuration;
+5. add a completeness test that fails when a new durable relationship or physical routing mapping
+   is introduced without updating the governed operation;
+6. search the bounded repository scope for other hand-maintained cleanup inventories, broad
+   existence waits, and logical/physical identity mismatches;
+7. record the issue/review evidence in the owning repository ledger, then promote only the reusable
+   prevention rule into platform skills, context, scaffolds, or contracts.

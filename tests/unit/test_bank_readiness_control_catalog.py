@@ -203,3 +203,29 @@ def test_issue_discovery_validator_enforces_bank_readiness_routing() -> None:
     validator = _load_discovery_validator()
 
     assert validator.validate() == []
+
+
+def test_catalog_preserves_stateful_cleanup_and_exact_identity_review_lessons() -> None:
+    controls = {control["control_id"]: control for control in _catalog()["controls"]}
+
+    assert "logical-to-physical routing identity" in " ".join(
+        controls["BR-007"]["ci_expectations"]
+    )
+    assert "exact governed resource or work identity" in " ".join(
+        controls["BR-012"]["ci_expectations"]
+    )
+    assert "authoritative schema relationship inventory" in " ".join(
+        controls["BR-017"]["local_expectations"]
+    )
+    assert "newly related durable child" in " ".join(
+        controls["BR-017"]["ci_expectations"]
+    )
+
+    fix_forward = (ROOT / "context" / "playbooks" / "FIX-FORWARD-PATTERNS.md").read_text(
+        encoding="utf-8"
+    )
+    backend_skill = (
+        ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    assert "Stateful Cleanup And Readiness Integrity Pattern" in fix_forward
+    assert "Stateful Cleanup And Readiness Integrity Pattern" in backend_skill

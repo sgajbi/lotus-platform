@@ -330,8 +330,8 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     commands free of placeholder or nullable scope that exists only for later replacement.
 28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
 29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
-30. Govern API test migrations with `references/integration-api-migration-proof.md` and stateful
-    database migrations with `references/stateful-database-migration-proof.md`.
+30. Govern API test migrations with `references/integration-api-migration-proof.md`, stateful
+    database migrations with `references/stateful-database-migration-proof.md`, and cleanup/reseed/replay/readiness defects with the `Stateful Cleanup And Readiness Integrity Pattern`.
 ## Bank-Buyable Default Bar
 Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
 even when the user does not explicitly ask for a refactor.
