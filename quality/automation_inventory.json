@@ -1,9 +1,18 @@
 {
   "classification_counts": {
-    "covered": 97,
-    "undocumented": 26
+    "covered": 109,
+    "review": 1,
+    "undocumented": 25
   },
   "entries": [
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 0,
+      "path": "automation/Apply-DevIngressHosts-Elevated.ps1",
+      "reference_count": 3,
+      "suffix": ".ps1",
+      "test_reference_count": 1
+    },
     {
       "classification": "undocumented",
       "operator_doc_reference_count": 0,
@@ -14,9 +23,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/Bootstrap-LotusDeveloperEnvironment.ps1",
-      "reference_count": 9,
+      "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -27,6 +36,14 @@
       "reference_count": 2,
       "suffix": ".ps1",
       "test_reference_count": 0
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
+      "path": "automation/canonical_docker_ownership.py",
+      "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -62,9 +79,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/collect_trust_telemetry.py",
-      "reference_count": 7,
+      "reference_count": 8,
       "suffix": ".py",
       "test_reference_count": 3
     },
@@ -125,12 +142,12 @@
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
+      "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/core_performance_returns_series_validation.py",
-      "reference_count": 4,
+      "reference_count": 5,
       "suffix": ".py",
-      "test_reference_count": 0
+      "test_reference_count": 1
     },
     {
       "classification": "undocumented",
@@ -166,17 +183,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 3,
       "path": "automation/domain_product_certification.py",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".py",
       "test_reference_count": 1
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 4,
       "path": "automation/domain_product_discovery.py",
-      "reference_count": 15,
+      "reference_count": 17,
       "suffix": ".py",
       "test_reference_count": 3
     },
@@ -230,17 +247,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 3,
       "path": "automation/generate_domain_product_certification.py",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".py",
       "test_reference_count": 0
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 4,
       "path": "automation/generate_domain_product_discovery.py",
-      "reference_count": 3,
+      "reference_count": 5,
       "suffix": ".py",
       "test_reference_count": 0
     },
@@ -254,17 +271,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 8,
+      "operator_doc_reference_count": 9,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
-      "reference_count": 10,
+      "reference_count": 11,
       "suffix": ".py",
       "test_reference_count": 1
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 5,
+      "operator_doc_reference_count": 7,
       "path": "automation/generate_enterprise_mesh_maturity_matrix.py",
-      "reference_count": 10,
+      "reference_count": 12,
       "suffix": ".py",
       "test_reference_count": 3
     },
@@ -278,19 +295,27 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/generate_live_trust_certification.py",
-      "reference_count": 6,
+      "reference_count": 7,
       "suffix": ".py",
       "test_reference_count": 1
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/generate_mesh_evidence_pack.py",
-      "reference_count": 8,
+      "reference_count": 9,
       "suffix": ".py",
       "test_reference_count": 3
+    },
+    {
+      "classification": "review",
+      "operator_doc_reference_count": 0,
+      "path": "automation/generate_service_cost_attribution.py",
+      "reference_count": 1,
+      "suffix": ".py",
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -310,11 +335,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 11,
+      "operator_doc_reference_count": 19,
       "path": "automation/Invoke-Canonical-FrontOffice-QA.ps1",
-      "reference_count": 22,
+      "reference_count": 31,
       "suffix": ".ps1",
-      "test_reference_count": 6
+      "test_reference_count": 7
     },
     {
       "classification": "undocumented",
@@ -368,9 +393,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "reference_count": 5,
+      "reference_count": 7,
       "suffix": ".ps1",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -382,19 +407,19 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 8,
       "path": "automation/Invoke-PlatformDemoReadinessCertification.ps1",
-      "reference_count": 5,
+      "reference_count": 11,
       "suffix": ".ps1",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 13,
+      "operator_doc_reference_count": 14,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 20,
+      "reference_count": 23,
       "suffix": ".ps1",
-      "test_reference_count": 6
+      "test_reference_count": 7
     },
     {
       "classification": "covered",
@@ -403,6 +428,14 @@
       "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 3
+    },
+    {
+      "classification": "undocumented",
+      "operator_doc_reference_count": 0,
+      "path": "automation/json_contract_validation.py",
+      "reference_count": 3,
+      "suffix": ".py",
+      "test_reference_count": 0
     },
     {
       "classification": "covered",
@@ -414,9 +447,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 9,
+      "operator_doc_reference_count": 11,
       "path": "automation/mesh_certification_gate.py",
-      "reference_count": 16,
+      "reference_count": 18,
       "suffix": ".py",
       "test_reference_count": 4
     },
@@ -430,9 +463,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 5,
+      "operator_doc_reference_count": 9,
       "path": "automation/New-Lotus-Service.ps1",
-      "reference_count": 11,
+      "reference_count": 15,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -453,12 +486,12 @@
       "test_reference_count": 0
     },
     {
-      "classification": "undocumented",
+      "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/Preflight-PR.ps1",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".ps1",
-      "test_reference_count": 0
+      "test_reference_count": 1
     },
     {
       "classification": "undocumented",
@@ -502,9 +535,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 1,
+      "path": "automation/repository_background_task.py",
+      "reference_count": 5,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/Resolve-PlatformAutomationPython.ps1",
-      "reference_count": 9,
+      "reference_count": 10,
       "suffix": ".ps1",
       "test_reference_count": 2
     },
@@ -558,17 +599,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 1,
+      "operator_doc_reference_count": 2,
       "path": "automation/Service-Refresh.ps1",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".ps1",
       "test_reference_count": 0
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 4,
+      "operator_doc_reference_count": 6,
       "path": "automation/Start-Background-Run.ps1",
-      "reference_count": 10,
+      "reference_count": 13,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -592,9 +633,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 5,
       "path": "automation/Sync-Dev-Ingress-Hosts.ps1",
-      "reference_count": 10,
+      "reference_count": 12,
       "suffix": ".ps1",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -614,9 +655,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 5,
+      "operator_doc_reference_count": 6,
       "path": "automation/Sync-RepoWikis.ps1",
-      "reference_count": 15,
+      "reference_count": 16,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -776,9 +817,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/validate_agent_engineering_contracts.py",
-      "reference_count": 6,
+      "reference_count": 7,
       "suffix": ".py",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -854,11 +895,43 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_auto_merge_releasability.py",
+      "reference_count": 7,
+      "suffix": ".py",
+      "test_reference_count": 2
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_branch_commit_budget.py",
+      "reference_count": 6,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
+      "path": "automation/validate_canonical_front_office_demo_data_contract.py",
+      "reference_count": 5,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/validate_container_build_baseline.py",
       "reference_count": 5,
       "suffix": ".py",
       "test_reference_count": 2
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 5,
+      "path": "automation/validate_deployment_promotion_manifest.py",
+      "reference_count": 8,
+      "suffix": ".py",
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -870,9 +943,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 6,
+      "operator_doc_reference_count": 7,
       "path": "automation/validate_engineering_context_system.py",
-      "reference_count": 13,
+      "reference_count": 14,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -886,27 +959,43 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 1,
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_lifecycle_authority_contracts.py",
+      "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/validate_lotus_skill_alignment.py",
+      "reference_count": 8,
+      "suffix": ".py",
+      "test_reference_count": 3
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_mainline_commit_provenance.py",
       "reference_count": 7,
       "suffix": ".py",
-      "test_reference_count": 3
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/validate_mesh_access_policies.py",
-      "reference_count": 9,
+      "reference_count": 11,
       "suffix": ".py",
-      "test_reference_count": 3
+      "test_reference_count": 4
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/validate_mesh_slo_policies.py",
-      "reference_count": 9,
+      "reference_count": 11,
       "suffix": ".py",
-      "test_reference_count": 3
+      "test_reference_count": 4
     },
     {
       "classification": "covered",
@@ -950,6 +1039,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_stacked_refactor_campaign_manifest.py",
+      "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_supported_claim_register.py",
       "reference_count": 4,
@@ -960,15 +1057,15 @@
       "classification": "covered",
       "operator_doc_reference_count": 4,
       "path": "automation/validate_trust_telemetry.py",
-      "reference_count": 10,
+      "reference_count": 11,
       "suffix": ".py",
       "test_reference_count": 1
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 1,
       "path": "automation/validate_workflow_action_runtime.py",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -989,6 +1086,6 @@
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-06-20T08:18:05Z",
-  "script_count": 123
+  "generated_at_utc": "2026-07-18T01:00:09Z",
+  "script_count": 135
 }
