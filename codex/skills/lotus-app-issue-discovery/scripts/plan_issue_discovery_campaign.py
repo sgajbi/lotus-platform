@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 PLATFORM_ROOT = Path(__file__).resolve().parents[4]
+CONTROL_CATALOG_PATH = (
+    PLATFORM_ROOT
+    / "platform-contracts"
+    / "bank-readiness"
+    / "bank-ready-control-catalog.v1.json"
+)
 
 
 PROFILE_LENSES = {
@@ -20,6 +27,8 @@ PROFILE_LENSES = {
         "lens/api-design-governance",
         "lens/api-documentation-standards",
         "lens/entitlements-tenant-isolation",
+        "lens/identity-access-management",
+        "lens/secure-development-threat-modeling",
         "lens/data-quality-reconciliation",
         "lens/environment-supply-chain-provenance",
     ],
@@ -30,6 +39,8 @@ PROFILE_LENSES = {
         "lens/api-documentation-standards",
         "lens/observability",
         "lens/operational-supportability",
+        "lens/incident-response",
+        "lens/vulnerability-management",
         "lens/testing-quality",
         "lens/performance-scalability",
         "lens/data-quality-reconciliation",
@@ -43,6 +54,7 @@ PROFILE_LENSES = {
         "lens/operational-supportability",
         "lens/capability-publication",
         "lens/operator-control-plane",
+        "lens/incident-response",
         "lens/customer-impact-failure-modes",
         "lens/environment-supply-chain-provenance",
     ],
@@ -52,6 +64,7 @@ PROFILE_LENSES = {
         "lens/downstream-integration",
         "lens/mapping-anti-corruption",
         "lens/entitlements-tenant-isolation",
+        "lens/identity-access-management",
         "lens/resilience",
         "lens/capability-publication",
         "lens/api-consumer-experience",
@@ -65,6 +78,7 @@ PROFILE_LENSES = {
         "lens/mobile-responsive-device-readiness",
         "lens/observability",
         "lens/entitlements-tenant-isolation",
+        "lens/identity-access-management",
         "lens/environment-supply-chain-provenance",
     ],
     "ai": [
@@ -78,6 +92,7 @@ PROFILE_LENSES = {
         "lens/ai-agent-tool-governance",
         "lens/entitlements-tenant-isolation",
         "lens/data-governance-privacy-lifecycle",
+        "lens/secure-development-threat-modeling",
         "lens/environment-supply-chain-provenance",
     ],
     "platform": [
@@ -87,8 +102,22 @@ PROFILE_LENSES = {
         "lens/agents-context-organization",
         "lens/documentation-runbooks",
         "lens/deployment-environment-parity",
+        "lens/secure-development-threat-modeling",
+        "lens/vulnerability-management",
+        "lens/incident-response",
         "lens/environment-supply-chain-provenance",
     ],
+}
+
+
+CATALOG_PROFILE_BY_DISCOVERY_PROFILE = {
+    "source-domain": "source-domain-service",
+    "analytics": "analytics-service",
+    "workflow": "workflow-service",
+    "gateway": "experience-api",
+    "workbench": "product-ui",
+    "ai": "ai-capability",
+    "platform": "platform-governance",
 }
 
 
@@ -121,10 +150,15 @@ HIGH_SIGNAL_HARDENING_LENSES = [
     "lens/evidence-proof-contracts",
     "lens/observability",
     "lens/security-privacy",
+    "lens/secure-development-threat-modeling",
+    "lens/identity-access-management",
+    "lens/container-runtime-hardening",
+    "lens/vulnerability-management",
     "lens/testing-quality",
     "lens/ci-release-evidence",
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
+    "lens/incident-response",
     "lens/ai-data-boundaries",
     "lens/ai-evaluation-quality",
     "lens/ai-safety-abuse-controls",
@@ -159,7 +193,22 @@ def infer_profile(repository: str) -> str:
     return REPO_PROFILE_HINTS.get(repo_name, "source-domain")
 
 
-def render_plan(repository: str, profile: str, limit: int | None) -> str:
+def load_bank_readiness_controls(profile: str) -> list[dict[str, object]]:
+    payload = json.loads(CONTROL_CATALOG_PATH.read_text(encoding="utf-8"))
+    catalog_profile = CATALOG_PROFILE_BY_DISCOVERY_PROFILE[profile]
+    return [
+        control
+        for control in payload["controls"]
+        if catalog_profile in control["applicable_profiles"]
+    ]
+
+
+def render_plan(
+    repository: str,
+    profile: str,
+    limit: int | None,
+    include_bank_readiness: bool = False,
+) -> str:
     labels_by_label = {label: name for name, label in catalog_labels()}
     first_lenses = PROFILE_LENSES[profile]
     if limit:
@@ -201,6 +250,27 @@ def render_plan(repository: str, profile: str, limit: int | None) -> str:
         for index, item in enumerate(DEPLOYABLE_IMAGE_PROVENANCE_CHECKLIST, start=1):
             lines.append(f"{index}. {item}.")
 
+    if include_bank_readiness:
+        controls = load_bank_readiness_controls(profile)
+        lines.extend(
+            [
+                "",
+                "## Bank-Readiness Control Queue",
+                "",
+                "- Catalog: `platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json`",
+                f"- Repository profile: `{CATALOG_PROFILE_BY_DISCOVERY_PROFILE[profile]}`",
+                "- Evidence rule: record actual evidence class; never infer runtime, deployment, or independent verification from source or CI proof.",
+                "- Issue rule: group by evidenced root cause; do not create one issue per control row.",
+                "",
+            ]
+        )
+        for control in controls:
+            lines.append(
+                f"- `{control['control_id']}` {control['title']} - minimum evidence "
+                f"`{control['minimum_evidence_class']}`; default posture "
+                f"`{control['default_enforcement_posture']}`."
+            )
+
     lines.extend(
         [
             "",
@@ -220,6 +290,11 @@ def main() -> int:
     parser.add_argument("--repository", required=True, help="GitHub repository in owner/name form.")
     parser.add_argument("--profile", choices=sorted(PROFILE_LENSES), help="Review profile. Defaults from repository name.")
     parser.add_argument("--limit", type=int, help="Limit the first lens queue.")
+    parser.add_argument(
+        "--include-bank-readiness",
+        action="store_true",
+        help="Include applicable BR-NNN controls and evidence boundaries for the repository profile.",
+    )
     parser.add_argument("--output", type=Path, help="Output markdown path. Defaults under output/.")
     args = parser.parse_args()
 
@@ -228,7 +303,10 @@ def main() -> int:
         PLATFORM_ROOT / "output" / f"{args.repository.rsplit('/', 1)[-1]}-issue-discovery-plan.md"
     )
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(render_plan(args.repository, profile, args.limit), encoding="utf-8")
+    output.write_text(
+        render_plan(args.repository, profile, args.limit, args.include_bank_readiness),
+        encoding="utf-8",
+    )
     print(f"Wrote {output}")
     return 0
 

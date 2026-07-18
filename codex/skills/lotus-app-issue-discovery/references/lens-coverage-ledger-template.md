@@ -80,6 +80,11 @@ Use `Y/N` proof flags:
 | Auditability and lineage | `lens/auditability-lineage` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Monitoring and observability | `lens/observability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Security and privacy | `lens/security-privacy` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Secure development lifecycle and threat modeling | `lens/secure-development-threat-modeling` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Identity, authentication, and authorization | `lens/identity-access-management` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Container and workload runtime hardening | `lens/container-runtime-hardening` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Vulnerability management and penetration-test readiness | `lens/vulnerability-management` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
+| Incident response | `lens/incident-response` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Resilience | `lens/resilience` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Performance and scalability | `lens/performance-scalability` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
 | Testing quality | `lens/testing-quality` | Not Started | - | Code:N Docs:N Dup:N Labels:N Ledger:Y | - | - | - |
@@ -132,6 +137,8 @@ Use `Y/N` proof flags:
 - Issues: #<number>, #<number>
 - Existing related issues reused: #<number>
 - Proof flags: Code:Y/N Docs:Y/N Dup:Y/N Labels:Y/N Ledger:Y/N
+- Bank-readiness control when applicable: `BR-NNN`; environment layer; status; maturity; actual
+  evidence class; owner
 - Code inspected:
   - `<path>`: <symbol/route/workflow>
 - Standards/docs consulted:

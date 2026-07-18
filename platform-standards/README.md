@@ -31,6 +31,7 @@ This folder is the reusable standards package for backend repositories.
 - `Repository-CI-Convergence-Gap-Audit.md`
 - `Container-Build-and-Image-Engineering-Standard.md`
 - `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
+- `LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
 
 ## Usage
 
@@ -60,7 +61,12 @@ Cross-application bank-buyable engineering posture:
    slice intake, exact proof boundary, live-API higher-lane evidence, and design-before-runtime
    modularity rules. Slice closure must also record merge method, post-merge validation, wiki or
    no-wiki decision, and branch cleanup evidence before the next slice starts.
-2. `../docs/standards/Endpoint Example Parity Standard.md`
+2. `LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
+   Operationalizes the standing contract through stable `BR-001` through `BR-025` control IDs,
+   local/CI/production expectations, evidence classes, maturity, ownership, progressive
+   enforcement, and bank-hosted deployment boundaries. The machine-readable authority is
+   `../platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json`.
+3. `../docs/standards/Endpoint Example Parity Standard.md`
    Requires certified response examples to match code-owned runtime serialization exactly, with
    narrowly declared normalizers for genuinely dynamic values.
 

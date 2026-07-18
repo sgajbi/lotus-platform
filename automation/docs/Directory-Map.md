@@ -87,6 +87,7 @@ This map organizes the automation directory by responsibility without changing s
 - `render_context_registries.py`
 - `validate_engineering_context_system.py`
 - `validate_heartbeat_contracts.py`
+- `validate_bank_readiness_control_catalog.py`
 - `run_heartbeat.py`
 - `heartbeat_sources.py`
 - `heartbeat_state.py`
