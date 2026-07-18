@@ -61,6 +61,34 @@ function Get-TaskStatusFromResult {
   return "LOST"
 }
 
+function Get-OwnedProcess {
+  param(
+    [object]$Entry,
+    [object]$Runtime
+  )
+
+  $process = Get-Process -Id $Entry.pid -ErrorAction SilentlyContinue
+  if (-not $process) {
+    return $null
+  }
+
+  $expectedStartedAt = Get-PropertyValue -Object $Runtime -Name "process_started_at"
+  if (-not $expectedStartedAt) {
+    return $process
+  }
+
+  try {
+    $expected = [DateTimeOffset]::Parse($expectedStartedAt).UtcDateTime
+    $actual = $process.StartTime.ToUniversalTime()
+    if ([Math]::Abs(($actual - $expected).TotalSeconds) -gt 5) {
+      return $null
+    }
+  } catch {
+    return $null
+  }
+  return $process
+}
+
 function Print-Status {
   param(
     [string]$RunStatePath,
@@ -85,18 +113,61 @@ function Print-Status {
 
   $updated = @()
   foreach ($entry in $entries) {
-    $proc = Get-Process -Id $entry.pid -ErrorAction SilentlyContinue
+    $profile = Get-PropertyValue -Object $entry -Name "profile"
+    $displayName = Get-PropertyValue -Object $entry -Name "display_name" -Default $(
+      if ($profile) { "profile/$profile" } else { "task/$($entry.runId)" }
+    )
+    $mode = Get-PropertyValue -Object $entry -Name "mode" -Default "profile"
+    $runtime = Get-PropertyValue -Object $entry -Name "runtime" -Default ([pscustomobject]@{
+      kind = "powershell"
+      runner = "automation/Run-Parallel-Tasks.ps1"
+      pid = $entry.pid
+    })
+    $proc = Get-OwnedProcess -Entry $entry -Runtime $runtime
     $expectedResultPath = $entry.expectedResultPath
     $latestResult = if ($expectedResultPath -and (Test-Path $expectedResultPath)) {
       $expectedResultPath
+    } elseif ($profile) {
+      Get-LatestResult -Profile $profile
     } else {
-      Get-LatestResult -Profile $entry.profile
+      $null
     }
     $status = Get-TaskStatusFromResult -ExpectedResultPath $expectedResultPath -Process $proc
+    $terminalExitCode = Get-PropertyValue -Object $entry -Name "terminal_exit_code"
+    $processTree = Get-PropertyValue -Object $entry -Name "process_tree"
+    $resultErrorSummary = $null
+    if ($expectedResultPath -and (Test-Path $expectedResultPath)) {
+      try {
+        $terminalResults = @(Get-Content $expectedResultPath -Raw | ConvertFrom-Json)
+        $failedTerminalResults = @($terminalResults | Where-Object { $_.exitCode -ne 0 })
+        $terminalExitCode = if ($failedTerminalResults.Count -gt 0) {
+          [int]($failedTerminalResults[0].exitCode)
+        } else {
+          0
+        }
+        $resultErrorSummary = @(
+          $terminalResults |
+            ForEach-Object { Get-PropertyValue -Object $_ -Name "error_summary" } |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        ) -join "; "
+        if ($terminalResults.Count -eq 1) {
+          $terminalProcessTree = $terminalResults[0].process_tree
+          if ($terminalProcessTree) {
+            $processTree = $terminalProcessTree
+          }
+        }
+      } catch {
+        $terminalExitCode = $null
+      }
+    }
     $legacyCorrelationRef = Get-PropertyValue -Object $entry -Name "correlationRef"
     $correlationRef = Get-PropertyValue -Object $entry -Name "correlation_ref" -Default $legacyCorrelationRef
     if (-not $correlationRef) {
-      $correlationRef = "$($entry.runId)-$($entry.profile)"
+      $correlationRef = if ($profile) {
+        "$($entry.runId)-$profile"
+      } else {
+        "$($entry.runId)-$displayName"
+      }
     }
     $legacyEngineeringTaskId = Get-PropertyValue -Object $entry -Name "engineeringTaskId"
     $engineeringTaskId = Get-PropertyValue -Object $entry -Name "engineering_task_id" -Default $legacyEngineeringTaskId
@@ -104,13 +175,8 @@ function Print-Status {
       $engineeringTaskId = "eng-task-$correlationRef"
     }
     $requestedAt = Get-PropertyValue -Object $entry -Name "requested_at" -Default (Get-PropertyValue -Object $entry -Name "requestedAt" -Default $entry.startedAt)
-    $runtime = Get-PropertyValue -Object $entry -Name "runtime" -Default ([pscustomobject]@{
-      kind = "powershell"
-      runner = "automation/Run-Parallel-Tasks.ps1"
-      pid = $entry.pid
-    })
     $scope = Get-PropertyValue -Object $entry -Name "scope" -Default ([pscustomobject]@{
-      profile = $entry.profile
+      profile = $profile
       maxParallel = $entry.maxParallel
     })
     $artifacts = Get-PropertyValue -Object $entry -Name "artifacts" -Default @(
@@ -134,6 +200,9 @@ function Print-Status {
       $endedAt = (Get-Date).ToString("s")
     }
     $errorSummary = Get-PropertyValue -Object $entry -Name "error_summary" -Default (Get-PropertyValue -Object $entry -Name "errorSummary")
+    if ($resultErrorSummary) {
+      $errorSummary = $resultErrorSummary
+    }
     if ($status -in @("FAILED", "TIMED_OUT", "LOST", "CANCELLED") -and -not $errorSummary) {
       $errorSummary = if ($status -eq "LOST") {
         "Process ended before the expected result artifact was written."
@@ -153,13 +222,17 @@ function Print-Status {
       correlation_ref = $correlationRef
       summary = Get-PropertyValue -Object $entry -Name "summary" -Default "Background run for task profile '$($entry.profile)'"
       pid = $entry.pid
-      profile = $entry.profile
+      profile = $profile
+      display_name = $displayName
+      mode = $mode
       maxParallel = $entry.maxParallel
       runId = $entry.runId
       started_at = Get-PropertyValue -Object $entry -Name "started_at" -Default $entry.startedAt
       startedAt = $entry.startedAt
       status = $status
       runtime = $runtime
+      process_tree = $processTree
+      terminal_exit_code = $terminalExitCode
       scope = $scope
       artifacts = $artifacts
       evidence_refs = $evidenceRefs
@@ -168,6 +241,7 @@ function Print-Status {
       error_summary = $errorSummary
       outLogPath = $entry.outLogPath
       errLogPath = $entry.errLogPath
+      jobSpecPath = Get-PropertyValue -Object $entry -Name "jobSpecPath"
       expectedResultPath = $entry.expectedResultPath
       expectedSummaryPath = $entry.expectedSummaryPath
       latestResult = $latestResult
@@ -183,10 +257,10 @@ function Print-Status {
   $persistedJson = if (@($persisted).Count -eq 0) {
     "[]"
   } else {
-    ConvertTo-Json -InputObject @($persisted) -Depth 5
+    ConvertTo-Json -InputObject @($persisted) -Depth 8
   }
   $persistedJson | Set-Content $RunStatePath
-  $updated | Sort-Object startedAt -Descending | Format-Table pid, profile, status, startedAt, latestResult -AutoSize
+  $updated | Sort-Object startedAt -Descending | Format-Table pid, display_name, status, startedAt, latestResult -AutoSize
 }
 
 if ($Watch) {
