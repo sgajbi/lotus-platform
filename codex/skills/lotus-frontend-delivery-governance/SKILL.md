@@ -110,38 +110,11 @@ Before editing frontend code, produce a short quality intake from the actual pro
 
 ## Contract-State Integrity
 
-Treat aggregate evidence, detail collections, and recovery controls as one contract-state model.
-Before implementation and review:
-
-1. compare every source count, total, posture, or summary with the detail rows or chart points used
-   to render it;
-2. do not infer a zero source scope from an empty loaded page, missing dated schedule, filtered
-   collection, or unavailable child dataset;
-3. distinguish and test at least these shapes when the contract permits them:
-   - zero aggregate with empty detail,
-   - non-zero aggregate with populated detail,
-   - non-zero aggregate with empty or unavailable detail,
-   - detail present while an aggregate or summary is unavailable;
-4. ensure badges, headlines, empty states, actions, exports, and supporting metrics cannot make
-   contradictory claims from the same response;
-5. use business language such as `Dated movement detail unavailable` or
-   `Actions exist in scope; the current worklist is unavailable`, not transport terms such as
-   `empty array`, `page boundary`, or `cache miss`;
-6. disable row-level actions or detailed exports when the required rows are absent while preserving
-   any source-backed aggregate evidence that remains safe to show.
-
-For every visible Retry, Refresh, Rerun, or Reload control:
-
-1. trace the full path through component state, query clients, shared API clients, HTTP response
-   caches, and in-flight request coalescing;
-2. prove the control reaches the authoritative source after an unavailable, degraded, partial, or
-   stale response instead of replaying the same cached envelope;
-3. preserve latest-request-wins semantics so a superseded slower response cannot overwrite or
-   recache newer evidence;
-4. add an unavailable-or-degraded-then-ready transition test and, when requests may overlap, a
-   deterministic stale-resolves-last race test;
-5. avoid global cache clearing when a request-key-scoped invalidation or refresh token provides a
-   safer reusable boundary.
+Treat aggregate evidence, loaded detail, and visible recovery controls as one contract-state model.
+Apply `Aggregate And Detail Evidence` and `Recovery Controls` from
+`references/private-banking-analytics-ui.md`. When review or runtime proof exposes a contradiction
+or false recovery, apply the matching patterns in
+`lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` and scan the bounded surface family.
 
 ## Bank-Buyable Default Bar
 

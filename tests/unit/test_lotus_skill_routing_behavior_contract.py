@@ -367,6 +367,44 @@ def test_backend_delivery_skill_blocks_agent_quality_regressions() -> None:
         assert required_text in backend_skill
 
 
+def test_delivery_skills_route_review_lessons_without_copying_reference_detail() -> None:
+    frontend_skill = _read(
+        ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md"
+    )
+    frontend_reference = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-frontend-delivery-governance"
+        / "references"
+        / "private-banking-analytics-ui.md"
+    )
+    backend_skill = _read(
+        ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
+    )
+    recovery_reference = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-backend-delivery-governance"
+        / "references"
+        / "source-boundary-and-recovery-patterns.md"
+    )
+    fix_forward = _read(ROOT / "context" / "playbooks" / "FIX-FORWARD-PATTERNS.md")
+
+    assert "references/private-banking-analytics-ui.md" in frontend_skill
+    assert "Aggregate And Detail Evidence" in frontend_reference
+    assert "Recovery Controls" in frontend_reference
+    assert "zero aggregate with empty detail" not in frontend_skill
+    assert "Aggregate And Detail Consistency Pattern" in fix_forward
+    assert "Recovery Reaches Authority Pattern" in fix_forward
+
+    assert "report-only near-threshold" in backend_skill
+    assert "Stateful Cleanup And Readiness Integrity Pattern" in backend_skill
+    assert "Database Disaster-Recovery Certification" in backend_skill
+    assert "Database Disaster-Recovery Certification" in recovery_reference
+
+
 def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
     ci_skill = _read(ROOT / "codex" / "skills" / "lotus-ci-enforcement-governance" / "SKILL.md")
 

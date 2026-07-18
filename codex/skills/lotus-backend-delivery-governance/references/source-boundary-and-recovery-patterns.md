@@ -10,6 +10,7 @@ operator controls.
 2. Tenant-aware downstream source adapters
 3. Shared dependency problem-details preservation
 4. Dead-letter inspection and redrive
+5. Database disaster-recovery certification
 
 ## Typed Lifecycle And Audit Payloads
 
@@ -64,3 +65,24 @@ migration/index, restart, and replay path against the real repository technology
 dry-runs and fake adapters are not sufficient database proof. Improve this as an internal bounded
 module first; add a separately deployed recovery service only when workload, failure-isolation,
 ownership, or operability evidence justifies it.
+
+## Database Disaster-Recovery Certification
+
+Do not treat migration rollback, repository replay, queue re-drive, synthetic smoke, or a logical
+dump as production database disaster-recovery certification. Define a versioned service-owned
+recovery contract that names RPO/RTO, protected tables, backup/PITR strategy, retention and
+legal-hold boundary, residency, encryption/access controls, ownership, escalation, cadence, and
+remaining approval blockers.
+
+Keep provider backup infrastructure outside the service while implementing a read-only
+restored-database validator behind a port, a real clean-target restore drill, source-safe
+counts/hashes and invariant evidence, and a post-restore resume proof for idempotency, leases,
+outbox/downstream non-duplication, and lineage. Measure readiness after validation rather than
+accepting a caller-declared ready time; distinguish logical restore evidence from physical
+base-backup plus WAL/PITR evidence.
+
+Block readiness and every durable write while posture is draining, restoring, degraded, or
+invalid, and require an authorized cutover/rollback runbook. Exercise catalog queries, constraints,
+indexes, relationships, state invariants, and resume behavior against the real database. Scheduled
+attested evidence may support the claim, but production certification remains blocked until an
+approved provider topology and a real PITR/failover exercise exist.
