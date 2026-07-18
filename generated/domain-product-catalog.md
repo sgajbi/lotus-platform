@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `84`
+- Product count: `85`
 - Dependency count: `66`
 
 ## Products
@@ -56,6 +56,7 @@ This file is generated from governed domain-data-product declarations.
 | `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
 | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
 | `PortfolioMaturitySummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise, lotus-idea | /portfolios/{portfolio_id}/maturity-summary |
+| `PortfolioPartyRoleAssignment` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-gateway, lotus-workbench, lotus-manage | /integration/portfolios/{portfolio_id}/party-role-assignments |
 | `PortfolioRealizedTaxSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/realized-tax-summary |
 | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `simulation_and_projected_state` | `active` | lotus-gateway, lotus-advise, lotus-manage, lotus-risk, lotus-idea | /integration/portfolios/{portfolio_id}/core-snapshot |
 | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/tax-lots |

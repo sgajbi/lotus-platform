@@ -83,7 +83,7 @@
       }
     ]
   },
-  "product_count": 84,
+  "product_count": 85,
   "dependency_count": 66,
   "repository_count": 7,
   "repositories": [
@@ -94,7 +94,7 @@
     },
     {
       "repository": "lotus-core",
-      "produced_product_count": 47,
+      "produced_product_count": 48,
       "consumed_dependency_count": 0
     },
     {
@@ -3019,7 +3019,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "intraday",
-        "max_allowed_age_description": "PM-book membership is resolved on demand from current portfolio master state for the requested as-of date."
+        "max_allowed_age_description": "PM-book membership is resolved on demand from effective party-role assignments, with a bounded legacy projection for unmigrated portfolios."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -3085,7 +3085,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "daily",
-        "max_allowed_age_description": "Core-owned maturity posture summary over HoldingsAsOf instrument maturity facts for a bounded horizon."
+        "max_allowed_age_description": "Core-owned booked maturity posture over exact HoldingsAsOf portfolio-day/epoch scopes; current trust requires complete reconciliation at or after the latest selected source evidence."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -3106,6 +3106,74 @@
       ],
       "current_routes": [
         "/portfolios/{portfolio_id}/maturity-summary"
+      ],
+      "deprecation_policy": {
+        "state": "not_deprecated",
+        "successor_product": null
+      },
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json"
+    },
+    {
+      "product_id": "lotus-core:PortfolioPartyRoleAssignment:v1",
+      "product_name": "PortfolioPartyRoleAssignment",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "owner_repository": "lotus-core",
+      "authoritative_domain": "portfolio_management",
+      "product_family": "dpm_source_data",
+      "lifecycle_status": "active",
+      "request_scope": {
+        "scope_level": "portfolio",
+        "supports_bulk": false
+      },
+      "temporal_scope": {
+        "primary_time_field": "as_of_date",
+        "freshness_basis": "observed_at",
+        "supports_restatement": true
+      },
+      "temporal_semantics_ref": "as_of_date",
+      "identifier_refs": [
+        "portfolio_id",
+        "tenant_id"
+      ],
+      "required_trust_metadata": [
+        "product_name",
+        "product_version",
+        "tenant_id",
+        "generated_at",
+        "as_of_date",
+        "restatement_version",
+        "reconciliation_status",
+        "data_quality_status",
+        "latest_evidence_timestamp",
+        "source_batch_fingerprint",
+        "snapshot_id",
+        "content_hash",
+        "policy_version",
+        "correlation_id"
+      ],
+      "freshness_policy": {
+        "freshness_class": "intraday",
+        "max_allowed_age_description": "Latest source version is resolved on demand and carries its authoritative observation timestamp."
+      },
+      "completeness_policy": {
+        "default_status": "complete",
+        "partial_allowed": false
+      },
+      "lineage_policy": {
+        "lineage_required": true,
+        "evidence_bundle_required": true,
+        "evidence_access_class_ref": "customer_consumable",
+        "lineage_bundle_class_ref": "customer_lineage_summary"
+      },
+      "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
+      "approved_consumers": [
+        "lotus-gateway",
+        "lotus-workbench",
+        "lotus-manage"
+      ],
+      "current_routes": [
+        "/integration/portfolios/{portfolio_id}/party-role-assignments"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
