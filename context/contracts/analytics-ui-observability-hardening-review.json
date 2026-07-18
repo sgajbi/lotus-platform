@@ -12,7 +12,7 @@
     {
       "area": "panel states",
       "status": "passed",
-      "evidence": "Certified Workbench route groups are validated against workbench-panel-registry and rollout readiness; the evidence panel remains certified_partial."
+      "evidence": "Certified Workbench route groups are validated against workbench-panel-registry and rollout readiness; the evidence, advisor-book, and report-centre panels remain certified_partial with explicit residual scope."
     },
     {
       "area": "api and swagger certification",
@@ -49,8 +49,10 @@
     "source_contract": "analytics-ui-observability-contract",
     "source_registry": "workbench-panel-registry",
     "certified_route_groups_reviewed": [
+      "/book?asOfDate={canonicalAsOfDate}",
       "/portfolio?portfolioId={portfolio_id}",
       "/portfolio?portfolioId={portfolio_id}&tab=detailed",
+      "/reports?portfolioId={portfolioId}",
       "/performance?portfolioId={portfolio_id}",
       "/performance?portfolioId={portfolio_id}&mode=analysis",
       "/performance?portfolioId={portfolio_id}&mode=advisor",

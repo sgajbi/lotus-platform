@@ -14,6 +14,62 @@
   "canonical_data_contract": "canonical-front-office-demo-data-contract",
   "panels": [
     {
+      "panel_id": "advisor.book_overview",
+      "display_name": "My Book",
+      "screen_id": "advisor.book_overview",
+      "route": "/book?asOfDate={canonicalAsOfDate}",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-gateway",
+      "gateway_endpoint": "/api/v1/advisor-book/portfolios",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "partial",
+      "allowed_states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "permission_blocked",
+        "unavailable",
+        "error"
+      ],
+      "validation_rules": {
+        "ready": [
+          "the advisor's assigned portfolios render through Gateway",
+          "portfolio identity and assignment basis remain source-owned",
+          "portfolio context switching preserves the selected advisor task"
+        ],
+        "partial": [
+          "own-book scope and any Gateway-reported assignment limitations remain explicit",
+          "delegated, team, and supervisor coverage is not inferred"
+        ],
+        "empty": [
+          "absence of assigned portfolios is explicit for the authenticated advisor context"
+        ],
+        "loading": ["advisor-book route hydration only"],
+        "permission_blocked": [
+          "missing or ineligible advisor authority is explicit without exposing portfolio membership"
+        ],
+        "unavailable": [
+          "Gateway advisor-book unavailability is explicit and no global portfolio catalogue is substituted"
+        ],
+        "error": ["Gateway advisor-book failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "advisor-book-overview-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [
+        "own-book scope only; delegated, team, and supervisor scope are not supported",
+        "tenant context and legacy assignment limitations remain visible when reported by Gateway"
+      ],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
       "panel_id": "portfolio.summary",
       "display_name": "Portfolio Summary",
       "screen_id": "portfolio.summary",
@@ -75,6 +131,62 @@
       "evidence_required": true,
       "methodology_reference": null,
       "known_limitations": [],
+      "out_of_scope_reason": null,
+      "owner_follow_up_rfc": null
+    },
+    {
+      "panel_id": "reporting.report_centre",
+      "display_name": "Report Centre",
+      "screen_id": "reporting.report_centre",
+      "route": "/reports?portfolioId={portfolioId}",
+      "panel_kind": "workflow_panel",
+      "panel_level": "panel",
+      "parent_panel_id": null,
+      "owning_service": "lotus-report",
+      "gateway_endpoint": "/api/v1/report-ordering/options",
+      "canonical_data_contract": "canonical-front-office-demo-data-contract",
+      "required_support_state": "partial",
+      "allowed_states": [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "permission_blocked",
+        "unavailable",
+        "error"
+      ],
+      "validation_rules": {
+        "ready": [
+          "eligible report families and portfolio configuration render through Gateway",
+          "format availability and configuration dependencies remain source-owned",
+          "submission and request history distinguish report data from archive and client delivery"
+        ],
+        "partial": [
+          "available structured report data remains usable while unavailable document formats are explicit",
+          "book, client-delivery, archive, and approval limitations are not promoted as supported"
+        ],
+        "empty": [
+          "absence of eligible report families is explicit for the selected portfolio context"
+        ],
+        "loading": ["report-centre route hydration only"],
+        "permission_blocked": [
+          "report-ordering authority or portfolio eligibility restrictions are explicit without exposing restricted catalogue choices"
+        ],
+        "unavailable": [
+          "Gateway report-ordering unavailability is explicit and no browser-authored catalogue is substituted"
+        ],
+        "error": ["Gateway report-ordering failure is explicit and user-visible"]
+      },
+      "screenshot_policy": {
+        "capture_required": true,
+        "screenshot_name": "reporting-report-centre-live.png"
+      },
+      "evidence_required": true,
+      "methodology_reference": null,
+      "known_limitations": [
+        "structured report data is available while governed PDF creation remains independently source-owned",
+        "report-data completion does not claim archive, advisor approval, client delivery, or communication"
+      ],
       "out_of_scope_reason": null,
       "owner_follow_up_rfc": null
     },
