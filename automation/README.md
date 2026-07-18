@@ -76,6 +76,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/heartbeat_sources.py`
 - `automation/heartbeat_state.py`
 - `automation/validate_heartbeat_contracts.py`
+- `automation/validate_bank_readiness_control_catalog.py`
 - `automation/validate_deployment_promotion_manifest.py`
 - `automation/heartbeat-config.json`
 - `automation/service-map.json`
@@ -217,6 +218,19 @@ For deterministic local or GitHub proof, pass explicit generation metadata:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Run-Heartbeat.ps1 -GeneratedAtUtc 2026-04-21T00:00:00Z -Branch feature/rfc0095-heartbeat-monitoring
 ```
+
+## Bank-Readiness Control Catalog
+
+Validate the versioned control catalog before relying on it for repository assessment or issue
+discovery:
+
+```powershell
+python automation/validate_bank_readiness_control_catalog.py
+```
+
+The catalog is the machine-readable authority for stable control identifiers, evidence classes,
+repository applicability, and enforcement posture. The implementation playbook explains how to use
+those controls without duplicating their definitions.
 
 The runner reads `automation/heartbeat-config.json` and writes:
 

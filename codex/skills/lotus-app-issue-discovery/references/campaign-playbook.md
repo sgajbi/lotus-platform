@@ -128,6 +128,8 @@ the stopped reason in the ledger so the user understands why more issues were no
 For every candidate finding, assemble this packet before filing:
 
 - Lens and canonical `lens/*` label.
+- Bank-readiness control when applicable: stable `BR-NNN`, repository profile, environment layer,
+  status, maturity, actual evidence class, and owner from the platform control catalog.
 - Standard: docs KB page, platform standard, repo context, RFC, contract, public standard, or accepted
   domain practice.
 - Evidence: exact files, symbols, routes, contracts, migrations, workflows, tests, or runtime output.
@@ -143,6 +145,16 @@ For every candidate finding, assemble this packet before filing:
 
 Do not file if evidence or duplicate search is missing. Do not file style preferences, future product
 ideas, or broad refactoring wishes without a specific failing behavior.
+
+For a bank-ready or procurement-oriented campaign, run:
+
+```powershell
+python <skill-dir>\scripts\plan_issue_discovery_campaign.py --repository <owner>/<repo> --include-bank-readiness
+```
+
+The control-aware plan is an applicability and evidence-routing aid. It must not create one issue
+per control, promote status from prose, or infer runtime/deployment/production proof from source or
+CI evidence.
 
 Before filing, ask this final gate:
 
@@ -262,6 +274,8 @@ After every lens pass, add a compact ledger comment with:
 - duplicate search queries and result summary,
 - active-fix blockers,
 - residual risk,
+- stable `BR-NNN`, environment layer, status, maturity, actual evidence class, and owner when the
+  pass is bank-readiness scoped,
 - next suggested lens.
 - recommendation: continue this app, wait for active fixes, or move to another app.
 - coverage posture: continue, pause for implementation, recheck after merge, or move app.

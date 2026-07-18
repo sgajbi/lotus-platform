@@ -55,6 +55,11 @@ target repository before filing the issue. Keep the `lens/` prefix stable across
 | Auditability and lineage | `lens/auditability-lineage` |
 | Monitoring and observability | `lens/observability` |
 | Security and privacy | `lens/security-privacy` |
+| Secure development lifecycle and threat modeling | `lens/secure-development-threat-modeling` |
+| Identity, authentication, and authorization | `lens/identity-access-management` |
+| Container and workload runtime hardening | `lens/container-runtime-hardening` |
+| Vulnerability management and penetration-test readiness | `lens/vulnerability-management` |
+| Incident response | `lens/incident-response` |
 | Resilience | `lens/resilience` |
 | Performance and scalability | `lens/performance-scalability` |
 | Testing quality | `lens/testing-quality` |
@@ -142,6 +147,11 @@ Use these cross-cutting labels when useful:
 | Auditability and lineage | audit records, source batch, correlation IDs, evidence fingerprints | missing source identity, raw payload retention, no correlation chain across event/API/DB |
 | Monitoring and observability | structured logs, metrics, traces, health/readiness, diagnostics, alert rules, dashboards, SLO/error-budget evidence | raw logging, sensitive labels, missing route templates, health not dependency-aware, no alert/dashboard path for critical failures |
 | Security and privacy | authn/authz, CORS, headers, secrets, sensitive data, API abuse controls | missing authorization boundaries, unsafe CORS, secret leakage, raw exception exposure |
+| Secure development lifecycle and threat modeling | threat models, data flows, trust boundaries, abuse cases, security acceptance criteria, negative tests, expiring exceptions | material feature has no threat review, trust boundary is undocumented, abuse case lacks a mitigation/test, exception has no owner or expiry |
+| Identity, authentication, and authorization | identity architecture, OIDC/OAuth/workload identity, server-side policies, object/tenant/portfolio scope, privileged action audit | UI-only authorization, production-enablable local bypass, wrong-scope access, shared long-lived service credentials, unaudited privilege change |
+| Container and workload runtime hardening | production Docker stage, base image, runtime user, capabilities, filesystem, resource limits, network/egress, built-image entrypoint/assets | root runtime, mutable or bloated image, leaked build secret, missing worker asset, broad privilege, absent shutdown/health smoke |
+| Vulnerability management and penetration-test readiness | SAST/SCA/container findings, SBOM-to-version mapping, severity policy, exception expiry, disclosure path, external-test scope and retest evidence | scanner installed but unenforced, finding lacks owner/version, permanent suppression, pen-test claim without scope/retest evidence |
+| Incident response | severity and escalation model, alerts, containment, rollback, credential rotation, evidence preservation, reconciliation, post-incident actions | alert has no owner/runbook, no containment or reconciliation path, unsafe diagnostic collection, corrective actions remain chat-only |
 | Resilience | timeouts, retries, backoff, circuit breaking, graceful degradation | unbounded retries, no timeout budget, inconsistent downstream error mapping |
 | Performance and scalability | indexes, query shape, batching, pagination, caching, connection pooling | N+1 queries, unbounded scans, missing indexes, repeated expensive processing |
 | Testing quality | unit, integration, contract, API, security, regression, e2e, test taxonomy | mock-only tests, missing contract tests, no edge cases, weak mapper/lifecycle/calculation golden tests |
@@ -258,6 +268,8 @@ order when a repo has an active incident, ongoing fix branch, or user-prioritize
 5. Product/domain lenses: vocabulary, calculations, methodology, transaction lifecycle, position lifecycle.
 6. Reliability lenses: events/outbox, resilience, performance/scalability, monitoring/observability, operational supportability.
 7. Security/privacy, configuration/secrets, testing quality, CI/release evidence, documentation/wiki/README/runbooks.
+   When bank readiness is in scope, include threat modeling, identity/access, container runtime,
+   vulnerability lifecycle, and incident response as distinct review families.
 8. Repo organization, remote repository hygiene, and agents/context organization where layout,
    generated-artifact policy, remote branch/repo metadata, agent onboarding, or skill-routing
    discoverability affects future implementation quality.
@@ -290,6 +302,12 @@ points, not exemptions from the baseline queue.
 | AI capability service or AI-backed app surface such as `lotus-ai` or any app using LLMs, embeddings, retrieval, classification, recommendations, or agentic tools | AI model governance, AI data boundaries, AI evaluation quality, AI explainability/audit, AI safety/abuse controls, AI human oversight, AI cost/latency/reliability, AI agent tool governance, entitlements/tenant isolation, data governance/privacy lifecycle |
 | Platform/governance repository such as `lotus-platform` | CI/release evidence, standards/contracts, scaffold drift, repo organization, skill/context routing, agents/context organization, validation automation, docs/wiki truth |
 
+For bank-ready or procurement-oriented campaigns, generate the control-aware queue with
+`scripts/plan_issue_discovery_campaign.py --repository <owner>/<repo> --include-bank-readiness`.
+The queue maps stable `BR-001` through `BR-025` controls to the selected repository profile. Use the
+control ID in the ledger and issue body, but still file one issue per root cause rather than one
+issue per checklist row.
+
 For any profile, verify the app's current `REPOSITORY-ENGINEERING-CONTEXT.md` before filing. If the
 profile and repo context disagree, use repo context as the ownership boundary and record the
 conflict in the ledger.
@@ -308,6 +326,9 @@ A lens pass is complete for the current campaign depth only when all of these ar
    `ledger-only residual risk`, or `no issue`;
 6. the ledger records the status, proof flags, inspected paths, duplicate searches, issues
    raised/reused, residual risk, and next lens.
+7. bank-ready findings also record the stable `BR-NNN` control, environment layer (`local`, `ci`,
+   `production`, or `recovery`), actual evidence class, status, maturity, and owner without implying
+   certification from lower-class evidence.
 
 Do not mark `Covered For Now` when only a search was run, when the current active branch may change
 the evidence, or when a broad issue was filed but representative inspection is still incomplete.
@@ -354,6 +375,11 @@ each issue, then mention secondary lenses in the issue body when helpful.
 | "logging, tracing, monitoring" | `lens/observability`, `lens/operational-supportability` | structured logs, metrics, trace propagation, route templates, health/readiness, runbooks |
 | "monitoring, alerts, dashboards, metrics, SLOs" | `lens/observability`, `lens/operational-supportability` | metric contracts, alert rules, dashboards, SLO/error-budget evidence, runbooks, health/readiness behavior |
 | "security, vulnerabilities, auth, CORS, headers, secrets" | `lens/security-privacy`, `lens/configuration-secrets`, `lens/http-boundary-controls` | authn/authz, secret handling, config defaults, sensitive data exposure, abuse controls |
+| "secure development lifecycle", "threat model", "trust boundary", "abuse case", "security acceptance criteria" | `lens/secure-development-threat-modeling`, `lens/security-privacy` | threat model, data flow, assets, actors, boundaries, abuse cases, mitigations, negative tests, exception expiry |
+| "identity", "authentication", "OIDC", "OAuth", "workload identity", "production auth bypass" | `lens/identity-access-management`, `lens/entitlements-tenant-isolation` | identity architecture, policy enforcement, local-bypass isolation, role/scope matrix, allow/deny/expiry tests, privileged audit |
+| "container hardening", "non-root", "read-only filesystem", "capabilities", "pod security", "runtime image" | `lens/container-runtime-hardening`, `lens/environment-supply-chain-provenance`, `lens/deployment-environment-parity` | final image user/assets, security context, capabilities, filesystem, resources, egress, image scan, startup/shutdown smoke |
+| "vulnerability management", "penetration test", "security finding", "remediation SLA", "exception expiry" | `lens/vulnerability-management`, `lens/dependency-hygiene`, `lens/security-privacy` | finding/version mapping, severity/exploitability, owner/due date, exception expiry, external-test scope, retest evidence |
+| "incident response", "containment", "post incident", "root cause analysis", "evidence preservation" | `lens/incident-response`, `lens/support-escalation-workflows`, `lens/operational-supportability` | severity model, alert/runbook, contacts, containment/rollback/rotation, reconciliation, evidence, corrective-action tracker |
 | "database operations, indexes, performance" | `lens/database-operations`, `lens/performance-scalability`, `lens/data-model-quality` | migrations, query paths, indexes/constraints, hot filters/sorts, pooling/timeouts |
 | "domain modeling and private banking vocabulary" | `lens/domain-vocabulary`, `lens/domain-layer`, `lens/data-model-quality` | API/model/field names, status/state terms, docs vocabulary, product taxonomy alignment |
 | "transactions, lifecycle handling, positions" | `lens/transaction-lifecycle`, `lens/position-lifecycle`, `lens/data-model-quality` | linked legs, cash/security side, corrections/reversals, settlements, corporate actions, lots, availability |
@@ -437,6 +463,7 @@ Use these anchors to make issues practical:
 | Dead-code/duplication | stale or duplicate path plus evidence that it is still imported, tested, published, or confusing ownership |
 | Dependency hygiene | dependency declaration or scanner path plus import/runtime/CI evidence that the dependency posture matters |
 | Enterprise readiness | entitlement policy, regulated-record control, deployment manifest, DR/runbook proof, SLO/capacity/cost evidence, rollout/rollback contract, operator control, privacy lifecycle, license/IP evidence, market-convention tests, support escalation, vendor-risk contract, accessibility/usability proof, data-quality/reconciliation proof, migration/backfill proof, SBOM/provenance evidence, OCI image metadata/version endpoint parity proof, or API/mobile consumer proof |
+| Bank-readiness control | stable `BR-NNN` identifier, applicable repository profile, local/CI/production or recovery gap, actual evidence class, status, maturity, owner, and non-certification boundary |
 | AI readiness | model registry/config, prompt/retrieval data path, eval artifact, source/citation trace, safety/adversarial test, human approval workflow, cost/latency budget, or tool permission/action-log proof |
 
 ## Lens-Specific Search Starters
@@ -516,6 +543,14 @@ rg -n "transaction_type|settlement|correction|reversal|cancel|corporate|split|di
 rg -n "logging|getLogger|print\\(|metrics|Counter|Histogram|trace|correlation|CORS|secret|token|Authorization|auth|password|headers" src tests --glob "*.py"
 ```
 
+### Bank-Readiness Control System
+
+```powershell
+python <lotus-platform>\automation\validate_bank_readiness_control_catalog.py
+python <skill-dir>\scripts\plan_issue_discovery_campaign.py --repository <owner>/<repo> --include-bank-readiness
+rg -n "threat model|trust boundary|OIDC|OAuth|workload identity|non-root|read-only|capabilities|penetration|vulnerability|incident|containment|RPO|RTO|SBOM|provenance|rollback" README.md docs wiki src tests contracts deploy .github Dockerfile* --glob "*.md" --glob "*.py" --glob "*.json" --glob "*.yml" --glob "*.yaml"
+```
+
 ### Resilience And Performance
 
 ```powershell
@@ -575,7 +610,9 @@ Search GitHub with both broad and specific terms:
 
 - broad lens terms: `architecture`, `mapping`, `outbox`, `idempotency`, `pagination`,
   `OpenAPI`, `Swagger`, `duplicate endpoint`, `stale branch`, `repo description`, `tenant`,
-  `DR`, `SLO`, `rollback`, `accessibility`, `AI evaluation`, `prompt injection`, `model governance`
+  `DR`, `SLO`, `rollback`, `threat model`, `workload identity`, `container hardening`,
+  `vulnerability management`, `incident response`, `accessibility`, `AI evaluation`,
+  `prompt injection`, `model governance`
 - concrete symbols: function/class/route/topic/table names
 - issue-family terms: `boundary`, `contract`, `lifecycle`, `supportability`, `lineage`
 

@@ -11,6 +11,16 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 PLATFORM_ROOT = Path(__file__).resolve().parents[4]
 OUTPUT_JSON = PLATFORM_ROOT / "output" / "issue-discovery-skill-validation.json"
 OUTPUT_MD = PLATFORM_ROOT / "output" / "issue-discovery-skill-validation.md"
+CONTROL_CATALOG_RELATIVE_PATH = (
+    "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json"
+)
+REQUIRED_BANK_READINESS_LENSES = {
+    "lens/secure-development-threat-modeling",
+    "lens/identity-access-management",
+    "lens/container-runtime-hardening",
+    "lens/vulnerability-management",
+    "lens/incident-response",
+}
 
 
 @dataclass
@@ -92,6 +102,18 @@ def validate() -> list[Finding]:
                 )
             )
 
+    missing_bank_lenses = sorted(REQUIRED_BANK_READINESS_LENSES - review_lens_labels)
+    if missing_bank_lenses:
+        findings.append(
+            Finding(
+                "high",
+                "bank-readiness-lens-missing",
+                "Required bank-readiness lenses missing from the review catalog: "
+                + ", ".join(missing_bank_lenses),
+                str(SKILL_ROOT / "references" / "review-lenses.md"),
+            )
+        )
+
     skill_text = read_text(SKILL_ROOT / "SKILL.md")
     for script_name in [
         "ensure_issue_discovery_labels.py",
@@ -105,6 +127,41 @@ def validate() -> list[Finding]:
                     "script-undiscoverable",
                     f"SKILL.md does not mention {script_name}.",
                     str(SKILL_ROOT / "SKILL.md"),
+                )
+            )
+
+    for required_reference in (
+        CONTROL_CATALOG_RELATIVE_PATH,
+        "LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md",
+        "--include-bank-readiness",
+    ):
+        if required_reference not in skill_text:
+            findings.append(
+                Finding(
+                    "high",
+                    "bank-readiness-routing-missing",
+                    f"SKILL.md does not route through {required_reference}.",
+                    str(SKILL_ROOT / "SKILL.md"),
+                )
+            )
+
+    planner_text = read_text(SKILL_ROOT / "scripts" / "plan_issue_discovery_campaign.py")
+    for required_planner_contract in (
+        "--include-bank-readiness",
+        "CATALOG_PROFILE_BY_DISCOVERY_PROFILE",
+        "minimum_evidence_class",
+    ):
+        if required_planner_contract not in planner_text:
+            findings.append(
+                Finding(
+                    "high",
+                    "bank-readiness-planner-missing",
+                    f"Campaign planner does not preserve {required_planner_contract}.",
+                    str(
+                        SKILL_ROOT
+                        / "scripts"
+                        / "plan_issue_discovery_campaign.py"
+                    ),
                 )
             )
 

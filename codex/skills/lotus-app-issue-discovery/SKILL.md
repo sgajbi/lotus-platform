@@ -36,7 +36,10 @@ For substantial review work, load the smallest correct context set in this order
 7. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
 8. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend lenses
 9. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-10. relevant sibling `docs` repo knowledge-base pages, target repo RFCs, README, wiki source,
+10. `lotus-platform/platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
+    and `lotus-platform/platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json` when
+    bank readiness, procurement evidence, production posture, or enterprise-wide controls are in scope
+11. relevant sibling `docs` repo knowledge-base pages, target repo RFCs, README, wiki source,
     supported-feature material, OpenAPI output, contracts, tests, or runtime evidence for the lens
 
 Use repo-local truth for ownership. Use platform standards and the docs knowledge base for the
@@ -50,8 +53,8 @@ standard library when it is present in the workspace.
 Read these bundled references as needed:
 
 - `references/review-lenses.md`: canonical lenses, labels, extension-lens acceptance criteria,
-  evaluation conditions, user-prompt mapping, search starters, duplicate keywords, and severity
-  calibration.
+  evaluation conditions, stable bank-readiness control routing, user-prompt mapping, search
+  starters, duplicate keywords, and severity calibration.
 - `references/campaign-playbook.md`: start/resume procedure, autopilot rules, evidence packets,
   active-fix handling, issue filing, ledger updates, time boxes, move-app decisions, and skill/KB
   improvement routing.
@@ -61,7 +64,8 @@ Read these bundled references as needed:
 Use `scripts/ensure_issue_discovery_labels.py` before filing or relabeling issues. Use
 `scripts/validate_issue_discovery_skill.py` after changing the lens catalog, labels, or ledger
 template. Use `scripts/plan_issue_discovery_campaign.py` to generate a repeatable repo/profile
-campaign plan before broad reviews or app handoffs.
+campaign plan before broad reviews or app handoffs. Add `--include-bank-readiness` when the review
+must map findings to the platform `BR-001` through `BR-025` catalog.
 
 ## Discovery-To-Delivery Handoff
 
@@ -160,6 +164,10 @@ Assemble this packet before creating or updating an issue:
 - `Non-goals`: adjacent rewrites, service splits, or product decisions not required for the first
   fix.
 - `Recheck trigger`: PR, branch, issue, or runtime evidence that should revisit the lens.
+
+For bank-readiness findings, also include the stable control ID, repository profile, environment
+layer, status, maturity, actual evidence class, owner, and explicit non-certification boundary.
+Never use one control row as a reason to file one issue; file one issue per evidenced root cause.
 
 For stateful behavior, also include authoritative identity, lifecycle state, persistence owner,
 idempotency, conflict, replay, retry, audit, lineage, retention, restart, scale-out, concurrency,
