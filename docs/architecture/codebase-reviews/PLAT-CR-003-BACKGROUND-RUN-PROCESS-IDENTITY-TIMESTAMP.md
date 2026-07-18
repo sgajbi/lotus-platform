@@ -27,6 +27,19 @@ The focused regression launches a hidden live sleeper, writes its start identity
 JSON ledger boundary, runs `Check-Background-Runs.ps1`, and requires `RUNNING` with no terminal time
 or error. The adjacent wrong-start-time test continues to require `LOST`.
 
+## Exact Runtime Proof
+
+After the fix, repository-native task
+`eng-task-20260718-111112-lotus-core-make-profile-derived-state-fan-in` launched hidden runner PID
+`39596` and target PID `49928` against clean `lotus-core` source
+`31ac198a43d0263940ee3c349caffd88ee521155`. Immediate reconciliation retained `RUNNING` instead of
+misclassifying the live process as `LOST`. Terminal reconciliation then recorded `SUCCEEDED`, exit
+code `0`, no error summary, and the required fresh artifact
+`output/task-runs/20260718T031229Z-bank-day-load.json`.
+
+This proves the JSON-deserialized timestamp path at both live and terminal boundaries using the
+same typed repository-native launcher that exposed the defect.
+
 ## Compatibility And Documentation Decision
 
 No ledger schema, task ID, launcher CLI, target execution, artifact contract, or GitHub workflow
