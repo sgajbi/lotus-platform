@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 96,
-  "edge_count": 326,
+  "node_count": 97,
+  "edge_count": 330,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -458,6 +458,16 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioPartyRoleAssignment:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioPartyRoleAssignment:v1",
+      "product_name": "PortfolioPartyRoleAssignment",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "dpm_source_data",
       "lifecycle_status": "active"
     },
     {
@@ -1416,6 +1426,21 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioMaturitySummary:v1",
       "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioPartyRoleAssignment:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioPartyRoleAssignment:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioPartyRoleAssignment:v1",
+      "to": "repo:lotus-workbench"
     },
     {
       "edge_type": "approves_consumer",
@@ -2760,6 +2785,11 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:PortfolioMaturitySummary:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioPartyRoleAssignment:v1"
     },
     {
       "edge_type": "produces",

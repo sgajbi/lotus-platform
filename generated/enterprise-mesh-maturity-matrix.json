@@ -28,7 +28,7 @@
   },
   "summary": {
     "repository_count": 11,
-    "product_count": 84,
+    "product_count": 85,
     "certified_first_wave_product_count": 8,
     "candidate_product_count": 0,
     "ambiguous_repository_count": 0
@@ -50,7 +50,7 @@
       "classification": "certified_first_wave",
       "mesh_role": "producer",
       "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
-      "produced_product_count": 47,
+      "produced_product_count": 48,
       "first_wave_product_count": 2,
       "consumed_dependency_count": 0,
       "repo_native_status": "implemented",
@@ -658,6 +658,17 @@
     {
       "product_id": "lotus-core:PortfolioMaturitySummary:v1",
       "product_name": "PortfolioMaturitySummary",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "classification": "deferred",
+      "maturity_wave": "future_wave",
+      "lifecycle_status": "active",
+      "source_path": "lotus-core/contracts/domain-data-products/lotus-core-products.v1.json",
+      "required_next_step": "Keep outside blocking maturity gate until explicitly promoted."
+    },
+    {
+      "product_id": "lotus-core:PortfolioPartyRoleAssignment:v1",
+      "product_name": "PortfolioPartyRoleAssignment",
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "classification": "deferred",
