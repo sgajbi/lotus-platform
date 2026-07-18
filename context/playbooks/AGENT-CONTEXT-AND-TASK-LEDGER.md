@@ -171,6 +171,24 @@ Treat overlapping active write scopes as a coordination problem. Pause, cancel, 
 task before integrating conflicting changes. Treat `LOST`, `TIMED_OUT`, and `FAILED` delegated work
 as findings that need fix-forward, explicit cancellation, or supersession evidence.
 
+## Active CI Wait Queue
+
+When a PR, mainline releasability run, or background validation is still running, retain the exact
+repository, branch, PR, run id, check name, and head SHA in the active ledger or status update. Poll
+periodically and return to the active delivery immediately when its CI or review state changes.
+
+Use the interval for bounded non-overlapping work that improves durable delivery posture, such as:
+
+1. issue discovery for a sibling failure pattern or the next product slice,
+2. repo-local wiki, documentation, supported-feature, and ledger truth audits,
+3. skill, context, validator, or fix-forward improvements revealed by review,
+4. read-only branch, worktree, stash, stranded-truth, and process hygiene audits.
+
+Every real finding must become an issue, ledger entry, or separately scoped issue-backed branch and
+PR. Do not mutate overlapping files, mix unrelated work into the waiting PR, assume pending checks
+will pass, bypass gates, commit directly to `main`, or retain the result only in chat memory. Do not
+leave watcher processes running after the check or head changes.
+
 ## Promotion Decisions
 
 After each slice, decide whether new knowledge belongs in:

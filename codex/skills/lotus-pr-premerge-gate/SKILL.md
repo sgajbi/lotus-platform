@@ -218,6 +218,37 @@ Definition of done:
 4. repo-local wiki source has been checked when documentation truth changed,
 5. published wiki has been updated after merge when wiki truth changed.
 
+### 3.1) Active CI wait queue
+
+Treat a pending required check as monitored delivery time, not as permission to idle or broaden the
+active implementation. Preserve the exact repository, branch, PR number, run id, check name, and
+head SHA, then poll often enough to keep the user informed within the operating contract.
+
+Between polls, prefer bounded non-overlapping work that can stop immediately when CI or review state
+changes:
+
+1. reconcile unresolved review threads and inspect sibling code for the same proven failure pattern;
+2. audit repo-local wiki, README, runbook, supported-feature, or review-ledger truth;
+3. perform next-slice issue discovery and prepare evidence-backed acceptance criteria;
+4. capture repeatable review lessons in skills, context, validators, or fix-forward guidance;
+5. perform read-only branch, worktree, stash, stranded-truth, and dangling-process hygiene checks.
+
+Put every real finding into an issue, ledger, or separately scoped issue-backed branch and PR. Do not
+leave it only in chat memory or mix it into the active PR because CI happens to be running.
+
+Do not use wait time to:
+
+1. mutate overlapping files in the active branch or another agent's write scope;
+2. commit directly to `main`, bypass a gate, or assume a pending check will pass;
+3. broaden repository authority, start destructive cleanup without exact-target proof, or launch a
+   second long-running runtime that can interfere with the active validation;
+4. create unrelated cosmetic churn with no issue, evidence, or durable closure path;
+5. leave `gh ... --watch` or equivalent watcher processes dangling after the check or head changes.
+
+Return to the active delivery as soon as CI or review state changes. Re-read the exact head SHA and
+required-check set before taking merge action; work completed during the wait does not substitute for
+green evidence on the active PR.
+
 ### 4) Merge decision gate
 
 Allow merge only when all conditions are true:

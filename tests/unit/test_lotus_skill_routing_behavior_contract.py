@@ -532,3 +532,31 @@ def test_agentic_coding_quality_eval_loop_is_governed_and_discoverable() -> None
     assert "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md" in engineering_context
     assert "agentic coding eval loops" in routing_map
     assert "agentic coding quality evaluation or anti-slop feedback loops" in ramp_up
+
+
+def test_premerge_guidance_uses_an_active_ci_wait_queue_without_scope_expansion() -> None:
+    premerge_skill = _read(ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md")
+    task_ledger_playbook = _read(
+        ROOT / "context" / "playbooks" / "AGENT-CONTEXT-AND-TASK-LEDGER.md"
+    )
+
+    for guidance in (premerge_skill, task_ledger_playbook):
+        normalized_guidance = " ".join(guidance.split())
+        assert (
+            "Active CI Wait Queue" in normalized_guidance
+            or "Active CI wait queue" in normalized_guidance
+        )
+        assert "head SHA" in normalized_guidance
+        assert "bounded non-overlapping work" in normalized_guidance
+        assert "issue-backed branch" in normalized_guidance
+        assert "overlapping files" in normalized_guidance
+        assert (
+            "assume a pending check will pass" in normalized_guidance
+            or "assume pending checks will pass" in normalized_guidance
+        )
+        assert "chat memory" in normalized_guidance
+        assert "watcher processes" in normalized_guidance
+
+    assert "Return to the active delivery as soon as CI or review state changes" in premerge_skill
+    assert "work completed during the wait does not substitute" in premerge_skill
+    assert "return to the active delivery immediately" in task_ledger_playbook
