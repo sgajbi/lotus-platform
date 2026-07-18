@@ -66,7 +66,11 @@ Do not route those tasks through generic platform QA by default.
     concurrent certification project remains independently owned even when it uses the same repo.
     Require exact normalized checkout-path equality: a reused project name from a different or
     nested working directory, or residual volumes/images with
-    no live container proving the expected checkout, as a blocking ownership conflict.
+    no live container proving the expected checkout, as a blocking ownership conflict. Treat
+    `lotus-core`, repository-declared `lotus-core-app-local`, and isolated
+    `lotus-core-canonical-ui` as explicit aliases for the `lotus-core` checkout boundary; never
+    infer additional aliases from a name prefix. A Core alias labeled with a temporary or other
+    checkout must appear in the plan as a conflict and must not be silently reused or deleted.
 
 ## Canonical Commands
 

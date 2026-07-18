@@ -48,7 +48,10 @@ python automation\validate_analytics_ui_entitlement_certification.py
    Compose-project and working-directory provenance, and never remove Docker resources by broad
    Lotus/PBWM/performance name prefix. Concurrent certification projects are separate owners; a
    reused project name from another or nested working directory, or residual project volumes/images without
-   live working-directory provenance, must block cleanup before mutation.
+   live working-directory provenance, must block cleanup before mutation. The cleanup inventory
+   explicitly recognizes `lotus-core`, `lotus-core-app-local`, and
+   `lotus-core-canonical-ui` as Core project identities only when their working-directory label is
+   the canonical `lotus-core` checkout; a temporary-checkout alias is a blocking conflict.
 
 ## Canonical DPM command-center seed
 
