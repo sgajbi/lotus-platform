@@ -287,10 +287,14 @@ Key standards to use frequently:
 9. [Domain Vocabulary Glossary](../docs/standards/Domain%20Vocabulary%20Glossary.md)
 10. [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
 11. [Lotus Bank-Buyable Engineering Contract](../platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md)
-12. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+12. [Lotus Bank-Ready Engineering Implementation Playbook](../platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md)
+13. [Bank-Readiness Control Catalog](../platform-contracts/bank-readiness/README.md)
+14. [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
 
-Use the bank-buyable contract as a standing non-degradation standard for Lotus app work. Use the
-enterprise backend refactoring instructions when the task is a larger measurement-backed refactor.
+Use the bank-buyable contract as the concise non-degradation standard, the implementation playbook
+for assessment workflow and evidence boundaries, and the catalog for control definitions and
+applicability. Use the enterprise backend refactoring instructions for larger measurement-backed
+refactors. Do not load or copy all catalog controls when a bounded slice is sufficient.
 
 ## Active Governance RFCs
 

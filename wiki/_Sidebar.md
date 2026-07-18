@@ -27,6 +27,7 @@
 - [Validation and CI](Validation-and-CI)
 - [New Backend Service Scaffold](New-Backend-Service-Scaffold)
 - [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality)
+- [Bank-Ready Engineering](Bank-Ready-Engineering)
 - [Integrations](Integrations)
 - [Technical Moat and Differentiation](Technical-Moat-and-Differentiation)
 

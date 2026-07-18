@@ -15,6 +15,21 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-07-18 | Agent guidance should route to one control authority, not copy it
+
+Bank-readiness review exposed overlapping prose across the standing bank-buyable contract,
+implementation guidance, skills, context, and potential app-local adoption documents. Repetition
+made it harder to know which definition was authoritative and encouraged broad context loading.
+
+Implication:
+
+Keep stable `BR-NNN` definitions, applicability, evidence classes, and owner mappings only in the
+versioned bank-readiness catalog. Context should explain ownership and routing; skills should define
+the execution sequence and load applicable controls only; standards should explain outcomes and
+evidence boundaries; wiki and app docs should link the authority and record local truth. Contract
+tests should reject embedded duplicate control tables. A new skill is unnecessary while existing
+issue-discovery, delivery, CI, skill-context, and pre-merge skills own the workflow stages.
+
 ### 2026-06-29 | Post-merge mainline proof must point to the merge SHA
 
 `lotus-performance` PR #320 merged cleanly, but the latest automatic Main Releasability Gate was

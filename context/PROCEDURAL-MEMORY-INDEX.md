@@ -30,6 +30,9 @@ These playbooks turn recurring delivery practice into durable operating guidance
    How to close multi-shape caller/source endpoint families through application-backed examples,
    exact OpenAPI/ledger parity, meaningful no-write proof, durable issue/context evidence, and
    PR-to-main release hygiene.
+10. [Bank-Ready Engineering Implementation Playbook](../platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md)
+    How to assess a bounded bank-readiness control slice without confusing source, CI, deployment,
+    runtime, or independent-verification evidence.
 
 ## When To Use This Layer
 
@@ -52,3 +55,5 @@ Use these playbooks when:
 10. you are certifying a multi-shape successful endpoint family and need to preserve goal
     alignment, source authority, executable examples, exact contract parity, and durable closure
     evidence across handovers or context compaction.
+11. you are assessing bank readiness and need the status, maturity, evidence, environment, issue,
+    and closure sequence while leaving control definitions in the versioned catalog.

@@ -1,6 +1,6 @@
 # Enterprise Refactor Health Report
 
-Generated: `2026-07-18T05:13:06Z`
+Generated: `2026-07-18T08:13:12Z`
 
 ## Completed Slices
 
@@ -420,6 +420,11 @@ Generated: `2026-07-18T05:13:06Z`
      authority validation, and deployment-promotion validation responsibilities are isolated behind
      focused helpers, while `--check` compares material current metrics against the accepted
      quality baseline and fails stale report-only evidence without timestamp-only rewrites.
+112. Bank-readiness control-system consolidation so a versioned 25-control catalog owns stable
+     definitions, a fail-closed validator and focused tests protect its mappings, issue discovery
+     selects applicable controls by repository profile, and the former 503-line bank-buyable
+     contract is reduced to a concise non-degradation layer without copying controls into skills,
+     context, or wiki guidance.
 
 ## Evidence
 
@@ -449,6 +454,10 @@ Generated: `2026-07-18T05:13:06Z`
 23. Endpoint-example parity comparator:
     `codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py`
 24. Endpoint-example parity tests: `tests/unit/test_endpoint_example_parity.py`
+25. Bank-readiness control catalog:
+    `platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json`
+26. Bank-readiness validator: `automation/validate_bank_readiness_control_catalog.py`
+27. Bank-readiness contract tests: `tests/unit/test_bank_readiness_control_catalog.py`
 
 ## Current Gate Posture
 

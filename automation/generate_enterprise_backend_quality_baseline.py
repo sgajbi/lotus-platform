@@ -574,6 +574,15 @@ def render_scorecard(baseline: dict[str, object]) -> str:
             "Scorecard updated per slice",
             "Docs are implementation-backed.",
         ],
+        [
+            "Bank readiness controls",
+            "Overlapping prose guidance without stable machine-readable control identity",
+            "One versioned control catalog with evidence-aware discovery and validation",
+            (
+                "The standing contract is concise; the implementation playbook, catalog validator, "
+                "and control-aware issue plan keep definitions centralized."
+            ),
+        ],
     ]
     return f"""# Enterprise Refactor Quality Scorecard
 
@@ -1009,6 +1018,11 @@ Generated: `{baseline["generated_at_utc"]}`
      authority validation, and deployment-promotion validation responsibilities are isolated behind
      focused helpers, while `--check` compares material current metrics against the accepted
      quality baseline and fails stale report-only evidence without timestamp-only rewrites.
+112. Bank-readiness control-system consolidation so a versioned 25-control catalog owns stable
+     definitions, a fail-closed validator and focused tests protect its mappings, issue discovery
+     selects applicable controls by repository profile, and the former 503-line bank-buyable
+     contract is reduced to a concise non-degradation layer without copying controls into skills,
+     context, or wiki guidance.
 
 ## Evidence
 
@@ -1038,6 +1052,10 @@ Generated: `{baseline["generated_at_utc"]}`
 23. Endpoint-example parity comparator:
     `codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py`
 24. Endpoint-example parity tests: `tests/unit/test_endpoint_example_parity.py`
+25. Bank-readiness control catalog:
+    `platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json`
+26. Bank-readiness validator: `automation/validate_bank_readiness_control_catalog.py`
+27. Bank-readiness contract tests: `tests/unit/test_bank_readiness_control_catalog.py`
 
 ## Current Gate Posture
 

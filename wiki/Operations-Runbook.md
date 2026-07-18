@@ -1,5 +1,19 @@
 # Operations Runbook
 
+## Start Here
+
+Current scope and evidence posture: this page routes platform operators to implemented automation,
+source contracts, and first-response paths. It does not certify an application runtime, production
+environment, or bank operation.
+
+| If you need to | Start with |
+| --- | --- |
+| Classify ingress or local routing | `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1` |
+| Prove the canonical front-office flow | `Invoke-Canonical-FrontOffice-QA.ps1` after reading the cleanup plan |
+| Inspect mesh posture | `mesh_certification_gate.py` and the operating report |
+| Inspect CI or background work | `Platform-Pulse.ps1`, heartbeat evidence, and GitHub truth |
+| Change documentation | Lotus documentation layering and repo-local authored source |
+
 ## Core operational surfaces
 
 - ingress host synchronization
@@ -51,7 +65,7 @@ python automation\validate_analytics_ui_entitlement_certification.py
    live working-directory provenance, must block cleanup before mutation. The cleanup inventory
    explicitly recognizes `lotus-core`, `lotus-core-app-local`, and
    `lotus-core-canonical-ui` as Core project identities only when their working-directory label is
-   the canonical `lotus-core` checkout; a temporary-checkout alias is a blocking conflict.
+   the canonical `lotus-core` checkout; a noncanonical checkout alias is a blocking conflict.
 
 ## Canonical DPM command-center seed
 

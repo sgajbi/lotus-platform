@@ -13,6 +13,7 @@ Use this index to choose the right depth:
 | Canonical front-office proof and demo boundaries | [Canonical DPM Demo Story](demo/canonical-dpm-demo-story.md) | Demo, product, operations, and engineering |
 | Client-facing claim discipline | [Lotus Client Demo Certification Standard](standards/Lotus%20Client%20Demo%20Certification%20Standard.md) | Product, demo, sales, and governance |
 | Platform validation and release posture | [Continuous Integration, Validation, and Release Governance Standard](standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md) | Engineering and release reviewers |
+| Bank-readiness assessment and evidence boundaries | [Bank-Ready Engineering Implementation Playbook](../platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md) | Engineering, security, operations, and procurement-support reviewers |
 | Certified API example truth | [Endpoint Example Parity Standard](standards/Endpoint%20Example%20Parity%20Standard.md) | API owners, reviewers, and operators |
 
 Documentation in this directory must stay implementation-backed. Put aspirational or planned

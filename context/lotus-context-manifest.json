@@ -1,7 +1,7 @@
 {
     "schema_version":  "1.0",
     "generated_by":  "human-maintained",
-    "last_reviewed_on":  "2026-06-28",
+    "last_reviewed_on":  "2026-07-18",
     "reading_order":  [
                           "AGENTS.md",
                           "context/LOTUS-QUICKSTART-CONTEXT.md",
@@ -21,6 +21,8 @@
                               "procedural_memory_index":  "context/PROCEDURAL-MEMORY-INDEX.md",
                               "skill_routing_map":  "context/LOTUS-SKILL-ROUTING-MAP.md",
                               "bank_buyable_engineering_contract":  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+                              "bank_ready_engineering_implementation_playbook":  "platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md",
+                              "bank_readiness_control_catalog":  "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json",
                               "enterprise_backend_refactoring_instructions":  "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
                               "platform_engineering_ledger":  "context/platform-engineering-ledger.md",
                               "recent_architectural_decisions_digest":  "context/recent-architectural-decisions-digest.md"
@@ -70,6 +72,13 @@
                                                   "context/LOTUS-SKILL-ROUTING-MAP.md",
                                                   "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
                                                   "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md"
+                                              ],
+                        "bank_readiness_assessment":  [
+                                                  "context/LOTUS-ENGINEERING-CONTEXT.md",
+                                                  "REPOSITORY-ENGINEERING-CONTEXT.md",
+                                                  "context/LOTUS-SKILL-ROUTING-MAP.md",
+                                                  "platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md",
+                                                  "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json"
                                               ]
                     },
     "procedural_memory":  {
@@ -478,6 +487,16 @@
                                {
                                    "name":  "Lotus Bank-Buyable Engineering Contract",
                                    "path":  "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+                                   "scope":  "platform-wide"
+                               },
+                               {
+                                   "name":  "Lotus Bank-Ready Engineering Implementation Playbook",
+                                   "path":  "platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md",
+                                   "scope":  "platform-wide"
+                               },
+                               {
+                                   "name":  "Bank-Readiness Control Catalog",
+                                   "path":  "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json",
                                    "scope":  "platform-wide"
                                },
                                {
