@@ -92,6 +92,9 @@ Current repository posture:
 11. Durable standards, runbooks, architecture notes, reports, onboarding, and archived legacy mirrors
     live under `docs/` with [docs/README.md](./docs/README.md) as the index. Repo-root Markdown is
     intentionally limited to `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
+12. Cross-repository Python policy validators must load each application in an isolated interpreter
+    using its real package import root. Do not load package modules as synthetic top-level files or
+    reuse generic package names such as `app` across repositories in one interpreter.
 
 ## Architecture And Module Map
 
