@@ -475,7 +475,9 @@ For RFC-0093/RFC-0094 agent engineering governance:
 5. use `automation/Start-Background-Run.ps1 -Repository ... -TargetType ... -Target ...` for a
    validated repository-native detached target that does not belong in the shared profile catalog;
    preserve argv serialization and add exact-HEAD, clean-tree, and required-artifact fences for
-   certifying runs instead of passing a shell command string,
+   certifying runs instead of passing a shell command string; process ownership is PID plus a
+   culture-independent normalized start timestamp, so JSON-deserialized timestamp types must never
+   be formatted and reparsed through the host locale,
 6. use `automation/Run-Heartbeat.ps1` when a governed advisory attention snapshot is needed across
    background-run, mesh, context, workflow-pack, wiki, or PR-monitor evidence,
 7. treat heartbeat output under `output/heartbeat/` as derived advisory evidence only; it does not

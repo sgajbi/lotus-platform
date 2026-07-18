@@ -64,6 +64,8 @@ arguments as serialized argv values, and use `-ExpectedHead`, `-RequireClean`, a
 `-RequiredArtifact` when exact-source certification requires them. Never replace this contract with
 a caller-provided shell command string. The checker treats PID plus process-start identity as task
 ownership; PID reuse without the recorded start time is `LOST`, not `RUNNING`.
+Process-start comparison must normalize PowerShell JSON-deserialized `DateTime`, `DateTimeOffset`,
+and round-trip strings directly; never culture-format a typed timestamp and parse it back.
 After completion, reconciliation persists the terminal exit code and exact runner/target process
 identities from the repository-mode result artifact.
 
