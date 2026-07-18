@@ -78,7 +78,17 @@ function Get-OwnedProcess {
   }
 
   try {
-    $expected = [DateTimeOffset]::Parse($expectedStartedAt).UtcDateTime
+    $expected = if ($expectedStartedAt -is [DateTimeOffset]) {
+      $expectedStartedAt.UtcDateTime
+    } elseif ($expectedStartedAt -is [DateTime]) {
+      $expectedStartedAt.ToUniversalTime()
+    } else {
+      [DateTimeOffset]::Parse(
+        [string]$expectedStartedAt,
+        [System.Globalization.CultureInfo]::InvariantCulture,
+        [System.Globalization.DateTimeStyles]::RoundtripKind
+      ).UtcDateTime
+    }
     $actual = $process.StartTime.ToUniversalTime()
     if ([Math]::Abs(($actual - $expected).TotalSeconds) -gt 5) {
       return $null

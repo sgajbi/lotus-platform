@@ -403,7 +403,10 @@ Use these commands as the primary local contract:
 34. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
 35. validated repository-native detached task
-   `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
+    `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
+    with PID plus culture-independent process-start identity reconciliation; PowerShell
+    JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed
+    back.
 
 ## Validation And CI Expectations
 

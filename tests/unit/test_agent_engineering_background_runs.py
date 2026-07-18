@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -605,6 +606,82 @@ def test_check_background_runs_rejects_reused_pid_with_wrong_start_time(
     assert entry["error_summary"] == (
         "Process ended before the expected result artifact was written."
     )
+
+
+def test_check_background_runs_preserves_live_pid_with_deserialized_datetime(
+    tmp_path: Path,
+) -> None:
+    process_options = (
+        {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+    )
+    sleeper = subprocess.Popen(
+        [_powershell(), "-NoProfile", "-Command", "Start-Sleep -Seconds 30"],
+        cwd=ROOT,
+        **process_options,
+    )
+    try:
+        state_path = tmp_path / "background-runs.json"
+        started_at = datetime.now().astimezone().isoformat()
+        state_path.write_text(
+            json.dumps(
+                [
+                    {
+                        "engineering_task_id": "eng-task-live-pid",
+                        "task_kind": "VALIDATION_RUN",
+                        "repository": "lotus-core",
+                        "branch": "feature/test",
+                        "owner": "tester",
+                        "requested_at": started_at,
+                        "origin": "test",
+                        "correlation_ref": "live-pid",
+                        "summary": "live pid",
+                        "pid": sleeper.pid,
+                        "profile": None,
+                        "display_name": "lotus-core/make/check",
+                        "mode": "repository-target",
+                        "runId": "live-pid",
+                        "startedAt": started_at,
+                        "status": "RUNNING",
+                        "runtime": {
+                            "kind": "python",
+                            "runner": "automation/repository_background_task.py",
+                            "pid": sleeper.pid,
+                            "process_started_at": started_at,
+                        },
+                        "scope": {"target_type": "make", "target": "check"},
+                        "artifacts": [],
+                        "evidence_refs": [],
+                        "cleanup_state": "PENDING",
+                        "expectedResultPath": str(tmp_path / "absent.json"),
+                        "expectedSummaryPath": None,
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+        checked = _run(
+            [
+                _powershell(),
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(ROOT / "automation" / "Check-Background-Runs.ps1"),
+                "-StatePath",
+                str(state_path),
+            ],
+            cwd=ROOT,
+        )
+        assert checked.returncode == 0, checked.stderr
+
+        [entry] = json.loads(state_path.read_text(encoding="utf-8"))
+        assert entry["status"] == "RUNNING"
+        assert entry["ended_at"] is None
+        assert entry["error_summary"] is None
+    finally:
+        sleeper.terminate()
+        sleeper.wait(timeout=10)
 
 
 def test_repository_target_mode_is_documented_as_typed_and_shell_free() -> None:

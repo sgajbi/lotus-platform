@@ -598,6 +598,9 @@ resumed sessions can inspect durable artifacts instead of relying on chat histor
 It validates the recorded process start time as well as PID, so an unrelated process that reuses a
 stale PID cannot keep a lost task falsely `RUNNING`. Reconciliation also persists the terminal exit
 code and runner/target process identities from the exact result artifact.
+The checker normalizes JSON-deserialized `DateTime`, `DateTimeOffset`, and round-trip timestamp
+strings without culture-dependent string conversion. A live task must not become `LOST` because a
+day/month rendering differs from the host locale.
 
 Record a governed RFC-0096 delegated task:
 
