@@ -87,6 +87,31 @@ Each Workbench panel should intentionally handle:
 
 For governed screenshots and canonical surfaces, do not capture demo-ready evidence until canonical API, calculation, and panel validation pass.
 
+### Aggregate And Detail Evidence
+
+- Treat source totals, counts, posture, and loaded detail as related but distinct evidence. An empty
+  holding list, action page, dated cash schedule, or attribution breakdown does not by itself mean
+  the portfolio-level total is zero.
+- When a trustworthy aggregate exists but its supporting rows are absent, keep the aggregate
+  visible and label the detail as unavailable, partial, filtered, or outside the loaded scope.
+- Do not show an all-clear badge, `No open actions`, `No outflow`, or equivalent zero claim when a
+  non-zero source aggregate remains in scope.
+- Keep row actions, drill-down, and detailed export disabled until their required detail is loaded;
+  explain the business limitation without exposing pagination, cache, transport, or service jargon.
+- Test contradictory-shape candidates explicitly: non-zero total with no rows, rows with no total,
+  and a partial response where one analytical source remains available.
+
+### Recovery Controls
+
+- A visible Retry or Refresh control is a promise to re-contact source authority. Changing a local
+  loading flag while replaying the same unavailable cached response is not recovery.
+- In shared clients, invalidate only the affected request identity and make the newest request the
+  only response allowed to populate reusable cache state.
+- Cover unavailable-to-ready and degraded-to-ready transitions. Where requests can overlap, resolve
+  the older request last in a deterministic test and prove it cannot replace the newer evidence.
+- Keep recovery copy business-facing: `Refresh projection`, `Reload worklist`, or `Recheck report
+  status`; reserve cache and request diagnostics for support evidence.
+
 ## Interaction Quality
 
 - Keep primary actions explicit: review, drill down, compare, export, rerun, approve, reject, acknowledge, resolve.
