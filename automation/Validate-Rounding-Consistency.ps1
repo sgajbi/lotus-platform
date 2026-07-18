@@ -10,7 +10,7 @@ $projectsRoot = Resolve-Path (Join-Path $root "..")
 
 $pythonScript = @'
 import json
-import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -18,11 +18,11 @@ projects_root = Path(sys.argv[1])
 vectors_path = Path(sys.argv[2])
 
 targets = {
-    "pas": ("lotus-core", "src/services/query_service/app", "precision_policy"),
-    "lotus-performance": ("lotus-performance", "app", "precision_policy"),
-    "dpm": ("lotus-manage", "src/core", "precision_policy"),
-    "ras": ("lotus-report", "src/app", "precision_policy"),
-    "aea": ("lotus-gateway", "src/app", "precision_policy"),
+    "pas": ("lotus-core", "src/services/query_service", "app.precision_policy"),
+    "lotus-performance": ("lotus-performance", ".", "app.precision_policy"),
+    "dpm": ("lotus-manage", "src", "core.precision_policy"),
+    "ras": ("lotus-report", "src", "app.precision_policy"),
+    "aea": ("lotus-gateway", "src", "app.precision_policy"),
 }
 
 vectors_payload = json.loads(vectors_path.read_text(encoding="utf-8"))
@@ -30,25 +30,43 @@ vectors = vectors_payload["vectors"]
 policy_version = vectors_payload["policy_version"]
 
 results = {}
-for name, (repo, rel_path, module_name) in targets.items():
+target_runner = r'''
+import importlib
+import json
+import sys
+from pathlib import Path
+
+repo_path = Path(sys.argv[1])
+import_root = repo_path / sys.argv[2]
+module_name = sys.argv[3]
+vectors = json.loads(sys.argv[4])
+sys.path.insert(0, str(repo_path))
+sys.path.insert(0, str(import_root))
+module = importlib.import_module(module_name)
+service_results = {}
+for semantic, values in vectors.items():
+    quantizer = getattr(module, f"quantize_{semantic}")
+    service_results[semantic] = [str(quantizer(value)) for value in values]
+service_results["rounding_policy_version"] = str(
+    getattr(module, "ROUNDING_POLICY_VERSION", "MISSING")
+)
+print(json.dumps(service_results))
+'''
+
+for name, (repo, import_root, module_name) in targets.items():
     repo_path = projects_root / repo
-    module_path = projects_root / repo / rel_path
-    sys.path.insert(0, str(repo_path))
-    sys.path.insert(0, str(module_path))
-    module_file = module_path / f"{module_name}.py"
-    spec = importlib.util.spec_from_file_location(f"lotus_rounding_policy_{name}", module_file)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Unable to load {name} rounding policy from {module_file}")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    service_results = {}
-    for semantic, values in vectors.items():
-        quantizer = getattr(mod, f"quantize_{semantic}")
-        service_results[semantic] = [str(quantizer(value)) for value in values]
-    service_results["rounding_policy_version"] = str(
-        getattr(mod, "ROUNDING_POLICY_VERSION", "MISSING")
+    completed = subprocess.run(
+        [sys.executable, "-c", target_runner, str(repo_path), import_root, module_name, json.dumps(vectors)],
+        cwd=repo_path,
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    results[name] = service_results
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"{name}: unable to load {module_name} in package context: {completed.stderr.strip()}"
+        )
+    results[name] = json.loads(completed.stdout)
 
 baseline_service = next(iter(results.values()))
 baseline = {k: v for k, v in baseline_service.items() if k != "rounding_policy_version"}
