@@ -2,18 +2,55 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-PLATFORM_ROOT = Path(__file__).resolve().parents[4]
-CONTROL_CATALOG_PATH = (
-    PLATFORM_ROOT
-    / "platform-contracts"
-    / "bank-readiness"
-    / "bank-ready-control-catalog.v1.json"
+CONTROL_CATALOG_RELATIVE_PATH = Path(
+    "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json"
 )
+LOTUS_PLATFORM_ROOT_ENV = "LOTUS_PLATFORM_ROOT"
+
+
+def _candidate_platform_roots() -> list[Path]:
+    candidates: list[Path] = []
+    configured_root = os.environ.get(LOTUS_PLATFORM_ROOT_ENV)
+    if configured_root:
+        candidates.append(Path(configured_root))
+
+    script_path = Path(__file__).resolve()
+    candidates.extend(script_path.parents)
+
+    cwd = Path.cwd().resolve()
+    for ancestor in (cwd, *cwd.parents):
+        candidates.append(ancestor)
+        candidates.append(ancestor / "lotus-platform")
+
+    deduped: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            deduped.append(resolved)
+    return deduped
+
+
+def _resolve_platform_root() -> Path:
+    for candidate in _candidate_platform_roots():
+        if (candidate / CONTROL_CATALOG_RELATIVE_PATH).is_file():
+            return candidate
+    raise FileNotFoundError(
+        "Unable to locate lotus-platform bank-readiness control catalog. "
+        f"Set {LOTUS_PLATFORM_ROOT_ENV} to the lotus-platform repository root or run "
+        "the planner from a workspace that has lotus-platform as a parent/sibling."
+    )
+
+
+PLATFORM_ROOT = _resolve_platform_root()
+CONTROL_CATALOG_PATH = PLATFORM_ROOT / CONTROL_CATALOG_RELATIVE_PATH
 
 
 PROFILE_LENSES = {
@@ -184,7 +221,9 @@ DEPLOYABLE_IMAGE_PROVENANCE_CHECKLIST = [
 
 def catalog_labels() -> list[tuple[str, str]]:
     text = (SKILL_ROOT / "references" / "review-lenses.md").read_text(encoding="utf-8")
-    rows = re.findall(r"^\| ([^|]+) \| `(lens/[a-z0-9-]+)` \|$", text, flags=re.MULTILINE)
+    rows = re.findall(
+        r"^\| ([^|]+) \| `(lens/[a-z0-9-]+)` \|$", text, flags=re.MULTILINE
+    )
     return [(name.strip(), label.strip()) for name, label in rows]
 
 
@@ -227,7 +266,7 @@ def render_plan(
         "",
         "```powershell",
         "git status --short --branch",
-        f"gh issue list --repo {repository} --state open --search \"\\\"Issue Discovery Ledger\\\"\" --json number,title,url",
+        f'gh issue list --repo {repository} --state open --search "\\"Issue Discovery Ledger\\"" --json number,title,url',
         f"gh issue list --repo {repository} --state open --label issue-discovery --limit 100 --json number,title,labels,url",
         f"gh pr list --repo {repository} --state open --json number,title,headRefName,url",
         "python <lotus-platform>\\codex\\skills\\lotus-app-issue-discovery\\scripts\\validate_issue_discovery_skill.py",
@@ -239,11 +278,15 @@ def render_plan(
     for index, label in enumerate(first_lenses, start=1):
         lines.append(f"{index}. {labels_by_label[label]} - `{label}`")
 
-    hardening = [label for label in first_lenses if label in HIGH_SIGNAL_HARDENING_LENSES]
+    hardening = [
+        label for label in first_lenses if label in HIGH_SIGNAL_HARDENING_LENSES
+    ]
     if hardening:
         lines.extend(["", "## CI Hardening Candidates", ""])
         for label in hardening:
-            lines.append(f"- `{label}`: consider deterministic gate only after a concrete issue pattern is measured and low-noise.")
+            lines.append(
+                f"- `{label}`: consider deterministic gate only after a concrete issue pattern is measured and low-noise."
+            )
 
     if "lens/environment-supply-chain-provenance" in first_lenses:
         lines.extend(["", "## Deployable Image Provenance Checklist", ""])
@@ -286,21 +329,33 @@ def render_plan(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate a Lotus issue-discovery campaign plan from the canonical lens catalog.")
-    parser.add_argument("--repository", required=True, help="GitHub repository in owner/name form.")
-    parser.add_argument("--profile", choices=sorted(PROFILE_LENSES), help="Review profile. Defaults from repository name.")
+    parser = argparse.ArgumentParser(
+        description="Generate a Lotus issue-discovery campaign plan from the canonical lens catalog."
+    )
+    parser.add_argument(
+        "--repository", required=True, help="GitHub repository in owner/name form."
+    )
+    parser.add_argument(
+        "--profile",
+        choices=sorted(PROFILE_LENSES),
+        help="Review profile. Defaults from repository name.",
+    )
     parser.add_argument("--limit", type=int, help="Limit the first lens queue.")
     parser.add_argument(
         "--include-bank-readiness",
         action="store_true",
         help="Include applicable BR-NNN controls and evidence boundaries for the repository profile.",
     )
-    parser.add_argument("--output", type=Path, help="Output markdown path. Defaults under output/.")
+    parser.add_argument(
+        "--output", type=Path, help="Output markdown path. Defaults under output/."
+    )
     args = parser.parse_args()
 
     profile = args.profile or infer_profile(args.repository)
     output = args.output or (
-        PLATFORM_ROOT / "output" / f"{args.repository.rsplit('/', 1)[-1]}-issue-discovery-plan.md"
+        PLATFORM_ROOT
+        / "output"
+        / f"{args.repository.rsplit('/', 1)[-1]}-issue-discovery-plan.md"
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
