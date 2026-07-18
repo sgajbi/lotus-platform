@@ -37,6 +37,33 @@ When a fix would take too long to prove fully on the workstation:
 3. let GitHub execute the expensive matrix,
 4. debug using the real failure logs rather than guessing.
 
+## Aggregate And Detail Consistency Pattern
+
+When review or runtime evidence shows that an empty detail collection contradicts a non-zero source
+aggregate:
+
+1. model source scope and loaded detail as separate states;
+2. preserve truthful aggregate evidence while disclosing unavailable, partial, filtered, or
+   unloaded detail;
+3. remove false zero or all-clear language from badges, summaries, charts, and empty states;
+4. disable actions and exports that require absent detail without hiding safe aggregate evidence;
+5. add regression shapes for zero-and-empty, non-zero-and-populated, and non-zero-and-empty;
+6. scan other paged or summary-plus-detail surfaces in the bounded repository scope and raise
+   evidence-backed issues before mutation.
+
+## Recovery Reaches Authority Pattern
+
+When a visible Retry or Refresh control appears to run but returns the same stale, unavailable, or
+degraded evidence:
+
+1. trace component, query, shared-client, HTTP-cache, and in-flight coalescing boundaries;
+2. invalidate or bypass the narrow request identity before reaching source authority;
+3. enforce latest-request-wins cache writes so a superseded request cannot recache stale evidence;
+4. test unavailable-or-degraded-then-ready recovery;
+5. when requests may overlap, resolve the old request last and prove the next read remains fresh;
+6. promote the reusable rule into the owning delivery skill and context after the concrete defect
+   is fixed and evidenced.
+
 ## Wrong-Layer Fix Pattern
 
 When a user-visible defect is caused upstream:
