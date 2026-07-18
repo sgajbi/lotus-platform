@@ -138,7 +138,7 @@
       "panel_id": "reporting.report_centre",
       "display_name": "Report Centre",
       "screen_id": "reporting.report_centre",
-      "route": "/reports?portfolioId={portfolioId}",
+      "route": "/reports?portfolioId={portfolio_id}",
       "panel_kind": "workflow_panel",
       "panel_level": "panel",
       "parent_panel_id": null,

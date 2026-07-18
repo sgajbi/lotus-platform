@@ -85,7 +85,7 @@ def test_analytics_ui_hardening_review_validator_accepts_baseline() -> None:
     assert "/book?asOfDate={canonicalAsOfDate}" in review["panel_state_review"][
         "certified_route_groups_reviewed"
     ]
-    assert "/reports?portfolioId={portfolioId}" in review["panel_state_review"][
+    assert "/reports?portfolioId={portfolio_id}" in review["panel_state_review"][
         "certified_route_groups_reviewed"
     ]
     assert (

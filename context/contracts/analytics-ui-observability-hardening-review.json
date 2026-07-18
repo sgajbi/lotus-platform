@@ -52,7 +52,7 @@
       "/book?asOfDate={canonicalAsOfDate}",
       "/portfolio?portfolioId={portfolio_id}",
       "/portfolio?portfolioId={portfolio_id}&tab=detailed",
-      "/reports?portfolioId={portfolioId}",
+      "/reports?portfolioId={portfolio_id}",
       "/performance?portfolioId={portfolio_id}",
       "/performance?portfolioId={portfolio_id}&mode=analysis",
       "/performance?portfolioId={portfolio_id}&mode=advisor",

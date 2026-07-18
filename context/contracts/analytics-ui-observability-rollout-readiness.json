@@ -37,7 +37,7 @@
       "evidence_basis": "Slice 8 canonical proof validated the detailed portfolio route after API and panel checks passed."
     },
     {
-      "route": "/reports?portfolioId={portfolioId}",
+      "route": "/reports?portfolioId={portfolio_id}",
       "certification_status": "certified_partial",
       "panel_ids": ["reporting.report_centre"],
       "evidence_basis": "Workbench contract and browser-workflow tests validate the Gateway-backed report-ordering route, governed panel identity, screenshot ownership, and explicit eligibility states without browser-authored catalogue choices.",
