@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-18T05:13:06Z`
+Generated: `2026-07-18T08:13:12Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `829`
-- Total source lines: `338459`
-- Python files: `202`
+- Source files: `835`
+- Total source lines: `339786`
+- Python files: `204`
 - PowerShell files: `66`
-- Markdown files: `397`
+- Markdown files: `400`
 
 ## Largest Files
 
@@ -39,22 +39,22 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2357`
-- Highest measured cyclomatic complexity: `15`
+- Python functions: `2384`
+- Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `884`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
+| automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 150 | 14 | 47 |
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 | automation/validate_mainline_commit_provenance.py | validate_commit_provenance | 210 | 13 | 57 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 173 | 13 | 49 |
+| codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 12 | 105 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 224 | 12 | 43 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 109 | 12 | 39 |
 | codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _resolve_pointer | 199 | 12 | 17 |
-| codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _compare | 239 | 11 | 77 |
-| codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py | _parse_normalization_rule | 105 | 11 | 55 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `761`
+- Unit tests collected: `771`
 - Collection command return code: `0`
-- Collection summary: `761 tests collected in 1.32s`
+- Collection summary: `771 tests collected in 0.90s`
 
 ## Security Baseline
 

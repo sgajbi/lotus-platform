@@ -24,6 +24,7 @@ stay visibly labelled as such.
 | --- | --- |
 | [Analytics UI Observability](Analytics-UI-Observability) | Current Workbench/Gateway observability scope, residual boundaries, and live proof posture |
 | [Enterprise Backend Refactor Quality](Enterprise-Backend-Refactor-Quality) | `quality/baseline_report.md`, quality scorecard, and `generate_enterprise_backend_quality_baseline.py` evidence |
+| [Bank-Ready Engineering](Bank-Ready-Engineering) | Control authority, evidence boundaries, assessment routing, and non-certification posture |
 | [Client Demo Pack Template](Client-Demo-Pack-Template) | Audience-ready claim table, evidence map, boundaries, rehearsal, and follow-up structure |
 | [Client Demo Brief Template](Client-Demo-Brief-Template) | One-page client brief structure tied to implementation-backed evidence |
 

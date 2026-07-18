@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 109,
+    "covered": 110,
     "review": 1,
     "undocumented": 25
   },
@@ -55,9 +55,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 4,
+      "operator_doc_reference_count": 6,
       "path": "automation/Check-Background-Runs.ps1",
-      "reference_count": 11,
+      "reference_count": 13,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -415,11 +415,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 14,
+      "operator_doc_reference_count": 15,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 23,
+      "reference_count": 25,
       "suffix": ".ps1",
-      "test_reference_count": 7
+      "test_reference_count": 8
     },
     {
       "classification": "covered",
@@ -607,9 +607,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 6,
+      "operator_doc_reference_count": 7,
       "path": "automation/Start-Background-Run.ps1",
-      "reference_count": 13,
+      "reference_count": 14,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -903,6 +903,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 1,
+      "path": "automation/validate_bank_readiness_control_catalog.py",
+      "reference_count": 6,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/validate_branch_commit_budget.py",
       "reference_count": 6,
@@ -1086,6 +1094,6 @@
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-07-18T01:00:09Z",
-  "script_count": 135
+  "generated_at_utc": "2026-07-18T08:13:11Z",
+  "script_count": 136
 }

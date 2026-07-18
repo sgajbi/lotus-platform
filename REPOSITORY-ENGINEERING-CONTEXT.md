@@ -111,6 +111,9 @@ Primary areas:
    Applications provide bounded resource-observation digests and consume verified evidence; they
    do not own authoritative billing exports, shared-platform allocation, or official FinOps
    reconciliation.
+   This area also owns the versioned bank-readiness control catalog. The catalog is the sole
+   machine-readable authority for `BR-NNN` definitions and mappings; standards, skills, context,
+   generated plans, and wiki pages reference it instead of copying it.
 4. `generated/`
    Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
    dependency graph derived from governed domain-data-product declarations.

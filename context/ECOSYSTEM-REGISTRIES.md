@@ -2,7 +2,7 @@
 
 This file is generated from [lotus-context-manifest.json](./lotus-context-manifest.json) by `automation/render_context_registries.py`.
 
-- Last reviewed on: `2026-06-28`
+- Last reviewed on: `2026-07-18`
 
 ## Application Registry
 
@@ -51,6 +51,8 @@ This file is generated from [lotus-context-manifest.json](./lotus-context-manife
 | Lotus Client Demo Brief Template | `platform-wide` | `docs/demo/client-demo-brief-template.md` |
 | Lotus Client Demo Pack Template | `platform-wide` | `docs/demo/client-demo-pack-template.md` |
 | Lotus Bank-Buyable Engineering Contract | `platform-wide` | `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` |
+| Lotus Bank-Ready Engineering Implementation Playbook | `platform-wide` | `platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md` |
+| Bank-Readiness Control Catalog | `platform-wide` | `platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json` |
 | Scalability and Availability Standard | `platform-wide` | `docs/standards/Scalability and Availability Standard.md` |
 | Domain Vocabulary Glossary | `platform-wide` | `docs/standards/Domain Vocabulary Glossary.md` |
 | Platform Integration Architecture Bible | `platform-wide` | `docs/architecture/Platform Integration Architecture Bible.md` |

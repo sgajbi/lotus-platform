@@ -200,7 +200,9 @@ Important current platform truths:
 1. the central context system under `context/` is a governed delivery artifact, not auxiliary prose
 2. platform-owned skills under `codex/skills/` are the durable Lotus source of truth for skill
    distribution
-3. the Lotus Bank-Buyable Engineering Contract is the standing quality bar that delivery skills use
+3. the concise Lotus Bank-Buyable Engineering Contract is the standing quality bar; its
+   implementation playbook and versioned control catalog provide the assessment workflow and
+   machine-readable `BR-NNN` authority without duplicating controls across skills and context
    to prevent low-quality generated code and app degradation
 4. `platform-stack` is the shared ingress and infrastructure baseline, not the canonical populated
    front-office product proof flow

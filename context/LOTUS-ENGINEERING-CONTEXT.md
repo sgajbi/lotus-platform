@@ -561,9 +561,11 @@ Lotus engineering is expected to be:
 The standing enterprise quality bar is
 `platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`. Agents should use it as the
 default non-degradation standard for Lotus app work, not only when a user explicitly says
-"refactor" or "enterprise-grade". The enterprise backend refactoring instructions provide the
-measurement-heavy execution path for large refactors; the bank-buyable contract provides the
-always-on control taxonomy for everyday slices.
+"refactor" or "enterprise-grade". For a bank-readiness assessment, route through
+`lotus-app-issue-discovery`, read the implementation playbook, and select only the applicable
+`BR-NNN` slice from `platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json`. Context
+and skills route to that authority; they do not duplicate its control definitions. The enterprise
+backend refactoring instructions remain the measurement-heavy execution path for large refactors.
 
 ### Required delivery posture
 
