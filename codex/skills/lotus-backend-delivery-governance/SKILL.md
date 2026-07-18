@@ -143,6 +143,16 @@ For RFC-driven business-application slices, extend that intake with:
 8. When a quality inventory is clean, deterministic, and already measured, consider whether
    `lotus-ci-enforcement-governance` should promote it to a blocking gate instead of leaving it as
    report-only evidence.
+   When an issue-backed backend fix comes from a report-only near-threshold function-size,
+   maintainability, duplicate-code, proof, readiness, operator-run, or API-orchestration hotspot,
+   do not stop at the named function. Run the repository-native report-only inventory, such as
+   `make quality-baseline` when present, plus the blocking maintainability and duplicate gates;
+   inspect sibling hotspots in the same impact/lens family; then either fix a high-confidence
+   sibling in the same bounded batch or create/reuse a GitHub issue with exact path, function,
+   line count, owner boundary, acceptance criteria, validation commands, and no-claim boundaries.
+   Record the follow-through in the issue matrix, RFC/ledger/scorecard evidence, and repo-local
+   context when the repository-specific workflow changed. Keep report-only inventories report-only
+   until stable thresholds justify CI promotion through `lotus-ci-enforcement-governance`.
 9. For RFC or proof-driven slices, do not move to the next slice until the PR or ledger records a
    closure manifest: blockers cleared, blockers preserved, proof artifacts, commands, docs/wiki and
    supported-feature decisions, merge method, post-merge validation, and branch cleanup evidence.
