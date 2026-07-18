@@ -8,7 +8,8 @@ Canonical source: `lotus-platform/automation`
 
 1. Need a quick platform health check: run `Platform-Pulse.ps1`.
 2. Need continuous monitoring: run `Run-Agent.ps1`.
-3. Need asynchronous long-running checks: run `Start-Background-Run.ps1` with a profile.
+3. Need asynchronous long-running checks: run `Start-Background-Run.ps1` with a profile or a
+   validated repository target.
 4. Need PR lifecycle automation: run `Close-PR-Loop.ps1`.
 5. Need one repo preflight before push: run `Preflight-PR.ps1`.
 6. Need governed populated front-office validation: run `Invoke-Canonical-FrontOffice-QA.ps1`.
@@ -30,6 +31,7 @@ Canonical source: `lotus-platform/automation`
 | Continuous automation heartbeat | `automation/Run-Agent.ps1` | Long-running local monitor loop |
 | One iteration of agent logic | `automation/Run-Agent.ps1 -Once` | Quick status refresh in terminal |
 | Run heavy checks in background | `automation/Start-Background-Run.ps1 -Profile <name> -MaxParallel <n>` | Offload checks while coding |
+| Run one repo-native target in background | `automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make/npm/python/powershell> -Target <target>` | Detach an exact repository command without editing the shared profile catalog or evaluating a shell string |
 | Monitor detached background runs | `automation/Check-Background-Runs.ps1` | Inspect async run state and artifacts |
 | Fast daily alignment baseline | `automation/Start-Background-Run.ps1 -Profile platform-alignment -MaxParallel 3` | Day-to-day cross-repo confidence |
 | Full governance sweep | `automation/Start-Background-Run.ps1 -Profile autonomous-foundation -MaxParallel 1` | Deeper standards/governance evidence |

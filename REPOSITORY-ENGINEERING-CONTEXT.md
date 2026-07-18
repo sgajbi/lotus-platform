@@ -402,6 +402,8 @@ Use these commands as the primary local contract:
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
 34. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
+35. validated repository-native detached task
+   `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
 
 ## Validation And CI Expectations
 

@@ -32,6 +32,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Service-Refresh.ps1`
 - `automation/Run-Parallel-Tasks.ps1`
 - `automation/Start-Background-Run.ps1`
+- `automation/repository_background_task.py`
 - `automation/Check-Background-Runs.ps1`
 - `automation/Summarize-Task-Failures.ps1`
 - `automation/Sync-RepoWikis.ps1`
@@ -550,6 +551,25 @@ Start a detached background run:
 powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Profile ci-parity -MaxParallel 2
 ```
 
+Launch one repository-native target without editing the central profile catalog:
+
+```powershell
+$repositoryRoot = "C:\path\to\lotus-core"
+$head = git -C $repositoryRoot rev-parse HEAD
+powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 `
+  -Repository lotus-core -TargetType make -Target profile-derived-state-daily `
+  -ExpectedHead $head -RequireClean `
+  -RequiredArtifact "output/task-runs/*-bank-day-load.json"
+```
+
+Repository mode accepts only typed `make`, `npm`, `python`, or `powershell` targets. The repository
+must resolve exactly once from `automation/repos.json`; Make/NPM target names are character-
+validated; script paths must resolve inside that repository; and arguments are serialized as an
+argv array rather than evaluated through `cmd`. Use `-TargetArgument @("value1", "value2")` from
+PowerShell or `-TargetArgumentsJson '["value1","value2"]'` from a native caller. Optional
+`-ExpectedHead`, `-RequireClean`, and `-RequiredArtifact` fences are checked at launch and again by
+the detached runner.
+
 Fast alignment background run (recommended for day-to-day platform sync):
 
 ```powershell
@@ -563,7 +583,9 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1
 ```
 
 `Start-Background-Run.ps1` assigns a deterministic `runId`, `engineering_task_id`, expected result
-artifact paths, and RFC-0094 task-ledger metadata. `Check-Background-Runs.ps1` refreshes
+artifact paths, and RFC-0094 task-ledger metadata for both modes. Repository mode also writes an
+exact job specification and terminal result JSON under `output/task-runs/`.
+`Check-Background-Runs.ps1` refreshes
 `output/background-runs.json` with governed lifecycle states:
 
 - `RUNNING` while the launched process is still active,
@@ -573,6 +595,9 @@ artifact paths, and RFC-0094 task-ledger metadata. `Check-Background-Runs.ps1` r
 
 The monitor also preserves evidence references for logs, JSON results, and Markdown summaries so
 resumed sessions can inspect durable artifacts instead of relying on chat history.
+It validates the recorded process start time as well as PID, so an unrelated process that reuses a
+stale PID cannot keep a lost task falsely `RUNNING`. Reconciliation also persists the terminal exit
+code and runner/target process identities from the exact result artifact.
 
 Record a governed RFC-0096 delegated task:
 

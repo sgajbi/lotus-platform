@@ -15,6 +15,7 @@ This map organizes the automation directory by responsibility without changing s
 - `Run-Agent.ps1`
 - `Run-Parallel-Tasks.ps1`
 - `Start-Background-Run.ps1`
+- `repository_background_task.py`
 - `Check-Background-Runs.ps1`
 - `Summarize-Task-Failures.ps1`
 - `delegation_task_ledger.py`
