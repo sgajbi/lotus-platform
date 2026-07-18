@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from automation.canonical_docker_ownership import (
     build_cleanup_plan,
     normalize_docker_path,
@@ -41,8 +43,13 @@ def test_checkout_path_match_is_normalized_and_exact() -> None:
     assert not paths_match_exactly(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
 
 
-def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots() -> None:
-    owned_project = "lotus-core"
+@pytest.mark.parametrize(
+    "owned_project",
+    ["lotus-core", "lotus-core-app-local", "lotus-core-canonical-ui"],
+)
+def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots(
+    owned_project: str,
+) -> None:
     unrelated_project = "lotus-core-certification"
     plan = build_cleanup_plan(
         projects_root=r"C:\Users\Sandeep\projects",
@@ -76,6 +83,12 @@ def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots() 
 
     assert plan["selection_policy"] == "compose-ownership-labels-v1"
     assert plan["allowed_compose_projects"]["lotus-core"] == (
+        "c:/users/sandeep/projects/lotus-core"
+    )
+    assert plan["allowed_compose_projects"]["lotus-core-app-local"] == (
+        "c:/users/sandeep/projects/lotus-core"
+    )
+    assert plan["allowed_compose_projects"]["lotus-core-canonical-ui"] == (
         "c:/users/sandeep/projects/lotus-core"
     )
     assert owned_project in plan["compose_projects"]
@@ -146,6 +159,42 @@ def test_cleanup_plan_blocks_nested_worktree_reusing_canonical_project() -> None
     )
 
 
+def test_cleanup_plan_blocks_core_alias_owned_by_temporary_checkout() -> None:
+    temporary_checkout = r"C:\Users\Sandeep\AppData\Local\Temp\canonical-run\lotus-core"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "lotus-core-canonical-ui-postgres-1",
+                "lotus-core-canonical-ui",
+                temporary_checkout,
+            )
+        ],
+        volumes=[
+            _resource(
+                "lotus-core-canonical-ui_postgres_data",
+                "lotus-core-canonical-ui",
+            )
+        ],
+        images=[],
+    )
+
+    assert "lotus-core-canonical-ui" not in plan["compose_projects"]
+    assert plan["containers"] == []
+    assert plan["volumes"] == []
+    assert plan["ownership_conflicts"] == [
+        {
+            "id": "id-lotus-core-canonical-ui-postgres-1",
+            "name": "lotus-core-canonical-ui-postgres-1",
+            "compose_project": "lotus-core-canonical-ui",
+            "compose_working_dir": temporary_checkout,
+            "expected_working_dir": "c:/users/sandeep/projects/lotus-core",
+            "conflict_reason": "compose_project_owned_by_different_working_directory",
+        }
+    ]
+
+
 def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance() -> (
     None
 ):
@@ -175,6 +224,26 @@ def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance()
             "compose_project_resource_without_working_directory_provenance",
         ),
     }
+
+
+def test_cleanup_plan_blocks_resource_only_core_alias_without_checkout_provenance() -> (
+    None
+):
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[],
+        volumes=[
+            _resource("lotus-core-app-local_postgres_data", "lotus-core-app-local")
+        ],
+        images=[],
+    )
+
+    assert "lotus-core-app-local" not in plan["compose_projects"]
+    assert plan["volumes"] == []
+    assert plan["ownership_conflicts"][0]["conflict_reason"] == (
+        "compose_project_resource_without_working_directory_provenance"
+    )
 
 
 def test_cleanup_plan_keeps_exact_ingress_but_rejects_similarly_named_container() -> (
