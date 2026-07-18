@@ -213,9 +213,10 @@ Allowed states:
 2. `loading`
 3. `empty`
 4. `partial`
-5. `unavailable`
-6. `error`
-7. `out_of_scope`
+5. `permission_blocked`
+6. `unavailable`
+7. `error`
+8. `out_of_scope`
 
 Explicitly disallowed for governed supported panels:
 
@@ -226,10 +227,12 @@ Rules:
 1. `ready` means the panel is supported and populated according to its validation rules,
 2. `empty` means the panel is supported and the empty state is expected, designed, and validated,
 3. `partial` means the panel is partially supported, with explicit owner and reason,
-4. `unavailable` means the panel is intentionally not available for the current route, capability,
+4. `permission_blocked` means the panel is supported but the current user or service authority is
+   not permitted to access it; the state must not reveal restricted data or membership,
+5. `unavailable` means the panel is intentionally not available for the current route, capability,
    or product posture, with explicit owner and reason,
-5. `out_of_scope` means the panel is not part of the current governed front-office contract,
-6. a blank supported panel without an explicit governed state is a validation failure.
+6. `out_of_scope` means the panel is not part of the current governed front-office contract,
+7. a blank supported panel without an explicit governed state is a validation failure.
 
 ## Ownership and Boundary Rules
 
