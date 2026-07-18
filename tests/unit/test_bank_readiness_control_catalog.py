@@ -5,6 +5,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+from types import ModuleType
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,7 +35,9 @@ CATALOG_PATH = (
 
 
 def _load_validator():
-    spec = importlib.util.spec_from_file_location("validate_bank_readiness_control_catalog", VALIDATOR_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "validate_bank_readiness_control_catalog", VALIDATOR_PATH
+    )
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -47,7 +50,20 @@ def _catalog() -> dict:
 
 
 def _load_planner():
-    spec = importlib.util.spec_from_file_location("plan_issue_discovery_campaign", PLANNER_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "plan_issue_discovery_campaign", PLANNER_PATH
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_planner_from_path(path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(
+        "plan_issue_discovery_campaign_copy", path
+    )
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -83,7 +99,9 @@ def test_catalog_rejects_duplicate_and_missing_control_identity() -> None:
     assert any("expected BR-001 through BR-025" in error for error in errors)
 
 
-def test_catalog_rejects_unknown_profile_reference_lens_and_empty_ci_expectations() -> None:
+def test_catalog_rejects_unknown_profile_reference_lens_and_empty_ci_expectations() -> (
+    None
+):
     validator = _load_validator()
     payload = _catalog()
     control = payload["controls"][0]
@@ -169,6 +187,56 @@ def test_issue_discovery_plan_selects_only_applicable_bank_readiness_controls() 
     assert "do not create one issue per control row" in plan
 
 
+def test_issue_discovery_planner_resolves_platform_root_from_deployed_skill_copy(
+    tmp_path, monkeypatch
+) -> None:
+    deployed_script = (
+        tmp_path
+        / ".codex"
+        / "skills"
+        / "lotus-app-issue-discovery"
+        / "scripts"
+        / "plan_issue_discovery_campaign.py"
+    )
+    deployed_script.parent.mkdir(parents=True)
+    deployed_script.write_text(
+        PLANNER_PATH.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+
+    project_root = tmp_path / "projects"
+    idea_root = project_root / "lotus-idea"
+    idea_root.mkdir(parents=True)
+    catalog_path = (
+        project_root
+        / "lotus-platform"
+        / "platform-contracts"
+        / "bank-readiness"
+        / "bank-ready-control-catalog.v1.json"
+    )
+    catalog_path.parent.mkdir(parents=True)
+    catalog_path.write_text(
+        json.dumps(
+            {
+                "controls": [
+                    {
+                        "control_id": "BR-999",
+                        "applicable_profiles": ["workflow-service"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.chdir(idea_root)
+    planner = _load_planner_from_path(deployed_script)
+
+    assert planner.CONTROL_CATALOG_PATH == catalog_path.resolve()
+    assert planner.load_bank_readiness_controls("workflow") == [
+        {"control_id": "BR-999", "applicable_profiles": ["workflow-service"]}
+    ]
+
+
 def test_human_and_agent_layers_reference_but_do_not_fork_control_definitions() -> None:
     standing_contract = (
         ROOT / "platform-standards" / "LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md"
@@ -221,9 +289,9 @@ def test_catalog_preserves_stateful_cleanup_and_exact_identity_review_lessons() 
         controls["BR-017"]["ci_expectations"]
     )
 
-    fix_forward = (ROOT / "context" / "playbooks" / "FIX-FORWARD-PATTERNS.md").read_text(
-        encoding="utf-8"
-    )
+    fix_forward = (
+        ROOT / "context" / "playbooks" / "FIX-FORWARD-PATTERNS.md"
+    ).read_text(encoding="utf-8")
     backend_skill = (
         ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
     ).read_text(encoding="utf-8")
