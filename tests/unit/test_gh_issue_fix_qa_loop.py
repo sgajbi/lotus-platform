@@ -505,7 +505,10 @@ def test_audit_detects_lifecycle_and_vocabulary_drift(fake_github) -> None:
     state = _state(labels=labels)
     state["issues"] = {
         "1": {"state": "CLOSED", "labels": ["status/pr-open"]},
-        "2": {"state": "OPEN", "labels": ["status/merged-main", "status:pr-open"]},
+        "2": {
+            "state": "OPEN",
+            "labels": ["status/merged-main", "status/pr-open", "status:pr-open"],
+        },
     }
     _write_state(state_path, state)
 
@@ -517,7 +520,7 @@ def test_audit_detects_lifecycle_and_vocabulary_drift(fake_github) -> None:
     assert kinds == {
         "repository_alias_label_present",
         "closed_issue_has_active_label",
-        "open_issue_has_terminal_label",
+        "issue_has_multiple_lifecycle_labels",
         "issue_alias_label_present",
     }
 
@@ -533,6 +536,7 @@ def test_audit_accepts_clean_closed_and_open_issue_states(fake_github, powershel
     state["issues"] = {
         "1": {"state": "CLOSED", "labels": ["status/merged-main"]},
         "2": {"state": "OPEN", "labels": ["status/blocked"]},
+        "3": {"state": "OPEN", "labels": ["status/merged-main"]},
     }
     _write_state(state_path, state)
 
@@ -545,5 +549,5 @@ def test_audit_accepts_clean_closed_and_open_issue_states(fake_github, powershel
 
     assert result.returncode == 0, result.stderr + result.stdout
     payload = json.loads(result.stdout)
-    assert payload["issueCount"] == 2
+    assert payload["issueCount"] == 3
     assert payload["violationCount"] == 0

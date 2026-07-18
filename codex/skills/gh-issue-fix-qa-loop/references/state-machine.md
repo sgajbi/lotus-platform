@@ -60,5 +60,7 @@ truth instead of replacing it.
   again. A closed issue already carrying merged-main remains closed during an idempotent
   merged-main replay.
 - Never describe merged code as merged-main until exact-main proof passes.
-- Closed issues cannot retain active labels; open issues cannot carry terminal merged-main labels.
+- Closed issues cannot retain active labels. Open issues may carry only `status/merged-main` after
+  exact-main proof while QA remains pending; the same completion label remains after QA closure.
+- Every issue carries at most one canonical lifecycle label.
 - Keep every retry and evidence update in the canonical issue thread.

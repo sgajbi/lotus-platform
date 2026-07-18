@@ -128,16 +128,18 @@ Run before PR closure and after batch reconciliation:
 ./scripts/audit-issue-loop.ps1 -Repo <owner/repo>
 ```
 
-The audit fails on closed issues with active labels, open issues with terminal labels, and
-configured legacy aliases still present in the repository or on an issue. It reports JSON and does
-not mutate issues or delete labels.
+The audit fails on closed issues with active labels, issues carrying multiple canonical lifecycle
+labels, and configured legacy aliases still present in the repository or on an issue. An open
+`status/merged-main` issue is valid while QA remains pending; the same completion label is retained
+after QA closes the issue. The audit reports JSON and does not mutate issues or delete labels.
 
 Both entrypoints dot-source `scripts/issue-loop-common.ps1`; treat that shared module as internal
 implementation and invoke only the update or audit entrypoint directly.
 
 ## Operating Rules
 
-- Do not close without QA evidence.
+- Do not close without QA evidence. Treat `status/merged-main` as a completion label that may remain
+  on an open issue pending QA or on the closed issue after QA passes, not as a closed-only label.
 - Do not apply `status/merged-main` without a merged PR, matching merge/main SHA, successful
   primary and security or repository-equivalent runs for that SHA, wiki evidence, and branch
   cleanup evidence.
