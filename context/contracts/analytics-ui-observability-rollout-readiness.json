@@ -18,6 +18,13 @@
   },
   "certified_route_groups": [
     {
+      "route": "/book?asOfDate={canonicalAsOfDate}",
+      "certification_status": "certified_partial",
+      "panel_ids": ["advisor.book_overview"],
+      "evidence_basis": "Workbench contract and browser-workflow tests validate the Gateway-backed advisor-book route, governed panel identity, screenshot ownership, and explicit authority states without substituting a global portfolio catalogue.",
+      "residual_scope": "Canonical populated runtime proof remains required; delegated, team, and supervisor book coverage is not supported."
+    },
+    {
       "route": "/portfolio?portfolioId={portfolio_id}",
       "certification_status": "certified",
       "panel_ids": ["portfolio.summary"],
@@ -28,6 +35,13 @@
       "certification_status": "certified",
       "panel_ids": ["portfolio.detailed"],
       "evidence_basis": "Slice 8 canonical proof validated the detailed portfolio route after API and panel checks passed."
+    },
+    {
+      "route": "/reports?portfolioId={portfolioId}",
+      "certification_status": "certified_partial",
+      "panel_ids": ["reporting.report_centre"],
+      "evidence_basis": "Workbench contract and browser-workflow tests validate the Gateway-backed report-ordering route, governed panel identity, screenshot ownership, and explicit eligibility states without browser-authored catalogue choices.",
+      "residual_scope": "Canonical populated runtime proof remains required; document rendering, archive, advisor approval, client delivery, and communication are not claimed."
     },
     {
       "route": "/performance?portfolioId={portfolio_id}",

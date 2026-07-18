@@ -73,8 +73,10 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     }
 
     assert set(certified_groups) == {
+        "/book?asOfDate={canonicalAsOfDate}",
         "/portfolio?portfolioId={portfolio_id}",
         "/portfolio?portfolioId={portfolio_id}&tab=detailed",
+        "/reports?portfolioId={portfolioId}",
         "/performance?portfolioId={portfolio_id}",
         "/performance?portfolioId={portfolio_id}&mode=analysis",
         "/performance?portfolioId={portfolio_id}&mode=advisor",
@@ -89,6 +91,24 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
         "/recommendations?portfolioId={portfolio_id}&mode=copilot",
         "/recommendations?portfolioId={portfolio_id}&mode=proof",
     }
+    assert certified_groups["/book?asOfDate={canonicalAsOfDate}"][
+        "certification_status"
+    ] == "certified_partial"
+    assert "advisor.book_overview" in certified_groups[
+        "/book?asOfDate={canonicalAsOfDate}"
+    ]["panel_ids"]
+    assert "delegated, team, and supervisor" in certified_groups[
+        "/book?asOfDate={canonicalAsOfDate}"
+    ]["residual_scope"]
+    assert certified_groups["/reports?portfolioId={portfolioId}"][
+        "certification_status"
+    ] == "certified_partial"
+    assert "reporting.report_centre" in certified_groups[
+        "/reports?portfolioId={portfolioId}"
+    ]["panel_ids"]
+    assert "client delivery" in certified_groups[
+        "/reports?portfolioId={portfolioId}"
+    ]["residual_scope"]
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
     ]["certification_status"] == "certified_partial"

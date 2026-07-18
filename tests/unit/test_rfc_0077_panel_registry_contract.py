@@ -85,10 +85,15 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert schema["properties"]["contract_id"]["const"] == "workbench-panel-registry"
     assert schema["properties"]["governed_by_rfc"]["const"] == "RFC-0077"
     panel_schema = schema["$defs"]["panelEntry"]["properties"]
+    panel_state_values = schema["$defs"]["panelState"]["enum"]
+    validation_rule_properties = schema["$defs"]["validationRuleMap"]["properties"]
+    assert "permission_blocked" in panel_state_values
+    assert "permission_blocked" in validation_rule_properties
     assert "workflow_panel" in panel_schema["panel_kind"]["enum"]
     assert "lotus-advise" in panel_schema["owning_service"]["enum"]
     assert "lotus-ai" in panel_schema["owning_service"]["enum"]
     assert "lotus-manage" in panel_schema["owning_service"]["enum"]
+    assert "lotus-report" in panel_schema["owning_service"]["enum"]
 
     assert registry["contract_id"] == "workbench-panel-registry"
     assert registry["contract_version"] == "1.0.0"
@@ -101,8 +106,10 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
 
     panel_by_id = {panel["panel_id"]: panel for panel in panels}
     expected_gateway_endpoints = {
+        "advisor.book_overview": "/api/v1/advisor-book/portfolios",
         "portfolio.summary": "/api/v1/workbench/{portfolio_id}/overview",
         "portfolio.detailed": "/api/v1/workbench/{portfolio_id}/overview",
+        "reporting.report_centre": "/api/v1/report-ordering/options",
         "performance.summary": "/api/v1/workbench/{portfolio_id}/performance/summary",
         "performance.analysis.contribution": "/api/v1/workbench/{portfolio_id}/performance/details",
         "performance.analysis.attribution": "/api/v1/workbench/{portfolio_id}/performance/details",
@@ -139,6 +146,46 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "ready"
     assert panel_by_id["performance.analysis.attribution"]["known_limitations"] == []
     assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]
+    assert panel_by_id["advisor.book_overview"]["owning_service"] == "lotus-gateway"
+    assert panel_by_id["advisor.book_overview"]["required_support_state"] == "partial"
+    assert panel_by_id["advisor.book_overview"]["route"] == (
+        "/book?asOfDate={canonicalAsOfDate}"
+    )
+    assert panel_by_id["advisor.book_overview"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "permission_blocked",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["advisor.book_overview"]["screenshot_policy"]["screenshot_name"] == (
+        "advisor-book-overview-live.png"
+    )
+    assert "delegated, team, and supervisor" in panel_by_id["advisor.book_overview"][
+        "known_limitations"
+    ][0]
+    assert panel_by_id["reporting.report_centre"]["owning_service"] == "lotus-report"
+    assert panel_by_id["reporting.report_centre"]["required_support_state"] == "partial"
+    assert panel_by_id["reporting.report_centre"]["route"] == (
+        "/reports?portfolioId={portfolioId}"
+    )
+    assert panel_by_id["reporting.report_centre"]["allowed_states"] == [
+        "ready",
+        "loading",
+        "empty",
+        "partial",
+        "permission_blocked",
+        "unavailable",
+        "error",
+    ]
+    assert panel_by_id["reporting.report_centre"]["screenshot_policy"]["screenshot_name"] == (
+        "reporting-report-centre-live.png"
+    )
+    assert "client delivery" in panel_by_id["reporting.report_centre"][
+        "known_limitations"
+    ][1]
     assert panel_by_id["dpm.command_center"]["owning_service"] == "lotus-manage"
     assert panel_by_id["dpm.command_center"]["required_support_state"] == "ready"
     assert panel_by_id["dpm.command_center"]["allowed_states"] == [
