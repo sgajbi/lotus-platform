@@ -390,6 +390,14 @@ def test_delivery_skills_route_review_lessons_without_copying_reference_detail()
         / "references"
         / "source-boundary-and-recovery-patterns.md"
     )
+    lifecycle_reference = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-backend-delivery-governance"
+        / "references"
+        / "integration-test-client-lifecycle.md"
+    )
     fix_forward = _read(ROOT / "context" / "playbooks" / "FIX-FORWARD-PATTERNS.md")
 
     assert "references/private-banking-analytics-ui.md" in frontend_skill
@@ -403,6 +411,18 @@ def test_delivery_skills_route_review_lessons_without_copying_reference_detail()
     assert "Stateful Cleanup And Readiness Integrity Pattern" in backend_skill
     assert "Database Disaster-Recovery Certification" in backend_skill
     assert "Database Disaster-Recovery Certification" in recovery_reference
+    assert "Use the same lifecycle reference for directly owned database adapters" in backend_skill
+    assert "injected shared providers, close only owners" in backend_skill
+
+    for required_text in (
+        "directly constructed adapter that creates its own connection provider",
+        "injected application-scoped provider borrows it",
+        "closes them in reverse creation order after every test",
+        "Do not use forced garbage collection",
+        "run migration and evidence scripts with `ResourceWarning` promoted to an error",
+        "A green exit code with warning records is not closure",
+    ):
+        assert required_text in lifecycle_reference
 
 
 def test_ci_enforcement_skill_requires_measured_gate_intake() -> None:
