@@ -89,7 +89,8 @@
                                               "PR Merge Gate / Tests (integration)",
                                               "PR Merge Gate / Tests (e2e)",
                                               "PR Merge Gate / Coverage Gate (Combined)",
-                                              "PR Merge Gate / Validate Docker Build"
+                                              "PR Merge Gate / Validate Docker Build",
+                                              "PR Merge Gate / PostgreSQL Runtime Proof"
                                           ]
                   },
                   {
@@ -102,7 +103,7 @@
                                               "PR Merge Gate / Tests (integration)",
                                               "PR Merge Gate / Tests (e2e)",
                                               "PR Merge Gate / Coverage Gate (Combined)",
-                                              "PR Merge Gate / Validate Docker Build"
+                                              "PR Merge Gate / Docker Image Evidence"
                                           ]
                   },
                   {
@@ -115,7 +116,7 @@
                                               "PR Merge Gate / Tests (integration)",
                                               "PR Merge Gate / Tests (e2e)",
                                               "PR Merge Gate / Coverage Gate (Combined)",
-                                              "PR Merge Gate / Validate Docker Build"
+                                              "PR Merge Gate / Container Supply Chain Evidence"
                                           ]
                   },
                   {
@@ -174,7 +175,7 @@
                                               "PR Merge Gate / Workflow Lint",
                                               "PR Merge Gate / Lint Typecheck Coverage Build",
                                               "PR Merge Gate / Playwright Smoke",
-                                              "PR Merge Gate / Validate Docker Build",
+                                              "PR Merge Gate / Docker Build And Security",
                                               "PR Merge Gate / CI Local Docker Parity"
                                           ]
                   }
