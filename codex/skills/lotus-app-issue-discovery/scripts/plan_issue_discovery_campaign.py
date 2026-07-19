@@ -39,18 +39,25 @@ def _candidate_platform_roots() -> list[Path]:
 
 
 def _resolve_platform_root() -> Path:
-    for candidate in _candidate_platform_roots():
+    attempted_roots = _candidate_platform_roots()
+    for candidate in attempted_roots:
         if (candidate / CONTROL_CATALOG_RELATIVE_PATH).is_file():
             return candidate
+    attempted = "\n".join(f"- {candidate}" for candidate in attempted_roots)
     raise FileNotFoundError(
         "Unable to locate lotus-platform bank-readiness control catalog. "
         f"Set {LOTUS_PLATFORM_ROOT_ENV} to the lotus-platform repository root or run "
-        "the planner from a workspace that has lotus-platform as a parent/sibling."
+        "the planner from a workspace that has lotus-platform as a parent/sibling. "
+        f"Attempted roots:\n{attempted}"
     )
 
 
-PLATFORM_ROOT = _resolve_platform_root()
-CONTROL_CATALOG_PATH = PLATFORM_ROOT / CONTROL_CATALOG_RELATIVE_PATH
+def resolve_platform_root() -> Path:
+    return _resolve_platform_root()
+
+
+def control_catalog_path() -> Path:
+    return resolve_platform_root() / CONTROL_CATALOG_RELATIVE_PATH
 
 
 PROFILE_LENSES = {
@@ -233,7 +240,7 @@ def infer_profile(repository: str) -> str:
 
 
 def load_bank_readiness_controls(profile: str) -> list[dict[str, object]]:
-    payload = json.loads(CONTROL_CATALOG_PATH.read_text(encoding="utf-8"))
+    payload = json.loads(control_catalog_path().read_text(encoding="utf-8"))
     catalog_profile = CATALOG_PROFILE_BY_DISCOVERY_PROFILE[profile]
     return [
         control
@@ -353,7 +360,7 @@ def main() -> int:
 
     profile = args.profile or infer_profile(args.repository)
     output = args.output or (
-        PLATFORM_ROOT
+        resolve_platform_root()
         / "output"
         / f"{args.repository.rsplit('/', 1)[-1]}-issue-discovery-plan.md"
     )

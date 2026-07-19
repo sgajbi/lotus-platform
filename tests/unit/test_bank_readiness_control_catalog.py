@@ -190,6 +190,7 @@ def test_issue_discovery_plan_selects_only_applicable_bank_readiness_controls() 
 def test_issue_discovery_planner_resolves_platform_root_from_deployed_skill_copy(
     tmp_path, monkeypatch
 ) -> None:
+    monkeypatch.delenv("LOTUS_PLATFORM_ROOT", raising=False)
     deployed_script = (
         tmp_path
         / ".codex"
@@ -231,10 +232,58 @@ def test_issue_discovery_planner_resolves_platform_root_from_deployed_skill_copy
     monkeypatch.chdir(idea_root)
     planner = _load_planner_from_path(deployed_script)
 
-    assert planner.CONTROL_CATALOG_PATH == catalog_path.resolve()
+    assert planner.control_catalog_path() == catalog_path.resolve()
     assert planner.load_bank_readiness_controls("workflow") == [
         {"control_id": "BR-999", "applicable_profiles": ["workflow-service"]}
     ]
+
+
+def test_issue_discovery_planner_basic_explicit_output_does_not_require_platform_root(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.delenv("LOTUS_PLATFORM_ROOT", raising=False)
+    skill_root = tmp_path / ".codex" / "skills" / "lotus-app-issue-discovery"
+    deployed_script = skill_root / "scripts" / "plan_issue_discovery_campaign.py"
+    deployed_script.parent.mkdir(parents=True)
+    deployed_script.write_text(
+        PLANNER_PATH.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    references_dir = skill_root / "references"
+    references_dir.mkdir()
+    references_dir.joinpath("review-lenses.md").write_text(
+        (
+            ROOT
+            / "codex"
+            / "skills"
+            / "lotus-app-issue-discovery"
+            / "references"
+            / "review-lenses.md"
+        ).read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    isolated_repo = tmp_path / "isolated" / "lotus-example"
+    isolated_repo.mkdir(parents=True)
+    output = tmp_path / "explicit-plan.md"
+
+    monkeypatch.chdir(isolated_repo)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "plan_issue_discovery_campaign.py",
+            "--repository",
+            "sgajbi/lotus-example",
+            "--output",
+            str(output),
+            "--limit",
+            "1",
+        ],
+    )
+    planner = _load_planner_from_path(deployed_script)
+
+    assert planner.main() == 0
+    assert output.exists()
+    assert "Bank-Readiness Control Queue" not in output.read_text(encoding="utf-8")
 
 
 def test_human_and_agent_layers_reference_but_do_not_fork_control_definitions() -> None:

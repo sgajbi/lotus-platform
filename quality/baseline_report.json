@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 340873
+    "total_source_lines": 340929
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -163,8 +163,8 @@
       },
       {
         "complexity": 10,
-        "end_line": 328,
-        "line": 245,
+        "end_line": 335,
+        "line": 252,
         "lines": 84,
         "name": "render_plan",
         "path": "codex/skills/lotus-app-issue-discovery/scripts/plan_issue_discovery_campaign.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2393
+    "python_function_count": 2396
   },
-  "generated_at_utc": "2026-07-19T05:48:30Z",
+  "generated_at_utc": "2026-07-19T06:02:44Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 777,
+    "collected_tests": 778,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "777 tests collected in 1.92s"
+    "summary": "778 tests collected in 1.12s"
   }
 }
