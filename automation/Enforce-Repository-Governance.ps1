@@ -1,19 +1,52 @@
 param(
     [string]$Org = "sgajbi",
     [string]$PolicyPath = "automation/repository-governance-policy.json",
+    [string[]]$Repository = @(),
     [switch]$Apply
 )
 
 $ErrorActionPreference = "Stop"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+
+if (-not [System.IO.Path]::IsPathRooted($PolicyPath)) {
+    $PolicyPath = Join-Path $repoRoot $PolicyPath
+}
 
 if (-not (Test-Path $PolicyPath)) {
     throw "Policy file not found: $PolicyPath"
 }
 
 $policy = Get-Content -Raw -Path $PolicyPath | ConvertFrom-Json
+$policyRepositories = @($policy.repos)
+if ($Repository.Count -gt 0) {
+    $availableRepositories = @($policyRepositories | ForEach-Object { $_.name })
+    $unknownRepositories = @($Repository | Where-Object { $_ -notin $availableRepositories })
+    if ($unknownRepositories.Count -gt 0) {
+        throw "Repositories are not present in policy: $($unknownRepositories -join ', ')"
+    }
+    $policyRepositories = @(
+        $policyRepositories | Where-Object { $_.name -in $Repository }
+    )
+}
+
+$validatorArguments = @(
+    (Join-Path $PSScriptRoot "validate_repository_governance.py"),
+    "--org", $Org,
+    "--policy-path", $PolicyPath,
+    "--source-only"
+)
+foreach ($repo in $policyRepositories) {
+    $validatorArguments += @("--repository", $repo.name)
+}
+$toolingPython = & (Join-Path $PSScriptRoot "Resolve-PlatformAutomationPython.ps1")
+& $toolingPython @validatorArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Repository governance policy contains required checks that current workflows do not emit."
+}
+
 $results = @()
 
-foreach ($repo in $policy.repos) {
+foreach ($repo in $policyRepositories) {
     $repoName = "$Org/$($repo.name)"
     $branch = "$($repo.default_branch)"
     $checks = @($repo.required_checks)
@@ -46,9 +79,13 @@ foreach ($repo in $policy.repos) {
         if ($Apply) {
             gh api "repos/$repoName" -X PATCH -F allow_auto_merge=true -F allow_squash_merge=false -F allow_merge_commit=false -F allow_rebase_merge=true | Out-Null
             $tmp = New-TemporaryFile
-            $payload | ConvertTo-Json -Depth 8 | Set-Content -Path $tmp
-            gh api "repos/$repoName/branches/$branch/protection" -X PUT --input $tmp | Out-Null
-            Remove-Item $tmp -Force -ErrorAction SilentlyContinue
+            try {
+                $payload | ConvertTo-Json -Depth 8 | Set-Content -Path $tmp
+                gh api "repos/$repoName/branches/$branch/protection" -X PUT --input $tmp | Out-Null
+            }
+            finally {
+                Remove-Item $tmp -Force -ErrorAction SilentlyContinue
+            }
             $status = "applied"
         }
     }
@@ -67,8 +104,8 @@ foreach ($repo in $policy.repos) {
     }
 }
 
-$outputJson = "output/repository-governance-enforcement.json"
-$outputMd = "output/repository-governance-enforcement.md"
+$outputJson = Join-Path $repoRoot "output/repository-governance-enforcement.json"
+$outputMd = Join-Path $repoRoot "output/repository-governance-enforcement.md"
 
 $results | ConvertTo-Json -Depth 6 | Set-Content -Path $outputJson
 

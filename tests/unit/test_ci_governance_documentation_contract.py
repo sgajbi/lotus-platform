@@ -513,8 +513,16 @@ def test_backend_governance_policy_tracks_wave_one_repo_lane_names() -> None:
     assert "required_conversation_resolution = $true" in governance_enforcer
     assert "required_approving_review_count = 0" in governance_enforcer
     assert "Repository Governance Enforcement" in governance_enforcer
+    assert '"--source-only"' in governance_enforcer
+    assert '"--repository"' in governance_enforcer
+    assert "Resolve-PlatformAutomationPython.ps1" in governance_enforcer
+    assert "New-TemporaryFile" in governance_enforcer
+    assert "finally" in governance_enforcer
     assert "repository-governance-validation" in (ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8")
     assert "def fetch_repository_governance" in governance_validator
+    assert "def compare_required_check_sources" in governance_validator
+    assert "def select_repositories" in governance_validator
+    assert '"--source-only"' in governance_validator
     assert "allow_auto_merge" in governance_validator
     assert "required_conversation_resolution" in governance_validator
     assert "determine_dependency_authority" in hygiene_validator
