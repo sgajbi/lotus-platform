@@ -107,12 +107,18 @@ def test_platform_guidance_owns_lock_backed_node_tooling_contract() -> None:
     skill = (
         ROOT / "codex/skills/lotus-ci-enforcement-governance/SKILL.md"
     ).read_text(encoding="utf-8")
+    skill_reference = (
+        ROOT
+        / "codex/skills/lotus-ci-enforcement-governance/references/deterministic-node-quality-tooling.md"
+    ).read_text(encoding="utf-8")
     standard = (
         ROOT
         / "platform-standards/Repository-Hygiene-and-Dependency-Model-Standard.md"
     ).read_text(encoding="utf-8")
 
-    for content in (skill, standard):
+    assert "references/deterministic-node-quality-tooling.md" in skill
+
+    for content in (skill_reference, standard):
         assert "tools/api_governance/" in content
         assert "package-lock.json" in content
         assert "npm ci" in content
@@ -120,5 +126,5 @@ def test_platform_guidance_owns_lock_backed_node_tooling_contract() -> None:
         assert "node_modules/.bin" in content
         assert "validate_node_quality_tooling.py" in content
 
-    assert "Do not add Node to a Python-only service scaffold" in skill
+    assert "Do not add Node to a Python-only service scaffold" in skill_reference
     assert "platform backend scaffold remains Python-only" in standard

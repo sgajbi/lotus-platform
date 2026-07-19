@@ -121,6 +121,39 @@ No newly scaffolded Lotus backend repository should be created with:
 2. stale references to a dependency file that the repository does not own,
 3. multiple dependency authorities without explicit documentation and ownership.
 
+## Governed Dependency Vulnerability And Maturity Posture
+
+Application libraries are part of the product's bank-readiness posture, not a local convenience
+choice. The default dependency choice for Lotus application and quality-tooling code is mature,
+widely deployed, well-documented technology with broad developer training, operational tooling, and
+security-scanner support.
+
+By default, Lotus repositories must exclude:
+
+1. beta, alpha, preview, experimental, or incubating packages from runtime dependency sets,
+2. novelty-driven major-version upgrades that do not clear a concrete product, security, or
+   operational blocker,
+3. unmaintained or low-adoption packages when a mature ecosystem-standard alternative is available,
+4. packages without a credible vulnerability-disclosure, release-note, and patch-management trail,
+5. dependency changes that bypass repository lock, constraints, SBOM, or vulnerability-scan
+   evidence.
+
+Exceptions are allowed only when they are explicit, time-bounded, issue-backed, and reviewed through
+the repository's dependency hygiene or vulnerability-management evidence. An exception must name the
+package, version, business or engineering reason, vulnerability posture, compensating controls,
+expiry or revisit date, and the repository owner responsible for removal or promotion to the
+standard path.
+
+Dependency updates should therefore be treated as governed maintenance:
+
+1. prefer minimal patch/minor updates that remediate vulnerabilities or support current platform
+   policy,
+2. keep major upgrades as issue-backed implementation slices with migration notes and regression
+   evidence,
+3. retain scanner output and SBOM evidence in the applicable CI or release lane,
+4. do not present a dependency change as bank-ready while critical or high vulnerabilities remain
+   unowned or while scanner coverage is absent.
+
 ## Repository-Native Command Policy
 
 Scaffolded automation metadata must reference repository-native commands, not long ad hoc shell chains.

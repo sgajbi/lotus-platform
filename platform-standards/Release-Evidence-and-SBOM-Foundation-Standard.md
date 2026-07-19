@@ -63,6 +63,13 @@ Every Lotus repository that builds or deploys a container image must converge on
 image provenance chain. A repository may roll this out in stages, but gaps must be visible in its
 issue-discovery ledger, quality scorecard, release evidence, or follow-up backlog.
 
+Container images inherit the same vulnerability and technology-maturity posture as application
+libraries. Release images should be based on mature, widely deployed, actively maintained base
+images with broad scanner, hardening, and operational support. Beta, preview, experimental, novelty
+runtime, or unsupported base-image families are excluded by default. A base-image or runtime-family
+exception must be issue-backed, time-bounded, and tied to explicit vulnerability, supportability,
+and rollback evidence.
+
 The target control set is:
 
 1. the image is tagged with the Git commit SHA,
@@ -82,6 +89,12 @@ The target control set is:
     from source, and
 12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, build
     logs, OCI labels, release manifests, or runtime version metadata.
+
+Vulnerability posture is release evidence, not a best-effort note. A passing release lane must
+either include dependency and image vulnerability scans with no unowned policy-breaking findings, or
+carry approved time-bounded exceptions that identify severity, affected package or layer, fix
+availability, owner, expiry, and compensating controls. Permanent suppressions, unscoped scanner
+output, and "scanner unavailable" claims are not production-certification evidence.
 
 ## Deployment Promotion Manifest Baseline
 
