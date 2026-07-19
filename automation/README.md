@@ -1117,10 +1117,19 @@ Generate dependency vulnerability rollup across backend services:
 powershell -ExecutionPolicy Bypass -File automation/Generate-Dependency-Vulnerability-Rollup.ps1
 ```
 
-Enforce repository governance policy (branch protection + auto-merge + review requirements):
+Plan repository governance policy reconciliation after proving that every required check is
+emitted by current workflow source:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Repository lotus-workbench
+```
+
+Use the same bounded repository selector with `-Apply` only after reviewing the plan. Omit
+`-Repository` for an intentional ecosystem-wide reconciliation. The enforcer refuses to plan or
+apply a policy containing a required context that current default-branch workflows do not emit.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governance.ps1 -Repository lotus-workbench -Apply
 ```
 
 Validate repository hygiene and dependency authority for a scaffolded or existing backend repo:
@@ -1257,11 +1266,25 @@ Bootstrap the isolated platform automation Python runtime:
 powershell -ExecutionPolicy Bypass -File automation/Resolve-PlatformAutomationPython.ps1
 ```
 
-Validate current repository governance drift against the platform policy:
+Validate current workflow-source and live repository-governance drift against the platform policy:
 
 ```powershell
 python automation/validate_repository_governance.py
 ```
+
+Use a repeatable repository selector for bounded proof, or `--source-only` as the non-mutating
+preflight before governance reconciliation:
+
+```powershell
+python automation/validate_repository_governance.py --repository lotus-workbench
+python automation/validate_repository_governance.py --source-only --repository lotus-workbench --repository lotus-idea
+```
+
+Required-check names must match the exact job names emitted by current default-branch workflow
+source. Matrix job names are expanded using their axes, includes, and exclusions. A context emitted
+outside repository workflow source must be declared in that repository's
+`external_required_checks` mapping with a non-empty provider description; this exception is for a
+real external check provider, not a differently named local job.
 
 Scaffold a new standards-compliant Lotus backend and auto-register it in automation:
 

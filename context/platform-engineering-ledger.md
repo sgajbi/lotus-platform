@@ -316,3 +316,23 @@ Implication:
 
 Future Lotus documentation work should reduce overlap first, add pages only for real navigation or
 ownership boundaries, and verify the authored wiki diff before publishing to GitHub.
+
+### 2026-07-19 | Branch policy names must be proved against emitted workflow contexts before reconciliation
+
+A protected-branch audit found that repository-specific container jobs had evolved while the
+central governance policy retained a generic retired name. Comparing policy only with live branch
+settings could report that stale agreement as healthy or allow enforcement to remove a newer check.
+
+The governance flow became safer once:
+
+1. required contexts were compared with current default-branch workflow job names,
+2. matrix job names were expanded using active axes and exclusions,
+3. external providers required explicit non-empty declarations,
+4. validation and enforcement could be scoped to named repositories,
+5. source-only validation ran before any reconciliation plan or mutation.
+
+Implication:
+
+Future required-check changes must update workflow source, durable policy, regression evidence, and
+live protection as one issue-backed lifecycle. A green live setting is insufficient if current
+source cannot emit the required context.
