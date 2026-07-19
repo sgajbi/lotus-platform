@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 340079
+    "total_source_lines": 340524
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -252,6 +252,14 @@
         "path": "tests/unit/test_repository_hygiene_scaffold_contract.py"
       },
       {
+        "complexity": 2,
+        "end_line": 320,
+        "line": 67,
+        "lines": 254,
+        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
+        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
+      },
+      {
         "complexity": 1,
         "end_line": 238,
         "line": 26,
@@ -266,14 +274,6 @@
         "lines": 210,
         "name": "run_validation",
         "path": "automation/core_seeded_analytics_maturity_validation.py"
-      },
-      {
-        "complexity": 2,
-        "end_line": 272,
-        "line": 67,
-        "lines": 206,
-        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
-        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
         "complexity": 2,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2388
+    "python_function_count": 2389
   },
-  "generated_at_utc": "2026-07-18T14:26:08Z",
+  "generated_at_utc": "2026-07-19T04:13:48Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -393,7 +393,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 3072,
+      "lines": 3138,
       "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
       "suffix": ".json"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 775,
+    "collected_tests": 776,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "775 tests collected in 3.23s"
+    "summary": "776 tests collected in 1.95s"
   }
 }
