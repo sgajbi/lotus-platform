@@ -309,7 +309,11 @@ def audit_issue_coverage(
                 priority_labels=priority_labels,
                 duplicate_posture=_duplicate_posture(snapshot),
                 referenced_by=_referenced_by(grouped_expectations),
-                gh_fix_commands=_gh_fix_commands(grouped_expectations, missing_labels),
+                gh_fix_commands=(
+                    _gh_fix_commands(grouped_expectations, missing_labels)
+                    if snapshot.exists
+                    else ()
+                ),
                 exists=snapshot.exists,
                 error=snapshot.error,
             )

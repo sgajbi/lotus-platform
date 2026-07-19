@@ -182,3 +182,5 @@ def test_auditor_distinguishes_missing_issues_and_duplicate_contract_references(
     assert records["sgajbi/lotus-report#77"].state == "CLOSED"
     assert records["sgajbi/lotus-render#78"].exists is False
     assert records["sgajbi/lotus-render#78"].status == "missing_issue"
+    assert records["sgajbi/lotus-render#78"].gh_fix_commands == ()
+    assert "gh issue edit 78" not in auditor.render_markdown(audit)
