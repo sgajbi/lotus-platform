@@ -66,6 +66,17 @@ Use `scripts/ensure_issue_discovery_labels.py` before filing or relabeling issue
 template. Use `scripts/plan_issue_discovery_campaign.py` to generate a repeatable repo/profile
 campaign plan before broad reviews or app handoffs. Add `--include-bank-readiness` when the review
 must map findings to the platform `BR-001` through `BR-025` catalog.
+Use `scripts/audit_rfc_issue_coverage.py` before claiming a multi-repo RFC backlog is complete,
+especially when an RFC proof or blueprint contract contains owner-repo issue references. Run it in
+read-only mode first so missing issue labels, missing issues, closed/superseded posture, priority
+labels, and blocked status are durable evidence instead of chat memory.
+
+Example:
+
+```powershell
+python codex\skills\lotus-app-issue-discovery\scripts\audit_rfc_issue_coverage.py `
+  --contract ..\lotus-idea\contracts\implementation-proof\rfc0002-blueprint-scope-coverage.v1.json
+```
 
 ## Discovery-To-Delivery Handoff
 
@@ -125,21 +136,24 @@ campaign work:
    `python <skill-dir>\scripts\plan_issue_discovery_campaign.py --repository <owner>/<repo>`;
    then select one primary lens from the user's request, ledger gaps, the baseline queue, or a
    recent high-value adjacent defect.
-4. Load `references/review-lenses.md` and `references/campaign-playbook.md`; load the ledger
+4. For RFC completion or cross-repo owner issue coverage, run
+   `python <skill-dir>\scripts\audit_rfc_issue_coverage.py --contract <path-to-rfc-issue-contract>`
+   and use the JSON/Markdown output under `output/` as the durable issue-coverage snapshot.
+5. Load `references/review-lenses.md` and `references/campaign-playbook.md`; load the ledger
    template only when creating or repairing a ledger.
-5. Inspect code with `rg` first, then read representative source plus at least one counterpart
+6. Inspect code with `rg` first, then read representative source plus at least one counterpart
    artifact: test, contract, migration, workflow, README/wiki source, generated OpenAPI, or runtime
    proof.
-6. Compare evidence to platform, repo, docs KB, RFC, contract, or accepted domain practice.
-7. Search GitHub duplicates with at least one broad lens query and one concrete symbol/file/query
+7. Compare evidence to platform, repo, docs KB, RFC, contract, or accepted domain practice.
+8. Search GitHub duplicates with at least one broad lens query and one concrete symbol/file/query
    term across open and closed issues.
-8. Classify each candidate as `new issue`, `existing issue`, `active-fix feedback`,
+9. Classify each candidate as `new issue`, `existing issue`, `active-fix feedback`,
    `ledger-only residual risk`, `no issue`, or `not applicable`.
-9. Ensure labels, then file or reuse one issue per root cause only when the evidence packet is
+10. Ensure labels, then file or reuse one issue per root cause only when the evidence packet is
    complete.
-10. Update the ledger after every pass with status, proof flags, inspected paths, standards,
+11. Update the ledger after every pass with status, proof flags, inspected paths, standards,
     duplicate searches, issue numbers, active blockers, residual risk, recommendation, and next lens.
-11. Report the lens covered, issues filed or reused, no-issue decisions, current worktree state, and
+12. Report the lens covered, issues filed or reused, no-issue decisions, current worktree state, and
     the next useful recommendation.
 
 Do not stop after state discovery unless the repository target, GitHub access, or required
@@ -270,6 +284,8 @@ Choose the smallest durable artifact:
 - `scripts/validate_issue_discovery_skill.py`: drift checks across catalog, label script, and ledger
 - `scripts/plan_issue_discovery_campaign.py`: repeatable repo/profile campaign planning and
   high-signal CI-hardening candidate hints
+- `scripts/audit_rfc_issue_coverage.py`: read-only RFC contract-to-GitHub issue coverage audit
+  for owner-repo backlog traceability and exact label repair commands
 
 For skill-maintenance slices, run:
 
@@ -277,6 +293,7 @@ For skill-maintenance slices, run:
 python -m py_compile codex\skills\lotus-app-issue-discovery\scripts\ensure_issue_discovery_labels.py
 python -m py_compile codex\skills\lotus-app-issue-discovery\scripts\validate_issue_discovery_skill.py
 python -m py_compile codex\skills\lotus-app-issue-discovery\scripts\plan_issue_discovery_campaign.py
+python -m py_compile codex\skills\lotus-app-issue-discovery\scripts\audit_rfc_issue_coverage.py
 python codex\skills\lotus-app-issue-discovery\scripts\validate_issue_discovery_skill.py
 python <skill-creator>\scripts\quick_validate.py codex\skills\lotus-app-issue-discovery
 python automation\validate_lotus_skill_alignment.py

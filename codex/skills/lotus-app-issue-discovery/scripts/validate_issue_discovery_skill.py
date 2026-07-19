@@ -119,6 +119,7 @@ def validate() -> list[Finding]:
         "ensure_issue_discovery_labels.py",
         "validate_issue_discovery_skill.py",
         "plan_issue_discovery_campaign.py",
+        "audit_rfc_issue_coverage.py",
     ]:
         if script_name not in skill_text:
             findings.append(
@@ -127,6 +128,24 @@ def validate() -> list[Finding]:
                     "script-undiscoverable",
                     f"SKILL.md does not mention {script_name}.",
                     str(SKILL_ROOT / "SKILL.md"),
+                )
+            )
+
+    auditor_text = read_text(SKILL_ROOT / "scripts" / "audit_rfc_issue_coverage.py")
+    for required_auditor_contract in (
+        "--contract",
+        "--issues-json",
+        "--strict",
+        "gh issue edit",
+        "rfc/",
+    ):
+        if required_auditor_contract not in auditor_text:
+            findings.append(
+                Finding(
+                    "high",
+                    "rfc-issue-coverage-auditor-missing",
+                    f"RFC issue coverage auditor does not preserve {required_auditor_contract}.",
+                    str(SKILL_ROOT / "scripts" / "audit_rfc_issue_coverage.py"),
                 )
             )
 
