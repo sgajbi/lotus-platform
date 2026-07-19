@@ -51,6 +51,7 @@
         "loading",
         "empty",
         "partial",
+        "permission_blocked",
         "unavailable",
         "error",
         "out_of_scope"
@@ -64,6 +65,7 @@
         "loading": { "type": "array", "items": { "type": "string" } },
         "empty": { "type": "array", "items": { "type": "string" } },
         "partial": { "type": "array", "items": { "type": "string" } },
+        "permission_blocked": { "type": "array", "items": { "type": "string" } },
         "unavailable": { "type": "array", "items": { "type": "string" } },
         "error": { "type": "array", "items": { "type": "string" } },
         "out_of_scope": { "type": "array", "items": { "type": "string" } }
@@ -145,6 +147,7 @@
             "lotus-ai",
             "lotus-manage",
             "lotus-performance",
+            "lotus-report",
             "lotus-risk"
           ]
         },

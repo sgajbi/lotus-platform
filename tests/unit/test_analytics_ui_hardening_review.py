@@ -82,6 +82,12 @@ def test_analytics_ui_hardening_review_validator_accepts_baseline() -> None:
     assert "/recommendations?portfolioId={portfolio_id}&mode=copilot" in review[
         "panel_state_review"
     ]["certified_route_groups_reviewed"]
+    assert "/book?asOfDate={canonicalAsOfDate}" in review["panel_state_review"][
+        "certified_route_groups_reviewed"
+    ]
+    assert "/reports?portfolioId={portfolio_id}" in review["panel_state_review"][
+        "certified_route_groups_reviewed"
+    ]
     assert (
         _validate(
             _load_json(OBSERVABILITY_CONTRACT_PATH),
