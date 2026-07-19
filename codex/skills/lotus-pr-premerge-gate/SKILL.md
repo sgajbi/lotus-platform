@@ -197,6 +197,14 @@ Rule: never enable merge (or auto-merge) while any required check is failing or 
 instability. Pending heavy lanes with a stable history are acceptable for async monitoring once
 auto-merge is enabled.
 
+### 3.0.1) Late review finding triage
+
+Before merge, apply the canonical risk-based triage in
+[`gh-issue-fix-qa-loop`](../gh-issue-fix-qa-loop/SKILL.md#late-review-finding-triage).
+Record whether each finding remains blocking or qualifies for a linked, independent follow-up. A
+green check set does not override the blocker classification, and a properly linked and resolved
+non-blocking thread does not require a code-changing CI rerun.
+
 Definition of green:
 
 1. local repository-native gates are green,
@@ -254,7 +262,8 @@ green evidence on the active PR.
 Allow merge only when all conditions are true:
 
 1. Required GitHub checks are green.
-2. No unresolved conversations, explicitly blocking review comments, or requested changes.
+2. No unresolved conversations, explicitly blocking review comments, or requested changes remain
+   after canonical late-review triage.
 3. Local repo state is clean and branch contains only intended commits.
 4. PR description accurately reflects shipped behavior.
 5. If the base branch requires signed commits, every branch commit is verified by GitHub as signed
