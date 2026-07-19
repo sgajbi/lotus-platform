@@ -335,6 +335,13 @@ Boundary rules:
     a live container that proves the expected working directory are also ambiguous and must block
     mutation. Use `-CleanPlanOnly` to review
     `output/front-office-qa/cleanup-plan-latest.json` without mutation.
+44. `automation/validate_repository_governance.py` validates both live protected-branch posture and
+    whether every required status context is emitted by current default-branch workflow source.
+    Matrix job names are expanded before comparison; truly external checks require an explicit
+    provider declaration. Use repeatable `--repository` selectors for bounded proof and
+    `--source-only` for non-mutating policy preflight. `automation/Enforce-Repository-Governance.ps1`
+    runs that source preflight before plan or apply, supports the same bounded repository posture,
+    and must not reconcile a stale context into protected-main policy.
 
 ## Repo-Native Commands
 
