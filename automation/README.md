@@ -84,6 +84,33 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/repos.json`
 - `automation/qa-matrix.json`
 
+## RFC Issue Coverage Audit
+
+Use the issue-discovery skill-owned auditor when an RFC proof, blueprint, or blocker contract lists
+owner-repo GitHub issues and you need a durable completeness snapshot before claiming RFC backlog,
+slice, or closure readiness.
+
+Read-only audit against live GitHub:
+
+```powershell
+python codex\skills\lotus-app-issue-discovery\scripts\audit_rfc_issue_coverage.py `
+  --contract ..\lotus-idea\contracts\implementation-proof\rfc0002-blueprint-scope-coverage.v1.json
+```
+
+Strict mode for CI or pre-closure checks:
+
+```powershell
+python codex\skills\lotus-app-issue-discovery\scripts\audit_rfc_issue_coverage.py `
+  --contract <path-to-rfc-issue-reference-contract.json> `
+  --strict
+```
+
+The command writes `output/rfc-issue-coverage-audit.json` and
+`output/rfc-issue-coverage-audit.md`. It verifies each referenced issue exists, has the RFC label,
+has each required `rfc/<RFC>/slice-*` label implied by the contract entry, and reports issue state,
+status labels, priority labels, blocked/closed posture, duplicate/superseded posture, and exact
+reviewable `gh issue edit` commands for missing labels. It does not mutate GitHub by default.
+
 ## Quick Start
 
 Developer environment readiness:
