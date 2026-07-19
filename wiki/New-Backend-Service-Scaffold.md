@@ -107,6 +107,12 @@ SHA image tags, OCI labels for commit/ref/source/version/build/run metadata, CI-
 digest-bearing release manifests, SBOM, vulnerability scanning, signing, provenance attestation,
 digest-based deploys, `/version` metadata parity, same-image promotion, and build-secret leak
 checks.
+Generated services also inherit the governed vulnerability and technology-maturity posture:
+application libraries, runtime dependencies, base images, and deployable images default to mature,
+widely deployed, well-documented, actively maintained technology. Beta, preview, experimental,
+incubating, unsupported, or novelty-driven major upgrades require issue-backed, time-bounded
+exceptions with ownership, vulnerability posture, compensating controls, rollback, expiry, and a
+planned fix path before any bank-buyable or production-ready claim.
 Generated repos also include a merged-PR dispatcher that starts Main Releasability on `main` after
 PR completion.
 The scaffolded auto-merge workflow requires `LOTUS_AUTOMERGE_TOKEN`; repositories without that

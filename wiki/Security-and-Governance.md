@@ -12,6 +12,7 @@
 - service addressing and ingress governance
 - central context and agent operating contract
 - scaffold and validator ownership
+- governed dependency, SBOM, vulnerability-scan, and container-image maturity posture
 - RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
 - RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway
   publication drift, and Workbench discovery consumption drift
@@ -42,6 +43,15 @@
 - [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - [Platform Observability Standards](../docs/standards/Platform%20Observability%20Standards.md)
 - [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
+
+## Dependency and image posture
+
+Application libraries and container images must default to mature, widely deployed,
+well-documented, actively maintained technology with broad training, scanner, and operational
+tooling support. Beta, preview, experimental, incubating, unsupported, or novelty-driven major
+upgrades are excluded from runtime and release-image posture unless an explicit issue-backed,
+time-bounded exception records ownership, vulnerability posture, compensating controls, rollback,
+expiry, and a planned fix path.
 
 ## Operating rule
 

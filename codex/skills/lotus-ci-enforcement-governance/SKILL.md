@@ -104,6 +104,18 @@ Do not promote a gate from intuition alone. If the signal cannot meet this intak
 report-only. Use it for planning until baseline, false-positive, lane-placement, and exception
 policy are settled.
 
+## Dependency And Container Vulnerability Posture
+
+When reviewing or designing dependency, SCA, SBOM, or container-image gates, load
+`references/dependency-container-vulnerability-posture.md`. It owns the detailed Lotus technology
+maturity default, vulnerability evidence expectations, exception fields, and report-only to
+blocking promotion criteria.
+
+Keep skill-specific automation with this skill. If this posture later needs a reusable scanner
+inventory, exception-schema check, or gate-readiness helper that is not a general platform
+validator, place it under `codex/skills/lotus-ci-enforcement-governance/scripts/` and reference the
+script from the posture reference instead of adding more repo-root one-off automation.
+
 ## Final-Head Quantitative Evidence
 
 Before treating scorecards, diff-stat movement, line-count reductions, coverage deltas, or other
@@ -122,34 +134,10 @@ human-authored number in free-form text.
 
 ## Deterministic Node Quality Tooling
 
-When a blocking quality gate uses a Node-based tool, keep its dependency resolution reproducible:
-
-1. own the tool in a capability-named package such as `tools/api_governance/`, not in a root-level
-   file dump;
-2. declare direct quality-tool dependencies with exact versions and commit the adjacent
-   `package-lock.json`;
-3. declare an exact or bounded supported Node range and configure the same governed Node release in
-   CI;
-4. restore dependencies with `npm ci`, preferably with lifecycle scripts disabled when the tool
-   does not need them;
-5. invoke the lock-installed `node_modules/.bin` executable or an owned package script;
-6. run the applicable dependency vulnerability audit and fix or explicitly govern findings before
-   treating the output as release evidence.
-
-Do not use unversioned `npx`, implicit latest tags, global npm installs, or mutable `npm install`
-resolution as blocking PR, main, release, provenance, or certification evidence. An explicitly
-report-only inventory may retain a pinned bootstrap fallback while it converges, but it is not
-release evidence and must not be promoted without the lock-backed package contract above.
-
-Validate applicable repositories with:
-
-```powershell
-python automation/quality_tooling/validate_node_quality_tooling.py --repository <repo-root>
-```
-
-Do not add Node to a Python-only service scaffold merely to satisfy this rule. Keep the scaffold
-dependency surface minimal and require it to pass the validator; add an owned Node tooling package
-only when the generated service gains a real Node-based blocking gate.
+When a blocking quality gate uses a Node-based tool, load
+`references/deterministic-node-quality-tooling.md`. It owns the lock-backed package contract,
+forbidden mutable-resolution patterns, validation command, and the rule that Node tooling should not
+be added to Python-only service scaffolds without a real Node-based blocking gate.
 
 ## Agent-Driven Development Guardrails
 

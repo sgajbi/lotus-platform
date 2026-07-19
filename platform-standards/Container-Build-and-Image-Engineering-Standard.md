@@ -37,6 +37,21 @@ Multi-service repositories must also converge shared framework stacks before cla
 
 Once framework convergence is achieved, the repository should promote the shared constraints layer into a compiled shared runtime lock artifact and use that same artifact for local bootstrap, Docker image builds, and any build-evidence generation.
 
+### 2.1 Vulnerability And Runtime Maturity Posture
+
+Runtime dependencies and base images must default to mature, widely deployed, well-documented
+technology with broad training, scanner coverage, and operational support. Do not introduce beta,
+preview, experimental, incubating, unsupported, or novelty-driven runtime foundations into
+production images unless a time-bounded, issue-backed exception records the reason, owner,
+vulnerability posture, rollback path, and expiry.
+
+Container vulnerability scanning must be treated as governed release evidence. Critical or high
+findings require remediation or an approved, time-bounded exception before a release image can be
+described as production-ready or bank-buyable. The exception must map the finding to the affected
+package or image layer, severity, exploitability or exposure assessment, compensating controls, and
+planned fix path. Unowned scanner output and permanent suppressions are not acceptable release
+posture.
+
 ### 3. Multi-Stage Images
 Production images must use multi-stage builds.
 

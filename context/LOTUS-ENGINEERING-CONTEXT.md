@@ -830,6 +830,13 @@ Dockerfile hygiene, SBOM, vulnerability scan, signing, provenance attestation, a
 `python automation/validate_deployment_promotion_manifest.py` rejects mutable tags, missing digest
 refs, release/deployed digest mismatches, rebuild-per-environment promotion, and production
 certification claims before live deployment proof exists.
+Application libraries and container images also require governed vulnerability posture. The default
+technology choice is mature, widely deployed, well-documented, actively maintained, and supported by
+broad training, scanner, and operational tooling. Beta, preview, experimental, incubating,
+unsupported, or novelty-driven major upgrades are excluded from runtime and release-image posture by
+default. Exceptions must be issue-backed, time-bounded, owner-assigned, and carry vulnerability,
+supportability, compensating-control, rollback, and expiry evidence before a PR, release, README,
+wiki, RFC, or supported-feature claim can describe the result as production-ready or bank-buyable.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`,
 `make monetary-float-guard`, `make source-observability-contract-gate`,
