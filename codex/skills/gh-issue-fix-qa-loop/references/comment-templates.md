@@ -2,6 +2,20 @@
 
 Automation emits these structured fields. Preserve the same evidence when writing a manual update.
 
+## Late Review Follow-Up
+
+```text
+Review disposition: independent non-blocking follow-up
+Canonical issue: <issue URL>
+Owner: <repository/team/person>
+Impact: <bounded impact>
+Evidence: <review thread and reproducible evidence>
+Originating PR/thread: <PR URL and thread URL>
+Acceptance and evaluation: <done conditions and proof command/run>
+Non-blocking rationale: <why correctness, security, data integrity, contracts, migrations, and release safety are unaffected>
+Result: Thread linked and resolved; required CI remains green without a code-changing rerun.
+```
+
 ## Merged, Main Validation Pending
 
 ```text

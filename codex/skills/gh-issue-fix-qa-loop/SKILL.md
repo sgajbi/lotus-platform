@@ -70,6 +70,29 @@ For urgent production containment, mitigate first only when waiting would increa
 or link the canonical issue before considering the implementation slice complete. Issue creation is
 traceability, not progress, and does not replace tests, documentation, or validation evidence.
 
+## Late Review Finding Triage
+
+Green CI is evidence, not immunity from review. Classify each late finding before resolving its
+thread:
+
+1. Keep the finding blocking when the PR introduced it, its acceptance criteria require it, or it
+   can affect correctness, security or privacy, authorization or tenant isolation, data integrity,
+   contracts or schemas, migrations, breaking behavior, release safety, or a required check.
+   Fix it in the PR and rerun the affected required validation.
+2. Defer only a genuinely independent, pre-existing, non-blocking finding after required CI is
+   green. Search for an existing issue first. The canonical follow-up issue must record an owner,
+   impact, evidence, the originating PR and review-thread links, acceptance criteria, evaluation
+   conditions, and an explicit non-blocking rationale.
+3. Reply to the originating review thread with the canonical issue link and rationale, then resolve
+   the thread. Summarize the disposition on the PR so merge evidence is self-contained.
+4. Prefer focused affected-lane validation when repository governance permits. Do not restart broad
+   green CI when no PR code changed, and do not use a follow-up issue to hide a PR-introduced or
+   release-critical defect.
+
+If the classification, ownership, or evidence is uncertain, keep the review finding blocking.
+Use the late-review template in [comment-templates](references/comment-templates.md) so the decision
+survives chat or context compaction.
+
 ## Workflow
 
 1. Start implementation:

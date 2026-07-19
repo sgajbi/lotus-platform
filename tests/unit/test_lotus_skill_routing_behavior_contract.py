@@ -580,3 +580,59 @@ def test_premerge_guidance_uses_an_active_ci_wait_queue_without_scope_expansion(
     assert "Return to the active delivery as soon as CI or review state changes" in premerge_skill
     assert "work completed during the wait does not substitute" in premerge_skill
     assert "return to the active delivery immediately" in task_ledger_playbook
+
+
+def test_late_review_triage_blocks_risk_and_durably_tracks_independent_findings() -> None:
+    issue_loop_skill = _read(ROOT / "codex" / "skills" / "gh-issue-fix-qa-loop" / "SKILL.md")
+    comment_templates = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "gh-issue-fix-qa-loop"
+        / "references"
+        / "comment-templates.md"
+    )
+    premerge_skill = _read(ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md")
+    normalized_issue_loop_skill = " ".join(issue_loop_skill.split())
+
+    for blocker in (
+        "correctness",
+        "authorization or tenant isolation",
+        "data integrity",
+        "contracts or schemas",
+        "migrations",
+        "release safety",
+        "required check",
+    ):
+        assert blocker in issue_loop_skill
+
+    for durable_field in (
+        "owner",
+        "impact",
+        "evidence",
+        "originating PR and review-thread links",
+        "acceptance criteria",
+        "evaluation conditions",
+        "explicit non-blocking rationale",
+    ):
+        assert durable_field in issue_loop_skill
+
+    assert "after required CI is green" in normalized_issue_loop_skill
+    assert (
+        "Do not restart broad green CI when no PR code changed"
+        in normalized_issue_loop_skill
+    )
+    assert "do not use a follow-up issue to hide" in normalized_issue_loop_skill
+    assert "../gh-issue-fix-qa-loop/SKILL.md#late-review-finding-triage" in premerge_skill
+    assert "after canonical late-review triage" in premerge_skill
+
+    for template_field in (
+        "Canonical issue:",
+        "Owner:",
+        "Impact:",
+        "Evidence:",
+        "Originating PR/thread:",
+        "Acceptance and evaluation:",
+        "Non-blocking rationale:",
+    ):
+        assert template_field in comment_templates
