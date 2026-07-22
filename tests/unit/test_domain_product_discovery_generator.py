@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 
@@ -11,6 +12,11 @@ DECLARATION_DIRECTORY = ROOT / "platform-contracts" / "domain-data-products"
 SOURCE_MANIFEST_PATH = DECLARATION_DIRECTORY / "domain-product-source-manifest.v1.json"
 GENERATED_DIRECTORY = ROOT / "generated"
 CHECKED_IN_GENERATED_AT = "2026-06-24T00:00:00Z"
+
+
+def _source_root_override() -> Path | None:
+    value = os.environ.get("LOTUS_DOMAIN_PRODUCT_SOURCE_ROOT")
+    return Path(value) if value else None
 
 
 def _load_generator_module():
@@ -144,6 +150,73 @@ def test_domain_product_source_manifest_rejects_missing_repo_native_source(
     )
 
 
+def test_domain_product_discovery_can_use_explicit_source_root(
+    tmp_path: Path,
+) -> None:
+    generator = _load_generator_module()
+    source_payload = json.loads(
+        (
+            ROOT.parent
+            / "lotus-manage"
+            / "contracts"
+            / "domain-data-products"
+            / "lotus-manage-products.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    source_payload["products"][0]["freshness_policy"][
+        "max_allowed_age_description"
+    ] = "Source root override proof freshness posture."
+    overridden_product_name = source_payload["products"][0]["product_name"]
+
+    source_root = tmp_path / "federated-main"
+    source_directory = (
+        source_root / "lotus-manage" / "contracts" / "domain-data-products"
+    )
+    source_directory.mkdir(parents=True)
+    (source_directory / "lotus-manage-products.v1.json").write_text(
+        json.dumps(source_payload, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    manifest = json.loads(SOURCE_MANIFEST_PATH.read_text(encoding="utf-8"))
+    manifest["repositories"] = [
+        {
+            "repository": "lotus-manage",
+            "source_mode": "repo_native",
+            "catalog_inclusion": "included",
+            "repo_native_status": "implemented",
+            "repo_native_declaration_path": "contracts/domain-data-products",
+            "platform_declaration_paths": [],
+            "notes": "Temporary source-root override fixture.",
+        }
+    ]
+    manifest_path = tmp_path / "domain-product-source-manifest.v1.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    assert generator.validate_source_manifest(
+        manifest_path, source_root=source_root
+    ) == []
+
+    catalog, _, _ = generator.generate_discovery_artifacts(
+        DECLARATION_DIRECTORY,
+        generated_at_utc=CHECKED_IN_GENERATED_AT,
+        source_manifest_path=manifest_path,
+        source_root=source_root,
+    )
+
+    product = next(
+        product
+        for product in catalog["products"]
+        if product["product_name"] == overridden_product_name
+    )
+    assert product["freshness_policy"][
+        "max_allowed_age_description"
+    ] == "Source root override proof freshness posture."
+    assert product["source_path"].endswith(
+        "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json"
+    )
+
+
 def test_domain_product_discovery_uses_repo_native_source_paths() -> None:
     generator = _load_generator_module()
 
@@ -216,6 +289,7 @@ def test_domain_product_discovery_generator_writes_json_and_markdown_outputs(
         tmp_path,
         DECLARATION_DIRECTORY,
         generated_at_utc=CHECKED_IN_GENERATED_AT,
+        source_root=_source_root_override(),
     )
 
     catalog = json.loads(
@@ -243,6 +317,7 @@ def test_checked_in_domain_product_discovery_outputs_are_not_stale(
         tmp_path,
         DECLARATION_DIRECTORY,
         generated_at_utc=CHECKED_IN_GENERATED_AT,
+        source_root=_source_root_override(),
     )
 
     for artifact_name in (

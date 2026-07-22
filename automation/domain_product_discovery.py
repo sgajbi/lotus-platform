@@ -212,11 +212,16 @@ def _load_platform_validator():
     return module
 
 
-def _relative_path(path: Path) -> str:
+def _relative_path(path: Path, *, source_root: Path | None = None) -> str:
     resolved = path.resolve()
     if "_federated" in resolved.parts:
         federated_index = resolved.parts.index("_federated")
         return Path(*resolved.parts[federated_index + 1 :]).as_posix()
+    if source_root is not None:
+        try:
+            return resolved.relative_to(source_root.resolve()).as_posix()
+        except ValueError:
+            pass
     try:
         return resolved.relative_to(ROOT).as_posix()
     except ValueError:
@@ -307,6 +312,7 @@ def _validate_repo_native_source_directory(
     repository: str | None,
     repo_native_path: str | None,
     repo_native_status: object,
+    source_root: Path,
     issues: list[str],
 ) -> None:
     if repo_native_status != "implemented":
@@ -314,7 +320,7 @@ def _validate_repo_native_source_directory(
             f"{manifest_path}: repositories[{index}] repo_native sources require repo_native_status implemented"
         )
     if isinstance(repository, str) and isinstance(repo_native_path, str):
-        repo_native_directory = ROOT.parent / repository / repo_native_path
+        repo_native_directory = source_root / repository / repo_native_path
     else:
         repo_native_directory = None
     if repo_native_directory is not None and not repo_native_directory.exists():
@@ -364,6 +370,7 @@ def _validate_source_manifest_repository_entry(
     index: int,
     entry: object,
     seen_repositories: set[str],
+    source_root: Path,
     issues: list[str],
 ) -> None:
     if not isinstance(entry, dict):
@@ -409,6 +416,7 @@ def _validate_source_manifest_repository_entry(
             repository=repository,
             repo_native_path=repo_native_path,
             repo_native_status=entry.get("repo_native_status"),
+            source_root=source_root,
             issues=issues,
         )
     if platform_paths_valid:
@@ -422,8 +430,11 @@ def _validate_source_manifest_repository_entry(
 
 def validate_source_manifest(
     manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    *,
+    source_root: Path | None = None,
 ) -> list[str]:
     manifest = _load_json(manifest_path)
+    resolved_source_root = (source_root or ROOT.parent).resolve()
     issues: list[str] = []
     _validate_source_manifest_identity(
         manifest_path=manifest_path,
@@ -443,6 +454,7 @@ def validate_source_manifest(
             index=index,
             entry=entry,
             seen_repositories=seen_repositories,
+            source_root=resolved_source_root,
             issues=issues,
         )
 
@@ -451,8 +463,10 @@ def validate_source_manifest(
 
 def _load_source_manifest(
     manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    *,
+    source_root: Path | None = None,
 ) -> dict[str, Any]:
-    issues = validate_source_manifest(manifest_path)
+    issues = validate_source_manifest(manifest_path, source_root=source_root)
     if issues:
         raise ValueError(
             "Domain product source manifest is invalid:\n" + "\n".join(issues)
@@ -476,7 +490,10 @@ def _load_declaration_sources(
 
 def _source_paths_from_manifest(
     source_manifest: dict[str, Any],
+    *,
+    source_root: Path | None = None,
 ) -> list[Path]:
+    resolved_source_root = (source_root or ROOT.parent).resolve()
     source_paths: list[Path] = []
     for entry in source_manifest["repositories"]:
         if entry["catalog_inclusion"] != "included":
@@ -484,7 +501,7 @@ def _source_paths_from_manifest(
 
         if entry["source_mode"] == "repo_native":
             repo_directory = (
-                ROOT.parent
+                resolved_source_root
                 / entry["repository"]
                 / entry["repo_native_declaration_path"]
             )
@@ -500,10 +517,14 @@ def _source_paths_from_manifest(
 
 def _load_declaration_sources_from_manifest(
     source_manifest: dict[str, Any],
+    *,
+    source_root: Path | None = None,
 ) -> tuple[list[tuple[Path, dict[str, Any]]], list[tuple[Path, dict[str, Any]]]]:
     producer_payloads: list[tuple[Path, dict[str, Any]]] = []
     consumer_payloads: list[tuple[Path, dict[str, Any]]] = []
-    for source_path in _source_paths_from_manifest(source_manifest):
+    for source_path in _source_paths_from_manifest(
+        source_manifest, source_root=source_root
+    ):
         payload = _load_json(source_path)
         if source_path.match(PRODUCT_GLOB):
             producer_payloads.append((source_path, payload))
@@ -557,6 +578,7 @@ def _build_product_entry(
     *,
     producer_repository: str,
     product: dict[str, Any],
+    source_root: Path | None = None,
 ) -> dict[str, Any]:
     return {
         "product_id": _product_id(
@@ -583,7 +605,7 @@ def _build_product_entry(
         "approved_consumers": product["approved_consumers"],
         "current_routes": product.get("current_routes", []),
         "deprecation_policy": product["deprecation_policy"],
-        "source_path": _relative_path(source_path),
+        "source_path": _relative_path(source_path, source_root=source_root),
     }
 
 
@@ -614,6 +636,7 @@ def _build_catalog_from_sources(
     source_declaration_directory: str,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
     source_manifest: dict[str, Any] | None = None,
+    source_root: Path | None = None,
 ) -> dict[str, Any]:
     source_manifest = source_manifest or _load_source_manifest(source_manifest_path)
     products: list[dict[str, Any]] = []
@@ -630,6 +653,7 @@ def _build_catalog_from_sources(
                     source_path,
                     producer_repository=producer_repository,
                     product=product,
+                    source_root=source_root,
                 )
             )
 
@@ -643,7 +667,7 @@ def _build_catalog_from_sources(
             {
                 "consumer_repository": consumer_repository,
                 "dependency_count": len(dependencies),
-                "source_path": _relative_path(source_path),
+                "source_path": _relative_path(source_path, source_root=source_root),
                 "dependencies": sorted(
                     dependencies,
                     key=lambda dependency: (
@@ -695,6 +719,7 @@ def _build_catalog(
     *,
     generated_at_utc: str,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    source_root: Path | None = None,
 ) -> dict[str, Any]:
     producer_payloads, consumer_payloads = _load_declaration_sources(
         declaration_directory
@@ -705,6 +730,7 @@ def _build_catalog(
         generated_at_utc=generated_at_utc,
         source_declaration_directory=_relative_path(declaration_directory),
         source_manifest_path=source_manifest_path,
+        source_root=source_root,
     )
 
 
@@ -863,11 +889,14 @@ def generate_discovery_artifacts(
     *,
     generated_at_utc: str | None = None,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    source_root: Path | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], str]:
     declaration_directory = declaration_directory.resolve()
-    source_manifest = _load_source_manifest(source_manifest_path)
+    source_manifest = _load_source_manifest(
+        source_manifest_path, source_root=source_root
+    )
     producer_payloads, consumer_payloads = _load_declaration_sources_from_manifest(
-        source_manifest
+        source_manifest, source_root=source_root
     )
     if not producer_payloads:
         raise ValueError("No producer domain-product declarations found to catalog")
@@ -883,6 +912,7 @@ def generate_discovery_artifacts(
         source_declaration_directory=FEDERATED_SOURCE_SENTINEL,
         source_manifest_path=source_manifest_path,
         source_manifest=source_manifest,
+        source_root=source_root,
     )
     graph = _build_graph(catalog)
     markdown = _render_catalog_markdown(catalog)
@@ -895,11 +925,13 @@ def write_discovery_artifacts(
     *,
     generated_at_utc: str | None = None,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    source_root: Path | None = None,
 ) -> None:
     catalog, graph, markdown = generate_discovery_artifacts(
         declaration_directory,
         generated_at_utc=generated_at_utc,
         source_manifest_path=source_manifest_path,
+        source_root=source_root,
     )
     output_directory.mkdir(parents=True, exist_ok=True)
     (output_directory / CATALOG_FILENAME).write_text(
@@ -919,6 +951,7 @@ def check_discovery_artifacts(
     *,
     generated_at_utc: str,
     source_manifest_path: Path = DEFAULT_SOURCE_MANIFEST_PATH,
+    source_root: Path | None = None,
 ) -> list[str]:
     with tempfile.TemporaryDirectory(
         prefix="lotus-domain-product-discovery-check-"
@@ -929,6 +962,7 @@ def check_discovery_artifacts(
             declaration_directory,
             generated_at_utc=generated_at_utc,
             source_manifest_path=source_manifest_path,
+            source_root=source_root,
         )
 
         issues: list[str] = []
