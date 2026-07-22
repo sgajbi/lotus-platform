@@ -40,6 +40,15 @@ def main(argv: list[str] | None = None) -> int:
         help="Governed source manifest describing platform mirror and repo-native declaration sources.",
     )
     parser.add_argument(
+        "--source-root",
+        default=None,
+        type=Path,
+        help=(
+            "Parent directory containing sibling Lotus repository checkouts for repo-native "
+            "declarations. Defaults to the parent of lotus-platform."
+        ),
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help="Check whether generated discovery artifacts are current without rewriting them.",
@@ -54,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
             args.declaration_directory,
             generated_at_utc=args.generated_at_utc,
             source_manifest_path=args.source_manifest,
+            source_root=args.source_root,
         )
         if issues:
             for issue in issues:
@@ -67,6 +77,7 @@ def main(argv: list[str] | None = None) -> int:
         args.declaration_directory,
         generated_at_utc=args.generated_at_utc,
         source_manifest_path=args.source_manifest,
+        source_root=args.source_root,
     )
     print(
         "Generated domain-product discovery artifacts in "
