@@ -63,6 +63,15 @@
       "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
     },
     {
+      "repository": "lotus-gateway",
+      "source_mode": "repo_native",
+      "catalog_inclusion": "included",
+      "repo_native_status": "implemented",
+      "repo_native_declaration_path": "contracts/domain-data-products",
+      "platform_declaration_paths": [],
+      "notes": "Repo-native API publication consumer declarations are merged and included through federated aggregation."
+    },
+    {
       "repository": "lotus-idea",
       "source_mode": "repo_native",
       "catalog_inclusion": "included",

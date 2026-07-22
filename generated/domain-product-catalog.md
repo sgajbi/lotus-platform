@@ -5,7 +5,7 @@ This file is generated from governed domain-data-product declarations.
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
 - Product count: `85`
-- Dependency count: `66`
+- Dependency count: `67`
 
 ## Products
 
@@ -54,7 +54,7 @@ This file is generated from governed domain-data-product declarations.
 | `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-idea | /portfolios/{portfolio_id}/cash-movement-summary |
 | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-idea | /portfolios/{portfolio_id}/cashflow-projection |
 | `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
-| `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
+| `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
 | `PortfolioMaturitySummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise, lotus-idea | /portfolios/{portfolio_id}/maturity-summary |
 | `PortfolioPartyRoleAssignment` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-gateway, lotus-workbench, lotus-manage | /integration/portfolios/{portfolio_id}/party-role-assignments |
 | `PortfolioRealizedTaxSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage | /portfolios/{portfolio_id}/realized-tax-summary |
@@ -103,6 +103,7 @@ This file is generated from governed domain-data-product declarations.
 | --- | --- | --- | --- | --- | --- |
 | `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` |
+| `lotus-gateway` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` |
 | `lotus-idea` | `AdvisoryCopilotInteractionRecord` | `lotus-advise` | `v1` | `supportability_lookup` | `support_only` |
 | `lotus-idea` | `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial` |
 | `lotus-idea` | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial` |

@@ -73,6 +73,15 @@
         "notes": "Repo-native management consumer declarations are merged and included through federated aggregation."
       },
       {
+        "repository": "lotus-gateway",
+        "source_mode": "repo_native",
+        "catalog_inclusion": "included",
+        "repo_native_status": "implemented",
+        "repo_native_declaration_path": "contracts/domain-data-products",
+        "platform_declaration_paths": [],
+        "notes": "Repo-native API publication consumer declarations are merged and included through federated aggregation."
+      },
+      {
         "repository": "lotus-idea",
         "source_mode": "repo_native",
         "catalog_inclusion": "included",
@@ -84,8 +93,8 @@
     ]
   },
   "product_count": 85,
-  "dependency_count": 66,
-  "repository_count": 7,
+  "dependency_count": 67,
+  "repository_count": 8,
   "repositories": [
     {
       "repository": "lotus-advise",
@@ -96,6 +105,11 @@
       "repository": "lotus-core",
       "produced_product_count": 48,
       "consumed_dependency_count": 0
+    },
+    {
+      "repository": "lotus-gateway",
+      "produced_product_count": 0,
+      "consumed_dependency_count": 1
     },
     {
       "repository": "lotus-idea",
@@ -3015,7 +3029,11 @@
         "snapshot_id",
         "content_hash",
         "policy_version",
-        "correlation_id"
+        "correlation_id",
+        "portfolio_manager_id",
+        "booking_center_code",
+        "source_evidence_current",
+        "freshness_status"
       ],
       "freshness_policy": {
         "freshness_class": "intraday",
@@ -3033,7 +3051,8 @@
       },
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-gateway"
       ],
       "current_routes": [
         "/integration/portfolio-manager-books/{portfolio_manager_id}/memberships"
@@ -4604,7 +4623,7 @@
       ],
       "freshness_policy": {
         "freshness_class": "daily",
-        "max_allowed_age_description": "Portfolio action registers are refreshed from current management workflow state and governed portfolio-state inputs. Certified PortfolioActionRegister routes exclude the lotus-idea action-intake route foundation, which is tracked separately as a not-certified route foundation for source-safe conversion-intent handoff evidence only; it does not create action-register records, grant rebalance authority, create orders, authorize client publication, or promote a supported feature."
+        "max_allowed_age_description": "Portfolio action registers are refreshed from current management workflow state and governed portfolio-state inputs. Certified PortfolioActionRegister routes exclude the lotus-idea action-intake receipt, which is tracked separately as a not-certified route foundation for source-safe conversion-intent handoff receipt evidence only; it does not create action-register records, grant rebalance authority, create orders, bind production IdP claims, authorize client publication, or promote a supported feature."
       },
       "completeness_policy": {
         "default_status": "complete",
@@ -5742,6 +5761,42 @@
             "platform-end-to-end"
           ],
           "failure_posture": "degrade_to_partial"
+        }
+      ]
+    },
+    {
+      "consumer_repository": "lotus-gateway",
+      "dependency_count": 1,
+      "source_path": "lotus-gateway/contracts/domain-data-products/lotus-gateway-consumers.v1.json",
+      "dependencies": [
+        {
+          "dependency_id": "lotus-core:PortfolioManagerBookMembership:v1",
+          "product_name": "PortfolioManagerBookMembership",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "portfolio_manager_id",
+            "booking_center_code",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "source_evidence_current",
+            "freshness_status",
+            "content_hash"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve the trusted caller's effective own-book portfolio memberships for the product-facing advisor-book facade without moving assignment ownership into Gateway.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "fail_closed"
         }
       ]
     },

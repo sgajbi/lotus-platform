@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 97,
-  "edge_count": 330,
+  "edge_count": 332,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -1400,6 +1400,11 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioManagerBookMembership:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioManagerBookMembership:v1",
       "to": "repo:lotus-manage"
     },
     {
@@ -1835,6 +1840,18 @@
       "to": "product:lotus-core:InstrumentReferenceBundle:v1",
       "consumption_mode": "api_read",
       "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-gateway",
+      "to": "product:lotus-core:PortfolioManagerBookMembership:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
       "validation_lanes": [
         "feature",
         "pr-merge",
