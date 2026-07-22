@@ -112,6 +112,16 @@ def _string_set(value: object) -> set[str]:
     return {item for item in value if isinstance(item, str)}
 
 
+def _core_seed_evidence_matches(field: str, observed: object, expected: object) -> bool:
+    if field != "source_product_consumers":
+        return observed == expected
+    if not isinstance(observed, list) or not isinstance(expected, list):
+        return False
+    return len(observed) == len(expected) and _string_set(observed) == _string_set(
+        expected
+    )
+
+
 def _add_missing(
     errors: list[str],
     *,
@@ -413,7 +423,7 @@ def _validate_core_advisor_book_seed(
         ]
     errors: list[str] = []
     for field, expected in _required_core_seed_evidence(contract).items():
-        if evidence.get(field) != expected:
+        if not _core_seed_evidence_matches(field, evidence.get(field), expected):
             errors.append(
                 f"lotus-core advisor-book seed evidence.{field} must be {expected}"
             )
