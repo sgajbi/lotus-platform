@@ -316,6 +316,81 @@ def test_check_background_runs_marks_failed_result_artifact_truthfully(
     assert entry["terminal_exit_code"] == 1
 
 
+def test_check_background_runs_flattens_legacy_wrapped_state_entries(
+    tmp_path: Path,
+) -> None:
+    result_path = tmp_path / "run.json"
+    state_path = tmp_path / "background-runs.json"
+    _write_result(result_path, exit_code=0)
+    state_path.write_text(
+        json.dumps(
+            [
+                {
+                    "value": [
+                        {
+                            "engineering_task_id": "eng-task-wrapped",
+                            "task_kind": "LOCAL_BACKGROUND_RUN",
+                            "repository": "lotus-platform",
+                            "branch": "main",
+                            "owner": "tester",
+                            "requested_at": "2026-04-21T00:00:00",
+                            "origin": "automation/Start-Background-Run.ps1",
+                            "correlation_ref": "wrapped",
+                            "summary": "wrapped historical state",
+                            "pid": None,
+                            "profile": "platform-unit",
+                            "maxParallel": 1,
+                            "runId": "wrapped",
+                            "startedAt": "2026-04-21T00:00:00",
+                            "status": "RUNNING",
+                            "runtime": {
+                                "kind": "powershell",
+                                "runner": "automation/Run-Parallel-Tasks.ps1",
+                                "pid": None,
+                            },
+                            "scope": {"profile": "platform-unit", "maxParallel": 1},
+                            "artifacts": [str(result_path)],
+                            "evidence_refs": [
+                                {
+                                    "type": "LOCAL_JSON_ARTIFACT",
+                                    "path": str(result_path),
+                                }
+                            ],
+                            "cleanup_state": "PENDING",
+                            "expectedResultPath": str(result_path),
+                            "expectedSummaryPath": None,
+                        }
+                    ],
+                    "Count": 1,
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    checked = _run(
+        [
+            _powershell(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(ROOT / "automation" / "Check-Background-Runs.ps1"),
+            "-StatePath",
+            str(state_path),
+        ],
+        cwd=ROOT,
+    )
+    assert checked.returncode == 0, checked.stderr
+
+    [entry] = json.loads(state_path.read_text(encoding="utf-8"))
+    assert entry["engineering_task_id"] == "eng-task-wrapped"
+    assert entry["status"] == "SUCCEEDED"
+    assert entry["cleanup_state"] == "DONE"
+    assert "value" not in entry
+    _assert_contract_required_fields(entry)
+
+
 def test_repository_target_passes_metacharacters_without_shell_interpolation(
     tmp_path: Path,
 ) -> None:

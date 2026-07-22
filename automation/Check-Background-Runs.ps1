@@ -32,6 +32,30 @@ function Get-PropertyValue {
   return $Default
 }
 
+function Expand-BackgroundRunEntries {
+  param([object[]]$Entries)
+
+  $expanded = @()
+  foreach ($entry in $Entries) {
+    $propertyNames = @($entry.PSObject.Properties.Name)
+    $hasTaskIdentity = $propertyNames -contains "engineering_task_id" -or
+      $propertyNames -contains "engineeringTaskId" -or
+      $propertyNames -contains "pid" -or
+      $propertyNames -contains "runId" -or
+      $propertyNames -contains "expectedResultPath"
+
+    $wrappedValue = Get-PropertyValue -Object $entry -Name "value"
+    if (-not $hasTaskIdentity -and $wrappedValue) {
+      $expanded += @($wrappedValue)
+      continue
+    }
+
+    $expanded += $entry
+  }
+
+  return @($expanded)
+}
+
 function Get-TaskStatusFromResult {
   param(
     [string]$ExpectedResultPath,
@@ -67,7 +91,12 @@ function Get-OwnedProcess {
     [object]$Runtime
   )
 
-  $process = Get-Process -Id $Entry.pid -ErrorAction SilentlyContinue
+  $pidValue = Get-PropertyValue -Object $Entry -Name "pid"
+  if ($null -eq $pidValue) {
+    return $null
+  }
+
+  $process = Get-Process -Id $pidValue -ErrorAction SilentlyContinue
   if (-not $process) {
     return $null
   }
@@ -120,6 +149,7 @@ function Print-Status {
   if (-not ($entries -is [System.Array])) {
     $entries = @($entries)
   }
+  $entries = Expand-BackgroundRunEntries -Entries $entries
 
   $updated = @()
   foreach ($entry in $entries) {
