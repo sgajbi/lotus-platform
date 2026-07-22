@@ -151,6 +151,8 @@ endpoint, and exact assignment count. Platform derives the expected proof shape 
 instead of maintaining a second identity list. Core must derive the reported product/version from
 its executable source-data-product registry and fail when that registry disagrees with the central
 contract; returning the central value unchanged is not source-product proof.
+The executable proof must also bind the single PM-book route, exact Gateway/Manage consumer set,
+Core ownership, query-control-plane serving plane, and analytics-input route family.
 
 ### Benchmark Identity
 

@@ -37,6 +37,9 @@ system/record/product, observation time, quality, endpoint, and exact count; che
 identity still permits semantically wrong assignments to pass. Source-product evidence must come
 from the source application's executable product registry and match the central contract; echoing
 the central value back to its validator is circular evidence.
+Product name/version is still insufficient: source proof must also bind the executable route,
+approved consumer set, source owner, serving plane, and route family so a catalog entry cannot keep
+its label while ceasing to back the governed downstream use case.
 Likewise, a ready membership input must not promote a composite Workbench panel beyond the
 support state governed by its registry; panel certification reconciles every owned dependency and
 limitation, not the strongest individual input.
