@@ -46,6 +46,11 @@ without a blocked label can still use active, fixed-local, PR-open, merged-main,
 flows. A blocked transition fails closed before removing any prior state label if the repository
 does not define a blocked label.
 
+Repository-specific program ledgers may define additional lifecycle labels, such as
+`status/tracker` for parent or umbrella execution anchors. Use those only when the repository's
+own audit documents and enforces the mapping; do not route them through the generic issue-loop
+transition script unless the label contract and scripts support the state end-to-end.
+
 QA is evidence layered over these lifecycle states, not another status-label family. A QA failure
 reopens the issue and returns it to `status/in-progress`. A QA pass closes an issue only after
 `status/merged-main` exists and retains that terminal label.
@@ -169,7 +174,10 @@ Repository-specific RFC or program ledgers may also provide a stricter issue-sta
 compares the checked-in ledger to live GitHub issue state. When present, run it with the ledger gate
 after reopen, close, block, unblock, or lifecycle-label changes, and before summarizing remaining
 issue counts. Treat failures as lifecycle drift: reconcile the GitHub state or ledger first, then
-continue implementation.
+continue implementation. If the repository ledger distinguishes parent or umbrella issues from
+active work items, give those tracker issues an explicit lifecycle label such as `status/tracker`
+and make the repo audit fail when the label is missing; statusless tracker issues are not durable
+execution truth.
 
 Some repositories also provide a machine-readable issue-learning or pattern ledger. When present,
 run its repo-native gate before implementing the next related issue and before PR evidence. Treat
