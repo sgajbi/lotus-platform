@@ -5,6 +5,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR_PATH = (
@@ -54,15 +56,34 @@ def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
     assert "executable advisor-book seed validator is missing" in errors[0]
 
 
+@pytest.mark.parametrize(
+    ("field", "drifted_value"),
+    [
+        ("portfolio_manager_id", "advisor_sg_001"),
+        ("as_of_date", "2099-12-31"),
+        ("role_type", "investment_advisor"),
+        ("role_scope", "advisory"),
+        ("effective_from", "2099-01-01"),
+        ("effective_to", "2099-12-31"),
+        ("assignment_version", 2),
+        ("source_system", "UNTRUSTED_SEED"),
+        ("source_record_id", "drifted-record"),
+        ("observed_at", "2099-12-31T00:00:00Z"),
+        ("quality_status", "rejected"),
+        ("source_product", "PortfolioManagerBookMembership:v2"),
+    ],
+)
 def test_validator_rejects_drifted_core_executable_seed_evidence(
-    monkeypatch, tmp_path
+    monkeypatch, tmp_path, field, drifted_value
 ) -> None:
     validator = _validator()
     proof_path = tmp_path / validator.CORE_SEED_VALIDATOR_RELATIVE_PATH
     proof_path.parent.mkdir(parents=True)
     proof_path.write_text("# test executable proof\n", encoding="utf-8")
-    evidence = dict(validator.REQUIRED_CORE_SEED_EVIDENCE)
-    evidence["portfolio_manager_id"] = "advisor_sg_001"
+    contract = _contract()
+    expected_evidence = validator._required_core_seed_evidence(contract)
+    evidence = dict(expected_evidence)
+    evidence[field] = drifted_value
     monkeypatch.setattr(
         validator.subprocess,
         "run",
@@ -71,10 +92,10 @@ def test_validator_rejects_drifted_core_executable_seed_evidence(
         ),
     )
 
-    errors = validator._validate_core_advisor_book_seed(tmp_path)
+    errors = validator._validate_core_advisor_book_seed(tmp_path, contract)
 
     assert errors == [
-        "lotus-core advisor-book seed evidence.portfolio_manager_id must be PM_SG_001"
+        f"lotus-core advisor-book seed evidence.{field} must be {expected_evidence[field]}"
     ]
 
 

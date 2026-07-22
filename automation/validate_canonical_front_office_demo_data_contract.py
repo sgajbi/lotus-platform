@@ -85,11 +85,8 @@ REQUIRED_SEED_STEPS = {
     "gateway-command-center-partial-posture",
     "gateway-command-center-empty-posture",
 }
-REQUIRED_CORE_SEED_EVIDENCE = {
+REQUIRED_CORE_SEED_STATIC_EVIDENCE = {
     "status": "pass",
-    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
-    "portfolio_manager_id": "PM_SG_001",
-    "source_record_id": "pb_sg_global_bal_001_pm_sg_001_portfolio_manager_v1",
     "ingestion_endpoint": "/ingest/portfolio-party-role-assignments",
     "assignment_count": 1,
 }
@@ -351,7 +348,31 @@ def _resolve_core_repo(explicit_core_repo: Path | None = None) -> Path:
     )
 
 
-def _validate_core_advisor_book_seed(core_repo: Path) -> list[str]:
+def _required_core_seed_evidence(contract: dict[str, Any]) -> dict[str, Any]:
+    advisor_book = contract.get("advisor_book", {})
+    date_policy = contract.get("date_policy", {})
+    as_of_date = advisor_book.get("as_of_date")
+    return {
+        **REQUIRED_CORE_SEED_STATIC_EVIDENCE,
+        "portfolio_id": advisor_book.get("portfolio_id"),
+        "portfolio_manager_id": advisor_book.get("portfolio_manager_id"),
+        "as_of_date": as_of_date,
+        "role_type": advisor_book.get("role_type"),
+        "role_scope": advisor_book.get("role_scope"),
+        "effective_from": date_policy.get("seed_start_date"),
+        "effective_to": None,
+        "assignment_version": advisor_book.get("assignment_version"),
+        "source_system": advisor_book.get("source_system"),
+        "source_record_id": advisor_book.get("source_record_id"),
+        "observed_at": f"{as_of_date}T09:00:00Z",
+        "quality_status": advisor_book.get("quality_status"),
+        "source_product": advisor_book.get("source_product"),
+    }
+
+
+def _validate_core_advisor_book_seed(
+    core_repo: Path, contract: dict[str, Any]
+) -> list[str]:
     validator = core_repo / CORE_SEED_VALIDATOR_RELATIVE_PATH
     if not validator.is_file():
         return [
@@ -384,7 +405,7 @@ def _validate_core_advisor_book_seed(core_repo: Path) -> list[str]:
             "lotus-core executable advisor-book seed evidence must be a JSON object"
         ]
     errors: list[str] = []
-    for field, expected in REQUIRED_CORE_SEED_EVIDENCE.items():
+    for field, expected in _required_core_seed_evidence(contract).items():
         if evidence.get(field) != expected:
             errors.append(
                 f"lotus-core advisor-book seed evidence.{field} must be {expected}"
@@ -393,12 +414,15 @@ def _validate_core_advisor_book_seed(core_repo: Path) -> list[str]:
 
 
 def validate_default_paths(core_repo: Path | None = None) -> list[str]:
+    contract = _load_json_object(CONTRACT_PATH)
     errors = validate_contract(
-        contract=_load_json_object(CONTRACT_PATH),
+        contract=contract,
         invariants=_load_json_object(INVARIANTS_PATH),
         seed_script=SEED_SCRIPT_PATH.read_text(encoding="utf-8"),
     )
-    errors.extend(_validate_core_advisor_book_seed(_resolve_core_repo(core_repo)))
+    errors.extend(
+        _validate_core_advisor_book_seed(_resolve_core_repo(core_repo), contract)
+    )
     return errors
 
 
@@ -412,12 +436,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--core-repo", type=Path)
     args = parser.parse_args(argv)
 
+    contract = _load_json_object(args.contract)
     errors = validate_contract(
-        contract=_load_json_object(args.contract),
+        contract=contract,
         invariants=_load_json_object(args.invariants),
         seed_script=args.seed_script.read_text(encoding="utf-8"),
     )
-    errors.extend(_validate_core_advisor_book_seed(_resolve_core_repo(args.core_repo)))
+    errors.extend(
+        _validate_core_advisor_book_seed(_resolve_core_repo(args.core_repo), contract)
+    )
     if errors:
         print("Canonical front-office demo data contract validation failed:")
         for error in errors:
