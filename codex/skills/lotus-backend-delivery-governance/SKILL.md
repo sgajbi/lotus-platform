@@ -419,18 +419,11 @@ Map validation to the platform lanes:
 4. Platform End-to-End Validation:
    - required when the change affects canonical product flows, gateway/upstream behavior, seeded demo flows, or platform runtime assumptions
 
-Remote workflows should consume repo-native commands rather than reimplementing local validation in
-YAML. If a Make/NPM target exists for a test, coverage, contract, security, or quality gate, call
-that target from GitHub Actions. Add or repair the target before adding raw workflow-level `pytest`,
-coverage, or scanner commands, and update the CI contract gate when workflow drift should become
+Remote workflows should consume repo-native commands rather than reimplementing local validation in YAML. If a Make/NPM target exists for a test, coverage, contract, security, or quality gate, call
+that target from GitHub Actions. Add or repair the target before adding raw workflow-level `pytest`, coverage, or scanner commands, and update the CI contract gate when workflow drift should become
 blocking.
 
-When a CI fix-forward or review response changes tests, fixtures, proof adapters, or generated
-evidence validation after a previously green local run, rerun the affected typecheck lane before
-push in addition to the focused tests and lint gate. Treat coverage-gate failures as evidence of
-missing behavior-specific assertions or dead-code cleanup opportunities; do not lower thresholds,
-add superficial tests, or leave diagnostic artifacts in governed source or output paths merely to
-make the gate pass.
+Apply the post-green CI fix-forward rules in [evidence-classification.md](references/evidence-classification.md#post-green-ci-fix-forward).
 
 If the backend change affects governed front-office proof:
 
