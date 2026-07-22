@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 342337
+    "total_source_lines": 342403
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -276,20 +276,20 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
+        "complexity": 1,
+        "end_line": 318,
+        "line": 128,
+        "lines": 191,
+        "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
+        "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
+      },
+      {
         "complexity": 2,
         "end_line": 197,
         "line": 9,
         "lines": 189,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 316,
-        "line": 128,
-        "lines": 189,
-        "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
-        "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
       {
         "complexity": 1,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2439
+    "python_function_count": 2440
   },
-  "generated_at_utc": "2026-07-22T12:23:32Z",
+  "generated_at_utc": "2026-07-22T13:09:12Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 792,
+    "collected_tests": 793,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "792 tests collected in 0.73s"
+    "summary": "793 tests collected in 0.67s"
   }
 }
