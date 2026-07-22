@@ -53,6 +53,14 @@ Keep live or runtime blockers open when the consumed evidence class is only a so
 contract, local execution, or unmerged producer-branch proof. Promotion requires the evidence
 class declared by the blocker, with exact producer and consumer provenance.
 
+Do not treat a producer verifier that merely echoes the consumer's or central contract value as
+source proof. The producer must derive observed identity from executable producer truth—such as a
+persisted request plan, runtime schema, route registry, or application result—then compare it with
+the governing cross-repository expectation before reporting success. Where the downstream use case
+depends on them, bind product/version, business date, role/scope, effective interval, route,
+approved consumers, owner, serving plane, and route family. Add adversarial drift tests for each
+field that could preserve a familiar label while changing the governed behavior.
+
 ## Executable Classification And Effect
 
 A registry, manifest, or inventory that labels evidence is not enforcement by
