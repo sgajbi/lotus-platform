@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 342403
+    "total_source_lines": 342669
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,8 +229,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2190,
-        "line": 1921,
+        "end_line": 2205,
+        "line": 1936,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2440
+    "python_function_count": 2444
   },
-  "generated_at_utc": "2026-07-22T13:09:12Z",
+  "generated_at_utc": "2026-07-22T17:04:34Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,7 +398,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2294,
+      "lines": 2309,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 793,
+    "collected_tests": 795,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "793 tests collected in 0.67s"
+    "summary": "795 tests collected in 0.64s"
   }
 }
