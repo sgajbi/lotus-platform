@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-22T17:56:07Z`
+Generated: `2026-07-22T18:02:35Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `840`
-- Total source lines: `342740`
+- Total source lines: `342757`
 - Python files: `207`
 - PowerShell files: `66`
 - Markdown files: `402`
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `810`
+- Unit tests collected: `815`
 - Collection command return code: `0`
-- Collection summary: `810 tests collected in 0.72s`
+- Collection summary: `815 tests collected in 0.67s`
 
 ## Security Baseline
 
