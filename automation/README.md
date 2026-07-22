@@ -723,7 +723,10 @@ python automation/validate_canonical_front_office_demo_data_contract.py
 
 This focused check verifies that the canonical mandate, PM book, source-product lineage,
 ready/partial/empty posture expectations, and seed-script evidence hooks remain aligned before
-the heavier Workbench runtime proof runs.
+the heavier Workbench runtime proof runs. The CLI is the fail-closed cross-repository path and
+requires a resolvable `lotus-core` checkout (or explicit `--core-repo`) for executable seed proof.
+Platform unit callers may use `validate_default_paths()` for hermetic Platform-owned contract
+validation and must pass `core_repo` when they intend to certify producer evidence.
 
 Use `-LotusAiEnvFile .env.example` when the proof should exercise deterministic
 provider-disabled Advisor Brief execution. Use the repo-local `lotus-ai/.env` only when its live

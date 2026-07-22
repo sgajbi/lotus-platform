@@ -47,8 +47,21 @@ def test_canonical_front_office_demo_data_contract_passes_focused_validation() -
     assert _validator().validate_default_paths() == []
 
 
+def test_default_path_validation_does_not_require_a_core_checkout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    validator = _validator()
+
+    def fail_if_resolved(*_args, **_kwargs):
+        pytest.fail("default Platform validation must not resolve a Core checkout")
+
+    monkeypatch.setattr(validator, "_resolve_core_repo", fail_if_resolved)
+
+    assert validator.validate_default_paths() == []
+
+
 def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
-    tmp_path,
+    tmp_path: Path,
 ) -> None:
     errors = _validator().validate_default_paths(core_repo=tmp_path)
 
