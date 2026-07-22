@@ -119,7 +119,9 @@ issue acceptance criteria, keep the issue linked without GitHub auto-close keywo
 issue comment should say `Keep #<issue> open` and name the remaining evidence class. Do not use
 `Closes`, `Fixes`, or `Resolves` for that issue until the closure transition is intended and the
 issue is ready for QA-backed closure. If a repository has an execution-ledger gate, run it before
-opening the PR and again before merge evidence is posted.
+opening the PR and again before merge evidence is posted. If it also exposes a GitHub issue-state
+audit, run that audit after lifecycle-label changes, before quoting issue counts, and before posting
+merged-main evidence so GitHub open/closed state cannot drift from the durable execution ledger.
 
 4. If merged but exact-main checks are still pending:
 
@@ -162,6 +164,12 @@ The audit fails on closed issues with active labels, issues carrying multiple ca
 labels, and configured legacy aliases still present in the repository or on an issue. An open
 `status/merged-main` issue is valid while QA remains pending; the same completion label is retained
 after QA closes the issue. The audit reports JSON and does not mutate issues or delete labels.
+
+Repository-specific RFC or program ledgers may also provide a stricter issue-state audit that
+compares the checked-in ledger to live GitHub issue state. When present, run it with the ledger gate
+after reopen, close, block, unblock, or lifecycle-label changes, and before summarizing remaining
+issue counts. Treat failures as lifecycle drift: reconcile the GitHub state or ledger first, then
+continue implementation.
 
 Both entrypoints dot-source `scripts/issue-loop-common.ps1`; treat that shared module as internal
 implementation and invoke only the update or audit entrypoint directly.
