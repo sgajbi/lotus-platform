@@ -4,7 +4,7 @@
 | --- | --- |
 | Status | Implemented |
 | Created | 2026-04-19 |
-| Last Updated | 2026-04-19 |
+| Last Updated | 2026-07-23 |
 | Owners | lotus-platform architecture; domain repository maintainers |
 | Depends On | RFC-0072; RFC-0073; RFC-0082; RFC-0084 |
 | Related Standards | `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0084-mesh-governance.md`; `C:/Users/Sandeep/projects/lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md` |
@@ -32,7 +32,8 @@ The target state is:
 4. onboarding new products becomes template-driven and repeatable rather than manually curated in one
    platform repo,
 5. broader domain rollout extends beyond `lotus-core`, `lotus-performance`, and `lotus-risk` to
-   include `lotus-manage`, `lotus-advise`, and `lotus-report`, with `lotus-ai` explicitly held out
+   include `lotus-manage`, `lotus-advise`, `lotus-report`, and the `lotus-gateway` API consumer,
+   with `lotus-ai` explicitly held out
    of the first-wave producer or consumer declaration set until it owns a governed domain product or
    catalog-consuming capability.
 
@@ -84,6 +85,7 @@ Evidence:
 7. `lotus-advise/contracts/domain-data-products/lotus-advise-consumers.v1.json`
 8. `lotus-report/contracts/domain-data-products/lotus-report-consumers.v1.json`
 9. `lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json`
+10. `lotus-gateway/contracts/domain-data-products/lotus-gateway-consumers.v1.json`
 
 Assessment:
 
@@ -114,8 +116,8 @@ that into repo-native machine-readable declarations instead of keeping it mostly
    repositories and validates them as one federated source set before writing generated artifacts,
 4. `generated/domain-product-catalog.json`, `generated/domain-product-dependency-graph.json`, and
    `generated/domain-product-certification-report.json` are generated from the federated set,
-5. `lotus-manage`, `lotus-advise`, and `lotus-report` are included in the current generated catalog
-   and certification report.
+5. `lotus-manage`, `lotus-advise`, `lotus-report`, and `lotus-gateway` are included in the current
+   generated catalog and certification report.
 
 ### Closure posture
 
@@ -137,7 +139,7 @@ that into repo-native machine-readable declarations instead of keeping it mostly
 | Requirement | Current evidence | Current status | RFC-0086 response |
 | --- | --- | --- | --- |
 | Move from platform-only proof to federated ownership | Repo-native declarations exist in the current rollout repositories and platform aggregation reads them | Satisfied | Keep platform as validator and aggregator |
-| Broaden rollout beyond the first wave | Current generated catalog includes `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-report`, and `lotus-manage`; `lotus-ai` has no first-wave domain-product declaration set | Satisfied | `lotus-ai` is consciously out of the RFC-0086 producer/consumer wave until an AI product or governed consumer capability exists |
+| Broaden rollout beyond the first wave | Current generated catalog includes `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, `lotus-gateway`, and `lotus-idea`; `lotus-ai` has no first-wave domain-product declaration set | Satisfied | `lotus-ai` is consciously out of the RFC-0086 producer/consumer wave until an AI product or governed consumer capability exists |
 | Make onboarding repeatable rather than centrally handcrafted | Source manifest plus federated generator now define the repeatable path | Satisfied | Keep future onboarding repo-native and validator-backed |
 | Keep work parallelizable across repos | Each participating repo owns declarations under the same `contracts/domain-data-products/` path and the source manifest lets platform aggregate them independently | Satisfied | Keep per-repo declaration updates disjoint and validator-backed |
 | Preserve strong closure discipline | User requested same quality posture as RFC-0084 and RFC-0085 | Satisfied for RFC-0086 | Slice 7 and Slice 8 closure evidence is recorded below and protected by `tests/unit/test_domain_product_rollout_closure.py` |
@@ -209,8 +211,9 @@ The governed repo-native layout is `contracts/domain-data-products/`.
 
 ### Closed gap 3: Broader producer and consumer rollout
 
-The broader first wave now includes `lotus-advise`, `lotus-report`, and `lotus-manage` alongside
-`lotus-core`, `lotus-performance`, and `lotus-risk`.
+The broader first wave now includes `lotus-advise`, `lotus-report`, `lotus-manage`, and the
+`lotus-gateway` API consumer alongside `lotus-core`, `lotus-performance`, and `lotus-risk`.
+`lotus-idea` is also catalog-visible under its separately governed proposed-product posture.
 
 ### Closed gap 4: Repo-native validation entrypoints
 
@@ -349,10 +352,10 @@ Reviewed evidence includes:
 
 Current generated proof:
 
-1. 6 included repositories: `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
-   `lotus-report`, and `lotus-manage`,
-2. 23 governed products,
-3. 17 consumer dependency edges,
+1. 8 included repositories: `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
+   `lotus-report`, `lotus-manage`, `lotus-gateway`, and `lotus-idea`,
+2. 85 governed products,
+3. 67 consumer dependency edges,
 4. 0 pending repositories,
 5. certified catalog posture,
 6. no active product or consumer source path points at

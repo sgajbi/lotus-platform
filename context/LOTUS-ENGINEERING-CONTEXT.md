@@ -107,10 +107,12 @@ For cross-domain governed data products:
 6. `lotus-gateway` may publish and compose APIs around those products, but it does not become the
    product authority or product registry,
 7. the current RFC-0086 included repo-native rollout set is `lotus-core`, `lotus-performance`,
-   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and `lotus-idea`,
-8. current governed producer repositories are `lotus-core`, `lotus-performance`, `lotus-risk`, and
-   `lotus-advise`; `lotus-report` and `lotus-manage` are current consumer-declaration
-   participants,
+   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, `lotus-gateway`, and `lotus-idea`,
+8. current repositories with governed producer declarations are `lotus-core`, `lotus-performance`,
+   `lotus-risk`, `lotus-advise`, `lotus-report`, `lotus-manage`, and `lotus-idea`; current
+   consumer-declaration participants are `lotus-performance`, `lotus-risk`, `lotus-advise`,
+   `lotus-report`, `lotus-manage`, `lotus-gateway`, and `lotus-idea`, while `lotus-gateway` remains
+   consumer-only,
 9. `lotus-idea` is repo-native and included by default in canonical platform/runtime automation, but
    its opportunity-intelligence products remain mesh-certification gated until runtime trust
    telemetry, SLO, access, evidence, Gateway, Workbench, and supported-feature proof pass,

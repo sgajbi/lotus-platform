@@ -322,6 +322,10 @@ def build_certification_report(
         for entry in manifest_repositories
         if entry.get("catalog_inclusion") != "included"
     ]
+    producer_repository_count = sum(
+        repository.get("produced_product_count", 0) > 0
+        for repository in catalog["repositories"]
+    )
 
     return {
         "contract_id": "lotus-domain-product-certification-report",
@@ -334,7 +338,7 @@ def build_certification_report(
             "certification_state": _certification_state(len(issues)),
             "product_count": catalog["product_count"],
             "dependency_count": catalog["dependency_count"],
-            "producer_repository_count": catalog["repository_count"],
+            "producer_repository_count": producer_repository_count,
             "included_repository_count": len(included_repositories),
             "pending_repository_count": len(pending_repositories),
             "issue_count": len(issues),
