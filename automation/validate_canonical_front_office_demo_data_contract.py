@@ -421,15 +421,23 @@ def _validate_core_advisor_book_seed(
 
 
 def validate_default_paths(core_repo: Path | None = None) -> list[str]:
+    """Validate Platform-owned defaults and optional explicit Core evidence.
+
+    Unit callers can validate the repository-owned contract without depending on a
+    sibling checkout. Cross-repository callers opt into the executable producer
+    proof by supplying ``core_repo``; the CLI remains fail-closed and always
+    resolves and validates Core below.
+    """
     contract = _load_json_object(CONTRACT_PATH)
     errors = validate_contract(
         contract=contract,
         invariants=_load_json_object(INVARIANTS_PATH),
         seed_script=SEED_SCRIPT_PATH.read_text(encoding="utf-8"),
     )
-    errors.extend(
-        _validate_core_advisor_book_seed(_resolve_core_repo(core_repo), contract)
-    )
+    if core_repo is not None:
+        errors.extend(
+            _validate_core_advisor_book_seed(_resolve_core_repo(core_repo), contract)
+        )
     return errors
 
 
