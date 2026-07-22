@@ -114,6 +114,13 @@ survives chat or context compaction.
 ./scripts/update-issue-loop.ps1 -Repo <owner/repo> -IssueNumber <n> -Status pr_raised -PrNumber <pr>
 ```
 
+For partial fixes, blocker-proving PRs, or evidence-consumption PRs that do not satisfy the full
+issue acceptance criteria, keep the issue linked without GitHub auto-close keywords. The PR body and
+issue comment should say `Keep #<issue> open` and name the remaining evidence class. Do not use
+`Closes`, `Fixes`, or `Resolves` for that issue until the closure transition is intended and the
+issue is ready for QA-backed closure. If a repository has an execution-ledger gate, run it before
+opening the PR and again before merge evidence is posted.
+
 4. If merged but exact-main checks are still pending:
 
 ```powershell
@@ -169,6 +176,9 @@ implementation and invoke only the update or audit entrypoint directly.
 - Do not merge while required checks fail.
 - Keep lifecycle labels mutually exclusive; every transition removes all configured state labels
   and aliases before applying the repository-resolved target state.
+- For partial issue progress, avoid GitHub auto-close keywords in PR descriptions and commit
+  messages for the still-open issue. Link the issue with neutral wording and preserve the explicit
+  `Keep #<issue> open` instruction until complete evidence exists.
 - Reopen an issue when GitHub auto-closure precedes lifecycle normalization. Only the
   evidence-backed `qa_passed_closed` transition closes it again. Do not reopen an already closed
   issue that retains the terminal merged-main label when replaying merged-main evidence.
