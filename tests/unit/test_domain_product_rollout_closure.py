@@ -29,6 +29,7 @@ FIRST_WAVE_REPOSITORIES = [
     "lotus-advise",
     "lotus-report",
     "lotus-manage",
+    "lotus-gateway",
 ]
 FUTURE_WAVE_CATALOG_REPOSITORIES = ["lotus-idea"]
 CATALOG_INCLUDED_REPOSITORIES = [
@@ -123,7 +124,7 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
         "federated:domain-product-source-manifest"
     )
     assert catalog["product_count"] == 85
-    assert catalog["dependency_count"] == 66
+    assert catalog["dependency_count"] == 67
     _assert_product_present(
         catalog,
         product_name="DpmPortfolioUniverseCandidate",

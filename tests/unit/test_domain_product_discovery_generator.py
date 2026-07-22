@@ -59,6 +59,10 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         "lotus-performance",
         "lotus-core:PortfolioTimeseriesInput:v1",
     ) in dependency_edges
+    assert (
+        "lotus-gateway",
+        "lotus-core:PortfolioManagerBookMembership:v1",
+    ) in dependency_edges
     assert catalog["product_count"] == len(catalog["products"])
     assert catalog["dependency_count"] == sum(
         consumer["dependency_count"] for consumer in catalog["consumers"]
@@ -103,6 +107,9 @@ def test_domain_product_source_manifest_promotes_repo_native_sources_to_catalog(
     assert by_repository["lotus-manage"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-manage"]["source_mode"] == "repo_native"
     assert by_repository["lotus-manage"]["catalog_inclusion"] == "included"
+    assert by_repository["lotus-gateway"]["repo_native_status"] == "implemented"
+    assert by_repository["lotus-gateway"]["source_mode"] == "repo_native"
+    assert by_repository["lotus-gateway"]["catalog_inclusion"] == "included"
     assert by_repository["lotus-idea"]["repo_native_status"] == "implemented"
     assert by_repository["lotus-idea"]["source_mode"] == "repo_native"
     assert by_repository["lotus-idea"]["catalog_inclusion"] == "included"
@@ -169,6 +176,12 @@ def test_domain_product_discovery_uses_repo_native_source_paths() -> None:
     assert any(
         source_path.endswith(
             "lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json"
+        )
+        for source_path in consumer_source_paths
+    )
+    assert any(
+        source_path.endswith(
+            "lotus-gateway/contracts/domain-data-products/lotus-gateway-consumers.v1.json"
         )
         for source_path in consumer_source_paths
     )

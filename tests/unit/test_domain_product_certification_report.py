@@ -71,6 +71,7 @@ def test_domain_product_certification_report_certifies_current_catalog_and_graph
         "lotus-advise",
         "lotus-report",
         "lotus-manage",
+        "lotus-gateway",
         "lotus-idea",
     ]
     assert report["source_manifest_posture"]["pending_repositories"] == []

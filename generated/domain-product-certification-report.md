@@ -5,8 +5,8 @@ This file is generated from the governed domain-product catalog and dependency g
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
 - Product count: `85`
-- Dependency count: `66`
-- Included repositories: `7`
+- Dependency count: `67`
+- Included repositories: `8`
 - Pending repositories: `0`
 - Issue count: `0`
 
@@ -105,6 +105,7 @@ This file is generated from the governed domain-product catalog and dependency g
 | Consumer | State | Dependencies | Issues |
 | --- | --- | --- | --- |
 | `lotus-advise` | `certified` | `2` | `0` |
+| `lotus-gateway` | `certified` | `1` | `0` |
 | `lotus-idea` | `certified` | `17` | `0` |
 | `lotus-manage` | `certified` | `29` | `0` |
 | `lotus-performance` | `certified` | `10` | `0` |
