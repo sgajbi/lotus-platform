@@ -2,17 +2,24 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT_PATH = ROOT / "context" / "contracts" / "canonical-front-office-demo-data-contract.json"
+CONTRACT_PATH = (
+    ROOT / "context" / "contracts" / "canonical-front-office-demo-data-contract.json"
+)
 INVARIANTS_PATH = (
     ROOT / "context" / "contracts" / "canonical-front-office-demo-data-invariants.json"
 )
 SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
+CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
+    "tools/validate_front_office_advisor_book_seed.py"
+)
 REQUIRED_CONTRACT_VERSION = "1.1.0"
 
 REQUIRED_DPM_IDENTITIES = {
@@ -78,6 +85,14 @@ REQUIRED_SEED_STEPS = {
     "gateway-command-center-partial-posture",
     "gateway-command-center-empty-posture",
 }
+REQUIRED_CORE_SEED_EVIDENCE = {
+    "status": "pass",
+    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "portfolio_manager_id": "PM_SG_001",
+    "source_record_id": "pb_sg_global_bal_001_pm_sg_001_portfolio_manager_v1",
+    "ingestion_endpoint": "/ingest/portfolio-party-role-assignments",
+    "assignment_count": 1,
+}
 
 
 def _load_json_object(path: Path) -> dict[str, Any]:
@@ -114,7 +129,9 @@ def validate_contract(
     if contract.get("contract_version") != REQUIRED_CONTRACT_VERSION:
         errors.append(f"canonical contract version must be {REQUIRED_CONTRACT_VERSION}")
     if invariants.get("contract_version") != REQUIRED_CONTRACT_VERSION:
-        errors.append(f"canonical invariants version must be {REQUIRED_CONTRACT_VERSION}")
+        errors.append(
+            f"canonical invariants version must be {REQUIRED_CONTRACT_VERSION}"
+        )
     dpm = contract.get("dpm_command_center")
     advisor_book = contract.get("advisor_book")
     if not isinstance(dpm, dict):
@@ -142,7 +159,9 @@ def _validate_dpm_identity(errors: list[str], dpm: dict[str, Any]) -> None:
     if dpm.get("seed_refresh_endpoint") != (
         "lotus-manage:/api/v1/mandates/{mandate_id}/refresh-from-core"
     ):
-        errors.append("dpm_command_center.seed_refresh_endpoint must use lotus-manage refresh")
+        errors.append(
+            "dpm_command_center.seed_refresh_endpoint must use lotus-manage refresh"
+        )
 
 
 def _validate_advisor_book(
@@ -155,22 +174,29 @@ def _validate_advisor_book(
         if advisor_book.get(field) != expected:
             errors.append(f"advisor_book.{field} must be {expected}")
     portfolio = contract.get("portfolio")
-    if not isinstance(portfolio, dict) or advisor_book.get("portfolio_id") != portfolio.get(
+    if not isinstance(portfolio, dict) or advisor_book.get(
         "portfolio_id"
-    ):
+    ) != portfolio.get("portfolio_id"):
         errors.append("advisor_book.portfolio_id must match portfolio.portfolio_id")
     date_policy = contract.get("date_policy")
-    if not isinstance(date_policy, dict) or advisor_book.get("as_of_date") != date_policy.get(
-        "canonical_as_of_date"
-    ):
-        errors.append("advisor_book.as_of_date must match date_policy.canonical_as_of_date")
+    if not isinstance(date_policy, dict) or advisor_book.get(
+        "as_of_date"
+    ) != date_policy.get("canonical_as_of_date"):
+        errors.append(
+            "advisor_book.as_of_date must match date_policy.canonical_as_of_date"
+        )
     if advisor_book.get("as_of_date") != invariants.get("canonical_as_of_date"):
-        errors.append("advisor_book.as_of_date must match invariants.canonical_as_of_date")
+        errors.append(
+            "advisor_book.as_of_date must match invariants.canonical_as_of_date"
+        )
     support_states = invariants.get("required_support_states")
-    if not isinstance(support_states, dict) or support_states.get(
-        "advisor.book_overview"
-    ) != "partial":
-        errors.append("invariants.required_support_states.advisor.book_overview must be partial")
+    if (
+        not isinstance(support_states, dict)
+        or support_states.get("advisor.book_overview") != "partial"
+    ):
+        errors.append(
+            "invariants.required_support_states.advisor.book_overview must be partial"
+        )
 
 
 def _validate_source_products(errors: list[str], dpm: dict[str, Any]) -> None:
@@ -194,12 +220,21 @@ def _validate_surface_states(
     invariants: dict[str, Any],
 ) -> None:
     if dpm.get("validated_surface_states") != ["ready", "partial", "empty"]:
-        errors.append("dpm_command_center.validated_surface_states must be ready, partial, empty")
+        errors.append(
+            "dpm_command_center.validated_surface_states must be ready, partial, empty"
+        )
     if dpm.get("future_surface_states") != ["degraded", "blocked"]:
-        errors.append("dpm_command_center.future_surface_states must preserve degraded, blocked")
+        errors.append(
+            "dpm_command_center.future_surface_states must preserve degraded, blocked"
+        )
     support_states = invariants.get("required_support_states")
-    if not isinstance(support_states, dict) or support_states.get("dpm.command_center") != "ready":
-        errors.append("invariants.required_support_states.dpm.command_center must be ready")
+    if (
+        not isinstance(support_states, dict)
+        or support_states.get("dpm.command_center") != "ready"
+    ):
+        errors.append(
+            "invariants.required_support_states.dpm.command_center must be ready"
+        )
 
 
 def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> None:
@@ -208,16 +243,24 @@ def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> Non
         errors.append("dpm_command_center.campaign_definition_scenario is required")
         return
     if campaign.get("candidate_source_product") != "DpmPortfolioUniverseCandidate:v1":
-        errors.append("campaign_definition_scenario.candidate_source_product must be governed")
+        errors.append(
+            "campaign_definition_scenario.candidate_source_product must be governed"
+        )
     selection_basis = campaign.get("candidate_selection_basis")
     if not isinstance(selection_basis, dict):
-        errors.append("campaign_definition_scenario.candidate_selection_basis is required")
+        errors.append(
+            "campaign_definition_scenario.candidate_selection_basis is required"
+        )
         return
     if selection_basis.get("basis_type") != "EFFECTIVE_DISCRETIONARY_MANDATE_BINDING":
-        errors.append("campaign selection basis must use effective discretionary mandate binding")
+        errors.append(
+            "campaign selection basis must use effective discretionary mandate binding"
+        )
     if selection_basis.get("source_table") != "portfolio_mandate_bindings":
         errors.append("campaign selection basis must name the source table")
-    if "does not discover a global universe" not in str(selection_basis.get("downstream_boundary")):
+    if "does not discover a global universe" not in str(
+        selection_basis.get("downstream_boundary")
+    ):
         errors.append("campaign selection basis must bound platform-local discovery")
 
 
@@ -227,12 +270,18 @@ def _validate_multi_portfolio_wave(errors: list[str], dpm: dict[str, Any]) -> No
         errors.append("dpm_command_center.multi_portfolio_wave_scenario is required")
         return
     if wave.get("source_scope") != "manage_live_validation_scenario_seed":
-        errors.append("multi_portfolio_wave_scenario.source_scope must stay manage-owned")
+        errors.append(
+            "multi_portfolio_wave_scenario.source_scope must stay manage-owned"
+        )
     portfolios = wave.get("portfolios")
     if not isinstance(portfolios, list) or len(portfolios) < 3:
-        errors.append("multi_portfolio_wave_scenario.portfolios must include at least 3 items")
+        errors.append(
+            "multi_portfolio_wave_scenario.portfolios must include at least 3 items"
+        )
         return
-    if not all(isinstance(item, dict) and item.get("source_refs") for item in portfolios):
+    if not all(
+        isinstance(item, dict) and item.get("source_refs") for item in portfolios
+    ):
         errors.append("multi_portfolio_wave_scenario.portfolios must carry source_refs")
 
 
@@ -272,7 +321,9 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
         if required not in seed_script:
             errors.append(f"Invoke-DpmCommandCenterSeed.ps1 is missing step {required}")
     if "MANDATE_PB_SG_GLOBAL_BAL_001" in seed_script:
-        errors.append("Invoke-DpmCommandCenterSeed.ps1 must read mandate identity from contract")
+        errors.append(
+            "Invoke-DpmCommandCenterSeed.ps1 must read mandate identity from contract"
+        )
     for required in (
         "canonical-front-office-demo-data-contract.json",
         "dpm_command_center",
@@ -287,12 +338,68 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
             errors.append(f"Invoke-DpmCommandCenterSeed.ps1 must include {required}")
 
 
-def validate_default_paths() -> list[str]:
-    return validate_contract(
+def _resolve_core_repo(explicit_core_repo: Path | None = None) -> Path:
+    if explicit_core_repo is not None:
+        return explicit_core_repo.resolve()
+    configured = os.getenv("LOTUS_CORE_REPO")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    candidates = (ROOT / "_federated" / "lotus-core", ROOT.parent / "lotus-core")
+    return next(
+        (candidate.resolve() for candidate in candidates if candidate.is_dir()),
+        candidates[0],
+    )
+
+
+def _validate_core_advisor_book_seed(core_repo: Path) -> list[str]:
+    validator = core_repo / CORE_SEED_VALIDATOR_RELATIVE_PATH
+    if not validator.is_file():
+        return [
+            f"lotus-core executable advisor-book seed validator is missing: {validator}"
+        ]
+    environment = os.environ.copy()
+    environment["LOTUS_PLATFORM_REPO"] = str(ROOT)
+    completed = subprocess.run(
+        [sys.executable, str(validator)],
+        cwd=core_repo,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        diagnostic = (completed.stderr or completed.stdout).strip()
+        return [
+            "lotus-core executable advisor-book seed validation failed"
+            + (f": {diagnostic}" if diagnostic else "")
+        ]
+    try:
+        evidence = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        return [
+            "lotus-core executable advisor-book seed validator returned invalid JSON"
+        ]
+    if not isinstance(evidence, dict):
+        return [
+            "lotus-core executable advisor-book seed evidence must be a JSON object"
+        ]
+    errors: list[str] = []
+    for field, expected in REQUIRED_CORE_SEED_EVIDENCE.items():
+        if evidence.get(field) != expected:
+            errors.append(
+                f"lotus-core advisor-book seed evidence.{field} must be {expected}"
+            )
+    return errors
+
+
+def validate_default_paths(core_repo: Path | None = None) -> list[str]:
+    errors = validate_contract(
         contract=_load_json_object(CONTRACT_PATH),
         invariants=_load_json_object(INVARIANTS_PATH),
         seed_script=SEED_SCRIPT_PATH.read_text(encoding="utf-8"),
     )
+    errors.extend(_validate_core_advisor_book_seed(_resolve_core_repo(core_repo)))
+    return errors
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -302,6 +409,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--contract", type=Path, default=CONTRACT_PATH)
     parser.add_argument("--invariants", type=Path, default=INVARIANTS_PATH)
     parser.add_argument("--seed-script", type=Path, default=SEED_SCRIPT_PATH)
+    parser.add_argument("--core-repo", type=Path)
     args = parser.parse_args(argv)
 
     errors = validate_contract(
@@ -309,6 +417,7 @@ def main(argv: list[str] | None = None) -> int:
         invariants=_load_json_object(args.invariants),
         seed_script=args.seed_script.read_text(encoding="utf-8"),
     )
+    errors.extend(_validate_core_advisor_book_seed(_resolve_core_repo(args.core_repo)))
     if errors:
         print("Canonical front-office demo data contract validation failed:")
         for error in errors:
