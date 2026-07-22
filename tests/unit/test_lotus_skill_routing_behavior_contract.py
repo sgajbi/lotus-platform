@@ -334,6 +334,18 @@ def test_front_office_runtime_blocks_single_input_panel_promotion() -> None:
     )
 
 
+def test_backend_delivery_preserves_producer_semantics_for_source_contracts() -> None:
+    backend_skill = _read(
+        ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
+    )
+
+    assert "validate producer-specific semantics" in backend_skill
+    assert "keep live/runtime blockers open" in backend_skill
+    assert "only `source_contract`, local execution, or an unmerged producer-branch proof" in (
+        backend_skill
+    )
+
+
 def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
 
