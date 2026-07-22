@@ -139,6 +139,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
 
     advisor_book = contract["advisor_book"]
     assert advisor_book["portfolio_id"] == contract["portfolio"]["portfolio_id"]
+    assert advisor_book["as_of_date"] == contract["date_policy"]["canonical_as_of_date"]
     assert advisor_book["portfolio_manager_id"] == "PM_SG_001"
     assert advisor_book["role_type"] == "portfolio_manager"
     assert advisor_book["role_scope"] == "portfolio_management"

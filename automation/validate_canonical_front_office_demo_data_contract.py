@@ -25,6 +25,7 @@ REQUIRED_DPM_IDENTITIES = {
 }
 REQUIRED_ADVISOR_BOOK_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "as_of_date": "2026-04-10",
     "portfolio_manager_id": "PM_SG_001",
     "role_type": "portfolio_manager",
     "role_scope": "portfolio_management",
@@ -128,7 +129,7 @@ def validate_contract(
         _validate_campaign_definition(errors, dpm)
         _validate_multi_portfolio_wave(errors, dpm)
     if isinstance(advisor_book, dict):
-        _validate_advisor_book(errors, advisor_book, invariants)
+        _validate_advisor_book(errors, advisor_book, contract, invariants)
     _validate_invariants(errors, invariants)
     _validate_seed_script(errors, seed_script)
     return errors
@@ -147,11 +148,24 @@ def _validate_dpm_identity(errors: list[str], dpm: dict[str, Any]) -> None:
 def _validate_advisor_book(
     errors: list[str],
     advisor_book: dict[str, Any],
+    contract: dict[str, Any],
     invariants: dict[str, Any],
 ) -> None:
     for field, expected in REQUIRED_ADVISOR_BOOK_IDENTITIES.items():
         if advisor_book.get(field) != expected:
             errors.append(f"advisor_book.{field} must be {expected}")
+    portfolio = contract.get("portfolio")
+    if not isinstance(portfolio, dict) or advisor_book.get("portfolio_id") != portfolio.get(
+        "portfolio_id"
+    ):
+        errors.append("advisor_book.portfolio_id must match portfolio.portfolio_id")
+    date_policy = contract.get("date_policy")
+    if not isinstance(date_policy, dict) or advisor_book.get("as_of_date") != date_policy.get(
+        "canonical_as_of_date"
+    ):
+        errors.append("advisor_book.as_of_date must match date_policy.canonical_as_of_date")
+    if advisor_book.get("as_of_date") != invariants.get("canonical_as_of_date"):
+        errors.append("advisor_book.as_of_date must match invariants.canonical_as_of_date")
     support_states = invariants.get("required_support_states")
     if not isinstance(support_states, dict) or support_states.get(
         "advisor.book_overview"
