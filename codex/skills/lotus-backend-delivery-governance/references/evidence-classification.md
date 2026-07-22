@@ -93,6 +93,15 @@ When a blocker accepts `ci_execution`, the evidence must bind:
 
 Status text, a workflow URL, or a copied artifact path is not enough by itself.
 
+## Post-Green CI Fix-Forward
+
+When a CI fix-forward or review response changes tests, fixtures, proof adapters, or generated
+evidence validation after a previously green local run, rerun the affected typecheck lane before
+push in addition to focused tests and lint. Treat coverage-gate failures as evidence of missing
+behavior-specific assertions or dead-code cleanup opportunities. Do not lower thresholds, add
+superficial tests, or retain diagnostic artifacts in governed source or output paths merely to make
+the gate pass.
+
 ## Receipt-Bound Runtime Execution
 
 Every `runtime_execution` artifact used to clear any blocker, including a
