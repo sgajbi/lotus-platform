@@ -1,8 +1,8 @@
 {
   "contract_id": "canonical-front-office-demo-data-contract",
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "status": "proposed-for-rfc-0076-slice-1",
-  "last_reviewed_on": "2026-04-11",
+  "last_reviewed_on": "2026-07-22",
   "governed_by_rfc": "RFC-0076",
   "portfolio": {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -18,6 +18,21 @@
       "YTD",
       "1Y"
     ]
+  },
+  "advisor_book": {
+    "portfolio_manager_id": "PM_SG_001",
+    "role_type": "portfolio_manager",
+    "role_scope": "portfolio_management",
+    "assignment_effective_from_policy": "date_policy.seed_start_date",
+    "assignment_version": 1,
+    "source_system": "LOTUS_FRONT_OFFICE_SEED",
+    "source_record_id": "pb_sg_global_bal_001_pm_sg_001_portfolio_manager_v1",
+    "quality_status": "accepted",
+    "source_product": "PortfolioManagerBookMembership:v1",
+    "gateway_validation_endpoint": "/api/v1/advisor-book/portfolios",
+    "expected_workbench_panel": "advisor.book_overview",
+    "tenant_identity_posture": "trusted_context_only",
+    "tenant_identity_follow_up": "lotus-core#798"
   },
   "benchmark": {
     "benchmark_code": "BMK_PB_GLOBAL_BALANCED_60_40",
@@ -69,7 +84,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeDemoDataContract",
               "source_id": "canonical-front-office-demo-data-contract",
-              "source_version": "1.0.0",
+              "source_version": "1.1.0",
               "supportability_state": "READY"
             }
           ]
@@ -84,7 +99,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.0.0",
+              "source_version": "1.1.0",
               "supportability_state": "READY"
             }
           ]
@@ -99,7 +114,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.0.0",
+              "source_version": "1.1.0",
               "supportability_state": "READY"
             }
           ]

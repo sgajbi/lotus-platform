@@ -1,6 +1,6 @@
 {
   "contract_id": "canonical-front-office-demo-data-invariants",
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "status": "proposed-for-rfc-0076-slice-1",
   "governed_by_rfc": "RFC-0076",
   "canonical_portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -16,6 +16,7 @@
     "risk_ready_metrics": 6,
     "risk_rolling_windows": 4,
     "risk_attribution_contributors": 7,
+    "advisor_book_authoritative_memberships": 1,
     "dpm_command_center_mandates": 1,
     "dpm_command_center_health_dimensions": 1,
     "dpm_multi_portfolio_wave_candidates": 3,
@@ -30,6 +31,7 @@
     "performance.advisor_brief": "ready",
     "performance.risk": "ready",
     "performance.evidence": "ready",
+    "advisor.book_overview": "partial",
     "dpm.command_center": "ready",
     "dpm.outcome_review": "ready",
     "dpm.proof_pack": "ready"
@@ -40,6 +42,8 @@
     "benchmark_returns_cover_warmup_and_reporting_windows",
     "risk_free_series_cover_supported_performance_and_risk_windows",
     "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation",
+    "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation",
+    "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
     "dpm_rebalance_wave_validation_must_cover_multi_portfolio_explicit_list_preview",
@@ -55,11 +59,13 @@
     "economic_event_ids_are_deterministic",
     "transaction_sign_conventions_are_governed",
     "positions_and_cash_legs_reconcile_after_seeded_activity",
+    "advisor_book_assignment_identity_is_deterministic",
     "dpm_mandate_binding_identity_is_deterministic"
   ],
   "notes": [
     "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
     "Performance evidence is ready when Gateway exposes execution status, lineage status, and artifact inventory for the canonical performance view.",
-    "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters."
+    "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters.",
+    "Advisor-book membership must be authoritative and date-bound; the panel remains partial until lotus-core#798 replaces trusted tenant context with source-confirmed tenant identity."
   ]
 }

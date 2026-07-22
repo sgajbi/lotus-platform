@@ -126,6 +126,22 @@ Required identity attributes:
 7. inception date and supported analysis windows,
 8. deterministic identifiers suitable for automated validation.
 
+### Advisor-Book Assignment Identity
+
+The canonical own-book proof uses a distinct governed portfolio-manager assignment:
+
+```text
+PB_SG_GLOBAL_BAL_001 -> PM_SG_001 (portfolio_manager / portfolio_management)
+```
+
+Core seed automation must persist that effective-dated assignment from the contract before
+Workbench validation. Gateway evidence must retain `PortfolioManagerBookMembership:v1`, the
+governed assignment basis, the requested business date, and Core source lineage. This identity is
+not the Advisor Cockpit `advisor_sg_001` persona and is not the DPM command-center
+`PM_SG_DPM_001` manager. Tenant identity remains trusted caller context until `lotus-core#798`
+delivers source-confirmed ownership, so the contract must not promote the advisor-book panel beyond
+its governed partial posture on tenant evidence alone.
+
 ### Benchmark Identity
 
 The canonical benchmark remains:

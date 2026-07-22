@@ -49,6 +49,39 @@ def test_validator_rejects_drift_from_canonical_dpm_seed_identity() -> None:
     assert "dpm_command_center.portfolio_manager_id must be PM_SG_DPM_001" in errors
 
 
+def test_validator_rejects_drift_from_canonical_advisor_book_identity() -> None:
+    contract = _contract()
+    contract["advisor_book"]["portfolio_manager_id"] = "advisor_sg_001"
+    contract["advisor_book"]["tenant_identity_posture"] = "source_confirmed"
+
+    errors = _validator().validate_contract(contract, _invariants(), _seed_script())
+
+    assert "advisor_book.portfolio_manager_id must be PM_SG_001" in errors
+    assert "advisor_book.tenant_identity_posture must be trusted_context_only" in errors
+
+
+def test_validator_requires_advisor_book_membership_and_lineage_invariants() -> None:
+    invariants = _invariants()
+    invariants["minimum_thresholds"]["advisor_book_authoritative_memberships"] = 0
+    invariants["required_coverage_assertions"] = [
+        assertion
+        for assertion in invariants["required_coverage_assertions"]
+        if not assertion.startswith("advisor_book_")
+    ]
+
+    errors = _validator().validate_contract(_contract(), invariants, _seed_script())
+
+    assert any("advisor_book_authoritative_memberships must be >= 1" in error for error in errors)
+    assert any(
+        "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment" in error
+        for error in errors
+    )
+    assert any(
+        "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage" in error
+        for error in errors
+    )
+
+
 def test_validator_rejects_missing_required_source_product_lineage() -> None:
     contract = _contract()
     contract["dpm_command_center"]["source_products"] = [
