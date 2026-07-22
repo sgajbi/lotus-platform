@@ -21,6 +21,7 @@
   },
   "advisor_book": {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
+    "as_of_date": "2026-04-10",
     "portfolio_manager_id": "PM_SG_001",
     "role_type": "portfolio_manager",
     "role_scope": "portfolio_management",
