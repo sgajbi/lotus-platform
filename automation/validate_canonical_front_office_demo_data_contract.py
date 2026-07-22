@@ -13,6 +13,7 @@ INVARIANTS_PATH = (
     ROOT / "context" / "contracts" / "canonical-front-office-demo-data-invariants.json"
 )
 SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
+REQUIRED_CONTRACT_VERSION = "1.1.0"
 
 REQUIRED_DPM_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -21,6 +22,21 @@ REQUIRED_DPM_IDENTITIES = {
     "book_id": "BOOK_SG_BALANCED_DPM",
     "tenant_id": "default",
     "command_center_as_of_date": "2026-05-03",
+}
+REQUIRED_ADVISOR_BOOK_IDENTITIES = {
+    "portfolio_manager_id": "PM_SG_001",
+    "role_type": "portfolio_manager",
+    "role_scope": "portfolio_management",
+    "assignment_effective_from_policy": "date_policy.seed_start_date",
+    "assignment_version": 1,
+    "source_system": "LOTUS_FRONT_OFFICE_SEED",
+    "source_record_id": "pb_sg_global_bal_001_pm_sg_001_portfolio_manager_v1",
+    "quality_status": "accepted",
+    "source_product": "PortfolioManagerBookMembership:v1",
+    "gateway_validation_endpoint": "/api/v1/advisor-book/portfolios",
+    "expected_workbench_panel": "advisor.book_overview",
+    "tenant_identity_posture": "trusted_context_only",
+    "tenant_identity_follow_up": "lotus-core#798",
 }
 REQUIRED_SOURCE_PRODUCTS = {
     "DiscretionaryMandateBinding:v1",
@@ -36,6 +52,8 @@ REQUIRED_GATEWAY_ENDPOINTS = {
     "/api/v1/dpm/command-center/mandates/{mandate_id}/health",
 }
 REQUIRED_COVERAGE_ASSERTIONS = {
+    "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation",
+    "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
     "dpm_command_center_evidence_must_record_source_product_lineage",
@@ -88,15 +106,25 @@ def validate_contract(
     seed_script: str,
 ) -> list[str]:
     errors: list[str] = []
+    if contract.get("contract_version") != REQUIRED_CONTRACT_VERSION:
+        errors.append(f"canonical contract version must be {REQUIRED_CONTRACT_VERSION}")
+    if invariants.get("contract_version") != REQUIRED_CONTRACT_VERSION:
+        errors.append(f"canonical invariants version must be {REQUIRED_CONTRACT_VERSION}")
     dpm = contract.get("dpm_command_center")
+    advisor_book = contract.get("advisor_book")
     if not isinstance(dpm, dict):
-        return ["canonical contract must define dpm_command_center"]
+        errors.append("canonical contract must define dpm_command_center")
+    if not isinstance(advisor_book, dict):
+        errors.append("canonical contract must define advisor_book")
 
-    _validate_dpm_identity(errors, dpm)
-    _validate_source_products(errors, dpm)
-    _validate_surface_states(errors, dpm, invariants)
-    _validate_campaign_definition(errors, dpm)
-    _validate_multi_portfolio_wave(errors, dpm)
+    if isinstance(dpm, dict):
+        _validate_dpm_identity(errors, dpm)
+        _validate_source_products(errors, dpm)
+        _validate_surface_states(errors, dpm, invariants)
+        _validate_campaign_definition(errors, dpm)
+        _validate_multi_portfolio_wave(errors, dpm)
+    if isinstance(advisor_book, dict):
+        _validate_advisor_book(errors, advisor_book, invariants)
     _validate_invariants(errors, invariants)
     _validate_seed_script(errors, seed_script)
     return errors
@@ -110,6 +138,21 @@ def _validate_dpm_identity(errors: list[str], dpm: dict[str, Any]) -> None:
         "lotus-manage:/api/v1/mandates/{mandate_id}/refresh-from-core"
     ):
         errors.append("dpm_command_center.seed_refresh_endpoint must use lotus-manage refresh")
+
+
+def _validate_advisor_book(
+    errors: list[str],
+    advisor_book: dict[str, Any],
+    invariants: dict[str, Any],
+) -> None:
+    for field, expected in REQUIRED_ADVISOR_BOOK_IDENTITIES.items():
+        if advisor_book.get(field) != expected:
+            errors.append(f"advisor_book.{field} must be {expected}")
+    support_states = invariants.get("required_support_states")
+    if not isinstance(support_states, dict) or support_states.get(
+        "advisor.book_overview"
+    ) != "partial":
+        errors.append("invariants.required_support_states.advisor.book_overview must be partial")
 
 
 def _validate_source_products(errors: list[str], dpm: dict[str, Any]) -> None:
@@ -188,6 +231,7 @@ def _validate_invariants(errors: list[str], invariants: dict[str, Any]) -> None:
         errors.append("invariants.minimum_thresholds must be an object")
         return
     threshold_requirements = {
+        "advisor_book_authoritative_memberships": 1,
         "dpm_command_center_mandates": 1,
         "dpm_command_center_health_dimensions": 1,
         "dpm_multi_portfolio_wave_candidates": 3,
@@ -228,7 +272,7 @@ def validate_default_paths() -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Validate the canonical front-office DPM demo data contract."
+        description="Validate the canonical front-office demo data contract."
     )
     parser.add_argument("--contract", type=Path, default=CONTRACT_PATH)
     parser.add_argument("--invariants", type=Path, default=INVARIANTS_PATH)

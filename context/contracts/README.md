@@ -10,10 +10,12 @@ Current contracts:
 
 1. `canonical-front-office-demo-data-contract.json`
    The governed identity, ownership, date policy, and coverage contract for the canonical
-   front-office portfolio and benchmark.
+   front-office portfolio, advisor-book assignment, and benchmark. The advisor-book block keeps
+   portfolio-manager membership distinct from the Advisor Cockpit identity and records the
+   separately owned tenant-identity limitation.
 2. `canonical-front-office-demo-data-invariants.json`
    The governed minimum thresholds and supportability invariants for the canonical dataset.
-   Validate the canonical DPM command-center subset and its seed-script hooks with
+   Validate the canonical advisor-book and DPM command-center subsets and DPM seed-script hooks with
    `python automation/validate_canonical_front_office_demo_data_contract.py`.
 3. `workbench-panel-registry.schema.json`
    The governed schema for the RFC-0077 machine-readable Workbench panel registry.

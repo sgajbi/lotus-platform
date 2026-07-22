@@ -15,6 +15,21 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-07-22 | Canonical actor identities must be contract-owned by business purpose
+
+Core #513 downstream proof found three nearby but non-interchangeable identities: the Advisor
+Cockpit persona, the DPM command-center manager, and the advisor-book portfolio manager. Workbench
+had a local advisor-book default, while the platform contract governed only the other two, so Core
+seed automation could not persist the authoritative assignment required by the canonical proof.
+
+Implication:
+
+Keep each canonical actor identity in the central demo-data contract under its business purpose,
+then make source seed automation and downstream validators consume that field. Do not reuse a
+nearby persona to make a check pass, and do not promote source-confirmed tenant posture while the
+tenant remains trusted caller context. Contract validators should lock identity, source lineage,
+business-date policy, and the separately owned limitation before cross-repo implementation begins.
+
 ### 2026-07-18 | Stateful cleanup and readiness must prove complete exact identity
 
 Core #805 and PR #806 showed one defect family across seed cleanup, idempotency cleanup, and smoke

@@ -76,7 +76,6 @@ def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> N
         "no context or skill docs were changed in this slice",
     ):
         assert required_item in evidence
-
     for required_item in (
         "# RFC-0076 Slice 2 Core Contract Enforcement Evidence",
         "https://github.com/sgajbi/lotus-core/pull/303",
@@ -130,13 +129,26 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     contract = _load_json("context/contracts/canonical-front-office-demo-data-contract.json")
 
     assert contract["contract_id"] == "canonical-front-office-demo-data-contract"
-    assert contract["contract_version"] == "1.0.0"
+    assert contract["contract_version"] == "1.1.0"
     assert contract["governed_by_rfc"] == "RFC-0076"
 
     portfolio = contract["portfolio"]
     assert portfolio["portfolio_id"] == "PB_SG_GLOBAL_BAL_001"
     assert portfolio["base_currency"] == "USD"
     assert "YTD" in portfolio["supported_analysis_windows"]
+
+    advisor_book = contract["advisor_book"]
+    assert advisor_book["portfolio_manager_id"] == "PM_SG_001"
+    assert advisor_book["role_type"] == "portfolio_manager"
+    assert advisor_book["role_scope"] == "portfolio_management"
+    assert advisor_book["assignment_effective_from_policy"] == "date_policy.seed_start_date"
+    assert advisor_book["assignment_version"] == 1
+    assert advisor_book["source_system"] == "LOTUS_FRONT_OFFICE_SEED"
+    assert advisor_book["quality_status"] == "accepted"
+    assert advisor_book["source_product"] == "PortfolioManagerBookMembership:v1"
+    assert advisor_book["expected_workbench_panel"] == "advisor.book_overview"
+    assert advisor_book["tenant_identity_posture"] == "trusted_context_only"
+    assert advisor_book["tenant_identity_follow_up"] == "lotus-core#798"
 
     benchmark = contract["benchmark"]
     assert benchmark["benchmark_code"] == "BMK_PB_GLOBAL_BALANCED_60_40"
@@ -308,12 +320,13 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     invariants = _load_json("context/contracts/canonical-front-office-demo-data-invariants.json")
 
     assert invariants["contract_id"] == "canonical-front-office-demo-data-invariants"
-    assert invariants["contract_version"] == "1.0.0"
+    assert invariants["contract_version"] == "1.1.0"
     assert invariants["canonical_portfolio_id"] == "PB_SG_GLOBAL_BAL_001"
     assert invariants["canonical_benchmark_code"] == "BMK_PB_GLOBAL_BALANCED_60_40"
     assert invariants["canonical_as_of_date"] == "2026-04-10"
 
     minimums = invariants["minimum_thresholds"]
+    assert minimums["advisor_book_authoritative_memberships"] >= 1
     assert minimums["transactions"] >= 30
     assert minimums["valued_positions"] >= 6
     assert minimums["risk_rolling_windows"] >= 4
@@ -333,6 +346,14 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     assert support_states["dpm.proof_pack"] == "ready"
 
     required_coverage = invariants["required_coverage_assertions"]
+    assert (
+        "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation"
+        in required_coverage
+    )
+    assert (
+        "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage"
+        in required_coverage
+    )
     assert (
         "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation"
         in required_coverage
