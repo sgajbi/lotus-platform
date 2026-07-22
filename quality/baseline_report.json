@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 342099
+    "total_source_lines": 342307
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -285,9 +285,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 304,
-        "line": 129,
-        "lines": 176,
+        "end_line": 316,
+        "line": 128,
+        "lines": 189,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2434
+    "python_function_count": 2438
   },
-  "generated_at_utc": "2026-07-19T12:44:37Z",
+  "generated_at_utc": "2026-07-22T12:12:30Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 788,
+    "collected_tests": 791,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "788 tests collected in 0.84s"
+    "summary": "791 tests collected in 0.85s"
   }
 }
