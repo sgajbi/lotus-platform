@@ -425,6 +425,13 @@ that target from GitHub Actions. Add or repair the target before adding raw work
 coverage, or scanner commands, and update the CI contract gate when workflow drift should become
 blocking.
 
+When a CI fix-forward or review response changes tests, fixtures, proof adapters, or generated
+evidence validation after a previously green local run, rerun the affected typecheck lane before
+push in addition to the focused tests and lint gate. Treat coverage-gate failures as evidence of
+missing behavior-specific assertions or dead-code cleanup opportunities; do not lower thresholds,
+add superficial tests, or leave diagnostic artifacts in governed source or output paths merely to
+make the gate pass.
+
 If the backend change affects governed front-office proof:
 
 1. validate the authoritative service locally,
