@@ -24,6 +24,7 @@ REQUIRED_DPM_IDENTITIES = {
     "command_center_as_of_date": "2026-05-03",
 }
 REQUIRED_ADVISOR_BOOK_IDENTITIES = {
+    "portfolio_id": "PB_SG_GLOBAL_BAL_001",
     "portfolio_manager_id": "PM_SG_001",
     "role_type": "portfolio_manager",
     "role_scope": "portfolio_management",

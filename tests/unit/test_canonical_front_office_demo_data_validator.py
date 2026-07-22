@@ -51,11 +51,13 @@ def test_validator_rejects_drift_from_canonical_dpm_seed_identity() -> None:
 
 def test_validator_rejects_drift_from_canonical_advisor_book_identity() -> None:
     contract = _contract()
+    contract["advisor_book"]["portfolio_id"] = "PB_OTHER"
     contract["advisor_book"]["portfolio_manager_id"] = "advisor_sg_001"
     contract["advisor_book"]["tenant_identity_posture"] = "source_confirmed"
 
     errors = _validator().validate_contract(contract, _invariants(), _seed_script())
 
+    assert "advisor_book.portfolio_id must be PB_SG_GLOBAL_BAL_001" in errors
     assert "advisor_book.portfolio_manager_id must be PM_SG_001" in errors
     assert "advisor_book.tenant_identity_posture must be trusted_context_only" in errors
 
