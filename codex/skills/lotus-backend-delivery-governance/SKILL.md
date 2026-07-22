@@ -246,6 +246,11 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     then include unchecked cross-domain evidence. Define source correction/revision identity
     explicitly: preserve producer hashes and lineage, and either create a new versioned aggregate
     identity or apply a governed correction transition rather than silently rewriting evidence.
+    Never substitute a consumer-owned request date, local snapshot date, persistence time, or
+    calculation clock for a source-owned business/effective date; omit the source date and keep the
+    posture fail-closed/non-certifying until the producer preserves that evidence. When optional
+    source refs lack source-owned temporal fields, add tests that prove downstream proof remains
+    `missing_source_evidence` or the repository's equivalent blocker state.
     Test exact-boundary success, any allowed effective window, mismatched date, future generation,
     stale/partial posture, multi-source conflict, correction identity, and no-persistence behavior.
     Add a deterministic all-family gate when coverage can be checked statically.
@@ -259,6 +264,11 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     semantically, document consumer replay rules, and keep sensitive data out of lineage and event
     payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
     service only when workload, failure isolation, ownership, or operability evidence justifies it.
+    For externally callable receipt, replay, command, or handoff APIs, scope idempotency state to the
+    trusted caller/resource context that defines ownership, such as tenant, legal entity, subject,
+    service identity, capability, portfolio, book, or aggregate identity. Validate trimmed blank
+    idempotency keys before hashing, and prove same-key cross-scope requests cannot replay or
+    conflict with another caller's receipt.
 22. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
     derive promotion through one typed evaluator shared by the repository gate, runtime readiness,
     API projection, and generated artifact. Never count a status string independently. Validate the
@@ -324,7 +334,10 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     and preserve not-found, replay, conflict, audit, and transaction semantics. Test missing and
     malformed trusted context, every mismatched scope dimension, multi-value membership, body
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
-    commands free of placeholder or nullable scope that exists only for later replacement.
+    commands free of placeholder or nullable scope that exists only for later replacement. If a
+    local/dev route uses trusted headers instead of a production IdP, the OpenAPI/API vocabulary
+    must still mark every required trusted-context header as required and must preserve an explicit
+    no-auth/production-IdP blocker issue instead of implying production authorization is complete.
 28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
 29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
 30. Govern API test migrations with `references/integration-api-migration-proof.md`, stateful
