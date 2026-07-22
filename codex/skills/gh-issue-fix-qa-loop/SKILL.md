@@ -176,9 +176,6 @@ implementation and invoke only the update or audit entrypoint directly.
 - Do not merge while required checks fail.
 - Keep lifecycle labels mutually exclusive; every transition removes all configured state labels
   and aliases before applying the repository-resolved target state.
-- For partial issue progress, avoid GitHub auto-close keywords in PR descriptions and commit
-  messages for the still-open issue. Link the issue with neutral wording and preserve the explicit
-  `Keep #<issue> open` instruction until complete evidence exists.
 - Reopen an issue when GitHub auto-closure precedes lifecycle normalization. Only the
   evidence-backed `qa_passed_closed` transition closes it again. Do not reopen an already closed
   issue that retains the terminal merged-main label when replaying merged-main evidence.

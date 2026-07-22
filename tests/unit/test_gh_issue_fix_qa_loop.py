@@ -187,6 +187,7 @@ def test_default_contract_and_skill_use_one_canonical_vocabulary() -> None:
     contract = json.loads(DEFAULT_CONTRACT.read_text(encoding="utf-8"))
     primary = [definition["label"] for definition in contract["states"].values()]
     skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    normalized_skill = " ".join(skill.split())
     state_machine = (SKILL_ROOT / "references" / "state-machine.md").read_text(
         encoding="utf-8"
     )
@@ -197,6 +198,11 @@ def test_default_contract_and_skill_use_one_canonical_vocabulary() -> None:
         assert label in state_machine
     assert "status:qa-" not in skill
     assert "label create" not in skill
+    assert "Keep #<issue> open" in skill
+    assert "Do not use `Closes`, `Fixes`, or `Resolves`" in normalized_skill
+    assert (
+        "partial fixes, blocker-proving PRs, or evidence-consumption PRs" in normalized_skill
+    )
 
 
 def test_missing_repository_labels_fail_closed_without_creating_labels(fake_github) -> None:
