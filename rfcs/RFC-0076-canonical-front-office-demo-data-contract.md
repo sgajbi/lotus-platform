@@ -145,7 +145,10 @@ its governed partial posture on tenant evidence alone.
 Platform validation must execute Core's advisor-book seed verifier from the governed Core checkout,
 not infer compliance from contract text or source markers. The verifier exercises the same bundle
 and dependency-ordered ingestion-request builders as the live seed and returns structured evidence
-for the portfolio, manager, source record, ingestion endpoint, and assignment count.
+for the portfolio and manager, governed business date, role and scope, effective interval,
+assignment version, source system/record/product, observation time, quality status, ingestion
+endpoint, and exact assignment count. Platform derives the expected proof shape from this contract
+instead of maintaining a second identity list.
 
 ### Benchmark Identity
 

@@ -31,7 +31,10 @@ tenant remains trusted caller context. Contract validators should lock identity,
 business-date policy, and the separately owned limitation before cross-repo implementation begins.
 When a contract claims seed persistence, the Platform gate must execute a source-owned verifier that
 uses the live seed builders and validate its structured evidence; contract strings and textual
-source markers are not runtime proof.
+source markers are not runtime proof. The evidence comparison must be derived from the governing
+contract and bind business date, role and scope, effective interval, version, source
+system/record/product, observation time, quality, endpoint, and exact count; checking only actor
+identity still permits semantically wrong assignments to pass.
 Likewise, a ready membership input must not promote a composite Workbench panel beyond the
 support state governed by its registry; panel certification reconciles every owned dependency and
 limitation, not the strongest individual input.
