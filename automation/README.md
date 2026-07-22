@@ -642,6 +642,9 @@ code and runner/target process identities from the exact result artifact.
 The checker normalizes JSON-deserialized `DateTime`, `DateTimeOffset`, and round-trip timestamp
 strings without culture-dependent string conversion. A live task must not become `LOST` because a
 day/month rendering differs from the host locale.
+It also flattens older wrapped ledger entries before reconciliation, so historical
+`output/background-runs.json` shape drift cannot prevent the current background-run monitor from
+reporting active task status.
 
 Record a governed RFC-0096 delegated task:
 

@@ -623,6 +623,9 @@ powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1
 # live watch background status
 powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1 -Watch -IntervalSeconds 20
 
+# reconcile current and legacy wrapped background-run state into governed lifecycle rows
+powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1
+
 # summarize only actionable failures from latest runs
 powershell -ExecutionPolicy Bypass -File automation\Summarize-Task-Failures.ps1 -Latest 3
 

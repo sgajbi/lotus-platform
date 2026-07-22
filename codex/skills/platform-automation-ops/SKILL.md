@@ -99,6 +99,9 @@ For `output/background-runs.json`, report the governed lifecycle status without 
 
 Treat `LOST` as an operational finding that needs cleanup or rerun evidence. GitHub Actions remains
 the source of truth for GitHub check status; the background-run ledger is local automation evidence.
+`Check-Background-Runs.ps1` also reconciles older wrapped `output/background-runs.json` entries into
+normal task-ledger rows before status evaluation. Do not treat legacy wrapper shape as a manual
+blocker; run the checker and use the normalized ledger it writes back.
 
 ## Generate Heartbeat Attention Artifacts
 
