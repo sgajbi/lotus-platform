@@ -20,3 +20,19 @@ Validation:
 ```powershell
 python -m pytest tests/unit/test_canonical_performance_period_vocabulary.py -q
 ```
+
+## Domain Data Product Trust Metadata
+
+`domain-data-product-trust-metadata.v1.json` is the governed field registry for product
+declarations and trust telemetry snapshots.
+
+When a source-owning service exposes receipt or evidence envelopes for downstream proof, use the
+standard temporal identity fields instead of local aliases:
+
+1. `producer_generated_at` for the producer-generated receipt timestamp,
+2. `evidence_as_of_date` for the source-owned business as-of date represented by the evidence,
+3. `temporal_identity_status` for closed fail-safe posture such as available, missing, mixed, or
+   not applicable.
+
+Consumers must not substitute request dates, caller clocks, or self-asserted tenant context for
+missing producer temporal identity.
