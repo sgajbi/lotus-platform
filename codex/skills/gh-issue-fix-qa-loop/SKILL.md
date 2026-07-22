@@ -179,6 +179,11 @@ active work items, give those tracker issues an explicit lifecycle label such as
 and make the repo audit fail when the label is missing; statusless tracker issues are not durable
 execution truth.
 
+If a repository exposes a deterministic issue execution summary, backlog report, or handoff command
+that is generated from the checked-in ledger, run it after the live state audit before quoting issue
+counts or next-work posture. Prefer that repo-owned summary over chat memory, compacted context,
+assignee-only filters, or one-off `gh issue list` output.
+
 Some repositories also provide a machine-readable issue-learning or pattern ledger. When present,
 run its repo-native gate before implementing the next related issue and before PR evidence. Treat
 failures as same-pattern drift: either update the pattern ledger with the issue's durable defect
