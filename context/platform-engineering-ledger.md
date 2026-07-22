@@ -29,6 +29,9 @@ then make source seed automation and downstream validators consume that field. D
 nearby persona to make a check pass, and do not promote source-confirmed tenant posture while the
 tenant remains trusted caller context. Contract validators should lock identity, source lineage,
 business-date policy, and the separately owned limitation before cross-repo implementation begins.
+When a contract claims seed persistence, the Platform gate must execute a source-owned verifier that
+uses the live seed builders and validate its structured evidence; contract strings and textual
+source markers are not runtime proof.
 Likewise, a ready membership input must not promote a composite Workbench panel beyond the
 support state governed by its registry; panel certification reconciles every owned dependency and
 limitation, not the strongest individual input.

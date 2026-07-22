@@ -142,6 +142,11 @@ not the Advisor Cockpit `advisor_sg_001` persona and is not the DPM command-cent
 delivers source-confirmed ownership, so the contract must not promote the advisor-book panel beyond
 its governed partial posture on tenant evidence alone.
 
+Platform validation must execute Core's advisor-book seed verifier from the governed Core checkout,
+not infer compliance from contract text or source markers. The verifier exercises the same bundle
+and dependency-ordered ingestion-request builders as the live seed and returns structured evidence
+for the portfolio, manager, source record, ingestion endpoint, and assignment count.
+
 ### Benchmark Identity
 
 The canonical benchmark remains:
