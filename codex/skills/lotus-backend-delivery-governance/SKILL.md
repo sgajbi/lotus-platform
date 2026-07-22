@@ -246,11 +246,6 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     then include unchecked cross-domain evidence. Define source correction/revision identity
     explicitly: preserve producer hashes and lineage, and either create a new versioned aggregate
     identity or apply a governed correction transition rather than silently rewriting evidence.
-    Never substitute a consumer-owned request date, local snapshot date, persistence time, or
-    calculation clock for a source-owned business/effective date; omit the source date and keep the
-    posture fail-closed/non-certifying until the producer preserves that evidence. When optional
-    source refs lack source-owned temporal fields, add tests that prove downstream proof remains
-    `missing_source_evidence` or the repository's equivalent blocker state.
     Test exact-boundary success, any allowed effective window, mismatched date, future generation,
     stale/partial posture, multi-source conflict, correction identity, and no-persistence behavior.
     Add a deterministic all-family gate when coverage can be checked statically.
@@ -262,20 +257,15 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     background work. Keep lineage outside business idempotency fingerprints, preserve original
     lineage on replay, constrain identifiers in migrations and storage, map transport headers
     semantically, document consumer replay rules, and keep sensitive data out of lineage and event
-    payloads. Prefer an internal bounded module and stable interface; introduce a separate runtime
-    service only when workload, failure isolation, ownership, or operability evidence justifies it.
-    For externally callable receipt, replay, command, or handoff APIs, scope idempotency state to the
-    trusted caller/resource context that defines ownership, such as tenant, legal entity, subject,
-    service identity, capability, portfolio, book, or aggregate identity. Validate trimmed blank
-    idempotency keys before hashing, and prove same-key cross-scope requests cannot replay or
-    conflict with another caller's receipt.
+    payloads. Apply `references/rfc-0002-review-hardening.md` for trusted-header, source-temporal,
+    and idempotency replay proof gotchas. Prefer an internal bounded module; add a runtime service
+    only when workload, failure isolation, ownership, or operability evidence justifies it.
 22. When a registry, manifest, or evidence pack controls supported-feature or capability promotion,
     derive promotion through one typed evaluator shared by the repository gate, runtime readiness,
     API projection, and generated artifact. Never count a status string independently. Validate the
     complete schema, required evidence, referenced paths/tests/contracts, authority boundaries,
     review freshness, and planned-versus-implemented separation before promotion. Fail missing,
-    malformed, unresolved, future-dated, or stale evidence closed with stable source-safe blocker
-    codes; do not expose validator details or filesystem paths through product APIs. Add a
+    malformed, unresolved, future-dated, or stale evidence closed with stable source-safe blocker codes; do not expose validator details or filesystem paths through product APIs. Add a
     deterministic gate that rejects parallel counters and hard-coded projections, and prove empty,
     invalid, stale, and fully evidenced current fixtures. Keep the evaluator as internal design
     modularity unless runtime-split evidence exists.
@@ -329,15 +319,12 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
 27. When a resource-scoped mutation can load tenant, book, portfolio, client, account, or aggregate
     scope from persisted server-owned truth, do not require callers to restate that scope or an
     `authorizedScope` claim in the request body. Build actor entitlements from trusted caller
-    context, load the resource through the application port, and authorize its persisted scope
-    before mutation. Reject unknown legacy scope fields, keep authorization failures product-safe,
+    context, load the resource through the application port, and authorize its persisted scope before
+    mutation. Reject unknown legacy scope fields, keep authorization failures product-safe,
     and preserve not-found, replay, conflict, audit, and transaction semantics. Test missing and
     malformed trusted context, every mismatched scope dimension, multi-value membership, body
     override attempts, OpenAPI schema truth, and durable-adapter parity. Keep domain mutation
-    commands free of placeholder or nullable scope that exists only for later replacement. If a
-    local/dev route uses trusted headers instead of a production IdP, the OpenAPI/API vocabulary
-    must still mark every required trusted-context header as required and must preserve an explicit
-    no-auth/production-IdP blocker issue instead of implying production authorization is complete.
+    commands free of placeholder or nullable scope that exists only for later replacement.
 28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
 29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
 30. Govern API test migrations with `references/integration-api-migration-proof.md`, stateful
