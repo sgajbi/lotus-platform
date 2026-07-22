@@ -87,6 +87,13 @@ REQUIRED_SEED_STEPS = {
 }
 REQUIRED_CORE_SEED_STATIC_EVIDENCE = {
     "status": "pass",
+    "source_product_route": (
+        "/integration/portfolio-manager-books/{portfolio_manager_id}/memberships"
+    ),
+    "source_product_consumers": ["lotus-gateway", "lotus-manage"],
+    "source_product_owner": "lotus-core",
+    "source_product_serving_plane": "query_control_plane_service",
+    "source_product_route_family": "Analytics Input",
     "ingestion_endpoint": "/ingest/portfolio-party-role-assignments",
     "assignment_count": 1,
 }
