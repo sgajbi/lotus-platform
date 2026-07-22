@@ -385,6 +385,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     economic_invariants = invariants["economic_invariants"]
     assert "transaction_ids_are_deterministic" in economic_invariants
     assert "positions_and_cash_legs_reconcile_after_seeded_activity" in economic_invariants
+    assert "advisor_book_assignment_identity_is_deterministic" in economic_invariants
     assert "dpm_mandate_binding_identity_is_deterministic" in economic_invariants
 
 
