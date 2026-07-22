@@ -189,6 +189,11 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     acceptance criteria. Do not open the PR while any actionable issue in the agreed batch lacks
     code, tests/docs evidence, or an explicit owner-approved deferral. Keep campaign ledger issues
     open unless the ledger itself was the target.
+    For cross-repository source-contract consumers, validate producer-specific semantics instead of
+    hard-coding another sibling's field names or narrative phrases. Bind consumed owner proof refs
+    such as `sgajbi/<repo>#<issue>` in the consumer artifact, assert the producer's own capability
+    and receipt vocabulary, and keep live/runtime blockers open when the consumed evidence class is
+    only `source_contract`, local execution, or an unmerged producer-branch proof.
 15. When a backend slice touches OpenAPI or generated API vocabulary, do not let display
     enrichment satisfy public contract-quality gates. Scan generated contract artifacts for
     placeholder-shaped examples such as `sample_text`, `sample_key`, `STANDARD_TEXT`,
