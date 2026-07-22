@@ -34,6 +34,18 @@
       "description": "Tenant scope for the product payload."
     },
     {
+      "key": "portfolio_manager_id",
+      "semantic_id": "lotus.portfolio_manager_id",
+      "evidence_access_class": "customer_consumable",
+      "description": "Portfolio-manager party scope whose effective-dated book membership is resolved by the product."
+    },
+    {
+      "key": "booking_center_code",
+      "semantic_id": "lotus.booking_center_code",
+      "evidence_access_class": "customer_consumable",
+      "description": "Booking-centre scope applied when resolving the product payload."
+    },
+    {
       "key": "generated_at",
       "semantic_id": "lotus.generated_at",
       "evidence_access_class": "customer_consumable",
@@ -62,6 +74,18 @@
       "semantic_id": "lotus.data_quality_status",
       "evidence_access_class": "customer_consumable",
       "description": "Published data-quality posture for the product or its governing source inputs."
+    },
+    {
+      "key": "source_evidence_current",
+      "semantic_id": "lotus.source_evidence_current",
+      "evidence_access_class": "customer_consumable",
+      "description": "Source-owned boolean indicating whether authoritative evidence is current for the requested product scope."
+    },
+    {
+      "key": "freshness_status",
+      "semantic_id": "lotus.freshness_status",
+      "evidence_access_class": "customer_consumable",
+      "description": "Source-owned freshness classification for the requested product scope."
     },
     {
       "key": "latest_evidence_timestamp",

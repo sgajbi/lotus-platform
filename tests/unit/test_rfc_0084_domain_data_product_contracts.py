@@ -1853,6 +1853,10 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
     trust_metadata_keys = {
         entry["key"] for entry in trust_metadata_registry["trust_metadata_fields"]
     }
+    trust_metadata_fields = {
+        entry["key"]: entry
+        for entry in trust_metadata_registry["trust_metadata_fields"]
+    }
     evidence_access_classes = {
         entry["key"] for entry in trust_metadata_registry["evidence_access_classes"]
     }
@@ -1891,6 +1895,17 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
         "unknown",
     } <= completeness_statuses
     assert {"customer_consumable", "operator_only"} <= evidence_access_classes
+    advisor_book_scope_and_freshness_fields = {
+        "portfolio_manager_id",
+        "booking_center_code",
+        "source_evidence_current",
+        "freshness_status",
+    }
+    assert advisor_book_scope_and_freshness_fields <= trust_metadata_keys
+    assert all(
+        trust_metadata_fields[field]["evidence_access_class"] == "customer_consumable"
+        for field in advisor_book_scope_and_freshness_fields
+    )
     assert {
         "operator_reconciliation_evidence",
         "operator_quality_evidence",
