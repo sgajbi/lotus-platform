@@ -34,7 +34,9 @@ uses the live seed builders and validate its structured evidence; contract strin
 source markers are not runtime proof. The evidence comparison must be derived from the governing
 contract and bind business date, role and scope, effective interval, version, source
 system/record/product, observation time, quality, endpoint, and exact count; checking only actor
-identity still permits semantically wrong assignments to pass.
+identity still permits semantically wrong assignments to pass. Source-product evidence must come
+from the source application's executable product registry and match the central contract; echoing
+the central value back to its validator is circular evidence.
 Likewise, a ready membership input must not promote a composite Workbench panel beyond the
 support state governed by its registry; panel certification reconciles every owned dependency and
 limitation, not the strongest individual input.

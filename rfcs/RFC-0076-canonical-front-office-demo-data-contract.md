@@ -148,7 +148,9 @@ and dependency-ordered ingestion-request builders as the live seed and returns s
 for the portfolio and manager, governed business date, role and scope, effective interval,
 assignment version, source system/record/product, observation time, quality status, ingestion
 endpoint, and exact assignment count. Platform derives the expected proof shape from this contract
-instead of maintaining a second identity list.
+instead of maintaining a second identity list. Core must derive the reported product/version from
+its executable source-data-product registry and fail when that registry disagrees with the central
+contract; returning the central value unchanged is not source-product proof.
 
 ### Benchmark Identity
 
