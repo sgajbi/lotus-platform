@@ -530,6 +530,10 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     `lotus-core-app-local`, and `lotus-core-canonical-ui` all resolve to the canonical
     `lotus-core` checkout boundary, but an alias from a temporary or other checkout is a conflict,
     not an owned resource.
+14. classify composite Workbench panels from the complete governed panel contract, not from one
+    ready input. Endpoint, calculation, membership, and source-snapshot readiness are component
+    evidence; panel promotion requires every registry-owned dependency and limitation to support
+    the target state.
 
 Do not improvise a parallel front-office stack sequence from `lotus-platform/platform-stack` when the governed `lotus-workbench` runtime already covers the required UI surfaces and seeded-data validation flow.
 

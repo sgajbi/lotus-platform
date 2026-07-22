@@ -71,6 +71,9 @@ Do not route those tasks through generic platform QA by default.
     `lotus-core-canonical-ui` as explicit aliases for the `lotus-core` checkout boundary; never
     infer additional aliases from a name prefix. A Core alias labeled with a temporary or other
     checkout must appear in the plan as a conflict and must not be silently reused or deleted.
+16. Before recording a panel as `ready`, reconcile every required input and limitation against the
+    panel registry's governed support state. A ready endpoint, calculation, membership, or source
+    snapshot is not sufficient evidence to promote a composite panel by itself.
 
 ## Canonical Commands
 

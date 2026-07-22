@@ -322,6 +322,18 @@ def test_stale_screenshot_only_and_platform_stack_patterns_are_rejected() -> Non
     assert "label it with a `diagnostic-` prefix" in deployed_agents
 
 
+def test_front_office_runtime_blocks_single_input_panel_promotion() -> None:
+    runtime_skill = _read(
+        ROOT / "codex" / "skills" / "lotus-front-office-runtime" / "SKILL.md"
+    )
+    engineering_context = _read(ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md")
+
+    assert "not sufficient evidence to promote a composite panel by itself" in runtime_skill
+    assert "classify composite Workbench panels from the complete governed panel contract" in (
+        engineering_context
+    )
+
+
 def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:
     frontend_skill = _read(ROOT / "codex" / "skills" / "lotus-frontend-delivery-governance" / "SKILL.md")
 
