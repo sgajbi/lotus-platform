@@ -171,6 +171,13 @@ after reopen, close, block, unblock, or lifecycle-label changes, and before summ
 issue counts. Treat failures as lifecycle drift: reconcile the GitHub state or ledger first, then
 continue implementation.
 
+Some repositories also provide a machine-readable issue-learning or pattern ledger. When present,
+run its repo-native gate before implementing the next related issue and before PR evidence. Treat
+failures as same-pattern drift: either update the pattern ledger with the issue's durable defect
+family, controls, future-agent rule, and no-claim boundaries, or create/reuse a more specific
+GitHub issue before source mutation. Do not let repeated issue lessons live only in chat,
+compacted context, or PR prose.
+
 Both entrypoints dot-source `scripts/issue-loop-common.ps1`; treat that shared module as internal
 implementation and invoke only the update or audit entrypoint directly.
 
