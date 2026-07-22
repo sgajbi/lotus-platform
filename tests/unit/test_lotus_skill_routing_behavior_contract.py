@@ -338,12 +338,19 @@ def test_backend_delivery_preserves_producer_semantics_for_source_contracts() ->
     backend_skill = _read(
         ROOT / "codex" / "skills" / "lotus-backend-delivery-governance" / "SKILL.md"
     )
-
-    assert "validate producer-specific semantics" in backend_skill
-    assert "keep live/runtime blockers open" in backend_skill
-    assert "only `source_contract`, local execution, or an unmerged producer-branch proof" in (
-        backend_skill
+    evidence_reference = _read(
+        ROOT
+        / "codex"
+        / "skills"
+        / "lotus-backend-delivery-governance"
+        / "references"
+        / "evidence-classification.md"
     )
+
+    assert "references/evidence-classification.md" in backend_skill
+    assert "Validate producer-specific semantics" in evidence_reference
+    assert "Keep live or runtime blockers open" in evidence_reference
+    assert "unmerged producer-branch proof" in evidence_reference
 
 
 def test_frontend_delivery_skill_blocks_agent_quality_regressions() -> None:

@@ -7,10 +7,11 @@ workflow, runtime exercise, deployment receipt, or production attestation clears
 
 1. [Closed Evidence Taxonomy](#closed-evidence-taxonomy)
 2. [Blocker Clearance Rule](#blocker-clearance-rule)
-3. [Executable Classification And Effect](#executable-classification-and-effect)
-4. [CI Evidence Binding](#ci-evidence-binding)
-5. [Receipt-Bound Runtime Execution](#receipt-bound-runtime-execution)
-6. [Migration Guidance](#migration-guidance)
+3. [Cross-Repository Source-Contract Consumers](#cross-repository-source-contract-consumers)
+4. [Executable Classification And Effect](#executable-classification-and-effect)
+5. [CI Evidence Binding](#ci-evidence-binding)
+6. [Receipt-Bound Runtime Execution](#receipt-bound-runtime-execution)
+7. [Migration Guidance](#migration-guidance)
 
 ## Closed Evidence Taxonomy
 
@@ -41,6 +42,16 @@ Do not promote across classes by implication:
    deployed artifacts and environment promotion evidence.
 5. `deployment` evidence cannot clear `production_certification` blockers without the required
    cryptographic attestation and approval posture.
+
+## Cross-Repository Source-Contract Consumers
+
+Validate producer-specific semantics instead of hard-coding another sibling repository's field
+names or narrative phrases. Bind consumed owner proof refs such as `sgajbi/<repo>#<issue>` in the
+consumer artifact and assert the producer's own capability and receipt vocabulary.
+
+Keep live or runtime blockers open when the consumed evidence class is only a source design
+contract, local execution, or unmerged producer-branch proof. Promotion requires the evidence
+class declared by the blocker, with exact producer and consumer provenance.
 
 ## Executable Classification And Effect
 
