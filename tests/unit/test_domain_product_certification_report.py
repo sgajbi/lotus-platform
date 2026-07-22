@@ -63,6 +63,12 @@ def test_domain_product_certification_report_certifies_current_catalog_and_graph
     assert report["summary"]["certification_state"] == "certified"
     assert report["summary"]["product_count"] == catalog["product_count"]
     assert report["summary"]["dependency_count"] == catalog["dependency_count"]
+    assert report["summary"]["producer_repository_count"] == sum(
+        repository["produced_product_count"] > 0
+        for repository in catalog["repositories"]
+    )
+    assert report["summary"]["producer_repository_count"] == 7
+    assert report["summary"]["included_repository_count"] == 8
     assert report["summary"]["issue_count"] == 0
     assert report["source_manifest_posture"]["included_repositories"] == [
         "lotus-core",

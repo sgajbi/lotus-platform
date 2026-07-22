@@ -166,6 +166,10 @@ def test_rfc_0086_documents_lotus_ai_and_platform_mirror_closure_posture() -> No
         "`lotus-ai` is not a first-wave RFC-0086 producer or consumer declaration "
         "participant"
     ) in rfc
+    assert "8 included repositories" in rfc
+    assert "85 governed products" in rfc
+    assert "67 consumer dependency edges" in rfc
+    assert "`lotus-gateway` API consumer" in rfc
     assert (
         "transitional platform mirror declarations are retained as compatibility "
         "evidence only"
