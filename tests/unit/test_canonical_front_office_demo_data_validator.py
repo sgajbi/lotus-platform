@@ -88,6 +88,10 @@ def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
         ("source_product", "PortfolioManagerBookMembership:v2"),
         ("source_product_route", "/integration/legacy-advisor-book"),
         ("source_product_consumers", ["lotus-manage"]),
+        (
+            "source_product_consumers",
+            ["lotus-gateway", "lotus-manage", "lotus-gateway"],
+        ),
         ("source_product_owner", "lotus-gateway"),
         ("source_product_serving_plane", "query_service"),
         ("source_product_route_family", "Operational Read"),
@@ -119,6 +123,27 @@ def test_validator_rejects_drifted_core_executable_seed_evidence(
     assert errors == [
         f"lotus-core advisor-book seed evidence.{field} must be {expected_evidence[field]}"
     ]
+
+
+def test_validator_accepts_source_product_consumers_in_producer_order(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    validator = _validator()
+    proof_path = tmp_path / validator.CORE_SEED_VALIDATOR_RELATIVE_PATH
+    proof_path.parent.mkdir(parents=True)
+    proof_path.write_text("# test executable proof\n", encoding="utf-8")
+    contract = _contract()
+    evidence = validator._required_core_seed_evidence(contract)
+    evidence["source_product_consumers"] = ["lotus-manage", "lotus-gateway"]
+    monkeypatch.setattr(
+        validator.subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 0, stdout=json.dumps(evidence), stderr=""
+        ),
+    )
+
+    assert validator._validate_core_advisor_book_seed(tmp_path, contract) == []
 
 
 def test_validator_rejects_drift_from_canonical_dpm_seed_identity() -> None:
