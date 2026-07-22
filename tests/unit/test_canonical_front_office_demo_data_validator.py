@@ -59,6 +59,8 @@ def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
 @pytest.mark.parametrize(
     ("field", "drifted_value"),
     [
+        ("status", "partial"),
+        ("portfolio_id", "PB_OTHER"),
         ("portfolio_manager_id", "advisor_sg_001"),
         ("as_of_date", "2099-12-31"),
         ("role_type", "investment_advisor"),
@@ -71,6 +73,8 @@ def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
         ("observed_at", "2099-12-31T00:00:00Z"),
         ("quality_status", "rejected"),
         ("source_product", "PortfolioManagerBookMembership:v2"),
+        ("ingestion_endpoint", "/ingest/legacy-advisor-book"),
+        ("assignment_count", 2),
     ],
 )
 def test_validator_rejects_drifted_core_executable_seed_evidence(
