@@ -59,6 +59,9 @@ REQUIRED_COVERAGE_ASSERTIONS = {
     "dpm_command_center_evidence_must_record_source_product_lineage",
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
 }
+REQUIRED_ECONOMIC_INVARIANTS = {
+    "advisor_book_assignment_identity_is_deterministic",
+}
 REQUIRED_SEED_STEPS = {
     "manage-refresh-from-core",
     "manage-monitoring-run-once",
@@ -225,6 +228,13 @@ def _validate_invariants(errors: list[str], invariants: dict[str, Any]) -> None:
         path="invariants.required_coverage_assertions",
         observed=coverage,
         required=REQUIRED_COVERAGE_ASSERTIONS,
+    )
+    economic_invariants = _string_set(invariants.get("economic_invariants"))
+    _add_missing(
+        errors,
+        path="invariants.economic_invariants",
+        observed=economic_invariants,
+        required=REQUIRED_ECONOMIC_INVARIANTS,
     )
     thresholds = invariants.get("minimum_thresholds")
     if not isinstance(thresholds, dict):

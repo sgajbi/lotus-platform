@@ -68,6 +68,11 @@ def test_validator_requires_advisor_book_membership_and_lineage_invariants() -> 
         for assertion in invariants["required_coverage_assertions"]
         if not assertion.startswith("advisor_book_")
     ]
+    invariants["economic_invariants"] = [
+        invariant
+        for invariant in invariants["economic_invariants"]
+        if invariant != "advisor_book_assignment_identity_is_deterministic"
+    ]
 
     errors = _validator().validate_contract(_contract(), invariants, _seed_script())
 
@@ -79,6 +84,9 @@ def test_validator_requires_advisor_book_membership_and_lineage_invariants() -> 
     assert any(
         "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage" in error
         for error in errors
+    )
+    assert any(
+        "advisor_book_assignment_identity_is_deterministic" in error for error in errors
     )
 
 
