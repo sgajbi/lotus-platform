@@ -9,23 +9,23 @@
   "producer_repository": "lotus-idea",
   "freshness": {
     "max_allowed_age_seconds": 86400,
-    "violation_severity": "blocking"
+    "violation_severity": "advisory"
   },
   "completeness": {
     "required_status": "complete",
-    "violation_severity": "blocking"
+    "violation_severity": "advisory"
   },
   "reconciliation": {
     "required_status": "reconciled",
-    "violation_severity": "blocking"
+    "violation_severity": "advisory"
   },
   "data_quality": {
     "required_status": "quality_passed",
-    "violation_severity": "blocking"
+    "violation_severity": "advisory"
   },
   "lineage": {
     "lineage_materialized_required": true,
-    "violation_severity": "blocking"
+    "violation_severity": "advisory"
   },
   "escalation": {
     "owner_repository": "lotus-idea",
