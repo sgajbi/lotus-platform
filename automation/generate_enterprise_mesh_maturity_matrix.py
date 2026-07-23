@@ -6,7 +6,11 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from mesh_maturity_scope import REQUIRED_PRODUCT_IDS
+from mesh_maturity_scope import (
+    CERTIFICATION_CANDIDATE_PRODUCT_IDS,
+    CERTIFICATION_CANDIDATE_REPOSITORIES,
+    REQUIRED_PRODUCT_IDS,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +35,7 @@ LOTUS_REPOSITORIES = [
 ]
 
 FIRST_WAVE_PRODUCTS = set(REQUIRED_PRODUCT_IDS)
+CERTIFICATION_CANDIDATE_PRODUCTS = set(CERTIFICATION_CANDIDATE_PRODUCT_IDS)
 
 CANDIDATE_PRODUCTS: list[dict[str, str]] = []
 
@@ -127,6 +132,11 @@ def _repository_entry(
     first_wave_product_count = sum(
         1 for product in products if product["product_id"] in FIRST_WAVE_PRODUCTS
     )
+    certification_candidate_product_count = sum(
+        1
+        for product in products
+        if product["product_id"] in CERTIFICATION_CANDIDATE_PRODUCTS
+    )
     consumed_dependency_count = (consumer or {}).get("dependency_count", 0)
     if first_wave_product_count:
         classification = "certified_first_wave"
@@ -134,6 +144,13 @@ def _repository_entry(
         required_next_step = (
             "Maintain repo-native declaration, trust telemetry, SLO, access, "
             "lifecycle, evidence-pack, and certification-gate posture."
+        )
+    elif certification_candidate_product_count:
+        classification = "certification_candidate"
+        mesh_role = "producer"
+        required_next_step = (
+            "Complete runtime telemetry, durable repository, Gateway/Workbench "
+            "discovery, and supported-feature proof before promotion."
         )
     elif repository in CONSUMER_ONLY_REPOSITORIES:
         classification = "consumer_only"
@@ -163,6 +180,7 @@ def _repository_entry(
         ),
         "produced_product_count": len(products),
         "first_wave_product_count": first_wave_product_count,
+        "certification_candidate_product_count": certification_candidate_product_count,
         "consumed_dependency_count": consumed_dependency_count,
         "repo_native_status": (manifest_entry or {}).get(
             "repo_native_status", "not_in_source_manifest"
@@ -180,6 +198,8 @@ def _repository_rationale(
 ) -> str:
     if classification == "certified_first_wave":
         return "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave."
+    if classification == "certification_candidate":
+        return "Produces one or more implementation-backed certification candidates selected for policy coverage but not blocking maturity enforcement."
     if classification == "consumer_only":
         return "Currently participates through consumer declarations and is a candidate expansion repository."
     if classification == "deferred" and product_count:
@@ -201,6 +221,13 @@ def _product_entries(catalog: dict[str, Any]) -> list[dict[str, Any]]:
             required_next_step = (
                 "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, "
                 "and certification-gate controls."
+            )
+        elif product_id in CERTIFICATION_CANDIDATE_PRODUCTS:
+            classification = "certification_candidate"
+            maturity_wave = "enterprise_wave_candidate"
+            required_next_step = (
+                "Keep fail-closed until runtime trust telemetry, durable records, "
+                "Gateway/Workbench discovery, and supported-feature proof are certified."
             )
         else:
             classification = "deferred"
@@ -298,8 +325,15 @@ def build_enterprise_mesh_maturity_matrix(
                 "lotus-manage",
             ],
             "candidate_expansion_repositories": [],
+            "certification_candidate_repositories": list(
+                CERTIFICATION_CANDIDATE_REPOSITORIES
+            ),
             "explicit_posture_decision_repositories": ["lotus-ai"],
-            "future_wave_catalog_repositories": ["lotus-idea"],
+            "future_wave_catalog_repositories": [
+                repository
+                for repository in ["lotus-idea"]
+                if repository not in CERTIFICATION_CANDIDATE_REPOSITORIES
+            ],
             "api_face": "lotus-gateway",
             "discovery_and_operator_ux": "lotus-workbench",
             "platform_governance": "lotus-platform",
@@ -313,7 +347,9 @@ def build_enterprise_mesh_maturity_matrix(
                 if product["classification"] == "certified_first_wave"
             ),
             "candidate_product_count": sum(
-                1 for product in products if product["classification"] == "candidate"
+                1
+                for product in products
+                if product["classification"] == "certification_candidate"
             ),
             "ambiguous_repository_count": len(ambiguous_repositories),
         },

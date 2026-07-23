@@ -53,7 +53,7 @@ flowchart LR
 | `lotus-advise` | Authoritative producer for advisory proposal lifecycle and decision-support products. | First-wave producer. |
 | `lotus-report` | Producer and consumer for report evidence products and client-report evidence packs. | Enterprise maturity participant. |
 | `lotus-manage` | Producer and consumer for discretionary portfolio action and action-register products. | Enterprise maturity participant. |
-| `lotus-idea` | Future-wave opportunity-intelligence product owner for proposed opportunity, idea evidence, and conversion-orchestration products. | Catalog-visible onboarding only; not certified until runtime and policy proof exists. |
+| `lotus-idea` | Opportunity-intelligence product owner for proposed opportunity, idea evidence, and conversion-orchestration products. | `IdeaCandidate:v1` is a governed certification candidate with platform SLO, access, and evidence-policy coverage; it is not mesh certified or supported-feature promoted until runtime records, durable repository proof, Gateway/Workbench discovery, and promotion evidence pass. Other Idea products remain future-wave. |
 | `lotus-gateway` | Publishes catalog, detail, graph, and trust APIs from platform-generated artifacts. | API publication face, not product authority. |
 | `lotus-workbench` | Presents self-serve product discovery, dependency, lifecycle, and trust posture through Gateway/BFF. | Discovery UI, not product authority. |
 | `lotus-ai` | Shared AI capability used behind governed product flows. | Not a mesh participant until it owns a governed product or catalog-consuming capability. |

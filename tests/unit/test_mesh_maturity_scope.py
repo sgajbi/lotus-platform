@@ -40,6 +40,10 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
         "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
         "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
     }
+    assert scope.CERTIFICATION_CANDIDATE_PRODUCT_IDS == {
+        "lotus-idea:IdeaCandidate:v1"
+    }
+    assert "lotus-idea:IdeaCandidate:v1" not in scope.REQUIRED_PRODUCTS
 
     assert collect.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
     assert slo.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
@@ -47,6 +51,9 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
     assert evidence.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
     assert gate.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
     assert matrix.FIRST_WAVE_PRODUCTS == set(scope.REQUIRED_PRODUCT_IDS)
+    assert matrix.CERTIFICATION_CANDIDATE_PRODUCTS == set(
+        scope.CERTIFICATION_CANDIDATE_PRODUCT_IDS
+    )
 
 
 def test_mesh_maturity_scope_default_telemetry_directories_follow_required_repos() -> (

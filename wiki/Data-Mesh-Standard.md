@@ -51,7 +51,7 @@ flowchart LR
 | `lotus-advise` | First-wave advisory product producer. |
 | `lotus-report` | Enterprise maturity participant for client-report evidence. |
 | `lotus-manage` | Enterprise maturity participant for portfolio action register. |
-| `lotus-idea` | Catalog-visible future-wave opportunity-intelligence onboarding, not certified. |
+| `lotus-idea` | `IdeaCandidate:v1` is a governed certification candidate with platform SLO/access/evidence policy coverage; it remains fail-closed and not certified or supported-feature promoted until runtime records, durable repository proof, Gateway/Workbench discovery, and promotion evidence pass. |
 
 ## Certification Checklist
 
