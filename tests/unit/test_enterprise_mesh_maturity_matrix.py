@@ -41,6 +41,12 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
     assert matrix["summary"]["repository_count"] == len(generator.LOTUS_REPOSITORIES)
     assert matrix["summary"]["ambiguous_repository_count"] == 0
     assert matrix["ambiguous_repositories"] == []
+    assert matrix["implementation_boundary"][
+        "certification_candidate_repositories"
+    ] == ["lotus-idea"]
+    assert matrix["implementation_boundary"]["future_wave_catalog_repositories"] == [
+        "lotus-idea"
+    ]
 
     for repository in (
         "lotus-core",
