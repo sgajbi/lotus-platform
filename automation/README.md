@@ -378,7 +378,12 @@ python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00
 The collector prefers runtime snapshots from sibling repository
 `output/trust-telemetry/runtime/` directories. If runtime evidence is missing for a product, it
 falls back to the repo-native `contracts/trust-telemetry/` static fixture and records that fallback
-in the manifest. The manifest and copied snapshots are written to:
+in the manifest. Default collection includes required maturity producers plus platform-tracked
+certification-candidate producers such as `lotus-idea`; candidate snapshots are collected for
+evidence and operator visibility without making them required maturity products. JSON artifacts in
+those directories that are not RFC-0087 telemetry snapshots are recorded as info-level
+`ignored_non_snapshot_json` entries rather than blocking the collection. The manifest and copied
+snapshots are written to:
 
 - `output/trust-telemetry/collection/trust-telemetry-collection-manifest.json`
 - `output/trust-telemetry/collection/snapshots/`

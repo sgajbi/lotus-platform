@@ -44,6 +44,15 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
         "lotus-idea:IdeaCandidate:v1"
     }
     assert "lotus-idea:IdeaCandidate:v1" not in scope.REQUIRED_PRODUCTS
+    assert scope.TELEMETRY_COLLECTION_REPOSITORIES == (
+        "lotus-core",
+        "lotus-performance",
+        "lotus-risk",
+        "lotus-advise",
+        "lotus-report",
+        "lotus-manage",
+        "lotus-idea",
+    )
 
     assert collect.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
     assert slo.REQUIRED_PRODUCTS is scope.REQUIRED_PRODUCTS
@@ -56,7 +65,7 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
     )
 
 
-def test_mesh_maturity_scope_default_telemetry_directories_follow_required_repos() -> (
+def test_mesh_maturity_scope_default_telemetry_directories_include_candidates() -> (
     None
 ):
     scope = _load_automation_module("mesh_maturity_scope")
@@ -72,6 +81,7 @@ def test_mesh_maturity_scope_default_telemetry_directories_follow_required_repos
         "lotus-advise/contracts/trust-telemetry",
         "lotus-report/contracts/trust-telemetry",
         "lotus-manage/contracts/trust-telemetry",
+        "lotus-idea/contracts/trust-telemetry",
     ]
     assert [
         path.relative_to(projects_root).as_posix()
@@ -83,4 +93,5 @@ def test_mesh_maturity_scope_default_telemetry_directories_follow_required_repos
         "lotus-advise/output/trust-telemetry/runtime",
         "lotus-report/output/trust-telemetry/runtime",
         "lotus-manage/output/trust-telemetry/runtime",
+        "lotus-idea/output/trust-telemetry/runtime",
     ]

@@ -69,17 +69,25 @@ CERTIFICATION_CANDIDATE_REPOSITORIES: tuple[str, ...] = tuple(
 REQUIRED_PRODUCER_REPOSITORIES: tuple[str, ...] = tuple(
     dict.fromkeys(product.producer_repository for product in REQUIRED_MATURITY_PRODUCTS)
 )
+TELEMETRY_COLLECTION_REPOSITORIES: tuple[str, ...] = tuple(
+    dict.fromkeys(
+        (
+            *REQUIRED_PRODUCER_REPOSITORIES,
+            *CERTIFICATION_CANDIDATE_REPOSITORIES,
+        )
+    )
+)
 
 
 def default_runtime_telemetry_directories() -> list[Path]:
     return [
         ROOT.parent / repository / "output" / "trust-telemetry" / "runtime"
-        for repository in REQUIRED_PRODUCER_REPOSITORIES
+        for repository in TELEMETRY_COLLECTION_REPOSITORIES
     ]
 
 
 def default_static_telemetry_directories() -> list[Path]:
     return [
         ROOT.parent / repository / "contracts" / "trust-telemetry"
-        for repository in REQUIRED_PRODUCER_REPOSITORIES
+        for repository in TELEMETRY_COLLECTION_REPOSITORIES
     ]
