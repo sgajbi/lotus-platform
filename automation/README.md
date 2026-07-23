@@ -1264,7 +1264,12 @@ Validate digest-based deployment promotion manifests:
 ```powershell
 python automation/validate_deployment_promotion_manifest.py
 python automation/validate_deployment_promotion_manifest.py --manifest platform-contracts/deployment-promotion/examples/lotus-archive-deployment-promotion.valid.json
+python automation/validate_deployment_promotion_manifest.py --manifest platform-contracts/deployment-promotion/examples/lotus-idea-deployment-promotion.pending.json
 ```
+
+`deployment_evidence_status: deployment_pending` is reserved for release-bound manifests that have
+current service release evidence but no approved deployed-digest observation yet. It is useful
+durable blocker evidence, not same-digest deployment proof or production certification.
 
 Validate a supported-claim register before promoting demo, RFP, security-pack, or screenshot claims:
 

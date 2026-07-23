@@ -7,9 +7,9 @@
     "markdown_file_count": 403,
     "powershell_file_count": 66,
     "python_file_count": 207,
-    "source_file_count": 844,
+    "source_file_count": 845,
     "suffix_counts": {
-      ".json": 126,
+      ".json": 127,
       ".md": 403,
       ".ps1": 66,
       ".py": 207,
@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 343403
+    "total_source_lines": 343624
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -50,6 +50,14 @@
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
       },
       {
+        "complexity": 15,
+        "end_line": 171,
+        "line": 122,
+        "lines": 50,
+        "name": "_validate_environments",
+        "path": "automation/validate_deployment_promotion_manifest.py"
+      },
+      {
         "complexity": 14,
         "end_line": 187,
         "line": 64,
@@ -59,8 +67,8 @@
       },
       {
         "complexity": 14,
-        "end_line": 196,
-        "line": 150,
+        "end_line": 220,
+        "line": 174,
         "lines": 47,
         "name": "_validate_included_environment",
         "path": "automation/validate_deployment_promotion_manifest.py"
@@ -104,14 +112,6 @@
         "lines": 43,
         "name": "_validate_final_closure",
         "path": "automation/validate_stacked_refactor_campaign_manifest.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 147,
-        "line": 109,
-        "lines": 39,
-        "name": "_validate_environments",
-        "path": "automation/validate_deployment_promotion_manifest.py"
       },
       {
         "complexity": 12,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2454
+    "python_function_count": 2460
   },
-  "generated_at_utc": "2026-07-23T05:18:36Z",
+  "generated_at_utc": "2026-07-23T05:55:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -428,7 +428,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1557,
+      "lines": 1562,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 822,
+    "collected_tests": 826,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "822 tests collected in 0.82s"
+    "summary": "826 tests collected in 0.68s"
   }
 }

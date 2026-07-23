@@ -218,8 +218,9 @@ Important current platform truths:
 9. digest-based deployment promotion proof is owned under
    `platform-contracts/deployment-promotion/` and validated with
    `python automation/validate_deployment_promotion_manifest.py`; it proves deployed digest
-   reconciliation without replacing service-owned release evidence or claiming production
-   certification ahead of live environment proof
+   reconciliation or explicitly records release-bound pending posture without replacing
+   service-owned release evidence or claiming production certification ahead of live environment
+   proof
 10. the Lotus Data Mesh Standard defines how domain-owned products become catalog-visible,
    policy-governed, Gateway-published, Workbench-discoverable, and certified without moving product
    authority into the platform, gateway, or UI layer
