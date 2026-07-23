@@ -14,6 +14,13 @@ EXAMPLE_PATH = (
     / "examples"
     / "lotus-archive-deployment-promotion.valid.json"
 )
+IDEA_PENDING_PATH = (
+    ROOT
+    / "platform-contracts"
+    / "deployment-promotion"
+    / "examples"
+    / "lotus-idea-deployment-promotion.pending.json"
+)
 
 
 def _validator():
@@ -30,10 +37,68 @@ def _manifest() -> dict:
     return json.loads(EXAMPLE_PATH.read_text(encoding="utf-8"))
 
 
+def _idea_manifest() -> dict:
+    return json.loads(IDEA_PENDING_PATH.read_text(encoding="utf-8"))
+
+
 def test_valid_example_accepts_lotus_archive_first_proof_set() -> None:
     validator = _validator()
 
     assert validator.validate_all_manifests() == []
+
+
+def test_valid_idea_pending_manifest_binds_release_without_deployment_claim() -> None:
+    errors = _validator().validate_manifest(_idea_manifest())
+
+    assert errors == []
+
+
+def test_rejects_pending_manifest_with_fake_included_deployment() -> None:
+    manifest = _idea_manifest()
+    manifest["environments"][0].update(
+        {
+            "scope": "included",
+            "promotion_mode": "initial_deploy_from_release_evidence",
+            "deployed_image_ref": manifest["release_evidence"]["image_ref"],
+            "deployed_digest": manifest["release_evidence"]["image_digest"],
+            "release_evidence_image_digest": manifest["release_evidence"]["image_digest"],
+            "out_of_scope_reason": None,
+        }
+    )
+
+    errors = _validator().validate_manifest(manifest)
+
+    assert (
+        "deployment_evidence_status deployment_pending must not include deployed digest proof"
+        in errors
+    )
+
+
+def test_pending_manifest_requires_durable_follow_up_and_runbook() -> None:
+    manifest = _idea_manifest()
+    manifest["environments"][0]["evidence_refs"] = [
+        {
+            "type": "RELEASE_EVIDENCE",
+            "ref": "sgajbi/lotus-idea/actions/runs/29982792450/main-releasability-release-evidence",
+        }
+    ]
+
+    errors = _validator().validate_manifest(manifest)
+
+    assert "environments[0] staging: deployment_pending requires FOLLOW_UP_ISSUE" in errors
+    assert "environments[0] staging: deployment_pending requires OPERATOR_RUNBOOK" in errors
+
+
+def test_rejects_unsupported_deployment_evidence_status() -> None:
+    manifest = _idea_manifest()
+    manifest["deployment_evidence_status"] = "release_only_certified"
+
+    errors = _validator().validate_manifest(manifest)
+
+    assert (
+        "deployment_evidence_status must be same_digest_proven or deployment_pending"
+        in errors
+    )
 
 
 def test_rejects_mutable_release_and_deployment_tags() -> None:

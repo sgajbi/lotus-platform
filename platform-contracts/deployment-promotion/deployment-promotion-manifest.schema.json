@@ -51,6 +51,12 @@
     "production_certification_claimed": {
       "type": "boolean"
     },
+    "deployment_evidence_status": {
+      "enum": [
+        "same_digest_proven",
+        "deployment_pending"
+      ]
+    },
     "release_evidence": {
       "type": "object",
       "additionalProperties": false,
