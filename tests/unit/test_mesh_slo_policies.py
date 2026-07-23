@@ -31,6 +31,23 @@ def test_checked_in_mesh_slo_policies_are_valid() -> None:
     assert validator.validate_mesh_slo_policies(POLICY_DIRECTORY) == []
 
 
+def test_idea_candidate_slo_policy_is_advisory_until_certified() -> None:
+    policy = json.loads(
+        (
+            POLICY_DIRECTORY / "lotus-idea-idea-candidate.slo.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert policy["product_id"] == "lotus-idea:IdeaCandidate:v1"
+    assert {
+        policy["freshness"]["violation_severity"],
+        policy["completeness"]["violation_severity"],
+        policy["reconciliation"]["violation_severity"],
+        policy["data_quality"]["violation_severity"],
+        policy["lineage"]["violation_severity"],
+    } == {"advisory"}
+
+
 def test_mesh_slo_policy_validation_rejects_missing_required_product(
     tmp_path: Path,
 ) -> None:
