@@ -97,6 +97,13 @@ Current contracts:
     certified read-path candidates, safe denial semantics, forbidden evidence fields, proof
     requirements, implementation-backed Gateway proof references, and residual promotion boundary
     for full entitlement certification.
+27. `lotus-idea-rfc0002-platform-proof-consumption.schema.json`
+    The governed schema for bounded RFC-0002 platform consumption of `lotus-idea` proof classes.
+28. `lotus-idea-rfc0002-platform-proof-consumption.json`
+    The RFC-0002 contract that recognizes `lotus-idea.outbox-broker-runtime-execution.v1` as
+    runtime-execution evidence for only the external broker runtime dependency, while retaining
+    downstream consumer, platform mesh publication, Gateway/Workbench live journey, data-product
+    certification, supported-feature promotion, and production-certification blockers.
 
 Rules:
 

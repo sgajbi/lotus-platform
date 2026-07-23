@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus.local/contracts/lotus-idea-rfc0002-platform-proof-consumption.schema.json",
+  "title": "Lotus Idea RFC-0002 Platform Proof Consumption",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "contract_version",
+    "governed_by_rfc",
+    "lifecycle_status",
+    "issue_refs",
+    "product_id",
+    "producer_repository",
+    "platform_posture",
+    "accepted_runtime_proofs",
+    "platform_blockers_cleared",
+    "platform_blockers_retained",
+    "non_proof_boundaries",
+    "owner_repo_evidence",
+    "validation"
+  ],
+  "properties": {
+    "contract_id": {
+      "const": "lotus-idea-rfc0002-platform-proof-consumption"
+    },
+    "contract_version": {
+      "const": "1.0.0"
+    },
+    "governed_by_rfc": {
+      "const": "RFC-0002"
+    },
+    "lifecycle_status": {
+      "const": "slice-15-platform-proof-consumption-implemented"
+    },
+    "issue_refs": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "product_id": {
+      "const": "lotus-idea:IdeaCandidate:v1"
+    },
+    "producer_repository": {
+      "const": "lotus-idea"
+    },
+    "platform_posture": {
+      "const": "certification_candidate_not_certified"
+    },
+    "accepted_runtime_proofs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "proof_name",
+          "schema_version",
+          "repository",
+          "proof_type",
+          "proof_scope",
+          "evidence_class",
+          "runtime_mode",
+          "broker_dependency",
+          "publisher_adapter",
+          "publish_path",
+          "required_runtime_checks",
+          "clears_only",
+          "remaining_certification_blockers",
+          "must_remain_false",
+          "source_safe_evidence_refs"
+        ],
+        "properties": {
+          "proof_name": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "proof_type": {
+            "type": "string"
+          },
+          "proof_scope": {
+            "type": "string"
+          },
+          "evidence_class": {
+            "type": "string"
+          },
+          "runtime_mode": {
+            "type": "string"
+          },
+          "broker_dependency": {
+            "type": "string"
+          },
+          "publisher_adapter": {
+            "type": "string"
+          },
+          "publish_path": {
+            "type": "string"
+          },
+          "required_runtime_checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "clears_only": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remaining_certification_blockers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "must_remain_false": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_safe_evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "platform_blockers_cleared": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "platform_blockers_retained": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "non_proof_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "owner_repo_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "repository",
+          "issue",
+          "evidence",
+          "posture"
+        ],
+        "properties": {
+          "repository": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "posture": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_commands",
+        "github_lane",
+        "wiki_source"
+      ],
+      "properties": {
+        "local_commands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "github_lane": {
+          "type": "string"
+        },
+        "wiki_source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

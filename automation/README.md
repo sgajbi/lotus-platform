@@ -395,6 +395,18 @@ runtime-vs-fixture evidence boundary:
 python automation/generate_live_trust_certification.py output/trust-telemetry/collection/snapshots --generated-at-utc 2026-04-20T00:00:00Z
 ```
 
+Validate bounded RFC-0002 platform consumption of `lotus-idea` proof classes:
+
+```powershell
+python automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py
+```
+
+This validator currently recognizes `lotus-idea.outbox-broker-runtime-execution.v1` as
+runtime-execution evidence for only the external broker runtime dependency. It deliberately fails
+if that proof is used to clear downstream consumer execution, platform mesh publication,
+Gateway/Workbench live journey, data-product certification, supported-feature promotion, or
+production-certification blockers.
+
 Validate RFC-0091 mesh SLO policies:
 
 ```powershell

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-23T05:55:22Z`
+Generated: `2026-07-23T09:41:20Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `845`
-- Total source lines: `343624`
-- Python files: `207`
+- Source files: `849`
+- Total source lines: `344335`
+- Python files: `209`
 - PowerShell files: `66`
 - Markdown files: `403`
 
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2460`
+- Python functions: `2481`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `884`
 
@@ -53,8 +53,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 | automation/validate_mainline_commit_provenance.py | validate_commit_provenance | 210 | 13 | 57 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 173 | 13 | 49 |
+| automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py | _validate_runtime_proof | 114 | 13 | 37 |
 | codex/skills/lotus-app-issue-discovery/scripts/audit_rfc_issue_coverage.py | load_issue_snapshots_from_json | 169 | 13 | 35 |
-| automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 224 | 12 | 43 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `826`
+- Unit tests collected: `834`
 - Collection command return code: `0`
-- Collection summary: `826 tests collected in 0.68s`
+- Collection summary: `834 tests collected in 0.54s`
 
 ## Security Baseline
 
