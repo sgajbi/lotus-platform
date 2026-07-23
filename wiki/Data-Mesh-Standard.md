@@ -51,7 +51,7 @@ flowchart LR
 | `lotus-advise` | First-wave advisory product producer. |
 | `lotus-report` | Enterprise maturity participant for client-report evidence. |
 | `lotus-manage` | Enterprise maturity participant for portfolio action register. |
-| `lotus-idea` | `IdeaCandidate:v1` is a governed certification candidate with platform SLO/access/evidence policy coverage; it remains fail-closed and not certified or supported-feature promoted until runtime records, durable repository proof, Gateway/Workbench discovery, and promotion evidence pass. |
+| `lotus-idea` | `IdeaCandidate:v1` is a governed certification candidate with platform SLO/access/evidence policy coverage; it remains fail-closed and not certified or supported-feature promoted until runtime records, durable repository proof, Gateway/Workbench discovery, and promotion evidence pass. RFC-0002 proof consumption is bounded: `lotus-idea.outbox-broker-runtime-execution.v1` may satisfy only the external broker runtime dependency and cannot certify downstream delivery, platform mesh publication, Gateway/Workbench live journeys, data-product certification, supported-feature promotion, or production posture. |
 
 ## Certification Checklist
 

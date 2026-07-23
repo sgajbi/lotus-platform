@@ -1,0 +1,121 @@
+{
+  "contract_id": "lotus-idea-rfc0002-platform-proof-consumption",
+  "contract_version": "1.0.0",
+  "governed_by_rfc": "RFC-0002",
+  "lifecycle_status": "slice-15-platform-proof-consumption-implemented",
+  "issue_refs": [
+    "sgajbi/lotus-platform#598",
+    "sgajbi/lotus-idea#694"
+  ],
+  "product_id": "lotus-idea:IdeaCandidate:v1",
+  "producer_repository": "lotus-idea",
+  "platform_posture": "certification_candidate_not_certified",
+  "accepted_runtime_proofs": [
+    {
+      "proof_name": "outbox_broker_runtime_execution",
+      "schema_version": "lotus-idea.outbox-broker-runtime-execution.v1",
+      "repository": "lotus-idea",
+      "proof_type": "outbox_broker_runtime_execution",
+      "proof_scope": "configured_http_broker_publication",
+      "evidence_class": "runtime_execution",
+      "runtime_mode": "http_service",
+      "broker_dependency": "lotus-platform-broker",
+      "publisher_adapter": "HttpOutboxEventPublisher",
+      "publish_path": "/events/lotus-idea/outbox",
+      "required_runtime_checks": [
+        "timezoneAwareGeneratedAtUtc",
+        "httpServiceRuntimeMode",
+        "brokerConfigured",
+        "publisherAdapterObserved",
+        "sourceSafeEnvelopePublished",
+        "publicationAccepted",
+        "failureReasonBounded",
+        "supportabilityStatusNotPromoted",
+        "nonProofClaimsRetained"
+      ],
+      "clears_only": [
+        "external_broker_runtime_proof_missing"
+      ],
+      "remaining_certification_blockers": [
+        "downstream_consumer_runtime_proof_missing",
+        "platform_mesh_event_publication_proof_missing",
+        "gateway_workbench_proof_missing",
+        "supported_feature_promotion_missing"
+      ],
+      "must_remain_false": [
+        "downstreamConsumersCertified",
+        "platformMeshEventCertified",
+        "gatewayWorkbenchProofPresent",
+        "supportedFeaturePromoted",
+        "productionCertificationGranted",
+        "certificationClosed"
+      ],
+      "source_safe_evidence_refs": [
+        "lotus-idea PR #732",
+        "lotus-idea main SHA f98ebce19720d29e0d9649786d20694cedcb8211",
+        "lotus-idea issue #694",
+        "make outbox-broker-runtime-execution-proof-gate",
+        "src/app/application/outbox/broker/runtime_execution.py",
+        "scripts/outbox/broker/generate_runtime_execution.py",
+        "scripts/outbox/broker/runtime_execution_gate.py",
+        "tests/unit/outbox/broker/test_runtime_execution.py"
+      ]
+    }
+  ],
+  "platform_blockers_cleared": [
+    "idea_external_broker_runtime_proof_dependency_consumable"
+  ],
+  "platform_blockers_retained": [
+    "data_mesh_certification_and_platform_catalog",
+    "idea_downstream_consumer_runtime_proof_missing",
+    "idea_platform_mesh_event_publication_proof_missing",
+    "idea_gateway_workbench_live_journey_proof_missing",
+    "idea_data_product_certification_missing",
+    "idea_supported_feature_promotion_missing",
+    "idea_production_certification_missing",
+    "platform_mesh_event_publication_proof_missing",
+    "supported_feature_promotion_missing"
+  ],
+  "non_proof_boundaries": [
+    "Broker runtime execution proof does not certify downstream consumer execution.",
+    "Broker runtime execution proof does not certify platform mesh event publication.",
+    "Broker runtime execution proof does not certify Gateway or Workbench live journey behavior.",
+    "Broker runtime execution proof does not promote lotus-idea:IdeaCandidate:v1 to a required maturity product.",
+    "Broker runtime execution proof does not promote a supported feature or production certification claim."
+  ],
+  "owner_repo_evidence": [
+    {
+      "repository": "lotus-idea",
+      "issue": "sgajbi/lotus-idea#694",
+      "evidence": "PR #732 merged the app-owned runtime proof class and gate.",
+      "posture": "runtime-proof-class-available"
+    },
+    {
+      "repository": "lotus-gateway",
+      "issue": "sgajbi/lotus-gateway#505",
+      "evidence": "PR #508 merged Gateway BFF Idea contract proof.",
+      "posture": "source-contract-proof-merged"
+    },
+    {
+      "repository": "lotus-workbench",
+      "issue": "sgajbi/lotus-workbench#484",
+      "evidence": "PR #497 merged Workbench Idea opportunity experience through Gateway/BFF.",
+      "posture": "source-contract-proof-merged"
+    },
+    {
+      "repository": "lotus-platform",
+      "issue": "sgajbi/lotus-platform#598",
+      "evidence": "This contract keeps platform proof consumption bounded to runtime broker evidence semantics.",
+      "posture": "bounded-proof-consumption"
+    }
+  ],
+  "validation": {
+    "local_commands": [
+      "python automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py",
+      "python -m pytest tests/unit/test_lotus_idea_rfc0002_platform_proof_consumption.py -q",
+      "powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformRepoChecks.ps1 -Lane feature"
+    ],
+    "github_lane": "Platform Repo Contracts",
+    "wiki_source": "wiki/Data-Mesh-Standard.md"
+  }
+}
