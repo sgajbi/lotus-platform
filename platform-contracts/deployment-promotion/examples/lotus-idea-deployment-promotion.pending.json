@@ -1,0 +1,84 @@
+{
+  "schema_version": "lotus.deployment-promotion-manifest.v1",
+  "manifest_id": "lotus-idea:deployment-promotion-readiness:2026-07-23",
+  "generated_at_utc": "2026-07-23T05:48:00Z",
+  "repository": "lotus-idea",
+  "service": "lotus-idea",
+  "first_proof_set": [
+    "lotus-idea"
+  ],
+  "production_certification_claimed": false,
+  "deployment_evidence_status": "deployment_pending",
+  "release_evidence": {
+    "artifact_ref": "sgajbi/lotus-idea/actions/runs/29982792450/main-releasability-release-evidence",
+    "commit_sha": "f98ebce19720d29e0d9649786d20694cedcb8211",
+    "workflow_run_id": "29982792450",
+    "image_ref": "ghcr.io/sgajbi/lotus-idea@sha256:a2ed6e706a56ac7d7845804f93bd50c6c342c8aabccca0bee96e6a51b300c7a2",
+    "image_digest": "sha256:a2ed6e706a56ac7d7845804f93bd50c6c342c8aabccca0bee96e6a51b300c7a2",
+    "sbom_ref": "sgajbi/lotus-idea/actions/runs/29982792450/sbom.cdx.json",
+    "signature_ref": "ghcr.io/sgajbi/lotus-idea@sha256:a2ed6e706a56ac7d7845804f93bd50c6c342c8aabccca0bee96e6a51b300c7a2#cosign-keyless",
+    "attestation_ref": "https://github.com/sgajbi/lotus-idea/attestations/36699553"
+  },
+  "promotion_policy": {
+    "same_digest_required": true,
+    "mutable_tags_allowed": false,
+    "rebuild_between_environments_allowed": false,
+    "certification_boundary": "This manifest binds current lotus-idea mainline release evidence and preserves deployment proof blockers until live deployed-digest observations exist."
+  },
+  "environments": [
+    {
+      "name": "staging",
+      "scope": "out_of_scope",
+      "promotion_mode": "out_of_scope",
+      "source_environment": null,
+      "rebuilt_in_environment": false,
+      "live_deployment_proof_ref": null,
+      "out_of_scope_reason": "No approved staging deployed-digest observation exists yet for the current lotus-idea mainline image.",
+      "evidence_refs": [
+        {
+          "type": "RELEASE_EVIDENCE",
+          "ref": "sgajbi/lotus-idea/actions/runs/29982792450/main-releasability-release-evidence"
+        },
+        {
+          "type": "FOLLOW_UP_ISSUE",
+          "ref": "https://github.com/sgajbi/lotus-idea/issues/375"
+        },
+        {
+          "type": "OPERATOR_RUNBOOK",
+          "ref": "docs/operations/deployment-promotion-proof.md"
+        }
+      ]
+    },
+    {
+      "name": "production",
+      "scope": "out_of_scope",
+      "promotion_mode": "out_of_scope",
+      "source_environment": null,
+      "rebuilt_in_environment": false,
+      "live_deployment_proof_ref": null,
+      "out_of_scope_reason": "No approved production deployed-digest observation or same-digest promotion evidence exists yet for lotus-idea.",
+      "evidence_refs": [
+        {
+          "type": "RELEASE_EVIDENCE",
+          "ref": "sgajbi/lotus-idea/actions/runs/29982792450/main-releasability-release-evidence"
+        },
+        {
+          "type": "FOLLOW_UP_ISSUE",
+          "ref": "https://github.com/sgajbi/lotus-idea/issues/375"
+        },
+        {
+          "type": "OPERATOR_RUNBOOK",
+          "ref": "docs/operations/deployment-promotion-proof.md"
+        }
+      ]
+    }
+  ],
+  "migration_order": [
+    "lotus-idea"
+  ],
+  "non_proof_boundaries": [
+    "This manifest does not replace lotus-idea service-owned Dockerfile, SBOM, vulnerability scan, signature, attestation, or release-evidence controls.",
+    "This manifest does not certify staging or production deployment because no approved live deployed-digest observation is attached.",
+    "This manifest does not clear protected migration execution, production cost attribution, capacity certification, or supported-feature promotion blockers."
+  ]
+}

@@ -54,14 +54,27 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
     if not isinstance(release, dict):
         return ["release_evidence must be an object"]
 
+    evidence_status = _validate_deployment_evidence_status(errors, manifest)
     release_digest = _validate_release_evidence(errors, release)
     _validate_promotion_policy(errors, manifest.get("promotion_policy"))
     _validate_manifest_scope(errors, manifest)
     environments = manifest.get("environments")
     if not isinstance(environments, list):
         return errors + ["environments must be a list"]
-    _validate_environments(errors, environments, release_digest)
+    _validate_environments(errors, environments, release_digest, evidence_status)
     return errors
+
+
+def _validate_deployment_evidence_status(
+    errors: list[str], manifest: dict[str, Any]
+) -> str:
+    status = manifest.get("deployment_evidence_status", "same_digest_proven")
+    if status not in {"same_digest_proven", "deployment_pending"}:
+        errors.append(
+            "deployment_evidence_status must be same_digest_proven or deployment_pending"
+        )
+        return "same_digest_proven"
+    return status
 
 
 def _validate_release_evidence(
@@ -110,6 +123,7 @@ def _validate_environments(
     errors: list[str],
     environments: list[object],
     release_digest: object,
+    evidence_status: str,
 ) -> None:
     included_names = {
         env.get("name")
@@ -137,12 +151,22 @@ def _validate_environments(
             if isinstance(name, str) and isinstance(digest, str):
                 included_digests[name] = digest
         elif scope == "out_of_scope":
-            errors.extend(_validate_out_of_scope_environment(index, env))
+            errors.extend(
+                _validate_out_of_scope_environment(
+                    index,
+                    env,
+                    require_follow_up=evidence_status == "deployment_pending",
+                )
+            )
         else:
             errors.append(f"environments[{index}] {name}: scope must be included or out_of_scope")
 
-    if not included_digests:
+    if not included_digests and evidence_status == "same_digest_proven":
         errors.append("at least one included environment must declare deployed digest proof")
+    if included_digests and evidence_status == "deployment_pending":
+        errors.append(
+            "deployment_evidence_status deployment_pending must not include deployed digest proof"
+        )
     if len(set(included_digests.values())) > 1:
         errors.append("included environments must all deploy the same release digest")
 
@@ -196,7 +220,12 @@ def _validate_included_environment(
     return errors
 
 
-def _validate_out_of_scope_environment(index: int, env: dict[str, Any]) -> list[str]:
+def _validate_out_of_scope_environment(
+    index: int,
+    env: dict[str, Any],
+    *,
+    require_follow_up: bool = False,
+) -> list[str]:
     errors: list[str] = []
     name = env.get("name", f"[{index}]")
     if env.get("promotion_mode") != "out_of_scope":
@@ -208,6 +237,20 @@ def _validate_out_of_scope_environment(index: int, env: dict[str, Any]) -> list[
     reason = env.get("out_of_scope_reason")
     if not isinstance(reason, str) or len(reason.strip()) < 40:
         errors.append(f"environments[{index}] {name}: out_of_scope_reason is required")
+    if require_follow_up:
+        evidence_types = {
+            evidence.get("type")
+            for evidence in env.get("evidence_refs", [])
+            if isinstance(evidence, dict)
+        }
+        if "FOLLOW_UP_ISSUE" not in evidence_types:
+            errors.append(
+                f"environments[{index}] {name}: deployment_pending requires FOLLOW_UP_ISSUE"
+            )
+        if "OPERATOR_RUNBOOK" not in evidence_types:
+            errors.append(
+                f"environments[{index}] {name}: deployment_pending requires OPERATOR_RUNBOOK"
+            )
     return errors
 
 
