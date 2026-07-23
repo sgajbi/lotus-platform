@@ -7,9 +7,9 @@
     "markdown_file_count": 403,
     "powershell_file_count": 66,
     "python_file_count": 207,
-    "source_file_count": 841,
+    "source_file_count": 844,
     "suffix_counts": {
-      ".json": 123,
+      ".json": 126,
       ".md": 403,
       ".ps1": 66,
       ".py": 207,
@@ -17,7 +17,7 @@
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 343132
+    "total_source_lines": 343304
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -360,7 +360,7 @@
     "max_function_lines": 884,
     "python_function_count": 2452
   },
-  "generated_at_utc": "2026-07-22T22:57:37Z",
+  "generated_at_utc": "2026-07-23T02:13:00Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "820 tests collected in 0.70s"
+    "summary": "820 tests collected in 1.03s"
   }
 }

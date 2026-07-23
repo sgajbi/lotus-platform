@@ -329,11 +329,7 @@ def build_enterprise_mesh_maturity_matrix(
                 CERTIFICATION_CANDIDATE_REPOSITORIES
             ),
             "explicit_posture_decision_repositories": ["lotus-ai"],
-            "future_wave_catalog_repositories": [
-                repository
-                for repository in ["lotus-idea"]
-                if repository not in CERTIFICATION_CANDIDATE_REPOSITORIES
-            ],
+            "future_wave_catalog_repositories": ["lotus-idea"],
             "api_face": "lotus-gateway",
             "discovery_and_operator_ux": "lotus-workbench",
             "platform_governance": "lotus-platform",
