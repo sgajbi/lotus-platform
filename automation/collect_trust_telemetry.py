@@ -28,6 +28,9 @@ SourceMode = Literal["runtime", "static_fixture"]
 
 DEFAULT_RUNTIME_DIRECTORIES = default_runtime_telemetry_directories()
 DEFAULT_FIXTURE_DIRECTORIES = default_static_telemetry_directories()
+TRUST_TELEMETRY_SNAPSHOT_CONTRACT_ID = (
+    "lotus-domain-product-trust-telemetry-snapshot"
+)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -89,6 +92,20 @@ def _load_candidates(
                 severity="error",
                 product_id=None,
                 detail=f"Invalid trust telemetry JSON: {exc}",
+                source_path=path,
+            )
+            continue
+
+        if payload.get("contract_id") != TRUST_TELEMETRY_SNAPSHOT_CONTRACT_ID:
+            _add_issue(
+                issues,
+                code="ignored_non_snapshot_json",
+                severity="info",
+                product_id=None,
+                detail=(
+                    "JSON artifact is present in a telemetry search directory but is "
+                    "not an RFC-0087 trust telemetry snapshot."
+                ),
                 source_path=path,
             )
             continue

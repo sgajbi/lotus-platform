@@ -217,6 +217,42 @@ def test_trust_telemetry_collection_marks_fixture_fallback_explicitly(
     )
 
 
+def test_trust_telemetry_collection_ignores_adjacent_non_snapshot_json(
+    tmp_path: Path,
+) -> None:
+    collector = _load_collector_module()
+    fixture_dir = tmp_path / "fixtures"
+    output_dir = tmp_path / "collection"
+    _write_required_static_fixtures(fixture_dir)
+    (fixture_dir / "aggregate-proof.json").write_text(
+        json.dumps(
+            {
+                "contract_id": "lotus-idea-runtime-trust-telemetry-product-coverage",
+                "repository": "lotus-idea",
+                "coverage_status": "incomplete",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = collector.collect_trust_telemetry(
+        runtime_directories=[tmp_path / "empty-runtime"],
+        fixture_directories=[fixture_dir],
+        output_directory=output_dir,
+        generated_at_utc=GENERATED_AT_UTC,
+    )
+
+    ignored = [
+        issue
+        for issue in manifest["issues"]
+        if issue["code"] == "ignored_non_snapshot_json"
+    ]
+    assert len(ignored) == 1
+    assert ignored[0]["severity"] == "info"
+    assert manifest["summary"]["static_fixture_snapshot_count"] == 8
+    assert manifest["summary"]["error_count"] == 0
+
+
 def test_trust_telemetry_collection_reports_missing_required_products(
     tmp_path: Path,
 ) -> None:

@@ -219,7 +219,12 @@ Boundary rules:
     output directory; generated bundles are onboarding aids, not platform-owned product truth.
 23. RFC-0091 Slice 2 adds `automation/collect_trust_telemetry.py`, a collection step that prefers
     runtime snapshots from sibling repository `output/trust-telemetry/runtime/` directories and
-    records static fixture fallback explicitly in `output/trust-telemetry/collection/`.
+    records static fixture fallback explicitly in `output/trust-telemetry/collection/`. Default
+    collection includes both required maturity producers and platform-tracked certification
+    candidates such as `lotus-idea`; candidates remain non-required until promotion, but their
+    runtime/static telemetry must be visible to platform evidence. Adjacent aggregate/proof JSON
+    in telemetry directories is recorded as info-level non-snapshot evidence and does not block
+    collection.
 24. RFC-0091 Slice 3 adds `platform-contracts/mesh-slo/` and
     `automation/validate_mesh_slo_policies.py`; the mesh certification gate now evaluates
     telemetry against first-wave SLO policies and reports policy drift as certification issues.
