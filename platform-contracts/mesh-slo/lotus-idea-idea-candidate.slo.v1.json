@@ -1,0 +1,35 @@
+{
+  "contract_id": "lotus-mesh-slo-policy",
+  "contract_version": "1.0.0",
+  "governed_by_rfcs": [
+    "RFC-0091",
+    "RFC-0002"
+  ],
+  "product_id": "lotus-idea:IdeaCandidate:v1",
+  "producer_repository": "lotus-idea",
+  "freshness": {
+    "max_allowed_age_seconds": 86400,
+    "violation_severity": "blocking"
+  },
+  "completeness": {
+    "required_status": "complete",
+    "violation_severity": "blocking"
+  },
+  "reconciliation": {
+    "required_status": "reconciled",
+    "violation_severity": "blocking"
+  },
+  "data_quality": {
+    "required_status": "quality_passed",
+    "violation_severity": "blocking"
+  },
+  "lineage": {
+    "lineage_materialized_required": true,
+    "violation_severity": "blocking"
+  },
+  "escalation": {
+    "owner_repository": "lotus-idea",
+    "owner_role": "opportunity-intelligence-product-owner",
+    "remediation": "Keep IdeaCandidate:v1 fail-closed until candidate runtime records, source lineage, durable repository proof, Gateway/Workbench discovery proof, and supported-feature promotion evidence are implementation-backed and certified."
+  }
+}

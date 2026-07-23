@@ -48,11 +48,24 @@ REQUIRED_MATURITY_PRODUCTS: tuple[MeshMaturityProduct, ...] = (
     ),
 )
 
+CERTIFICATION_CANDIDATE_PRODUCTS: tuple[MeshMaturityProduct, ...] = (
+    MeshMaturityProduct(
+        product_id="lotus-idea:IdeaCandidate:v1",
+        producer_repository="lotus-idea",
+    ),
+)
+
 REQUIRED_PRODUCTS: dict[str, str] = {
     product.product_id: product.producer_repository
     for product in REQUIRED_MATURITY_PRODUCTS
 }
 REQUIRED_PRODUCT_IDS: frozenset[str] = frozenset(REQUIRED_PRODUCTS)
+CERTIFICATION_CANDIDATE_PRODUCT_IDS: frozenset[str] = frozenset(
+    product.product_id for product in CERTIFICATION_CANDIDATE_PRODUCTS
+)
+CERTIFICATION_CANDIDATE_REPOSITORIES: tuple[str, ...] = tuple(
+    dict.fromkeys(product.producer_repository for product in CERTIFICATION_CANDIDATE_PRODUCTS)
+)
 REQUIRED_PRODUCER_REPOSITORIES: tuple[str, ...] = tuple(
     dict.fromkeys(product.producer_repository for product in REQUIRED_MATURITY_PRODUCTS)
 )

@@ -317,6 +317,11 @@ Boundary rules:
     repo-native `lotus-idea` declarations. Do not remove that checkout unless the manifest is
     changed at the same time. Canonical front-office QA also includes `lotus-idea` by default; do
     not restore an opt-in flag or skip readiness/teardown evidence as a shortcut.
+    `lotus-idea:IdeaCandidate:v1` is now a platform-tracked certification candidate in the
+    enterprise mesh maturity matrix with platform-owned SLO, access, and evidence-pack policies.
+    It remains outside the blocking required-product set and must stay fail-closed until runtime
+    records, durable repository proof, Gateway/Workbench discovery, and supported-feature promotion
+    evidence are implementation-backed.
 42. `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`
     is the governed workflow for multi-shape caller/source endpoint-family closure. It requires
     goal re-read checkpoints, issue-first ownership, deterministic inventory, application-backed

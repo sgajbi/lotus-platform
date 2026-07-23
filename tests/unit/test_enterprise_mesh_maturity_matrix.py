@@ -64,9 +64,10 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
         assert repositories[repository]["first_wave_product_count"] == 1
 
     assert repositories["lotus-ai"]["classification"] == "not_mesh_participant"
-    assert repositories["lotus-idea"]["classification"] == "deferred"
+    assert repositories["lotus-idea"]["classification"] == "certification_candidate"
     assert repositories["lotus-idea"]["mesh_role"] == "producer"
     assert repositories["lotus-idea"]["produced_product_count"] == 9
+    assert repositories["lotus-idea"]["certification_candidate_product_count"] == 1
     assert repositories["lotus-idea"]["consumed_dependency_count"] == 17
     assert repositories["lotus-idea"]["ambiguous_participation"] is False
     assert repositories["lotus-gateway"]["mesh_role"] == "api_face"
@@ -93,7 +94,15 @@ def test_enterprise_mesh_maturity_matrix_defines_candidate_products() -> None:
         products["lotus-manage:PortfolioActionRegister:v1"]["classification"]
         == "certified_first_wave"
     )
-    assert matrix["summary"]["candidate_product_count"] == 0
+    assert matrix["summary"]["candidate_product_count"] == 1
+    assert (
+        products["lotus-idea:IdeaCandidate:v1"]["classification"]
+        == "certification_candidate"
+    )
+    assert (
+        products["lotus-idea:IdeaCandidate:v1"]["maturity_wave"]
+        == "enterprise_wave_candidate"
+    )
 
 
 def test_enterprise_mesh_maturity_matrix_writes_json_and_markdown(
