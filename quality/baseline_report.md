@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-07-23T05:18:36Z`
+Generated: `2026-07-23T05:55:22Z`
 
 Repository: `lotus-platform`
 
@@ -16,8 +16,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `844`
-- Total source lines: `343403`
+- Source files: `845`
+- Total source lines: `343624`
 - Python files: `207`
 - PowerShell files: `66`
 - Markdown files: `403`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2454`
+- Python functions: `2460`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `884`
 
@@ -47,14 +47,14 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
+| automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 | codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 14 | 124 |
-| automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 150 | 14 | 47 |
+| automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 174 | 14 | 47 |
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 | automation/validate_mainline_commit_provenance.py | validate_commit_provenance | 210 | 13 | 57 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_tranches | 173 | 13 | 49 |
 | codex/skills/lotus-app-issue-discovery/scripts/audit_rfc_issue_coverage.py | load_issue_snapshots_from_json | 169 | 13 | 35 |
 | automation/validate_stacked_refactor_campaign_manifest.py | _validate_final_closure | 224 | 12 | 43 |
-| automation/validate_deployment_promotion_manifest.py | _validate_environments | 109 | 12 | 39 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `822`
+- Unit tests collected: `826`
 - Collection command return code: `0`
-- Collection summary: `822 tests collected in 0.82s`
+- Collection summary: `826 tests collected in 0.68s`
 
 ## Security Baseline
 

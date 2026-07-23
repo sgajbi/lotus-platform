@@ -12,6 +12,15 @@ The first proof set is `lotus-archive`, tracked by:
 - `automation/validate_deployment_promotion_manifest.py`
 - GitHub issue `sgajbi/lotus-platform#522`
 
+`lotus-idea` now has a platform-owned pending manifest:
+
+- `platform-contracts/deployment-promotion/examples/lotus-idea-deployment-promotion.pending.json`
+- GitHub issue `sgajbi/lotus-platform#599`
+
+That manifest binds current `lotus-idea` mainline release evidence and records that staging and
+production deployment observations are still missing. It must not be cited as same-digest deployment
+proof until an approved deployed-digest observation is added.
+
 ## Operator Workflow
 
 1. Collect the service-owned `release-evidence.json`, SBOM, vulnerability scan, signature, and
@@ -25,6 +34,8 @@ The first proof set is `lotus-archive`, tracked by:
    evidence digest.
 6. Mark an environment as `out_of_scope` when no approved environment manifest or live deployed
    digest observation exists. Include the reason and follow-up issue.
+   Use `deployment_evidence_status: deployment_pending` only when the manifest is intentionally
+   release-bound but has no included deployed-digest proof yet.
 7. Validate the manifest:
 
 ```powershell
@@ -53,5 +64,6 @@ python automation/validate_deployment_promotion_manifest.py --manifest <manifest
 ## Current Boundary
 
 The `lotus-archive` example proves contract shape and digest reconciliation for the first platform
-proof set. Production remains out of scope until an approved production deployment manifest and live
-deployed-digest observation exist.
+proof set. The `lotus-idea` pending example proves only that platform evidence is bound to current
+mainline release evidence while deployed-digest observations remain absent. Production remains out
+of scope until an approved production deployment manifest and live deployed-digest observation exist.

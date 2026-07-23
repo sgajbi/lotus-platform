@@ -421,6 +421,11 @@ Use these commands as the primary local contract:
    `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
 32. digest-based deployment promotion manifest validation
    `python automation/validate_deployment_promotion_manifest.py`
+   The validator now distinguishes same-digest deployment proof from release-bound
+   `deployment_pending` manifests. `lotus-idea` uses the pending posture while it has current
+   mainline release evidence but no approved staging or production deployed-digest observation.
+   Pending manifests preserve blockers; they must not be cited as live deployment or production
+   certification.
 33. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
 34. platform mesh and demo standard documentation contract tests

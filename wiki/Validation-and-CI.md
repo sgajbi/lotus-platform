@@ -89,8 +89,9 @@ deployment, client demo readiness, or supported feature promotion.
   `automation\Resolve-PlatformAutomationPython.ps1` so collected-test metrics match the repo check
   lane.
 - deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
-  no rebuild-per-environment promotion, out-of-scope environment reasons, and no production
-  certification claim before live deployment proof
+  no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
+  `deployment_pending` manifests for release-bound-but-not-deployed services such as current
+  `lotus-idea`, and no production certification claim before live deployment proof
 - platform demo-readiness certification: report-only `core-performance-green-lanes` evidence that
   seeds deterministic synthetic scenarios, calls real core/performance APIs, asserts domain figures,
   and uploads `output/demo-readiness/platform/platform-demo-readiness-certification.json`
