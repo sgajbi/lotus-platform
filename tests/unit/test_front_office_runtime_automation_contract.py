@@ -162,6 +162,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Invoke-ManageWriteAuthorizationPreflight" in dpm_seed
     assert "manage-refresh-authorization-preflight" in dpm_seed
     assert "authorized_validation_rejected_side_effect_free_probe" in dpm_seed
+    assert "authorized_unexpected_success" not in dpm_seed
+    assert "observed unexpected 2xx success" in dpm_seed
+    assert "may have reached the write operation" in dpm_seed
     assert "$ErrorRecord.ErrorDetails" in dpm_seed
     assert "$errorDetails.Message" in dpm_seed
     assert "ReadAsStringAsync().GetAwaiter().GetResult()" in dpm_seed
