@@ -92,6 +92,11 @@ deployment, client demo readiness, or supported feature promotion.
   no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
   `deployment_pending` manifests for release-bound-but-not-deployed services such as current
   `lotus-idea`, and no production certification claim before live deployment proof
+- RFC-0002 Idea platform proof consumption: bounded runtime proofs, cost-attribution contract
+  availability, and pending deployment-promotion readiness can be consumed by Idea closure only for
+  their named dependency markers; protected FinOps execution, attested cost verification, live
+  deployed-digest observation, migration execution, supported-feature promotion, and production
+  certification remain blocked until source-safe evidence exists
 - platform demo-readiness certification: report-only `core-performance-green-lanes` evidence that
   seeds deterministic synthetic scenarios, calls real core/performance APIs, asserts domain figures,
   and uploads `output/demo-readiness/platform/platform-demo-readiness-certification.json`

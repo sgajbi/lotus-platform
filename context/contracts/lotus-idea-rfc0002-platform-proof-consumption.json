@@ -1,12 +1,16 @@
 {
   "contract_id": "lotus-idea-rfc0002-platform-proof-consumption",
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "governed_by_rfc": "RFC-0002",
-  "lifecycle_status": "slice-15-platform-proof-consumption-expanded",
+  "lifecycle_status": "slice-15-operational-proof-consumption-reconciled",
   "issue_refs": [
     "sgajbi/lotus-platform#598",
+    "sgajbi/lotus-platform#599",
+    "sgajbi/lotus-platform#495",
     "sgajbi/lotus-idea#694",
-    "sgajbi/lotus-idea#379"
+    "sgajbi/lotus-idea#379",
+    "sgajbi/lotus-idea#345",
+    "sgajbi/lotus-idea#375"
   ],
   "product_id": "lotus-idea:IdeaCandidate:v1",
   "producer_repository": "lotus-idea",
@@ -116,14 +120,131 @@
       ]
     }
   ],
+  "accepted_operational_proofs": [
+    {
+      "proof_name": "service_cost_attribution_contract_and_qualification",
+      "schema_version": "lotus-platform.service-cost-attribution.v1",
+      "qualification_schema_version": "lotus-platform.service-cost-attribution-qualification.v1",
+      "repository": "lotus-platform",
+      "proof_type": "service_cost_attribution",
+      "proof_scope": "source_safe_service_cost_attribution_for_lotus_idea",
+      "evidence_class": "source_contract",
+      "evidence_status": "contract_available_protected_execution_pending",
+      "consumer_repository": "lotus-idea",
+      "required_checks": [
+        "decimalMoneyRepresentation",
+        "halfEvenRounding",
+        "sharedPlatformResidualAssignment",
+        "resourceObservationDigestBound",
+        "rawBillingRowsExcluded",
+        "providerAccountIdentifiersExcluded",
+        "attestationRepositoryPinned",
+        "signerWorkflowPinned",
+        "mainSourceRefPinned",
+        "subjectDigestPinned",
+        "supportedFeatureNotPromoted",
+        "runtimeServiceSplitNotIntroduced"
+      ],
+      "clears_only": [
+        "cost_attribution_contract_consumable"
+      ],
+      "remaining_certification_blockers": [
+        "protected_finops_runner_missing",
+        "protected_cost_attribution_execution_missing",
+        "attested_cost_artifact_verification_missing",
+        "lotus_idea_consumer_certification_missing",
+        "production_cost_attribution_missing"
+      ],
+      "must_remain_false": [
+        "costAttributionCertifiedWithoutAttestation",
+        "applicationOwnsBillingAuthority",
+        "providerBillingCredentialsPersisted",
+        "supportedFeaturePromoted",
+        "productionCertificationGranted",
+        "certificationClosed"
+      ],
+      "source_safe_evidence_refs": [
+        "sgajbi/lotus-platform#495",
+        "platform-contracts/cost-attribution/service-cost-attribution.schema.json",
+        "platform-contracts/cost-attribution/README.md",
+        "automation/cost_attribution/qualification.py",
+        ".github/workflows/service-cost-attribution-evidence.yml",
+        "docs/operations/service-cost-attribution.md",
+        "tests/unit/test_service_cost_attribution.py",
+        "tests/unit/test_service_cost_attribution_attestation.py"
+      ]
+    },
+    {
+      "proof_name": "deployment_promotion_readiness_manifest",
+      "schema_version": "lotus.deployment-promotion-manifest.v1",
+      "repository": "lotus-platform",
+      "proof_type": "deployment_promotion",
+      "proof_scope": "release_bound_digest_promotion_readiness_for_lotus_idea",
+      "evidence_class": "deployment",
+      "evidence_status": "deployment_pending",
+      "consumer_repository": "lotus-idea",
+      "manifest_ref": "platform-contracts/deployment-promotion/examples/lotus-idea-deployment-promotion.pending.json",
+      "release_repository": "lotus-idea",
+      "release_commit_sha": "f98ebce19720d29e0d9649786d20694cedcb8211",
+      "release_workflow_run_id": "29982792450",
+      "release_image_digest": "sha256:a2ed6e706a56ac7d7845804f93bd50c6c342c8aabccca0bee96e6a51b300c7a2",
+      "required_checks": [
+        "digestImageReferenceOnly",
+        "sbomReferenceBound",
+        "signatureReferenceBound",
+        "provenanceAttestationReferenceBound",
+        "deploymentPendingHasNoDeployedDigest",
+        "stagingFollowUpIssueRetained",
+        "productionFollowUpIssueRetained",
+        "operatorRunbookBound",
+        "mutableTagsRejected",
+        "productionCertificationNotClaimed"
+      ],
+      "clears_only": [
+        "deployment_promotion_manifest_consumable"
+      ],
+      "remaining_certification_blockers": [
+        "staging_deployed_digest_observation_missing",
+        "production_deployed_digest_observation_missing",
+        "same_digest_promotion_evidence_missing",
+        "protected_migration_execution_missing",
+        "supported_feature_promotion_missing"
+      ],
+      "must_remain_false": [
+        "stagingDeploymentCertified",
+        "productionDeploymentCertified",
+        "sameDigestPromotionCertified",
+        "productionCertificationGranted",
+        "supportedFeaturePromoted",
+        "certificationClosed"
+      ],
+      "source_safe_evidence_refs": [
+        "sgajbi/lotus-platform#599",
+        "sgajbi/lotus-idea#375",
+        "platform-contracts/deployment-promotion/examples/lotus-idea-deployment-promotion.pending.json",
+        "platform-contracts/deployment-promotion/deployment-promotion-manifest.schema.json",
+        "automation/validate_deployment_promotion_manifest.py",
+        "docs/operations/deployment-promotion-proof.md",
+        "tests/unit/test_deployment_promotion_manifest.py"
+      ]
+    }
+  ],
   "platform_blockers_cleared": [
     "idea_external_broker_runtime_proof_dependency_consumable",
-    "idea_downstream_consumer_runtime_proof_dependency_consumable"
+    "idea_downstream_consumer_runtime_proof_dependency_consumable",
+    "idea_cost_attribution_contract_consumable",
+    "idea_deployment_promotion_manifest_consumable"
   ],
   "platform_blockers_retained": [
     "data_mesh_certification_and_platform_catalog",
     "idea_platform_mesh_event_publication_proof_missing",
     "idea_gateway_workbench_live_journey_proof_missing",
+    "idea_protected_finops_execution_missing",
+    "idea_attested_cost_artifact_verification_missing",
+    "idea_staging_deployed_digest_observation_missing",
+    "idea_production_deployed_digest_observation_missing",
+    "idea_same_digest_promotion_evidence_missing",
+    "idea_protected_migration_execution_missing",
     "idea_data_product_certification_missing",
     "idea_supported_feature_promotion_missing",
     "idea_production_certification_missing",
@@ -139,7 +260,11 @@
     "Downstream consumer runtime execution proof does not certify platform mesh event publication.",
     "Downstream consumer runtime execution proof does not certify Gateway or Workbench live journey behavior.",
     "Downstream consumer runtime execution proof does not promote lotus-idea:IdeaCandidate:v1 to a required maturity product.",
-    "Downstream consumer runtime execution proof does not promote a supported feature or production certification claim."
+    "Downstream consumer runtime execution proof does not promote a supported feature or production certification claim.",
+    "Service cost-attribution contract proof does not certify production cost attribution until protected FinOps execution and exact attestation verification pass.",
+    "Service cost-attribution contract proof does not move billing authority, billing rates, raw provider exports, or provider-account reconciliation into lotus-idea.",
+    "Deployment-promotion readiness proof does not certify staging or production deployment until approved live deployed-digest observations exist.",
+    "Deployment-promotion readiness proof does not clear protected migration execution, supported-feature promotion, or production certification blockers."
   ],
   "owner_repo_evidence": [
     {
@@ -165,11 +290,24 @@
       "issue": "sgajbi/lotus-platform#598",
       "evidence": "This contract keeps platform proof consumption bounded to runtime broker and downstream consumer evidence semantics.",
       "posture": "bounded-proof-consumption"
+    },
+    {
+      "repository": "lotus-platform",
+      "issue": "sgajbi/lotus-platform#599",
+      "evidence": "This contract reconciles Idea cost-attribution and deployment-promotion artifacts into one platform-consumable proof surface while preserving protected execution blockers.",
+      "posture": "operational-proof-consumption"
+    },
+    {
+      "repository": "lotus-platform",
+      "issue": "sgajbi/lotus-platform#495",
+      "evidence": "The platform cost-attribution schema, qualification verifier, workflow, docs, and tests are merged; protected FinOps execution remains external certification evidence.",
+      "posture": "cost-contract-available-protected-execution-pending"
     }
   ],
   "validation": {
     "local_commands": [
       "python automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py",
+      "python automation/validate_deployment_promotion_manifest.py --manifest platform-contracts/deployment-promotion/examples/lotus-idea-deployment-promotion.pending.json",
       "python -m pytest tests/unit/test_lotus_idea_rfc0002_platform_proof_consumption.py -q",
       "powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformRepoChecks.ps1 -Lane feature"
     ],

@@ -33,6 +33,13 @@ def _proof_by_name(contract: dict, proof_name: str) -> dict:
     return proofs[proof_name]
 
 
+def _operational_proof_by_name(contract: dict, proof_name: str) -> dict:
+    proofs = {
+        proof["proof_name"]: proof for proof in contract["accepted_operational_proofs"]
+    }
+    return proofs[proof_name]
+
+
 def test_lotus_idea_rfc0002_platform_proof_contract_is_governed() -> None:
     readme = (ROOT / "context" / "contracts" / "README.md").read_text(
         encoding="utf-8"
@@ -47,7 +54,7 @@ def test_lotus_idea_rfc0002_platform_proof_contract_is_governed() -> None:
         == "lotus-idea-rfc0002-platform-proof-consumption"
     )
     assert contract["governed_by_rfc"] == "RFC-0002"
-    assert contract["contract_version"] == "1.1.0"
+    assert contract["contract_version"] == "1.2.0"
     assert contract["platform_posture"] == "certification_candidate_not_certified"
 
 
@@ -136,6 +143,67 @@ def test_consumer_runtime_proof_retains_platform_gateway_and_promotion_boundarie
     )
 
 
+def test_cost_attribution_proof_clears_only_consumable_contract_boundary() -> None:
+    contract = _load_json(CONTRACT_PATH)
+    proof = _operational_proof_by_name(
+        contract,
+        "service_cost_attribution_contract_and_qualification",
+    )
+
+    assert proof["schema_version"] == "lotus-platform.service-cost-attribution.v1"
+    assert (
+        proof["qualification_schema_version"]
+        == "lotus-platform.service-cost-attribution-qualification.v1"
+    )
+    assert proof["evidence_status"] == "contract_available_protected_execution_pending"
+    assert proof["clears_only"] == ["cost_attribution_contract_consumable"]
+    assert "idea_cost_attribution_contract_consumable" in contract[
+        "platform_blockers_cleared"
+    ]
+    assert set(proof["remaining_certification_blockers"]) == {
+        "protected_finops_runner_missing",
+        "protected_cost_attribution_execution_missing",
+        "attested_cost_artifact_verification_missing",
+        "lotus_idea_consumer_certification_missing",
+        "production_cost_attribution_missing",
+    }
+    assert "idea_protected_finops_execution_missing" in contract[
+        "platform_blockers_retained"
+    ]
+    assert "idea_attested_cost_artifact_verification_missing" in contract[
+        "platform_blockers_retained"
+    ]
+
+
+def test_deployment_promotion_proof_clears_only_pending_manifest_boundary() -> None:
+    contract = _load_json(CONTRACT_PATH)
+    proof = _operational_proof_by_name(
+        contract,
+        "deployment_promotion_readiness_manifest",
+    )
+
+    assert proof["schema_version"] == "lotus.deployment-promotion-manifest.v1"
+    assert proof["evidence_status"] == "deployment_pending"
+    assert proof["release_repository"] == "lotus-idea"
+    assert proof["clears_only"] == ["deployment_promotion_manifest_consumable"]
+    assert "idea_deployment_promotion_manifest_consumable" in contract[
+        "platform_blockers_cleared"
+    ]
+    assert set(proof["remaining_certification_blockers"]) == {
+        "staging_deployed_digest_observation_missing",
+        "production_deployed_digest_observation_missing",
+        "same_digest_promotion_evidence_missing",
+        "protected_migration_execution_missing",
+        "supported_feature_promotion_missing",
+    }
+    assert "idea_production_deployed_digest_observation_missing" in contract[
+        "platform_blockers_retained"
+    ]
+    assert "idea_protected_migration_execution_missing" in contract[
+        "platform_blockers_retained"
+    ]
+
+
 def test_validator_rejects_supported_feature_overclaim() -> None:
     contract = copy.deepcopy(_load_json(CONTRACT_PATH))
     contract["platform_blockers_cleared"].append(
@@ -145,6 +213,37 @@ def test_validator_rejects_supported_feature_overclaim() -> None:
     errors = _validate(contract)
 
     assert any("platform_blockers_cleared overclaims" in error for error in errors)
+
+
+def test_validator_rejects_production_cost_attribution_overclaim() -> None:
+    contract = copy.deepcopy(_load_json(CONTRACT_PATH))
+    proof = _operational_proof_by_name(
+        contract,
+        "service_cost_attribution_contract_and_qualification",
+    )
+    proof["remaining_certification_blockers"].remove(
+        "production_cost_attribution_missing"
+    )
+
+    errors = _validate(contract)
+
+    assert any(
+        "cost-attribution remaining_certification_blockers" in error
+        for error in errors
+    )
+
+
+def test_validator_rejects_deployment_certification_overclaim() -> None:
+    contract = copy.deepcopy(_load_json(CONTRACT_PATH))
+    proof = _operational_proof_by_name(
+        contract,
+        "deployment_promotion_readiness_manifest",
+    )
+    proof["evidence_status"] = "same_digest_proven"
+
+    errors = _validate(contract)
+
+    assert any("evidence_status must be deployment_pending" in error for error in errors)
 
 
 def test_validator_rejects_data_mesh_certification_overclaim() -> None:
