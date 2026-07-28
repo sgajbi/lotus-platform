@@ -1,11 +1,12 @@
 {
   "contract_id": "lotus-idea-rfc0002-platform-proof-consumption",
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "governed_by_rfc": "RFC-0002",
-  "lifecycle_status": "slice-15-platform-proof-consumption-implemented",
+  "lifecycle_status": "slice-15-platform-proof-consumption-expanded",
   "issue_refs": [
     "sgajbi/lotus-platform#598",
-    "sgajbi/lotus-idea#694"
+    "sgajbi/lotus-idea#694",
+    "sgajbi/lotus-idea#379"
   ],
   "product_id": "lotus-idea:IdeaCandidate:v1",
   "producer_repository": "lotus-idea",
@@ -60,14 +61,67 @@
         "scripts/outbox/broker/runtime_execution_gate.py",
         "tests/unit/outbox/broker/test_runtime_execution.py"
       ]
+    },
+    {
+      "proof_name": "outbox_consumer_runtime_execution",
+      "schema_version": "lotus-idea.outbox-consumer-runtime-execution.v1",
+      "repository": "lotus-idea",
+      "proof_type": "outbox_consumer_runtime_execution",
+      "proof_scope": "advise_manage_report_runtime_receipts_with_gateway_workbench_separated",
+      "evidence_class": "runtime_execution",
+      "runtime_mode": "local_asgi_testclient_aggregate",
+      "domain_consumers": [
+        "lotus-advise",
+        "lotus-manage",
+        "lotus-report"
+      ],
+      "required_runtime_checks": [
+        "timezoneAwareGeneratedAtUtc",
+        "adviseConsumerRuntimeObserved",
+        "manageConsumerRuntimeObserved",
+        "reportConsumerRuntimeObserved",
+        "consumerProofRefsBound",
+        "consumerProofDigestsBound",
+        "domainConsumerCoverageComplete",
+        "gatewayWorkbenchProofSeparated",
+        "platformMeshPublicationProofSeparated",
+        "nonProofClaimsRetained"
+      ],
+      "clears_only": [
+        "downstream_consumer_runtime_proof_missing"
+      ],
+      "remaining_certification_blockers": [
+        "platform_mesh_event_publication_proof_missing",
+        "gateway_workbench_proof_missing",
+        "supported_feature_promotion_missing"
+      ],
+      "must_remain_false": [
+        "gatewayWorkbenchProofPresent",
+        "platformMeshEventCertified",
+        "supportedFeaturePromoted",
+        "productionCertificationGranted",
+        "certificationClosed"
+      ],
+      "source_safe_evidence_refs": [
+        "lotus-idea PR #735",
+        "lotus-idea main SHA 042b5c9133aa71d2f60f6b2ac6b5502f64df6215",
+        "lotus-idea issue #694",
+        "lotus-idea issue #379",
+        "make outbox-consumer-runtime-execution-proof-gate",
+        "src/app/application/outbox/consumer_runtime.py",
+        "scripts/outbox/generate_consumer_runtime_execution.py",
+        "scripts/outbox/consumer_runtime_execution_gate.py",
+        "tests/unit/outbox/test_outbox_consumer_runtime_execution.py",
+        "tests/unit/outbox/test_outbox_consumer_runtime_readiness.py"
+      ]
     }
   ],
   "platform_blockers_cleared": [
-    "idea_external_broker_runtime_proof_dependency_consumable"
+    "idea_external_broker_runtime_proof_dependency_consumable",
+    "idea_downstream_consumer_runtime_proof_dependency_consumable"
   ],
   "platform_blockers_retained": [
     "data_mesh_certification_and_platform_catalog",
-    "idea_downstream_consumer_runtime_proof_missing",
     "idea_platform_mesh_event_publication_proof_missing",
     "idea_gateway_workbench_live_journey_proof_missing",
     "idea_data_product_certification_missing",
@@ -81,7 +135,11 @@
     "Broker runtime execution proof does not certify platform mesh event publication.",
     "Broker runtime execution proof does not certify Gateway or Workbench live journey behavior.",
     "Broker runtime execution proof does not promote lotus-idea:IdeaCandidate:v1 to a required maturity product.",
-    "Broker runtime execution proof does not promote a supported feature or production certification claim."
+    "Broker runtime execution proof does not promote a supported feature or production certification claim.",
+    "Downstream consumer runtime execution proof does not certify platform mesh event publication.",
+    "Downstream consumer runtime execution proof does not certify Gateway or Workbench live journey behavior.",
+    "Downstream consumer runtime execution proof does not promote lotus-idea:IdeaCandidate:v1 to a required maturity product.",
+    "Downstream consumer runtime execution proof does not promote a supported feature or production certification claim."
   ],
   "owner_repo_evidence": [
     {
@@ -105,7 +163,7 @@
     {
       "repository": "lotus-platform",
       "issue": "sgajbi/lotus-platform#598",
-      "evidence": "This contract keeps platform proof consumption bounded to runtime broker evidence semantics.",
+      "evidence": "This contract keeps platform proof consumption bounded to runtime broker and downstream consumer evidence semantics.",
       "posture": "bounded-proof-consumption"
     }
   ],
