@@ -51,6 +51,7 @@ Important machine-readable platform contract families now include:
 4. `../generated/domain-product-catalog.json`
 5. `../generated/domain-product-dependency-graph.json`
 6. `../platform-contracts/lifecycle-authority/`
+7. `../platform-contracts/evidence-classification/`
 
 For bank lifecycle-authority interoperability, use:
 
@@ -66,6 +67,12 @@ For governed analytics period naming, use:
 
 1. [Domain Vocabulary Contracts](../platform-contracts/domain-vocabulary/README.md)
 2. [Canonical Performance Periods](../platform-contracts/domain-vocabulary/canonical-performance-periods.v1.json)
+
+For blocker-clearing evidence classes, use:
+
+1. [Evidence Classification Contracts](../platform-contracts/evidence-classification/README.md)
+2. [Evidence Class Vocabulary](../platform-contracts/evidence-classification/evidence-class-vocabulary.v1.json)
+3. `../automation/validate_evidence_class_vocabulary.py`
 
 For RFC-0084 work, the highest-signal machine-readable files are:
 

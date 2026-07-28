@@ -259,6 +259,18 @@ The catalog is the machine-readable authority for stable control identifiers, ev
 repository applicability, and enforcement posture. The implementation playbook explains how to use
 those controls without duplicating their definitions.
 
+Validate the governed evidence-class vocabulary and closed legacy mapping before comparing
+blocker-clearing proof artifacts with platform or bank-readiness evidence:
+
+```powershell
+python automation/validate_evidence_class_vocabulary.py
+```
+
+The canonical persisted proof vocabulary is defined in
+`platform-contracts/evidence-classification/evidence-class-vocabulary.v1.json`. The older
+`source_design_contract` and `local_test_execution` terms remain valid only through the explicit
+legacy mapping for stable bank-readiness and historical evidence contexts.
+
 The runner reads `automation/heartbeat-config.json` and writes:
 
 - `output/heartbeat/heartbeat-status.json`

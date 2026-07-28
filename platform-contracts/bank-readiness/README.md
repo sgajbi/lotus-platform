@@ -28,10 +28,13 @@ repository profiles, evidence classes, and external engineering-reference regist
 
 ## Evidence Boundary
 
-Catalog presence is `source_design_contract` evidence only. It does not prove that an application,
-deployment, or organization implements a control. An application assessment must cite the actual
-evidence class supplied. Runtime, deployment, independently reviewed, regulatory, or bank-acceptance
-claims cannot be inferred from source or CI evidence.
+Catalog presence is `source_design_contract` evidence only. That value is a stable bank-readiness
+legacy term mapped by
+`../evidence-classification/evidence-class-vocabulary.v1.json` to the canonical persisted proof
+class `source_contract`. It does not prove that an application, deployment, or organization
+implements a control. An application assessment must cite the actual evidence class supplied.
+Runtime, deployment, independently reviewed, regulatory, or bank-acceptance claims cannot be
+inferred from source or CI evidence.
 
 ## Validation
 
