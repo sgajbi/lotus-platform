@@ -207,12 +207,6 @@ function Invoke-ManageWriteAuthorizationPreflight {
 
   try {
     [void](Invoke-RestMethod @arguments)
-    return [ordered]@{
-      status_code = 200
-      passed = $true
-      expected_post_auth_status = 422
-      posture = "authorized_unexpected_success"
-    }
   } catch {
     $statusCode = Get-HttpStatusCode -ErrorRecord $_
     $detail = Get-HttpErrorDetail -ErrorRecord $_
@@ -229,6 +223,13 @@ function Invoke-ManageWriteAuthorizationPreflight {
     }
     throw "Manage write-authorization preflight failed for $Uri. Expected post-auth 422 validation rejection; observed $statusCode. Detail: $detail"
   }
+
+  $unexpectedSuccessMessage = (
+    "Manage write-authorization preflight failed for $Uri. " +
+    "Expected post-auth 422 validation rejection; observed unexpected 2xx success. " +
+    "The side-effect-free sentinel payload may have reached the write operation."
+  )
+  throw $unexpectedSuccessMessage
 }
 
 $resolvedPortfolioId = Resolve-ContractValue -Candidate $PortfolioId -Fallback $dpm.portfolio_id
