@@ -328,11 +328,11 @@ Boundary rules:
     records, durable repository proof, Gateway/Workbench discovery, and supported-feature promotion
     evidence are implementation-backed. RFC-0002 platform proof consumption is guarded by
     `context/contracts/lotus-idea-rfc0002-platform-proof-consumption.json` and
-    `automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py`; the current
-    outbox broker runtime proof may clear only the external broker runtime dependency marker and
-    must not clear downstream consumer, platform mesh event publication, Gateway/Workbench live
-    journey, data-product certification, supported-feature promotion, or production-certification
-    blockers.
+    `automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py`; outbox broker runtime
+    proof may clear only the external broker runtime dependency marker, and downstream-consumer
+    runtime proof may clear only the Advise/Manage/Report consumer runtime dependency marker.
+    Neither proof may clear platform mesh event publication, Gateway/Workbench live journey,
+    data-product certification, supported-feature promotion, or production-certification blockers.
 42. `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`
     is the governed workflow for multi-shape caller/source endpoint-family closure. It requires
     goal re-read checkpoints, issue-first ownership, deterministic inventory, application-backed

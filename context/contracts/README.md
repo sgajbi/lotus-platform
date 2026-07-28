@@ -100,10 +100,12 @@ Current contracts:
 27. `lotus-idea-rfc0002-platform-proof-consumption.schema.json`
     The governed schema for bounded RFC-0002 platform consumption of `lotus-idea` proof classes.
 28. `lotus-idea-rfc0002-platform-proof-consumption.json`
-    The RFC-0002 contract that recognizes `lotus-idea.outbox-broker-runtime-execution.v1` as
-    runtime-execution evidence for only the external broker runtime dependency, while retaining
-    downstream consumer, platform mesh publication, Gateway/Workbench live journey, data-product
-    certification, supported-feature promotion, and production-certification blockers.
+    The RFC-0002 contract that recognizes `lotus-idea.outbox-broker-runtime-execution.v1` and
+    `lotus-idea.outbox-consumer-runtime-execution.v1` as bounded runtime-execution evidence.
+    Broker proof may clear only the external broker runtime dependency marker; downstream-consumer
+    proof may clear only the Advise/Manage/Report consumer runtime dependency marker. Platform mesh
+    publication, Gateway/Workbench live journey, data-product certification, supported-feature
+    promotion, and production-certification blockers remain retained.
 
 Rules:
 
