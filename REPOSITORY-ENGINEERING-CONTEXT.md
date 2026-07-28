@@ -332,10 +332,12 @@ Boundary rules:
     proof may clear only the external broker runtime dependency marker, downstream-consumer
     runtime proof may clear only the Advise/Manage/Report consumer runtime dependency marker,
     cost-attribution proof may clear only the contract-consumable marker, and deployment-promotion
-    readiness may clear only the pending-manifest-consumable marker. The validator deliberately
-    retains platform mesh event publication, Gateway/Workbench live journey, protected FinOps
-    execution, attested cost verification, live deployed-digest observation, protected migration
-    execution, data-product certification, supported-feature promotion, and
+    readiness may clear only the pending-manifest-consumable marker. Mesh readiness may clear only
+    the candidate catalog/policy-consumable marker for platform source-manifest, SLO, access,
+    evidence-policy, and telemetry-collection coverage. The validator deliberately retains
+    platform mesh event publication, Gateway/Workbench live journey, protected FinOps execution,
+    attested cost verification, live deployed-digest observation, protected migration execution,
+    data-product certification, supported-feature promotion, required-product promotion, and
     production-certification blockers.
 42. `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`
     is the governed workflow for multi-shape caller/source endpoint-family closure. It requires

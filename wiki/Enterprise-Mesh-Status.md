@@ -71,8 +71,10 @@ The mesh foundation is complete. Future work should be product expansion or oper
 - onboard more products,
 - replace static fixture telemetry with continuous runtime telemetry where needed,
 - collect runtime/static telemetry for platform-tracked certification candidates such as
-  `lotus-idea:IdeaCandidate:v1` without promoting those candidates into the blocking maturity wave
-  until runtime, Gateway/Workbench, supported-feature, and downstream evidence is complete,
+  `lotus-idea:IdeaCandidate:v1` without promoting those candidates into the blocking maturity wave;
+  bounded RFC-0002 mesh-readiness proof may clear only the catalog/policy/telemetry consumable
+  marker until runtime, mesh event-publication, Gateway/Workbench, supported-feature, and
+  downstream evidence is complete,
 - build more certification history,
 - add dashboards or alerts from RFC-0092 operating state,
 - deepen customer workflows that consume certified products.
