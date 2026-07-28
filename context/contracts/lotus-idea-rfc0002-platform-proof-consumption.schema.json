@@ -14,6 +14,7 @@
     "producer_repository",
     "platform_posture",
     "accepted_runtime_proofs",
+    "accepted_operational_proofs",
     "platform_blockers_cleared",
     "platform_blockers_retained",
     "non_proof_boundaries",
@@ -25,13 +26,13 @@
       "const": "lotus-idea-rfc0002-platform-proof-consumption"
     },
     "contract_version": {
-      "const": "1.1.0"
+      "const": "1.2.0"
     },
     "governed_by_rfc": {
       "const": "RFC-0002"
     },
     "lifecycle_status": {
-      "const": "slice-15-platform-proof-consumption-expanded"
+      "const": "slice-15-operational-proof-consumption-reconciled"
     },
     "issue_refs": {
       "type": "array",
@@ -108,6 +109,108 @@
             }
           },
           "required_runtime_checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "clears_only": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remaining_certification_blockers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "must_remain_false": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_safe_evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "accepted_operational_proofs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "proof_name",
+          "schema_version",
+          "repository",
+          "proof_type",
+          "proof_scope",
+          "evidence_class",
+          "evidence_status",
+          "consumer_repository",
+          "required_checks",
+          "clears_only",
+          "remaining_certification_blockers",
+          "must_remain_false",
+          "source_safe_evidence_refs"
+        ],
+        "properties": {
+          "proof_name": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "qualification_schema_version": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "proof_type": {
+            "type": "string"
+          },
+          "proof_scope": {
+            "type": "string"
+          },
+          "evidence_class": {
+            "type": "string"
+          },
+          "evidence_status": {
+            "type": "string"
+          },
+          "consumer_repository": {
+            "type": "string"
+          },
+          "manifest_ref": {
+            "type": "string"
+          },
+          "release_repository": {
+            "type": "string"
+          },
+          "release_commit_sha": {
+            "type": "string"
+          },
+          "release_workflow_run_id": {
+            "type": "string"
+          },
+          "release_image_digest": {
+            "type": "string"
+          },
+          "required_checks": {
             "type": "array",
             "minItems": 1,
             "items": {

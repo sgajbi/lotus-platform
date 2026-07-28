@@ -413,12 +413,17 @@ Validate bounded RFC-0002 platform consumption of `lotus-idea` proof classes:
 python automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py
 ```
 
-This validator currently recognizes `lotus-idea.outbox-broker-runtime-execution.v1` and
-`lotus-idea.outbox-consumer-runtime-execution.v1` as bounded runtime-execution evidence. Broker
-proof may clear only the external broker runtime dependency marker. Downstream-consumer proof may
-clear only the Advise/Manage/Report consumer runtime dependency marker. The validator deliberately
-fails if either proof is used to clear platform mesh publication, Gateway/Workbench live journey,
-data-product certification, supported-feature promotion, or production-certification blockers.
+This validator recognizes `lotus-idea.outbox-broker-runtime-execution.v1` and
+`lotus-idea.outbox-consumer-runtime-execution.v1` as bounded runtime-execution evidence, and it
+reconciles platform-owned cost-attribution plus deployment-promotion readiness as bounded
+operational proof. Broker proof may clear only the external broker runtime dependency marker.
+Downstream-consumer proof may clear only the Advise/Manage/Report consumer runtime dependency
+marker. Cost-attribution proof may clear only the contract-consumable marker. Deployment-promotion
+readiness may clear only the pending-manifest-consumable marker. The validator deliberately fails
+if any proof clears platform mesh publication, Gateway/Workbench live journey, protected FinOps
+execution, attested cost verification, live deployed-digest observation, protected migration
+execution, data-product certification, supported-feature promotion, or production-certification
+blockers.
 
 Validate RFC-0091 mesh SLO policies:
 
