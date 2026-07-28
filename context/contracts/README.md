@@ -103,14 +103,16 @@ Current contracts:
     The RFC-0002 contract that recognizes `lotus-idea.outbox-broker-runtime-execution.v1` and
     `lotus-idea.outbox-consumer-runtime-execution.v1` as bounded runtime-execution evidence, and
     reconciles the platform-owned cost-attribution contract plus pending deployment-promotion
-    manifest into the same consumer-facing truth surface. Broker proof may clear only the external
-    broker runtime dependency marker; downstream-consumer proof may clear only the
-    Advise/Manage/Report consumer runtime dependency marker; cost proof may clear only the
-    cost-attribution contract-consumable marker; deployment proof may clear only the
-    deployment-promotion manifest-consumable marker. Platform mesh publication,
+    manifest plus mesh candidate catalog/policy/telemetry coverage into the same consumer-facing
+    truth surface. Broker proof may clear only the external broker runtime dependency marker;
+    downstream-consumer proof may clear only the Advise/Manage/Report consumer runtime dependency
+    marker; cost proof may clear only the cost-attribution contract-consumable marker; deployment
+    proof may clear only the deployment-promotion manifest-consumable marker; mesh readiness may
+    clear only the candidate catalog/policy-consumable marker. Platform mesh event publication,
     Gateway/Workbench live journey, protected FinOps execution, attested cost verification, live
     deployed-digest observation, protected migration execution, data-product certification,
-    supported-feature promotion, and production-certification blockers remain retained.
+    supported-feature promotion, required-product promotion, and production-certification blockers
+    remain retained.
 
 Rules:
 
