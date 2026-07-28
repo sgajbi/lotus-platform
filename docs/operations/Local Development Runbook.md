@@ -184,6 +184,23 @@ Dependency chain:
 - lotus-gateway/UI -> lotus-report (reporting and aggregation views)
 - lotus-manage -> Postgres (via its compose file)
 
+Canonical DPM command-center seed authority:
+
+- `automation/Invoke-DpmCommandCenterSeed.ps1` uses the local platform seed actor
+  `platform-seed-automation`, role `platform-automation`, service identity
+  `lotus-platform.canonical-dpm-command-center-seed`, and `manage.write` capability for protected
+  `lotus-manage` writes.
+- run `powershell -ExecutionPolicy Bypass -File automation/Invoke-DpmCommandCenterSeed.ps1 -PreflightOnly`
+  from `lotus-platform` when the stack is already running and you need to diagnose seed authority
+  without refreshing or persisting DPM evidence.
+- a 403 from that preflight is a caller-contract defect; do not disable Manage authorization to
+  produce canonical runtime evidence.
+- after preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed means source readiness is
+  incomplete rather than authorization is failing; preserve the response body in
+  `output/front-office-qa/dpm-command-center-seed-latest.json` and link the Core owner issue
+  (`sgajbi/lotus-core#840` for the current canonical missing eligibility, tax-lot, and market-data
+  families).
+
 ## 3. One-Time Pull
 
 ```bash

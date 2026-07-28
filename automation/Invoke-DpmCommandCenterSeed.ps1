@@ -10,6 +10,7 @@ param(
   [string]$BookingCenterCode = "",
   [string]$ModelPortfolioId = "",
   [string]$ReferenceCurrency = "",
+  [switch]$PreflightOnly,
   [switch]$SkipGatewayValidation
 )
 
@@ -136,12 +137,31 @@ function Add-CommandCenterPostureCheck {
 function Get-HttpErrorDetail {
   param([object]$ErrorRecord)
 
+  $errorDetails = $ErrorRecord.ErrorDetails
+  if ($errorDetails -and -not [string]::IsNullOrWhiteSpace($errorDetails.Message)) {
+    return "$($ErrorRecord.Exception.Message) Body: $($errorDetails.Message)"
+  }
+
   $response = $ErrorRecord.Exception.Response
   if (-not $response) {
     return $ErrorRecord.Exception.Message
   }
 
   try {
+    if ($response.Content -and ($response.Content.PSObject.Methods.Name -contains "ReadAsStringAsync")) {
+      $body = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+      if (-not [string]::IsNullOrWhiteSpace($body)) {
+        return "$($ErrorRecord.Exception.Message) Body: $body"
+      }
+    }
+  } catch {
+    return $ErrorRecord.Exception.Message
+  }
+
+  try {
+    if (-not ($response.PSObject.Methods.Name -contains "GetResponseStream")) {
+      return $ErrorRecord.Exception.Message
+    }
     $stream = $response.GetResponseStream()
     if ($stream) {
       $reader = [System.IO.StreamReader]::new($stream)
@@ -155,6 +175,60 @@ function Get-HttpErrorDetail {
   }
 
   return $ErrorRecord.Exception.Message
+}
+
+function Get-HttpStatusCode {
+  param([object]$ErrorRecord)
+
+  $response = $ErrorRecord.Exception.Response
+  if (-not $response -or -not $response.StatusCode) {
+    return $null
+  }
+  return [int]$response.StatusCode
+}
+
+function Invoke-ManageWriteAuthorizationPreflight {
+  param(
+    [string]$Uri,
+    [hashtable]$Headers
+  )
+
+  $probeBody = [ordered]@{
+    as_of_date = "not-a-date"
+  }
+  $arguments = @{
+    Method = "Post"
+    Uri = $Uri
+    Headers = $Headers
+    ContentType = "application/json"
+    Body = ($probeBody | ConvertTo-Json -Depth 8)
+    TimeoutSec = 30
+  }
+
+  try {
+    [void](Invoke-RestMethod @arguments)
+    return [ordered]@{
+      status_code = 200
+      passed = $true
+      expected_post_auth_status = 422
+      posture = "authorized_unexpected_success"
+    }
+  } catch {
+    $statusCode = Get-HttpStatusCode -ErrorRecord $_
+    $detail = Get-HttpErrorDetail -ErrorRecord $_
+    if ($statusCode -eq 422) {
+      return [ordered]@{
+        status_code = $statusCode
+        passed = $true
+        expected_post_auth_status = 422
+        posture = "authorized_validation_rejected_side_effect_free_probe"
+      }
+    }
+    if ($statusCode -eq 403) {
+      throw "Manage write-authorization preflight denied for $Uri. Expected post-auth 422 validation rejection; observed 403. Detail: $detail"
+    }
+    throw "Manage write-authorization preflight failed for $Uri. Expected post-auth 422 validation rejection; observed $statusCode. Detail: $detail"
+  }
 }
 
 $resolvedPortfolioId = Resolve-ContractValue -Candidate $PortfolioId -Fallback $dpm.portfolio_id
@@ -243,10 +317,47 @@ $gatewayOutcomeReviewsUri = (
   "?portfolio_id=$resolvedPortfolioId&limit=50"
 )
 
-$headers = @{
-  "X-Actor-Id" = "platform-seed-automation"
-  "X-Tenant-Id" = $resolvedTenantId
-  "X-Region" = "APAC"
+$manageSeedActorId = "platform-seed-automation"
+$manageSeedRole = "platform-automation"
+$manageSeedServiceIdentity = "lotus-platform.canonical-dpm-command-center-seed"
+$manageSeedCapability = "manage.write"
+
+function New-ManageRequestHeaders {
+  param(
+    [string]$CorrelationId,
+    [hashtable]$ExtraHeaders = @{}
+  )
+
+  $requestHeaders = @{
+    "X-Actor-Id" = $manageSeedActorId
+    "X-Tenant-Id" = $resolvedTenantId
+    "X-Region" = "APAC"
+    "X-Role" = $manageSeedRole
+    "X-Correlation-Id" = $CorrelationId
+    "X-Service-Identity" = $manageSeedServiceIdentity
+    "X-Capabilities" = $manageSeedCapability
+  }
+  foreach ($key in $ExtraHeaders.Keys) {
+    $requestHeaders[$key] = $ExtraHeaders[$key]
+  }
+  return $requestHeaders
+}
+
+$headers = New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-seed-$resolvedPortfolioId-$timestamp"
+$manageAuthoritySummary = [ordered]@{
+  actor_id = $manageSeedActorId
+  tenant_id = $resolvedTenantId
+  role = $manageSeedRole
+  service_identity = $manageSeedServiceIdentity
+  capabilities = @($manageSeedCapability)
+  required_headers = @(
+    "X-Actor-Id",
+    "X-Tenant-Id",
+    "X-Role",
+    "X-Correlation-Id",
+    "X-Service-Identity",
+    "X-Capabilities"
+  )
 }
 
 $refreshBody = [ordered]@{
@@ -621,6 +732,7 @@ function Upsert-CampaignDefinition {
     $existingDefinition = Invoke-JsonRequest `
       -Method "Get" `
       -Uri $campaignDefinitionUri `
+      -Headers $headers `
       -Attempts 1
   } catch {
     $existingDefinition = $null
@@ -640,6 +752,7 @@ function Upsert-CampaignDefinition {
   $createdDefinition = Invoke-JsonRequest `
     -Method "Put" `
     -Uri $campaignDefinitionUri `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-upsert-$resolvedCampaignId-$resolvedCampaignVersion-$timestamp") `
     -Body (New-CampaignDefinitionBody)
   Assert-CampaignDefinitionMatchesSeed `
     -Name "Created Manage campaign definition" `
@@ -660,6 +773,7 @@ function Supersede-LegacyCampaignDefinitions {
       $legacyDefinition = Invoke-JsonRequest `
         -Method "Get" `
         -Uri $legacyUri `
+        -Headers $headers `
         -Attempts 1
     } catch {
       $legacyDefinition = $null
@@ -671,6 +785,7 @@ function Supersede-LegacyCampaignDefinitions {
     [void](Invoke-JsonRequest `
       -Method "Post" `
       -Uri "$legacyUri/supersede" `
+      -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-supersede-$resolvedCampaignId-$legacyVersion-$timestamp") `
       -Body ([ordered]@{
         superseded_by_campaign_version = $resolvedCampaignVersion
         superseded_by = "platform-seed-automation"
@@ -767,6 +882,9 @@ $summary = [ordered]@{
   status = "ok"
   steps = @()
   posture_checks = @()
+  manage_write_authority = $manageAuthoritySummary
+  manage_authorization_preflight_response = $null
+  preflight_only = [bool]$PreflightOnly
   refresh_response = $null
   recalculated_health_response = $null
   monitoring_run_response = $null
@@ -786,13 +904,54 @@ $summary = [ordered]@{
   error = $null
 }
 
+function Complete-SeedSummary {
+  $summaryObject = [pscustomobject]$summary
+  $summaryObject | ConvertTo-Json -Depth 20 | Set-Content -Path $evidencePath
+  $summaryObject | ConvertTo-Json -Depth 20 | Set-Content -Path $latestEvidencePath
+  Write-Host "Wrote $evidencePath"
+  Write-Host "Wrote $latestEvidencePath"
+
+  if ($summary.status -ne "ok") {
+    exit 1
+  }
+  exit 0
+}
+
+if ($PreflightOnly) {
+  try {
+    Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
+    $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
+      -Uri $refreshUri `
+      -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-auth-preflight-$resolvedPortfolioId-$timestamp")
+    $summary.steps += "manage-refresh-authorization-preflight"
+  } catch {
+    $summary.status = "failed"
+    $summary.error = $_.Exception.Message
+  }
+  Complete-SeedSummary
+}
+
 try {
+  Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
+  $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
+    -Uri $refreshUri `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-auth-preflight-$resolvedPortfolioId-$timestamp")
+  $summary.steps += "manage-refresh-authorization-preflight"
+
   Write-Host "[dpm-seed] refreshing $resolvedMandateId from lotus-core through lotus-manage"
-  $summary.refresh_response = Invoke-JsonRequest -Method "Post" -Uri $refreshUri -Body $refreshBody
+  $summary.refresh_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri $refreshUri `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-$resolvedPortfolioId-$timestamp") `
+    -Body $refreshBody
   $summary.steps += "manage-refresh-from-core"
 
   Write-Host "[dpm-seed] running mandate monitoring for command-center evidence"
-  $summary.monitoring_run_response = Invoke-JsonRequest -Method "Post" -Uri $monitoringRunUri -Body ([ordered]@{
+  $summary.monitoring_run_response = Invoke-JsonRequest `
+    -Method "Post" `
+    -Uri $monitoringRunUri `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-monitoring-$resolvedPortfolioId-$timestamp") `
+    -Body ([ordered]@{
     mandate_ids = @($resolvedMandateId)
     as_of_date = $resolvedAsOfDate
     tenant_id = $resolvedTenantId
@@ -807,6 +966,7 @@ try {
   $summary.recalculated_health_response = Invoke-JsonRequest `
     -Method "Post" `
     -Uri $recalculateHealthUri `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-$resolvedPortfolioId-$timestamp") `
     -Body (New-CanonicalMandateHealthBody -Mandate $summary.refresh_response.mandate)
   $summary.steps += "manage-mandate-health-source-contexts"
 
@@ -817,14 +977,12 @@ try {
   $summary.action_register_simulation_response = Invoke-JsonRequest `
     -Method "Post" `
     -Uri $actionRegisterSimulationUri `
-    -Headers @{
+    -Headers (New-ManageRequestHeaders `
+      -CorrelationId "corr-canonical-dpm-action-register-$resolvedPortfolioId-$resolvedActionRegisterAsOfDate-$timestamp" `
+      -ExtraHeaders @{
       "Idempotency-Key" = $actionRegisterIdempotencyKey
-      "X-Correlation-Id" = (
-        "corr-canonical-dpm-action-register-$resolvedPortfolioId-$resolvedActionRegisterAsOfDate-$timestamp"
-      )
-      "X-Tenant-Id" = $resolvedTenantId
       "X-Policy-Pack-Id" = $dpm.policy_pack_id
-    } `
+    }) `
     -Body ([ordered]@{
       input_mode = "stateful"
       stateful_input = [ordered]@{
@@ -847,10 +1005,7 @@ try {
   $summary.action_register_workflow_action_response = Invoke-JsonRequest `
     -Method "Post" `
     -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow/actions" `
-    -Headers @{
-      "X-Correlation-Id" = "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp"
-      "X-Tenant-Id" = $resolvedTenantId
-    } `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp") `
     -Body ([ordered]@{
       action = "APPROVE"
       reason_code = "REVIEW_APPROVED"
@@ -866,7 +1021,7 @@ try {
   $summary.steps += "manage-campaign-definition-supersede-legacy"
 
   Write-Host "[dpm-seed] verifying manage mandate lookup for $resolvedPortfolioId"
-  $summary.manage_lookup_response = Invoke-JsonRequest -Method "Get" -Uri $manageLookupUri
+  $summary.manage_lookup_response = Invoke-JsonRequest -Method "Get" -Uri $manageLookupUri -Headers $headers
   $summary.steps += "manage-lookup-by-portfolio"
 
   if (-not $SkipGatewayValidation) {
@@ -966,12 +1121,4 @@ try {
   $summary.error = $_.Exception.Message
 }
 
-$summaryObject = [pscustomobject]$summary
-$summaryObject | ConvertTo-Json -Depth 20 | Set-Content -Path $evidencePath
-$summaryObject | ConvertTo-Json -Depth 20 | Set-Content -Path $latestEvidencePath
-Write-Host "Wrote $evidencePath"
-Write-Host "Wrote $latestEvidencePath"
-
-if ($summary.status -ne "ok") {
-  exit 1
-}
+Complete-SeedSummary

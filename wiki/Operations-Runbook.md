@@ -78,6 +78,19 @@ command-center states before Workbench screenshots can be promoted.
 
 Use `Invoke-DpmCommandCenterSeed.ps1` directly only when the stack is already running and the goal
 is to diagnose or refresh the DPM command-center data path without rerunning the full browser proof.
+The seed must pass the Manage write-authorization preflight with
+`X-Actor-Id=platform-seed-automation`,
+`X-Role=platform-automation`,
+`X-Service-Identity=lotus-platform.canonical-dpm-command-center-seed`, and
+`X-Capabilities=manage.write` before it performs state-changing refresh, monitoring,
+health-recalculate, action-register, or campaign-definition writes. Use
+`Invoke-DpmCommandCenterSeed.ps1 -PreflightOnly` to diagnose the exact caller contract without
+refreshing or persisting DPM evidence. A 403 is a seed-authority defect and must not be resolved by
+disabling Manage authorization. After that preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the
+full seed is a Core source-readiness dependency rather than another auth issue; preserve the
+response body in `output/front-office-qa/dpm-command-center-seed-latest.json` and link the owning
+Core issue, currently `sgajbi/lotus-core#840` for the canonical missing eligibility, tax-lot, and
+market-data families.
 Use `-SkipDpmCommandCenterSeed` on canonical QA only for diagnostics that intentionally validate an
 unseeded or degraded DPM state. Current governed seed proof covers populated ready, partial, and
 empty command-center supportability postures. Explicitly degraded and blocked command-center

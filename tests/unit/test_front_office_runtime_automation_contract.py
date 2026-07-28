@@ -158,6 +158,28 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Assert-OutcomeReviewPageContainsSeed" in dpm_seed
     assert "CanonicalDpmOutcomeExpectedEvidence" in dpm_seed
     assert "DpmRealizedOutcomeSnapshot:v1" in dpm_seed
+    assert "[switch]$PreflightOnly" in dpm_seed
+    assert "Invoke-ManageWriteAuthorizationPreflight" in dpm_seed
+    assert "manage-refresh-authorization-preflight" in dpm_seed
+    assert "authorized_validation_rejected_side_effect_free_probe" in dpm_seed
+    assert "$ErrorRecord.ErrorDetails" in dpm_seed
+    assert "$errorDetails.Message" in dpm_seed
+    assert "ReadAsStringAsync().GetAwaiter().GetResult()" in dpm_seed
+    assert "New-ManageRequestHeaders" in dpm_seed
+    assert '"X-Role" = $manageSeedRole' in dpm_seed
+    assert '"X-Service-Identity" = $manageSeedServiceIdentity' in dpm_seed
+    assert '"X-Capabilities" = $manageSeedCapability' in dpm_seed
+    assert '$manageSeedCapability = "manage.write"' in dpm_seed
+    assert 'service_identity = $manageSeedServiceIdentity' in dpm_seed
+    assert 'capabilities = @($manageSeedCapability)' in dpm_seed
+    assert 'preflight_only = [bool]$PreflightOnly' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-monitoring-' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders `' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-upsert-' in dpm_seed
+    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-supersede-' in dpm_seed
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}
@@ -197,6 +219,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "source-backed DPM campaign definition" in automation_readme
     assert "source-owned selection-basis evidence" in automation_readme
     assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
+    assert "DPM_CORE_CONTEXT_INCOMPLETE" in automation_readme
+    assert "sgajbi/lotus-core#840" in automation_readme
+    assert "response-body diagnostics" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_readme
