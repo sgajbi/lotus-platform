@@ -40,6 +40,11 @@ def _operational_proof_by_name(contract: dict, proof_name: str) -> dict:
     return proofs[proof_name]
 
 
+def _mesh_proof_by_name(contract: dict, proof_name: str) -> dict:
+    proofs = {proof["proof_name"]: proof for proof in contract["accepted_mesh_proofs"]}
+    return proofs[proof_name]
+
+
 def test_lotus_idea_rfc0002_platform_proof_contract_is_governed() -> None:
     readme = (ROOT / "context" / "contracts" / "README.md").read_text(
         encoding="utf-8"
@@ -54,7 +59,7 @@ def test_lotus_idea_rfc0002_platform_proof_contract_is_governed() -> None:
         == "lotus-idea-rfc0002-platform-proof-consumption"
     )
     assert contract["governed_by_rfc"] == "RFC-0002"
-    assert contract["contract_version"] == "1.2.0"
+    assert contract["contract_version"] == "1.3.0"
     assert contract["platform_posture"] == "certification_candidate_not_certified"
 
 
@@ -204,6 +209,35 @@ def test_deployment_promotion_proof_clears_only_pending_manifest_boundary() -> N
     ]
 
 
+def test_mesh_publication_readiness_clears_only_candidate_policy_boundary() -> None:
+    contract = _load_json(CONTRACT_PATH)
+    proof = _mesh_proof_by_name(contract, "platform_mesh_publication_readiness")
+
+    assert proof["schema_version"] == "lotus-domain-product-source-manifest.v1"
+    assert proof["evidence_status"] == "catalog_visible_not_certified"
+    assert proof["product_id"] == "lotus-idea:IdeaCandidate:v1"
+    assert proof["clears_only"] == ["mesh_candidate_catalog_policy_consumable"]
+    assert "idea_mesh_candidate_catalog_policy_consumable" in contract[
+        "platform_blockers_cleared"
+    ]
+    assert set(proof["remaining_certification_blockers"]) == {
+        "platform_mesh_event_publication_proof_missing",
+        "gateway_workbench_proof_missing",
+        "supported_feature_promotion_missing",
+        "data_product_certification_missing",
+        "production_certification_missing",
+    }
+    assert set(proof["must_remain_false"]) == {
+        "meshCertified",
+        "requiredMaturityProduct",
+        "platformMeshEventCertified",
+        "gatewayWorkbenchProofPresent",
+        "supportedFeaturePromoted",
+        "productionCertificationGranted",
+        "certificationClosed",
+    }
+
+
 def test_validator_rejects_supported_feature_overclaim() -> None:
     contract = copy.deepcopy(_load_json(CONTRACT_PATH))
     contract["platform_blockers_cleared"].append(
@@ -244,6 +278,30 @@ def test_validator_rejects_deployment_certification_overclaim() -> None:
     errors = _validate(contract)
 
     assert any("evidence_status must be deployment_pending" in error for error in errors)
+
+
+def test_validator_rejects_mesh_publication_certification_overclaim() -> None:
+    contract = copy.deepcopy(_load_json(CONTRACT_PATH))
+    proof = _mesh_proof_by_name(contract, "platform_mesh_publication_readiness")
+    proof["clears_only"] = ["platform_mesh_event_publication_proof_missing"]
+
+    errors = _validate(contract)
+
+    assert any(
+        "mesh readiness proof may clear only mesh_candidate_catalog_policy_consumable"
+        in error
+        for error in errors
+    )
+
+
+def test_validator_rejects_required_product_overclaim() -> None:
+    contract = copy.deepcopy(_load_json(CONTRACT_PATH))
+    proof = _mesh_proof_by_name(contract, "platform_mesh_publication_readiness")
+    proof["must_remain_false"].remove("requiredMaturityProduct")
+
+    errors = _validate(contract)
+
+    assert any("mesh must_remain_false" in error for error in errors)
 
 
 def test_validator_rejects_data_mesh_certification_overclaim() -> None:

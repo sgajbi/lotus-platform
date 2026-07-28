@@ -123,6 +123,34 @@ EXPECTED_DEPLOYMENT_FALSE_CLAIMS = {
     "supportedFeaturePromoted",
     "certificationClosed",
 }
+EXPECTED_MESH_REQUIRED_CHECKS = {
+    "repoNativeSourceManifestIncluded",
+    "certificationCandidateNotRequiredProduct",
+    "sloPolicyCoveragePresent",
+    "accessPolicyCoveragePresent",
+    "evidencePackPolicyCoveragePresent",
+    "telemetryCollectionIncludesCandidate",
+    "nonSnapshotTelemetryArtifactsIgnored",
+    "gatewayWorkbenchProofSeparated",
+    "supportedFeatureNotPromoted",
+    "meshCertificationNotClaimed",
+}
+EXPECTED_MESH_REMAINING_BLOCKERS = {
+    "platform_mesh_event_publication_proof_missing",
+    "gateway_workbench_proof_missing",
+    "supported_feature_promotion_missing",
+    "data_product_certification_missing",
+    "production_certification_missing",
+}
+EXPECTED_MESH_FALSE_CLAIMS = {
+    "meshCertified",
+    "requiredMaturityProduct",
+    "platformMeshEventCertified",
+    "gatewayWorkbenchProofPresent",
+    "supportedFeaturePromoted",
+    "productionCertificationGranted",
+    "certificationClosed",
+}
 CERTIFICATION_BLOCKERS_THAT_MUST_REMAIN = {
     "idea_platform_mesh_event_publication_proof_missing",
     "idea_gateway_workbench_live_journey_proof_missing",
@@ -144,6 +172,7 @@ EXPECTED_PLATFORM_BLOCKERS_CLEARED = {
     "idea_downstream_consumer_runtime_proof_dependency_consumable",
     "idea_cost_attribution_contract_consumable",
     "idea_deployment_promotion_manifest_consumable",
+    "idea_mesh_candidate_catalog_policy_consumable",
 }
 
 
@@ -163,6 +192,9 @@ def validate_contract(contract: dict[str, Any], schema: dict[str, Any]) -> list[
     )
     if operational_proofs is None:
         return errors
+    mesh_proofs = _mesh_proofs_by_name(contract.get("accepted_mesh_proofs"), errors)
+    if mesh_proofs is None:
+        return errors
 
     _validate_broker_runtime_proof(proofs["outbox_broker_runtime_execution"], errors)
     _validate_consumer_runtime_proof(proofs["outbox_consumer_runtime_execution"], errors)
@@ -172,6 +204,10 @@ def validate_contract(contract: dict[str, Any], schema: dict[str, Any]) -> list[
     )
     _validate_deployment_promotion_operational_proof(
         operational_proofs["deployment_promotion_readiness_manifest"],
+        errors,
+    )
+    _validate_mesh_publication_readiness_proof(
+        mesh_proofs["platform_mesh_publication_readiness"],
         errors,
     )
     _validate_blocker_policy(contract, errors)
@@ -191,12 +227,12 @@ def _validate_header(
         "lotus-idea-rfc0002-platform-proof-consumption"
     ):
         errors.append("schema contract_id const is not governed")
-    if properties.get("contract_version", {}).get("const") != "1.2.0":
-        errors.append("schema contract_version const must be 1.2.0")
+    if properties.get("contract_version", {}).get("const") != "1.3.0":
+        errors.append("schema contract_version const must be 1.3.0")
     if contract.get("contract_id") != "lotus-idea-rfc0002-platform-proof-consumption":
         errors.append("contract_id must be lotus-idea-rfc0002-platform-proof-consumption")
-    if contract.get("contract_version") != "1.2.0":
-        errors.append("contract_version must be 1.2.0")
+    if contract.get("contract_version") != "1.3.0":
+        errors.append("contract_version must be 1.3.0")
     if contract.get("governed_by_rfc") != "RFC-0002":
         errors.append("governed_by_rfc must be RFC-0002")
     if contract.get("product_id") != "lotus-idea:IdeaCandidate:v1":
@@ -268,6 +304,26 @@ def _operational_proofs_by_name(
         )
         return None
     return by_name
+
+
+def _mesh_proofs_by_name(
+    proofs: object,
+    errors: list[str],
+) -> dict[str, dict[str, Any]] | None:
+    if not isinstance(proofs, list) or len(proofs) != 1:
+        errors.append("accepted_mesh_proofs must contain exactly one bounded proof")
+        return None
+    proof = proofs[0]
+    if not isinstance(proof, dict):
+        errors.append("accepted mesh proof must be an object")
+        return None
+    proof_name = proof.get("proof_name")
+    if proof_name != "platform_mesh_publication_readiness":
+        errors.append(
+            "accepted_mesh_proofs must contain platform_mesh_publication_readiness"
+        )
+        return None
+    return {proof_name: proof}
 
 
 def _validate_broker_runtime_proof(proof: dict[str, Any], errors: list[str]) -> None:
@@ -551,6 +607,97 @@ def _validate_deployment_promotion_operational_proof(
     )
 
 
+def _validate_mesh_publication_readiness_proof(
+    proof: dict[str, Any],
+    errors: list[str],
+) -> None:
+    _validate_expected_fields(
+        proof,
+        errors,
+        {
+            "proof_name": "platform_mesh_publication_readiness",
+            "schema_version": "lotus-domain-product-source-manifest.v1",
+            "repository": "lotus-platform",
+            "proof_type": "mesh_publication_readiness",
+            "proof_scope": "catalog_visible_candidate_with_policy_and_telemetry_coverage",
+            "evidence_class": "source_contract",
+            "evidence_status": "catalog_visible_not_certified",
+            "consumer_repository": "lotus-idea",
+            "product_id": "lotus-idea:IdeaCandidate:v1",
+            "source_manifest_ref": (
+                "platform-contracts/domain-data-products/"
+                "domain-product-source-manifest.v1.json"
+            ),
+            "slo_policy_ref": (
+                "platform-contracts/mesh-slo/"
+                "lotus-idea-idea-candidate.slo.v1.json"
+            ),
+            "access_policy_ref": (
+                "platform-contracts/mesh-access/"
+                "lotus-idea-idea-candidate.access.v1.json"
+            ),
+            "evidence_policy_ref": (
+                "platform-contracts/mesh-evidence/"
+                "lotus-idea-idea-candidate.evidence-pack-policy.v1.json"
+            ),
+        },
+    )
+    _validate_set_field(
+        proof,
+        errors,
+        field_name="required_checks",
+        expected=EXPECTED_MESH_REQUIRED_CHECKS,
+        error_message=(
+            "mesh required_checks must preserve source-manifest, policy, telemetry, "
+            "and no-certification controls"
+        ),
+    )
+    _validate_exact_list(
+        proof,
+        errors,
+        field_name="clears_only",
+        expected=["mesh_candidate_catalog_policy_consumable"],
+        error_message=(
+            "mesh readiness proof may clear only "
+            "mesh_candidate_catalog_policy_consumable"
+        ),
+    )
+    _validate_set_field(
+        proof,
+        errors,
+        field_name="remaining_certification_blockers",
+        expected=EXPECTED_MESH_REMAINING_BLOCKERS,
+        error_message=(
+            "mesh remaining_certification_blockers must preserve mesh event, "
+            "Gateway/Workbench, supported-feature, and certification blockers"
+        ),
+    )
+    _validate_set_field(
+        proof,
+        errors,
+        field_name="must_remain_false",
+        expected=EXPECTED_MESH_FALSE_CLAIMS,
+        error_message="mesh must_remain_false must reject certification overclaims",
+    )
+    _require_refs(
+        proof,
+        errors,
+        [
+            "sgajbi/lotus-platform#598",
+            "sgajbi/lotus-idea#380",
+            "sgajbi/lotus-idea#692",
+            "platform-contracts/domain-data-products/domain-product-source-manifest.v1.json",
+            "platform-contracts/mesh-slo/lotus-idea-idea-candidate.slo.v1.json",
+            "platform-contracts/mesh-access/lotus-idea-idea-candidate.access.v1.json",
+            "platform-contracts/mesh-evidence/lotus-idea-idea-candidate.evidence-pack-policy.v1.json",
+            "automation/collect_trust_telemetry.py",
+            "automation/mesh_certification_gate.py",
+            "automation/mesh_maturity_scope.py",
+            "tests/unit/test_trust_telemetry_collection.py",
+        ],
+    )
+
+
 def _validate_expected_fields(
     proof: dict[str, Any],
     errors: list[str],
@@ -620,6 +767,7 @@ def _validate_boundaries(contract: dict[str, Any], errors: list[str]) -> None:
         "platform mesh event publication",
         "Gateway or Workbench live journey behavior",
         "supported feature",
+        "data-product certification",
         "production certification",
         "production cost attribution",
         "billing authority",
@@ -641,7 +789,12 @@ def _validate_owner_evidence(contract: dict[str, Any], errors: list[str]) -> Non
     }:
         errors.append("owner_repo_evidence must cover Idea, Gateway, Workbench, and Platform")
     issues = {item.get("issue") for item in evidence_items}
-    for required_issue in {"sgajbi/lotus-platform#495", "sgajbi/lotus-platform#599"}:
+    for required_issue in {
+        "sgajbi/lotus-platform#495",
+        "sgajbi/lotus-platform#598",
+        "sgajbi/lotus-platform#599",
+        "sgajbi/lotus-idea#380",
+    }:
         if required_issue not in issues:
             errors.append(f"owner_repo_evidence missing {required_issue}")
 

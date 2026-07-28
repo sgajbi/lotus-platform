@@ -15,6 +15,7 @@
     "platform_posture",
     "accepted_runtime_proofs",
     "accepted_operational_proofs",
+    "accepted_mesh_proofs",
     "platform_blockers_cleared",
     "platform_blockers_retained",
     "non_proof_boundaries",
@@ -26,13 +27,13 @@
       "const": "lotus-idea-rfc0002-platform-proof-consumption"
     },
     "contract_version": {
-      "const": "1.2.0"
+      "const": "1.3.0"
     },
     "governed_by_rfc": {
       "const": "RFC-0002"
     },
     "lifecycle_status": {
-      "const": "slice-15-operational-proof-consumption-reconciled"
+      "const": "slice-14-mesh-publication-readiness-reconciled"
     },
     "issue_refs": {
       "type": "array",
@@ -208,6 +209,110 @@
             "type": "string"
           },
           "release_image_digest": {
+            "type": "string"
+          },
+          "required_checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "clears_only": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remaining_certification_blockers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "must_remain_false": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_safe_evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "accepted_mesh_proofs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "proof_name",
+          "schema_version",
+          "repository",
+          "proof_type",
+          "proof_scope",
+          "evidence_class",
+          "evidence_status",
+          "consumer_repository",
+          "product_id",
+          "source_manifest_ref",
+          "slo_policy_ref",
+          "access_policy_ref",
+          "evidence_policy_ref",
+          "required_checks",
+          "clears_only",
+          "remaining_certification_blockers",
+          "must_remain_false",
+          "source_safe_evidence_refs"
+        ],
+        "properties": {
+          "proof_name": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "proof_type": {
+            "type": "string"
+          },
+          "proof_scope": {
+            "type": "string"
+          },
+          "evidence_class": {
+            "type": "string"
+          },
+          "evidence_status": {
+            "type": "string"
+          },
+          "consumer_repository": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "source_manifest_ref": {
+            "type": "string"
+          },
+          "slo_policy_ref": {
+            "type": "string"
+          },
+          "access_policy_ref": {
+            "type": "string"
+          },
+          "evidence_policy_ref": {
             "type": "string"
           },
           "required_checks": {
