@@ -248,17 +248,21 @@ def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     assert "evidence-classification.md" in backend_skill
     assert "evidence-classification.md" in rfc_skill
     assert "blocker-clearing evidence classification" in routing_map
-    assert "source_design_contract" in engineering_context
+    assert "evidence-class-vocabulary.v1.json" in engineering_context
+    assert "source_contract" in engineering_context
     assert "production_certification" in engineering_context
+    assert "closed legacy mappings" in engineering_context
     for evidence_class in (
-        "source_design_contract",
-        "local_test_execution",
+        "source_contract",
+        "test_execution",
         "ci_execution",
         "runtime_execution",
         "deployment",
         "production_certification",
     ):
         assert evidence_class in evidence_reference
+    assert "source_design_contract` maps to `source_contract" in evidence_reference
+    assert "local_test_execution` maps to `test_execution" in evidence_reference
     for ci_binding in (
         "repository",
         "trusted workflow name or file",
@@ -272,7 +276,7 @@ def test_rfc_slice_implementation_guidance_is_explicit() -> None:
     ):
         assert ci_binding in evidence_reference
     assert "static-to-runtime promotion" in evidence_reference
-    assert "source_design_contract` evidence cannot clear `runtime_execution" in evidence_reference
+    assert "source_contract` evidence cannot clear `runtime_execution" in evidence_reference
 
 
 def test_platform_automation_ops_uses_task_ledger_contract() -> None:

@@ -1,0 +1,91 @@
+{
+  "contract_id": "lotus-evidence-class-vocabulary",
+  "schema_version": "1.0",
+  "governed_by": [
+    "sgajbi/lotus-platform#540",
+    "RFC-0002"
+  ],
+  "canonical_persisted_vocabulary": [
+    {
+      "id": "source_contract",
+      "legacy_aliases": [
+        "source_design_contract"
+      ],
+      "minimum_evidence": "Repository path, exact commit/ref, schema or source symbol, and validator or review evidence.",
+      "can_prove": "Source shape, schema, declared interface, planned ownership, or static contract presence."
+    },
+    {
+      "id": "test_execution",
+      "legacy_aliases": [
+        "local_test_execution"
+      ],
+      "minimum_evidence": "Command, repository, branch, exact commit, environment boundary, result, and relevant artifact path or digest when an artifact is consumed later.",
+      "can_prove": "Behavior exercised locally in a developer or agent environment."
+    },
+    {
+      "id": "ci_execution",
+      "legacy_aliases": [],
+      "minimum_evidence": "Repository, workflow, job, run id, run attempt, exact commit SHA, ref, successful conclusion, and artifact digest for every proof artifact used to clear a blocker.",
+      "can_prove": "Behavior exercised by a trusted CI workflow."
+    },
+    {
+      "id": "runtime_execution",
+      "legacy_aliases": [],
+      "minimum_evidence": "Runtime topology, service versions or commits, request/operation evidence, correlation or trace reference, result, and source-safe artifact digest.",
+      "can_prove": "Behavior exercised against a running service or composed runtime."
+    },
+    {
+      "id": "deployment",
+      "legacy_aliases": [],
+      "minimum_evidence": "Immutable image or package digest, deployment environment, deployed ref, promotion record, operator or CI actor, and rollback or non-production boundary.",
+      "can_prove": "A release artifact or environment deployment step completed."
+    },
+    {
+      "id": "production_certification",
+      "legacy_aliases": [],
+      "minimum_evidence": "Cryptographic attestation, protected mainline source, trusted producer workflow, protected environment, signer/key posture, evidence retention, approval owner, and exact certification scope.",
+      "can_prove": "Production-grade certification or regulated operating approval."
+    }
+  ],
+  "legacy_allowed_contexts": [
+    {
+      "context_id": "bank_readiness_control_catalog",
+      "path": "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json",
+      "allowed_legacy_values": [
+        "source_design_contract",
+        "local_test_execution"
+      ],
+      "reason": "The bank-readiness catalog predates application proof artifacts and remains stable for BR-NNN maturity semantics; consumers must map these values through this contract before comparing with proof artifacts."
+    },
+    {
+      "context_id": "historical_platform_comments",
+      "path": "GitHub issue, PR, and release evidence comments created before this contract",
+      "allowed_legacy_values": [
+        "source_design_contract",
+        "local_test_execution"
+      ],
+      "reason": "Historical audit comments remain immutable; new machine-readable proof artifacts and future guidance should use canonical persisted values."
+    }
+  ],
+  "ordering": [
+    "source_contract",
+    "test_execution",
+    "ci_execution",
+    "runtime_execution",
+    "deployment",
+    "production_certification"
+  ],
+  "promotion_rules": [
+    "source_contract evidence cannot clear runtime_execution, deployment, or production_certification blockers.",
+    "test_execution evidence cannot clear ci_execution blockers unless the blocker explicitly accepts local-only proof.",
+    "ci_execution evidence cannot clear runtime_execution blockers unless the CI job records the actual runtime topology and source-safe runtime observations.",
+    "runtime_execution evidence cannot clear deployment blockers unless it is tied to immutable deployed artifacts and environment promotion evidence.",
+    "deployment evidence cannot clear production_certification blockers without the required cryptographic attestation and approval posture."
+  ],
+  "persisted_artifact_policy": {
+    "new_artifacts_must_use_canonical_ids": true,
+    "legacy_aliases_are_closed": true,
+    "arbitrary_aliases_allowed": false,
+    "alias_normalization_must_be_explicit": true
+  }
+}

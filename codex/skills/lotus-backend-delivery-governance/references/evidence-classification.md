@@ -15,14 +15,31 @@ workflow, runtime exercise, deployment receipt, or production attestation clears
 
 ## Closed Evidence Taxonomy
 
+Canonical persisted vocabulary is governed by
+`platform-contracts/evidence-classification/evidence-class-vocabulary.v1.json`. New proof
+artifacts, RFC closure manifests, blocker ledgers, and machine-readable application contracts should
+use the canonical identifiers below.
+
 | Evidence Class | What It Can Prove | Minimum Evidence |
 | --- | --- | --- |
-| `source_design_contract` | Source shape, schema, declared interface, planned ownership, or static contract presence. | Repository path, exact commit/ref, schema or source symbol, and validator or review evidence. |
-| `local_test_execution` | Behavior exercised locally in a developer or agent environment. | Command, repository, branch, exact commit, environment boundary, result, and relevant artifact path or digest when an artifact is consumed later. |
+| `source_contract` | Source shape, schema, declared interface, planned ownership, or static contract presence. | Repository path, exact commit/ref, schema or source symbol, and validator or review evidence. |
+| `test_execution` | Behavior exercised locally in a developer or agent environment. | Command, repository, branch, exact commit, environment boundary, result, and relevant artifact path or digest when an artifact is consumed later. |
 | `ci_execution` | Behavior exercised by a trusted CI workflow. | Repository, workflow, job, run id, run attempt, exact commit SHA, ref, successful conclusion, and artifact digest for every proof artifact used to clear a blocker. |
 | `runtime_execution` | Behavior exercised against a running service or composed runtime. | Runtime topology, service versions or commits, request/operation evidence, correlation or trace reference, result, and source-safe artifact digest. |
 | `deployment` | A release artifact or environment deployment step completed. | Immutable image or package digest, deployment environment, deployed ref, promotion record, operator or CI actor, and rollback or non-production boundary. |
 | `production_certification` | Production-grade certification or regulated operating approval. | Cryptographic attestation, protected mainline source, trusted producer workflow, protected environment, signer/key posture, evidence retention, approval owner, and exact certification scope. |
+
+### Closed Legacy Mapping
+
+The older platform/bank-readiness terms are not arbitrary aliases. They are closed mappings:
+
+| Legacy term | Canonical persisted term | Allowed legacy use |
+| --- | --- | --- |
+| `source_design_contract` maps to `source_contract` | `source_contract` | Stable bank-readiness control-catalog maturity semantics and historical audit comments. |
+| `local_test_execution` maps to `test_execution` | `test_execution` | Stable bank-readiness control-catalog maturity semantics and historical audit comments. |
+
+Do not write these legacy terms into new proof artifacts unless a governing contract explicitly
+allows that legacy context and performs this mapping before comparing blocker evidence classes.
 
 ## Blocker Clearance Rule
 
@@ -32,9 +49,9 @@ stronger class that actually includes the required observations.
 
 Do not promote across classes by implication:
 
-1. `source_design_contract` evidence cannot clear `runtime_execution`, `deployment`, or
+1. `source_contract` evidence cannot clear `runtime_execution`, `deployment`, or
    `production_certification` blockers.
-2. `local_test_execution` evidence cannot clear `ci_execution` blockers unless the blocker
+2. `test_execution` evidence cannot clear `ci_execution` blockers unless the blocker
    explicitly accepts local-only proof.
 3. `ci_execution` evidence cannot clear `runtime_execution` blockers unless the CI job records the
    actual runtime topology and source-safe runtime observations.
