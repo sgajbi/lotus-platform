@@ -95,6 +95,15 @@ Current repository posture:
 12. Cross-repository Python policy validators must load each application in an isolated interpreter
     using its real package import root. Do not load package modules as synthetic top-level files or
     reuse generic package names such as `app` across repositories in one interpreter.
+13. Canonical DPM command-center seed automation uses the governed local service identity
+    `lotus-platform.canonical-dpm-command-center-seed` with actor
+    `platform-seed-automation`, role `platform-automation`, and `manage.write` capability for
+    protected `lotus-manage` writes. `automation/Invoke-DpmCommandCenterSeed.ps1` must keep the
+    side-effect-free refresh-route authorization preflight before state-changing seed calls and
+    must treat 403 as a seed-authority defect, not as a reason to bypass Manage authorization. After
+    the preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed is a source-readiness
+    dependency, not an auth failure; current canonical evidence links that Core-owned
+    `PB_SG_GLOBAL_BAL_001` DPM readiness gap to `sgajbi/lotus-core#840`.
 
 ## Architecture And Module Map
 

@@ -165,6 +165,14 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
 - Prefer `-ChangedOnly` or specific services for refresh.
 - Check logs first when failures occur.
 - Keep documentation updates in `lotus-platform` synchronized with script behavior.
+- For canonical DPM command-center seed failures against `lotus-manage`, use
+  `automation/Invoke-DpmCommandCenterSeed.ps1 -PreflightOnly` first when the stack is already
+  running. A 403 on the preflight means the platform seed actor, role, service identity, or
+  capability contract is wrong; fix the caller contract and preserve Manage fail-closed
+  authorization rather than disabling authz for local/demo evidence. After preflight passes, treat
+  `DPM_CORE_CONTEXT_INCOMPLETE` as source-readiness evidence: preserve the response body from
+  `dpm-command-center-seed-latest.json`, probe Core `DpmSourceReadiness:v1` for the governed
+  portfolio/as-of date, and link or create the Core owner issue instead of reopening auth work.
 - When automation script behavior changes, update:
   - `automation/README.md`
   - `docs/operations/Local Development Runbook.md`

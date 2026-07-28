@@ -347,6 +347,15 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
         "empty-filter-command-center",
         "source-owned selection_basis evidence",
         "DpmRealizedOutcomeSnapshot:v1",
+        "[switch]$PreflightOnly",
+        "Invoke-ManageWriteAuthorizationPreflight",
+        "manage-refresh-authorization-preflight",
+        "$ErrorRecord.ErrorDetails",
+        "ReadAsStringAsync().GetAwaiter().GetResult()",
+        "New-ManageRequestHeaders",
+        "X-Service-Identity",
+        "X-Capabilities",
+        "manage.write",
     ):
         if required not in seed_script:
             errors.append(f"Invoke-DpmCommandCenterSeed.ps1 must include {required}")

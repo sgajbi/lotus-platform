@@ -749,6 +749,18 @@ from the governed contract, creates and verifies the canonical Manage-owned outc
 Gateway, then verifies the manage lookup, Gateway campaign definition/discovery paths, and Gateway
 command-center read paths so
 `DPM_MANDATE_NOT_FOUND` is treated as a seed failure rather than a valid populated-panel state.
+Before any state-changing Manage seed call, `Invoke-DpmCommandCenterSeed.ps1` now runs a
+side-effect-free authorization preflight against the exact refresh route. The seed actor uses
+`X-Actor-Id=platform-seed-automation`,
+`X-Role=platform-automation`,
+`X-Service-Identity=lotus-platform.canonical-dpm-command-center-seed`, and
+`X-Capabilities=manage.write`; a 403 remains a seed-authority failure, not a reason to disable
+Manage authorization. Use `-PreflightOnly` to diagnose the caller contract without refreshing or
+persisting DPM evidence. After preflight passes, a full-seed `DPM_CORE_CONTEXT_INCOMPLETE` response
+is a source-readiness dependency, not an authorization failure; preserve the response body in
+`dpm-command-center-seed-latest.json` and link the owning Core issue, currently
+`sgajbi/lotus-core#840` for the canonical `PB_SG_GLOBAL_BAL_001` missing eligibility, tax-lot, and
+market-data families.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
@@ -762,7 +774,7 @@ python automation/validate_canonical_front_office_demo_data_contract.py
 ```
 
 This focused check verifies that the canonical mandate, PM book, source-product lineage,
-ready/partial/empty posture expectations, and seed-script evidence hooks remain aligned before
+ready/partial/empty posture expectations, Manage authority preflight, and seed-script evidence hooks remain aligned before
 the heavier Workbench runtime proof runs. The CLI is the fail-closed cross-repository path and
 requires a resolvable `lotus-core` checkout (or explicit `--core-repo`) for executable seed proof.
 Platform unit callers may use `validate_default_paths()` for hermetic Platform-owned contract
