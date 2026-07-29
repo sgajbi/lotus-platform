@@ -42,6 +42,7 @@ try {
     Invoke-CheckedCommand $toolingPython automation/validate_agent_engineering_contracts.py
     Invoke-CheckedCommand $toolingPython automation/validate_heartbeat_contracts.py
     Invoke-CheckedCommand $toolingPython automation/validate_lifecycle_authority_contracts.py
+    Invoke-CheckedCommand $toolingPython automation/validate_bff_principal_session_contracts.py
     Invoke-CheckedCommand $toolingPython automation/validate_bank_readiness_control_catalog.py
     Invoke-CheckedCommand $toolingPython automation/validate_evidence_class_vocabulary.py
     Invoke-CheckedCommand $toolingPython automation/validate_lotus_skill_alignment.py

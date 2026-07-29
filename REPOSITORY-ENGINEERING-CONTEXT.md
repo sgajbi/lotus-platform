@@ -267,16 +267,23 @@ Boundary rules:
     producer certification evidence but cannot issue legal, records, privacy, erasure, or purge
     decisions. `automation/validate_lifecycle_authority_contracts.py` blocks semantic drift and
     evidence-free production promotion.
-31. RFC-0092 is implemented. `automation/generate_enterprise_mesh_operating_report.py` builds the
+32. `platform-contracts/bff-principal-session/` owns the versioned authenticated BFF principal
+    session contract for Workbench/Gateway/domain-service interoperability. It defines trusted
+    issuer/audience/session-binding requirements, least-privilege route projection, hostile browser
+    authority-header rejection, and non-certifying local/dev fixture posture. It does not select or
+    deploy a bank IdP, certify production token claims, or promote Lotus Idea RFC-0002 supported
+    features. `automation/validate_bff_principal_session_contracts.py` blocks contract drift and
+    evidence-free production identity promotion.
+33. RFC-0092 is implemented. `automation/generate_enterprise_mesh_operating_report.py` builds the
     production mesh operating report from current enterprise certification status and optional
     certification-history records. `automation/mesh_certification_gate.py` writes
     `enterprise-mesh-operating-report.json` and `.md` on every gate run so operators can see
     production-ready versus limited-history posture, drift trends, regressions, product operating
     posture, escalation owners, and state-specific guidance.
-32. The final durable mesh handoff is `docs/operations/enterprise-mesh-completion-handoff.md`.
+34. The final durable mesh handoff is `docs/operations/enterprise-mesh-completion-handoff.md`.
     The machine-readable closure ledger is `generated/enterprise-mesh-closure-ledger.json`, and
     the published wiki landing page is `wiki/Enterprise-Mesh-Status.md`.
-33. RFC-0095 is implemented for first-wave heartbeat-driven monitoring and attention surfacing.
+35. RFC-0095 is implemented for first-wave heartbeat-driven monitoring and attention surfacing.
     `automation/Run-Heartbeat.ps1` and `automation/run_heartbeat.py` generate advisory derived
     heartbeat artifacts under `output/heartbeat/`; `automation/heartbeat_sources.py` consumes
     configured source artifacts for GitHub PR monitor, RFC-0094 background-run ledger, wiki
@@ -285,18 +292,18 @@ Boundary rules:
     posture and explicit non-blocking suppressions. `automation/validate_heartbeat_contracts.py`
     certifies the contract, examples, runner config, and suppression policy in the platform repo
     check lane. Heartbeat output remains advisory and does not replace source truth.
-34. RFC-0096 is implemented for governed multi-agent delegation. The platform owns the delegation
+36. RFC-0096 is implemented for governed multi-agent delegation. The platform owns the delegation
     policy contract, delegated task ledger helper, return-envelope and main-agent review discipline,
     optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
     guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
     approval, wiki publication, or merge authority.
-35. RFC-0104 is implemented for first-wave scope. Platform-owned evidence now tracks durable batch
+37. RFC-0104 is implemented for first-wave scope. Platform-owned evidence now tracks durable batch
     materialization/status/control, scheduler identity, dispatch/recovery, internal execution,
     bounded worker/runtime/scheduler processes, gateway batch APIs, scheduler selectors, and
     gateway scheduler administration plus Workbench gateway-backed explicit single-portfolio batch
     operation across the sibling repos. RFC-0105 observability/replay, RFC-0106 security
     certification, and RFC-0107 production certification remain pending.
-36. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
+38. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
     `lotus-report` observability structure cleanup, and Slice 2 cross-service trace and structured
     logging proof after RFC-0104 closure. Platform truth now says RFC-0105 may consume RFC-0104
     batch, gateway, Workbench, and scheduler-admin identifiers as source-backed observability
@@ -307,22 +314,22 @@ Boundary rules:
     suppressing malformed `traceparent` headers for non-W3C trace IDs. The next implementation wave
     must continue with operator status and diagnostics APIs before mutating rerender/regenerate/
     replay commands.
-37. `docs/demo/canonical-dpm-demo-story.md` and `wiki/Canonical-DPM-Demo-Story.md` are the
+39. `docs/demo/canonical-dpm-demo-story.md` and `wiki/Canonical-DPM-Demo-Story.md` are the
     governed cross-app canonical DPM demo story for `PB_SG_GLOBAL_BAL_001`. They must stay tied to
     the canonical demo-data contract, Workbench panel registry, platform QA wrapper, and merged
     owning-repository evidence; they must not promote external OMS execution, PM scoring,
     client-communication lineage, autonomous AI decisioning, or other unsupported target-state
     claims.
-38. The canonical front-office contract and Workbench panel registry now include RFC-0027
+40. The canonical front-office contract and Workbench panel registry now include RFC-0027
     advisory-copilot proof as `advisory.advisory_copilot`, with Gateway-backed route
     `/api/v1/advisory-copilot/actions`, source-owned `lotus-advise` supportability, and explicit
     boundaries from client-ready publication, autonomous advice, external client communication,
     and OMS/order/fill/settlement posture.
-39. `docs/standards/Lotus Data Mesh Standard.md` and `wiki/Data-Mesh-Standard.md` are the durable
+41. `docs/standards/Lotus Data Mesh Standard.md` and `wiki/Data-Mesh-Standard.md` are the durable
     platform standard and wiki entry point for Lotus data mesh meaning, ecosystem app roles,
     certification controls, automation, onboarding workflow, and anti-patterns. Future app agents
     should use this standard before promoting a product as mesh certified.
-40. `docs/standards/Lotus Client Demo Certification Standard.md` and
+42. `docs/standards/Lotus Client Demo Certification Standard.md` and
     `wiki/Client-Demo-Certification.md` are the durable platform standard and wiki entry point for
     client-demo claim states, evidence requirements, demo pack structure, canonical front-office
     proof, and explicit boundaries. Future client-demo material must distinguish
@@ -330,7 +337,7 @@ Boundary rules:
     `docs/demo/client-demo-pack-template.md` and `wiki/Client-Demo-Pack-Template.md` provide the
     complete client-demo pack structure for the client brief, business story, demo sequence, claim
     table, evidence map, boundary register, rehearsal plan, and follow-up register.
-41. Platform repo-contract workflows now checkout and sibling-link `lotus-idea` with the other
+43. Platform repo-contract workflows now checkout and sibling-link `lotus-idea` with the other
     governed source repositories because the domain-product source manifest includes
     repo-native `lotus-idea` declarations. Do not remove that checkout unless the manifest is
     changed at the same time. Canonical front-office QA also includes `lotus-idea` by default; do
@@ -458,11 +465,16 @@ Use these commands as the primary local contract:
    `platform-contracts/vulnerability-exceptions/` and enforces package/image/layer identity,
    owner, severity, exposure, exploitability, compensating controls, rollback, expiry, planned fix,
    approval, scanner-availability, and remediation-proof semantics.
-34. rounding governance compliance matrix generation
+34. authenticated BFF principal session contract validation
+   `python automation/validate_bff_principal_session_contracts.py`
+   This validates the platform-owned session-to-principal contract, hostile fixture coverage,
+   source-safe route projection, and non-certifying production identity posture for Workbench and
+   Gateway consumers.
+35. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-35. platform mesh and demo standard documentation contract tests
+36. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
-36. validated repository-native detached task
+37. validated repository-native detached task
     `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
     with PID plus culture-independent process-start identity reconciliation; PowerShell
     JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed

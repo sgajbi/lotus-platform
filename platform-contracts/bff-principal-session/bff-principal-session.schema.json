@@ -1,0 +1,313 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sgajbi/lotus-platform/platform-contracts/bff-principal-session/bff-principal-session.schema.json",
+  "title": "Lotus Authenticated BFF Principal Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "contractVersion",
+    "issueRefs",
+    "posture",
+    "sessionAuthority",
+    "validatedPrincipal",
+    "routePolicy",
+    "failureCases",
+    "auditSafety",
+    "nonGoals"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "lotus-platform.bff-principal-session.v1"
+    },
+    "contractId": {
+      "const": "lotus-platform-authenticated-bff-principal-session"
+    },
+    "contractVersion": {
+      "const": "1.0.0"
+    },
+    "issueRefs": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "string",
+        "pattern": "^sgajbi/lotus-[a-z-]+#[0-9]+$"
+      }
+    },
+    "posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceClass",
+        "idpIntegrationStatus",
+        "productionIdentityCertified",
+        "supportedFeaturePromoted",
+        "localDevFixtureNonCertifying"
+      ],
+      "properties": {
+        "evidenceClass": {
+          "const": "source_contract"
+        },
+        "idpIntegrationStatus": {
+          "const": "external_not_configured"
+        },
+        "productionIdentityCertified": {
+          "type": "boolean"
+        },
+        "supportedFeaturePromoted": {
+          "type": "boolean"
+        },
+        "localDevFixtureNonCertifying": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sessionAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trustedIssuer",
+        "audience",
+        "tokenType",
+        "sessionTransport",
+        "signatureVerificationRequired",
+        "keyDiscoveryRequired",
+        "expiryRequired",
+        "revocationRequired",
+        "replayProtectionRequired",
+        "rawTokenLoggingAllowed"
+      ],
+      "properties": {
+        "trustedIssuer": {
+          "type": "string",
+          "pattern": "^https://identity\\.lotus\\.bank/.+"
+        },
+        "audience": {
+          "type": "string",
+          "pattern": "^lotus-[a-z-]+:bff$"
+        },
+        "tokenType": {
+          "const": "server_verified_session"
+        },
+        "sessionTransport": {
+          "const": "server_side_http_only_cookie_or_gateway_session"
+        },
+        "signatureVerificationRequired": {
+          "type": "boolean"
+        },
+        "keyDiscoveryRequired": {
+          "type": "boolean"
+        },
+        "expiryRequired": {
+          "type": "boolean"
+        },
+        "revocationRequired": {
+          "type": "boolean"
+        },
+        "replayProtectionRequired": {
+          "type": "boolean"
+        },
+        "rawTokenLoggingAllowed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "validatedPrincipal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subjectRef",
+        "tenantRef",
+        "legalEntityRef",
+        "bookingCenterRef",
+        "roles",
+        "capabilities",
+        "portfolioScopeRefs",
+        "mandateScopeRefs",
+        "actorRef",
+        "assuranceLevel",
+        "sessionIdSha256",
+        "authTimeUtc",
+        "expiresAtUtc",
+        "impersonationPosture"
+      ],
+      "properties": {
+        "subjectRef": {
+          "type": "string",
+          "pattern": "^subject:[A-Za-z0-9._:-]+$"
+        },
+        "tenantRef": {
+          "type": "string",
+          "pattern": "^tenant:[A-Za-z0-9._:-]+$"
+        },
+        "legalEntityRef": {
+          "type": "string",
+          "pattern": "^legal-entity:[A-Za-z0-9._:-]+$"
+        },
+        "bookingCenterRef": {
+          "type": "string",
+          "pattern": "^booking-center:[A-Za-z0-9._:-]+$"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.:-]+$"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.:-]+$"
+          }
+        },
+        "portfolioScopeRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^portfolio-scope:[A-Za-z0-9._:-]+$"
+          }
+        },
+        "mandateScopeRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^mandate-scope:[A-Za-z0-9._:-]+$"
+          }
+        },
+        "actorRef": {
+          "type": "string",
+          "pattern": "^actor:[A-Za-z0-9._:-]+$"
+        },
+        "assuranceLevel": {
+          "enum": ["aal2", "aal3"]
+        },
+        "sessionIdSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "authTimeUtc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "expiresAtUtc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "impersonationPosture": {
+          "enum": ["none", "delegated_with_explicit_audit"]
+        }
+      }
+    },
+    "routePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consumer",
+        "upstreamService",
+        "routeFamily",
+        "requiredCapabilities",
+        "projectedHeaders",
+        "forbiddenBrowserAuthorityHeaders"
+      ],
+      "properties": {
+        "consumer": {
+          "const": "lotus-workbench"
+        },
+        "upstreamService": {
+          "const": "lotus-gateway"
+        },
+        "routeFamily": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]+$"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.:-]+$"
+          }
+        },
+        "projectedHeaders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "sourceClaim", "audience"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^X-[A-Za-z0-9-]+$"
+              },
+              "sourceClaim": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9]+$"
+              },
+              "audience": {
+                "const": "lotus-gateway"
+              }
+            }
+          }
+        },
+        "forbiddenBrowserAuthorityHeaders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "failureCases": {
+      "type": "array",
+      "minItems": 10,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]+$"
+      }
+    },
+    "auditSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rawClaimsPersisted",
+        "rawTokenPersisted",
+        "securityHeadersLogged",
+        "businessIdentifiersInEvidence",
+        "productSafeDenialCode"
+      ],
+      "properties": {
+        "rawClaimsPersisted": {
+          "type": "boolean"
+        },
+        "rawTokenPersisted": {
+          "type": "boolean"
+        },
+        "securityHeadersLogged": {
+          "type": "boolean"
+        },
+        "businessIdentifiersInEvidence": {
+          "type": "boolean"
+        },
+        "productSafeDenialCode": {
+          "const": "AUTHENTICATED_PRINCIPAL_REQUIRED"
+        }
+      }
+    },
+    "nonGoals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

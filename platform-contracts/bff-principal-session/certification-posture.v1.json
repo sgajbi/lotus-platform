@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lotus-platform.bff-principal-session-certification.v1",
+  "contractId": "lotus-platform-authenticated-bff-principal-session",
+  "certificationStatus": "not_certified",
+  "supportedFeaturePromoted": false,
+  "productionIdentityCertified": false,
+  "requiredControls": {
+    "bank_identity_provider_selected_and_approved": false,
+    "issuer_and_audience_contract_approved": false,
+    "managed_key_discovery_and_rotation_live": false,
+    "server_side_session_binding_implemented": false,
+    "revocation_logout_and_expiry_verified": false,
+    "workbench_gateway_consumer_contract_tests": false,
+    "hostile_browser_header_override_proof": false,
+    "tenant_and_portfolio_entitlement_denial_proof": false,
+    "production_observability_and_audit_review": false,
+    "mainline_ci_and_exact_main_evidence": false
+  },
+  "authorityBoundary": {
+    "platform_selects_bank_idp": false,
+    "browser_headers_may_assert_authority": false,
+    "local_dev_fixture_is_production_evidence": false,
+    "consumers_may_promote_supported_features": false
+  }
+}

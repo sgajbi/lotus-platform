@@ -100,6 +100,10 @@ deployment, client demo readiness, or supported feature promotion.
   exposure/exploitability proof, compensating controls, rollback, expiry, planned fix, approval,
   and remediation-proof semantics. The command remains report-only until repository baselines,
   false-positive policy, and lane placement are intentionally promoted.
+- authenticated BFF principal-session contract posture: source-safe issuer/audience/session-binding
+  schema, least-privilege Gateway header projection, hostile browser authority-header rejection,
+  non-certifying local/dev fixtures, and explicit blockers for bank IdP selection, production token
+  claims, revocation/logout, entitlement-denied browser proof, and supported-feature promotion.
 - RFC-0002 Idea platform proof consumption: bounded runtime proofs, cost-attribution contract
   availability, pending deployment-promotion readiness, and mesh-readiness catalog/policy/telemetry
   coverage can be consumed by Idea closure only for their named dependency markers; protected FinOps

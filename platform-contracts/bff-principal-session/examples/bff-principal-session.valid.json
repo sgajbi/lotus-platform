@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "lotus-platform.bff-principal-session.v1",
+  "contractId": "lotus-platform-authenticated-bff-principal-session",
+  "contractVersion": "1.0.0",
+  "issueRefs": [
+    "sgajbi/lotus-platform#563",
+    "sgajbi/lotus-workbench#436",
+    "sgajbi/lotus-idea#687"
+  ],
+  "posture": {
+    "evidenceClass": "source_contract",
+    "idpIntegrationStatus": "external_not_configured",
+    "productionIdentityCertified": false,
+    "supportedFeaturePromoted": false,
+    "localDevFixtureNonCertifying": true
+  },
+  "sessionAuthority": {
+    "trustedIssuer": "https://identity.lotus.bank/example-idp",
+    "audience": "lotus-workbench:bff",
+    "tokenType": "server_verified_session",
+    "sessionTransport": "server_side_http_only_cookie_or_gateway_session",
+    "signatureVerificationRequired": true,
+    "keyDiscoveryRequired": true,
+    "expiryRequired": true,
+    "revocationRequired": true,
+    "replayProtectionRequired": true,
+    "rawTokenLoggingAllowed": false
+  },
+  "validatedPrincipal": {
+    "subjectRef": "subject:advisor-001",
+    "tenantRef": "tenant:private-bank-sg",
+    "legalEntityRef": "legal-entity:sg-private-bank",
+    "bookingCenterRef": "booking-center:SG",
+    "roles": ["relationship_manager"],
+    "capabilities": [
+      "idea.read",
+      "idea.review",
+      "idea.feedback",
+      "idea.convert_intent"
+    ],
+    "portfolioScopeRefs": ["portfolio-scope:PB_SG_GLOBAL_BAL_001"],
+    "mandateScopeRefs": ["mandate-scope:MANDATE_PB_SG_GLOBAL_BAL_001"],
+    "actorRef": "actor:advisor-001",
+    "assuranceLevel": "aal2",
+    "sessionIdSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "authTimeUtc": "2026-07-29T09:00:00Z",
+    "expiresAtUtc": "2026-07-29T17:00:00Z",
+    "impersonationPosture": "none"
+  },
+  "routePolicy": {
+    "consumer": "lotus-workbench",
+    "upstreamService": "lotus-gateway",
+    "routeFamily": "idea-opportunity-workbench",
+    "requiredCapabilities": [
+      "idea.read",
+      "idea.review",
+      "idea.feedback",
+      "idea.convert_intent"
+    ],
+    "projectedHeaders": [
+      {
+        "name": "X-Actor-Id",
+        "sourceClaim": "actorRef",
+        "audience": "lotus-gateway"
+      },
+      {
+        "name": "X-Tenant-Id",
+        "sourceClaim": "tenantRef",
+        "audience": "lotus-gateway"
+      },
+      {
+        "name": "X-Region",
+        "sourceClaim": "bookingCenterRef",
+        "audience": "lotus-gateway"
+      },
+      {
+        "name": "X-Capabilities",
+        "sourceClaim": "capabilities",
+        "audience": "lotus-gateway"
+      },
+      {
+        "name": "X-Portfolio-Scope",
+        "sourceClaim": "portfolioScopeRefs",
+        "audience": "lotus-gateway"
+      },
+      {
+        "name": "X-Correlation-Id",
+        "sourceClaim": "sessionIdSha256",
+        "audience": "lotus-gateway"
+      }
+    ],
+    "forbiddenBrowserAuthorityHeaders": [
+      "Authorization",
+      "Cookie",
+      "X-Actor-Id",
+      "X-Tenant-Id",
+      "X-Roles",
+      "X-Capabilities",
+      "X-Portfolio-Ids",
+      "X-Portfolio-Scope",
+      "X-Service-Identity"
+    ]
+  },
+  "failureCases": [
+    "missing_session",
+    "malformed_session",
+    "expired_session",
+    "revoked_session",
+    "wrong_audience",
+    "wrong_issuer",
+    "cross_tenant",
+    "cross_portfolio",
+    "capability_escalation",
+    "browser_authority_header_override"
+  ],
+  "auditSafety": {
+    "rawClaimsPersisted": false,
+    "rawTokenPersisted": false,
+    "securityHeadersLogged": false,
+    "businessIdentifiersInEvidence": false,
+    "productSafeDenialCode": "AUTHENTICATED_PRINCIPAL_REQUIRED"
+  },
+  "nonGoals": [
+    "No production identity provider is selected by this contract.",
+    "No raw token, cookie, session secret, or unrestricted claim envelope is persisted.",
+    "No Lotus Idea supported feature or production certification is promoted.",
+    "No domain service may trust browser-supplied authority headers."
+  ]
+}
