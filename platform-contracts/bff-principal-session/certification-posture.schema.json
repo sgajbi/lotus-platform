@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sgajbi/lotus-platform/platform-contracts/bff-principal-session/certification-posture.schema.json",
+  "title": "Lotus Authenticated BFF Principal Session Certification Posture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "certificationStatus",
+    "supportedFeaturePromoted",
+    "productionIdentityCertified",
+    "requiredControls",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "lotus-platform.bff-principal-session-certification.v1"
+    },
+    "contractId": {
+      "const": "lotus-platform-authenticated-bff-principal-session"
+    },
+    "certificationStatus": {
+      "const": "not_certified"
+    },
+    "supportedFeaturePromoted": {
+      "type": "boolean"
+    },
+    "productionIdentityCertified": {
+      "type": "boolean"
+    },
+    "requiredControls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bank_identity_provider_selected_and_approved",
+        "issuer_and_audience_contract_approved",
+        "managed_key_discovery_and_rotation_live",
+        "server_side_session_binding_implemented",
+        "revocation_logout_and_expiry_verified",
+        "workbench_gateway_consumer_contract_tests",
+        "hostile_browser_header_override_proof",
+        "tenant_and_portfolio_entitlement_denial_proof",
+        "production_observability_and_audit_review",
+        "mainline_ci_and_exact_main_evidence"
+      ],
+      "properties": {
+        "bank_identity_provider_selected_and_approved": { "type": "boolean" },
+        "issuer_and_audience_contract_approved": { "type": "boolean" },
+        "managed_key_discovery_and_rotation_live": { "type": "boolean" },
+        "server_side_session_binding_implemented": { "type": "boolean" },
+        "revocation_logout_and_expiry_verified": { "type": "boolean" },
+        "workbench_gateway_consumer_contract_tests": { "type": "boolean" },
+        "hostile_browser_header_override_proof": { "type": "boolean" },
+        "tenant_and_portfolio_entitlement_denial_proof": { "type": "boolean" },
+        "production_observability_and_audit_review": { "type": "boolean" },
+        "mainline_ci_and_exact_main_evidence": { "type": "boolean" }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform_selects_bank_idp",
+        "browser_headers_may_assert_authority",
+        "local_dev_fixture_is_production_evidence",
+        "consumers_may_promote_supported_features"
+      ],
+      "properties": {
+        "platform_selects_bank_idp": { "type": "boolean" },
+        "browser_headers_may_assert_authority": { "type": "boolean" },
+        "local_dev_fixture_is_production_evidence": { "type": "boolean" },
+        "consumers_may_promote_supported_features": { "type": "boolean" }
+      }
+    }
+  }
+}

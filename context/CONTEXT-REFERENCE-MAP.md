@@ -52,6 +52,7 @@ Important machine-readable platform contract families now include:
 5. `../generated/domain-product-dependency-graph.json`
 6. `../platform-contracts/lifecycle-authority/`
 7. `../platform-contracts/evidence-classification/`
+8. `../platform-contracts/bff-principal-session/`
 
 For bank lifecycle-authority interoperability, use:
 
@@ -62,6 +63,16 @@ For bank lifecycle-authority interoperability, use:
 
 These artifacts govern interfaces and certification only. Bank legal, records, and privacy
 functions retain substantive decision authority.
+
+For authenticated BFF principal-session interoperability, use:
+
+1. [Authenticated BFF Principal Session](../platform-contracts/bff-principal-session/README.md)
+2. [BFF Principal Session Schema](../platform-contracts/bff-principal-session/bff-principal-session.schema.json)
+3. [BFF Principal Session Certification Posture](../platform-contracts/bff-principal-session/certification-posture.v1.json)
+4. `../automation/validate_bff_principal_session_contracts.py`
+
+These artifacts define contract shape, fixtures, and fail-closed validation only. They do not select
+or deploy a bank identity provider, certify production token claims, or promote a supported feature.
 
 For governed analytics period naming, use:
 

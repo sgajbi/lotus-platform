@@ -427,6 +427,19 @@ attested cost verification, live deployed-digest observation, protected migratio
 data-product certification, supported-feature promotion, required-product promotion, or
 production-certification blockers.
 
+### Authenticated BFF principal-session contract
+
+```powershell
+python automation/validate_bff_principal_session_contracts.py
+python -m pytest tests/unit/test_bff_principal_session_contracts.py -q
+```
+
+This validator protects `platform-contracts/bff-principal-session/`: the source-safe
+session-to-principal schema, non-certifying fixture posture, least-privilege Gateway header
+projection, hostile browser authority-header rejection, and certification controls that must remain
+false until a bank-approved IdP/session authority and consumer proof exist. It is a contract and
+fixture gate, not a production authentication implementation.
+
 Validate RFC-0091 mesh SLO policies:
 
 ```powershell

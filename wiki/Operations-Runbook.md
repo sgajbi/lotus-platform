@@ -10,6 +10,7 @@ environment, or bank operation.
 | --- | --- |
 | Classify ingress or local routing | `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1` |
 | Prove the canonical front-office flow | `Invoke-Canonical-FrontOffice-QA.ps1` after reading the cleanup plan |
+| Validate BFF principal-session contract posture | `validate_bff_principal_session_contracts.py` and the BFF principal-session runbook |
 | Inspect mesh posture | `mesh_certification_gate.py` and the operating report |
 | Inspect CI or background work | `Platform-Pulse.ps1`, heartbeat evidence, and GitHub truth |
 | Change documentation | Lotus documentation layering and repo-local authored source |
@@ -41,6 +42,7 @@ python automation\generate_enterprise_mesh_operating_report.py --generated-at-ut
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 powershell -ExecutionPolicy Bypass -File automation\Run-Heartbeat.ps1
 python automation\validate_agent_engineering_contracts.py
+python automation\validate_bff_principal_session_contracts.py
 python automation\delegation_task_ledger.py --help
 python automation\validate_analytics_ui_entitlement_certification.py
 ```
@@ -180,6 +182,18 @@ qualification.
 Use [Service Cost Attribution Operations](../docs/operations/service-cost-attribution.md) for the
 evidence flow, protected environment, verification steps, and failure handling. The workflow must
 never upload raw billing rows, credentials, provider-account identifiers, or business identifiers.
+
+## Authenticated BFF principal session
+
+Platform-owned BFF principal-session evidence defines the source-safe session-to-principal contract
+that Workbench, Gateway, and downstream services must consume once a bank-approved IdP/session
+authority exists. Current posture is contract/fixture only: local/dev fixtures are non-certifying,
+browser-supplied authority headers remain forbidden, and production token-claims certification stays
+blocked until external identity, key-discovery, revocation/logout, consumer proof, and exact-main
+evidence exist.
+
+Use [Authenticated BFF Principal Session Operations](../docs/operations/bff-principal-session.md)
+for contract rules, failure handling, and validation commands.
 
 ## Key references
 
