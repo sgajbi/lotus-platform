@@ -491,6 +491,11 @@ Use these commands as the primary local contract:
 
 The platform repo checks entrypoint is the local truth for most repository validation. Keep it aligned with workflow reality.
 
+Use `automation/Detect-Stalled-PR-Checks.ps1` for queued or in-progress PR check-runs. Use
+`automation/Detect-Stalled-Workflow-Runs.ps1` for scheduled/manual workflow runs on `main`, such as
+the self-hosted `Platform End-to-End Validation` lane; a queued protected runner lane is release
+evidence debt and must be issue-backed, not treated as a green mainline signal.
+
 `automation/generate_enterprise_backend_quality_baseline.py --check` is a freshness gate for stable
 material quality metrics. After a slice changes source files, Python function count, max
 complexity, max function length, or materially changes unit test collection count, regenerate the

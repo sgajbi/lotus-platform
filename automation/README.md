@@ -25,6 +25,7 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/PR-Monitor.ps1`
 - `automation/Close-PR-Loop.ps1`
 - `automation/Detect-Stalled-PR-Checks.ps1`
+- `automation/Detect-Stalled-Workflow-Runs.ps1`
 - `automation/Prune-MergedRemoteBranches.ps1`
 - `automation/Platform-Pulse.ps1`
 - `automation/Run-Heartbeat.ps1`
@@ -1490,6 +1491,8 @@ powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1 -W
 - `output/pr-lifecycle.md`
 - `output/stalled-pr-checks.json`
 - `output/stalled-pr-checks.md`
+- `output/stalled-workflow-runs.json`
+- `output/stalled-workflow-runs.md`
 - `output/agent-status.md`
 - `output/agent-status.json`
 - `output/task-runs/*.json`

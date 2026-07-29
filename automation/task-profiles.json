@@ -631,6 +631,11 @@
                                            "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
                                        },
                                        {
+                                           "id":  "detect-stalled-workflow-runs",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-Workflow-Runs.ps1 -StaleMinutes 60 -WorkflowName \"Platform End-to-End Validation\""
+                                       },
+                                       {
                                            "id":  "validate-backend-standards",
                                            "repo":  "lotus-platform",
                                            "command":  "powershell -ExecutionPolicy Bypass -File automation/Validate-Backend-Standards.ps1"
@@ -743,6 +748,11 @@
                                            "id":  "detect-stalled-pr-checks",
                                            "repo":  "lotus-platform",
                                            "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20"
+                                       },
+                                       {
+                                           "id":  "detect-stalled-workflow-runs",
+                                           "repo":  "lotus-platform",
+                                           "command":  "powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-Workflow-Runs.ps1 -StaleMinutes 60 -WorkflowName \"Platform End-to-End Validation\""
                                        },
                                        {
                                            "id":  "validate-backend-standards",
