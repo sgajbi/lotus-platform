@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 110,
+    "covered": 113,
     "review": 1,
     "undocumented": 25
   },
@@ -79,9 +79,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 4,
+      "operator_doc_reference_count": 5,
       "path": "automation/collect_trust_telemetry.py",
-      "reference_count": 8,
+      "reference_count": 10,
       "suffix": ".py",
       "test_reference_count": 3
     },
@@ -199,9 +199,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 1,
+      "operator_doc_reference_count": 2,
       "path": "automation/Enforce-Repository-Governance.ps1",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".ps1",
       "test_reference_count": 1
     },
@@ -391,9 +391,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 4,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "reference_count": 7,
+      "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 2
     },
@@ -415,9 +415,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 15,
+      "operator_doc_reference_count": 16,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 25,
+      "reference_count": 26,
       "suffix": ".ps1",
       "test_reference_count": 8
     },
@@ -433,7 +433,7 @@
       "classification": "undocumented",
       "operator_doc_reference_count": 0,
       "path": "automation/json_contract_validation.py",
-      "reference_count": 3,
+      "reference_count": 4,
       "suffix": ".py",
       "test_reference_count": 0
     },
@@ -447,17 +447,17 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 11,
+      "operator_doc_reference_count": 12,
       "path": "automation/mesh_certification_gate.py",
-      "reference_count": 18,
+      "reference_count": 20,
       "suffix": ".py",
       "test_reference_count": 4
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 4,
+      "operator_doc_reference_count": 5,
       "path": "automation/mesh_maturity_scope.py",
-      "reference_count": 13,
+      "reference_count": 15,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -545,7 +545,7 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/Resolve-PlatformAutomationPython.ps1",
-      "reference_count": 10,
+      "reference_count": 11,
       "suffix": ".ps1",
       "test_reference_count": 2
     },
@@ -601,9 +601,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/Service-Refresh.ps1",
-      "reference_count": 4,
+      "reference_count": 6,
       "suffix": ".ps1",
-      "test_reference_count": 0
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -777,9 +777,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/Validate-Rounding-Consistency.ps1",
-      "reference_count": 7,
+      "reference_count": 8,
       "suffix": ".ps1",
-      "test_reference_count": 0
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -935,9 +935,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 5,
+      "operator_doc_reference_count": 6,
       "path": "automation/validate_deployment_promotion_manifest.py",
-      "reference_count": 8,
+      "reference_count": 10,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -960,6 +960,14 @@
     {
       "classification": "covered",
       "operator_doc_reference_count": 1,
+      "path": "automation/validate_evidence_class_vocabulary.py",
+      "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/validate_heartbeat_contracts.py",
       "reference_count": 6,
       "suffix": ".py",
@@ -970,6 +978,14 @@
       "operator_doc_reference_count": 2,
       "path": "automation/validate_lifecycle_authority_contracts.py",
       "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py",
+      "reference_count": 5,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -1015,9 +1031,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 1,
       "path": "automation/validate_repository_governance.py",
-      "reference_count": 5,
+      "reference_count": 7,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -1071,6 +1087,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 4,
+      "path": "automation/validate_vulnerability_exception_register.py",
+      "reference_count": 7,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_workflow_action_runtime.py",
       "reference_count": 6,
@@ -1094,6 +1118,6 @@
       "test_reference_count": 0
     }
   ],
-  "generated_at_utc": "2026-07-18T08:37:17Z",
-  "script_count": 136
+  "generated_at_utc": "2026-07-29T04:15:19Z",
+  "script_count": 139
 }
