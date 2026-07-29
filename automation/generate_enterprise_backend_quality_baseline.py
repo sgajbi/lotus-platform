@@ -560,7 +560,11 @@ def render_scorecard(baseline: dict[str, object]) -> str:
             "Security",
             "Keyword review sample measured",
             "Scanner-backed findings clean or governed",
-            "No new dependency added yet.",
+            (
+                "Dependency and container vulnerability exceptions have a versioned "
+                "report-only register schema and deterministic validator before "
+                "dependency/security or release-image lane promotion."
+            ),
         ],
         [
             "Observability",

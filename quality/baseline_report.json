@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 404,
+    "markdown_file_count": 405,
     "powershell_file_count": 66,
-    "python_file_count": 212,
-    "source_file_count": 854,
+    "python_file_count": 214,
+    "source_file_count": 859,
     "suffix_counts": {
-      ".json": 130,
-      ".md": 404,
+      ".json": 132,
+      ".md": 405,
       ".ps1": 66,
-      ".py": 212,
+      ".py": 214,
       ".txt": 5,
       ".yaml": 25,
       ".yml": 12
     },
-    "total_source_lines": 346534
+    "total_source_lines": 347933
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -205,8 +205,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1071,
-        "line": 598,
+        "end_line": 1075,
+        "line": 602,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2528
+    "python_function_count": 2565
   },
-  "generated_at_utc": "2026-07-29T03:48:34Z",
+  "generated_at_utc": "2026-07-29T04:12:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -438,7 +438,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1281,
+      "lines": 1285,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 854,
+    "collected_tests": 870,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "854 tests collected in 0.66s"
+    "summary": "870 tests collected in 0.68s"
   }
 }

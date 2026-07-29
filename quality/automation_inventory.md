@@ -1,14 +1,14 @@
 # Automation Inventory
 
-Generated: `2026-07-18T08:37:17Z`
+Generated: `2026-07-29T04:15:19Z`
 
 This report is a cleanup aid. `review` and `undocumented` entries are candidates for
 documentation, consolidation, tests, or removal after behavior-specific evidence is inspected.
 
 ## Summary
 
-- Scripts inventoried: `136`
-- Covered: `110`
+- Scripts inventoried: `139`
+- Covered: `113`
 - Undocumented: `25`
 - Review candidates: `1`
 
@@ -26,7 +26,6 @@ documentation, consolidation, tests, or removal after behavior-specific evidence
 | automation/Invoke-CrossApp-CorePerformance-Baseline.ps1 | 3 | 0 | 0 | undocumented |
 | automation/Validate-Lotus-Naming.ps1 | 3 | 0 | 0 | undocumented |
 | automation/Validate-Monetary-Float-Guard.ps1 | 3 | 0 | 0 | undocumented |
-| automation/json_contract_validation.py | 3 | 0 | 0 | undocumented |
 | automation/Invoke-CrossApp-CorePerformance-Attribution.ps1 | 4 | 0 | 0 | undocumented |
 | automation/Invoke-CrossApp-CorePerformance-Contribution.ps1 | 4 | 0 | 0 | undocumented |
 | automation/Invoke-CrossApp-CorePerformance-Mwr.ps1 | 4 | 0 | 0 | undocumented |
@@ -36,6 +35,7 @@ documentation, consolidation, tests, or removal after behavior-specific evidence
 | automation/core_performance_attribution_validation.py | 4 | 0 | 0 | undocumented |
 | automation/core_performance_contribution_validation.py | 4 | 0 | 0 | undocumented |
 | automation/core_performance_mwr_validation.py | 4 | 0 | 0 | undocumented |
+| automation/json_contract_validation.py | 4 | 0 | 0 | undocumented |
 | automation/Detect-Stalled-PR-Checks.ps1 | 5 | 0 | 0 | undocumented |
 | automation/PR-Monitor.ps1 | 5 | 0 | 0 | undocumented |
 | automation/Sync-Repos.ps1 | 5 | 0 | 0 | undocumented |
