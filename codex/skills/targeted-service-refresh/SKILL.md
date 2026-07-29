@@ -26,6 +26,13 @@ powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -Project
 powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath <lotus-app-repo> -Services <service-name>
 ```
 
+## Failure Semantics
+
+`Service-Refresh.ps1` fails closed when Docker rejects `compose up` or when `docker compose ps`
+cannot report post-refresh state. Treat any non-zero exit as failed runtime evidence: inspect the
+Docker error, correct the service name or Compose state, and rerun the refresh before validating the
+application. Do not record a targeted refresh as successful from partial console output.
+
 ## Rules
 
 - Prefer `-ChangedOnly` first.

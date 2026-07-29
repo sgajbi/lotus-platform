@@ -5,6 +5,7 @@ param(
   [switch]$ChangedOnly,
   [string]$BaseRef = "origin/main",
   [string]$MapPath = "automation/service-map.json",
+  [string]$DockerCommand = "docker",
   [switch]$IncludeUncommitted = $true,
   [switch]$DryRun
 )
@@ -96,6 +97,23 @@ function Resolve-ServicesFromChangeMap {
   return @($serviceSet)
 }
 
+function Invoke-CheckedNativeCommand {
+  param(
+    [Parameter(Mandatory = $true)][string]$Command,
+    [Parameter(Mandatory = $true)][string[]]$Arguments,
+    [Parameter(Mandatory = $true)][string]$FailureMessage
+  )
+
+  & $Command @Arguments
+  $exitCode = $LASTEXITCODE
+  if ($null -eq $exitCode) {
+    $exitCode = 0
+  }
+  if ($exitCode -ne 0) {
+    throw "$FailureMessage (exit code $exitCode): $Command $($Arguments -join ' ')"
+  }
+}
+
 if (-not (Test-Path $ProjectPath)) {
   throw "Project path not found: $ProjectPath"
 }
@@ -131,14 +149,20 @@ if ($Build) {
 $composeArgs += $resolvedServices
 
 if ($DryRun) {
-  Write-Host "Dry run: docker $($composeArgs -join ' ')"
+  Write-Host "Dry run: $DockerCommand $($composeArgs -join ' ')"
   exit 0
 }
 
 Push-Location $ProjectPath
 try {
-  docker @composeArgs
-  docker compose ps
+  Invoke-CheckedNativeCommand `
+    -Command $DockerCommand `
+    -Arguments $composeArgs `
+    -FailureMessage "docker compose up failed; service refresh did not complete"
+  Invoke-CheckedNativeCommand `
+    -Command $DockerCommand `
+    -Arguments @("compose", "ps") `
+    -FailureMessage "docker compose ps failed after service refresh"
 } finally {
   Pop-Location
 }

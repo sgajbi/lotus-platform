@@ -43,6 +43,7 @@ Canonical source: `lotus-platform/automation`
 | Validate automation config integrity | `automation/Validate-Automation-Config.ps1` | Keep repos/profiles/refs consistent |
 | Enforce local-vs-CI scope parity (fail on gap) | `automation/Validate-Local-CI-Parity.ps1` | Prevent PR failures caused by missing local checks |
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |
+| Refresh impacted app Docker services only | `automation/Service-Refresh.ps1 -ProjectPath <lotus-app-repo> -ChangedOnly` or `-Services <service-name>` | Rebuild and restart only mapped or explicit services; fails closed when `docker compose up` or `docker compose ps` returns non-zero |
 | Canonical front-office readiness validation | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` | Bring up the governed `lotus-workbench` runtime, run the DPM command-center seed with ready/partial/empty posture checks, and validate populated UI/product surfaces |
 | Canonical front-office screenshot pack | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` | Validate canonical endpoints, calculations, and panels before writing demo screenshots, `SHOT-INDEX.md`, and structured screenshot evidence |
 | Canonical front-office cleanup plan | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly` | Write the exact read-only Compose ownership plan and provenance before any cleanup mutation |
