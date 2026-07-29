@@ -35,7 +35,8 @@ Canonical source: `lotus-platform/automation`
 | Monitor detached background runs | `automation/Check-Background-Runs.ps1` | Inspect async run state and artifacts |
 | Fast daily alignment baseline | `automation/Start-Background-Run.ps1 -Profile platform-alignment -MaxParallel 3` | Day-to-day cross-repo confidence |
 | Full governance sweep | `automation/Start-Background-Run.ps1 -Profile autonomous-foundation -MaxParallel 1` | Deeper standards/governance evidence |
-| Detect stalled checks | `automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20` | Investigate PR check deadlocks |
+| Detect stalled PR checks | `automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20` | Investigate queued or in-progress PR check deadlocks |
+| Detect stalled workflow runs | `automation/Detect-Stalled-Workflow-Runs.ps1 -StaleMinutes 60 -WorkflowName "Platform End-to-End Validation"` | Investigate queued scheduled/manual mainline lanes, especially protected self-hosted evidence lanes |
 | Queue auto-merge + cleanup merged branches | `automation/Close-PR-Loop.ps1` | PR lifecycle automation |
 | Check repo wiki publication drift | `automation/Sync-RepoWikis.ps1 -CheckOnly -Repository <repo-name>` | Fail when repo-local `wiki/` source differs from the published GitHub wiki and the branch is not intentionally changing `wiki/` |
 | Publish repo wiki after merge | `automation/Sync-RepoWikis.ps1 -Publish -Repository <repo-name>` | Push repo-authored `wiki/` source to the live `*.wiki.git` publication target |
@@ -157,6 +158,8 @@ Primary outputs are written to `lotus-platform/output/`:
 - `pr-monitor.*`
 - `agent-status.*`
 - `pr-lifecycle.*`
+- `stalled-pr-checks.*`
+- `stalled-workflow-runs.*`
 - `background-runs.json` with RFC-0094 `engineering_task_id`, `task_kind`, lifecycle status, cleanup state, and evidence references for detached runs
 - `task-runs/*`
 - `cross-app/core-performance-twr-benchmark-validation.*`
