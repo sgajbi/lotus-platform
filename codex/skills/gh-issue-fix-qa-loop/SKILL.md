@@ -127,6 +127,11 @@ issue is ready for QA-backed closure. If a repository has an execution-ledger ga
 opening the PR and again before merge evidence is posted. If it also exposes a GitHub issue-state
 audit, run that audit after lifecycle-label changes, before quoting issue counts, and before posting
 merged-main evidence so GitHub open/closed state cannot drift from the durable execution ledger.
+If a PR-text gate fails because the PR body or title used auto-close wording for a keep-open issue,
+edit the title/body, run the repo-local PR-text gate locally, and then create a fresh PR check
+event with a source-controlled push such as an amend/no-op commit. GitHub Actions reruns and PR-body
+edits can retain the stale `pull_request` payload, so do not treat a rerun of the old failing event
+as proof that the corrected PR text was evaluated.
 
 4. If merged but exact-main checks are still pending:
 
