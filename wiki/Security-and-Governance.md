@@ -53,6 +53,20 @@ upgrades are excluded from runtime and release-image posture unless an explicit 
 time-bounded exception records ownership, vulnerability posture, compensating controls, rollback,
 expiry, and a planned fix path.
 
+The authored platform contract is
+`platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json`.
+Run:
+
+```powershell
+python automation\validate_vulnerability_exception_register.py --report-only
+```
+
+Use report-only mode while dependency/security and release-image baselines, false-positive policy,
+and lane placement are still being measured. Remove `--report-only` only for focused blocking proof
+after promotion criteria are met. Approved exceptions require scanner evidence, approval evidence,
+exposure/exploitability proof for high, critical, or known-exploited findings, and a remediation
+path before any production-ready or bank-buyable claim.
+
 ## Operating rule
 
 When a pattern matters ecosystem-wide, it should not stop as prose only. Promote it into validators,

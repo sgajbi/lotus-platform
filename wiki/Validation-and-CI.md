@@ -56,6 +56,9 @@ deployment, client demo readiness, or supported feature promotion.
   `python automation\validate_mainline_commit_provenance.py`
 - digest-based deployment promotion manifest validation:
   `python automation\validate_deployment_promotion_manifest.py`
+- dependency/container vulnerability exception register validation, report-only before lane
+  promotion:
+  `python automation\validate_vulnerability_exception_register.py --report-only`
 
 ## What the gates protect
 
@@ -92,6 +95,11 @@ deployment, client demo readiness, or supported feature promotion.
   no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
   `deployment_pending` manifests for release-bound-but-not-deployed services such as current
   `lotus-idea`, and no production certification claim before live deployment proof
+- dependency and container vulnerability exception posture: versioned exception-register schema,
+  package/image/layer identity, owner and GitHub issue, severity, scanner availability,
+  exposure/exploitability proof, compensating controls, rollback, expiry, planned fix, approval,
+  and remediation-proof semantics. The command remains report-only until repository baselines,
+  false-positive policy, and lane placement are intentionally promoted.
 - RFC-0002 Idea platform proof consumption: bounded runtime proofs, cost-attribution contract
   availability, pending deployment-promotion readiness, and mesh-readiness catalog/policy/telemetry
   coverage can be consumed by Idea closure only for their named dependency markers; protected FinOps
