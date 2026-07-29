@@ -847,6 +847,10 @@ unsupported, or novelty-driven major upgrades are excluded from runtime and rele
 default. Exceptions must be issue-backed, time-bounded, owner-assigned, and carry vulnerability,
 supportability, compensating-control, rollback, and expiry evidence before a PR, release, README,
 wiki, RFC, or supported-feature claim can describe the result as production-ready or bank-buyable.
+`platform-contracts/vulnerability-exceptions/` defines the machine-readable exception register and
+`python automation/validate_vulnerability_exception_register.py --report-only` validates schema and
+semantic findings while repositories establish baselines, false-positive handling, and lane
+placement. Omit `--report-only` only for focused blocking proof after promotion criteria are met.
 Newly scaffolded backend services also generate `make maintainability-gate`,
 `make documentation-contract-gate`, `make quality-scorecard-gate`,
 `make monetary-float-guard`, `make source-observability-contract-gate`,

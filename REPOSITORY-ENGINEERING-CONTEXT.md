@@ -126,6 +126,10 @@ Primary areas:
    This area also owns the versioned bank-readiness control catalog. The catalog is the sole
    machine-readable authority for `BR-NNN` definitions and mappings; standards, skills, context,
    generated plans, and wiki pages reference it instead of copying it.
+   This area also owns vulnerability exception register contracts under
+   `platform-contracts/vulnerability-exceptions/` so dependency and container-image exceptions
+   remain issue-backed, time-bounded, owner-assigned, and validator-readable before any lane
+   promotion.
 4. `generated/`
    Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
    dependency graph derived from governed domain-data-product declarations.
@@ -447,11 +451,18 @@ Use these commands as the primary local contract:
    mainline release evidence but no approved staging or production deployed-digest observation.
    Pending manifests preserve blockers; they must not be cited as live deployment or production
    certification.
-33. rounding governance compliance matrix generation
+33. dependency and container vulnerability exception register validation
+   `python automation/validate_vulnerability_exception_register.py`
+   Use `--report-only` before lane promotion while dependency/security and release-image baselines,
+   false-positive policy, and exception workflow are being measured. The validator consumes
+   `platform-contracts/vulnerability-exceptions/` and enforces package/image/layer identity,
+   owner, severity, exposure, exploitability, compensating controls, rollback, expiry, planned fix,
+   approval, scanner-availability, and remediation-proof semantics.
+34. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-34. platform mesh and demo standard documentation contract tests
+35. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
-35. validated repository-native detached task
+36. validated repository-native detached task
     `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
     with PID plus culture-independent process-start identity reconciliation; PowerShell
     JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed
