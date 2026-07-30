@@ -1063,13 +1063,11 @@ try {
     $summary.gateway_outcome_review_create_response = Invoke-JsonRequest `
       -Method "Post" `
       -Uri "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" `
-      -Headers @{
-        "Idempotency-Key" = $outcomeReviewIdempotencyKey
-        "X-Correlation-Id" = "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-$($resolvedAsOfDate -replace '-', '')"
-        "X-Actor-Id" = "platform-seed-automation"
-        "X-Tenant-Id" = $resolvedTenantId
-        "X-Region" = "APAC"
-      } `
+      -Headers (New-ManageRequestHeaders `
+        -CorrelationId "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-$($resolvedAsOfDate -replace '-', '')" `
+        -ExtraHeaders @{
+          "Idempotency-Key" = $outcomeReviewIdempotencyKey
+        }) `
       -Body (New-CanonicalOutcomeReviewGatewayBody)
     $summary.steps += "gateway-outcome-review-create"
 

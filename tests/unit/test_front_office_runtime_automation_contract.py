@@ -149,6 +149,12 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "gateway-outcome-review-list" in dpm_seed
     assert "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}" in dpm_seed
     assert "/api/v1/dpm/command-center/outcome-reviews" in dpm_seed
+    assert (
+        '-CorrelationId "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-'
+        in dpm_seed
+    )
+    assert '-ExtraHeaders @{' in dpm_seed
+    assert '"Idempotency-Key" = $outcomeReviewIdempotencyKey' in dpm_seed
     assert "limit=50" in dpm_seed
     assert "$outcomeReviewRebalanceRunId" in dpm_seed
     assert "$outcomeReviewWaveId" in dpm_seed
