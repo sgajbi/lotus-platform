@@ -120,6 +120,12 @@ While GitHub is running:
 2. poll check status asynchronously,
 3. fix only the failures that the logs actually show.
 
+If a failed check reads PR metadata from `github.event.pull_request`, such as title/body issue
+closure wording, editing the PR text alone may not update an already-created Actions run. Do not
+rerun stale event payloads as proof. After correcting the PR title or body, create a fresh PR event
+by pushing a safe branch-head refresh with the same intended source tree, then verify the new run's
+`headSha` and logs.
+
 ## Recoverable Worktree And Branch Lifecycle Rule
 
 Treat a worktree or branch as a potentially unique delivery artifact until Git and GitHub evidence
@@ -236,16 +242,21 @@ After merge:
    gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
    ```
 
-6. if no run exists for the merge SHA and the workflow supports manual dispatch, run it from `main`
-   and monitor it to completion:
+6. if no run exists for the merge SHA and the workflow supports manual dispatch, wait briefly and
+   repeat the exact-SHA lookup before dispatching. Some repositories start a post-merge or
+   merged-PR releasability run a few seconds after the PR state changes. Dispatch exactly one
+   replacement only when the second exact-SHA lookup still finds no active or completed run:
 
    ```powershell
    gh workflow run main-releasability.yml --ref main
-   gh run watch <run-id> --interval 10
+   gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5
+   gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
    ```
 
-7. verify the repo is clean,
-8. for governance-bearing work, confirm any branch that previously held the only copy of restored
+7. if duplicate exact-SHA releasability runs are accidentally created, preserve one active run and
+   cancel only redundant runs after confirming repository, workflow, event, branch, and `headSha`.
+8. verify the repo is clean,
+9. for governance-bearing work, confirm any branch that previously held the only copy of restored
    truth is merged, deleted, or explicitly recorded as superseded/active.
 
 A green PR Merge Gate is not release evidence by itself when the repository has a Main
