@@ -320,14 +320,16 @@ After merge completes:
 11. Prove mainline releasability for the exact merge commit when the repository has a Main
     Releasability Gate:
    - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
+   - `gh run watch <run-id>`
    - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
 12. If no Main Releasability Gate run exists for the merge SHA and the workflow has
     `workflow_dispatch`, wait briefly and re-run the exact-SHA lookup before dispatching. Some
     repositories start a post-merge or merged-PR releasability dispatch a few seconds after the PR
     state flips. Dispatch exactly one replacement only when the second exact-SHA lookup still finds
-    no active or completed run:
+   no active or completed run:
    - `gh workflow run main-releasability.yml --ref main`
    - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
+   - `gh run watch <run-id>`
    - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
    If duplicate exact-SHA releasability runs are accidentally created, preserve one active run and
    cancel only redundant runs after confirming repository, workflow, event, branch, and `headSha`.
