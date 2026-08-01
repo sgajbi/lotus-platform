@@ -182,6 +182,11 @@ Map the repo to one of these profiles before deciding what "required" means:
    - Diagnose from logs.
    - Fix-forward in same branch.
    - Re-run affected local gates before pushing again.
+   - If the failed check consumes PR metadata from `github.event.pull_request` (for example a
+     title/body issue-reference guard), do not rely on editing the PR text plus rerunning the old
+     workflow run. Existing GitHub Actions reruns can retain the stale pull-request event payload.
+     After correcting the PR title/body, create a fresh PR event by pushing the same source tree
+     through a safe branch-head refresh, then verify the new run's `headSha` and check logs.
 8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
    branch into the PR branch and rerun checks instead of bypassing branch protection.
 9. If `mergeStateStatus=BLOCKED` or `mergeable_state=blocked` while required checks are green,
@@ -313,13 +318,19 @@ After merge completes:
 10. Confirm GitHub PR state:
    - `gh pr list --state open --limit 100`
 11. Prove mainline releasability for the exact merge commit when the repository has a Main
-   Releasability Gate:
+    Releasability Gate:
    - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
    - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
 12. If no Main Releasability Gate run exists for the merge SHA and the workflow has
-   `workflow_dispatch`, dispatch it from `main` and monitor it to completion:
+    `workflow_dispatch`, wait briefly and re-run the exact-SHA lookup before dispatching. Some
+    repositories start a post-merge or merged-PR releasability dispatch a few seconds after the PR
+    state flips. Dispatch exactly one replacement only when the second exact-SHA lookup still finds
+    no active or completed run:
    - `gh workflow run main-releasability.yml --ref main`
-   - `gh run watch <run-id> --interval 10`
+   - `gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5`
+   - `gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs`
+   If duplicate exact-SHA releasability runs are accidentally created, preserve one active run and
+   cancel only redundant runs after confirming repository, workflow, event, branch, and `headSha`.
 13. Treat a missing, failed, or wrong-SHA main releasability run as an open release-evidence gap;
    fix forward or record the explicit non-applicability reason before claiming closure.
 14. Re-run the stranded truth check for governance-bearing work and delete or record any branch that
