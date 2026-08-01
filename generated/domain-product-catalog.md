@@ -42,7 +42,7 @@ This file is generated from governed domain-data-product declarations.
 | `HoldingsAsOf` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-risk, lotus-report, lotus-manage, lotus-advise, lotus-idea | /portfolios/{portfolio_id}/positions, /portfolios/{portfolio_id}/cash-balances |
 | `IndexDefinition` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/catalog |
 | `IndexSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/indices/{index_id}/price-series, /integration/indices/{index_id}/return-series |
-| `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /lineage/portfolios/{portfolio_id}/keys, /support/portfolios/{portfolio_id}/reprocessing-keys, /support/portfolios/{portfolio_id}/reprocessing-jobs |
+| `IngestionEvidenceBundle` | `lotus-core` | `v1` | `supportability_and_control_plane` | `active` | lotus-gateway, lotus-manage, lotus-report | /ingestion/jobs/{job_id}/evidence |
 | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/instruments/eligibility-bulk |
 | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-gateway, lotus-advise | /integration/instruments/enrichment-bulk, /integration/reference/classification-taxonomy |
 | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/liquidity-reserve-requirement |

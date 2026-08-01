@@ -1989,8 +1989,8 @@
       "product_family": "operational_source_data",
       "lifecycle_status": "active",
       "request_scope": {
-        "scope_level": "portfolio",
-        "supports_bulk": true
+        "scope_level": "ingestion_job",
+        "supports_bulk": false
       },
       "temporal_scope": {
         "primary_time_field": "as_of_date",
@@ -2205,7 +2205,6 @@
       },
       "temporal_semantics_ref": "ingested_at",
       "identifier_refs": [
-        "portfolio_id",
         "correlation_id",
         "tenant_id"
       ],
@@ -2246,9 +2245,7 @@
         "lotus-report"
       ],
       "current_routes": [
-        "/lineage/portfolios/{portfolio_id}/keys",
-        "/support/portfolios/{portfolio_id}/reprocessing-keys",
-        "/support/portfolios/{portfolio_id}/reprocessing-jobs"
+        "/ingestion/jobs/{job_id}/evidence"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",
