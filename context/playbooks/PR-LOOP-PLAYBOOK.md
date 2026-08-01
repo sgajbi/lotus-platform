@@ -239,6 +239,7 @@ After merge:
 
    ```powershell
    gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5
+   gh run watch <run-id>
    gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
    ```
 
@@ -250,6 +251,7 @@ After merge:
    ```powershell
    gh workflow run main-releasability.yml --ref main
    gh run list --workflow "Main Releasability Gate" --commit <merge-sha> --limit 5
+   gh run watch <run-id>
    gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
    ```
 
