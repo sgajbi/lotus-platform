@@ -123,10 +123,13 @@ For partial fixes, blocker-proving PRs, or evidence-consumption PRs that do not 
 issue acceptance criteria, keep the issue linked without GitHub auto-close keywords. The PR body and
 issue comment should say `Keep #<issue> open` and name the remaining evidence class. Do not use
 `Closes`, `Fixes`, or `Resolves` for that issue until the closure transition is intended and the
-issue is ready for QA-backed closure. If a repository has an execution-ledger gate, run it before
-opening the PR and again before merge evidence is posted. If it also exposes a GitHub issue-state
-audit, run that audit after lifecycle-label changes, before quoting issue counts, and before posting
-merged-main evidence so GitHub open/closed state cannot drift from the durable execution ledger.
+issue is ready for QA-backed closure. Negated closing-keyword phrases are still unsafe when they
+include an issue reference, because GitHub matches the closing keyword and reference without honoring
+the negation; do not write phrases such as `does not close #<issue>` or `not fixing #<issue>` in PR
+titles or bodies. If a repository has an execution-ledger gate, run it before opening the PR and
+again before merge evidence is posted. If it also exposes a GitHub issue-state audit, run that audit
+after lifecycle-label changes, before quoting issue counts, and before posting merged-main evidence
+so GitHub open/closed state cannot drift from the durable execution ledger.
 If a PR-text gate fails because the PR body or title used auto-close wording for a keep-open issue,
 edit the title/body, run the repo-local PR-text gate locally, and then create a fresh PR check
 event with a source-controlled push such as an amend/no-op commit. GitHub Actions reruns and PR-body

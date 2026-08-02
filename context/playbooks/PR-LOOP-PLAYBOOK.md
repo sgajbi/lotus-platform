@@ -126,6 +126,11 @@ rerun stale event payloads as proof. After correcting the PR title or body, crea
 by pushing a safe branch-head refresh with the same intended source tree, then verify the new run's
 `headSha` and logs.
 
+Negated auto-close wording is not safe when it still includes an issue reference. GitHub can close
+an issue from the closing keyword plus reference even when the sentence says the PR does not close
+the issue. For keep-open or partial-scope PRs, write `Keep #<issue> open` and describe remaining
+evidence without phrases such as `does not close #<issue>` or `not fixing #<issue>`.
+
 ## Recoverable Worktree And Branch Lifecycle Rule
 
 Treat a worktree or branch as a potentially unique delivery artifact until Git and GitHub evidence

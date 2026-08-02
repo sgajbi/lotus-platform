@@ -671,3 +671,15 @@ def test_late_review_triage_blocks_risk_and_durably_tracks_independent_findings(
         "Non-blocking rationale:",
     ):
         assert template_field in comment_templates
+
+
+def test_keep_open_pr_guidance_rejects_negated_closing_keyword_issue_refs() -> None:
+    issue_loop_skill = _read(ROOT / "codex" / "skills" / "gh-issue-fix-qa-loop" / "SKILL.md")
+    premerge_skill = _read(ROOT / "codex" / "skills" / "lotus-pr-premerge-gate" / "SKILL.md")
+    pr_loop_playbook = _read(ROOT / "context" / "playbooks" / "PR-LOOP-PLAYBOOK.md")
+
+    for governed_surface in (issue_loop_skill, premerge_skill, pr_loop_playbook):
+        normalized = " ".join(governed_surface.split())
+        assert "does not close #<issue>" in normalized
+        assert "closing keyword" in normalized or "auto-close wording" in normalized
+        assert "Keep #<issue> open" in normalized

@@ -185,6 +185,9 @@ Map the repo to one of these profiles before deciding what "required" means:
    - If the failed check consumes PR metadata from `github.event.pull_request` (for example a
      title/body issue-reference guard), do not rely on editing the PR text plus rerunning the old
      workflow run. Existing GitHub Actions reruns can retain the stale pull-request event payload.
+     Treat negated closing-keyword text with an issue reference, such as `does not close #<issue>`,
+     as unsafe rather than as a safe exception; use neutral keep-open wording with no closing
+     keyword, such as `Keep #<issue> open`.
      After correcting the PR title/body, create a fresh PR event by pushing the same source tree
      through a safe branch-head refresh, then verify the new run's `headSha` and check logs.
 8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
