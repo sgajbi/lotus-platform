@@ -200,6 +200,9 @@ def test_default_contract_and_skill_use_one_canonical_vocabulary() -> None:
     assert "label create" not in skill
     assert "Keep #<issue> open" in skill
     assert "Do not use `Closes`, `Fixes`, or `Resolves`" in normalized_skill
+    assert "Negated closing-keyword phrases are still unsafe" in normalized_skill
+    assert "does not close #<issue>" in normalized_skill
+    assert "not fixing #<issue>" in normalized_skill
     assert (
         "partial fixes, blocker-proving PRs, or evidence-consumption PRs" in normalized_skill
     )
