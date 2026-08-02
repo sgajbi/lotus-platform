@@ -255,8 +255,13 @@ After merge:
    gh run view <run-id> --json status,conclusion,headSha,headBranch,event,url,jobs
    ```
 
-7. if duplicate exact-SHA releasability runs are accidentally created, preserve one active run and
-   cancel only redundant runs after confirming repository, workflow, event, branch, and `headSha`.
+7. if duplicate exact-SHA releasability runs are accidentally created, do not cancel immediately.
+   First re-list the exact-SHA workflow runs and let GitHub concurrency settle. Preserve the sole
+   active run. If concurrency has already cancelled the earlier run, keep the latest active run and
+   record the cancelled duplicate as operator error. Cancel only redundant runs after confirming
+   that at least one exact-SHA run remains active or has already succeeded for the same repository,
+   workflow, event, branch, and `headSha`. Never cancel all exact-SHA runs and then claim
+   mainline evidence.
 8. verify the repo is clean,
 9. for governance-bearing work, confirm any branch that previously held the only copy of restored
    truth is merged, deleted, or explicitly recorded as superseded/active.

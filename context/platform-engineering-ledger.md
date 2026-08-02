@@ -87,6 +87,21 @@ record the run URL. A green PR Merge Gate is not release evidence by itself for 
 mainline releasability lane. No wiki source change is needed for this lesson because it is
 agent-facing merge workflow guidance.
 
+### 2026-08-02 | Duplicate main releasability dispatches must preserve one exact-SHA run
+
+During `lotus-idea` RFC-0002 post-merge validation, a duplicate manual Main Releasability dispatch
+was started while an exact merge-SHA run was already in progress. Cancelling the duplicate after
+GitHub workflow concurrency had started cancelled the earlier run too, requiring a clean
+replacement run. The durable tracker is `sgajbi/lotus-platform#644`.
+
+Implication:
+
+Future PR closure must re-list exact-SHA Main Releasability runs and let workflow concurrency settle
+before cancelling duplicates. Preserve the sole active exact-SHA run; if concurrency already
+cancelled the earlier run, keep the latest active run and record the duplicate as operator error.
+Never cancel all exact-SHA runs and then claim mainline evidence. This is agent-facing workflow
+guidance; no platform wiki source change is required.
+
 ### 2026-06-28 | Skill improvements should follow measured agent failure patterns
 
 Ongoing `lotus-performance` refactor work showed that future-agent quality improves when repeated
