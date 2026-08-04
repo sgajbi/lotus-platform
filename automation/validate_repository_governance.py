@@ -82,14 +82,16 @@ MATRIX_EXPRESSION = re.compile(r"\$\{\{\s*matrix\.([A-Za-z0-9_-]+)\s*\}\}")
 
 
 def _matrix_rows(matrix: dict[str, Any]) -> list[dict[str, Any]]:
+    """Expand a job matrix with GitHub's original-combination include semantics."""
+
     axes = {
         key: values
         for key, values in matrix.items()
         if key not in {"include", "exclude"} and isinstance(values, list)
     }
-    rows: list[dict[str, Any]] = []
+    original_rows: list[dict[str, Any]] = []
     if axes:
-        rows = [
+        original_rows = [
             dict(zip(axes, combination, strict=True))
             for combination in itertools.product(*(axes[key] for key in axes))
         ]
@@ -97,30 +99,35 @@ def _matrix_rows(matrix: dict[str, Any]) -> list[dict[str, Any]]:
     exclusions = [
         item for item in (matrix.get("exclude") or []) if isinstance(item, dict)
     ]
-    rows = [
+    original_rows = [
         row
-        for row in rows
+        for row in original_rows
         if not any(
             all(row.get(key) == value for key, value in exclusion.items())
             for exclusion in exclusions
         )
     ]
 
+    rows = [dict(row) for row in original_rows]
+    additional_rows: list[dict[str, Any]] = []
     includes = matrix.get("include") or []
     for include in (item for item in includes if isinstance(item, dict)):
-        compatible_rows = [
-            row
-            for row in rows
+        # Includes match immutable originals, while their values update the corresponding
+        # accumulated row. Standalone combinations are not candidates for later includes.
+        compatible_indexes = [
+            index
+            for index, row in enumerate(original_rows)
             if all(
                 key not in axes or row.get(key) == value
                 for key, value in include.items()
             )
         ]
-        if compatible_rows:
-            rows.extend({**row, **include} for row in compatible_rows)
+        if compatible_indexes:
+            for index in compatible_indexes:
+                rows[index].update(include)
         else:
-            rows.append(include)
-    return rows
+            additional_rows.append(dict(include))
+    return [*rows, *additional_rows]
 
 
 def _expand_job_name(job: dict[str, Any]) -> set[str]:
