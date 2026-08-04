@@ -5,6 +5,7 @@ import pytest
 from automation.validate_repository_governance import (
     DEFAULT_POLICY_PATH,
     ExpectedRepositoryGovernance,
+    _matrix_rows,
     compare_required_check_sources,
     compare_governance,
     extract_emitted_workflow_checks,
@@ -151,6 +152,58 @@ jobs:
         "PR Merge Gate / Tests (unit, 3.12)",
         "PR Merge Gate / Tests (unit, 3.13)",
         "PR Merge Gate / Tests (integration, 3.12)",
+    }
+
+
+def test_matrix_rows_follow_github_sequential_include_semantics() -> None:
+    rows = _matrix_rows(
+        {
+            "fruit": ["apple", "pear"],
+            "animal": ["cat", "dog"],
+            "include": [
+                {"color": "green"},
+                {"color": "pink", "animal": "cat"},
+                {"fruit": "apple", "shape": "circle"},
+                {"fruit": "banana"},
+                {"fruit": "banana", "animal": "cat"},
+            ],
+        }
+    )
+
+    assert rows == [
+        {"fruit": "apple", "animal": "cat", "color": "pink", "shape": "circle"},
+        {"fruit": "apple", "animal": "dog", "color": "green", "shape": "circle"},
+        {"fruit": "pear", "animal": "cat", "color": "pink"},
+        {"fruit": "pear", "animal": "dog", "color": "green"},
+        {"fruit": "banana"},
+        {"fruit": "banana", "animal": "cat"},
+    ]
+
+
+def test_extract_emitted_workflow_checks_uses_final_include_values() -> None:
+    emitted = extract_emitted_workflow_checks(
+        {
+            ".github/workflows/pr-merge-gate.yml": """
+jobs:
+  tests:
+    name: PR Merge Gate / Tests (${{ matrix.fruit }}, ${{ matrix.animal }}, ${{ matrix.color }})
+    strategy:
+      matrix:
+        fruit: [apple, pear]
+        animal: [cat, dog]
+        include:
+          - color: green
+          - color: pink
+            animal: cat
+"""
+        }
+    )
+
+    assert emitted == {
+        "PR Merge Gate / Tests (apple, cat, pink)",
+        "PR Merge Gate / Tests (apple, dog, green)",
+        "PR Merge Gate / Tests (pear, cat, pink)",
+        "PR Merge Gate / Tests (pear, dog, green)",
     }
 
 
