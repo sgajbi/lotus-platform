@@ -32,8 +32,16 @@ base-image families are not acceptable conformance evidence.
 
 Container-image release posture is additionally governed by:
 
-1. `platform-standards/Container-Build-and-Image-Engineering-Standard.md`
-2. `platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`
+1. `platform-contracts/technology-governance/lotus-technology-governance-policy.v1.json`
+2. `platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json`
+3. `platform-standards/Container-Build-and-Image-Engineering-Standard.md`
+4. `platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`
+
+The technology-governance policy is the canonical machine-readable authority for default
+technology maturity, dependency evidence, container-image evidence, vulnerability severity posture,
+exception behavior, issue-discovery lens routing, and report-only to blocking rollout posture. The
+vulnerability exception register schema is the canonical machine-readable exception shape for
+approved, time-bounded dependency and image findings.
 
 ## Conformance Artifact
 

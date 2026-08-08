@@ -1,0 +1,219 @@
+{
+  "schema_version": "lotus-platform.technology-governance-policy.v1",
+  "contract_id": "lotus-platform-technology-governance-policy",
+  "contract_version": "1.0.0",
+  "lifecycle_status": "report_only",
+  "governed_by_issue": "https://github.com/sgajbi/lotus-platform/issues/595",
+  "effective_date": "2026-08-08",
+  "default_technology_posture": {
+    "selection_rule": "Lotus defaults to mature, generally available, widely deployed, well-documented technology with broad training, tooling, scanner, and operational support.",
+    "required_criteria": [
+      "general_availability",
+      "active_maintenance",
+      "broad_adoption",
+      "credible_security_patch_channel",
+      "well_documented",
+      "broad_training_and_tooling_support",
+      "license_compatible",
+      "compatible_with_governed_runtime_and_release_lanes"
+    ],
+    "excluded_by_default": [
+      "alpha",
+      "beta",
+      "preview",
+      "release_candidate",
+      "experimental",
+      "incubating",
+      "end_of_life",
+      "novelty_driven_major_upgrade"
+    ],
+    "decision_drivers": [
+      "security_remediation",
+      "supportability",
+      "runtime_compatibility",
+      "operational_resilience",
+      "product_requirement"
+    ]
+  },
+  "technology_states": [
+    {
+      "state": "approved_default",
+      "description": "Mature, generally available technology that satisfies Lotus supportability, security, documentation, tooling, licensing, and compatibility criteria.",
+      "production_use_allowed": true,
+      "requires_exception": false,
+      "required_evidence": [
+        "release_or_support_policy",
+        "vulnerability_disclosure_channel",
+        "license_classification",
+        "lock_or_digest_identity",
+        "sbom_or_inventory_evidence"
+      ]
+    },
+    {
+      "state": "restricted_exception",
+      "description": "Technology that has a concrete need but fails one or more default maturity criteria and therefore requires explicit time-bounded approval.",
+      "production_use_allowed": false,
+      "requires_exception": true,
+      "required_evidence": [
+        "canonical_github_issue",
+        "accountable_owner",
+        "risk_acceptance_or_approval",
+        "rollback_path",
+        "expiry_or_exit_criterion"
+      ]
+    },
+    {
+      "state": "prohibited",
+      "description": "Technology or vulnerability posture that is incompatible with Lotus release, production, bank-buyable, or supported-feature claims.",
+      "production_use_allowed": false,
+      "requires_exception": false,
+      "required_evidence": [
+        "removal_or_replacement_plan",
+        "release_blocking_evidence"
+      ]
+    }
+  ],
+  "dependency_evidence_policy": {
+    "inventory_source": "locked_manifests",
+    "required_artifacts": [
+      "direct_dependency_manifest",
+      "locked_manifest",
+      "transitive_dependency_inventory",
+      "runtime_sbom",
+      "license_inventory",
+      "vulnerability_scan",
+      "provenance_or_generator_version"
+    ],
+    "transitive_dependency_posture": "Transitive dependencies are governed release inputs and must be represented by the same lock or resolved dependency graph used by CI.",
+    "ambient_environment_posture": "Dependency evidence generated from uncontrolled user-site packages, shared global environments, or mutable resolver state is non-certifying."
+  },
+  "container_image_evidence_policy": {
+    "identity_source": "immutable_digest",
+    "required_identity_fields": [
+      "image_repository",
+      "image_digest",
+      "git_sha",
+      "source_repository",
+      "build_pipeline",
+      "build_timestamp",
+      "architecture"
+    ],
+    "required_artifacts": [
+      "oci_labels",
+      "image_sbom",
+      "signature",
+      "provenance_attestation",
+      "scan_receipt",
+      "base_image_support_evidence",
+      "runtime_smoke_receipt"
+    ],
+    "mutable_tag_posture": "non_certifying",
+    "max_scan_age_days": 30
+  },
+  "vulnerability_severity_policy": [
+    {
+      "class": "known_exploited",
+      "release_behavior": "block_release_until_remediated",
+      "production_claim_behavior": "prohibit_production_and_bank_buyable_claims",
+      "exception_allowed": false,
+      "required_evidence": [
+        "scanner_receipt",
+        "exposure_assessment",
+        "remediation_proof"
+      ]
+    },
+    {
+      "class": "critical",
+      "release_behavior": "block_release_unless_approved_exception",
+      "production_claim_behavior": "block_production_claim_without_remediation_or_approved_exception",
+      "exception_allowed": true,
+      "required_evidence": [
+        "scanner_receipt",
+        "runtime_exposure_assessment",
+        "approval_or_remediation_proof"
+      ]
+    },
+    {
+      "class": "high",
+      "release_behavior": "block_release_unless_approved_exception",
+      "production_claim_behavior": "block_production_claim_without_remediation_or_approved_exception",
+      "exception_allowed": true,
+      "required_evidence": [
+        "scanner_receipt",
+        "runtime_exposure_assessment",
+        "approval_or_remediation_proof"
+      ]
+    },
+    {
+      "class": "medium",
+      "release_behavior": "track_remediation_or_exception_before_support_claim",
+      "production_claim_behavior": "require_owned_remediation_plan",
+      "exception_allowed": true,
+      "required_evidence": [
+        "scanner_receipt",
+        "owner_assigned_remediation"
+      ]
+    },
+    {
+      "class": "low",
+      "release_behavior": "track_in_dependency_posture",
+      "production_claim_behavior": "retain_scanner_evidence",
+      "exception_allowed": true,
+      "required_evidence": [
+        "scanner_receipt",
+        "review_cadence"
+      ]
+    }
+  ],
+  "exception_policy": {
+    "exception_register_schema": "platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json",
+    "required_fields": [
+      "canonical_github_issue",
+      "accountable_owner",
+      "component_identity",
+      "version_or_digest",
+      "severity",
+      "runtime_exposure",
+      "exploitability",
+      "business_reason",
+      "compensating_controls",
+      "rollback_path",
+      "expiry_date",
+      "planned_fix",
+      "approval_evidence",
+      "removal_proof"
+    ],
+    "fail_closed_when_scan_unavailable": true,
+    "permanent_suppressions_allowed": false
+  },
+  "lens_routing": [
+    {
+      "lens": "lens/dependency-hygiene",
+      "contract_section": "dependency_evidence_policy",
+      "validator": "automation/validate_technology_governance_policy.py"
+    },
+    {
+      "lens": "lens/environment-supply-chain-provenance",
+      "contract_section": "container_image_evidence_policy",
+      "validator": "automation/validate_technology_governance_policy.py"
+    },
+    {
+      "lens": "lens/vulnerability-management",
+      "contract_section": "vulnerability_severity_policy",
+      "validator": "automation/validate_technology_governance_policy.py"
+    },
+    {
+      "lens": "lens/release-rollout-compatibility",
+      "contract_section": "technology_states",
+      "validator": "automation/validate_technology_governance_policy.py"
+    }
+  ],
+  "rollout": {
+    "pilot_repositories": [
+      "lotus-platform",
+      "lotus-core"
+    ],
+    "lane_posture": "report_only",
+    "promotion_requirement": "Promotion to blocking lanes requires measured dependency and container baselines, exception-register migration, false-positive classification, repository-local commands, and exact-SHA validation for each pilot repository."
+  }
+}

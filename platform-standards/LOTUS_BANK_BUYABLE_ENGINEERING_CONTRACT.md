@@ -31,6 +31,8 @@ Detailed implementation standards remain authoritative in their own domains:
 9. `platform-standards/Workflow-Security-and-Permissions-Standard.md`
 10. `platform-standards/Workflow-Action-Runtime-and-Version-Baseline.md`
 11. `platform-standards/Release-Evidence-and-SBOM-Foundation-Standard.md`
+12. `platform-contracts/technology-governance/lotus-technology-governance-policy.v1.json`
+13. `platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json`
 
 Do not copy this contract or the catalog into app repositories. App-local documentation should
 record applicability, implementation truth, evidence, exceptions, and residual gaps.
