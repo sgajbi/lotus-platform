@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lotus-platform.local/platform-contracts/technology-governance/technology-governance-policy.schema.json",
+  "title": "Lotus Technology Governance Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_id",
+    "contract_version",
+    "lifecycle_status",
+    "governed_by_issue",
+    "effective_date",
+    "default_technology_posture",
+    "technology_states",
+    "dependency_evidence_policy",
+    "container_image_evidence_policy",
+    "vulnerability_severity_policy",
+    "exception_policy",
+    "lens_routing",
+    "rollout"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "lotus-platform.technology-governance-policy.v1"
+    },
+    "contract_id": {
+      "const": "lotus-platform-technology-governance-policy"
+    },
+    "contract_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lifecycle_status": {
+      "enum": ["report_only", "blocking"]
+    },
+    "governed_by_issue": {
+      "type": "string",
+      "pattern": "^https://github.com/sgajbi/lotus-platform/issues/[0-9]+$"
+    },
+    "effective_date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "default_technology_posture": {
+      "$ref": "#/$defs/defaultTechnologyPosture"
+    },
+    "technology_states": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/technologyState"
+      }
+    },
+    "dependency_evidence_policy": {
+      "$ref": "#/$defs/dependencyEvidencePolicy"
+    },
+    "container_image_evidence_policy": {
+      "$ref": "#/$defs/containerImageEvidencePolicy"
+    },
+    "vulnerability_severity_policy": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/$defs/vulnerabilitySeverityPolicy"
+      }
+    },
+    "exception_policy": {
+      "$ref": "#/$defs/exceptionPolicy"
+    },
+    "lens_routing": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/lensRouting"
+      }
+    },
+    "rollout": {
+      "$ref": "#/$defs/rollout"
+    }
+  },
+  "$defs": {
+    "defaultTechnologyPosture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_rule",
+        "required_criteria",
+        "excluded_by_default",
+        "decision_drivers"
+      ],
+      "properties": {
+        "selection_rule": {
+          "type": "string",
+          "minLength": 20
+        },
+        "required_criteria": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "excluded_by_default": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "decision_drivers": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "technologyState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "description",
+        "production_use_allowed",
+        "requires_exception",
+        "required_evidence"
+      ],
+      "properties": {
+        "state": {
+          "enum": ["approved_default", "restricted_exception", "prohibited"]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20
+        },
+        "production_use_allowed": {
+          "type": "boolean"
+        },
+        "requires_exception": {
+          "type": "boolean"
+        },
+        "required_evidence": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "dependencyEvidencePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventory_source",
+        "required_artifacts",
+        "transitive_dependency_posture",
+        "ambient_environment_posture"
+      ],
+      "properties": {
+        "inventory_source": {
+          "enum": ["locked_manifests"]
+        },
+        "required_artifacts": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "transitive_dependency_posture": {
+          "type": "string",
+          "minLength": 20
+        },
+        "ambient_environment_posture": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "containerImageEvidencePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity_source",
+        "required_identity_fields",
+        "required_artifacts",
+        "mutable_tag_posture",
+        "max_scan_age_days"
+      ],
+      "properties": {
+        "identity_source": {
+          "enum": ["immutable_digest"]
+        },
+        "required_identity_fields": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "required_artifacts": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "mutable_tag_posture": {
+          "enum": ["non_certifying"]
+        },
+        "max_scan_age_days": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "vulnerabilitySeverityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "release_behavior",
+        "production_claim_behavior",
+        "exception_allowed",
+        "required_evidence"
+      ],
+      "properties": {
+        "class": {
+          "enum": ["known_exploited", "critical", "high", "medium", "low"]
+        },
+        "release_behavior": {
+          "type": "string",
+          "minLength": 10
+        },
+        "production_claim_behavior": {
+          "type": "string",
+          "minLength": 10
+        },
+        "exception_allowed": {
+          "type": "boolean"
+        },
+        "required_evidence": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "exceptionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exception_register_schema",
+        "required_fields",
+        "fail_closed_when_scan_unavailable",
+        "permanent_suppressions_allowed"
+      ],
+      "properties": {
+        "exception_register_schema": {
+          "type": "string",
+          "pattern": "^platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json$"
+        },
+        "required_fields": {
+          "type": "array",
+          "minItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "fail_closed_when_scan_unavailable": {
+          "type": "boolean"
+        },
+        "permanent_suppressions_allowed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "lensRouting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens", "contract_section", "validator"],
+      "properties": {
+        "lens": {
+          "type": "string",
+          "pattern": "^lens/[a-z0-9-]+$"
+        },
+        "contract_section": {
+          "type": "string",
+          "minLength": 3
+        },
+        "validator": {
+          "type": "string",
+          "pattern": "^automation/[A-Za-z0-9_./-]+\\.py$"
+        }
+      }
+    },
+    "rollout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pilot_repositories",
+        "lane_posture",
+        "promotion_requirement"
+      ],
+      "properties": {
+        "pilot_repositories": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "lane_posture": {
+          "enum": ["report_only", "blocking"]
+        },
+        "promotion_requirement": {
+          "type": "string",
+          "minLength": 40
+        }
+      }
+    }
+  }
+}

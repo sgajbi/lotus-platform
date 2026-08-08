@@ -32,6 +32,7 @@ This folder is the reusable standards package for backend repositories.
 - `Container-Build-and-Image-Engineering-Standard.md`
 - `LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
 - `LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
+- `../platform-contracts/technology-governance/lotus-technology-governance-policy.v1.json`
 
 ## Usage
 

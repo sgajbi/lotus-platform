@@ -130,6 +130,11 @@ Primary areas:
    `platform-contracts/vulnerability-exceptions/` so dependency and container-image exceptions
    remain issue-backed, time-bounded, owner-assigned, and validator-readable before any lane
    promotion.
+   This area also owns the Lotus technology-governance policy under
+   `platform-contracts/technology-governance/`, the machine-readable authority for mature/default
+   technology posture, beta/experimental exclusion, dependency evidence, container-image evidence,
+   vulnerability severity behavior, issue-discovery lens routing, and report-only to blocking
+   rollout posture.
 4. `generated/`
    Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
    dependency graph derived from governed domain-data-product declarations.
@@ -465,16 +470,22 @@ Use these commands as the primary local contract:
    `platform-contracts/vulnerability-exceptions/` and enforces package/image/layer identity,
    owner, severity, exposure, exploitability, compensating controls, rollback, expiry, planned fix,
    approval, scanner-availability, and remediation-proof semantics.
-34. authenticated BFF principal session contract validation
+34. technology maturity and vulnerability posture policy validation
+   `python automation/validate_technology_governance_policy.py`
+   This validates `platform-contracts/technology-governance/`, including mature/default technology
+   criteria, beta/experimental/prohibited posture, dependency evidence, container-image identity and
+   proof artifacts, vulnerability severity behavior, exception policy, lens routing, and rollout
+   promotion requirements.
+35. authenticated BFF principal session contract validation
    `python automation/validate_bff_principal_session_contracts.py`
    This validates the platform-owned session-to-principal contract, hostile fixture coverage,
    source-safe route projection, and non-certifying production identity posture for Workbench and
    Gateway consumers.
-35. rounding governance compliance matrix generation
+36. rounding governance compliance matrix generation
    `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-36. platform mesh and demo standard documentation contract tests
+37. platform mesh and demo standard documentation contract tests
    `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
-37. validated repository-native detached task
+38. validated repository-native detached task
     `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
     with PID plus culture-independent process-start identity reconciliation; PowerShell
     JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed
