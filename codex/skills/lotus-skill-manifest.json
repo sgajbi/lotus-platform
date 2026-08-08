@@ -5,6 +5,20 @@
   "unknown_local_skill_policy": "preserve",
   "skills": [
     {
+      "name": "gh-address-comments",
+      "path": "codex/skills/gh-address-comments",
+      "category": "supporting-github-workflow",
+      "directly_lotus_owned": false,
+      "reason": "Supporting GitHub PR review-thread helper required for Lotus PR feedback loops; platform source prevents local-only helper drift."
+    },
+    {
+      "name": "gh-fix-ci",
+      "path": "codex/skills/gh-fix-ci",
+      "category": "supporting-github-workflow",
+      "directly_lotus_owned": false,
+      "reason": "Supporting GitHub Actions check-log helper required for Lotus CI fix-forward loops; platform source preserves Windows-safe Unicode log decoding."
+    },
+    {
       "name": "gh-issue-fix-qa-loop",
       "path": "codex/skills/gh-issue-fix-qa-loop",
       "category": "supporting-github-workflow",

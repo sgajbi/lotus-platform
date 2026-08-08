@@ -16,13 +16,14 @@ This directory contains:
 6. endpoint-certification skills,
 7. thought-leadership workflow skills for platform-owned personal-brand content,
 8. skill/context governance for the Lotus agent operating system,
-9. one supporting GitHub issue loop skill used by the Lotus validation lifecycle skill.
+9. supporting GitHub workflow skills used by Lotus PR review, CI fix-forward, and issue lifecycle loops.
 
 It does not own:
 
 1. generic system skills,
 2. user-local experimental skills,
-3. plugin-provided GitHub skills,
+3. plugin-provided GitHub skills unless a helper is deliberately vendored here as a supporting
+   dependency because Lotus issue/CI execution requires durable source, tests, and local sync,
 4. non-Lotus skills that are not required by the Lotus workflow.
 
 Unknown local skills must be preserved by future sync automation and must never be deleted by default.

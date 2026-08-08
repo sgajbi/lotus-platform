@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 408,
+    "markdown_file_count": 410,
     "powershell_file_count": 67,
-    "python_file_count": 220,
-    "source_file_count": 875,
+    "python_file_count": 223,
+    "source_file_count": 884,
     "suffix_counts": {
       ".json": 138,
-      ".md": 408,
+      ".md": 410,
       ".ps1": 67,
-      ".py": 220,
-      ".txt": 5,
-      ".yaml": 25,
+      ".py": 223,
+      ".txt": 7,
+      ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 350942
+    "total_source_lines": 352536
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,6 +40,22 @@
         "lines": 72,
         "name": "_validate_controls",
         "path": "automation/validate_bank_readiness_control_catalog.py"
+      },
+      {
+        "complexity": 22,
+        "end_line": 272,
+        "line": 204,
+        "lines": 69,
+        "name": "fetch_all",
+        "path": "codex/skills/gh-address-comments/scripts/fetch_comments.py"
+      },
+      {
+        "complexity": 18,
+        "end_line": 508,
+        "line": 466,
+        "lines": 43,
+        "name": "render_results",
+        "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
       },
       {
         "complexity": 15,
@@ -115,6 +131,14 @@
       },
       {
         "complexity": 12,
+        "end_line": 231,
+        "line": 189,
+        "lines": 43,
+        "name": "fetch_checks",
+        "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
+      },
+      {
+        "complexity": 12,
         "end_line": 215,
         "line": 199,
         "lines": 17,
@@ -168,30 +192,6 @@
         "lines": 27,
         "name": "__post_init__",
         "path": "automation/cost_attribution/domain.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 122,
-        "line": 99,
-        "lines": 24,
-        "name": "_validate_artifact",
-        "path": "automation/cost_attribution/qualification.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 213,
-        "line": 195,
-        "lines": 19,
-        "name": "_validate_validated_principal",
-        "path": "automation/validate_bff_principal_session_contracts.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 118,
-        "line": 105,
-        "lines": 14,
-        "name": "workflow_run_from_payload",
-        "path": "automation/detect_stalled_workflow_runs.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2639
+    "python_function_count": 2685
   },
-  "generated_at_utc": "2026-08-08T11:09:04Z",
+  "generated_at_utc": "2026-08-08T14:03:04Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 899,
+    "collected_tests": 905,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "899 tests collected in 1.30s"
+    "summary": "905 tests collected in 8.36s"
   }
 }
