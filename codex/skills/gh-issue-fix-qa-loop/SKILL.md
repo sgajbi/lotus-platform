@@ -135,6 +135,10 @@ edit the title/body, run the repo-local PR-text gate locally, and then create a 
 event with a source-controlled push such as an amend/no-op commit. GitHub Actions reruns and PR-body
 edits can retain the stale `pull_request` payload, so do not treat a rerun of the old failing event
 as proof that the corrected PR text was evaluated.
+Run the PR-text gate as a fail-closed precondition before `gh pr create`, `gh pr edit`, or any
+branch-head refresh intended to prove corrected PR text. In PowerShell, check `$LASTEXITCODE` or
+wrap the gate in a script step that exits immediately; do not put the gate and `gh pr create` in a
+loose command group where later commands continue after the gate rejects unsafe keep-open wording.
 
 4. If merged but exact-main checks are still pending:
 
