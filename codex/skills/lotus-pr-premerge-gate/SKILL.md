@@ -190,6 +190,11 @@ Map the repo to one of these profiles before deciding what "required" means:
      keyword, such as `Keep #<issue> open`.
      After correcting the PR title/body, create a fresh PR event by pushing the same source tree
      through a safe branch-head refresh, then verify the new run's `headSha` and check logs.
+   - Treat repo-local PR title/body gates as fail-closed preconditions. In PowerShell, check
+     `$LASTEXITCODE` after `python scripts/github_issue_pr_text_gate.py ...` or run the gate in a
+     script step that exits immediately before `gh pr create`, `gh pr edit`, or the source push
+     that refreshes PR checks. Do not group the gate and PR mutation commands loosely, because
+     PowerShell will otherwise continue to later external commands after a rejected PR-text gate.
 8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
    branch into the PR branch and rerun checks instead of bypassing branch protection.
 9. If `mergeStateStatus=BLOCKED` or `mergeable_state=blocked` while required checks are green,

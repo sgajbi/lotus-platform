@@ -131,6 +131,20 @@ an issue from the closing keyword plus reference even when the sentence says the
 the issue. For keep-open or partial-scope PRs, write `Keep #<issue> open` and describe remaining
 evidence without phrases such as `does not close #<issue>` or `not fixing #<issue>`.
 
+Run PR title/body gates as fail-closed preconditions before mutating GitHub PR state. In
+PowerShell, do not place the gate, push, and `gh pr create` in one loose command group. Use an
+explicit exit check:
+
+```powershell
+python scripts/github_issue_pr_text_gate.py --title-env LOTUS_PR_TITLE --body-env LOTUS_PR_BODY
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+gh pr create --title $env:LOTUS_PR_TITLE --body $env:LOTUS_PR_BODY --base main --head <branch>
+```
+
+Apply the same pattern before `gh pr edit` and before pushing a source-refresh commit that is meant
+to prove corrected PR text. A rejected local PR-text gate means stop, rewrite the title/body, and
+rerun the gate before creating or mutating the PR.
+
 ## Recoverable Worktree And Branch Lifecycle Rule
 
 Treat a worktree or branch as a potentially unique delivery artifact until Git and GitHub evidence
