@@ -76,6 +76,7 @@ REQUIRED_SEED_STEPS = {
     "manage-monitoring-run-once",
     "manage-mandate-health-source-contexts",
     "manage-action-register-stateful-simulation",
+    "manage-action-register-workflow-posture",
     "manage-campaign-definition-upsert",
     "gateway-mandate-by-portfolio",
     "gateway-mandate-health",

@@ -890,6 +890,7 @@ $summary = [ordered]@{
   recalculated_health_response = $null
   monitoring_run_response = $null
   action_register_simulation_response = $null
+  action_register_workflow_response = $null
   action_register_workflow_action_response = $null
   campaign_definition_response = $null
   manage_lookup_response = $null
@@ -1002,18 +1003,42 @@ try {
   if ([string]::IsNullOrWhiteSpace($actionRegisterRunId)) {
     throw "Manage action-register simulation returned no rebalance_run_id for workflow evidence."
   }
-  Write-Host "[dpm-seed] recording review workflow decision for action-register evidence"
-  $summary.action_register_workflow_action_response = Invoke-JsonRequest `
-    -Method "Post" `
-    -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow/actions" `
-    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp") `
-    -Body ([ordered]@{
-      action = "APPROVE"
-      reason_code = "REVIEW_APPROVED"
-      comment = "Canonical DPM action-register evidence reviewed for front-office validation."
-      actor_id = "platform-seed-automation"
-    })
-  $summary.steps += "manage-action-register-workflow-decision"
+  Write-Host "[dpm-seed] reading review workflow posture for action-register evidence"
+  $summary.action_register_workflow_response = Invoke-JsonRequest `
+    -Method "Get" `
+    -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow" `
+    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-workflow-$resolvedPortfolioId-$timestamp")
+  $summary.steps += "manage-action-register-workflow-posture"
+
+  $workflowRequiresReview = [bool]$summary.action_register_workflow_response.requires_review
+  if ($workflowRequiresReview) {
+    Write-Host "[dpm-seed] recording review workflow decision for action-register evidence"
+    $summary.action_register_workflow_action_response = Invoke-JsonRequest `
+      -Method "Post" `
+      -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow/actions" `
+      -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp") `
+      -Body ([ordered]@{
+        action = "APPROVE"
+        reason_code = "REVIEW_APPROVED"
+        comment = "Canonical DPM action-register evidence reviewed for front-office validation."
+        actor_id = "platform-seed-automation"
+      })
+    $summary.steps += "manage-action-register-workflow-decision"
+  } else {
+    $summary.action_register_workflow_action_response = [ordered]@{
+      skipped = $true
+      reason_code = "DPM_WORKFLOW_NOT_REQUIRED_FOR_RUN_STATUS"
+      run_id = $actionRegisterRunId
+      run_status = [string]$summary.action_register_workflow_response.run_status
+      workflow_status = [string]$summary.action_register_workflow_response.workflow_status
+      requires_review = $false
+      evidence_note = (
+        "Manage reported this action-register simulation run does not require workflow review; " +
+        "the canonical seed preserves that posture and does not fabricate an approval decision."
+      )
+    }
+    $summary.steps += "manage-action-register-workflow-not-required"
+  }
 
   Write-Host "[dpm-seed] persisting source-backed campaign definition $resolvedCampaignId/$resolvedCampaignVersion"
   $summary.campaign_definition_response = Upsert-CampaignDefinition
