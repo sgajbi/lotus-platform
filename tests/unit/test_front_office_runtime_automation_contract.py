@@ -167,6 +167,12 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$PreflightOnly" in dpm_seed
     assert "Invoke-ManageWriteAuthorizationPreflight" in dpm_seed
     assert "manage-refresh-authorization-preflight" in dpm_seed
+    assert "action_register_workflow_response" in dpm_seed
+    assert "manage-action-register-workflow-posture" in dpm_seed
+    assert "$workflowRequiresReview" in dpm_seed
+    assert "manage-action-register-workflow-not-required" in dpm_seed
+    assert "DPM_WORKFLOW_NOT_REQUIRED_FOR_RUN_STATUS" in dpm_seed
+    assert "does not fabricate an approval decision" in dpm_seed
     assert "authorized_validation_rejected_side_effect_free_probe" in dpm_seed
     assert "authorized_unexpected_success" not in dpm_seed
     assert "observed unexpected 2xx success" in dpm_seed
