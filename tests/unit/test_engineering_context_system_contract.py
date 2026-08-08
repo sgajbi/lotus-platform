@@ -671,6 +671,8 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
     assert "lotus-platform/codex/skills" in ramp_up
 
     expected_skills = {
+        "gh-address-comments",
+        "gh-fix-ci",
         "gh-issue-fix-qa-loop",
         "lotus-backend-delivery-governance",
         "lotus-app-issue-discovery",
@@ -709,6 +711,8 @@ def test_rfc_0074_slice_four_lotus_skill_inventory_is_governed() -> None:
         assert skill_doc.exists()
         assert f"name: {entry['name']}" in skill_doc.read_text(encoding="utf-8")
 
+    assert any(entry["name"] == "gh-address-comments" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
+    assert any(entry["name"] == "gh-fix-ci" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
     assert any(entry["name"] == "gh-issue-fix-qa-loop" and not entry["directly_lotus_owned"] for entry in manifest["skills"])
     assert "Unknown local skills must be preserved" in readme
 

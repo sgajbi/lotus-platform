@@ -145,7 +145,8 @@ Common Lotus skill routes:
 | backend implementation or review | `lotus-backend-delivery-governance` |
 | frontend implementation or review | `lotus-frontend-delivery-governance` |
 | PR merge or pre-merge checks | `lotus-pr-premerge-gate` |
-| GitHub CI failure fix-forward | `gh-fix-ci` or GitHub plugin CI skill |
+| GitHub CI failure fix-forward | `gh-fix-ci` from platform-owned skill source; GitHub plugin CI skill may supplement repository metadata |
+| GitHub PR review-thread handling | `gh-address-comments` from platform-owned skill source |
 | CI quality-gate design or report-only inventory promotion | `lotus-ci-enforcement-governance` |
 | agentic coding quality evaluation or anti-slop feedback loops | `lotus-ci-enforcement-governance` plus [Agentic Coding Quality Evaluation Loop](../../context/playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md) |
 | platform validation and QA | `lotus-qa-platform-validator` |
