@@ -90,6 +90,27 @@
       "description": "Durable calculation handle for async-capable analytics products."
     },
     {
+      "key": "job_id",
+      "semantic_id": "lotus.job_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical job identifier for job-scoped source, workflow, and operational evidence products."
+    },
+    {
+      "key": "run_id",
+      "semantic_id": "lotus.run_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical run identifier for a governed execution or reconciliation evidence scope."
+    },
+    {
+      "key": "portfolio_manager_id",
+      "semantic_id": "lotus.portfolio_manager_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical portfolio-manager party identifier for manager-book membership products."
+    },
+    {
       "key": "tenant_id",
       "semantic_id": "lotus.tenant_id",
       "stability": "stable",

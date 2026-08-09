@@ -473,7 +473,9 @@ def test_rfc_0084_semantics_registry_rejects_malformed_registry_entries(
         "trust_vocabularies": {
             "freshness_classes": [{"key": "daily", "meaning": "Daily."}],
             "completeness_statuses": [{"key": "complete", "meaning": "Complete."}],
-            "reconciliation_statuses": [{"key": "reconciled", "meaning": "Reconciled."}],
+            "reconciliation_statuses": [
+                {"key": "reconciled", "meaning": "Reconciled."}
+            ],
             "data_quality_statuses": [{"key": "quality_passed", "meaning": "Passed."}],
         },
     }
@@ -481,7 +483,9 @@ def test_rfc_0084_semantics_registry_rejects_malformed_registry_entries(
     issues = validator.validate_semantics_registry(path, payload)
 
     assert any("identifiers[0].key must be snake_case" in issue for issue in issues)
-    assert any("identifiers contains duplicate key portfolio_id" in issue for issue in issues)
+    assert any(
+        "identifiers contains duplicate key portfolio_id" in issue for issue in issues
+    )
     assert any(
         "identifiers[2].semantic_id must be a non-empty string" in issue
         for issue in issues
@@ -490,6 +494,7 @@ def test_rfc_0084_semantics_registry_rejects_malformed_registry_entries(
 
 
 def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
+    validator = _load_validator_module()
     producer_schema = _load_json(PRODUCER_SCHEMA_PATH)
     consumer_schema = _load_json(CONSUMER_SCHEMA_PATH)
     readme = README_PATH.read_text(encoding="utf-8")
@@ -503,6 +508,31 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
         producer_schema["$defs"]["productFamily"]["enum"][0]
         == "operational_source_data"
     )
+    assert (
+        set(
+            producer_schema["$defs"]["requestScope"]["properties"]["scope_level"][
+                "enum"
+            ]
+        )
+        == validator.ALLOWED_REQUEST_SCOPE_LEVELS
+    )
+    assert (
+        set(producer_schema["$defs"]["productFamily"]["enum"])
+        == validator.ALLOWED_PRODUCT_FAMILIES
+    )
+    assert (
+        set(
+            producer_schema["$defs"]["productEntry"]["properties"]["serving_plane"][
+                "enum"
+            ]
+        )
+        == validator.ALLOWED_SERVING_PLANES
+    )
+    supports_bulk_description = producer_schema["$defs"]["requestScope"]["properties"][
+        "supports_bulk"
+    ]["description"]
+    assert "primary product output" in supports_bulk_description
+    assert "single aggregate" in supports_bulk_description
     assert "domain-data-products.schema.json" in readme
     assert "domain-data-product-consumers.schema.json" in readme
     assert "validate_domain_data_product_contracts.py" in readme
@@ -518,6 +548,40 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
     assert consumer_schema["properties"]["governed_by_rfc"]["const"] == "RFC-0084"
     assert "platform-contracts/domain-data-products/" in evidence
     assert "mandatory slice review" in evidence.lower()
+
+
+def test_rfc_0084_validator_rejects_ungoverned_product_taxonomy_and_request_scope() -> (
+    None
+):
+    validator = _load_validator_module()
+    payload = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+    path = Path("invalid-request-scope.json")
+
+    product = payload["products"][0]
+    product["product_family"] = "invented_family"
+    product["serving_plane"] = "invented_service"
+    product["request_scope"] = {
+        "scope_level": "invented_scope",
+        "supports_bulk": "false",
+    }
+
+    issues = validator.validate_producer_contract(path, payload)
+
+    assert (
+        f"{path}: products[0].product_family must use the governed product-family vocabulary"
+        in issues
+    )
+    assert (
+        f"{path}: products[0].serving_plane must use the governed serving-plane vocabulary"
+        in issues
+    )
+    assert (
+        f"{path}: products[0].request_scope.scope_level must use the governed scope vocabulary"
+        in issues
+    )
+    assert (
+        f"{path}: products[0].request_scope.supports_bulk must be a boolean" in issues
+    )
 
 
 def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(
@@ -1726,7 +1790,9 @@ def test_rfc_0084_lotus_core_live_source_preview_is_opt_in(monkeypatch) -> None:
     assert _live_lotus_core_preview_enabled()
 
 
-def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog_preview() -> None:
+def test_rfc_0084_lotus_core_declaration_aligns_to_live_source_data_catalog_preview() -> (
+    None
+):
     _skip_unless_live_lotus_core_preview_enabled()
     validator = _load_validator_module()
     core_modules = _load_lotus_core_modules()
@@ -1840,7 +1906,10 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
         == []
     )
 
-    identifier_keys = {entry["key"] for entry in semantics_registry["identifiers"]}
+    identifiers_by_key = {
+        entry["key"]: entry for entry in semantics_registry["identifiers"]
+    }
+    identifier_keys = set(identifiers_by_key)
     temporal_keys = {entry["key"] for entry in semantics_registry["temporal_semantics"]}
     freshness_classes = {
         entry["key"]
@@ -1876,7 +1945,16 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
         "tenant_id",
         "correlation_id",
         "snapshot_id",
+        "job_id",
+        "run_id",
+        "portfolio_manager_id",
     }.issubset(identifier_keys)
+    assert identifiers_by_key["job_id"]["semantic_id"] == "lotus.job_id"
+    assert identifiers_by_key["run_id"]["semantic_id"] == "lotus.run_id"
+    assert (
+        identifiers_by_key["portfolio_manager_id"]["semantic_id"]
+        == "lotus.portfolio_manager_id"
+    )
     assert {
         "as_of_date",
         "valuation_date",

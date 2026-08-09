@@ -45,7 +45,11 @@
         "workflow_and_decision_state",
         "reporting_and_evidence",
         "supportability_and_control_plane",
-        "ai_runtime_and_evaluation"
+        "ai_runtime_and_evaluation",
+        "client_reporting_evidence",
+        "cohort_membership",
+        "dpm_source_data",
+        "portfolio_management_workflow"
       ]
     },
     "lifecycleStatus": {
@@ -64,12 +68,23 @@
             "account",
             "tenant",
             "benchmark",
+            "book",
+            "ingestion_job",
+            "instrument",
+            "model_portfolio",
+            "portfolio_cohort",
+            "portfolio_manager_book",
+            "portfolio_set",
+            "portfolio_universe",
             "report_run",
             "workflow_run",
             "global"
           ]
         },
-        "supports_bulk": { "type": "boolean" }
+        "supports_bulk": {
+          "type": "boolean",
+          "description": "True only when the primary product output is a collection or window of peer records. A single aggregate or evidence bundle remains false even when it contains nested rows."
+        }
       }
     },
     "temporalScope": {
@@ -224,7 +239,12 @@
         },
         "serving_plane": {
           "type": "string",
-          "enum": ["query_service", "query_control_plane_service"]
+          "enum": [
+            "query_service",
+            "query_control_plane_service",
+            "event_replay_service",
+            "reporting_service"
+          ]
         },
         "current_routes": {
           "type": "array",
