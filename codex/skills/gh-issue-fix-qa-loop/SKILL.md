@@ -182,6 +182,25 @@ labels, and configured legacy aliases still present in the repository or on an i
 `status/merged-main` issue is valid while QA remains pending; the same completion label is retained
 after QA closes the issue. The audit reports JSON and does not mutate issues or delete labels.
 
+When a repository has experienced GitHub auto-closing a merged-main issue before QA evidence is
+recorded, or before quoting QA-complete issue counts, run the stricter evidence mode:
+
+```powershell
+./scripts/audit-issue-loop.ps1 -Repo <owner/repo> -RequireQaClosureEvidence
+```
+
+This keeps the default label-hygiene audit compatible, but flags a closed `status/merged-main`
+issue when the issue thread lacks a standard `Loop status: qa_passed_closed` comment. The strict
+mode is read-only; fix the issue with a lifecycle update or reopen/comment correction rather than
+editing labels by hand.
+
+Use `-IssueNumber <n>` or a comma-delimited PowerShell array to target a recent issue after
+correcting an auto-close, while legacy repositories phase in broader strict-mode cleanup:
+
+```powershell
+./scripts/audit-issue-loop.ps1 -Repo <owner/repo> -IssueNumber 579 -RequireQaClosureEvidence
+```
+
 Repository-specific RFC or program ledgers may also provide a stricter issue-state audit that
 compares the checked-in ledger to live GitHub issue state. When present, run it with the ledger gate
 after reopen, close, block, unblock, or lifecycle-label changes, and before summarizing remaining
