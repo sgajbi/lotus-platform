@@ -44,6 +44,8 @@ truth instead of replacing it.
   wiki publication/no-change decision, and branch-cleanup evidence.
 - `qa_failed`: QA evidence and an expected-versus-actual summary.
 - `qa_passed_closed`: QA evidence and an existing merged-main label.
+- Strict QA-closure audit mode also requires a standard `Loop status: qa_passed_closed` issue
+  comment before accepting a closed issue that retains `status/merged-main`.
 
 ## Invariants
 
@@ -62,5 +64,10 @@ truth instead of replacing it.
 - Never describe merged code as merged-main until exact-main proof passes.
 - Closed issues cannot retain active labels. Open issues may carry only `status/merged-main` after
   exact-main proof while QA remains pending; the same completion label remains after QA closure.
+- Use `audit-issue-loop.ps1 -RequireQaClosureEvidence` after GitHub auto-close incidents or before
+  reporting QA-complete counts. Default audit mode checks lifecycle-label hygiene; strict mode also
+  detects closed merged-main issues that lack the QA-passed evidence comment.
+- Use `-IssueNumber <n>` with strict mode to verify a newly corrected issue without forcing
+  immediate cleanup of every historical closed merged-main issue in that repository.
 - Every issue carries at most one canonical lifecycle label.
 - Keep every retry and evidence update in the canonical issue thread.
