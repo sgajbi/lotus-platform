@@ -101,6 +101,16 @@ The platform control plane is implementation-backed through these files and comm
 
 ## Product Onboarding Workflow
 
+### Request-scope semantics
+
+Producer declarations must name the canonical product grain in `request_scope.scope_level` and
+reference every material identity needed to reproduce that grain. Set `supports_bulk` to `true`
+only when the primary product output is a collection or window of peer records. A response that
+represents one job, run, book, snapshot, or evidence aggregate remains non-bulk even when the
+aggregate contains nested rows. Route shape, serving plane, identifiers, runtime contract, and
+generated catalog must describe the same scope; consumers must not repair contradictory producer
+metadata downstream.
+
 Use this workflow for a new or expanded mesh product:
 
 1. Identify the domain owner and product boundary.
