@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 352896
+    "total_source_lines": 352906
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -408,7 +408,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1775,
+      "lines": 1785,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "906 tests collected in 0.67s"
+    "summary": "906 tests collected in 0.79s"
   }
 }

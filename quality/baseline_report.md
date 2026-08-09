@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `884`
-- Total source lines: `352896`
+- Total source lines: `352906`
 - Python files: `223`
 - PowerShell files: `67`
 - Markdown files: `410`
@@ -35,7 +35,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2387 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1775 | .py |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1785 | .py |
 
 ## Function And Complexity Hotspots
 
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `906`
 - Collection command return code: `0`
-- Collection summary: `906 tests collected in 0.67s`
+- Collection summary: `906 tests collected in 0.79s`
 
 ## Security Baseline
 

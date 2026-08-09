@@ -558,10 +558,10 @@ def test_rfc_0084_validator_rejects_ungoverned_product_taxonomy_and_request_scop
     path = Path("invalid-request-scope.json")
 
     product = payload["products"][0]
-    product["product_family"] = "invented_family"
-    product["serving_plane"] = "invented_service"
+    product["product_family"] = ["invented_family"]
+    product["serving_plane"] = {"name": "invented_service"}
     product["request_scope"] = {
-        "scope_level": "invented_scope",
+        "scope_level": ["invented_scope"],
         "supports_bulk": "false",
     }
 
