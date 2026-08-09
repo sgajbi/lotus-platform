@@ -1989,8 +1989,8 @@
       "product_family": "operational_source_data",
       "lifecycle_status": "active",
       "request_scope": {
-        "scope_level": "ingestion_job",
-        "supports_bulk": false
+        "scope_level": "portfolio",
+        "supports_bulk": true
       },
       "temporal_scope": {
         "primary_time_field": "as_of_date",
@@ -2195,8 +2195,8 @@
       "product_family": "supportability_and_control_plane",
       "lifecycle_status": "active",
       "request_scope": {
-        "scope_level": "portfolio",
-        "supports_bulk": true
+        "scope_level": "ingestion_job",
+        "supports_bulk": false
       },
       "temporal_scope": {
         "primary_time_field": "ingested_at",
@@ -2205,6 +2205,7 @@
       },
       "temporal_semantics_ref": "ingested_at",
       "identifier_refs": [
+        "job_id",
         "correlation_id",
         "tenant_id"
       ],
@@ -3009,6 +3010,7 @@
       },
       "temporal_semantics_ref": "as_of_date",
       "identifier_refs": [
+        "portfolio_manager_id",
         "portfolio_id",
         "tenant_id"
       ],
@@ -3555,6 +3557,7 @@
       "temporal_semantics_ref": "as_of_date",
       "identifier_refs": [
         "portfolio_id",
+        "run_id",
         "snapshot_id",
         "tenant_id"
       ],

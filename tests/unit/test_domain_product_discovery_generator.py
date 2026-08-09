@@ -45,6 +45,9 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         for consumer in catalog["consumers"]
         for dependency in consumer["dependencies"]
     }
+    products_by_id = {
+        product["product_id"]: product for product in catalog["products"]
+    }
 
     assert catalog["contract_id"] == "lotus-domain-product-catalog"
     assert catalog["governed_by_rfcs"] == ["RFC-0084", "RFC-0088"]
@@ -69,6 +72,25 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         "lotus-gateway",
         "lotus-core:PortfolioManagerBookMembership:v1",
     ) in dependency_edges
+    assert products_by_id["lotus-core:HoldingsAsOf:v1"]["request_scope"] == {
+        "scope_level": "portfolio",
+        "supports_bulk": True,
+    }
+    assert products_by_id["lotus-core:IngestionEvidenceBundle:v1"][
+        "request_scope"
+    ] == {
+        "scope_level": "ingestion_job",
+        "supports_bulk": False,
+    }
+    assert "job_id" in products_by_id["lotus-core:IngestionEvidenceBundle:v1"][
+        "identifier_refs"
+    ]
+    assert "run_id" in products_by_id[
+        "lotus-core:ReconciliationEvidenceBundle:v1"
+    ]["identifier_refs"]
+    assert "portfolio_manager_id" in products_by_id[
+        "lotus-core:PortfolioManagerBookMembership:v1"
+    ]["identifier_refs"]
     assert catalog["product_count"] == len(catalog["products"])
     assert catalog["dependency_count"] == sum(
         consumer["dependency_count"] for consumer in catalog["consumers"]
