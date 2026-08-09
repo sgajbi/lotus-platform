@@ -5,6 +5,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 
 PRODUCT_GLOB = "*-products.v1.json"
@@ -15,6 +16,49 @@ REPOSITORY_PATTERN = re.compile(r"^lotus-[a-z0-9-]+$")
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 PRODUCT_VERSION_PATTERN = re.compile(r"^(v[0-9]+|[0-9]+\.[0-9]+\.[0-9]+)$")
 PRODUCT_NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9]+$")
+ALLOWED_PRODUCT_FAMILIES = frozenset(
+    {
+        "ai_runtime_and_evaluation",
+        "analytics_input",
+        "analytics_output",
+        "client_reporting_evidence",
+        "cohort_membership",
+        "dpm_source_data",
+        "operational_source_data",
+        "portfolio_management_workflow",
+        "reporting_and_evidence",
+        "simulation_and_projected_state",
+        "supportability_and_control_plane",
+        "workflow_and_decision_state",
+    }
+)
+ALLOWED_REQUEST_SCOPE_LEVELS = frozenset(
+    {
+        "account",
+        "benchmark",
+        "book",
+        "global",
+        "ingestion_job",
+        "instrument",
+        "model_portfolio",
+        "portfolio",
+        "portfolio_cohort",
+        "portfolio_manager_book",
+        "portfolio_set",
+        "portfolio_universe",
+        "report_run",
+        "tenant",
+        "workflow_run",
+    }
+)
+ALLOWED_SERVING_PLANES = frozenset(
+    {
+        "event_replay_service",
+        "query_control_plane_service",
+        "query_service",
+        "reporting_service",
+    }
+)
 
 REQUIRED_PRODUCT_FIELDS = {
     "product_name",
@@ -50,11 +94,17 @@ REQUIRED_DEPENDENCY_FIELDS = {
 
 
 def _find_semantics_registry_path(directory: Path) -> Path:
-    return directory.resolve().parent / "domain-vocabulary" / SEMANTICS_REGISTRY_FILENAME
+    return (
+        directory.resolve().parent / "domain-vocabulary" / SEMANTICS_REGISTRY_FILENAME
+    )
 
 
 def _find_trust_metadata_registry_path(directory: Path) -> Path:
-    return directory.resolve().parent / "domain-vocabulary" / TRUST_METADATA_REGISTRY_FILENAME
+    return (
+        directory.resolve().parent
+        / "domain-vocabulary"
+        / TRUST_METADATA_REGISTRY_FILENAME
+    )
 
 
 def _load_json(path: Path) -> dict:
@@ -181,16 +231,21 @@ def _validate_semantics_registry_identity(
     payload: dict,
 ) -> None:
     if payload.get("contract_id") != "domain-data-product-semantics":
-        _append_issue(issues, path, "contract_id must be 'domain-data-product-semantics'")
-    if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
-        payload["contract_version"]
-    ):
+        _append_issue(
+            issues, path, "contract_id must be 'domain-data-product-semantics'"
+        )
+    if not isinstance(
+        payload.get("contract_version"), str
+    ) or not SEMVER_PATTERN.fullmatch(payload["contract_version"]):
         _append_issue(issues, path, "contract_version must be semver")
     if payload.get("governed_by_rfc") != "RFC-0084":
         _append_issue(issues, path, "governed_by_rfc must be 'RFC-0084'")
     if payload.get("domain") != "domain_data_product_semantics":
         _append_issue(issues, path, "domain must be 'domain_data_product_semantics'")
-    if not isinstance(payload.get("description"), str) or not payload["description"].strip():
+    if (
+        not isinstance(payload.get("description"), str)
+        or not payload["description"].strip()
+    ):
         _append_issue(issues, path, "description must be a non-empty string")
 
 
@@ -229,7 +284,11 @@ def _validate_semantic_ids(
             continue
         semantic_id = entry.get("semantic_id")
         if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
-            _append_issue(issues, path, f"{field_name}[{index}].semantic_id must start with lotus.")
+            _append_issue(
+                issues,
+                path,
+                f"{field_name}[{index}].semantic_id must start with lotus.",
+            )
 
 
 def _validate_semantics_registry_semantic_ids(
@@ -287,16 +346,21 @@ def _validate_trust_metadata_registry_identity(
     payload: dict,
 ) -> None:
     if payload.get("contract_id") != "domain-data-product-trust-metadata":
-        _append_issue(issues, path, "contract_id must be 'domain-data-product-trust-metadata'")
-    if not isinstance(payload.get("contract_version"), str) or not SEMVER_PATTERN.fullmatch(
-        payload["contract_version"]
-    ):
+        _append_issue(
+            issues, path, "contract_id must be 'domain-data-product-trust-metadata'"
+        )
+    if not isinstance(
+        payload.get("contract_version"), str
+    ) or not SEMVER_PATTERN.fullmatch(payload["contract_version"]):
         _append_issue(issues, path, "contract_version must be semver")
     if payload.get("governed_by_rfc") != "RFC-0084":
         _append_issue(issues, path, "governed_by_rfc must be 'RFC-0084'")
     if payload.get("domain") != "domain_data_product_trust":
         _append_issue(issues, path, "domain must be 'domain_data_product_trust'")
-    if not isinstance(payload.get("description"), str) or not payload["description"].strip():
+    if (
+        not isinstance(payload.get("description"), str)
+        or not payload["description"].strip()
+    ):
         _append_issue(issues, path, "description must be a non-empty string")
 
 
@@ -320,7 +384,11 @@ def _validate_trust_metadata_fields(
                 continue
             semantic_id = entry.get("semantic_id")
             if not isinstance(semantic_id, str) or not semantic_id.startswith("lotus."):
-                _append_issue(issues, path, f"trust_metadata_fields[{index}].semantic_id must start with lotus.")
+                _append_issue(
+                    issues,
+                    path,
+                    f"trust_metadata_fields[{index}].semantic_id must start with lotus.",
+                )
             evidence_access_class = entry.get("evidence_access_class")
             if evidence_access_class not in evidence_access_classes:
                 _append_issue(
@@ -341,12 +409,18 @@ def _validate_lineage_required_fields(
     trust_metadata_keys: set[str],
 ) -> None:
     if not _is_non_empty_list(required_fields):
-        _append_issue(issues, path, f"lineage_bundle_classes[{index}].required_fields must be a non-empty array")
+        _append_issue(
+            issues,
+            path,
+            f"lineage_bundle_classes[{index}].required_fields must be a non-empty array",
+        )
         return
 
     seen_required_fields: set[str] = set()
     for required_index, required_field in enumerate(required_fields):
-        if not isinstance(required_field, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", required_field):
+        if not isinstance(required_field, str) or not re.fullmatch(
+            r"^[a-z][a-z0-9_]+$", required_field
+        ):
             _append_issue(
                 issues,
                 path,
@@ -379,20 +453,30 @@ def _validate_lineage_bundle_class(
     seen_bundle_keys: set[str],
 ) -> None:
     if not isinstance(entry, dict):
-        _append_issue(issues, path, f"lineage_bundle_classes[{index}] must be an object")
+        _append_issue(
+            issues, path, f"lineage_bundle_classes[{index}] must be an object"
+        )
         return
 
     key = entry.get("key")
     if not isinstance(key, str) or not re.fullmatch(r"^[a-z][a-z0-9_]+$", key):
-        _append_issue(issues, path, f"lineage_bundle_classes[{index}].key must be snake_case")
+        _append_issue(
+            issues, path, f"lineage_bundle_classes[{index}].key must be snake_case"
+        )
     elif key in seen_bundle_keys:
-        _append_issue(issues, path, f"lineage_bundle_classes contains duplicate key {key}")
+        _append_issue(
+            issues, path, f"lineage_bundle_classes contains duplicate key {key}"
+        )
     else:
         seen_bundle_keys.add(key)
 
     description = entry.get("description")
     if not isinstance(description, str) or not description.strip():
-        _append_issue(issues, path, f"lineage_bundle_classes[{index}].description must be a non-empty string")
+        _append_issue(
+            issues,
+            path,
+            f"lineage_bundle_classes[{index}].description must be a non-empty string",
+        )
 
     evidence_access_class = entry.get("evidence_access_class")
     if evidence_access_class not in evidence_access_classes:
@@ -477,8 +561,14 @@ def _validate_product_identity(
 ) -> None:
     product_name = product["product_name"]
     product_version = product["product_version"]
-    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
-        _append_issue(issues, path, f"products[{index}].product_name must use stable product naming")
+    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(
+        product_name
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].product_name must use stable product naming",
+        )
     if not isinstance(product_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
         product_version
     ):
@@ -515,7 +605,9 @@ def _validate_product_approved_consumers(
 ) -> None:
     approved_consumers = product["approved_consumers"]
     if not _is_non_empty_list(approved_consumers):
-        _append_issue(issues, path, f"products[{index}].approved_consumers must be non-empty")
+        _append_issue(
+            issues, path, f"products[{index}].approved_consumers must be non-empty"
+        )
         return
 
     invalid_consumers = [
@@ -534,6 +626,59 @@ def _validate_product_approved_consumers(
             issues,
             path,
             f"products[{index}].approved_consumers must not contain duplicates",
+        )
+
+
+def _validate_product_request_scope(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+) -> None:
+    request_scope = product["request_scope"]
+    if not isinstance(request_scope, dict):
+        _append_issue(
+            issues, path, f"products[{index}].request_scope must be an object"
+        )
+        return
+
+    scope_level = request_scope.get("scope_level")
+    if scope_level not in ALLOWED_REQUEST_SCOPE_LEVELS:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].request_scope.scope_level must use the governed scope vocabulary",
+        )
+
+    if not isinstance(request_scope.get("supports_bulk"), bool):
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].request_scope.supports_bulk must be a boolean",
+        )
+
+
+def _validate_product_taxonomy(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+) -> None:
+    if product["product_family"] not in ALLOWED_PRODUCT_FAMILIES:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].product_family must use the governed product-family vocabulary",
+        )
+
+    serving_plane = product.get("serving_plane")
+    if serving_plane is not None and serving_plane not in ALLOWED_SERVING_PLANES:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].serving_plane must use the governed serving-plane vocabulary",
         )
 
 
@@ -621,10 +766,14 @@ def _validate_product_identifier_refs(
     if identifier_keys is not None:
         identifier_refs = product["identifier_refs"]
         if not _is_non_empty_list(identifier_refs):
-            _append_issue(issues, path, f"products[{index}].identifier_refs must be non-empty")
+            _append_issue(
+                issues, path, f"products[{index}].identifier_refs must be non-empty"
+            )
         else:
             unknown_identifier_refs = [
-                identifier_ref for identifier_ref in identifier_refs if identifier_ref not in identifier_keys
+                identifier_ref
+                for identifier_ref in identifier_refs
+                if identifier_ref not in identifier_keys
             ]
             if unknown_identifier_refs:
                 _append_issue(
@@ -642,7 +791,10 @@ def _validate_product_temporal_semantics_ref(
     product: dict,
     temporal_keys: set[str] | None,
 ) -> None:
-    if temporal_keys is not None and product["temporal_semantics_ref"] not in temporal_keys:
+    if (
+        temporal_keys is not None
+        and product["temporal_semantics_ref"] not in temporal_keys
+    ):
         _append_issue(
             issues,
             path,
@@ -658,7 +810,10 @@ def _validate_product_freshness_class(
     product: dict,
     freshness_classes: set[str] | None,
 ) -> None:
-    if freshness_classes is not None and product["freshness_policy"]["freshness_class"] not in freshness_classes:
+    if (
+        freshness_classes is not None
+        and product["freshness_policy"]["freshness_class"] not in freshness_classes
+    ):
         _append_issue(
             issues,
             path,
@@ -676,7 +831,8 @@ def _validate_product_completeness_status(
 ) -> None:
     if (
         completeness_statuses is not None
-        and product["completeness_policy"]["default_status"] not in completeness_statuses
+        and product["completeness_policy"]["default_status"]
+        not in completeness_statuses
     ):
         _append_issue(
             issues,
@@ -747,7 +903,10 @@ def _validate_product_lineage_bundle_class(
                 path,
                 f"products[{index}].lineage_policy.lineage_bundle_class_ref is required when evidence_bundle_required is true",
             )
-        elif lineage_bundle_class_keys is not None and lineage_bundle_class_ref not in lineage_bundle_class_keys:
+        elif (
+            lineage_bundle_class_keys is not None
+            and lineage_bundle_class_ref not in lineage_bundle_class_keys
+        ):
             _append_issue(
                 issues,
                 path,
@@ -773,7 +932,9 @@ def _validate_product_optional_route_lists(
     product: dict,
 ) -> None:
     for optional_list_field in ("current_routes",):
-        if optional_list_field in product and not _is_non_empty_list(product[optional_list_field]):
+        if optional_list_field in product and not _is_non_empty_list(
+            product[optional_list_field]
+        ):
             _append_issue(
                 issues,
                 path,
@@ -825,7 +986,9 @@ def _validate_producer_contract_identity(
         _append_issue(issues, path, "producer_repository must match lotus repo naming")
 
     contract_version = payload.get("contract_version")
-    if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(contract_version):
+    if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(
+        contract_version
+    ):
         _append_issue(issues, path, "contract_version must be semantic versioning")
 
     return producer_repository
@@ -879,6 +1042,8 @@ def _validate_producer_product(
         seen_products=seen_products,
     )
     _validate_product_approved_consumers(issues, path, index=index, product=product)
+    _validate_product_taxonomy(issues, path, index=index, product=product)
+    _validate_product_request_scope(issues, path, index=index, product=product)
     _validate_product_registry_references(
         issues,
         path,
@@ -950,7 +1115,9 @@ def _validate_consumer_contract_identity(
     payload: dict,
 ) -> str | None:
     if payload.get("contract_id") != "domain-data-product-consumers":
-        _append_issue(issues, path, "contract_id must be 'domain-data-product-consumers'")
+        _append_issue(
+            issues, path, "contract_id must be 'domain-data-product-consumers'"
+        )
     if payload.get("governed_by_rfc") != "RFC-0084":
         _append_issue(issues, path, "governed_by_rfc must be 'RFC-0084'")
 
@@ -962,7 +1129,9 @@ def _validate_consumer_contract_identity(
         consumer_repository = None
 
     contract_version = payload.get("contract_version")
-    if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(contract_version):
+    if not isinstance(contract_version, str) or not SEMVER_PATTERN.fullmatch(
+        contract_version
+    ):
         _append_issue(issues, path, "contract_version must be semantic versioning")
 
     return consumer_repository
@@ -996,8 +1165,14 @@ def _validate_dependency_identity(
             path,
             f"dependencies[{index}] should not point a consumer to itself as upstream producer",
         )
-    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(product_name):
-        _append_issue(issues, path, f"dependencies[{index}].product_name must use stable product naming")
+    if not isinstance(product_name, str) or not PRODUCT_NAME_PATTERN.fullmatch(
+        product_name
+    ):
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].product_name must use stable product naming",
+        )
     if not isinstance(required_version, str) or not PRODUCT_VERSION_PATTERN.fullmatch(
         required_version
     ):
@@ -1007,7 +1182,9 @@ def _validate_dependency_identity(
             f"dependencies[{index}].required_product_version must use vN or semantic versioning",
         )
     if not _is_non_empty_list(dependency["validation_lanes"]):
-        _append_issue(issues, path, f"dependencies[{index}].validation_lanes must be non-empty")
+        _append_issue(
+            issues, path, f"dependencies[{index}].validation_lanes must be non-empty"
+        )
 
 
 def _validate_dependency_trust_metadata(
@@ -1019,7 +1196,11 @@ def _validate_dependency_trust_metadata(
     trust_metadata_keys: set[str] | None,
 ) -> None:
     if not _is_non_empty_list(dependency["required_trust_metadata"]):
-        _append_issue(issues, path, f"dependencies[{index}].required_trust_metadata must be non-empty")
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].required_trust_metadata must be non-empty",
+        )
         return
     if trust_metadata_keys is None:
         return
@@ -1046,7 +1227,9 @@ def _validate_dependency_migration_posture(
 ) -> None:
     migration_posture = dependency["migration_posture"]
     if not isinstance(migration_posture, dict):
-        _append_issue(issues, path, f"dependencies[{index}].migration_posture must be an object")
+        _append_issue(
+            issues, path, f"dependencies[{index}].migration_posture must be an object"
+        )
         return
 
     status = migration_posture.get("status")
@@ -1243,7 +1426,9 @@ def _maybe_update_latest_product_version(
         return
 
     version = product.get("product_version", "")
-    parsed_version = _parse_product_version(version) if isinstance(version, str) else None
+    parsed_version = (
+        _parse_product_version(version) if isinstance(version, str) else None
+    )
     if parsed_version is None:
         return
 
@@ -1361,7 +1546,10 @@ def _validate_dependency_latest_version_posture(
             )
         return
 
-    if migration_status != "approved_transition" or target_product_version != latest_version:
+    if (
+        migration_status != "approved_transition"
+        or target_product_version != latest_version
+    ):
         _append_issue(
             issues,
             path,
@@ -1461,7 +1649,9 @@ def validate_contract_directory(directory: Path) -> list[str]:
         )
     elif semantics_registry_path.exists():
         semantics_payload = _load_json(semantics_registry_path)
-        issues.extend(validate_semantics_registry(semantics_registry_path, semantics_payload))
+        issues.extend(
+            validate_semantics_registry(semantics_registry_path, semantics_payload)
+        )
         identifier_keys = {
             identifier.get("key", "")
             for identifier in semantics_payload.get("identifiers", [])
@@ -1474,12 +1664,16 @@ def validate_contract_directory(directory: Path) -> list[str]:
         }
         freshness_classes = {
             entry.get("key", "")
-            for entry in semantics_payload.get("trust_vocabularies", {}).get("freshness_classes", [])
+            for entry in semantics_payload.get("trust_vocabularies", {}).get(
+                "freshness_classes", []
+            )
             if isinstance(entry, dict)
         }
         completeness_statuses = {
             entry.get("key", "")
-            for entry in semantics_payload.get("trust_vocabularies", {}).get("completeness_statuses", [])
+            for entry in semantics_payload.get("trust_vocabularies", {}).get(
+                "completeness_statuses", []
+            )
             if isinstance(entry, dict)
         }
 
@@ -1491,7 +1685,11 @@ def validate_contract_directory(directory: Path) -> list[str]:
         )
     elif trust_metadata_registry_path.exists():
         trust_metadata_payload = _load_json(trust_metadata_registry_path)
-        issues.extend(validate_trust_metadata_registry(trust_metadata_registry_path, trust_metadata_payload))
+        issues.extend(
+            validate_trust_metadata_registry(
+                trust_metadata_registry_path, trust_metadata_payload
+            )
+        )
         trust_metadata_keys = {
             entry.get("key", "")
             for entry in trust_metadata_payload.get("trust_metadata_fields", [])
