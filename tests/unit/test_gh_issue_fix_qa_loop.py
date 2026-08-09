@@ -639,6 +639,40 @@ def test_strict_audit_accepts_closed_merged_main_with_qa_evidence(fake_github) -
     assert payload["violationCount"] == 0
 
 
+def test_strict_audit_requires_latest_loop_status_to_be_qa_passed(fake_github) -> None:
+    state_path, _, env = fake_github
+    state = _state()
+    state["issues"] = {
+        "1": {
+            "state": "CLOSED",
+            "labels": ["status/merged-main"],
+            "comments": [
+                "Loop status: qa_passed_closed\nQA run/evidence: qa-45",
+                "Loop status: qa_failed\nRegression found after closure",
+                "Loop status: dev_in_progress\nRetrying the same durable issue",
+            ],
+        },
+    }
+    _write_state(state_path, state)
+
+    result = _run_script(
+        AUDIT_SCRIPT,
+        ["-Repo", "owner/repo", "-RequireQaClosureEvidence"],
+        env,
+    )
+
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["violations"] == [
+        {
+            "kind": "closed_merged_main_issue_missing_qa_passed_evidence",
+            "issueNumber": 1,
+            "state": "CLOSED",
+            "label": "status/merged-main",
+        }
+    ]
+
+
 def test_strict_audit_can_target_one_issue_without_legacy_cleanup(fake_github) -> None:
     state_path, _, env = fake_github
     state = _state()
@@ -659,6 +693,28 @@ def test_strict_audit_can_target_one_issue_without_legacy_cleanup(fake_github) -
     assert payload["requestedIssueNumbers"] == [2]
     assert payload["issueCount"] == 1
     assert payload["violationCount"] == 0
+    calls = _read_state(state_path)["calls"]
+    assert [
+        "issue",
+        "list",
+        "--repo",
+        "owner/repo",
+        "--state",
+        "all",
+        "--limit",
+        "1000",
+        "--json",
+        "number,state,labels,url",
+    ] not in calls
+    assert [
+        "issue",
+        "view",
+        "2",
+        "--repo",
+        "owner/repo",
+        "--json",
+        "number,state,labels,url",
+    ] in calls
 
 
 def test_targeted_audit_fails_when_requested_issue_is_absent(fake_github) -> None:
