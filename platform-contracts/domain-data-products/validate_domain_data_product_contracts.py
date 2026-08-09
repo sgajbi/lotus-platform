@@ -644,7 +644,10 @@ def _validate_product_request_scope(
         return
 
     scope_level = request_scope.get("scope_level")
-    if scope_level not in ALLOWED_REQUEST_SCOPE_LEVELS:
+    if (
+        not isinstance(scope_level, str)
+        or scope_level not in ALLOWED_REQUEST_SCOPE_LEVELS
+    ):
         _append_issue(
             issues,
             path,
@@ -666,7 +669,11 @@ def _validate_product_taxonomy(
     index: int,
     product: dict,
 ) -> None:
-    if product["product_family"] not in ALLOWED_PRODUCT_FAMILIES:
+    product_family = product["product_family"]
+    if (
+        not isinstance(product_family, str)
+        or product_family not in ALLOWED_PRODUCT_FAMILIES
+    ):
         _append_issue(
             issues,
             path,
@@ -674,7 +681,10 @@ def _validate_product_taxonomy(
         )
 
     serving_plane = product.get("serving_plane")
-    if serving_plane is not None and serving_plane not in ALLOWED_SERVING_PLANES:
+    if serving_plane is not None and (
+        not isinstance(serving_plane, str)
+        or serving_plane not in ALLOWED_SERVING_PLANES
+    ):
         _append_issue(
             issues,
             path,
