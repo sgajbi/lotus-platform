@@ -30,14 +30,22 @@ foreach ($alias in $aliases) {
   }
 }
 
-$raw = Invoke-IssueLoopGh -GhArgs @("issue", "list", "--repo", $Repo, "--state", "all", "--limit", "1000", "--json", "number,state,labels,url")
-$parsedIssues = $raw | ConvertFrom-Json
-$issues = @($parsedIssues | ForEach-Object { $_ })
 if ($IssueNumber.Count -gt 0) {
   $requestedIssueNumbers = @($IssueNumber | ForEach-Object { [int]$_ })
-  $availableIssueNumbers = @($issues | ForEach-Object { [int]$_.number })
+  $issues = @()
   foreach ($requestedIssueNumber in $requestedIssueNumbers) {
-    if (-not ($availableIssueNumbers -contains $requestedIssueNumber)) {
+    try {
+      $requestedRaw = Invoke-IssueLoopGh -GhArgs @(
+        "issue",
+        "view",
+        ([string]$requestedIssueNumber),
+        "--repo",
+        $Repo,
+        "--json",
+        "number,state,labels,url"
+      )
+      $issues += ($requestedRaw | ConvertFrom-Json)
+    } catch {
       $violations += [pscustomobject]@{
         kind = "requested_issue_not_found"
         issueNumber = $requestedIssueNumber
@@ -46,7 +54,10 @@ if ($IssueNumber.Count -gt 0) {
       }
     }
   }
-  $issues = @($issues | Where-Object { $requestedIssueNumbers -contains [int]$_.number })
+} else {
+  $raw = Invoke-IssueLoopGh -GhArgs @("issue", "list", "--repo", $Repo, "--state", "all", "--limit", "1000", "--json", "number,state,labels,url")
+  $parsedIssues = $raw | ConvertFrom-Json
+  $issues = @($parsedIssues | ForEach-Object { $_ })
 }
 foreach ($issue in $issues) {
   $names = @($issue.labels | ForEach-Object { [string]$_.name })
@@ -88,9 +99,17 @@ foreach ($issue in $issues) {
       "number,comments,url"
     )
     $detail = $detailRaw | ConvertFrom-Json
-    $hasQaPassedEvidence = @($detail.comments | ForEach-Object { [string]$_.body }) |
-      Where-Object { $_ -match "(?m)^\s*Loop status:\s*qa_passed_closed\s*$" }
-    if (-not $hasQaPassedEvidence) {
+    $latestLoopStatus = $null
+    foreach ($comment in @($detail.comments)) {
+      $matches = [regex]::Matches(
+        ([string]$comment.body),
+        "(?im)^\s*Loop status:\s*([a-z0-9_-]+)\s*$"
+      )
+      foreach ($match in $matches) {
+        $latestLoopStatus = [string]$match.Groups[1].Value
+      }
+    }
+    if ($latestLoopStatus -ne "qa_passed_closed") {
       $violations += [pscustomobject]@{
         kind = "closed_merged_main_issue_missing_qa_passed_evidence"
         issueNumber = [int]$issue.number
