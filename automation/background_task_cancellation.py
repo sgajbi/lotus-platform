@@ -241,6 +241,18 @@ class SystemProcessController:
         descendants = sorted(selected - {root_pid})
         return (root, *(processes[pid] for pid in descendants))
 
+    def _inspect_owned_processes(
+        self, expected: Sequence[ObservedProcess]
+    ) -> tuple[ObservedProcess, ...]:
+        """Reinspect every recorded PID without relying on the root still existing."""
+        processes = {process.pid: process for process in self._all_processes()}
+        return tuple(
+            current
+            for recorded in expected
+            if (current := processes.get(recorded.pid)) is not None
+            and _same_process_start(current.started_at, recorded.started_at)
+        )
+
     def terminate_tree(
         self, expected_tree: Sequence[ObservedProcess]
     ) -> ProcessTermination:
@@ -287,7 +299,7 @@ class SystemProcessController:
                     )
                 os.killpg(process_group, signal.SIGTERM)
                 time.sleep(0.2)
-                if self.inspect_tree(root.pid):
+                if self._inspect_owned_processes(current_tree):
                     os.killpg(process_group, signal.SIGKILL)
                 detail = "Terminated isolated process group"
             except (ProcessLookupError, PermissionError) as exc:
@@ -296,15 +308,8 @@ class SystemProcessController:
                 )
 
         time.sleep(0.1)
-        remaining_tree = self.inspect_tree(root.pid)
         remaining = tuple(
-            process.pid
-            for process in remaining_tree
-            if any(
-                expected.pid == process.pid
-                and _same_process_start(process.started_at, expected.started_at)
-                for expected in current_tree
-            )
+            process.pid for process in self._inspect_owned_processes(current_tree)
         )
         disposition = "TERMINATED" if not remaining else "TERMINATION_FAILED"
         terminated = tuple(pid for pid in requested if pid not in remaining)
