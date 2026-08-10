@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-10T12:32:38Z`
+Generated: `2026-08-10T12:43:12Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `887`
-- Total source lines: `355506`
+- Total source lines: `355611`
 - Python files: `225`
 - PowerShell files: `68`
 - Markdown files: `410`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2774`
+- Python functions: `2777`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `884`
 
@@ -51,7 +51,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 | codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 14 | 124 |
-| automation/background_task_cancellation.py | _projects_from_contract | 675 | 14 | 48 |
+| automation/background_task_cancellation.py | _projects_from_contract | 672 | 14 | 48 |
 | automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 174 | 14 | 47 |
 | automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 | automation/validate_mainline_commit_provenance.py | validate_commit_provenance | 210 | 13 | 57 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `931`
+- Unit tests collected: `934`
 - Collection command return code: `0`
-- Collection summary: `931 tests collected in 0.87s`
+- Collection summary: `934 tests collected in 8.98s`
 
 ## Security Baseline
 

@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 355506
+    "total_source_lines": 355611
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 14,
-        "end_line": 722,
-        "line": 675,
+        "end_line": 719,
+        "line": 672,
         "lines": 48,
         "name": "_projects_from_contract",
         "path": "automation/background_task_cancellation.py"
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 559,
-        "line": 523,
+        "end_line": 556,
+        "line": 520,
         "lines": 37,
         "name": "_verify_container_provenance",
         "path": "automation/background_task_cancellation.py"
@@ -171,8 +171,8 @@
       },
       {
         "complexity": 11,
-        "end_line": 322,
-        "line": 256,
+        "end_line": 319,
+        "line": 253,
         "lines": 67,
         "name": "terminate_tree",
         "path": "automation/background_task_cancellation.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2774
+    "python_function_count": 2777
   },
-  "generated_at_utc": "2026-08-10T12:32:38Z",
+  "generated_at_utc": "2026-08-10T12:43:12Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -453,7 +453,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1154,
+      "lines": 1170,
       "path": "automation/background_task_cancellation.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 931,
+    "collected_tests": 934,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "931 tests collected in 0.87s"
+    "summary": "934 tests collected in 8.98s"
   }
 }
