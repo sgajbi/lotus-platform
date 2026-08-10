@@ -317,6 +317,68 @@ def _normalize_path(path: Path) -> str:
     return os.path.normcase(str(path.resolve()))
 
 
+def _resolve_compose_files(
+    *,
+    project_name: str,
+    working_directory: Path,
+    raw_files: object,
+) -> tuple[str, ...]:
+    if not isinstance(raw_files, list) or not raw_files:
+        raise CancellationError(f"Compose project {project_name} has no compose_files")
+    compose_files: list[str] = []
+    for raw_file in raw_files:
+        if not isinstance(raw_file, str) or not raw_file.strip():
+            raise CancellationError(
+                f"Compose project {project_name} has an invalid compose file"
+            )
+        candidate = Path(raw_file).expanduser()
+        if not candidate.is_absolute():
+            candidate = working_directory / candidate
+        resolved = candidate.resolve()
+        try:
+            resolved.relative_to(working_directory)
+        except ValueError as exc:
+            raise CancellationError(
+                f"Compose file must be inside {working_directory}: {resolved}"
+            ) from exc
+        if not resolved.is_file():
+            raise CancellationError(f"Compose file does not exist: {resolved}")
+        compose_files.append(str(resolved))
+    return tuple(compose_files)
+
+
+def _parse_compose_project(
+    raw: object,
+    *,
+    allowed_repository_root: Path | None,
+) -> ComposeProject:
+    if not isinstance(raw, dict):
+        raise CancellationError("Compose cleanup project entries must be objects")
+    name = raw.get("project_name")
+    if not isinstance(name, str) or not COMPOSE_PROJECT_PATTERN.fullmatch(name):
+        raise CancellationError(f"Unsafe Compose project name: {name!r}")
+    working_value = raw.get("working_directory")
+    if not isinstance(working_value, str) or not working_value.strip():
+        raise CancellationError(f"Compose project {name} has no working_directory")
+    working_directory = Path(working_value).expanduser().resolve()
+    if not working_directory.is_dir():
+        raise CancellationError(
+            f"Compose project {name} working directory does not exist: {working_directory}"
+        )
+    if allowed_repository_root and _normalize_path(
+        working_directory
+    ) != _normalize_path(allowed_repository_root):
+        raise CancellationError(
+            f"Compose project {name} must use the exact task repository root"
+        )
+    compose_files = _resolve_compose_files(
+        project_name=name,
+        working_directory=working_directory,
+        raw_files=raw.get("compose_files"),
+    )
+    return ComposeProject(name, str(working_directory), compose_files)
+
+
 def load_compose_cleanup_plan(
     plan_path: Path, *, allowed_repository_root: Path | None = None
 ) -> tuple[ComposeProject, ...]:
@@ -344,53 +406,16 @@ def load_compose_cleanup_plan(
     projects: list[ComposeProject] = []
     seen: set[str] = set()
     for raw in raw_projects:
-        if not isinstance(raw, dict):
-            raise CancellationError("Compose cleanup project entries must be objects")
-        name = raw.get("project_name")
-        if not isinstance(name, str) or not COMPOSE_PROJECT_PATTERN.fullmatch(name):
-            raise CancellationError(f"Unsafe Compose project name: {name!r}")
-        if name in seen:
-            raise CancellationError(f"Duplicate Compose project name: {name}")
-        working_value = raw.get("working_directory")
-        if not isinstance(working_value, str) or not working_value.strip():
-            raise CancellationError(f"Compose project {name} has no working_directory")
-        working_directory = Path(working_value).expanduser().resolve()
-        if not working_directory.is_dir():
-            raise CancellationError(
-                f"Compose project {name} working directory does not exist: {working_directory}"
-            )
-        if allowed_root and _normalize_path(working_directory) != _normalize_path(
-            allowed_root
-        ):
-            raise CancellationError(
-                f"Compose project {name} must use the exact task repository root"
-            )
-        raw_files = raw.get("compose_files")
-        if not isinstance(raw_files, list) or not raw_files:
-            raise CancellationError(f"Compose project {name} has no compose_files")
-        compose_files: list[str] = []
-        for raw_file in raw_files:
-            if not isinstance(raw_file, str) or not raw_file.strip():
-                raise CancellationError(
-                    f"Compose project {name} has an invalid compose file"
-                )
-            candidate = Path(raw_file).expanduser()
-            if not candidate.is_absolute():
-                candidate = working_directory / candidate
-            resolved = candidate.resolve()
-            try:
-                resolved.relative_to(working_directory)
-            except ValueError as exc:
-                raise CancellationError(
-                    f"Compose file must be inside {working_directory}: {resolved}"
-                ) from exc
-            if not resolved.is_file():
-                raise CancellationError(f"Compose file does not exist: {resolved}")
-            compose_files.append(str(resolved))
-        projects.append(
-            ComposeProject(name, str(working_directory), tuple(compose_files))
+        project = _parse_compose_project(
+            raw,
+            allowed_repository_root=allowed_root,
         )
-        seen.add(name)
+        if project.project_name in seen:
+            raise CancellationError(
+                f"Duplicate Compose project name: {project.project_name}"
+            )
+        projects.append(project)
+        seen.add(project.project_name)
     return tuple(projects)
 
 
@@ -688,6 +713,306 @@ def _projects_from_contract(contract: Mapping[str, Any]) -> tuple[ComposeProject
     return tuple(projects)
 
 
+def _resolve_cancellable_task(
+    entries: Sequence[dict[str, Any]], engineering_task_id: str
+) -> tuple[int, dict[str, Any], str]:
+    matches = [
+        (index, entry)
+        for index, entry in enumerate(entries)
+        if entry.get("engineering_task_id") == engineering_task_id
+    ]
+    if len(matches) != 1:
+        raise CancellationError(
+            f"engineering_task_id must resolve exactly once; found {len(matches)}"
+        )
+    index, entry = matches[0]
+    current_status = str(entry.get("status") or "").upper()
+    if current_status in TERMINAL_STATES:
+        raise CancellationError(
+            f"Task is already terminal and cannot be cancelled: {current_status}"
+        )
+    if current_status not in {"QUEUED", "RUNNING"}:
+        raise CancellationError(
+            f"Task has unsupported lifecycle status: {current_status}"
+        )
+    return index, entry, current_status
+
+
+def _declared_cleanup_ownership(
+    entry: Mapping[str, Any],
+) -> tuple[str, tuple[ComposeProject, ...]]:
+    scope = entry.get("scope")
+    cleanup_contract = (
+        scope.get("cleanup_contract") if isinstance(scope, dict) else None
+    )
+    if not isinstance(cleanup_contract, dict):
+        return "UNKNOWN", ()
+    ownership_state = str(cleanup_contract.get("ownership_state") or "UNKNOWN")
+    projects = (
+        _projects_from_contract(cleanup_contract)
+        if ownership_state == "COMPOSE"
+        else ()
+    )
+    return ownership_state, projects
+
+
+def _unreconciled_process(detail: str, *, pid: int | None = None) -> ProcessTermination:
+    requested = (pid,) if pid is not None else ()
+    return ProcessTermination(
+        "OWNERSHIP_UNRECONCILED", "none", requested, (), (), detail
+    )
+
+
+def _cancel_running_process(
+    entry: Mapping[str, Any], process_controller: ProcessController
+) -> ProcessTermination:
+    runtime = entry.get("runtime") if isinstance(entry.get("runtime"), dict) else {}
+    raw_pid = runtime.get("pid", entry.get("pid"))
+    raw_started_at = runtime.get("process_started_at")
+    if raw_pid is None or raw_started_at is None:
+        return _unreconciled_process("Recorded PID and process start time are required")
+    pid = int(raw_pid)
+    expected_start = _parse_timestamp(raw_started_at)
+    try:
+        observed_tree = process_controller.inspect_tree(pid)
+    except Exception as exc:  # adapter failure must become durable evidence
+        return _unreconciled_process(
+            f"Process ownership inspection failed: {exc}", pid=pid
+        )
+    if not observed_tree:
+        return ProcessTermination(
+            "VANISHED",
+            "none",
+            (pid,),
+            (),
+            (),
+            "Recorded root process is no longer present",
+        )
+    if not _same_process_start(observed_tree[0].started_at, expected_start):
+        return ProcessTermination(
+            "OWNERSHIP_MISMATCH",
+            "none",
+            (pid,),
+            (),
+            (),
+            "Recorded PID now belongs to a different process start",
+        )
+    try:
+        return process_controller.terminate_tree(observed_tree)
+    except Exception as exc:  # adapter failure must become durable evidence
+        owned_pids = tuple(item.pid for item in observed_tree)
+        return ProcessTermination(
+            "TERMINATION_FAILED",
+            "unknown",
+            owned_pids,
+            (),
+            owned_pids,
+            f"Process-tree termination failed: {exc}",
+        )
+
+
+def _cancel_process(
+    *,
+    current_status: str,
+    entry: Mapping[str, Any],
+    process_controller: ProcessController,
+) -> ProcessTermination:
+    if current_status == "QUEUED":
+        return ProcessTermination(
+            "NOT_STARTED",
+            "none",
+            (),
+            (),
+            (),
+            "Queued task had no process to terminate",
+        )
+    return _cancel_running_process(entry, process_controller)
+
+
+def _cleanup_one_project(
+    project: ComposeProject, compose_controller: ComposeController
+) -> ComposeCleanup:
+    try:
+        return compose_controller.cleanup(project)
+    except Exception as exc:  # adapter failure must become durable evidence
+        empty = {"containers": 0, "volumes": 0, "networks": 0, "total": 0}
+        return ComposeCleanup(
+            project.project_name,
+            "ADAPTER_FAILED",
+            False,
+            empty,
+            empty,
+            (),
+            f"Compose cleanup adapter failed: {exc}",
+        )
+
+
+def _cleanup_owned_resources(
+    *,
+    process_passed: bool,
+    ownership_state: str,
+    declared_projects: Sequence[ComposeProject],
+    compose_controller: ComposeController,
+) -> tuple[tuple[ComposeCleanup, ...], bool, str]:
+    if not process_passed:
+        return (
+            (),
+            False,
+            "Process termination did not pass; external cleanup was not attempted",
+        )
+    if ownership_state == "NONE":
+        return (), True, "Launch contract declared that no external cleanup is required"
+    if ownership_state != "COMPOSE":
+        return (
+            (),
+            False,
+            "Task launch did not declare external cleanup ownership; cleanup cannot be proven",
+        )
+    if not declared_projects:
+        return (), False, "Compose ownership was declared without any projects"
+    outcomes = tuple(
+        _cleanup_one_project(project, compose_controller)
+        for project in declared_projects
+    )
+    passed = all(outcome.passed for outcome in outcomes)
+    detail = (
+        "All launch-declared Compose projects are clean"
+        if passed
+        else "One or more launch-declared Compose projects failed cleanup"
+    )
+    return outcomes, passed, detail
+
+
+def _final_status(process_outcome: ProcessTermination) -> str:
+    if process_outcome.passed or process_outcome.disposition == "NOT_STARTED":
+        return "CANCELLED"
+    if process_outcome.disposition in {
+        "VANISHED",
+        "OWNERSHIP_MISMATCH",
+        "OWNERSHIP_UNRECONCILED",
+    }:
+        return "LOST"
+    return "RUNNING"
+
+
+def _build_cancellation_receipt(
+    *,
+    engineering_task_id: str,
+    reason: str,
+    actor: str,
+    requested_at: datetime,
+    finished_at: datetime,
+    current_status: str,
+    final_status: str,
+    cleanup_state: str,
+    process_outcome: ProcessTermination,
+    declared_projects: Sequence[ComposeProject],
+    compose_outcomes: Sequence[ComposeCleanup],
+    cleanup_detail: str,
+) -> dict[str, Any]:
+    resource_before = sum(
+        outcome.before.get("total", 0) for outcome in compose_outcomes
+    )
+    resource_after = sum(outcome.after.get("total", 0) for outcome in compose_outcomes)
+    return {
+        "schema_version": "lotus.background-task-cancellation-receipt.v1",
+        "engineering_task_id": engineering_task_id,
+        "reason": reason,
+        "actor": actor,
+        "requested_at": requested_at.isoformat(),
+        "finished_at": finished_at.isoformat(),
+        "targets": {
+            "process_pids": list(process_outcome.requested_pids),
+            "compose_projects": [project.project_name for project in declared_projects],
+        },
+        "outcomes": {
+            "process": asdict(process_outcome),
+            "compose": [asdict(outcome) for outcome in compose_outcomes],
+            "cleanup_detail": cleanup_detail,
+        },
+        "counts": {
+            "process_targets": len(process_outcome.requested_pids),
+            "process_terminated": len(process_outcome.terminated_pids),
+            "process_remaining": len(process_outcome.remaining_owned_pids),
+            "compose_projects_declared": len(declared_projects),
+            "compose_projects_attempted": len(compose_outcomes),
+            "compose_projects_clean": sum(
+                1 for outcome in compose_outcomes if outcome.passed
+            ),
+            "compose_resources_before": resource_before,
+            "compose_resources_removed": resource_before - resource_after,
+            "compose_resources_remaining": resource_after,
+        },
+        "ledger_transition": {
+            "from_status": current_status,
+            "to_status": final_status,
+            "cleanup_state": cleanup_state,
+        },
+    }
+
+
+def _receipt_path(
+    *,
+    receipt_dir: Path,
+    engineering_task_id: str,
+    requested_at: datetime,
+) -> Path:
+    timestamp_slug = requested_at.strftime("%Y%m%dT%H%M%S%fZ")
+    task_slug = re.sub(r"[^A-Za-z0-9._-]+", "-", engineering_task_id)
+    return receipt_dir.resolve() / f"{timestamp_slug}-{task_slug}.cancellation.json"
+
+
+def _update_cancelled_entry(
+    *,
+    entry: dict[str, Any],
+    final_status: str,
+    cleanup_state: str,
+    cleanup_passed: bool,
+    cleanup_detail: str,
+    process_outcome: ProcessTermination,
+    receipt_path: Path,
+    reason: str,
+    actor: str,
+    requested_at: datetime,
+    finished_at: datetime,
+) -> None:
+    entry["status"] = final_status
+    entry["cleanup_state"] = cleanup_state
+    if final_status in TERMINAL_STATES:
+        entry["ended_at"] = finished_at.isoformat()
+    if final_status == "CANCELLED":
+        summary = f"Cancelled by {actor}: {reason}"
+        if not cleanup_passed:
+            summary += f"; cleanup blocked: {cleanup_detail}"
+        entry["error_summary"] = summary
+    else:
+        entry["error_summary"] = process_outcome.detail
+    entry["cancellation"] = {
+        "receipt_path": str(receipt_path),
+        "reason": reason,
+        "actor": actor,
+        "requested_at": requested_at.isoformat(),
+        "process_disposition": process_outcome.disposition,
+        "cleanup_detail": cleanup_detail,
+    }
+    entry["artifacts"] = list(
+        dict.fromkeys([*(entry.get("artifacts") or []), str(receipt_path)])
+    )
+    entry["evidence_refs"] = [
+        *(entry.get("evidence_refs") or []),
+        {"type": "LOCAL_JSON_ARTIFACT", "path": str(receipt_path)},
+    ]
+
+
+def _validate_request(engineering_task_id: str, reason: str, actor: str) -> None:
+    if not TASK_ID_PATTERN.fullmatch(engineering_task_id):
+        raise CancellationError("engineering_task_id contains unsupported characters")
+    if not reason:
+        raise CancellationError("Cancellation reason is required")
+    if not actor:
+        raise CancellationError("Cancellation actor is required")
+
+
 def cancel_background_task(
     *,
     state_path: Path,
@@ -699,271 +1024,66 @@ def cancel_background_task(
     compose_controller: ComposeController,
     now: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> dict[str, Any]:
-    if not TASK_ID_PATTERN.fullmatch(engineering_task_id):
-        raise CancellationError("engineering_task_id contains unsupported characters")
-    if not reason.strip():
-        raise CancellationError("Cancellation reason is required")
-    if not actor.strip():
-        raise CancellationError("Cancellation actor is required")
-
+    normalized_reason = reason.strip()
+    normalized_actor = actor.strip()
+    _validate_request(engineering_task_id, normalized_reason, normalized_actor)
     requested_at = now().astimezone(UTC)
+
     with _ledger_lock(state_path):
         entries = _load_entries(state_path)
-        matches = [
-            (index, entry)
-            for index, entry in enumerate(entries)
-            if entry.get("engineering_task_id") == engineering_task_id
-        ]
-        if len(matches) != 1:
-            raise CancellationError(
-                f"engineering_task_id must resolve exactly once; found {len(matches)}"
-            )
-        index, entry = matches[0]
-        current_status = str(entry.get("status") or "").upper()
-        if current_status in TERMINAL_STATES:
-            raise CancellationError(
-                f"Task is already terminal and cannot be cancelled: {current_status}"
-            )
-        if current_status not in {"QUEUED", "RUNNING"}:
-            raise CancellationError(
-                f"Task has unsupported lifecycle status: {current_status}"
-            )
-
-        cleanup_contract = (
-            entry.get("scope", {}).get("cleanup_contract")
-            if isinstance(entry.get("scope"), dict)
-            else None
+        index, entry, current_status = _resolve_cancellable_task(
+            entries, engineering_task_id
         )
-        if not isinstance(cleanup_contract, dict):
-            cleanup_contract = {
-                "ownership_state": "UNKNOWN",
-                "compose_projects": [],
-                "source_plan": None,
-            }
-        ownership_state = str(cleanup_contract.get("ownership_state") or "UNKNOWN")
-        declared_projects = (
-            _projects_from_contract(cleanup_contract)
-            if ownership_state == "COMPOSE"
-            else ()
+        ownership_state, declared_projects = _declared_cleanup_ownership(entry)
+        process_outcome = _cancel_process(
+            current_status=current_status,
+            entry=entry,
+            process_controller=process_controller,
         )
-
-        runtime = entry.get("runtime") if isinstance(entry.get("runtime"), dict) else {}
-        process_outcome: ProcessTermination
-        process_passed = current_status == "QUEUED"
-        if current_status == "QUEUED":
-            process_outcome = ProcessTermination(
-                "NOT_STARTED",
-                "none",
-                (),
-                (),
-                (),
-                "Queued task had no process to terminate",
-            )
-        else:
-            raw_pid = runtime.get("pid", entry.get("pid"))
-            raw_started_at = runtime.get("process_started_at")
-            if raw_pid is None or raw_started_at is None:
-                process_outcome = ProcessTermination(
-                    "OWNERSHIP_UNRECONCILED",
-                    "none",
-                    (),
-                    (),
-                    (),
-                    "Recorded PID and process start time are required",
-                )
-            else:
-                pid = int(raw_pid)
-                expected_start = _parse_timestamp(raw_started_at)
-                inspection_failure: ProcessTermination | None = None
-                try:
-                    observed_tree = process_controller.inspect_tree(pid)
-                except Exception as exc:  # adapter failure must become durable evidence
-                    observed_tree = ()
-                    inspection_failure = ProcessTermination(
-                        "OWNERSHIP_UNRECONCILED",
-                        "none",
-                        (pid,),
-                        (),
-                        (),
-                        f"Process ownership inspection failed: {exc}",
-                    )
-                if not observed_tree:
-                    process_outcome = inspection_failure or ProcessTermination(
-                        "VANISHED",
-                        "none",
-                        (pid,),
-                        (),
-                        (),
-                        "Recorded root process is no longer present",
-                    )
-                elif not _same_process_start(
-                    observed_tree[0].started_at, expected_start
-                ):
-                    process_outcome = ProcessTermination(
-                        "OWNERSHIP_MISMATCH",
-                        "none",
-                        (pid,),
-                        (),
-                        (),
-                        "Recorded PID now belongs to a different process start",
-                    )
-                else:
-                    try:
-                        process_outcome = process_controller.terminate_tree(
-                            observed_tree
-                        )
-                    except (
-                        Exception
-                    ) as exc:  # adapter failure must become durable evidence
-                        process_outcome = ProcessTermination(
-                            "TERMINATION_FAILED",
-                            "unknown",
-                            tuple(item.pid for item in observed_tree),
-                            (),
-                            tuple(item.pid for item in observed_tree),
-                            f"Process-tree termination failed: {exc}",
-                        )
-                    process_passed = process_outcome.passed
-
-        compose_outcomes: list[ComposeCleanup] = []
-        cleanup_passed = False
-        cleanup_detail = ""
-        if not process_passed:
-            cleanup_detail = (
-                "Process termination did not pass; external cleanup was not attempted"
-            )
-        elif ownership_state == "NONE":
-            cleanup_passed = True
-            cleanup_detail = (
-                "Launch contract declared that no external cleanup is required"
-            )
-        elif ownership_state == "COMPOSE":
-            if not declared_projects:
-                cleanup_detail = "Compose ownership was declared without any projects"
-            else:
-                for project in declared_projects:
-                    try:
-                        compose_outcomes.append(compose_controller.cleanup(project))
-                    except (
-                        Exception
-                    ) as exc:  # adapter failure must become durable evidence
-                        compose_outcomes.append(
-                            ComposeCleanup(
-                                project.project_name,
-                                "ADAPTER_FAILED",
-                                False,
-                                {
-                                    "containers": 0,
-                                    "volumes": 0,
-                                    "networks": 0,
-                                    "total": 0,
-                                },
-                                {
-                                    "containers": 0,
-                                    "volumes": 0,
-                                    "networks": 0,
-                                    "total": 0,
-                                },
-                                (),
-                                f"Compose cleanup adapter failed: {exc}",
-                            )
-                        )
-                cleanup_passed = all(outcome.passed for outcome in compose_outcomes)
-                cleanup_detail = (
-                    "All launch-declared Compose projects are clean"
-                    if cleanup_passed
-                    else "One or more launch-declared Compose projects failed cleanup"
-                )
-        else:
-            cleanup_detail = "Task launch did not declare external cleanup ownership; cleanup cannot be proven"
-
-        if process_passed:
-            final_status = "CANCELLED"
-        elif process_outcome.disposition in {
-            "VANISHED",
-            "OWNERSHIP_MISMATCH",
-            "OWNERSHIP_UNRECONCILED",
-        }:
-            final_status = "LOST"
-        else:
-            final_status = "RUNNING"
+        compose_outcomes, cleanup_passed, cleanup_detail = _cleanup_owned_resources(
+            process_passed=(
+                process_outcome.passed or process_outcome.disposition == "NOT_STARTED"
+            ),
+            ownership_state=ownership_state,
+            declared_projects=declared_projects,
+            compose_controller=compose_controller,
+        )
+        final_status = _final_status(process_outcome)
         cleanup_state = "DONE" if cleanup_passed else "BLOCKED"
-
         finished_at = now().astimezone(UTC)
-        resource_before = sum(
-            outcome.before.get("total", 0) for outcome in compose_outcomes
+        receipt = _build_cancellation_receipt(
+            engineering_task_id=engineering_task_id,
+            reason=normalized_reason,
+            actor=normalized_actor,
+            requested_at=requested_at,
+            finished_at=finished_at,
+            current_status=current_status,
+            final_status=final_status,
+            cleanup_state=cleanup_state,
+            process_outcome=process_outcome,
+            declared_projects=declared_projects,
+            compose_outcomes=compose_outcomes,
+            cleanup_detail=cleanup_detail,
         )
-        resource_after = sum(
-            outcome.after.get("total", 0) for outcome in compose_outcomes
-        )
-        receipt = {
-            "schema_version": "lotus.background-task-cancellation-receipt.v1",
-            "engineering_task_id": engineering_task_id,
-            "reason": reason.strip(),
-            "actor": actor.strip(),
-            "requested_at": requested_at.isoformat(),
-            "finished_at": finished_at.isoformat(),
-            "targets": {
-                "process_pids": list(process_outcome.requested_pids),
-                "compose_projects": [
-                    project.project_name for project in declared_projects
-                ],
-            },
-            "outcomes": {
-                "process": asdict(process_outcome),
-                "compose": [asdict(outcome) for outcome in compose_outcomes],
-                "cleanup_detail": cleanup_detail,
-            },
-            "counts": {
-                "process_targets": len(process_outcome.requested_pids),
-                "process_terminated": len(process_outcome.terminated_pids),
-                "process_remaining": len(process_outcome.remaining_owned_pids),
-                "compose_projects_declared": len(declared_projects),
-                "compose_projects_attempted": len(compose_outcomes),
-                "compose_projects_clean": sum(
-                    1 for outcome in compose_outcomes if outcome.passed
-                ),
-                "compose_resources_before": resource_before,
-                "compose_resources_removed": resource_before - resource_after,
-                "compose_resources_remaining": resource_after,
-            },
-            "ledger_transition": {
-                "from_status": current_status,
-                "to_status": final_status,
-                "cleanup_state": cleanup_state,
-            },
-        }
-        timestamp_slug = requested_at.strftime("%Y%m%dT%H%M%S%fZ")
-        task_slug = re.sub(r"[^A-Za-z0-9._-]+", "-", engineering_task_id)
-        receipt_path = receipt_dir.resolve() / (
-            f"{timestamp_slug}-{task_slug}.cancellation.json"
+        receipt_path = _receipt_path(
+            receipt_dir=receipt_dir,
+            engineering_task_id=engineering_task_id,
+            requested_at=requested_at,
         )
         _atomic_write_json(receipt_path, receipt)
-
-        entry["status"] = final_status
-        entry["cleanup_state"] = cleanup_state
-        if final_status in TERMINAL_STATES:
-            entry["ended_at"] = finished_at.isoformat()
-        if final_status == "CANCELLED":
-            entry["error_summary"] = f"Cancelled by {actor.strip()}: {reason.strip()}"
-            if not cleanup_passed:
-                entry["error_summary"] += f"; cleanup blocked: {cleanup_detail}"
-        else:
-            entry["error_summary"] = process_outcome.detail
-        entry["cancellation"] = {
-            "receipt_path": str(receipt_path),
-            "reason": reason.strip(),
-            "actor": actor.strip(),
-            "requested_at": requested_at.isoformat(),
-            "process_disposition": process_outcome.disposition,
-            "cleanup_detail": cleanup_detail,
-        }
-        artifacts = list(entry.get("artifacts") or [])
-        artifacts.append(str(receipt_path))
-        entry["artifacts"] = list(dict.fromkeys(artifacts))
-        evidence_refs = list(entry.get("evidence_refs") or [])
-        evidence_refs.append({"type": "LOCAL_JSON_ARTIFACT", "path": str(receipt_path)})
-        entry["evidence_refs"] = evidence_refs
+        _update_cancelled_entry(
+            entry=entry,
+            final_status=final_status,
+            cleanup_state=cleanup_state,
+            cleanup_passed=cleanup_passed,
+            cleanup_detail=cleanup_detail,
+            process_outcome=process_outcome,
+            receipt_path=receipt_path,
+            reason=normalized_reason,
+            actor=normalized_actor,
+            requested_at=requested_at,
+            finished_at=finished_at,
+        )
         entries[index] = entry
         _atomic_write_json(state_path, entries)
 
