@@ -5,19 +5,19 @@
   },
   "code_size": {
     "markdown_file_count": 410,
-    "powershell_file_count": 67,
-    "python_file_count": 223,
-    "source_file_count": 884,
+    "powershell_file_count": 68,
+    "python_file_count": 225,
+    "source_file_count": 887,
     "suffix_counts": {
       ".json": 138,
       ".md": 410,
-      ".ps1": 67,
-      ".py": 223,
+      ".ps1": 68,
+      ".py": 225,
       ".txt": 7,
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 353195
+    "total_source_lines": 355120
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,6 +83,14 @@
       },
       {
         "complexity": 14,
+        "end_line": 713,
+        "line": 666,
+        "lines": 48,
+        "name": "_projects_from_contract",
+        "path": "automation/background_task_cancellation.py"
+      },
+      {
+        "complexity": 14,
         "end_line": 220,
         "line": 174,
         "lines": 47,
@@ -139,11 +147,27 @@
       },
       {
         "complexity": 12,
+        "end_line": 550,
+        "line": 514,
+        "lines": 37,
+        "name": "_verify_container_provenance",
+        "path": "automation/background_task_cancellation.py"
+      },
+      {
+        "complexity": 12,
         "end_line": 215,
         "line": 199,
         "lines": 17,
         "name": "_resolve_pointer",
         "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 566,
+        "line": 401,
+        "lines": 166,
+        "name": "launch_repository_task",
+        "path": "automation/repository_background_task.py"
       },
       {
         "complexity": 11,
@@ -155,43 +179,19 @@
       },
       {
         "complexity": 11,
+        "end_line": 313,
+        "line": 244,
+        "lines": 70,
+        "name": "terminate_tree",
+        "path": "automation/background_task_cancellation.py"
+      },
+      {
+        "complexity": 11,
         "end_line": 159,
         "line": 105,
         "lines": 55,
         "name": "_parse_normalization_rule",
         "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 234,
-        "line": 190,
-        "lines": 45,
-        "name": "build_command",
-        "path": "automation/repository_background_task.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 502,
-        "line": 465,
-        "lines": 38,
-        "name": "_issue_from_live_certification",
-        "path": "automation/mesh_certification_gate.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 166,
-        "line": 137,
-        "lines": 30,
-        "name": "load_issue_expectations",
-        "path": "codex/skills/lotus-app-issue-discovery/scripts/audit_rfc_issue_coverage.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 70,
-        "line": 44,
-        "lines": 27,
-        "name": "__post_init__",
-        "path": "automation/cost_attribution/domain.py"
       }
     ],
     "largest_functions": [
@@ -308,6 +308,14 @@
         "path": "tests/unit/test_service_addressing_validator.py"
       },
       {
+        "complexity": 11,
+        "end_line": 566,
+        "line": 401,
+        "lines": 166,
+        "name": "launch_repository_task",
+        "path": "automation/repository_background_task.py"
+      },
+      {
         "complexity": 5,
         "end_line": 479,
         "line": 323,
@@ -332,14 +340,6 @@
         "path": "automation/core_performance_mwr_validation.py"
       },
       {
-        "complexity": 8,
-        "end_line": 535,
-        "line": 390,
-        "lines": 146,
-        "name": "launch_repository_task",
-        "path": "automation/repository_background_task.py"
-      },
-      {
         "complexity": 5,
         "end_line": 351,
         "line": 218,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2694
+    "python_function_count": 2760
   },
-  "generated_at_utc": "2026-08-09T14:28:50Z",
+  "generated_at_utc": "2026-08-10T11:42:28Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,13 +418,13 @@
       "suffix": ".py"
     },
     {
-      "lines": 1655,
-      "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
+      "lines": 1669,
+      "path": "automation/README.md",
       "suffix": ".md"
     },
     {
-      "lines": 1622,
-      "path": "automation/README.md",
+      "lines": 1655,
+      "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
       "suffix": ".md"
     },
     {
@@ -458,9 +458,9 @@
       "suffix": ".ps1"
     },
     {
-      "lines": 1135,
-      "path": "rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md",
-      "suffix": ".md"
+      "lines": 1145,
+      "path": "automation/background_task_cancellation.py",
+      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -717,12 +717,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1294,
+        "line": 1341,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1300,
+        "line": 1347,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 912,
+    "collected_tests": 923,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "912 tests collected in 1.12s"
+    "summary": "923 tests collected in 1.93s"
   }
 }
