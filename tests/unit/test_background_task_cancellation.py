@@ -238,6 +238,93 @@ def test_reused_pid_is_not_terminated(tmp_path: Path) -> None:
     assert receipt["outcomes"]["process"]["disposition"] == "OWNERSHIP_MISMATCH"
 
 
+def test_near_start_pid_reuse_is_not_terminated(tmp_path: Path) -> None:
+    reused = cancellation.ObservedProcess(
+        4100, 100, datetime(2026, 8, 10, 12, 0, 2, tzinfo=UTC)
+    )
+    processes = FakeProcessController((reused,))
+
+    receipt, [entry] = _cancel(
+        tmp_path,
+        entries=[
+            _entry(
+                mode="profile",
+                cleanup_contract={"ownership_state": "NONE", "compose_projects": []},
+            )
+        ],
+        processes=processes,
+    )
+
+    assert entry["status"] == "LOST"
+    assert processes.terminated == []
+    assert receipt["outcomes"]["process"]["disposition"] == "OWNERSHIP_MISMATCH"
+
+
+def test_queued_task_never_cleans_declared_compose_project(tmp_path: Path) -> None:
+    compose_file = tmp_path / "compose.yml"
+    compose_file.write_text("services: {}\n", encoding="utf-8")
+    entry = _entry(
+        mode="repository-target",
+        cleanup_contract={
+            "ownership_state": "COMPOSE",
+            "compose_projects": [
+                {
+                    "project_name": "shared-project",
+                    "working_directory": str(tmp_path),
+                    "compose_files": [str(compose_file)],
+                }
+            ],
+        },
+    )
+    entry["status"] = "QUEUED"
+    compose = FakeComposeController()
+
+    receipt, [cancelled] = _cancel(
+        tmp_path,
+        entries=[entry],
+        processes=FakeProcessController(()),
+        compose=compose,
+    )
+
+    assert cancelled["status"] == "CANCELLED"
+    assert cancelled["cleanup_state"] == "BLOCKED"
+    assert compose.requested == []
+    assert "never started" in receipt["outcomes"]["cleanup_detail"]
+
+
+def test_invalid_cleanup_contract_does_not_prevent_process_termination(
+    tmp_path: Path,
+) -> None:
+    root = cancellation.ObservedProcess(4100, 100, NOW)
+    processes = FakeProcessController((root,))
+    missing_compose_file = tmp_path / "missing-compose.yml"
+
+    receipt, [entry] = _cancel(
+        tmp_path,
+        entries=[
+            _entry(
+                mode="repository-target",
+                cleanup_contract={
+                    "ownership_state": "COMPOSE",
+                    "compose_projects": [
+                        {
+                            "project_name": "owned-project",
+                            "working_directory": str(tmp_path),
+                            "compose_files": [str(missing_compose_file)],
+                        }
+                    ],
+                },
+            )
+        ],
+        processes=processes,
+    )
+
+    assert processes.terminated == [(4100,)]
+    assert entry["status"] == "CANCELLED"
+    assert entry["cleanup_state"] == "BLOCKED"
+    assert "cleanup contract is invalid" in receipt["outcomes"]["cleanup_detail"]
+
+
 def test_unknown_launch_cleanup_provenance_cannot_be_marked_done(
     tmp_path: Path,
 ) -> None:

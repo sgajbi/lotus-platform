@@ -26,7 +26,6 @@ COMPOSE_PROJECT_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 TERMINAL_STATES = frozenset(
     {"SUCCEEDED", "FAILED", "TIMED_OUT", "CANCELLED", "LOST", "SUPERSEDED"}
 )
-START_TIME_TOLERANCE_SECONDS = 5.0
 
 
 class CancellationError(RuntimeError):
@@ -128,9 +127,7 @@ def _parse_timestamp(value: object) -> datetime:
 
 
 def _same_process_start(actual: datetime, expected: datetime) -> bool:
-    return abs((actual.astimezone(UTC) - expected.astimezone(UTC)).total_seconds()) <= (
-        START_TIME_TOLERANCE_SECONDS
-    )
+    return actual.astimezone(UTC) == expected.astimezone(UTC)
 
 
 class SystemProcessController:
@@ -858,12 +855,24 @@ def _cleanup_one_project(
 
 def _cleanup_owned_resources(
     *,
-    process_passed: bool,
+    process_outcome: ProcessTermination,
     ownership_state: str,
     declared_projects: Sequence[ComposeProject],
     compose_controller: ComposeController,
 ) -> tuple[tuple[ComposeCleanup, ...], bool, str]:
-    if not process_passed:
+    if process_outcome.disposition == "NOT_STARTED":
+        if ownership_state == "NONE":
+            return (
+                (),
+                True,
+                "Queued task never started and required no external cleanup",
+            )
+        return (
+            (),
+            False,
+            "Queued task never started; external cleanup was not attempted",
+        )
+    if not process_outcome.passed:
         return (
             (),
             False,
@@ -1043,20 +1052,27 @@ def cancel_background_task(
         index, entry, current_status = _resolve_cancellable_task(
             entries, engineering_task_id
         )
-        ownership_state, declared_projects = _declared_cleanup_ownership(entry)
         process_outcome = _cancel_process(
             current_status=current_status,
             entry=entry,
             process_controller=process_controller,
         )
+        cleanup_contract_error: str | None = None
+        try:
+            ownership_state, declared_projects = _declared_cleanup_ownership(entry)
+        except CancellationError as exc:
+            ownership_state, declared_projects = "INVALID", ()
+            cleanup_contract_error = str(exc)
         compose_outcomes, cleanup_passed, cleanup_detail = _cleanup_owned_resources(
-            process_passed=(
-                process_outcome.passed or process_outcome.disposition == "NOT_STARTED"
-            ),
+            process_outcome=process_outcome,
             ownership_state=ownership_state,
             declared_projects=declared_projects,
             compose_controller=compose_controller,
         )
+        if cleanup_contract_error:
+            cleanup_detail = (
+                f"Launch-declared cleanup contract is invalid: {cleanup_contract_error}"
+            )
         final_status = _final_status(process_outcome)
         cleanup_state = "DONE" if cleanup_passed else "BLOCKED"
         finished_at = now().astimezone(UTC)

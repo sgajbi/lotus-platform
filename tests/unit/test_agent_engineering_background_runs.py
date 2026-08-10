@@ -912,6 +912,8 @@ def test_repository_target_mode_is_documented_as_typed_and_shell_free() -> None:
     assert "cmd /c" not in runner
     assert "append-ledger-entry" in launcher
     assert "Set-Content $StatePath" not in launcher
+    assert "process.terminate()" not in runner
+    assert runner.count("_terminate_untracked_runner(process)") >= 3
     assert "shell=True" not in runner
     assert "argv" in playbook
     assert "Do not pass a shell command" in skill

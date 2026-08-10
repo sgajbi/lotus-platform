@@ -620,12 +620,12 @@ def launch_repository_task(args: argparse.Namespace) -> int:
                 process_id=process.pid,
             )
         except BackgroundTaskError:
-            process.terminate()
+            _terminate_untracked_runner(process)
             raise
         try:
             _atomic_write_json(state_path, [*state, entry])
         except Exception:
-            process.terminate()
+            _terminate_untracked_runner(process)
             raise
 
     print(f"engineering_task_id={engineering_task_id}")
