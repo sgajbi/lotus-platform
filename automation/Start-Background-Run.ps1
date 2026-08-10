@@ -17,10 +17,58 @@ param(
   [Parameter(ParameterSetName = "RepositoryTarget")][string]$RunId = "",
   [Parameter(ParameterSetName = "RepositoryTarget")][string]$Owner = "",
 
+  [string]$ComposeCleanupPlanPath = "",
+  [switch]$NoExternalCleanupRequired,
   [string]$StatePath = "output/background-runs.json"
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not [string]::IsNullOrWhiteSpace($ComposeCleanupPlanPath) -and $NoExternalCleanupRequired) {
+  throw "Use either -ComposeCleanupPlanPath or -NoExternalCleanupRequired, not both"
+}
+
+function Resolve-CleanupContract {
+  param(
+    [string]$PlanPath,
+    [switch]$NoCleanupRequired,
+    [string]$AllowedRepositoryRoot = ""
+  )
+
+  if ($NoCleanupRequired) {
+    return [pscustomobject]@{
+      ownership_state = "NONE"
+      compose_projects = @()
+      source_plan = $null
+    }
+  }
+  if ([string]::IsNullOrWhiteSpace($PlanPath)) {
+    return [pscustomobject]@{
+      ownership_state = "UNKNOWN"
+      compose_projects = @()
+      source_plan = $null
+    }
+  }
+
+  $validatorArguments = @(
+    "automation/background_task_cancellation.py",
+    "validate-compose-plan",
+    "--plan-path", $PlanPath
+  )
+  if (-not [string]::IsNullOrWhiteSpace($AllowedRepositoryRoot)) {
+    $validatorArguments += @("--allowed-repository-root", $AllowedRepositoryRoot)
+  }
+  $normalizedJson = & python @validatorArguments
+  if ($LASTEXITCODE -ne 0) {
+    throw "Compose cleanup plan validation failed: $PlanPath"
+  }
+  $normalized = $normalizedJson | ConvertFrom-Json
+  return [pscustomobject]@{
+    ownership_state = "COMPOSE"
+    compose_projects = @($normalized.projects)
+    source_plan = (Resolve-Path $PlanPath).Path
+  }
+}
 
 if ($PSCmdlet.ParameterSetName -eq "RepositoryTarget") {
   $launcherPath = "automation/repository_background_task.py"
@@ -75,6 +123,12 @@ if ($PSCmdlet.ParameterSetName -eq "RepositoryTarget") {
   if (-not [string]::IsNullOrWhiteSpace($Owner)) {
     $arguments += @("--owner", $Owner)
   }
+  if (-not [string]::IsNullOrWhiteSpace($ComposeCleanupPlanPath)) {
+    $arguments += @("--compose-cleanup-plan", $ComposeCleanupPlanPath)
+  }
+  if ($NoExternalCleanupRequired) {
+    $arguments += "--no-external-cleanup-required"
+  }
 
   & python @arguments
   exit $LASTEXITCODE
@@ -94,6 +148,9 @@ if ([string]::IsNullOrWhiteSpace($branch)) {
 }
 $ownerName = if ($env:USERNAME) { $env:USERNAME } elseif ($env:USER) { $env:USER } else { "unknown" }
 $requestedAt = (Get-Date).ToUniversalTime().ToString("o")
+$cleanupContract = Resolve-CleanupContract `
+  -PlanPath $ComposeCleanupPlanPath `
+  -NoCleanupRequired:$NoExternalCleanupRequired
 
 $arguments = @(
   "-NoProfile",
@@ -166,6 +223,7 @@ $entry = [pscustomobject]@{
   scope = [pscustomobject]@{
     profile = $Profile
     maxParallel = $MaxParallel
+    cleanup_contract = $cleanupContract
   }
   artifacts = @($outLogPath, $errLogPath, $expectedJsonPath, $expectedMdPath)
   evidence_refs = @(

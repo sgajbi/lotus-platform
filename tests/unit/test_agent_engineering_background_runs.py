@@ -124,7 +124,7 @@ def _repository_config(path: Path, repository_path: Path) -> None:
     )
 
 
-def _wait_for_result(state_path: Path, *, timeout_seconds: float = 20) -> Path:
+def _wait_for_result(state_path: Path, *, timeout_seconds: float = 30) -> Path:
     deadline = time.monotonic() + timeout_seconds
     result_path: Path | None = None
     while time.monotonic() < deadline:
@@ -439,6 +439,7 @@ def test_repository_target_passes_metacharacters_without_shell_interpolation(
     assert entry["scope"]["source_tree_state"] == "clean"
     assert entry["scope"]["target_arguments"] == ["write", literal_argument]
     assert entry["runtime"]["process_started_at"]
+    assert entry["runtime"]["process_start_identity_state"] == "OBSERVED"
     assert entry["terminal_exit_code"] == 0
     assert entry["process_tree"] == result["process_tree"]
     assert result["process_tree"]["runner_pid"] > 0

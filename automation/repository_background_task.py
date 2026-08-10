@@ -21,6 +21,17 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterator, Sequence
 
+try:
+    from automation.background_task_cancellation import (
+        SystemProcessController,
+        build_cleanup_contract,
+    )
+except ModuleNotFoundError:  # direct ``python automation/...`` execution
+    from background_task_cancellation import (  # type: ignore[no-redef]
+        SystemProcessController,
+        build_cleanup_contract,
+    )
+
 
 TARGET_TYPES = ("make", "npm", "python", "powershell")
 SAFE_TARGET_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
@@ -400,6 +411,15 @@ def launch_repository_task(args: argparse.Namespace) -> int:
     required_artifacts = [
         validate_required_artifact_pattern(item) for item in args.required_artifact
     ]
+    cleanup_contract = build_cleanup_contract(
+        plan_path=(
+            Path(args.compose_cleanup_plan).resolve()
+            if args.compose_cleanup_plan
+            else None
+        ),
+        no_external_cleanup_required=args.no_external_cleanup_required,
+        allowed_repository_root=identity.path,
+    )
 
     run_id = args.run_id or datetime.now().strftime("%Y%m%d-%H%M%S")
     if not SAFE_RUN_ID_PATTERN.fullmatch(run_id):
@@ -432,6 +452,7 @@ def launch_repository_task(args: argparse.Namespace) -> int:
         "expected_head": args.expected_head,
         "require_clean": args.require_clean,
         "required_artifacts": required_artifacts,
+        "cleanup_contract": cleanup_contract,
         "result_path": str(result_path),
         "requested_at": requested_at,
     }
@@ -451,6 +472,12 @@ def launch_repository_task(args: argparse.Namespace) -> int:
             out_log_path=out_log_path,
             err_log_path=err_log_path,
             result_path=result_path,
+        )
+        observed_process_tree = SystemProcessController().inspect_tree(process.pid)
+        process_started_at = (
+            observed_process_tree[0].started_at.isoformat()
+            if observed_process_tree
+            else None
         )
 
         entry = {
@@ -478,7 +505,10 @@ def launch_repository_task(args: argparse.Namespace) -> int:
                 "kind": "python",
                 "runner": "automation/repository_background_task.py",
                 "pid": process.pid,
-                "process_started_at": requested_at,
+                "process_started_at": process_started_at,
+                "process_start_identity_state": (
+                    "OBSERVED" if process_started_at else "UNAVAILABLE"
+                ),
             },
             "scope": {
                 "repository_root": str(identity.path),
@@ -490,6 +520,7 @@ def launch_repository_task(args: argparse.Namespace) -> int:
                 "required_artifacts": required_artifacts,
                 "expected_head": args.expected_head,
                 "require_clean": args.require_clean,
+                "cleanup_contract": cleanup_contract,
             },
             "artifacts": [
                 str(out_log_path),
@@ -641,6 +672,8 @@ def _build_parser() -> argparse.ArgumentParser:
     launch.add_argument("--output-dir", default="output/task-runs")
     launch.add_argument("--run-id")
     launch.add_argument("--owner")
+    launch.add_argument("--compose-cleanup-plan")
+    launch.add_argument("--no-external-cleanup-required", action="store_true")
 
     run = subparsers.add_parser("run", help="Execute a serialized repository target")
     run.add_argument("--job-spec", required=True)
