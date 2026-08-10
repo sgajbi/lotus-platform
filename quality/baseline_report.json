@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 355120
+    "total_source_lines": 355246
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 14,
-        "end_line": 713,
-        "line": 666,
+        "end_line": 718,
+        "line": 671,
         "lines": 48,
         "name": "_projects_from_contract",
         "path": "automation/background_task_cancellation.py"
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 550,
-        "line": 514,
+        "end_line": 555,
+        "line": 519,
         "lines": 37,
         "name": "_verify_container_provenance",
         "path": "automation/background_task_cancellation.py"
@@ -179,19 +179,19 @@
       },
       {
         "complexity": 11,
-        "end_line": 313,
-        "line": 244,
-        "lines": 70,
-        "name": "terminate_tree",
-        "path": "automation/background_task_cancellation.py"
-      },
-      {
-        "complexity": 11,
         "end_line": 159,
         "line": 105,
         "lines": 55,
         "name": "_parse_normalization_rule",
         "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 245,
+        "line": 201,
+        "lines": 45,
+        "name": "build_command",
+        "path": "automation/repository_background_task.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2760
+    "python_function_count": 2763
   },
-  "generated_at_utc": "2026-08-10T11:42:28Z",
+  "generated_at_utc": "2026-08-10T12:07:49Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -453,14 +453,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1150,
+      "path": "automation/background_task_cancellation.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1148,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
-    },
-    {
-      "lines": 1145,
-      "path": "automation/background_task_cancellation.py",
-      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 923,
+    "collected_tests": 925,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "923 tests collected in 1.93s"
+    "summary": "925 tests collected in 1.72s"
   }
 }
