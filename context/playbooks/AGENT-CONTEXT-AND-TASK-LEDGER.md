@@ -54,8 +54,9 @@ For background automation launched through platform scripts:
 1. `Start-Background-Run.ps1` creates `output/background-runs.json` entries with
    `engineering_task_id`, `task_kind`, ownership, lifecycle, cleanup, and evidence fields,
 2. `Check-Background-Runs.ps1` refreshes those entries from process state and result artifacts,
-3. GitHub remains the source of truth for GitHub Actions checks,
-4. local automation artifacts remain the source of truth for local background runs.
+3. `Cancel-Background-Run.ps1` performs exact-ID cancellation with process and cleanup evidence,
+4. GitHub remains the source of truth for GitHub Actions checks,
+5. local automation artifacts remain the source of truth for local background runs.
 
 Use named `-Profile` mode for shared cross-repository task packs. Use validated repository mode for
 one long repository-native Make, NPM, Python, or PowerShell target that should not require a central
@@ -82,6 +83,19 @@ Use the lifecycle vocabulary from the contract:
 
 `LOST` is an operational problem, not success. Treat it as a finding that needs cleanup or
 rerun evidence.
+
+For deliberate cancellation, use `Cancel-Background-Run.ps1` rather than killing a shell or runner
+manually. Target one exact `engineering_task_id`, supply a reason and actor, and require the recorded
+PID plus process-start identity to match before the owned tree is terminated. A vanished,
+start-mismatched, or unreconciled process remains `LOST`. Launch process-only work with
+`-NoExternalCleanupRequired`; launch Docker-backed work with an explicit
+`-ComposeCleanupPlanPath`. Missing cleanup ownership is `BLOCKED`, not a clean cancellation.
+
+Compose cancellation is launch-declared and label-verified. It may run exact project-scoped
+`compose down --remove-orphans --volumes` only after live container project, working-directory, and
+config-file labels agree. Residual volumes or networks without live provenance fail closed. The
+atomic cancellation receipt records reason, actor, timestamps, targets, per-target outcomes, and
+resource counts, and the ledger references it while preserving `CANCELLED` during later checks.
 
 ## Docker Runtime Ownership And Interference
 

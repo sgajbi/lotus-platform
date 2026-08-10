@@ -33,7 +33,9 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1
 - `automation/Service-Refresh.ps1`
 - `automation/Run-Parallel-Tasks.ps1`
 - `automation/Start-Background-Run.ps1`
+- `automation/Cancel-Background-Run.ps1`
 - `automation/repository_background_task.py`
+- `automation/background_task_cancellation.py`
 - `automation/Check-Background-Runs.ps1`
 - `automation/Summarize-Task-Failures.ps1`
 - `automation/Sync-RepoWikis.ps1`
@@ -651,7 +653,8 @@ $head = git -C $repositoryRoot rev-parse HEAD
 powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 `
   -Repository lotus-core -TargetType make -Target profile-derived-state-daily `
   -ExpectedHead $head -RequireClean `
-  -RequiredArtifact "output/task-runs/*-bank-day-load.json"
+  -RequiredArtifact "output/task-runs/*-bank-day-load.json" `
+  -ComposeCleanupPlanPath <compose-cleanup-plan.json>
 ```
 
 Repository mode accepts only typed `make`, `npm`, `python`, or `powershell` targets. The repository
@@ -660,7 +663,47 @@ validated; script paths must resolve inside that repository; and arguments are s
 argv array rather than evaluated through `cmd`. Use `-TargetArgument @("value1", "value2")` from
 PowerShell or `-TargetArgumentsJson '["value1","value2"]'` from a native caller. Optional
 `-ExpectedHead`, `-RequireClean`, and `-RequiredArtifact` fences are checked at launch and again by
-the detached runner.
+the detached runner. A launch must also declare cleanup posture when later cancellation needs a
+clean receipt: use `-NoExternalCleanupRequired` for process-only work, or
+`-ComposeCleanupPlanPath` for Docker-backed work. Omitting both preserves compatibility but records
+cleanup ownership as `UNKNOWN`, so cancellation cannot claim `cleanup_state=DONE`.
+
+The Compose cleanup plan is explicit launch evidence, not a discovery hint:
+
+```json
+{
+  "schema_version": "lotus.background-task-compose-cleanup-plan.v1",
+  "projects": [
+    {
+      "project_name": "exact-compose-project",
+      "working_directory": "C:\\path\\to\\exact-repository-root",
+      "compose_files": ["docker-compose.yml"]
+    }
+  ]
+}
+```
+
+Cancel one exact task by its durable identifier:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Cancel-Background-Run.ps1 `
+  -EngineeringTaskId <engineering_task_id> `
+  -Reason "Superseded by corrected exact-head certification" `
+  -Actor <operator>
+```
+
+Cancellation requires the task id to resolve exactly once and verifies the recorded root PID plus
+process-start timestamp before terminating its owned process tree. A vanished, reused, or
+unreconciled PID remains `LOST`; it is not relabeled `CANCELLED`. Successful termination records
+`CANCELLED`. `cleanup_state` becomes `DONE` only when the launch declared no external cleanup or
+every launch-declared Compose project is clean; otherwise it becomes `BLOCKED`.
+
+Compose mutation requires exact project, working-directory, and config-file label agreement on a
+live project container. Residual volumes or networks without live container provenance fail
+closed. Cleanup uses only exact `docker compose ... down --remove-orphans --volumes`; it never
+uses daemon-wide prune, name-prefix cleanup, image removal, or an unrelated project. The atomic
+receipt under `output/task-runs/*-<engineering_task_id>.cancellation.json` records reason, actor,
+timestamps, targets, outcomes, and before/after counts and is referenced from the ledger.
 
 Fast alignment background run (recommended for day-to-day platform sync):
 
@@ -683,7 +726,9 @@ exact job specification and terminal result JSON under `output/task-runs/`.
 - `RUNNING` while the launched process is still active,
 - `SUCCEEDED` only when the expected result artifact exists and all child task exit codes are zero,
 - `FAILED` when the result artifact exists but contains failed task results or cannot be parsed,
-- `LOST` when the process ended before the expected result artifact was written.
+- `LOST` when the process ended before the expected result artifact was written,
+- `CANCELLED` when governed cancellation terminated the verified task process; the independent
+  `cleanup_state` records whether cleanup passed or remains blocked.
 
 The monitor also preserves evidence references for logs, JSON results, and Markdown summaries so
 resumed sessions can inspect durable artifacts instead of relying on chat history.
@@ -696,6 +741,8 @@ day/month rendering differs from the host locale.
 It also flattens older wrapped ledger entries before reconciliation, so historical
 `output/background-runs.json` shape drift cannot prevent the current background-run monitor from
 reporting active task status.
+It preserves terminal cancellation state and its receipt reference instead of reclassifying a
+cancelled process with no normal result artifact as `LOST`.
 
 Record a governed RFC-0096 delegated task:
 

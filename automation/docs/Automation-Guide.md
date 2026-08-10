@@ -10,10 +10,12 @@ Canonical source: `lotus-platform/automation`
 2. Need continuous monitoring: run `Run-Agent.ps1`.
 3. Need asynchronous long-running checks: run `Start-Background-Run.ps1` with a profile or a
    validated repository target.
-4. Need PR lifecycle automation: run `Close-PR-Loop.ps1`.
-5. Need one repo preflight before push: run `Preflight-PR.ps1`.
-6. Need governed populated front-office validation: run `Invoke-Canonical-FrontOffice-QA.ps1`.
-7. Need backend service readiness QA validation: run `Invoke-Platform-QA.ps1`.
+4. Need to stop one governed local task: run `Cancel-Background-Run.ps1` with its exact
+   `engineering_task_id` and an operator reason.
+5. Need PR lifecycle automation: run `Close-PR-Loop.ps1`.
+6. Need one repo preflight before push: run `Preflight-PR.ps1`.
+7. Need governed populated front-office validation: run `Invoke-Canonical-FrontOffice-QA.ps1`.
+8. Need backend service readiness QA validation: run `Invoke-Platform-QA.ps1`.
 8. Need a reusable seeded cross-app business scenario: run `Invoke-CrossApp-CorePerformance-TwrBenchmark.ps1`.
 9. Need a reusable seeded cross-app MWR scenario: run `Invoke-CrossApp-CorePerformance-Mwr.ps1`.
 10. Need a reusable seeded cross-app returns-series scenario: run `Invoke-CrossApp-CorePerformance-ReturnsSeries.ps1`.
@@ -33,6 +35,7 @@ Canonical source: `lotus-platform/automation`
 | Run heavy checks in background | `automation/Start-Background-Run.ps1 -Profile <name> -MaxParallel <n>` | Offload checks while coding |
 | Run one repo-native target in background | `automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make/npm/python/powershell> -Target <target>` | Detach an exact repository command without editing the shared profile catalog or evaluating a shell string |
 | Monitor detached background runs | `automation/Check-Background-Runs.ps1` | Inspect async run state and artifacts |
+| Cancel one detached background run | `automation/Cancel-Background-Run.ps1 -EngineeringTaskId <id> -Reason <reason>` | Verify PID/start ownership, terminate only that process tree, reconcile launch-declared cleanup, and write an atomic receipt |
 | Fast daily alignment baseline | `automation/Start-Background-Run.ps1 -Profile platform-alignment -MaxParallel 3` | Day-to-day cross-repo confidence |
 | Full governance sweep | `automation/Start-Background-Run.ps1 -Profile autonomous-foundation -MaxParallel 1` | Deeper standards/governance evidence |
 | Detect stalled PR checks | `automation/Detect-Stalled-PR-Checks.ps1 -StaleMinutes 20` | Investigate queued or in-progress PR check deadlocks |

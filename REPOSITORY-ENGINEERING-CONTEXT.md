@@ -490,6 +490,10 @@ Use these commands as the primary local contract:
     with PID plus culture-independent process-start identity reconciliation; PowerShell
     JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed
     back.
+39. governed exact background-task cancellation
+    `powershell -ExecutionPolicy Bypass -File automation/Cancel-Background-Run.ps1 -EngineeringTaskId <engineering_task_id> -Reason <reason> -Actor <operator>`
+    with PID/start ownership verification, owned-tree termination, launch-declared exact Compose
+    cleanup, atomic receipt evidence, `LOST` preservation, and fail-closed cleanup posture.
 
 ## Validation And CI Expectations
 
