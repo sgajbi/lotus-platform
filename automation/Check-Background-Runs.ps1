@@ -59,8 +59,13 @@ function Expand-BackgroundRunEntries {
 function Get-TaskStatusFromResult {
   param(
     [string]$ExpectedResultPath,
-    [object]$Process
+    [object]$Process,
+    [string]$CurrentStatus
   )
+
+  if ($CurrentStatus -in @("CANCELLED", "SUPERSEDED", "TIMED_OUT")) {
+    return $CurrentStatus
+  }
 
   if ($ExpectedResultPath -and (Test-Path $ExpectedResultPath)) {
     try {
@@ -172,7 +177,11 @@ function Print-Status {
     } else {
       $null
     }
-    $status = Get-TaskStatusFromResult -ExpectedResultPath $expectedResultPath -Process $proc
+    $currentStatus = Get-PropertyValue -Object $entry -Name "status"
+    $status = Get-TaskStatusFromResult `
+      -ExpectedResultPath $expectedResultPath `
+      -Process $proc `
+      -CurrentStatus $currentStatus
     $terminalExitCode = Get-PropertyValue -Object $entry -Name "terminal_exit_code"
     $processTree = Get-PropertyValue -Object $entry -Name "process_tree"
     $resultErrorSummary = $null
@@ -277,6 +286,7 @@ function Print-Status {
       artifacts = $artifacts
       evidence_refs = $evidenceRefs
       cleanup_state = $cleanupState
+      cancellation = Get-PropertyValue -Object $entry -Name "cancellation"
       ended_at = $endedAt
       error_summary = $errorSummary
       outLogPath = $entry.outLogPath
