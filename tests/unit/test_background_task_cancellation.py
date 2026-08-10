@@ -410,6 +410,33 @@ def test_windows_termination_uses_taskkill_tree_without_shell(
     assert outcome.strategy == "windows-taskkill-tree"
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows process-tree strategy")
+def test_windows_termination_detects_reparented_owned_descendant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = cancellation.SystemProcessController()
+    root = cancellation.ObservedProcess(4100, 100, NOW)
+    child = cancellation.ObservedProcess(4101, 4100, NOW)
+    reparented_child = cancellation.ObservedProcess(4101, 1, NOW)
+    inventories = iter(((root, child), (reparented_child,)))
+    monkeypatch.setattr(controller, "_all_processes", lambda: next(inventories))
+    monkeypatch.setattr(
+        controller,
+        "_run",
+        lambda command: subprocess.CompletedProcess(
+            command, 0, stdout="SUCCESS", stderr=""
+        ),
+    )
+    monkeypatch.setattr(cancellation.time, "sleep", lambda _: None)
+
+    outcome = controller.terminate_tree((root, child))
+
+    assert not outcome.passed
+    assert outcome.disposition == "TERMINATION_FAILED"
+    assert outcome.terminated_pids == (4100,)
+    assert outcome.remaining_owned_pids == (4101,)
+
+
 def test_docker_adapter_uses_only_exact_project_command(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -510,3 +537,40 @@ def test_checker_preserves_cancelled_status_and_cleanup_receipt(tmp_path: Path) 
     assert reconciled["cleanup_state"] == "DONE"
     assert reconciled["error_summary"] == entry["error_summary"]
     assert reconciled["cancellation"] == entry["cancellation"]
+
+
+def test_checker_defers_when_cancellation_holds_ledger_lock(tmp_path: Path) -> None:
+    state_path = tmp_path / "background-runs.json"
+    entry = _entry(
+        mode="repository-target",
+        cleanup_contract={"ownership_state": "NONE", "compose_projects": []},
+    )
+    _write_ledger(state_path, [entry])
+    original = state_path.read_bytes()
+    state_path.with_suffix(".json.lock").write_text("pid=99999\n", encoding="utf-8")
+    process_options = (
+        {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+    )
+
+    checked = subprocess.run(
+        [
+            _powershell(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(ROOT / "automation" / "Check-Background-Runs.ps1"),
+            "-StatePath",
+            str(state_path),
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        **process_options,
+    )
+
+    assert checked.returncode == 0, checked.stderr
+    assert "reconciliation deferred" in checked.stdout
+    assert state_path.read_bytes() == original

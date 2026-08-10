@@ -133,7 +133,30 @@ function Get-OwnedProcess {
   return $process
 }
 
-function Print-Status {
+function Write-BackgroundRunLedgerAtomically {
+  param(
+    [string]$RunStatePath,
+    [string]$Content
+  )
+
+  $resolvedStatePath = [System.IO.Path]::GetFullPath($RunStatePath)
+  $temporaryPath = "$resolvedStatePath.$PID.tmp"
+  $backupPath = "$resolvedStatePath.$PID.bak"
+  $utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+  try {
+    [System.IO.File]::WriteAllText($temporaryPath, "$Content`n", $utf8WithoutBom)
+    [System.IO.File]::Replace($temporaryPath, $resolvedStatePath, $backupPath)
+  } finally {
+    if (Test-Path -LiteralPath $temporaryPath) {
+      Remove-Item -LiteralPath $temporaryPath -Force
+    }
+    if (Test-Path -LiteralPath $backupPath) {
+      Remove-Item -LiteralPath $backupPath -Force
+    }
+  }
+}
+
+function Update-BackgroundRunLedger {
   param(
     [string]$RunStatePath,
     [switch]$Prune
@@ -309,8 +332,42 @@ function Print-Status {
   } else {
     ConvertTo-Json -InputObject @($persisted) -Depth 8
   }
-  $persistedJson | Set-Content $RunStatePath
+  Write-BackgroundRunLedgerAtomically -RunStatePath $RunStatePath -Content $persistedJson
   $updated | Sort-Object startedAt -Descending | Format-Table pid, display_name, status, startedAt, latestResult -AutoSize
+}
+
+function Print-Status {
+  param(
+    [string]$RunStatePath,
+    [switch]$Prune
+  )
+
+  $resolvedStatePath = [System.IO.Path]::GetFullPath($RunStatePath)
+  $lockPath = "$resolvedStatePath.lock"
+  $lockStream = $null
+  try {
+    try {
+      $lockStream = [System.IO.File]::Open(
+        $lockPath,
+        [System.IO.FileMode]::CreateNew,
+        [System.IO.FileAccess]::Write,
+        [System.IO.FileShare]::None
+      )
+      $owner = [System.Text.Encoding]::UTF8.GetBytes("pid=$PID`n")
+      $lockStream.Write($owner, 0, $owner.Length)
+      $lockStream.Flush()
+    } catch [System.IO.IOException] {
+      Write-Warning "Background-run ledger is locked; reconciliation deferred: $lockPath"
+      return
+    }
+
+    Update-BackgroundRunLedger -RunStatePath $resolvedStatePath -Prune:$Prune
+  } finally {
+    if ($lockStream) {
+      $lockStream.Dispose()
+      Remove-Item -LiteralPath $lockPath -Force -ErrorAction SilentlyContinue
+    }
+  }
 }
 
 if ($Watch) {
