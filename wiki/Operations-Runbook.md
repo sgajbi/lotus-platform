@@ -154,6 +154,9 @@ tree. Docker cleanup is permitted only for exact Compose projects declared at la
 through live Compose labels; ambiguous, vanished, or reused ownership fails closed. Treat
 `CANCELLED` and `cleanup_state` as independent evidence, and retain the generated cancellation
 receipt. Never reconstruct cancellation with broad process matching or daemon-wide Docker cleanup.
+Launch, monitoring reconciliation, and cancellation share one exclusive ledger lock; contention
+defers or rejects the writer without overwriting newer task evidence, and a failed launch append
+rolls back its exact newly started process tree.
 
 See [Platform automation](../automation/README.md) for cleanup-plan shape, receipt fields, and
 failure classifications.

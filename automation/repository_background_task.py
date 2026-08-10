@@ -12,6 +12,7 @@ import contextlib
 import json
 import os
 import re
+import signal
 import shutil
 import subprocess
 import sys
@@ -330,6 +331,29 @@ def _exclusive_ledger_lock(state_path: Path) -> Iterator[None]:
             lock_path.unlink()
 
 
+def append_ledger_entry(state_path: Path, entry: dict[str, Any]) -> None:
+    """Append one validated task entry under the shared ledger lock."""
+    engineering_task_id = entry.get("engineering_task_id")
+    correlation_ref = entry.get("correlation_ref")
+    process_id = entry.get("pid")
+    if not isinstance(engineering_task_id, str) or not engineering_task_id:
+        raise BackgroundTaskError("Ledger entry requires engineering_task_id")
+    if not isinstance(correlation_ref, str) or not correlation_ref:
+        raise BackgroundTaskError("Ledger entry requires correlation_ref")
+    if not isinstance(process_id, int) or process_id <= 0:
+        raise BackgroundTaskError("Ledger entry requires a positive process id")
+
+    with _exclusive_ledger_lock(state_path):
+        state = _load_ledger(state_path)
+        validate_new_ledger_identity(
+            state,
+            engineering_task_id=engineering_task_id,
+            correlation_ref=correlation_ref,
+            process_id=process_id,
+        )
+        _atomic_write_json(state_path, [*state, entry])
+
+
 def _task_slug(repository: str, target_type: str, target: str) -> str:
     raw = f"{repository}-{target_type}-{target}"
     slug = re.sub(r"[^A-Za-z0-9._-]+", "-", raw).strip("-.").lower()
@@ -395,6 +419,58 @@ def _start_detached_runner(
         time.sleep(0.2 * (attempt + 1))
     raise BackgroundTaskError(
         f"Detached runner failed Windows process initialization: {last_return_code}"
+    )
+
+
+def _terminate_untracked_runner(process: subprocess.Popen[str]) -> None:
+    """Stop the exact just-launched process tree before returning a launch error."""
+    if process.poll() is not None:
+        return
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            **_target_process_options(),
+        )
+    else:
+        get_process_group = getattr(os, "getpgid")
+        kill_process_group = getattr(os, "killpg")
+        kill_signal = getattr(signal, "SIGKILL", 9)
+        process_group = get_process_group(process.pid)
+        if process_group != process.pid:
+            raise BackgroundTaskError(
+                "Detached runner does not own its expected isolated process group"
+            )
+        kill_process_group(process_group, kill_signal)
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired as exc:
+        raise BackgroundTaskError(
+            f"Detached runner {process.pid} survived launch rollback"
+        ) from exc
+
+
+def _observe_runner_started_at(process: subprocess.Popen[str]) -> str | None:
+    try:
+        observed_process_tree = SystemProcessController().inspect_tree(process.pid)
+    except Exception as inspection_error:
+        try:
+            _terminate_untracked_runner(process)
+        except Exception as termination_error:
+            raise BackgroundTaskError(
+                "Runner identity inspection failed and exact launch rollback failed: "
+                f"{termination_error}"
+            ) from termination_error
+        raise BackgroundTaskError(
+            "Runner identity inspection failed; the detached process tree was terminated"
+        ) from inspection_error
+    return (
+        observed_process_tree[0].started_at.isoformat()
+        if observed_process_tree
+        else None
     )
 
 
@@ -473,12 +549,7 @@ def launch_repository_task(args: argparse.Namespace) -> int:
             err_log_path=err_log_path,
             result_path=result_path,
         )
-        observed_process_tree = SystemProcessController().inspect_tree(process.pid)
-        process_started_at = (
-            observed_process_tree[0].started_at.isoformat()
-            if observed_process_tree
-            else None
-        )
+        process_started_at = _observe_runner_started_at(process)
 
         entry = {
             "engineering_task_id": engineering_task_id,
@@ -677,6 +748,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
     run = subparsers.add_parser("run", help="Execute a serialized repository target")
     run.add_argument("--job-spec", required=True)
+    append = subparsers.add_parser(
+        "append-ledger-entry", help="Append one JSON task under the ledger lock"
+    )
+    append.add_argument("--state-path", default="output/background-runs.json")
+    append.add_argument("--entry-path", required=True)
     return parser
 
 
@@ -685,7 +761,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.operation == "launch":
             return launch_repository_task(args)
-        return execute_job(Path(args.job_spec).resolve())
+        if args.operation == "run":
+            return execute_job(Path(args.job_spec).resolve())
+        raw_entry = _read_json(Path(args.entry_path).resolve())
+        if not isinstance(raw_entry, dict):
+            raise BackgroundTaskError("Ledger entry input must be a JSON object")
+        append_ledger_entry(Path(args.state_path).resolve(), raw_entry)
+        return 0
     except BackgroundTaskError as exc:
         print(f"repository background task rejected: {exc}", file=sys.stderr)
         return 2

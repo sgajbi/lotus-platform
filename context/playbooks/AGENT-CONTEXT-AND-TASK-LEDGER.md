@@ -69,6 +69,9 @@ Process-start comparison must normalize PowerShell JSON-deserialized `DateTime`,
 and round-trip strings directly; never culture-format a typed timestamp and parse it back.
 After completion, reconciliation persists the terminal exit code and exact runner/target process
 identities from the repository-mode result artifact.
+Launch, reconciliation, and cancellation must use the same exclusive ledger lock and atomic write
+protocol. A launch that cannot append durably must terminate its exact newly started process tree;
+it must not continue as an untracked background task.
 
 Use the lifecycle vocabulary from the contract:
 

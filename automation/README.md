@@ -667,6 +667,10 @@ the detached runner. A launch must also declare cleanup posture when later cance
 clean receipt: use `-NoExternalCleanupRequired` for process-only work, or
 `-ComposeCleanupPlanPath` for Docker-backed work. Omitting both preserves compatibility but records
 cleanup ownership as `UNKNOWN`, so cancellation cannot claim `cleanup_state=DONE`.
+Profile and repository launches append through the same exclusive ledger lock used by reconciliation
+and cancellation; a contending launch fails without replacing newer task or cancellation evidence.
+If repository-runner identity inspection fails after detach, launch rolls back that exact process
+tree before returning an error, so no untracked runner is left behind.
 
 The Compose cleanup plan is explicit launch evidence, not a discovery hint:
 

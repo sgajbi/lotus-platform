@@ -620,6 +620,138 @@ def test_repository_target_rejects_duplicate_task_identity(tmp_path: Path) -> No
     assert len(json.loads(state_path.read_text(encoding="utf-8"))) == 1
 
 
+def test_ledger_append_preserves_existing_terminal_entry_under_lock(
+    tmp_path: Path,
+) -> None:
+    state_path = tmp_path / "background-runs.json"
+    existing = {
+        "engineering_task_id": "eng-task-cancelled",
+        "correlation_ref": "cancelled",
+        "pid": 100,
+        "status": "CANCELLED",
+        "cancellation": {"receipt_path": "receipt.json"},
+    }
+    added = {
+        "engineering_task_id": "eng-task-new",
+        "correlation_ref": "new",
+        "pid": 101,
+        "status": "RUNNING",
+    }
+    state_path.write_text(json.dumps([existing]), encoding="utf-8")
+
+    repository_background_task.append_ledger_entry(state_path, added)
+
+    assert json.loads(state_path.read_text(encoding="utf-8")) == [existing, added]
+
+
+def test_ledger_append_defers_without_mutation_when_lock_is_held(
+    tmp_path: Path,
+) -> None:
+    state_path = tmp_path / "background-runs.json"
+    existing = {
+        "engineering_task_id": "eng-task-cancelled",
+        "correlation_ref": "cancelled",
+        "pid": 100,
+        "status": "CANCELLED",
+    }
+    added = {
+        "engineering_task_id": "eng-task-new",
+        "correlation_ref": "new",
+        "pid": 101,
+        "status": "RUNNING",
+    }
+    state_path.write_text(json.dumps([existing]), encoding="utf-8")
+    state_path.with_suffix(".json.lock").write_text("pid=99999\n", encoding="utf-8")
+
+    with pytest.raises(
+        repository_background_task.BackgroundTaskError, match="ledger is locked"
+    ):
+        repository_background_task.append_ledger_entry(state_path, added)
+
+    assert json.loads(state_path.read_text(encoding="utf-8")) == [existing]
+
+
+def test_runner_identity_failure_terminates_untracked_process(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeProcess:
+        pid = 4100
+
+    class FailingController:
+        def inspect_tree(self, root_pid: int) -> None:
+            assert root_pid == 4100
+            raise repository_background_task.BackgroundTaskError(
+                "inventory unavailable"
+            )
+
+    terminated: list[int] = []
+    monkeypatch.setattr(
+        repository_background_task, "SystemProcessController", FailingController
+    )
+    monkeypatch.setattr(
+        repository_background_task,
+        "_terminate_untracked_runner",
+        lambda process: terminated.append(process.pid),
+    )
+
+    with pytest.raises(
+        repository_background_task.BackgroundTaskError,
+        match="detached process tree was terminated",
+    ):
+        repository_background_task._observe_runner_started_at(FakeProcess())  # type: ignore[arg-type]
+
+    assert terminated == [4100]
+
+
+@pytest.mark.parametrize("platform_name", ["nt", "posix"])
+def test_untracked_runner_rollback_targets_exact_detached_tree(
+    monkeypatch: pytest.MonkeyPatch,
+    platform_name: str,
+) -> None:
+    class FakeProcess:
+        pid = 4100
+
+        def poll(self) -> None:
+            return None
+
+        def wait(self, timeout: int) -> int:
+            assert timeout == 10
+            return 0
+
+    commands: list[list[str]] = []
+    killed_groups: list[tuple[int, int]] = []
+    monkeypatch.setattr(repository_background_task.os, "name", platform_name)
+    if platform_name == "nt":
+        monkeypatch.setattr(repository_background_task, "_target_process_options", dict)
+        monkeypatch.setattr(
+            repository_background_task.subprocess,
+            "run",
+            lambda command, **kwargs: commands.append(list(command)),
+        )
+    else:
+        monkeypatch.setattr(
+            repository_background_task.signal, "SIGKILL", 9, raising=False
+        )
+        monkeypatch.setattr(
+            repository_background_task.os, "getpgid", lambda pid: pid, raising=False
+        )
+        monkeypatch.setattr(
+            repository_background_task.os,
+            "killpg",
+            lambda pid, requested_signal: killed_groups.append((pid, requested_signal)),
+            raising=False,
+        )
+
+    repository_background_task._terminate_untracked_runner(FakeProcess())  # type: ignore[arg-type]
+
+    if platform_name == "nt":
+        assert commands == [["taskkill.exe", "/PID", "4100", "/T", "/F"]]
+        assert killed_groups == []
+    else:
+        assert commands == []
+        assert killed_groups == [(4100, 9)]
+
+
 def test_check_background_runs_rejects_reused_pid_with_wrong_start_time(
     tmp_path: Path,
 ) -> None:
@@ -778,6 +910,8 @@ def test_repository_target_mode_is_documented_as_typed_and_shell_free() -> None:
     assert 'ValidateSet("make", "npm", "python", "powershell")' in launcher
     assert "TargetArgumentsJson" in launcher
     assert "cmd /c" not in runner
+    assert "append-ledger-entry" in launcher
+    assert "Set-Content $StatePath" not in launcher
     assert "shell=True" not in runner
     assert "argv" in playbook
     assert "Do not pass a shell command" in skill

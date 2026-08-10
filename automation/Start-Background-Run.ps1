@@ -175,25 +175,7 @@ if ($logDir -and -not (Test-Path $logDir)) {
   New-Item -ItemType Directory -Force $logDir | Out-Null
 }
 
-$state = @()
-if (Test-Path $StatePath) {
-  $raw = Get-Content $StatePath -Raw
-  if (-not [string]::IsNullOrWhiteSpace($raw)) {
-    $state = @(ConvertFrom-Json $raw)
-  }
-}
-if ($state | Where-Object {
-    $_.engineering_task_id -eq $engineeringTaskId -or $_.correlation_ref -eq $correlationRef
-  }) {
-  throw "Background task identity already exists: $engineeringTaskId"
-}
-
 $process = Start-Process -FilePath "powershell" -ArgumentList $arguments -PassThru -WindowStyle Hidden -RedirectStandardOutput $outLogPath -RedirectStandardError $errLogPath
-if ($state | Where-Object { $_.pid -eq $process.Id }) {
-  Stop-Process -Id $process.Id -Force
-  throw "Background process id already exists in ledger: $($process.Id)"
-}
-
 $processStartedAt = $process.StartTime.ToUniversalTime().ToString("o")
 $entry = [pscustomobject]@{
   engineering_task_id = $engineeringTaskId
@@ -239,8 +221,29 @@ $entry = [pscustomobject]@{
   expectedSummaryPath = $expectedMdPath
 }
 
-$state += $entry
-ConvertTo-Json -InputObject @($state) -Depth 8 | Set-Content $StatePath
+try {
+  $entryJson = ConvertTo-Json -InputObject $entry -Depth 8 -Compress
+  $entryPath = "$StatePath.$PID.entry.tmp"
+  $utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText([System.IO.Path]::GetFullPath($entryPath), $entryJson, $utf8WithoutBom)
+  & python automation/repository_background_task.py append-ledger-entry --state-path $StatePath --entry-path $entryPath
+  if ($LASTEXITCODE -ne 0) {
+    throw "Background task ledger append failed for $engineeringTaskId"
+  }
+} catch {
+  if (Get-Process -Id $process.Id -ErrorAction SilentlyContinue) {
+    & taskkill.exe /PID $process.Id /T /F 2>$null | Out-Null
+    Wait-Process -Id $process.Id -Timeout 10 -ErrorAction SilentlyContinue
+  }
+  if (Get-Process -Id $process.Id -ErrorAction SilentlyContinue) {
+    throw "Background task ledger append failed and process $($process.Id) survived rollback"
+  }
+  throw
+} finally {
+  if ($entryPath -and (Test-Path -LiteralPath $entryPath)) {
+    Remove-Item -LiteralPath $entryPath -Force
+  }
+}
 
 Write-Host ("Started background run. PID={0}, Profile={1}" -f $process.Id, $Profile)
 Write-Host "Monitor status with: powershell -ExecutionPolicy Bypass -File automation/Check-Background-Runs.ps1"
