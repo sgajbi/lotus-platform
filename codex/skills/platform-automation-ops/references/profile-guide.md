@@ -15,7 +15,9 @@ Core scripts:
 
 - `automation/Run-Parallel-Tasks.ps1`
 - `automation/Start-Background-Run.ps1`
+- `automation/Cancel-Background-Run.ps1`
 - `automation/repository_background_task.py`
+- `automation/background_task_cancellation.py`
 - `automation/Check-Background-Runs.ps1`
 - `automation/Service-Refresh.ps1`
 
@@ -29,6 +31,15 @@ Use repository mode for a long validation that should not require editing `task-
 Use `-ExpectedHead`, `-RequireClean`, and `-RequiredArtifact` for exact-source certification. A
 required artifact must be repo-relative and must be written during the run.
 
+Use `-NoExternalCleanupRequired` when the task owns no external runtime. For Docker-backed tasks,
+use `-ComposeCleanupPlanPath` to persist exact project, working-directory, and config-file ownership
+at launch. Without either declaration, later cancellation leaves cleanup `BLOCKED`.
+
+Cancel only through `Cancel-Background-Run.ps1 -EngineeringTaskId <id> -Reason <reason>`. The
+command verifies PID/start identity, terminates the owned tree, cleans only label-verified declared
+Compose projects, writes an atomic receipt, and does not translate vanished ownership into
+`CANCELLED`.
+
 Status and artifacts:
 
 - `output/background-runs.json`, using RFC-0094 fields such as `engineering_task_id`,
@@ -39,6 +50,7 @@ Status and artifacts:
 - `output/task-runs/*.err.log`
 - `output/task-runs/*.job.json`
 - `output/task-runs/*.result.json`
+- `output/task-runs/*.cancellation.json`
 
 Use lifecycle values from
 `platform-contracts/agent-engineering/engineering-task-ledger-contract.v1.json`: `RUNNING`,

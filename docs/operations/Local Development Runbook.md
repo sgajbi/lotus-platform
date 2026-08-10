@@ -632,7 +632,13 @@ $head = git -C $repositoryRoot rev-parse HEAD
 powershell -ExecutionPolicy Bypass -File automation\Start-Background-Run.ps1 `
   -Repository lotus-core -TargetType make -Target profile-derived-state-daily `
   -ExpectedHead $head -RequireClean `
-  -RequiredArtifact "output/task-runs/*-bank-day-load.json"
+  -RequiredArtifact "output/task-runs/*-bank-day-load.json" `
+  -ComposeCleanupPlanPath <compose-cleanup-plan.json>
+
+# governed exact-task cancellation (never use a broad process or Docker cleanup)
+powershell -ExecutionPolicy Bypass -File automation\Cancel-Background-Run.ps1 `
+  -EngineeringTaskId <engineering_task_id> `
+  -Reason "Operator-approved cancellation" -Actor <operator>
 
 # check background status on demand
 powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1
@@ -667,6 +673,17 @@ powershell -ExecutionPolicy Bypass -File automation\Run-Parallel-Tasks.ps1 -Prof
 # Dependency vulnerability rollup baseline
 powershell -ExecutionPolicy Bypass -File automation\Generate-Dependency-Vulnerability-Rollup.ps1
 ```
+
+Declare `-NoExternalCleanupRequired` at launch for process-only tasks. Docker-backed tasks that
+must support a clean cancellation receipt instead use `-ComposeCleanupPlanPath` with exact project,
+working-directory, and Compose-file provenance. If neither is declared, cancellation may terminate
+the verified task but leaves `cleanup_state=BLOCKED`; it must not invent cleanup ownership.
+
+`Cancel-Background-Run.ps1` targets one exact ledger id, verifies PID plus process-start identity,
+terminates only its owned process tree, and preserves `LOST` when the process vanished or the PID
+was reused. Exact Compose cleanup runs only when live container labels match the launch declaration;
+unrelated projects, ambiguous residual volumes/networks, images, and daemon-wide prune remain out of
+scope. Review the cancellation receipt under `output/task-runs/` before rerunning certification.
 
 Profiles are defined in `automation/task-profiles.json` and currently include:
 - `bootstrap-env`

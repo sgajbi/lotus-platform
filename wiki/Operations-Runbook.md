@@ -138,6 +138,26 @@ python automation\validate_analytics_ui_entitlement_certification.py
 python -m pytest tests\unit\test_analytics_ui_entitlement_certification.py tests\unit\test_analytics_ui_observability_contract.py -q
 ```
 
+## Background task cancellation
+
+Cancel only by the durable `engineering_task_id` recorded at launch:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation\Cancel-Background-Run.ps1 `
+  -EngineeringTaskId <engineering_task_id> `
+  -Reason "Superseded by corrected exact-head evidence" `
+  -Actor <operator>
+```
+
+The command verifies the recorded PID and process-start identity before terminating that process
+tree. Docker cleanup is permitted only for exact Compose projects declared at launch and verified
+through live Compose labels; ambiguous, vanished, or reused ownership fails closed. Treat
+`CANCELLED` and `cleanup_state` as independent evidence, and retain the generated cancellation
+receipt. Never reconstruct cancellation with broad process matching or daemon-wide Docker cleanup.
+
+See [Platform automation](../automation/README.md) for cleanup-plan shape, receipt fields, and
+failure classifications.
+
 ## Delegated engineering tasks
 
 RFC-0096 delegated work uses governed profiles and evidence envelopes from

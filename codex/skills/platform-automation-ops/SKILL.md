@@ -35,6 +35,12 @@ powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1
 cd <lotus-platform>
 powershell -ExecutionPolicy Bypass -File automation\Check-Background-Runs.ps1 -Watch -IntervalSeconds 20
 ```
+4. Cancel one exact local task:
+```powershell
+cd <lotus-platform>
+powershell -ExecutionPolicy Bypass -File automation\Cancel-Background-Run.ps1 `
+  -EngineeringTaskId <engineering_task_id> -Reason <reason> -Actor <operator>
+```
 
 ## Execute A Repository-Native Target
 
@@ -53,6 +59,10 @@ string. The typed launcher serializes target arguments, rechecks repository iden
 fences in the detached process, and writes exact job/result artifacts. From PowerShell, pass
 multiple arguments with `-TargetArgument @("one", "two")`; from a native caller, use
 `-TargetArgumentsJson '["one","two"]'`.
+
+Declare cancellation cleanup posture at launch. Use `-NoExternalCleanupRequired` for process-only
+work. For Docker-backed work, pass a `-ComposeCleanupPlanPath` that declares exact project,
+working-directory, and Compose-file provenance. Do not infer cleanup ownership after launch.
 
 ## Run Foreground Parallel Profiles
 
@@ -96,12 +106,20 @@ For `output/background-runs.json`, report the governed lifecycle status without 
 - `SUCCEEDED`: expected result artifact exists and all child task exit codes are zero,
 - `FAILED`: result artifact exists but failed or could not be parsed,
 - `LOST`: process ended before expected result evidence was written.
+- `CANCELLED`: exact process ownership was verified and the task was terminated; inspect
+  `cleanup_state` and the cancellation receipt separately.
 
 Treat `LOST` as an operational finding that needs cleanup or rerun evidence. GitHub Actions remains
 the source of truth for GitHub check status; the background-run ledger is local automation evidence.
 `Check-Background-Runs.ps1` also reconciles older wrapped `output/background-runs.json` entries into
 normal task-ledger rows before status evaluation. Do not treat legacy wrapper shape as a manual
 blocker; run the checker and use the normalized ledger it writes back.
+
+Never cancel by broad process matching or Docker cleanup. The governed command verifies PID plus
+start identity, terminates only the owned tree, preserves `LOST` for vanished or reused processes,
+and writes an atomic receipt. Compose cleanup runs only for launch-declared projects with exact live
+label provenance. `cleanup_state=DONE` requires passed cleanup; ambiguous or failed cleanup is
+`BLOCKED`.
 
 ## Generate Heartbeat Attention Artifacts
 
@@ -175,6 +193,7 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
   portfolio/as-of date, and link or create the Core owner issue instead of reopening auth work.
 - When automation script behavior changes, update:
   - `automation/README.md`
+  - `automation/docs/Automation-Guide.md`
   - `docs/operations/Local Development Runbook.md`
   - this skill reference file if command flow changed
   - heartbeat context/wiki guidance when RFC-0095 operator behavior changes
