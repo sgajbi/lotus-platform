@@ -279,7 +279,11 @@ class SystemProcessController:
                 "Root PID was reused before termination",
             )
 
-        requested = tuple(item.pid for item in current_tree)
+        tracked_by_pid = {process.pid: process for process in expected_tree}
+        for process in current_tree:
+            tracked_by_pid.setdefault(process.pid, process)
+        tracked_tree = tuple(tracked_by_pid.values())
+        requested = tuple(item.pid for item in tracked_tree)
         if os.name == "nt":
             strategy = "windows-taskkill-tree"
             completed = self._run(["taskkill.exe", "/PID", str(root.pid), "/T", "/F"])
@@ -299,7 +303,7 @@ class SystemProcessController:
                     )
                 os.killpg(process_group, signal.SIGTERM)
                 time.sleep(0.2)
-                if self._inspect_owned_processes(current_tree):
+                if self._inspect_owned_processes(tracked_tree):
                     os.killpg(process_group, signal.SIGKILL)
                 detail = "Terminated isolated process group"
             except (ProcessLookupError, PermissionError) as exc:
@@ -309,7 +313,7 @@ class SystemProcessController:
 
         time.sleep(0.1)
         remaining = tuple(
-            process.pid for process in self._inspect_owned_processes(current_tree)
+            process.pid for process in self._inspect_owned_processes(tracked_tree)
         )
         disposition = "TERMINATED" if not remaining else "TERMINATION_FAILED"
         terminated = tuple(pid for pid in requested if pid not in remaining)

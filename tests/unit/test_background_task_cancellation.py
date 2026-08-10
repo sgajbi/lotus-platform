@@ -437,6 +437,33 @@ def test_windows_termination_detects_reparented_owned_descendant(
     assert outcome.remaining_owned_pids == (4101,)
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows process-tree strategy")
+def test_windows_termination_retains_descendant_missing_from_second_tree_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = cancellation.SystemProcessController()
+    root = cancellation.ObservedProcess(4100, 100, NOW)
+    child = cancellation.ObservedProcess(4101, 4100, NOW)
+    reparented_child = cancellation.ObservedProcess(4101, 1, NOW)
+    inventories = iter(((root,), (reparented_child,)))
+    monkeypatch.setattr(controller, "_all_processes", lambda: next(inventories))
+    monkeypatch.setattr(
+        controller,
+        "_run",
+        lambda command: subprocess.CompletedProcess(
+            command, 0, stdout="SUCCESS", stderr=""
+        ),
+    )
+    monkeypatch.setattr(cancellation.time, "sleep", lambda _: None)
+
+    outcome = controller.terminate_tree((root, child))
+
+    assert outcome.requested_pids == (4100, 4101)
+    assert outcome.disposition == "TERMINATION_FAILED"
+    assert outcome.terminated_pids == (4100,)
+    assert outcome.remaining_owned_pids == (4101,)
+
+
 def test_docker_adapter_uses_only_exact_project_command(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
