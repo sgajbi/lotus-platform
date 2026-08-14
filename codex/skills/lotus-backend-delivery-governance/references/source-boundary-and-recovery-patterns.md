@@ -10,7 +10,8 @@ operator controls.
 2. Tenant-aware downstream source adapters
 3. Shared dependency problem-details preservation
 4. Dead-letter inspection and redrive
-5. Database disaster-recovery certification
+5. Governed replay-evidence authority
+6. Database disaster-recovery certification
 
 ## Typed Lifecycle And Audit Payloads
 
@@ -65,6 +66,31 @@ migration/index, restart, and replay path against the real repository technology
 dry-runs and fake adapters are not sufficient database proof. Improve this as an internal bounded
 module first; add a separately deployed recovery service only when workload, failure-isolation,
 ownership, or operability evidence justifies it.
+
+## Governed Replay-Evidence Authority
+
+When ingestion, retry, dead-letter, or operator-support work retains request evidence, define one
+versioned policy per endpoint or domain family. The policy must declare durable representation
+(`source_safe_payload`, `fingerprint_only`, `redacted`, or `none`), full- and partial-replay
+eligibility, technical expiry, retention authority, and source availability. A payload fingerprint,
+idempotency identifier, failed-record key, correlation reference, or diagnostic row proves only the
+identity or observation it was designed to prove. None independently authorizes replay, proves that
+payload bytes remain available, or permits reconstructing a request from downstream state.
+
+Load replay context through a typed port and evaluate the policy in the domain layer. Re-evaluate
+temporal and replay authority at the final action boundary after awaited permission, mode, lease,
+or duplicate checks and immediately before dry-run success or publication. Fail closed with stable,
+source-safe reasons when evidence is absent, expired, unavailable, restricted, non-replayable, or
+partial replay is not explicitly authorized. Never turn a fingerprint-only family into a replayable
+one by retaining identifiers in a status response, audit event, or test fake.
+
+Keep API and operator contract truth aligned with the same policy. Positive OpenAPI examples,
+retry tests, and dead-letter recovery fixtures must use a family whose source-safe payload is
+durably available and whose policy authorizes the demonstrated replay shape. Restricted or
+fingerprint-only examples must expose no replayable keys and must not fabricate payload authority.
+Prove identical-input fingerprint stability, changed-input mismatch, raw-sensitive-value absence,
+full/partial authorization, exact expiry, check-then-wait expiry races, restart/reload behavior, and
+OpenAPI example parity. Preserve diagnostic identity separately from execution authority.
 
 ## Database Disaster-Recovery Certification
 
