@@ -1,26 +1,12 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-07-14T00:00:00Z",
+  "generated_at_utc": "2026-08-14T22:45:00Z",
   "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
     {
-      "repository": "lotus-advise",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
-      "reason": "Rollout requires a repo-local PR to replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
-      "violations": [
-        "merged-pr-dispatch.missing",
-        "pr-auto-merge.github-token",
-        "pr-auto-merge.missing-lotus-token",
-        "pr-auto-merge.missing-rebase-merge",
-        "pr-auto-merge.write-permissions"
-      ]
-    },
-    {
       "repository": "lotus-ai",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -30,7 +16,7 @@
     {
       "repository": "lotus-archive",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -43,7 +29,7 @@
     {
       "repository": "lotus-core",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -56,7 +42,7 @@
     {
       "repository": "lotus-gateway",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -66,7 +52,7 @@
     {
       "repository": "lotus-manage",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -76,7 +62,7 @@
     {
       "repository": "lotus-performance",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -86,7 +72,7 @@
     {
       "repository": "lotus-render",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -97,7 +83,7 @@
     {
       "repository": "lotus-report",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
       "violations": [
@@ -110,22 +96,9 @@
     {
       "repository": "lotus-risk",
       "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
       "reason": "Rollout requires a repo-local PR to replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
-      "violations": [
-        "merged-pr-dispatch.missing",
-        "pr-auto-merge.github-token",
-        "pr-auto-merge.missing-lotus-token",
-        "pr-auto-merge.write-permissions"
-      ]
-    },
-    {
-      "repository": "lotus-workbench",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-14T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
-      "reason": "Workbench rollout is tracked separately and must replace github.token auto-merge with LOTUS_AUTOMERGE_TOKEN and add the merged-PR main-releasability dispatcher.",
       "violations": [
         "merged-pr-dispatch.missing",
         "pr-auto-merge.github-token",
