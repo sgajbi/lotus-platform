@@ -516,9 +516,10 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
 9. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
 10. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
     and use `-BringUp -RequireMainlineSources` for RFC closure, supported-feature promotion, or
-    other mainline-certified front-office proof. This mode delegates Workbench's fail-closed
-    exact-`origin/main` source preflight for every canonical participant and records
-    `require_mainline_sources` in the platform wrapper summary,
+    other mainline-certified front-office proof. This mode forces image builds, runs fail-closed
+    exact-`origin/main` source preflight for every canonical participant before cleanup/startup,
+    delegates Workbench's same provenance check into startup/validation, and records
+    `require_mainline_sources` plus `mainline_source_preflight` in the platform wrapper summary,
 11. treat `lotus-idea` as part of the default canonical QA runtime; do not reintroduce an opt-in flag
     or skip its readiness/teardown evidence unless the task explicitly asks for a diagnostic partial
     run,

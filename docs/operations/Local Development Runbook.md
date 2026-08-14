@@ -171,10 +171,12 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 ```
 
 Use `-CleanPlanOnly` first when a stack may already be running. The certified mode requires
-`-BringUp`, delegates Workbench's fail-closed exact-`origin/main` source preflight for every
-canonical participant, and records `require_mainline_sources` in
+`-BringUp`, forces image builds, runs fail-closed exact-`origin/main` source preflight for every
+canonical participant before cleanup/startup, delegates Workbench's same provenance check into
+startup/validation, and records `require_mainline_sources` plus `mainline_source_preflight` in
 `output/front-office-qa/latest.json` so proof consumers can distinguish RFC/mainline evidence from
-ordinary local development evidence.
+ordinary local development evidence. If source preflight fails, the wrapper does not stop an
+already-running canonical stack.
 
 ## 2. Service Identities and Dependencies
 
