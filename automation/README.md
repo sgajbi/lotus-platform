@@ -799,6 +799,14 @@ Run governed canonical front-office QA readiness automation:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 ```
 
+For RFC closure, supported-feature promotion, or other mainline certification proof, require exact
+mainline source provenance before Docker startup, seeding, validation, screenshots, and Lotus Idea
+readiness evidence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources
+```
+
 This delegates to the governed `lotus-workbench` runtime and validation flow, uses the seeded front-office portfolio `PB_SG_GLOBAL_BAL_001`, and writes wrapper evidence to:
 
 - `output/front-office-qa/latest.json`
@@ -829,6 +837,8 @@ market-data families.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
+Wrapper summaries record `require_mainline_sources` so proof consumers can distinguish
+development evidence from RFC/mainline certification evidence.
 Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
 empty/error posture.
 

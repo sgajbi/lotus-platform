@@ -183,6 +183,10 @@ powershell -ExecutionPolicy Bypass -File automation\Close-PR-Loop.ps1 -Watch -In
 - Prefer `-ChangedOnly` or specific services for refresh.
 - Check logs first when failures occur.
 - Keep documentation updates in `lotus-platform` synchronized with script behavior.
+- For RFC closure, supported-feature promotion, or other mainline-certified canonical front-office
+  proof, use `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources`
+  after a read-only `-CleanPlanOnly` review. This delegates Workbench's fail-closed exact-main
+  source preflight and records `require_mainline_sources` in the platform wrapper summary.
 - For canonical DPM command-center seed failures against `lotus-manage`, use
   `automation/Invoke-DpmCommandCenterSeed.ps1 -PreflightOnly` first when the stack is already
   running. A 403 on the preflight means the platform seed actor, role, service identity, or
