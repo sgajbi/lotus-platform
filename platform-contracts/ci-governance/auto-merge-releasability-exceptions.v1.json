@@ -1,18 +1,8 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-08-14T22:45:00Z",
+  "generated_at_utc": "2026-08-14T23:45:00Z",
   "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
-    {
-      "repository": "lotus-ai",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-28T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
-      "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
-      "violations": [
-        "merged-pr-dispatch.missing"
-      ]
-    },
     {
       "repository": "lotus-archive",
       "owner": "platform-ci-governance",
