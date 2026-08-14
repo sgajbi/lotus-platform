@@ -71,9 +71,20 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RequireMainlineSources" in wrapper
     assert "RequireMainlineSources requires -BringUp" in wrapper
+    assert 'if ($RequireMainlineSources -and -not $BuildImages)' in wrapper
+    assert "$BuildImages = $true" in wrapper
     assert "require_mainline_sources = [bool]$RequireMainlineSources" in wrapper
+    assert "mainline_source_preflight = $null" in wrapper
+    assert "$summary.mainline_source_preflight = [ordered]@{" in wrapper
+    assert "Invoke-MainlineSourceProvenancePreflight" in wrapper
+    assert "mainline-source-provenance.mjs" in wrapper
+    assert "failed before cleanup, Docker build, seed, or validation was started" in wrapper
+    assert "mainline-source-provenance-preflight-latest.json" in wrapper
+    assert '$summary.steps += "mainline-source-preflight"' in wrapper
     assert "$bringUpArguments.RequireMainlineSources = $true" in wrapper
+    assert "-not $RequireMainlineSources -or $certifiedSourcePreflightPassed" in wrapper
     assert "Require mainline sources:" in wrapper
+    assert "Mainline source preflight:" in wrapper
     assert "[switch]$RemoveImages" in wrapper
     assert "[switch]$IncludeLotusIdea" not in wrapper
     assert "[switch]$SkipDpmCommandCenterSeed" in wrapper
@@ -269,10 +280,19 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     )
     assert "-BringUp -RequireMainlineSources" in engineering_context
     assert "require_mainline_sources" in engineering_context
+    assert "mainline_source_preflight" in engineering_context
+    assert "forces image builds" in engineering_context
     assert "-BringUp -RequireMainlineSources" in skill_routing_map
     assert "mainline-certified front-office proof" in skill_routing_map
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in local_dev_runbook
     assert "require_mainline_sources" in local_dev_runbook
+    assert "mainline_source_preflight" in local_dev_runbook
+    assert "already-running canonical stack" in local_dev_runbook
+    assert "forces image builds" in automation_guide
+    assert "mainline_source_preflight" in automation_guide
+    assert "must not tear down an existing canonical stack" in (
+        ROOT / "codex" / "skills" / "platform-automation-ops" / "SKILL.md"
+    ).read_text(encoding="utf-8")
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_guide
     assert "Broad daemon-wide" in automation_guide
     assert "repository-scoped Workbench Compose teardown" in automation_guide

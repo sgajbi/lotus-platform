@@ -33,6 +33,9 @@ if ($CleanPlanOnly -and ($Clean -or $BringUp -or $CleanCoreState -or $BuildImage
 if ($RequireMainlineSources -and -not $BringUp) {
   throw "-RequireMainlineSources requires -BringUp so Workbench can run mainline-source preflight before startup and validation."
 }
+if ($RequireMainlineSources -and -not $BuildImages) {
+  $BuildImages = $true
+}
 $lotusIdeaRepoPath = Join-Path $ProjectsRoot "lotus-idea"
 if (-not (Test-Path $WorkbenchRepoPath)) {
   throw "Workbench repository path not found: $WorkbenchRepoPath"
@@ -107,6 +110,35 @@ function Invoke-LotusIdeaDockerDown {
     }
   } finally {
     Pop-Location
+  }
+}
+
+function Invoke-MainlineSourceProvenancePreflight {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$ProjectsRoot,
+
+    [Parameter(Mandatory = $true)]
+    [string]$WorkbenchRepoPath,
+
+    [Parameter(Mandatory = $true)]
+    [string]$OutputPath
+  )
+
+  $scriptPath = Join-Path $WorkbenchRepoPath "scripts\live\validation\mainline-source-provenance.mjs"
+  if (-not (Test-Path $scriptPath)) {
+    throw "Canonical mainline source provenance script not found: $scriptPath"
+  }
+
+  $global:LASTEXITCODE = 0
+  & node $scriptPath --projects-root $ProjectsRoot --output $OutputPath
+  if ($LASTEXITCODE -ne 0) {
+    throw "Canonical mainline source provenance preflight failed before cleanup, Docker build, seed, or validation was started."
+  }
+
+  return [ordered]@{
+    script_path = $scriptPath
+    output_path = $OutputPath
   }
 }
 
@@ -212,7 +244,9 @@ $summaryJsonPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa
 $summaryMarkdownPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.md"
 $runtimeTranscriptPath = Join-Path $resolvedOutputDirectory "canonical-front-office-qa-$timestamp.log"
 $cleanupPlanPath = Join-Path $resolvedOutputDirectory "canonical-front-office-cleanup-plan-$timestamp.json"
+$mainlineSourcePreflightPath = Join-Path $resolvedOutputDirectory "mainline-source-provenance-preflight-$timestamp.json"
 $latestCleanupPlanPath = Join-Path $resolvedOutputDirectory "cleanup-plan-latest.json"
+$latestMainlineSourcePreflightPath = Join-Path $resolvedOutputDirectory "mainline-source-provenance-preflight-latest.json"
 $latestJsonPath = Join-Path $resolvedOutputDirectory "latest.json"
 $latestMarkdownPath = Join-Path $resolvedOutputDirectory "latest.md"
 $latestTranscriptPath = Join-Path $resolvedOutputDirectory "latest.log"
@@ -246,6 +280,7 @@ $summary = [ordered]@{
   runtime_transcript = $runtimeTranscriptPath
   lotus_idea = $null
   dpm_command_center_seed_summary = $null
+  mainline_source_preflight = $null
   docker_ownership_policy = $dockerBefore.selection_policy
   docker_cleanup_plan_path = if ($Clean -or $CleanPlanOnly) { $cleanupPlanPath } else { $null }
   docker_before = $dockerBefore
@@ -272,6 +307,22 @@ $validationArguments = @{
 try {
   Start-Transcript -Path $runtimeTranscriptPath -Force | Out-Null
   $transcriptStarted = $true
+
+  $certifiedSourcePreflightPassed = $false
+  if ($RequireMainlineSources) {
+    $mainlineSourcePreflightScript = Join-Path $WorkbenchRepoPath "scripts\live\validation\mainline-source-provenance.mjs"
+    $summary.mainline_source_preflight = [ordered]@{
+      script_path = $mainlineSourcePreflightScript
+      output_path = $mainlineSourcePreflightPath
+    }
+    $summary.mainline_source_preflight = Invoke-MainlineSourceProvenancePreflight `
+      -ProjectsRoot $ProjectsRoot `
+      -WorkbenchRepoPath $WorkbenchRepoPath `
+      -OutputPath $mainlineSourcePreflightPath
+    Copy-Item -Path $mainlineSourcePreflightPath -Destination $latestMainlineSourcePreflightPath -Force
+    $summary.steps += "mainline-source-preflight"
+    $certifiedSourcePreflightPassed = $true
+  }
 
   if ($Clean -or $CleanPlanOnly) {
     $summary.docker_before | ConvertTo-Json -Depth 10 | Set-Content -Path $cleanupPlanPath
@@ -383,7 +434,7 @@ try {
   $summary.status = "failed"
   $summary.error = $_.Exception.Message
 } finally {
-  if ($BringUp -and -not $KeepRunning) {
+  if ($BringUp -and -not $KeepRunning -and (-not $RequireMainlineSources -or $certifiedSourcePreflightPassed)) {
     try {
       Invoke-LotusIdeaDockerDown -RepoPath $lotusIdeaRepoPath
       $summary.steps += "lotus-idea-teardown"
@@ -460,6 +511,7 @@ $markdown += "## Docker Evidence"
 $markdown += ""
 $markdown += "- Ownership policy: $($summary.docker_ownership_policy)"
 $markdown += "- Cleanup plan: $($summary.docker_cleanup_plan_path)"
+$markdown += "- Mainline source preflight: $($summary.mainline_source_preflight.output_path)"
 $markdown += "- Compose projects: $(@($summary.docker_before.compose_projects) -join ', ')"
 $markdown += "- Ownership conflicts: $(@($summary.docker_before.ownership_conflicts).Count)"
 $markdown += "- Containers before: $(@($summary.docker_before.containers).Count)"

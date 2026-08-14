@@ -800,8 +800,9 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 ```
 
 For RFC closure, supported-feature promotion, or other mainline certification proof, require exact
-mainline source provenance before Docker startup, seeding, validation, screenshots, and Lotus Idea
-readiness evidence:
+mainline source provenance before cleanup, Docker startup, seeding, validation, screenshots, and
+Lotus Idea readiness evidence. This mode forces image builds so proof is not certified against
+stale local images:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources
@@ -837,8 +838,8 @@ market-data families.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
-Wrapper summaries record `require_mainline_sources` so proof consumers can distinguish
-development evidence from RFC/mainline certification evidence.
+Wrapper summaries record `require_mainline_sources` and `mainline_source_preflight` so proof
+consumers can distinguish development evidence from RFC/mainline certification evidence.
 Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
 empty/error posture.
 
