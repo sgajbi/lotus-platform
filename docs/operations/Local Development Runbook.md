@@ -161,6 +161,21 @@ ports using:
 This is the supported fallback when you need canonical `*.dev.lotus` URLs without handing full app
 ownership to `platform-stack`.
 
+### 1.1.5 Mainline-certified canonical front-office evidence
+
+For RFC closure, supported-feature promotion, or other mainline-certified front-office proof, run
+the platform wrapper in certified bring-up mode from `lotus-platform`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources
+```
+
+Use `-CleanPlanOnly` first when a stack may already be running. The certified mode requires
+`-BringUp`, delegates Workbench's fail-closed exact-`origin/main` source preflight for every
+canonical participant, and records `require_mainline_sources` in
+`output/front-office-qa/latest.json` so proof consumers can distinguish RFC/mainline evidence from
+ordinary local development evidence.
+
 ## 2. Service Identities and Dependencies
 
 - lotus-manage API: `http://manage.dev.lotus`

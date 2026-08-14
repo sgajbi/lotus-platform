@@ -28,6 +28,15 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     profiles_doc = json.loads((ROOT / "automation" / "task-profiles.json").read_text(encoding="utf-8"))
     automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
     automation_guide = (ROOT / "automation" / "docs" / "Automation-Guide.md").read_text(encoding="utf-8")
+    local_dev_runbook = (ROOT / "docs" / "operations" / "Local Development Runbook.md").read_text(
+        encoding="utf-8"
+    )
+    engineering_context = (ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md").read_text(
+        encoding="utf-8"
+    )
+    skill_routing_map = (ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md").read_text(
+        encoding="utf-8"
+    )
     root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
     docs_readme = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
     wiki_home = (ROOT / "wiki" / "Home.md").read_text(encoding="utf-8")
@@ -60,6 +69,11 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$Clean" in wrapper
     assert "[switch]$CleanPlanOnly" in wrapper
     assert "[switch]$BuildImages" in wrapper
+    assert "[switch]$RequireMainlineSources" in wrapper
+    assert "RequireMainlineSources requires -BringUp" in wrapper
+    assert "require_mainline_sources = [bool]$RequireMainlineSources" in wrapper
+    assert "$bringUpArguments.RequireMainlineSources = $true" in wrapper
+    assert "Require mainline sources:" in wrapper
     assert "[switch]$RemoveImages" in wrapper
     assert "[switch]$IncludeLotusIdea" not in wrapper
     assert "[switch]$SkipDpmCommandCenterSeed" in wrapper
@@ -238,6 +252,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "sgajbi/lotus-core#840" in automation_readme
     assert "response-body diagnostics" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
+    assert (
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources"
+        in automation_readme
+    )
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_readme
     assert "cleanup-plan-latest.json" in automation_readme
@@ -245,6 +263,16 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
+    assert (
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources"
+        in automation_guide
+    )
+    assert "-BringUp -RequireMainlineSources" in engineering_context
+    assert "require_mainline_sources" in engineering_context
+    assert "-BringUp -RequireMainlineSources" in skill_routing_map
+    assert "mainline-certified front-office proof" in skill_routing_map
+    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in local_dev_runbook
+    assert "require_mainline_sources" in local_dev_runbook
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_guide
     assert "Broad daemon-wide" in automation_guide
     assert "repository-scoped Workbench Compose teardown" in automation_guide

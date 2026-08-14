@@ -12,6 +12,7 @@ param(
   [switch]$CleanPlanOnly,
   [switch]$CleanCoreState,
   [switch]$BuildImages,
+  [switch]$RequireMainlineSources,
   [switch]$RemoveImages,
   [switch]$SkipDpmCommandCenterSeed,
   [switch]$KeepRunning
@@ -28,6 +29,9 @@ if ([string]::IsNullOrWhiteSpace($WorkbenchRepoPath)) {
 }
 if ($CleanPlanOnly -and ($Clean -or $BringUp -or $CleanCoreState -or $BuildImages -or $RemoveImages -or $KeepRunning)) {
   throw "-CleanPlanOnly is read-only and cannot be combined with cleanup, startup, build, or keep-running switches."
+}
+if ($RequireMainlineSources -and -not $BringUp) {
+  throw "-RequireMainlineSources requires -BringUp so Workbench can run mainline-source preflight before startup and validation."
 }
 $lotusIdeaRepoPath = Join-Path $ProjectsRoot "lotus-idea"
 if (-not (Test-Path $WorkbenchRepoPath)) {
@@ -226,6 +230,7 @@ $summary = [ordered]@{
   clean_plan_only = [bool]$CleanPlanOnly
   clean_core_state = [bool]$CleanCoreState
   build_images = [bool]$BuildImages
+  require_mainline_sources = [bool]$RequireMainlineSources
   remove_images = [bool]$RemoveImages
   include_lotus_idea = $true
   canonical_core_demo_pack_enabled = $false
@@ -313,6 +318,9 @@ try {
     }
     if ($BuildImages) {
       $bringUpArguments.BuildImages = $true
+    }
+    if ($RequireMainlineSources) {
+      $bringUpArguments.RequireMainlineSources = $true
     }
     if ($CleanCoreState) {
       $bringUpArguments.CleanCoreState = $true
@@ -415,6 +423,7 @@ $markdown += "- Clean: $($summary.clean)"
 $markdown += "- Clean plan only: $($summary.clean_plan_only)"
 $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
+$markdown += "- Require mainline sources: $($summary.require_mainline_sources)"
 $markdown += "- Remove images: $($summary.remove_images)"
 $markdown += "- Include lotus-idea: $($summary.include_lotus_idea)"
 $markdown += "- Canonical core demo pack enabled: $($summary.canonical_core_demo_pack_enabled)"
