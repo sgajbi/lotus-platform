@@ -1,28 +1,8 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-08-15T00:30:00Z",
+  "generated_at_utc": "2026-08-15T02:00:00Z",
   "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
-    {
-      "repository": "lotus-advise",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-28T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-advise/issues/487",
-      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
-      "violations": [
-        "main-releasability.duplicate-automatic-trigger"
-      ]
-    },
-    {
-      "repository": "lotus-ai",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-28T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-ai/issues/130",
-      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
-      "violations": [
-        "main-releasability.duplicate-automatic-trigger"
-      ]
-    },
     {
       "repository": "lotus-archive",
       "owner": "platform-ci-governance",
