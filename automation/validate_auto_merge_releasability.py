@@ -151,13 +151,18 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
     return violations
 
 
-def _main_releasability_violations(workflow_path: Path) -> list[str]:
+def _main_releasability_violations(
+    workflow_path: Path, *, merged_pr_dispatch_exists: bool
+) -> list[str]:
     if not workflow_path.exists():
         return ["main-releasability.missing"]
     payload = _load_yaml(workflow_path)
-    return [] if _has_trigger(payload, "workflow_dispatch") else [
-        "main-releasability.missing-workflow-dispatch"
-    ]
+    violations: list[str] = []
+    if not _has_trigger(payload, "workflow_dispatch"):
+        violations.append("main-releasability.missing-workflow-dispatch")
+    if merged_pr_dispatch_exists and _has_trigger(payload, "push"):
+        violations.append("main-releasability.duplicate-automatic-trigger")
+    return violations
 
 
 def validate_repository(
@@ -183,15 +188,15 @@ def validate_repository(
         )
 
     workflow_dir = repo_root / ".github" / "workflows"
+    merged_pr_dispatch_path = workflow_dir / "merged-pr-main-releasability.yml"
     violations = tuple(
         sorted(
             [
                 *_auto_merge_violations(workflow_dir / "pr-auto-merge.yml"),
-                *_merged_pr_dispatch_violations(
-                    workflow_dir / "merged-pr-main-releasability.yml"
-                ),
+                *_merged_pr_dispatch_violations(merged_pr_dispatch_path),
                 *_main_releasability_violations(
-                    workflow_dir / "main-releasability.yml"
+                    workflow_dir / "main-releasability.yml",
+                    merged_pr_dispatch_exists=merged_pr_dispatch_path.exists(),
                 ),
             ]
         )

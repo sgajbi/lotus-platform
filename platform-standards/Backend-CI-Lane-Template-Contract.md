@@ -93,8 +93,10 @@ merge completion is performed by a non-suppressed actor that can trigger post-me
 dispatch. Lotus PR completion preserves scoped commits on a linear `main` history.
 
 The scaffolded `merged-pr-main-releasability.yml` must dispatch `main-releasability.yml` when a PR
-is merged to `main`. This keeps post-merge release evidence explicit for rebase auto-merged PRs
-instead of depending only on a push-triggered workflow run.
+is merged to `main`. `main-releasability.yml` must remain manually dispatchable and must not keep a
+second automatic `push` trigger when the merged-PR dispatcher exists. This keeps post-merge release
+evidence explicit for rebase auto-merged PRs without racing, cancelling, or duplicating a separate
+push-triggered workflow run.
 
 ## Report-Only Scaffold Quality Commands
 

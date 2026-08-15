@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 355611
+    "total_source_lines": 355788
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -228,6 +228,14 @@
         "path": "automation/validate_service_addressing.py"
       },
       {
+        "complexity": 1,
+        "end_line": 326,
+        "line": 26,
+        "lines": 301,
+        "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
+        "path": "tests/unit/test_front_office_runtime_automation_contract.py"
+      },
+      {
         "complexity": 3,
         "end_line": 2283,
         "line": 2014,
@@ -258,14 +266,6 @@
         "lines": 254,
         "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 278,
-        "line": 26,
-        "lines": 253,
-        "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
-        "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
       {
         "complexity": 5,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 884,
-    "python_function_count": 2777
+    "python_function_count": 2778
   },
-  "generated_at_utc": "2026-08-10T12:43:12Z",
+  "generated_at_utc": "2026-08-15T00:38:19Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1673,
+      "lines": 1684,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -717,12 +717,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1345,
+        "line": 1356,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1351,
+        "line": 1362,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 934,
+    "collected_tests": 935,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "934 tests collected in 8.98s"
+    "summary": "935 tests collected in 1.00s"
   }
 }

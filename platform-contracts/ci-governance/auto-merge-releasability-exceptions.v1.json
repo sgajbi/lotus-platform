@@ -1,8 +1,28 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-08-14T23:45:00Z",
+  "generated_at_utc": "2026-08-15T00:30:00Z",
   "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
+    {
+      "repository": "lotus-advise",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-advise/issues/487",
+      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
+      "violations": [
+        "main-releasability.duplicate-automatic-trigger"
+      ]
+    },
+    {
+      "repository": "lotus-ai",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-ai/issues/130",
+      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
+      "violations": [
+        "main-releasability.duplicate-automatic-trigger"
+      ]
+    },
     {
       "repository": "lotus-archive",
       "owner": "platform-ci-governance",
@@ -27,16 +47,6 @@
         "pr-auto-merge.github-token",
         "pr-auto-merge.missing-lotus-token",
         "pr-auto-merge.write-permissions"
-      ]
-    },
-    {
-      "repository": "lotus-gateway",
-      "owner": "platform-ci-governance",
-      "expires_on_utc": "2026-08-28T00:00:00Z",
-      "issue_url": "https://github.com/sgajbi/lotus-platform/issues/520",
-      "reason": "Rollout requires a repo-local PR to add the merged-PR main-releasability dispatcher.",
-      "violations": [
-        "merged-pr-dispatch.missing"
       ]
     },
     {
@@ -81,6 +91,16 @@
         "pr-auto-merge.github-token",
         "pr-auto-merge.missing-lotus-token",
         "pr-auto-merge.write-permissions"
+      ]
+    },
+    {
+      "repository": "lotus-workbench",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-workbench/issues/533",
+      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
+      "violations": [
+        "main-releasability.duplicate-automatic-trigger"
       ]
     },
     {

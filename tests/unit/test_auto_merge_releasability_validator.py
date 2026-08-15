@@ -81,8 +81,6 @@ jobs:
 name: Main Releasability Gate
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 permissions:
   contents: read
 """,
@@ -108,6 +106,42 @@ def test_auto_merge_releasability_accepts_aligned_repository(tmp_path: Path) -> 
 
     assert results[0].status == "aligned"
     assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_rejects_duplicate_main_releasability_automatic_trigger(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (repo_root / ".github" / "workflows" / "main-releasability.yml").write_text(
+        """
+name: Main Releasability Gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+""",
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "main-releasability.duplicate-automatic-trigger",
+    )
 
 
 def test_auto_merge_releasability_fails_undeclared_drift(tmp_path: Path) -> None:
