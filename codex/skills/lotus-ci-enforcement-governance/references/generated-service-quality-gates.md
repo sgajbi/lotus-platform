@@ -41,8 +41,10 @@ backgrounded creation, swallowed subshell failures, or fallback branches that co
 Do not treat a bare `gh api ... && echo created; gh workflow run ...` sequence as
 failure-preserving: Bash `-e` does not exit only because the left-hand command in an `&&` list
 failed, so the later dispatch command can still run. A checked chain is valid only when an explicit
-status check, `if` guard, or grouped/subshell command returns the creation failure to the outer step
-before dispatch can execute. The validator must prove the creation command's failure still
+status check, `if` guard, or subshell command returns the creation failure to the outer step before
+dispatch can execute. Brace groups are not a safe substitute for this proof because
+`{ gh api ... && echo created; }; gh workflow run ...` can still continue to dispatch after the
+left-hand creation command fails. The validator must prove the creation command's failure still
 terminates the step or prevents dispatch.
 
 The ref-creation command must resolve to POST. Reject non-POST `gh api` method overrides such as

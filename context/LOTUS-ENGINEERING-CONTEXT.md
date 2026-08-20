@@ -850,8 +850,8 @@ and failure propagation are proven. Non-executed payloads such as here-documents
 functions, comments, query-string field drift, mutable repository selectors, wrong lookup
 projections, reassigned merge/ref variables, backgrounded commands, and soft-failed dispatch steps
 must not satisfy release-evidence proof. Bare `gh api ... && echo; gh workflow run ...` chains are
-not failure-preserving unless an explicit status check or grouped/subshell command returns the
-creation failure to the outer step before dispatch can run.
+not failure-preserving unless an explicit status check, `if` guard, or subshell command returns the
+creation failure to the outer step before dispatch can run; brace groups are not sufficient proof.
 Release evidence and deployment promotion proof are separate contracts. Service repositories own
 Dockerfile hygiene, SBOM, vulnerability scan, signing, provenance attestation, and digest-bearing
 `release-evidence.json`; `lotus-platform` owns the digest-based deployment promotion manifest under
