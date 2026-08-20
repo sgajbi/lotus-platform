@@ -49,12 +49,16 @@ groups can remain valid when the validator can prove they run before creation. T
 top-level reassignment, and the absent-ref branch must contain exactly one guarded immutable-ref
 creation invocation so redeliveries cannot skip collision detection or fail before dispatch. The
 `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
-completed, so the dispatcher cannot race ahead on a missing tag. Contract-gate tests should include
-negative cases for split run steps, commented payload fields, separated payload-field echoes, masked
-creation failure, backgrounded creation, chained creation commands, duplicate guarded creation
-commands, lookup-SHA mutation before mismatch comparison, non-POST creation overrides, input-body
-overrides, dispatch before absent-ref creation, and unreachable/function-scoped lookup guards before
-promoting the workflow as release-evidence ready.
+completed, must be a real outer-shell-scope command rather than an unreachable or nested guard, must
+not be failure-masked, backgrounded, or chained, and must bind both `--ref "$dispatch_ref"` and exact
+`-f expected_sha="$MERGE_COMMIT_SHA"` arguments so downstream exact-main validation cannot be skipped,
+emptied, or redirected to another revision. Contract-gate tests should include negative cases for
+split run steps, commented payload fields, separated payload-field echoes, masked creation failure,
+backgrounded creation, chained creation commands, duplicate guarded creation commands, lookup-SHA
+mutation before mismatch comparison, non-POST creation overrides, input-body overrides, dispatch
+before absent-ref creation, masked dispatch failure, nested dispatch commands, wrong or empty
+`expected_sha` dispatch arguments, and unreachable/function-scoped lookup guards before promoting the
+workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
