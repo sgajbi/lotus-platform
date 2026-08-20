@@ -45,15 +45,21 @@ def test_allowlisted_templates_are_the_only_pull_request_target_exceptions() -> 
     for allowlisted_dispatch_path in {dispatch_path, root_dispatch_path}:
         assert allowlisted_dispatch_path in ALLOWLIST
         assert workflow_results[allowlisted_dispatch_path].ok is True
-        assert workflow_results[allowlisted_dispatch_path].has_pull_request_target is True
+        assert (
+            workflow_results[allowlisted_dispatch_path].has_pull_request_target is True
+        )
         assert workflow_results[allowlisted_dispatch_path].write_permissions == {
             "actions": "write",
+            "contents": "write",
         }
 
     for allowlisted_auto_merge_path in {auto_merge_path, root_auto_merge_path}:
         assert allowlisted_auto_merge_path in ALLOWLIST
         assert workflow_results[allowlisted_auto_merge_path].ok is True
-        assert workflow_results[allowlisted_auto_merge_path].has_pull_request_target is True
+        assert (
+            workflow_results[allowlisted_auto_merge_path].has_pull_request_target
+            is True
+        )
         assert workflow_results[allowlisted_auto_merge_path].write_permissions == {}
 
     assert cost_attribution_path in ALLOWLIST

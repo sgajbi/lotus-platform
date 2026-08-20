@@ -19,6 +19,7 @@ ALLOWLIST = {
         "allow_pull_request_target": True,
         "required_permissions": {
             "actions": "write",
+            "contents": "write",
         },
     },
     ".github/workflows/pr-auto-merge.yml": {
@@ -36,6 +37,7 @@ ALLOWLIST = {
         "allow_pull_request_target": True,
         "required_permissions": {
             "actions": "write",
+            "contents": "write",
         },
     },
     "platform-standards/templates/workflows/pr-auto-merge.template.yml": {

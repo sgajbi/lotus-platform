@@ -122,7 +122,9 @@ def _exception_for(
     entry = exceptions.get(repository)
     if not entry or _expired(entry.get("expires_on_utc"), today=today):
         return None
-    expected_violations = tuple(sorted(str(item) for item in entry.get("violations", [])))
+    expected_violations = tuple(
+        sorted(str(item) for item in entry.get("violations", []))
+    )
     return entry if expected_violations == tuple(sorted(violations)) else None
 
 
@@ -157,8 +159,21 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.missing-closed-trigger")
     if _permissions(payload).get("actions") != "write":
         violations.append("merged-pr-dispatch.missing-actions-write")
-    if "gh workflow run main-releasability.yml" not in text or "--ref main" not in text:
+    if _permissions(payload).get("contents") != "write":
+        violations.append("merged-pr-dispatch.missing-contents-write")
+    has_immutable_dispatch_ref = (
+        'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"' in text
+        and 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in text
+        and 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in text
+        and '--ref "$dispatch_ref"' in text
+    )
+    if (
+        "gh workflow run main-releasability.yml" not in text
+        or not has_immutable_dispatch_ref
+    ):
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
+    if "git/ref/tags/$dispatch_ref" in text and "|| true" in text:
+        violations.append("merged-pr-dispatch.masked-immutable-ref-lookup")
     if (
         "github.event.pull_request.merge_commit_sha" not in text
         or "expected_sha" not in text
@@ -190,6 +205,8 @@ def _main_releasability_violations(
         )
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
+        if "${{ inputs.expected_sha || github.sha }}" not in text:
+            violations.append("main-releasability.missing-revision-aware-concurrency")
     return violations
 
 
@@ -237,7 +254,9 @@ def validate_repository(
         repo_root=str(repo_root),
         violations=violations,
         exception_owner=str(exception.get("owner")) if exception else None,
-        exception_expires_on=str(exception.get("expires_on_utc")) if exception else None,
+        exception_expires_on=str(exception.get("expires_on_utc"))
+        if exception
+        else None,
         exception_reason=str(exception.get("reason")) if exception else None,
     )
 

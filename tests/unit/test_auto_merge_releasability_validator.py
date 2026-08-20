@@ -67,7 +67,7 @@ on:
     types: [closed]
 permissions:
   actions: write
-  contents: read
+  contents: write
 jobs:
   dispatch:
     runs-on: ubuntu-latest
@@ -75,9 +75,21 @@ jobs:
       - env:
           MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
+          dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"
+          existing_ref_sha=""
+          if existing_ref_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha 2>/dev/null)"; then
+            if [ "$existing_ref_sha" != "$MERGE_COMMIT_SHA" ]; then
+              exit 1
+            fi
+          else
+            existing_ref_sha=""
+          fi
+          if [ -z "$existing_ref_sha" ]; then
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$MERGE_COMMIT_SHA"
+          fi
           gh workflow run main-releasability.yml \\
             --repo "$GITHUB_REPOSITORY" \\
-            --ref main \\
+            --ref "$dispatch_ref" \\
             -f expected_sha="$MERGE_COMMIT_SHA"
 """,
         encoding="utf-8",
@@ -93,6 +105,9 @@ on:
         type: string
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
+  cancel-in-progress: true
 jobs:
   exact-revision-assertion:
     runs-on: ubuntu-latest
@@ -164,10 +179,55 @@ permissions:
     assert results[0].violations == (
         "main-releasability.duplicate-automatic-trigger",
         "main-releasability.missing-expected-sha-assertion",
+        "main-releasability.missing-revision-aware-concurrency",
     )
 
 
 def test_auto_merge_releasability_rejects_legacy_unpinned_dispatch(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    ).write_text(
+        """
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main
+""",
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target",
+    )
+
+
+def test_auto_merge_releasability_rejects_branch_ref_dispatch_even_with_expected_sha(
     tmp_path: Path,
 ) -> None:
     policy = tmp_path / "policy.json"
@@ -192,7 +252,9 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main
+      - env:
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main -f expected_sha="$MERGE_COMMIT_SHA"
 """,
         encoding="utf-8",
     )
@@ -206,8 +268,41 @@ jobs:
 
     assert results[0].status == "drift"
     assert results[0].violations == (
-        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.wrong-main-releasability-target",
     )
+
+
+def test_auto_merge_releasability_rejects_masked_immutable_ref_lookup(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            '2>/dev/null)"; then',
+            '2>/dev/null || true)"; then',
+        ),
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == ("merged-pr-dispatch.masked-immutable-ref-lookup",)
 
 
 def test_auto_merge_releasability_rejects_dispatch_without_main_assertion(
@@ -227,6 +322,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
+  cancel-in-progress: true
 """,
         encoding="utf-8",
     )
@@ -241,6 +339,38 @@ permissions:
     assert results[0].status == "drift"
     assert results[0].violations == (
         "main-releasability.missing-expected-sha-assertion",
+    )
+
+
+def test_auto_merge_releasability_rejects_sha_insensitive_main_concurrency(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "${{ inputs.expected_sha || github.sha }}",
+            "${{ github.ref }}",
+        ),
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "main-releasability.missing-revision-aware-concurrency",
     )
 
 
@@ -265,7 +395,9 @@ def test_auto_merge_releasability_fails_undeclared_drift(tmp_path: Path) -> None
     assert results[0].violations == ("merged-pr-dispatch.missing",)
 
 
-def test_auto_merge_releasability_accepts_exact_unexpired_exception(tmp_path: Path) -> None:
+def test_auto_merge_releasability_accepts_exact_unexpired_exception(
+    tmp_path: Path,
+) -> None:
     policy = tmp_path / "policy.json"
     exceptions = tmp_path / "exceptions.json"
     repos_root = tmp_path / "repos"
@@ -368,9 +500,7 @@ def test_auto_merge_releasability_rejects_scalar_write_all_permissions(
     _write_policy(policy, ["lotus-example"])
     _write_exceptions(exceptions, [])
     _write_aligned_workflows(repo_root)
-    (
-        repo_root / ".github" / "workflows" / "pr-auto-merge.yml"
-    ).write_text(
+    (repo_root / ".github" / "workflows" / "pr-auto-merge.yml").write_text(
         """
 name: PR Auto Merge
 on:
