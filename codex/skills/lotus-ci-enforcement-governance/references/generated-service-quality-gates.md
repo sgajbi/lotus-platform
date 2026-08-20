@@ -35,9 +35,10 @@ actor to merge.
 
 Merged-PR main releasability dispatchers must validate shell execution semantics, not only YAML
 substring presence. Immutable dispatch-ref creation must run synchronously in the foreground, must
-not be failure-masked with fallback operators such as `|| true`, must reject non-POST `gh api`
-method overrides such as `--method GET` or `-XGET`, must reject input-body overrides such as
-`--input`, and must bind exact `ref` and `sha` payload fields to the same
+not be failure-masked with fallback operators such as `|| true`, must not append shell chaining or
+control flow such as `; exit 0` or `&& ...`, must reject non-POST `gh api` method overrides such as
+`--method GET` or `-XGET`, must reject input-body overrides such as `--input`, and must bind exact
+`ref` and `sha` payload fields to the same
 `gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag. Explicit POST overrides
 such as `--method POST`, `--method=POST`, `-X POST`, and `-XPOST` are acceptable because they
 preserve the required ref-creation method. The existing-ref lookup guard must be recognized only
@@ -47,9 +48,9 @@ groups can remain valid when the validator can prove they run before creation. T
 `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
 completed, so the dispatcher cannot race ahead on a missing tag. Contract-gate tests should include
 negative cases for split run steps, commented payload fields, separated payload-field echoes, masked
-creation failure, backgrounded creation, non-POST creation overrides, input-body overrides, dispatch
-before absent-ref creation, and unreachable/function-scoped lookup guards before promoting the
-workflow as release-evidence ready.
+creation failure, backgrounded creation, chained creation commands, non-POST creation overrides,
+input-body overrides, dispatch before absent-ref creation, and unreachable/function-scoped lookup
+guards before promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
