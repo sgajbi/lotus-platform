@@ -52,14 +52,15 @@ correct value. Explicit POST overrides such as `--method POST`, `--method=POST`,
 `-XPOST` are acceptable because they preserve the required ref-creation method.
 
 The existing-ref lookup guard must be recognized only when it is on an executed path before
-creation; a canonical guard hidden in an uninvoked function or otherwise unreachable construct is
-not protection, while executed `if` bodies and shell command groups can remain valid when the
-validator can prove they run before creation. The looked-up `existing_ref_sha` value must flow
-directly into the mismatch comparison without reassignment in any executed scope or branch between
-lookup and comparison. A nested command group, conditional, function call, or loop body that can
-overwrite the looked-up value before comparison is not valid collision detection. The absent-ref
-branch must contain exactly one guarded immutable-ref creation invocation so redeliveries cannot
-skip collision detection or fail before dispatch.
+creation and the lookup endpoint resolves exactly to
+`repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref`. A canonical guard hidden in an uninvoked
+function or otherwise unreachable construct is not protection, while executed `if` bodies and shell
+command groups can remain valid when the validator can prove they run before creation. The looked-up
+`existing_ref_sha` value must flow directly into the mismatch comparison without reassignment in any
+executed scope or branch between lookup and comparison. A nested command group, conditional,
+function call, or loop body that can overwrite the looked-up value before comparison is not valid
+collision detection. The absent-ref branch must contain exactly one guarded immutable-ref creation
+invocation so redeliveries cannot skip collision detection or fail before dispatch.
 
 The `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
 completed, and must not be failure-masked, backgrounded, unreachable, or placed in control flow that
@@ -88,15 +89,15 @@ initialization and the dispatch command.
 Contract-gate tests should include negative cases for split run steps, commented payload fields,
 separated payload-field echoes, masked creation failure, backgrounded creation, unsafe chained
 creation commands, duplicate guarded creation commands, duplicate `ref` or `sha` payload fields,
-wrong `ref` or `sha` payload values, lookup-SHA mutation in nested or top-level executed scopes
-before mismatch comparison, merge-SHA reassignment before ref creation or workflow dispatch,
-non-POST creation overrides, input-body overrides, dispatch before absent-ref creation, masked
-dispatch failure, unreachable dispatch scopes, nested dispatch scopes whose execution or failure
-semantics are unproven, wrong or empty scalar `expected_sha` dispatch arguments, malformed or
-failure-masked JSON stdin input, omitted repository selectors without ambient-resolution proof,
-non-event repository selectors, wrong `dispatch_ref` initialization, dispatch-ref reassignment
-before workflow dispatch, and unreachable/function-scoped lookup guards before promoting the
-workflow as release-evidence ready.
+wrong `ref` or `sha` payload values, wrong lookup tag, wrong lookup repository, lookup-SHA mutation
+in nested or top-level executed scopes before mismatch comparison, merge-SHA reassignment before
+ref creation or workflow dispatch, non-POST creation overrides, input-body overrides, dispatch
+before absent-ref creation, masked dispatch failure, unreachable dispatch scopes, nested dispatch
+scopes whose execution or failure semantics are unproven, wrong or empty scalar `expected_sha`
+dispatch arguments, malformed or failure-masked JSON stdin input, omitted repository selectors
+without ambient-resolution proof, non-event repository selectors, wrong `dispatch_ref`
+initialization, dispatch-ref reassignment before workflow dispatch, and
+unreachable/function-scoped lookup guards before promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
